@@ -2311,3 +2311,28 @@ bool DescriptorScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, co
 
     return ::SignTransactionStake(tx, keys.get(), coins);
 }
+
+bool LegacyScriptPubKeyMan::SignBlockStake(CBlock &block, const PKHash &pkhash, bool compact) const
+{
+    CKey key;
+    if (!GetKey(ToKeyID(pkhash), key)) {
+        return false;
+    }
+
+    return ::SignBlockStake(block, key, compact);
+}
+
+bool DescriptorScriptPubKeyMan::SignBlockStake(CBlock &block, const PKHash &pkhash, bool compact) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = GetSigningProvider(GetScriptForDestination(pkhash), true);
+    if (!keys) {
+        return false;
+    }
+
+    CKey key;
+    if (!keys->GetKey(ToKeyID(pkhash), key)) {
+        return false;
+    }
+
+    return ::SignBlockStake(block, key, compact);
+}

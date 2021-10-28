@@ -239,6 +239,8 @@ public:
     virtual bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const { return false; }
     /** Creates new coinstake signatures and adds them to the transaction. Returns whether all op_sender outputs were signed */
     virtual bool SignTransactionStake(CMutableTransaction& tx, const std::vector<std::pair<const CTxOut&,unsigned int>>& coins) const { return false; }
+    /** Creates new coinstake block signature and adds it to the header. Returns whether the block was signed */
+    virtual bool SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const { return false; }
 
     virtual uint256 GetID() const { return uint256(); }
 
@@ -400,6 +402,7 @@ public:
     TransactionError FillPSBT(PartiallySignedTransaction& psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr) const override;
     bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const override;
     bool SignTransactionStake(CMutableTransaction& tx, const std::vector<std::pair<const CTxOut&,unsigned int>>& coins) const override;
+    bool SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const override;
 
     uint256 GetID() const override;
 
@@ -607,6 +610,7 @@ public:
     TransactionError FillPSBT(PartiallySignedTransaction& psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr) const override;
     bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const override;
     bool SignTransactionStake(CMutableTransaction& tx, const std::vector<std::pair<const CTxOut&,unsigned int>>& coins) const override;
+    bool SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const override;
 
     uint256 GetID() const override;
 

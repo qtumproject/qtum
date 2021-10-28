@@ -628,3 +628,21 @@ bool SignTransactionStake(CMutableTransaction &mtx, const SigningProvider *provi
 
     return true;
 }
+
+bool SignBlockStake(CBlock &block, CKey &key, bool compact)
+{
+    bool isSigned = false;
+    if(compact)
+    {
+        // append a signature to our block and ensure that is compact
+        std::vector<unsigned char> vchSig;
+        isSigned = key.SignCompact(block.GetHashWithoutSign(), vchSig);
+        block.SetBlockSignature(vchSig);
+    }
+    else
+    {
+        isSigned = key.Sign(block.GetHashWithoutSign(), block.vchBlockSigDlgt);
+    }
+
+    return isSigned;
+}

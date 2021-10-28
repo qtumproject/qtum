@@ -198,4 +198,7 @@ bool SignTransactionOutput(CMutableTransaction& mtx, const SigningProvider* prov
 /** Sign stake in the CMutableTransaction */
 bool SignTransactionStake(CMutableTransaction& mtx, const SigningProvider* provider, const std::vector<std::pair<const CTxOut&,unsigned int>>& coins);
 
+/** Sign stake in the CBlock */
+bool SignBlockStake(CBlock& block, CKey& key, bool compact);
+
 #endif // BITCOIN_SCRIPT_SIGN_H
