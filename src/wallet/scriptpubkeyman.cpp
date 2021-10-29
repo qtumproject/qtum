@@ -1917,9 +1917,9 @@ bool DescriptorScriptPubKeyMan::SetupDescriptorGeneration(const CExtKey& master_
 
     // Mainnet derives at 0', testnet and regtest derive at 1'
     if (Params().IsTestChain()) {
-        desc_prefix += "/1'";
+        desc_prefix += "/88'";
     } else {
-        desc_prefix += "/0'";
+        desc_prefix += "/88'";
     }
 
     std::string internal_path = m_internal ? "/1" : "/0";
