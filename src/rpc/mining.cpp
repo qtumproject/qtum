@@ -455,6 +455,19 @@ static RPCHelpMan getmininginfo()
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
+    uint64_t nWeight = 0;
+    uint64_t lastCoinStakeSearchInterval = 0;
+#ifdef ENABLE_WALLET
+    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = wallet.get();
+    if (pwallet)
+    {
+        LOCK2(pwallet->cs_wallet, cs_main);
+        nWeight = pwallet->GetStakeWeight();
+        lastCoinStakeSearchInterval = pwallet->m_last_coin_stake_search_interval;
+    }
+#endif
+
     LOCK(cs_main);
     const CTxMemPool& mempool = EnsureMemPool(request.context);
 
@@ -465,19 +478,6 @@ static RPCHelpMan getmininginfo()
     obj.pushKV("blocks",           (int)::ChainActive().Height());
     if (BlockAssembler::m_last_block_weight) obj.pushKV("currentblockweight", *BlockAssembler::m_last_block_weight);
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
-
-    uint64_t nWeight = 0;
-    uint64_t lastCoinStakeSearchInterval = 0;
-#ifdef ENABLE_WALLET
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    CWallet* const pwallet = wallet.get();
-    if (pwallet)
-    {
-        LOCK(pwallet->cs_wallet);
-        nWeight = pwallet->GetStakeWeight();
-        lastCoinStakeSearchInterval = pwallet->m_last_coin_stake_search_interval;
-    }
-#endif
 
     diff.pushKV("proof-of-work",   GetDifficulty(GetLastBlockIndex(pindexBestHeader, false)));
     diff.pushKV("proof-of-stake",  GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
@@ -530,10 +530,6 @@ static RPCHelpMan getstakinginfo()
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
-
-    LOCK(cs_main);
-    const CTxMemPool& mempool = EnsureMemPool(request.context);
-
     uint64_t nWeight = 0;
     uint64_t nStakerWeight = 0;
     uint64_t nDelegateWeight = 0;
@@ -544,11 +540,14 @@ static RPCHelpMan getstakinginfo()
 
     if (pwallet)
     {
-        LOCK(pwallet->cs_wallet);
+        LOCK2(pwallet->cs_wallet, cs_main);
         nWeight = pwallet->GetStakeWeight(&nStakerWeight, &nDelegateWeight);
         lastCoinStakeSearchInterval = pwallet->m_enabled_staking ? pwallet->m_last_coin_stake_search_interval : 0;
     }
 #endif
+
+    LOCK(cs_main);
+    const CTxMemPool& mempool = EnsureMemPool(request.context);
 
     uint64_t nNetworkWeight = GetPoSKernelPS();
     bool staking = lastCoinStakeSearchInterval && nWeight;
