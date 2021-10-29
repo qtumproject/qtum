@@ -18,9 +18,10 @@ enum class OutputType {
     LEGACY,
     P2SH_SEGWIT,
     BECH32,
+    P2PK,
 };
 
-extern const std::array<OutputType, 3> OUTPUT_TYPES;
+extern const std::array<OutputType, 4> OUTPUT_TYPES;
 
 NODISCARD bool ParseOutputType(const std::string& str, OutputType& output_type);
 const std::string& FormatOutputType(OutputType type);
