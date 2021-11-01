@@ -2590,6 +2590,11 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
     if(nOut > -1)
         scriptFilled = ExtractSenderData(tx.vout[nOut].scriptPubKey, &script, nullptr);
 
+    // Check if the transaction has inputs
+    if(tx.vin.size() == 0) {
+        return valtype();
+    }
+
     // Check the current (or in-progress) block for zero-confirmation change spending that won't yet be in txindex
     if(!scriptFilled && blockTxs){
         for(auto btx : *blockTxs){
