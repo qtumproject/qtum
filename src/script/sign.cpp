@@ -616,7 +616,7 @@ bool SignTransactionOutput(CMutableTransaction &mtx, const SigningProvider *prov
     return output_errors.empty();
 }
 
-bool SignTransactionStake(CMutableTransaction &mtx, const SigningProvider *provider, const std::vector<std::pair<const CTxOut &, unsigned int> > &coins)
+bool SignTransactionStake(CMutableTransaction &mtx, const SigningProvider *provider, const std::vector<std::pair<CTxOut, unsigned int> > &coins)
 {
     for(const std::pair<const CTxOut&,unsigned int> &pcoin : coins)
     {

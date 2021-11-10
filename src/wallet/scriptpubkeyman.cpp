@@ -2297,12 +2297,12 @@ bool DescriptorScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, i
     return ::SignTransactionOutput(tx, keys.get(), sighash, output_errors);
 }
 
-bool LegacyScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<const CTxOut &, unsigned int> > &coins) const
+bool LegacyScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<CTxOut, unsigned int> > &coins) const
 {
     return ::SignTransactionStake(tx, this, coins);
 }
 
-bool DescriptorScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<const CTxOut &, unsigned int> > &coins) const
+bool DescriptorScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<CTxOut, unsigned int> > &coins) const
 {
     std::unique_ptr<FlatSigningProvider> keys = MakeUnique<FlatSigningProvider>();
     for (const auto& coin_pair : coins) {

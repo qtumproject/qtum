@@ -2680,7 +2680,7 @@ bool CWallet::SignTransactionOutput(CMutableTransaction& tx, int sighash, std::m
 bool CWallet::SignTransactionStake(CMutableTransaction& txTo, const std::vector<std::pair<const CWalletTx*,unsigned int>>& vwtxPrev) const
 {
     // Create the list of coins
-    std::vector<std::pair<const CTxOut&,unsigned int>> coins;
+    std::vector<std::pair<CTxOut,unsigned int>> coins;
     unsigned int nIn = 0;
     for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
     {
