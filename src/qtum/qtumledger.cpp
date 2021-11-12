@@ -186,9 +186,10 @@ public:
 
         if(gArgs.GetChainName() != CBaseChainParams::MAIN)
         {
-            arguments << "--testnet";
             ledgerMainPath = false;
         }
+
+        arguments << "--chain" << gArgs.GetChainName();
 
         if(!toolExists)
         {
