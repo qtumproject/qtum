@@ -196,7 +196,7 @@ bool SignTransaction(CMutableTransaction& mtx, const SigningProvider* provider, 
 bool SignTransactionOutput(CMutableTransaction& mtx, const SigningProvider* provider, int sighash, std::map<int, std::string>& output_errors);
 
 /** Sign stake in the CMutableTransaction */
-bool SignTransactionStake(CMutableTransaction& mtx, const SigningProvider* provider, const std::vector<std::pair<const CTxOut&,unsigned int>>& coins);
+bool SignTransactionStake(CMutableTransaction& mtx, const SigningProvider* provider, const std::vector<std::pair<CTxOut,unsigned int>>& coins);
 
 /** Sign stake in the CBlock */
 bool SignBlockStake(CBlock& block, CKey& key, bool compact);
