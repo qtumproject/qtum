@@ -186,9 +186,10 @@ public:
 
         if(gArgs.GetChainName() != CBaseChainParams::MAIN)
         {
-            arguments << "--testnet";
             ledgerMainPath = false;
         }
+
+        arguments << "--chain" << gArgs.GetChainName();
 
         if(!toolExists)
         {
@@ -548,10 +549,13 @@ bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const
     std::string descType;
     switch (type) {
     case (int)OutputType::P2SH_SEGWIT:
-        descType = "--sh_wpkh";
+        descType = "sh_wit";
         break;
     case (int)OutputType::BECH32:
-        descType = "--wpkh";
+        descType = "wit";
+        break;
+    case (int)OutputType::LEGACY:
+        descType = "legacy";
         break;
     default:
         break;
@@ -561,7 +565,7 @@ bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const
     std::vector<std::string> arguments = d->arguments;
     arguments << "-f" << fingerprint << "getkeypool";
     if(descType != "")
-        arguments << descType;
+        arguments << "--addr-type" << descType;
     if(path != "")
     {
         arguments << "--path" << path;
