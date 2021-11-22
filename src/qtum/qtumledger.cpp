@@ -197,6 +197,28 @@ public:
         }
     }
 
+#ifdef WIN32
+    bool getToolPath(std::string pythonProgram)
+    {
+        toolPath = boost::process::search_path(pythonProgram).string();
+        toolExists &= isPyPath(toolPath);
+        if(!toolExists)
+        {
+            std::string prog = boost::process::search_path("cmd").string();
+            std::vector<std::string> arg;
+            arg << "/c" << pythonProgram << "-c" << "import sys; print(sys.executable)";
+            process.start(prog, arg);
+            process.waitForFinished();
+            toolPath = process.readAllStandardOutput();
+            boost::erase_all(toolPath, "\r");
+            boost::erase_all(toolPath, "\n");
+            toolExists = isPyPath(toolPath);
+            process.clean();
+        }
+        return toolExists;
+    }
+#endif
+
     void initToolPath()
     {
 #ifdef WIN32
@@ -206,21 +228,8 @@ public:
                 endsWith(toolPath, ".pY"))
         {
             arguments << toolPath;
-            toolPath = boost::process::search_path("python3").string();
-            toolExists &= isPyPath(toolPath);
-            if(!toolExists)
-            {
-                std::string prog = boost::process::search_path("cmd").string();
-                std::vector<std::string> arg;
-                arg << "/c" << "python3" << "-c" << "import sys; print(sys.executable)";
-                process.start(prog, arg);
-                process.waitForFinished();
-                toolPath = process.readAllStandardOutput();
-                boost::erase_all(toolPath, "\r");
-                boost::erase_all(toolPath, "\n");
-                toolExists = isPyPath(toolPath);
-                process.clean();
-            }
+            if(!getToolPath("python3"))
+                getToolPath("python");
         }
 #endif
     }
