@@ -179,9 +179,9 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         hLayIcons->addWidget(labelLedgerIcon);
         hLayIcons->addWidget(labelWalletEncryptionIcon);
         hLayIcons->addWidget(labelWalletHDStatusIcon);
+        hLayIcons->addWidget(labelStakingIcon);
     }
     hLayIcons->addWidget(labelProxyIcon);
-    hLayIcons->addWidget(labelStakingIcon);
     hLayIcons->addWidget(connectionsControl);
     hLayIcons->addWidget(labelBlocksIcon);
     hLayIcons->addStretch();
@@ -192,7 +192,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 #ifdef ENABLE_WALLET
     QTimer *timerLedgerIcon = new QTimer(labelLedgerIcon);
     connect(timerLedgerIcon, SIGNAL(timeout()), this, SLOT(updateLedgerIcon()));
-    timerLedgerIcon->start(30 * 1000);
+    timerLedgerIcon->start(1000);
 
     updateLedgerIcon();
 
@@ -203,6 +203,10 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         timerStakingIcon->start(1000);
 
         updateStakingIcon();
+    }
+    else
+    {
+        labelStakingIcon->setVisible(false);
     }
 #endif // ENABLE_WALLET
 
@@ -1558,19 +1562,45 @@ void BitcoinGUI::toggleHidden()
 #ifdef ENABLE_WALLET
 void BitcoinGUI::updateLedgerIcon()
 {
+    if(m_node.shutdownRequested() || !clientModel || clientModel->fBatchProcessingMode)
+        return;
+
     WalletView * const walletView = walletFrame ? walletFrame->currentWalletView() : 0;
 
     if (!walletView) {
-        labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelLedgerIcon->setVisible(false);
         return;
     }
-    WalletModel * const walletModel = walletView->getWalletModel();
 
-    if(walletModel->getFingerprint() == ""){
-        labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    WalletModel * const walletModel = walletView->getWalletModel();
+    if(!walletModel) {
+        labelLedgerIcon->setVisible(false);
+        return;
     }
-    else{
-        labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+
+    if(walletModel->wallet().privateKeysDisabled())
+    {
+        labelLedgerIcon->setVisible(true);
+        QList<HWDevice> devices = walletModel->getDevices();
+        if(devices.count() > 0){
+            labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+            QString toolTipStr;
+            for(int i = 0; i < devices.count(); i++)
+            {
+                HWDevice device = devices[i];
+                if(i > 0) toolTipStr += "<br><br>";
+                toolTipStr += tr("Device connected.<br>Type is %1<br>Model is %2<br>Fingerprint is %3<br>App name is %4").arg(device.type, device.model, device.fingerprint, device.app_name);
+            }
+            labelLedgerIcon->setToolTip(toolTipStr);
+        }
+        else{
+            labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+            labelLedgerIcon->setToolTip(tr("Device not connected"));
+        }
+    }
+    else
+    {
+        labelLedgerIcon->setVisible(false);
     }
 }
 
