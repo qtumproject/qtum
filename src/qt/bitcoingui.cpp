@@ -161,6 +161,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     frameBlocksLayout->setSpacing(10);
     unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
     unitDisplayControl->setObjectName("unitDisplayControl");
+    labelLedgerIcon = new QLabel();
     labelWalletEncryptionIcon = new QLabel();
     labelWalletHDStatusIcon = new QLabel();
     labelProxyIcon = new GUIUtil::ClickableLabel();
@@ -175,6 +176,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         hLayUnit->addWidget(unitDisplayControl);
         hLayUnit->addStretch();
         frameBlocksLayout->addLayout(hLayUnit);
+        hLayIcons->addWidget(labelLedgerIcon);
         hLayIcons->addWidget(labelWalletEncryptionIcon);
         hLayIcons->addWidget(labelWalletHDStatusIcon);
     }
@@ -188,6 +190,8 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     addDockWindows(Qt::LeftDockWidgetArea, frameBlocks);
 
 #ifdef ENABLE_WALLET
+    updateLedgerIcon();
+
     if (gArgs.GetBoolArg("-staking", true))
     {
         QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
@@ -1548,6 +1552,11 @@ void BitcoinGUI::toggleHidden()
 }
 
 #ifdef ENABLE_WALLET
+void BitcoinGUI::updateLedgerIcon()
+{
+    labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+}
+
 void BitcoinGUI::updateStakingIcon()
 {
     if(m_node.shutdownRequested() || !clientModel || clientModel->fBatchProcessingMode)

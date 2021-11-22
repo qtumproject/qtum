@@ -122,6 +122,7 @@ private:
     WalletFrame* walletFrame = nullptr;
 
     UnitDisplayStatusBarControl* unitDisplayControl = nullptr;
+    QLabel *labelLedgerIcon = nullptr;
     QLabel* labelWalletEncryptionIcon = nullptr;
     QLabel* labelWalletHDStatusIcon = nullptr;
     GUIUtil::ClickableLabel* labelProxyIcon = nullptr;
@@ -349,6 +350,8 @@ public Q_SLOTS:
     /** Simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
 #ifdef ENABLE_WALLET
+    /** Update ledger icon **/
+    void updateLedgerIcon();
     /** Update staking icon **/
     void updateStakingIcon();
 #endif // ENABLE_WALLET
