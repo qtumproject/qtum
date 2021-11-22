@@ -190,6 +190,10 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     addDockWindows(Qt::LeftDockWidgetArea, frameBlocks);
 
 #ifdef ENABLE_WALLET
+    QTimer *timerLedgerIcon = new QTimer(labelLedgerIcon);
+    connect(timerLedgerIcon, SIGNAL(timeout()), this, SLOT(updateLedgerIcon()));
+    timerLedgerIcon->start(30 * 1000);
+
     updateLedgerIcon();
 
     if (gArgs.GetBoolArg("-staking", true))
@@ -1554,7 +1558,20 @@ void BitcoinGUI::toggleHidden()
 #ifdef ENABLE_WALLET
 void BitcoinGUI::updateLedgerIcon()
 {
-    labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    WalletView * const walletView = walletFrame ? walletFrame->currentWalletView() : 0;
+
+    if (!walletView) {
+        labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        return;
+    }
+    WalletModel * const walletModel = walletView->getWalletModel();
+
+    if(walletModel->getFingerprint() == ""){
+        labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_off").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    }
+    else{
+        labelLedgerIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/ledger_on").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    }
 }
 
 void BitcoinGUI::updateStakingIcon()
