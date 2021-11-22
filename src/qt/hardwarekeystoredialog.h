@@ -48,19 +48,21 @@ public:
      * @param fingerprint Fingerprint of the selected device
      * @param errorMessage Error message during device selection
      * @param canceled Device selection canceled by the user
+     * @param stake Is stake app
      * @param parent Parent widget
      * @return true: device selected; false: device not selected
      */
-    static bool SelectDevice(QString& fingerprint, QString& errorMessage, bool& canceled, QWidget *parent = 0);
+    static bool SelectDevice(QString& fingerprint, QString& errorMessage, bool& canceled, bool stake, QWidget *parent = 0);
 
     /**
      * @brief AskDevice Ask for hardware keystore device
      * @param fingerprint Fingerprint of the device
      * @param title Title of the message box to display
      * @param message Message to display to the user
+     * @param stake Is stake app
      * @return true: device selected; false: device not selected
      */
-    static bool AskDevice(QString& fingerprint, const QString& title, const QString& message, QWidget *parent = 0);
+    static bool AskDevice(QString& fingerprint, const QString& title, const QString& message, bool stake, QWidget *parent = 0);
 
 private Q_SLOTS:
     void on_cancelButton_clicked();

@@ -875,7 +875,7 @@ void WalletModel::checkHardwareWallet()
         QString errorMessage;
         bool error = false;
 
-        if(hwiTool.isConnected(fingerprint))
+        if(hwiTool.isConnected(fingerprint, false))
         {
             // Setup key pool
             if(importPKH)

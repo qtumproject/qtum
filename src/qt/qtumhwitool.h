@@ -48,6 +48,7 @@ public:
     QString error;
     QString model;
     QString code;
+    QString app_name;
 };
 
 /**
@@ -71,16 +72,18 @@ public:
     /**
      * @brief enumerate Enumerate hardware wallet devices
      * @param devices List of devices
+     * @param stake Is stake app
      * @return success of the operation
      */
-    bool enumerate(QList<HWDevice>& devices);
+    bool enumerate(QList<HWDevice>& devices, bool stake);
 
     /**
      * @brief isConnected Check if a device is connected
      * @param fingerprint Hardware wallet device fingerprint
+     * @param stake Is stake app
      * @return success of the operation
      */
-    bool isConnected(const QString& fingerprint);
+    bool isConnected(const QString& fingerprint, bool stake);
 
     /**
      * @brief getKeyPool Get the key pool for a device

@@ -292,11 +292,11 @@ bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::stri
     return endSignBlockHeader(fingerprint, header, path, vchSig);
 }
 
-bool QtumLedger::isConnected(const std::string &fingerprint)
+bool QtumLedger::isConnected(const std::string &fingerprint, bool stake)
 {
     // Check if a device is connected
     std::vector<LedgerDevice> devices;
-    if(enumerate(devices))
+    if(enumerate(devices, stake))
     {
         for(LedgerDevice device: devices)
         {
@@ -308,7 +308,7 @@ bool QtumLedger::isConnected(const std::string &fingerprint)
     return false;
 }
 
-bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices)
+bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices, bool stake)
 {
     LOCK(cs_ledger);
     // Check if tool exists
@@ -324,7 +324,7 @@ bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices)
 
     wait();
 
-    return endEnumerate(devices);
+    return endEnumerate(devices, stake);
 }
 
 bool QtumLedger::signTx(const std::string &fingerprint, std::string &psbt)
@@ -490,7 +490,7 @@ bool QtumLedger::beginEnumerate(std::vector<LedgerDevice> &)
     return d->fStarted;
 }
 
-bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices)
+bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices, bool stake)
 {
     // Decode command line results
     UniValue jsonDocument = json_read_doc(d->strStdout);
@@ -511,7 +511,12 @@ bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices)
         device.error = json_get_key_string(data, "error");
         device.model = json_get_key_string(data, "model");
         device.code = json_get_key_string(data, "code");
-        devices.push_back(device);
+        device.app_name = json_get_key_string(data, "app_name");
+        bool isStakeApp = device.app_name == "Qtum Stake" || device.app_name == "Qtum Stake Test";
+        if(isStakeApp == stake)
+        {
+            devices.push_back(device);
+        }
     }
 
     return devices.size() > 0;
