@@ -1308,7 +1308,6 @@ void RPCConsole::updateAlerts(const QString& warnings)
     this->ui->label_alerts->setText(warnings);
 }
 
-#ifdef ENABLE_WALLET
 void RPCConsole::activeWalletChanged(int index)
 {
     int walletId = index + 1;
@@ -1317,4 +1316,3 @@ void RPCConsole::activeWalletChanged(int index)
         ui->WalletSelector->setCurrentIndex(walletId);
     }
 }
-#endif

@@ -13,7 +13,9 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#ifdef ENABLE_WALLET
 #include <qt/hardwaresigntx.h>
+#endif
 
 #include <interfaces/node.h>
 #include <validation.h> // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
@@ -382,6 +384,7 @@ void OptionsDialog::on_toolHWIPath_clicked()
 
 void OptionsDialog::on_toolStakeLedgerId_clicked()
 {
+#ifdef ENABLE_WALLET
     // Get staking device
     HardwareSignTx hardware(this);
     QString fingerprint;
@@ -391,6 +394,7 @@ void OptionsDialog::on_toolStakeLedgerId_clicked()
         return;
 
     ui->txtStakeLedgerId->setText(fingerprint);
+#endif
 }
 
 void OptionsDialog::on_hideTrayIcon_stateChanged(int fState)
