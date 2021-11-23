@@ -1307,3 +1307,14 @@ void RPCConsole::updateAlerts(const QString& warnings)
     this->ui->label_alerts->setVisible(!warnings.isEmpty());
     this->ui->label_alerts->setText(warnings);
 }
+
+#ifdef ENABLE_WALLET
+void RPCConsole::activeWalletChanged(int index)
+{
+    int walletId = index + 1;
+    if(ui->WalletSelector->count() > walletId)
+    {
+        ui->WalletSelector->setCurrentIndex(walletId);
+    }
+}
+#endif

@@ -254,6 +254,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         modalBackupOverlay = new ModalOverlay(enableWallet, this, ModalOverlay::Backup);
         connect(walletFrame, &WalletFrame::requestedSyncWarningInfo, this, &BitcoinGUI::showModalOverlay);
         connect(modalBackupOverlay, SIGNAL(backupWallet()), walletFrame, SLOT(backupWallet()));
+        connect(m_wallet_selector, SIGNAL(currentIndexChanged(int)), rpcConsole, SLOT(activeWalletChanged(int)));
     }
 #endif
 
@@ -794,6 +795,8 @@ void BitcoinGUI::addWallet(WalletModel* walletModel)
     appTitleBar->addWallet(walletModel);
     if(!(clientModel->fBatchProcessingMode))
         QTimer::singleShot(MODEL_UPDATE_DELAY, clientModel, SLOT(updateTip()));
+
+    m_wallet_selector->setCurrentIndex(m_wallet_selector->count()-1);
 }
 
 void BitcoinGUI::removeWallet(WalletModel* walletModel)
