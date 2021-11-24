@@ -1669,7 +1669,7 @@ void BitcoinGUI::updateStakingIcon()
         else if (walletModel->wallet().isLocked())
             labelStakingIcon->setToolTip(tr("Not staking because wallet is locked"));
         else if(walletModel->hasLedgerProblem())
-            labelStakingIcon->setToolTip(tr("Not staking because the ledger fail to connect"));
+            labelStakingIcon->setToolTip(tr("Not staking because the ledger device failed to connect"));
         else
             labelStakingIcon->setToolTip(tr("Not staking"));
     }
