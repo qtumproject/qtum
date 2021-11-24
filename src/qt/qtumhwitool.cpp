@@ -73,7 +73,7 @@ HWDevice::HWDevice()
 
 QString HWDevice::toString() const
 {
-    return QString("[ %1 \\ %2 \\ %3 ]").arg(type, model, fingerprint);
+    return QString("[ %1 \\ %2 \\ %3 \\ %4 ]").arg(type, model, fingerprint, app_name);
 }
 
 bool HWDevice::isValid() const
@@ -96,6 +96,7 @@ HWDevice toHWDevice(const LedgerDevice& device)
     hwDevice.error = QString::fromStdString(device.error);
     hwDevice.model = QString::fromStdString(device.model);
     hwDevice.code = QString::fromStdString(device.code);
+    hwDevice.app_name = QString::fromStdString(device.app_name);
     return hwDevice;
 }
 
@@ -109,12 +110,12 @@ QtumHwiTool::~QtumHwiTool()
     delete d;
 }
 
-bool QtumHwiTool::enumerate(QList<HWDevice> &devices)
+bool QtumHwiTool::enumerate(QList<HWDevice> &devices, bool stake)
 {
     LOCK(cs_ledger);
     devices.clear();
     std::vector<LedgerDevice> vecDevices;
-    if(QtumLedger::instance().enumerate(vecDevices))
+    if(QtumLedger::instance().enumerate(vecDevices, stake))
     {
         for(LedgerDevice device : vecDevices)
         {
@@ -135,11 +136,11 @@ bool QtumHwiTool::enumerate(QList<HWDevice> &devices)
     return devices.size() > 0;
 }
 
-bool QtumHwiTool::isConnected(const QString &fingerprint)
+bool QtumHwiTool::isConnected(const QString &fingerprint, bool stake)
 {
     LOCK(cs_ledger);
     std::string strFingerprint = fingerprint.toStdString();
-    bool ret = QtumLedger::instance().isConnected(strFingerprint);
+    bool ret = QtumLedger::instance().isConnected(strFingerprint, stake);
     if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     return ret;
 }

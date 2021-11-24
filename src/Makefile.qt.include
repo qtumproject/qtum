@@ -385,7 +385,9 @@ RES_ICONS = \
   qt/res/icons/plus_full.png \
   qt/res/icons/split.png \
   qt/res/icons/delegate.png \
-  qt/res/icons/superstake.png
+  qt/res/icons/superstake.png \
+  qt/res/icons/ledger_on.png \
+  qt/res/icons/ledger_off.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \

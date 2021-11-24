@@ -19,6 +19,7 @@ struct LedgerDevice
     std::string error;
     std::string model;
     std::string code;
+    std::string app_name;
 };
 
 /**
@@ -58,16 +59,18 @@ public:
     /**
      * @brief isConnected Check if a device is connected
      * @param fingerprint Hardware wallet device fingerprint
+     * @param stake Is stake app
      * @return success of the operation
      */
-    bool isConnected(const std::string& fingerprint);
+    bool isConnected(const std::string& fingerprint, bool stake);
 
     /**
      * @brief enumerate Enumerate hardware wallet devices
      * @param devices List of devices
+     * @param stake Is stake app
      * @return success of the operation
      */
-    bool enumerate(std::vector<LedgerDevice>& devices);
+    bool enumerate(std::vector<LedgerDevice>& devices, bool stake);
 
     /**
      * @brief signTx Sign PSBT transaction
@@ -137,7 +140,7 @@ private:
     bool endSignBlockHeader(const std::string& fingerprint, const std::string& header, const std::string& path, std::vector<unsigned char>& vchSig);
 
     bool beginEnumerate(std::vector<LedgerDevice>& devices);
-    bool endEnumerate(std::vector<LedgerDevice>& devices);
+    bool endEnumerate(std::vector<LedgerDevice>& devices, bool stake);
 
     bool beginSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string &signature);
     bool endSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string &signature);

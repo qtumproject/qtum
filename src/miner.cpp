@@ -1865,7 +1865,7 @@ protected:
             return false;
 
         QtumLedger &device = QtumLedger::instance();
-        bool fConnected = device.isConnected(ledgerId);
+        bool fConnected = device.isConnected(ledgerId, true);
         if(!fConnected)
         {
             d->pwallet->m_last_coin_stake_search_interval = 0;
