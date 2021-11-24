@@ -1,31 +1,31 @@
 HARDWARE WALLET
 ====================
 
-## Tools for hardware device
+## Tools for hardware device support
 
-Using the [NanoS Loader](https://github.com/qtumproject/qtum-ledger-loader/releases) can be installed the NanoS Wallet and NanoS Stake application.
+Use [Ledger Nano S Loader](https://github.com/qtumproject/qtum-ledger-loader/releases) to install the Ledger Nano S Wallet and Ledger Nano S Stake application.
 
-Using the [HWI](https://github.com/qtumproject/HWI) for command line interaction with the Hardware Wallet, for installation instructions check the [HWI](https://github.com/qtumproject/HWI) repository.
+Use [HWI](https://github.com/qtumproject/HWI) for command line interaction with the Hardware Wallet.
 
 ## Graphical interface for hardware device
 
-`qtum-qt` provide the hardware interface for working with Hardware Device like Ledger.
+`qtum-qt` provides an interface for interacting with hardware wallet devices.
 
-Set the HWI tool path using the the menu `Settings -> Option -> Main -> HWI Tool Path` and restart the `qtum-qt`, the tool is needed for hardware interaction.
+Set the HWI tool path using the the menu `Settings -> Option -> Main -> HWI Tool Path` and restart `qtum-qt`, the tool is needed for hardware wallet interaction.
 
-Using the menu `File -> Create Wallet... -> Use a hardware device` for creating hardware wallet. The ledger need to be connected and the wallet application started.
+Use the menu `File -> Create Wallet... -> Use a hardware device` for creating hardware wallet. The hardware wallet needs to be connected and the wallet application started.
 
-Using the hardware wallet to send/receive coins. For sending coins the ledger need to be connected and the transaction confirmed on it.
+Use hardware wallets to send/receive coins.
 
-Ledger NanoS has support for smart contracts using the wallet application that can be installed with [NanoS Loader](https://github.com/qtumproject/qtum-ledger-loader/releases), the coins can be delegated to a staker for offline staking.
+Ledger Nano S has support for smart contracts using the wallet application that can be installed with [Ledger Nano S Loader](https://github.com/qtumproject/qtum-ledger-loader/releases), it also supports delegation to a staker for offline staking.
 
 ## Graphical interface for hardware device staking
 
-Ledger NanoS has support for staking using the staking application that can be installed with [NanoS Loader](https://github.com/qtumproject/qtum-ledger-loader/releases).
-Start `qtum-qt`, open the hardware wallet, click the staking button from the navigation bar and select the ledger from the list.
-The staking will be active until the application is closed and will not be automatically started when `qtum-qt` is started.
+Ledger Nano S has support for staking using the staking application that can be installed with [Ledger Nano S Loader](https://github.com/qtumproject/qtum-ledger-loader/releases).
 
 Using the menu `Settings -> Option -> Main -> Select Ledger device for staking` to select ledger for staking that the `qtum-qt` will automatically connect when started.
+
+The staking will be active until the application is closed and will be automatically started when `qtum-qt` is started and the staking wallet is loaded.
 
 ## Command line interface for hardware device staking
 
@@ -33,7 +33,7 @@ Using the menu `Settings -> Option -> Main -> Select Ledger device for staking` 
 
 `<HWI Tool Path>` is the location where the HWI is installed. In GUI, the value in menu `Settings -> Option -> Main -> HWI Tool Path`.
 
-`<Ledger device for staking>` is the ledger fingerprint that will be used for staking. In GUI, the value in menu `Settings -> Option -> Main -> Select Ledger device for staking`.
+`<Ledger device for staking>` is the ledger fingerprint that will be used for staking. In GUI, the value in menu `Settings -> Option -> Main -> Select Ledger device for staking`. you can also get the fingerprint for the device by running `./hwi.py enumerate` from the command line in the HWI folder.
 
-`<Hardware wallet>` is the name of the hardware wallet.
+`<Hardware wallet>` is the name of the hardware device wallet that was created.
 
