@@ -19,7 +19,7 @@ static const std::string OUTPUT_TYPE_STRING_LEGACY = "legacy";
 static const std::string OUTPUT_TYPE_STRING_P2SH_SEGWIT = "p2sh-segwit";
 static const std::string OUTPUT_TYPE_STRING_BECH32 = "bech32";
 
-const std::array<OutputType, 3> OUTPUT_TYPES = {OutputType::LEGACY, OutputType::P2SH_SEGWIT, OutputType::BECH32};
+const std::array<OutputType, 4> OUTPUT_TYPES = {OutputType::LEGACY, OutputType::P2SH_SEGWIT, OutputType::BECH32, OutputType::P2PK};
 
 bool ParseOutputType(const std::string& type, OutputType& output_type)
 {
@@ -42,6 +42,7 @@ const std::string& FormatOutputType(OutputType type)
     case OutputType::LEGACY: return OUTPUT_TYPE_STRING_LEGACY;
     case OutputType::P2SH_SEGWIT: return OUTPUT_TYPE_STRING_P2SH_SEGWIT;
     case OutputType::BECH32: return OUTPUT_TYPE_STRING_BECH32;
+    case OutputType::P2PK: return OUTPUT_TYPE_STRING_LEGACY;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -49,7 +50,8 @@ const std::string& FormatOutputType(OutputType type)
 CTxDestination GetDestinationForKey(const CPubKey& key, OutputType type)
 {
     switch (type) {
-    case OutputType::LEGACY: return PKHash(key);
+    case OutputType::LEGACY: 
+    case OutputType::P2PK: return PKHash(key);
     case OutputType::P2SH_SEGWIT:
     case OutputType::BECH32: {
         if (!key.IsCompressed()) return PKHash(key);
@@ -85,6 +87,7 @@ CTxDestination AddAndGetDestinationForScript(FillableSigningProvider& keystore, 
     // Note that scripts over 520 bytes are not yet supported.
     switch (type) {
     case OutputType::LEGACY:
+    case OutputType::P2PK:
         return ScriptHash(script);
     case OutputType::P2SH_SEGWIT:
     case OutputType::BECH32: {

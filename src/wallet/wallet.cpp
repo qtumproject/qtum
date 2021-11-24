@@ -2659,6 +2659,63 @@ bool CWallet::SignTransaction(CMutableTransaction& tx, const std::map<COutPoint,
     return false;
 }
 
+bool CWallet::SignTransactionOutput(CMutableTransaction& tx) const
+{
+    std::map<int, std::string> output_errors;
+    return SignTransactionOutput(tx, SIGHASH_ALL, output_errors);
+}
+
+bool CWallet::SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const
+{
+    // Sign transaction op_sender outputs
+    for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
+        if (spk_man->SignTransactionOutput(tx, sighash, output_errors)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CWallet::SignTransactionStake(CMutableTransaction& txTo, const std::vector<std::pair<const CWalletTx*,unsigned int>>& vwtxPrev) const
+{
+    // Create the list of coins
+    std::vector<std::pair<CTxOut,unsigned int>> coins;
+    unsigned int nIn = 0;
+    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
+    {
+        const CTransaction& txFrom = *pcoin.first->tx;
+        assert(nIn < txTo.vin.size());
+        CTxIn& txin = txTo.vin[nIn];
+        assert(txin.prevout.n < txFrom.vout.size());
+        const CTxOut& txout = txFrom.vout[txin.prevout.n];
+        coins.push_back(std::make_pair(txout, nIn));
+        nIn++;
+    }
+
+    // Sign coinstake transaction
+    for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
+        if (spk_man->SignTransactionStake(txTo, coins)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CWallet::SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const
+{
+    // Sign coinstake transaction
+    for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
+        if (spk_man->SignBlockStake(block, pkhash, compact)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& complete, int sighash_type, bool sign, bool bip32derivs, size_t * n_signed) const
 {
     if (n_signed) {
@@ -3226,34 +3283,9 @@ bool CWallet::CreateTransactionInternal(
             txNew.vin.push_back(CTxIn(coin.outpoint, CScript(), nSequence));
         }
 
-        if (sign)
-        {
-            // Signing transaction outputs
-            int nOut = 0;
-            for (const auto& output : txNew.vout)
-            {
-                if(output.scriptPubKey.HasOpSender())
-                {
-                    const CScript& scriptPubKey = GetScriptForDestination(signSenderAddress);
-                    SignatureData sigdata;
-
-                    auto spk_man = GetLegacyScriptPubKeyMan();
-                    if (!ProduceSignature(*spk_man, MutableTransactionSignatureOutputCreator(&txNew, nOut, output.nValue, SIGHASH_ALL), scriptPubKey, sigdata))
-                    {
-                        error = _("Signing transaction output failed");
-                        return false;
-                    }
-                    else
-                    {
-                        if(!UpdateOutput(txNew.vout.at(nOut), sigdata))
-                        {
-                            error = _("Update transaction output failed");
-                            return false;
-                        }
-                    }
-                }
-                nOut++;
-            }
+        if(sign && txNew.HasOpSender() && !SignTransactionOutput(txNew)) {
+            error = _("Signing transaction output failed");
+            return false;
         }
 
         if (sign && !SignTransaction(txNew)) {
@@ -3443,8 +3475,9 @@ uint64_t CWallet::GetStakeWeight(uint64_t* pStakerWeight, uint64_t* pDelegateWei
     return nWeight;
 }
 
-bool CWallet::CreateCoinStakeFromMine(const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, COutPoint& headerPrevout)
+bool CWallet::CreateCoinStakeFromMine(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, COutPoint& headerPrevout)
 {
+    bool fAllowWatchOnly = false;
     CBlockIndex* pindexPrev = ::ChainActive().Tip();
     arith_uint256 bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
@@ -3532,13 +3565,14 @@ bool CWallet::CreateCoinStakeFromMine(const FillableSigningProvider& keystore, u
             {
                 // convert to pay to public key type
                 uint160 hash160(vSolutions[0]);
-                CKeyID pubKeyHash(hash160);
-                if (!keystore.GetKey(pubKeyHash, key))
+                pkhash = PKHash(hash160);
+                CPubKey pubKeyStake;
+                if (!HasPrivateKey(pkhash, fAllowWatchOnly) || !GetPubKey(pkhash, pubKeyStake))
                 {
                     LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get key for kernel type=%d\n", (int)whichType);
                     break;  // unable to find corresponding public key
                 }
-                scriptPubKeyOut << key.GetPubKey().getvch() << OP_CHECKSIG;
+                scriptPubKeyOut << pubKeyStake.getvch() << OP_CHECKSIG;
                 aggregateScriptPubKeyHashKernel = scriptPubKeyKernel;
             }
             if (whichType == TxoutType::PUBKEY)
@@ -3546,14 +3580,15 @@ bool CWallet::CreateCoinStakeFromMine(const FillableSigningProvider& keystore, u
                 valtype& vchPubKey = vSolutions[0];
                 CPubKey pubKey(vchPubKey);
                 uint160 hash160(Hash160(vchPubKey));
-                CKeyID pubKeyHash(hash160);
-                if (!keystore.GetKey(pubKeyHash, key))
+                pkhash = PKHash(hash160);
+                CPubKey pubKeyStake;
+                if (!HasPrivateKey(pkhash, fAllowWatchOnly) || !GetPubKey(pkhash, pubKeyStake))
                 {
                     LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get key for kernel type=%d\n", (int)whichType);
                     break;  // unable to find corresponding public key
                 }
 
-                if (key.GetPubKey() != pubKey)
+                if (pubKeyStake != pubKey)
                 {
                     LogPrint(BCLog::COINSTAKE, "CreateCoinStake : invalid key for kernel type=%d\n", (int)whichType);
                     break; // keys mismatch
@@ -3656,20 +3691,17 @@ bool CWallet::CreateCoinStakeFromMine(const FillableSigningProvider& keystore, u
     }
 
     // Sign the input coins
-    int nIn = 0;
-    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
-    {
-        if (!SignSignature(keystore, *pcoin.first->tx, txNew, nIn++, SIGHASH_ALL))
-            return error("CreateCoinStake : failed to sign coinstake");
-    }
+    if(!SignTransactionStake(txNew, vwtxPrev))
+        return error("CreateCoinStake : failed to sign coinstake");
 
     // Successfully generated coinstake
     tx = txNew;
     return true;
 }
 
-bool CWallet::CreateCoinStakeFromDelegate(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+bool CWallet::CreateCoinStakeFromDelegate(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
 {
+    bool fAllowWatchOnly = false;
     CBlockIndex* pindexPrev = ::ChainActive().Tip();
     arith_uint256 bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
@@ -3747,12 +3779,14 @@ bool CWallet::CreateCoinStakeFromDelegate(const FillableSigningProvider &keystor
                 if(!GetDelegationStaker(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
-                if (!keystore.GetKey(CKeyID(delegation.staker), key))
+                pkhash = PKHash(delegation.staker);
+                CPubKey pubKeyStake;
+                if (!HasPrivateKey(pkhash, fAllowWatchOnly) || !GetPubKey(pkhash, pubKeyStake))
                 {
                     LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get staker key for kernel type=%d\n", (int)whichType);
                     break;  // unable to find corresponding public key
                 }
-                scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
+                scriptPubKeyStaker << pubKeyStake.getvch() << OP_CHECKSIG;
             }
             if (whichType == TxoutType::PUBKEY)
             {
@@ -3762,13 +3796,15 @@ bool CWallet::CreateCoinStakeFromDelegate(const FillableSigningProvider &keystor
                 if(!GetDelegationStaker(hash160, delegation))
                     return error("CreateCoinStake: Failed to find delegation");
 
-                if (!keystore.GetKey(CKeyID(delegation.staker), key))
+                pkhash = PKHash(delegation.staker);
+                CPubKey pubKeyStake;
+                if (!HasPrivateKey(pkhash, fAllowWatchOnly) || !GetPubKey(pkhash, pubKeyStake))
                 {
                     LogPrint(BCLog::COINSTAKE, "CreateCoinStake : failed to get staker key for kernel type=%d\n", (int)whichType);
                     break;  // unable to find corresponding public key
                 }
 
-                scriptPubKeyStaker << key.GetPubKey().getvch() << OP_CHECKSIG;
+                scriptPubKeyStaker << pubKeyStake.getvch() << OP_CHECKSIG;
             }
 
             delegateOutputExist = IsDelegateOutputExist(delegation.fee);
@@ -3854,12 +3890,8 @@ bool CWallet::CreateCoinStakeFromDelegate(const FillableSigningProvider &keystor
     }
 
     // Sign the input coins
-    int nIn = 0;
-    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
-    {
-        if (!SignSignature(keystore, *pcoin.first->tx, txNew, nIn++, SIGHASH_ALL))
-            return error("CreateCoinStake : failed to sign coinstake");
-    }
+    if(!SignTransactionStake(txNew, vwtxPrev))
+        return error("CreateCoinStake : failed to sign coinstake");
 
     // Successfully generated coinstake
     tx = txNew;
@@ -3921,17 +3953,17 @@ bool CWallet::CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned i
     return canSuperStake;
 }
 
-bool CWallet::CreateCoinStake(const FillableSigningProvider& keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+bool CWallet::CreateCoinStake(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
 {
     // Can super stake
     bool canSuperStake = CanSuperStake(setCoins, setDelegateCoins);
 
     // Create coinstake from coins that are delegated to me
-    if(canSuperStake && CreateCoinStakeFromDelegate(keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins, setDelegateCoins, vchPoD, headerPrevout))
+    if(canSuperStake && CreateCoinStakeFromDelegate(nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setDelegateCoins, vchPoD, headerPrevout))
         return true;
 
     // Create coinstake from coins that are mine
-    if(setCoins.size() > 0 && CreateCoinStakeFromMine(keystore, nBits, nTotalFees, nTimeBlock, tx, key, setCoins, setSelectedCoins, selectedOnly, headerPrevout))
+    if(setCoins.size() > 0 && CreateCoinStakeFromMine(nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setSelectedCoins, selectedOnly, headerPrevout))
         return true;
 
     // Fail to create coinstake
@@ -6502,4 +6534,35 @@ void CWallet::SelectAddress(std::map<uint160, bool> &mapAddress) const
         }
         threads.join_all();
     }
+}
+
+bool CWallet::HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly)
+{
+    CScript script = GetScriptForDestination(dest);
+    isminetype mine = IsMine(script);
+    if(!mine) return false;
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    bool solvable = provider ? IsSolvable(*provider, script) : false;
+    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && (fAllowWatchOnly && solvable));
+    return spendable;
+}
+
+CKeyID CWallet::GetKeyForDestination(const CTxDestination& dest)
+{
+    CScript script = GetScriptForDestination(dest);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    if(!provider) provider = MakeUnique<FlatSigningProvider>();
+    return ::GetKeyForDestination(*provider, dest);
+}
+
+bool CWallet::GetPubKey(const PKHash& pkhash, CPubKey& pubkey)
+{
+    CScript script = GetScriptForDestination(pkhash);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    if(provider)
+    {
+        return provider->GetPubKey(ToKeyID(pkhash), pubkey);
+    }
+
+    return false;
 }

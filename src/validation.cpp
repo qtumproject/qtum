@@ -2590,6 +2590,11 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
     if(nOut > -1)
         scriptFilled = ExtractSenderData(tx.vout[nOut].scriptPubKey, &script, nullptr);
 
+    // Check if the transaction has inputs
+    if(tx.vin.size() == 0) {
+        return valtype();
+    }
+
     // Check the current (or in-progress) block for zero-confirmation change spending that won't yet be in txindex
     if(!scriptFilled && blockTxs){
         for(auto btx : *blockTxs){
@@ -4856,7 +4861,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     if (pblock->IsProofOfStake() && !pblock->vchBlockSigDlgt.empty())
         return true;
 
-    CKey key;
+    PKHash pkhash;
     CMutableTransaction txCoinStake(*pblock->vtx[1]);
     uint32_t nTimeBlock = nTime;
     std::vector<unsigned char> vchPoD;
@@ -4866,16 +4871,13 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     //IsProtocolV2 mean POS 2 or higher, so the modified line is:
     if(wallet.IsStakeClosing()) return false;
     LOCK(wallet.cs_wallet);
-    LegacyScriptPubKeyMan* spk_man = wallet.GetLegacyScriptPubKeyMan();
     uint32_t nHeight = ::ChainActive().Height() + 1;
     const Consensus::Params& consensusParams = Params().GetConsensus();
     nTimeBlock &= ~consensusParams.StakeTimestampMask(nHeight);
-    if(!spk_man)
-        return false;
     bool found = false;
     {
         LOCK(cs_main);
-        found = wallet.CreateCoinStake(*spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, vchPoD, headerPrevout);
+        found = wallet.CreateCoinStake(pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, pkhash, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, vchPoD, headerPrevout);
     }
     if (found)
     {
@@ -4904,18 +4906,14 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
                 if(vchPoD.size() > 0)
                     pblock->SetProofOfDelegation(vchPoD);
 
-                // append a signature to our block and ensure that is compact
-                std::vector<unsigned char> vchSig;
-                bool isSigned = key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
-                pblock->SetBlockSignature(vchSig);
-
-                // check block header
-                return isSigned && CheckHeaderPoS(*pblock, consensusParams);
+                // append a signature to our block, ensure that is compact and check block header
+                return wallet.SignBlockStake(*pblock, pkhash, true) &&
+                        CheckHeaderPoS(*pblock, consensusParams);
             }
             else
             {
                 // append a signature to our block and ensure that is LowS
-                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt) &&
+                return wallet.SignBlockStake(*pblock, pkhash, false) &&
                            EnsureLowS(pblock->vchBlockSigDlgt) &&
                            CheckHeaderPoS(*pblock, consensusParams);
             }
