@@ -27,7 +27,7 @@ public:
         Sync = 0,
         Backup = 1
     };
-    explicit ModalOverlay(bool enable_wallet, QWidget *parent, OverlayType _type = OverlayType::Sync);//QTUM_LINE
+    explicit ModalOverlay(bool enable_wallet, QWidget *parent, OverlayType _type = OverlayType::Sync);
     ~ModalOverlay();
 
     void tipUpdate(int count, const QDateTime& blockDate, double nVerificationProgress);

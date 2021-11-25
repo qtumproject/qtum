@@ -89,8 +89,8 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     textColor(0,0,0),
     menuColor(0,0,0)
 {
-    // Get version//QTUM_INSERT_LINE
-    version = GetIntStyleValue("platformstyle/version", version);//QTUM_INSERT_LINE
+    // Get version
+    version = GetIntStyleValue("platformstyle/version", version);
 
     // Determine icon highlighting color
     if (colorizeIcons) {
@@ -151,7 +151,7 @@ QIcon PlatformStyle::SingleColorIcon(const QIcon& icon) const
 
 QIcon PlatformStyle::TextColorIcon(const QIcon& icon) const
 {
-    return ColorizeIcon(icon, TextColor());
+    return ColorizeIcon(icon, TextColor(), 0.6);
 }
 
 QIcon PlatformStyle::MenuColorIcon(const QString &filename) const

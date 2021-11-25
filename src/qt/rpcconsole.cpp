@@ -23,6 +23,7 @@
 #include <util/string.h>
 #include <util/system.h>
 #include <util/threadnames.h>
+#include <qt/styleSheet.h>
 
 #include <univalue.h>
 
@@ -52,6 +53,7 @@
 #include <QTime>
 #include <QTimer>
 #include <QVariant>
+#include <QStyledItemDelegate>
 
 const int CONSOLE_HISTORY = 50;
 const int INITIAL_TRAFFIC_GRAPH_MINS = 30;
@@ -61,12 +63,13 @@ const char fontSizeSettingsKey[] = "consoleFontSize";
 const struct {
     const char *url;
     const char *source;
+    PlatformStyle::TableColorType type;
 } ICON_MAPPING[] = {
-    {"cmd-request", ":/icons/tx_input"},
-    {"cmd-reply", ":/icons/tx_output"},
-    {"cmd-error", ":/icons/tx_output"},
-    {"misc", ":/icons/tx_inout"},
-    {nullptr, nullptr}
+    {"cmd-request", ":/icons/tx_input", PlatformStyle::Input},
+    {"cmd-reply", ":/icons/tx_output", PlatformStyle::Output},
+    {"cmd-error", ":/icons/tx_output", PlatformStyle::Error},
+    {"misc", ":/icons/tx_inout", PlatformStyle::Inout},
+    {nullptr, nullptr, PlatformStyle::Inout}
 };
 
 namespace {
@@ -516,7 +519,7 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
     ui->openDebugLogfileButton->setToolTip(ui->openDebugLogfileButton->toolTip().arg(PACKAGE_NAME));
 
     if (platformStyle->getImagesOnButtons()) {
-        ui->openDebugLogfileButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
+        ui->openDebugLogfileButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export", PlatformStyle::PushButton));
     }
     ui->clearButton->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
 
@@ -741,6 +744,10 @@ void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_
         ui->lineEdit->setEnabled(true);
         ui->lineEdit->setCompleter(autoCompleter);
         autoCompleter->popup()->installEventFilter(this);
+        autoCompleter->popup()->setItemDelegate(new QStyledItemDelegate(this));
+        autoCompleter->popup()->setObjectName("autoCompleterPopup");
+        SetObjectStyleSheet(autoCompleter->popup(), StyleSheetNames::ScrollBarDark);
+
         // Start thread to execute RPC commands.
         startExecutor();
     }

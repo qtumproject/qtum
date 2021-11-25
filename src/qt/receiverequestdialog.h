@@ -9,6 +9,8 @@
 
 #include <QDialog>
 
+class PlatformStyle;
+class ReceiveCoinsDialog;
 class WalletModel;
 
 namespace Ui {
@@ -35,6 +37,8 @@ private:
     Ui::ReceiveRequestDialog *ui;
     WalletModel *model;
     SendCoinsRecipient info;
+    const PlatformStyle *platformStyle;
+    ReceiveCoinsDialog* requestPaymentDialog;
 };
 
 #endif // BITCOIN_QT_RECEIVEREQUESTDIALOG_H
