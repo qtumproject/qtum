@@ -283,6 +283,12 @@ namespace GUIUtil
 
     QString cutString(const QString& text, int length);
 
+    /**
+     * @brief getHwiToolPath Get HWI tool path
+     * @return Path to HWI tool
+     */
+    QString getHwiToolPath();
+
 } // namespace GUIUtil
 
 #endif // BITCOIN_QT_GUIUTIL_H

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>832</width>
-    <height>471</height>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,13 +69,13 @@
          <property name="verticalSpacing">
           <number>10</number>
          </property>
-         <item row="4" column="0" colspan="2">
-          <widget class="QLabel" name="pruneWarning">
-           <property name="text">
-            <string>Reverting this setting requires re-downloading the entire blockchain.</string>
+         <item row="5" column="0">
+          <widget class="QCheckBox" name="prune">
+           <property name="toolTip">
+            <string>Disables some advanced features but all blocks will still be fully validated. Reverting this setting requires re-downloading the entire blockchain. Actual disk usage may be somewhat higher.</string>
            </property>
-           <property name="textFormat">
-            <enum>Qt::PlainText</enum>
+           <property name="text">
+            <string>Prune &amp;block storage to</string>
            </property>
           </widget>
          </item>
@@ -92,18 +92,53 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="reserveBalanceLabel">
-           <property name="text">
-            <string>Reserve</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::PlainText</enum>
-           </property>
-           <property name="buddy">
-            <cstring>threadsScriptVerif</cstring>
-           </property>
-          </widget>
+         <item row="5" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_Main_Prune">
+           <item>
+            <widget class="QSpinBox" name="pruneSize"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="pruneSizeUnitLabel">
+             <property name="text">
+              <string>GB</string>
+             </property>
+             <property name="textFormat">
+              <enum>Qt::PlainText</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_Main_Prune">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item row="3" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLineEdit" name="txtHWIToolPath">
+             <property name="toolTip">
+              <string>Hardware wallet interface tool location on disk</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="toolHWIPath">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item row="0" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_2_Main">
@@ -142,43 +177,6 @@
            </item>
           </layout>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="databaseCacheLabel">
-           <property name="text">
-            <string>Size of &amp;database cache</string>
-           </property>
-           <property name="textFormat">
-            <enum>Qt::PlainText</enum>
-           </property>
-           <property name="buddy">
-            <cstring>databaseCache</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_3_Main_3">
-           <item>
-            <widget class="BitcoinAmountField" name="reserveBalance">
-             <property name="toolTip">
-              <string>Reserve amount that will not be used for staking</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_3_Main_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>0</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
          <item row="1" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout_3_Main">
            <item>
@@ -209,61 +207,113 @@
            </item>
           </layout>
          </item>
-         <item row="3" column="0">
-          <widget class="QCheckBox" name="prune">
-           <property name="toolTip">
-            <string>Disables some advanced features but all blocks will still be fully validated. Reverting this setting requires re-downloading the entire blockchain. Actual disk usage may be somewhat higher.</string>
-           </property>
+         <item row="6" column="0" colspan="2">
+          <widget class="QLabel" name="pruneWarning">
            <property name="text">
-            <string>Prune &amp;block storage to</string>
+            <string>Reverting this setting requires re-downloading the entire blockchain.</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::PlainText</enum>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout_Main_Prune">
+         <item row="0" column="0">
+          <widget class="QLabel" name="databaseCacheLabel">
+           <property name="text">
+            <string>Size of &amp;database cache</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::PlainText</enum>
+           </property>
+           <property name="buddy">
+            <cstring>databaseCache</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="HWIToolLabel">
+           <property name="text">
+            <string>HWI tool path</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="reserveBalanceLabel">
+           <property name="text">
+            <string>Reserve</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::PlainText</enum>
+           </property>
+           <property name="buddy">
+            <cstring>threadsScriptVerif</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout2">
            <item>
-            <widget class="QSpinBox" name="pruneSize"/>
-           </item>
-           <item>
-            <widget class="QLabel" name="pruneSizeUnitLabel">
-             <property name="text">
-              <string>GB</string>
-             </property>
-             <property name="textFormat">
-              <enum>Qt::PlainText</enum>
+            <widget class="QLineEdit" name="txtStakeLedgerId">
+             <property name="toolTip">
+              <string>Fingerprint of the ledger that you want to be used for staking with hardware wallet</string>
              </property>
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_Main_Prune">
+            <widget class="QPushButton" name="toolStakeLedgerId">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="stakeLedgerIdlabel">
+           <property name="text">
+            <string>Select Ledger device for staking</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_3_Main_3">
+           <item>
+            <widget class="BitcoinAmountField" name="reserveBalance">
+             <property name="toolTip">
+              <string>Reserve amount that will not be used for staking</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_3_Main_3">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
                <width>40</width>
-               <height>20</height>
+               <height>0</height>
               </size>
              </property>
             </spacer>
            </item>
           </layout>
          </item>
+         <item row="7" column="0" colspan="2">
+          <widget class="QCheckBox" name="logEvents">
+           <property name="text">
+            <string>Enable  log &amp;events</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0" colspan="2">
+          <widget class="QCheckBox" name="superStaking">
+           <property name="text">
+            <string>Enable s&amp;uper staking</string>
+           </property>
+          </widget>
+         </item>
         </layout>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="logEvents">
-         <property name="text">
-          <string>Enable  log &amp;events</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="superStaking">
-         <property name="text">
-          <string>Enable s&amp;uper staking</string>
-         </property>
-        </widget>
        </item>
        <item>
         <spacer name="verticalSpacer_Main">
@@ -347,6 +397,13 @@
            <widget class="QCheckBox" name="checkForUpdates">
             <property name="text">
              <string>Check for &amp;updates</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="signPSBTHWITool">
+            <property name="text">
+             <string>Sign PSBT with HWI tool</string>
             </property>
            </widget>
           </item>

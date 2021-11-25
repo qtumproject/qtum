@@ -138,6 +138,8 @@ public Q_SLOTS:
     void unlockWallet(bool fromMenu = false);
     /** Lock the wallet */
     void lockWallet();
+    /** Sign transaction with hardware wallet*/
+    void signTxHardware(const QString& tx = "");
 
     /** Show used sending addresses */
     void usedSendingAddresses();

@@ -55,6 +55,7 @@ Token::Token()
     lstOptional.append(QtumToken::paramSender());
     lstOptional.append(QtumToken::paramBroadcast());
     lstOptional.append(QtumToken::paramChangeToSender());
+    lstOptional.append(QtumToken::paramPsbt());
     d->send = new ExecRPCCommand(Token_NS::PRC_SENDTO, lstMandatory, lstOptional, QMap<QString, QString>());
 
     // Create new event log interface
@@ -123,7 +124,14 @@ bool Token::exec(const bool &sendTo, const std::map<std::string, std::string> &l
     else
     {
         QVariantMap variantMap = resultVar.toMap();
-        result = variantMap.value("txid").toString().toStdString();
+        if(d->model->wallet().privateKeysDisabled())
+        {
+            result = variantMap.value("psbt").toString().toStdString();
+        }
+        else
+        {
+            result = variantMap.value("txid").toString().toStdString();
+        }
     }
 
     return true;
@@ -175,4 +183,11 @@ bool Token::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const i
     }
 
     return true;
+}
+
+bool Token::privateKeysDisabled()
+{
+    if(!d || !d->model)
+        return false;
+    return d->model->wallet().privateKeysDisabled();
 }

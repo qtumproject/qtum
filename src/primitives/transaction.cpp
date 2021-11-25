@@ -149,14 +149,25 @@ bool CTransaction::HasOpCreate() const
     return false;
 }
 
-bool CTransaction::HasOpCall() const
+template <class T>
+bool hasOpCall(const T& txTo)
 {
-    for(const CTxOut& v : vout){
+    for(const CTxOut& v : txTo.vout){
         if(v.scriptPubKey.HasOpCall()){
             return true;
         }
     }
     return false;
+}
+
+bool CTransaction::HasOpCall() const
+{
+    return hasOpCall(*this);
+}
+
+bool CMutableTransaction::HasOpCall() const
+{
+    return hasOpCall(*this);
 }
 
 template <class T>

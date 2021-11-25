@@ -23,6 +23,10 @@ public:
     void setDelegationData(const QString& address, const QString& hash);
     bool isDataValid();
 
+Q_SIGNALS:
+    // Fired when a message should be reported to the user
+    void message(const QString &title, const QString &message, unsigned int style);
+
 public Q_SLOTS:
     void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
     void accept();
@@ -42,6 +46,7 @@ private:
     ExecRPCCommand *m_execRPCCommand;
     QString address;
     QString hash;
+    bool bCreateUnsigned = false;
 };
 
 #endif // REMOVEDELEGATIONPAGE_H

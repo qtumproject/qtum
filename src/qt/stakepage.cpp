@@ -15,11 +15,13 @@
 #include <qt/transactiondescdialog.h>
 #include <qt/styleSheet.h>
 #include <qt/transactionview.h>
+#include <qt/hardwaresigntx.h>
 #include <amount.h>
 
 #include <miner.h>
 
 #include <QSortFilterProxyModel>
+#include <QTimer>
 
 Q_DECLARE_METATYPE(interfaces::WalletBalances)
 
@@ -87,8 +89,15 @@ void StakePage::setBalance(const interfaces::WalletBalances& balances)
 {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
     m_balances = balances;
-    ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, balances.balance, false, BitcoinUnits::separatorAlways));
-    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, balances.stake, false, BitcoinUnits::separatorAlways));
+    CAmount balance = balances.balance;
+    CAmount stake = balances.stake;
+    if(walletModel->wallet().privateKeysDisabled())
+    {
+        balance += balances.watch_only_balance;
+        stake += balances.watch_only_stake;
+    }
+    ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::separatorAlways));
+    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, stake, false, BitcoinUnits::separatorAlways));
 }
 
 void StakePage::on_checkStake_clicked(bool checked)
@@ -96,10 +105,24 @@ void StakePage::on_checkStake_clicked(bool checked)
     if(!walletModel)
         return;
 
-    this->walletModel->wallet().setEnabledStaking(checked);
+    bool privateKeysDisabled = walletModel->wallet().privateKeysDisabled();
+    if(!privateKeysDisabled)
+        walletModel->wallet().setEnabledStaking(checked);
 
     if(checked && WalletModel::Locked == walletModel->getEncryptionStatus())
         Q_EMIT requireUnlock(true);
+
+    if(privateKeysDisabled)
+    {
+        if(checked)
+        {
+            QTimer::singleShot(500, this, &StakePage::askDeviceForStake);
+        }
+        else
+        {
+            walletModel->wallet().setEnabledStaking(false);
+        }
+    }
 }
 
 void StakePage::updateDisplayUnit()
@@ -167,4 +190,17 @@ void StakePage::updateEncryptionStatus()
         }
         break;
     }
+}
+
+void StakePage::askDeviceForStake()
+{
+    // Get staking device
+    HardwareSignTx hardware(this);
+    hardware.setModel(walletModel);
+    bool staking = hardware.askDevice(true);
+    walletModel->wallet().setEnabledStaking(staking);
+
+    // Update stake button
+    bool checked = ui->checkStake->isChecked();
+    if(checked != staking) ui->checkStake->onStatusChanged();
 }

@@ -940,4 +940,9 @@ QString cutString(const QString &text, int length)
     return text;
 }
 
+QString getHwiToolPath()
+{
+    return QString::fromStdString(gArgs.GetArg("-hwitoolpath", ""));
+}
+
 } // namespace GUIUtil

@@ -29,6 +29,10 @@ public:
     bool isDataValid();
     void clearAll();
 
+Q_SIGNALS:
+    // Fired when a message should be reported to the user
+    void message(const QString &title, const QString &message, unsigned int style);
+
 public Q_SLOTS:
     void accept();
     void reject();
@@ -44,6 +48,7 @@ private:
     WalletModel* m_model;
     ExecRPCCommand *m_execRPCCommand;
     Mode m_mode;
+    bool bCreateUnsigned = false;
 };
 
 #endif // SPLITUTXOPAGE_H
