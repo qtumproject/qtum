@@ -477,7 +477,7 @@ class SendHeadersTest(BitcoinTestFramework):
 
         # Now announce a header that forks the last two blocks
         tip = blocks[0].sha256
-        height -= 2
+        height -= 2 # this test contained an error originally, forking the last two block implies the height should be -2 not -1. This error became visible when enabling BIP32.
         blocks = []
 
         # Create extra blocks for later

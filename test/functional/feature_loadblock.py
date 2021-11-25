@@ -51,8 +51,8 @@ class LoadblockTest(BitcoinTestFramework):
             cfg.write("port={}\n".format(node_url.port))
             cfg.write("host={}\n".format(node_url.hostname))
             cfg.write("output_file={}\n".format(bootstrap_file))
-            cfg.write("max_height=100\n")
-            cfg.write("netmagic=fabfb5da\n")
+            cfg.write("max_height="+str(COINBASE_MATURITY)+"\n")
+            cfg.write("netmagic=fdddc6e1\n")
             cfg.write("input={}\n".format(blocks_dir))
             cfg.write("genesis={}\n".format(genesis_block))
             cfg.write("hashlist={}\n".format(hash_list.name))
@@ -73,9 +73,9 @@ class LoadblockTest(BitcoinTestFramework):
 
         self.log.info("Restart second, unsynced node with bootstrap file")
         self.restart_node(1, extra_args=["-loadblock=" + bootstrap_file])
-        assert_equal(self.nodes[1].getblockcount(), 100)  # start_node is blocking on all block files being imported
+        assert_equal(self.nodes[1].getblockcount(), COINBASE_MATURITY)  # start_node is blocking on all block files being imported
 
-        assert_equal(self.nodes[1].getblockchaininfo()['blocks'], 100)
+        assert_equal(self.nodes[1].getblockchaininfo()['blocks'], COINBASE_MATURITY)
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
 
 

@@ -19,6 +19,7 @@ from test_framework.messages import (
     CTransaction,
     hash256,
     tx_from_hex,
+    CBlockHeader,
 )
 from test_framework.util import (
     assert_equal,
@@ -202,7 +203,11 @@ class ZMQTest (BitcoinTestFramework):
 
             # Should receive the generated raw block.
             block = rawblock.receive()
-            assert_equal(genhashes[x], hash256_reversed(block[:80]).hex())
+            f = BytesIO(block)
+            header = CBlockHeader()
+            header.deserialize(f)
+            header.rehash()
+            assert_equal(genhashes[x], header.hash)
 
             # Should receive the generated block hash.
             hash = hashblock.receive().hex()

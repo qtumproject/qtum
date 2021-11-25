@@ -11,6 +11,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_array_result
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class CoinbaseCategoryTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -41,19 +42,19 @@ class CoinbaseCategoryTest(BitcoinTestFramework):
         self.assert_category("immature", address, txid, 0)
 
         # Mine another 99 blocks on top
-        self.nodes[0].generate(99)
+        self.nodes[0].generate(COINBASE_MATURITY-1)
         # Coinbase transaction is still immature after 100 confirmations
-        self.assert_category("immature", address, txid, 99)
+        self.assert_category("immature", address, txid, COINBASE_MATURITY-1)
 
         # Mine one more block
         self.nodes[0].generate(1)
         # Coinbase transaction is now matured, so category is "generate"
-        self.assert_category("generate", address, txid, 100)
+        self.assert_category("generate", address, txid, COINBASE_MATURITY)
 
         # Orphan block that paid to address
         self.nodes[0].invalidateblock(hash)
         # Coinbase transaction is now orphaned
-        self.assert_category("orphan", address, txid, 100)
+        self.assert_category("orphan", address, txid, COINBASE_MATURITY)
 
 if __name__ == '__main__':
     CoinbaseCategoryTest().main()

@@ -13,6 +13,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
+from test_framework.qtumconfig import *
 import json
 import os
 
@@ -20,7 +21,7 @@ TESTSDIR = os.path.dirname(os.path.realpath(__file__))
 
 class GetblockstatsTest(BitcoinTestFramework):
 
-    start_height = 101
+    start_height = COINBASE_MATURITY+1
     max_stat_pos = 2
 
     def add_options(self, parser):
@@ -52,7 +53,7 @@ class GetblockstatsTest(BitcoinTestFramework):
 
         self.nodes[0].sendtoaddress(address=address, amount=10, subtractfeefromamount=True)
         self.nodes[0].sendtoaddress(address=address, amount=10, subtractfeefromamount=False)
-        self.nodes[0].settxfee(amount=0.003)
+        #self.nodes[0].settxfee(amount=0.003)
         self.nodes[0].sendtoaddress(address=address, amount=1, subtractfeefromamount=True)
         self.sync_all()
         self.nodes[0].generate(1)

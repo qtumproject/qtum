@@ -248,6 +248,11 @@ OP_NOP8 = CScriptOp(0xb7)
 OP_NOP9 = CScriptOp(0xb8)
 OP_NOP10 = CScriptOp(0xb9)
 
+OP_CREATE = CScriptOp(0xc1)
+OP_CALL = CScriptOp(0xc2)
+OP_SPEND = CScriptOp(0xc3)
+OP_SENDER = CScriptOp(0xc4)
+
 # BIP 342 opcodes (Tapscript)
 OP_CHECKSIGADD = CScriptOp(0xba)
 
@@ -365,6 +370,10 @@ OPCODE_NAMES.update({
     OP_NOP8: 'OP_NOP8',
     OP_NOP9: 'OP_NOP9',
     OP_NOP10: 'OP_NOP10',
+    OP_CREATE: 'OP_CREATE',
+    OP_CALL: 'OP_CALL',
+    OP_SPEND: 'OP_SPEND',
+    OP_SENDER: 'OP_SENDER',
     OP_CHECKSIGADD: 'OP_CHECKSIGADD',
     OP_INVALIDOPCODE: 'OP_INVALIDOPCODE',
 })

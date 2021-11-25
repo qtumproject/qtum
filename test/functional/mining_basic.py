@@ -19,7 +19,6 @@ from test_framework.blocktools import (
 from test_framework.messages import (
     CBlock,
     CBlockHeader,
-    BLOCK_HEADER_SIZE,
 )
 from test_framework.p2p import P2PDataStore
 from test_framework.test_framework import BitcoinTestFramework
@@ -30,7 +29,7 @@ from test_framework.util import (
 
 VERSIONBITS_TOP_BITS = 0x20000000
 VERSIONBITS_DEPLOYMENT_TESTDUMMY_BIT = 28
-
+BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
 
 def assert_template(node, block, expect, rehash=True):
     if rehash:
@@ -51,11 +50,11 @@ class MiningTest(BitcoinTestFramework):
 
     def mine_chain(self):
         self.log.info('Create some old blocks')
-        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 200 * 600, 600):
+        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 600 * 600, 600):
             self.nodes[0].setmocktime(t)
             self.nodes[0].generate(1)
         mining_info = self.nodes[0].getmininginfo()
-        assert_equal(mining_info['blocks'], 200)
+        assert_equal(mining_info['blocks'], 600)
         assert_equal(mining_info['currentblocktx'], 0)
         assert_equal(mining_info['currentblockweight'], 4000)
 
@@ -81,11 +80,11 @@ class MiningTest(BitcoinTestFramework):
 
         self.log.info('getmininginfo')
         mining_info = node.getmininginfo()
-        assert_equal(mining_info['blocks'], 200)
+        assert_equal(mining_info['blocks'], 600)
         assert_equal(mining_info['chain'], self.chain)
         assert 'currentblocktx' not in mining_info
         assert 'currentblockweight' not in mining_info
-        assert_equal(mining_info['difficulty'], Decimal('4.656542373906925E-10'))
+        assert_equal(mining_info['difficulty']['proof-of-work'], Decimal('4.656542373906925E-10'))
         assert_equal(mining_info['networkhashps'], Decimal('0.003333333333333334'))
         assert_equal(mining_info['pooledtx'], 0)
 
@@ -95,9 +94,8 @@ class MiningTest(BitcoinTestFramework):
         self.log.info("getblocktemplate: Test capability advertised")
         assert 'proposal' in tmpl['capabilities']
         assert 'coinbasetxn' not in tmpl
+        coinbase_tx = create_coinbase(height=int(tmpl["height"]))
 
-        next_height = int(tmpl["height"])
-        coinbase_tx = create_coinbase(height=next_height)
         # sequence numbers must not be max for nLockTime to have effect
         coinbase_tx.vin[0].nSequence = 2**32 - 2
         coinbase_tx.rehash()
@@ -159,6 +157,7 @@ class MiningTest(BitcoinTestFramework):
 
         self.log.info("getblocktemplate: Test bad tx count")
         # The tx count is immediately after the block header
+        TX_COUNT_OFFSET = 181
         bad_block_sn = bytearray(block.serialize())
         assert_equal(bad_block_sn[BLOCK_HEADER_SIZE], 1)
         bad_block_sn[BLOCK_HEADER_SIZE] += 1
@@ -179,14 +178,14 @@ class MiningTest(BitcoinTestFramework):
         assert_template(node, bad_block, 'bad-txnmrklroot', False)
         assert_submitblock(bad_block, 'bad-txnmrklroot', 'bad-txnmrklroot')
 
-        self.log.info("getblocktemplate: Test bad timestamps")
-        bad_block = copy.deepcopy(block)
-        bad_block.nTime = 2**31 - 1
-        assert_template(node, bad_block, 'time-too-new')
-        assert_submitblock(bad_block, 'time-too-new', 'time-too-new')
-        bad_block.nTime = 0
-        assert_template(node, bad_block, 'time-too-old')
-        assert_submitblock(bad_block, 'time-too-old', 'time-too-old')
+        #self.log.info("getblocktemplate: Test bad timestamps")
+        #bad_block = copy.deepcopy(block)
+        #bad_block.nTime = 2**31 - 1
+        #assert_template(node, bad_block, 'time-too-new')
+        #assert_submitblock(bad_block, 'time-too-new', 'time-too-new')
+        #bad_block.nTime = 0
+        #assert_template(node, bad_block, 'time-too-old')
+        #assert_submitblock(bad_block, 'time-too-old', 'time-too-old')
 
         self.log.info("getblocktemplate: Test not best block")
         bad_block = copy.deepcopy(block)
@@ -203,7 +202,7 @@ class MiningTest(BitcoinTestFramework):
         block.solve()
 
         def chain_tip(b_hash, *, status='headers-only', branchlen=1):
-            return {'hash': b_hash, 'height': 202, 'branchlen': branchlen, 'status': status}
+            return {'hash': b_hash, 'height': 602, 'branchlen': branchlen, 'status': status}
 
         assert chain_tip(block.hash) not in node.getchaintips()
         node.submitheader(hexdata=block.serialize().hex())
@@ -238,11 +237,11 @@ class MiningTest(BitcoinTestFramework):
         bad_block2.solve()
         assert_raises_rpc_error(-25, 'bad-prevblk', lambda: node.submitheader(hexdata=CBlockHeader(bad_block2).serialize().hex()))
 
-        # Should reject invalid header right away
-        bad_block_time = copy.deepcopy(block)
-        bad_block_time.nTime = 1
-        bad_block_time.solve()
-        assert_raises_rpc_error(-25, 'time-too-old', lambda: node.submitheader(hexdata=CBlockHeader(bad_block_time).serialize().hex()))
+        # Should reject invalid header right away, only applies to PoS blocks in qtum.
+        #bad_block_time = copy.deepcopy(block)
+        #bad_block_time.nTime = 1
+        #bad_block_time.solve()
+        #assert_raises_rpc_error(-25, 'time-too-old', lambda: node.submitheader(hexdata=CBlockHeader(bad_block_time).serialize().hex()))
 
         # Should ask for the block from a p2p node, if they announce the header as well:
         peer = node.add_p2p_connection(P2PDataStore())
@@ -253,7 +252,7 @@ class MiningTest(BitcoinTestFramework):
 
         # Building a few blocks should give the same results
         node.generatetoaddress(10, node.get_deterministic_priv_key().address)
-        assert_raises_rpc_error(-25, 'time-too-old', lambda: node.submitheader(hexdata=CBlockHeader(bad_block_time).serialize().hex()))
+        #assert_raises_rpc_error(-25, 'time-too-old', lambda: node.submitheader(hexdata=CBlockHeader(bad_block_time).serialize().hex()))
         assert_raises_rpc_error(-25, 'bad-prevblk', lambda: node.submitheader(hexdata=CBlockHeader(bad_block2).serialize().hex()))
         node.submitheader(hexdata=CBlockHeader(block).serialize().hex())
         node.submitheader(hexdata=CBlockHeader(bad_block_root).serialize().hex())

@@ -132,7 +132,7 @@ IMPORT_NODES = [ImportNode(*fields) for fields in itertools.product((False, True
 # Rescans start at the earliest block up to 2 hours before the key timestamp.
 TIMESTAMP_WINDOW = 2 * 60 * 60
 
-AMOUNT_DUST = 0.00000546
+AMOUNT_DUST = 0.00054600
 
 
 def get_rand_amount():

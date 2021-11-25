@@ -14,6 +14,8 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 from test_framework.wallet_util import bytes_to_wif
+from test_framework.qtumconfig import *
+from test_framework.qtum import generatesynchronized
 
 class ImportPrunedFundsTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -25,7 +27,7 @@ class ImportPrunedFundsTest(BitcoinTestFramework):
 
     def run_test(self):
         self.log.info("Mining blocks...")
-        self.nodes[0].generate(COINBASE_MATURITY + 1)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, None, self.nodes)
 
         self.sync_all()
 
