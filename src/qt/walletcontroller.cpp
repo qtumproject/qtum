@@ -10,6 +10,9 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/walletmodel.h>
+#include <qt/hardwarekeystoredialog.h>
+#include <qt/hardwaredevicedialog.h>
+#include <qt/derivationpathdialog.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -26,6 +29,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QWindow>
+#include <QFile>
 
 WalletController::WalletController(ClientModel& client_model, const PlatformStyle* platform_style, QObject* parent)
     : QObject(parent)
@@ -236,6 +240,49 @@ void CreateWalletActivity::askPassphrase()
     });
 }
 
+void CreateWalletActivity::askDevice()
+{
+    QString hwiToolPath = GUIUtil::getHwiToolPath();
+    if(QFile::exists(hwiToolPath))
+    {
+        QString errorMessage;
+        bool canceled = false;
+        if(HardwareKeystoreDialog::SelectDevice(m_fingerprint, errorMessage, canceled, false, m_parent_widget))
+        {
+            createWallet();
+        }
+        else if(canceled)
+        {
+            Q_EMIT finished();
+        }
+        else
+        {
+            HardwareDeviceDialog dlg(errorMessage, m_parent_widget);
+            if(dlg.exec() == QDialog::Accepted)
+            {
+                QTimer::singleShot(500, this, [this] {
+                    this->askDevice();
+                });
+            }
+            else
+            {
+                Q_EMIT finished();
+            }
+        }
+    }
+    else
+    {
+        QMessageBox msgBox(m_parent_widget);
+        msgBox.setWindowTitle(tr("HWI tool not found"));
+        msgBox.setTextFormat(Qt::RichText);
+        msgBox.setText(tr("HWI tool not found at path \"%1\".<br>Please download it from %2 and add the path to the settings.").arg(hwiToolPath, QTUM_HWI_TOOL));
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.exec();
+
+        Q_EMIT finished();
+    }
+}
+
 void CreateWalletActivity::createWallet()
 {
     showProgressDialog(tr("Creating Wallet <b>%1</b>...").arg(m_create_wallet_dialog->walletName().toHtmlEscaped()));
@@ -271,9 +318,39 @@ void CreateWalletActivity::finish()
         QMessageBox::warning(m_parent_widget, tr("Create wallet warning"), QString::fromStdString(Join(m_warning_message, Untranslated("\n")).translated));
     }
 
-    if (m_wallet_model) Q_EMIT created(m_wallet_model);
+    // Set hardware wallet parameters to the model
+    if(m_create_wallet_dialog->isHardwareWalletChecked())
+    {
+        if(m_wallet_model)
+        {
+            QTimer::singleShot(500, this, [this] {
+                // Set fingerprint
+                m_wallet_model->setFingerprint(m_fingerprint);
 
-    Q_EMIT finished();
+                // Init import addresses data
+                bool ret = true;
+                bool rescan = false;
+                bool importPKH = false;
+                bool importP2SH = false;
+                bool importBech32 = false;
+                QString pathPKH, pathP2SH, pathBech32;
+
+                // Get list to import
+                DerivationPathDialog dlg(m_parent_widget, m_wallet_model, true);
+                ret &= dlg.exec() == QDialog::Accepted;
+                if(ret) ret &= dlg.importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32);
+                if(ret) m_wallet_model->importAddressesData(rescan, importPKH, importP2SH, importBech32, pathPKH, pathP2SH, pathBech32);
+
+                Q_EMIT created(m_wallet_model);
+                Q_EMIT finished();
+            });
+        }
+    }
+    else
+    {
+        if (m_wallet_model) Q_EMIT created(m_wallet_model);
+        Q_EMIT finished();
+    }
 }
 
 void CreateWalletActivity::create()
@@ -291,6 +368,8 @@ void CreateWalletActivity::create()
     connect(m_create_wallet_dialog, &QDialog::accepted, [this] {
         if (m_create_wallet_dialog->isEncryptWalletChecked()) {
             askPassphrase();
+        } else if (m_create_wallet_dialog->isHardwareWalletChecked()) {
+            askDevice();
         } else {
             createWallet();
         }

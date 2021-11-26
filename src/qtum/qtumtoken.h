@@ -37,6 +37,7 @@ public:
     virtual bool execEventsValid(const int& func, const int64_t& fromBlock);
     virtual bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message);
     virtual bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, const int& numTopics, std::vector<TokenEvent>& result);
+    virtual bool privateKeysDisabled();
     virtual ~QtumTokenExec();
 };
 
@@ -59,7 +60,11 @@ public:
 
     // Get transaction data
     std::string getTxId();
+    std::string getPsbt();
     std::string getErrorMessage();
+
+    // Set transaction data
+    void setTxId(const std::string& txid);
 
     // ABI Functions
     bool name(std::string& result, bool sendTo = false);
@@ -96,6 +101,7 @@ public:
     static const char* paramSender();
     static const char* paramBroadcast();
     static const char* paramChangeToSender();
+    static const char* paramPsbt();
 
 private:
     bool exec(const std::vector<std::string>& input, int func, std::vector<std::string>& output, bool sendTo);

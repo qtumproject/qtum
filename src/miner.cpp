@@ -24,6 +24,7 @@
 #include <util/system.h>
 #include <net.h>
 #include <key_io.h>
+#include <qtum/qtumledger.h>
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
 #endif
@@ -954,6 +955,8 @@ public:
         type(StakerType::STAKER_NORMAL),
         fAllowWatchOnly(false)
     {
+        fAllowWatchOnly = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+
         // Get allow list
         for (const std::string& strAddress : gArgs.GetArgs("-stakingallowlist"))
         {
@@ -1085,7 +1088,9 @@ public:
         cacheHeight(0),
         cacheAddressHeight(0),
         fAllowWatchOnly(false)
-    {}
+    {
+        fAllowWatchOnly = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    }
 
     bool Match(const DelegationEvent& event) const override
     {
@@ -1318,6 +1323,7 @@ public:
     int numThreads = 1;
     boost::thread_group threads;
     mutable RecursiveMutex cs_worker;
+    bool privateKeysDisabled = false;;
 
 public:
     DelegationsStaker delegationsStaker;
@@ -1379,6 +1385,7 @@ public:
             waitBestHeaderAttempts = maxWaitForBestHeader / nMinerWaitBestBlockHeader;
         }
         if(pwallet) numThreads = pwallet->m_num_threads;
+        if(pwallet) privateKeysDisabled = pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 
     void clearCache()
@@ -1430,6 +1437,12 @@ public:
 
             // Cache mining data
             if(!CacheData()) continue;
+
+            // Check if ledger is connected
+            if(d->privateKeysDisabled)
+            {
+                if(!isLedgerConnected()) continue;
+            }
 
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
@@ -1603,7 +1616,9 @@ protected:
         LOCK(d->pwallet->cs_wallet);
 
         d->clearCache();
-        CAmount nBalance = d->pwallet->GetBalance().m_mine_trusted;
+        const auto bal = d->pwallet->GetBalance();
+        CAmount nBalance = bal.m_mine_trusted;
+        if(d->privateKeysDisabled) nBalance += bal.m_watchonly_trusted;
         d->nTargetValue = nBalance - d->pwallet->m_reserve_balance;
         CAmount nValueIn = 0;
         int32_t nHeightTip = 0;
@@ -1842,6 +1857,32 @@ protected:
         //return back to low priority
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
         return false;
+    }
+
+    bool isLedgerConnected()
+    {
+        if(d->pwallet->IsStakeClosing())
+            return false;
+
+        std::string ledgerId;
+        {
+            LOCK(d->pwallet->cs_wallet);
+            ledgerId = d->pwallet->m_ledger_id;
+        }
+
+        if(ledgerId.empty())
+            return false;
+
+        QtumLedger &device = QtumLedger::instance();
+        bool fConnected = device.isConnected(ledgerId, true);
+        if(!fConnected)
+        {
+            d->pwallet->m_last_coin_stake_search_interval = 0;
+            LogPrintf("ThreadStakeMiner(): Ledger not connected with fingerprint %s\n", d->pwallet->m_ledger_id);
+            Sleep(10000);
+        }
+
+        return fConnected;
     }
 };
 

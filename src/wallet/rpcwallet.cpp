@@ -122,34 +122,6 @@ std::shared_ptr<CWallet> GetWalletForJSONRPCRequest(const JSONRPCRequest& reques
         "Wallet file not specified (must request wallet RPC through /wallet/<filename> uri-path).");
 }
 
-bool GetSenderDest(CWallet * const pwallet, const CTransactionRef& tx, CTxDestination& txSenderDest)
-{
-    // Initialize variables
-    CScript senderPubKey;
-
-    // Get sender destination
-    if(tx->HasOpSender())
-    {
-        // Get destination from the outputs
-        for(CTxOut out : tx->vout)
-        {
-            if(out.scriptPubKey.HasOpSender())
-            {
-                ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
-                break;
-            }
-        }
-    }
-    else
-    {
-        // Get destination from the inputs
-        senderPubKey = pwallet->mapWallet.at(tx->vin[0].prevout.hash).tx->vout[tx->vin[0].prevout.n].scriptPubKey;
-    }
-
-    // Extract destination from script
-    return ExtractDestination(senderPubKey, txSenderDest);
-}
-
 void EnsureWalletIsUnlocked(const CWallet* pwallet)
 {
     if (pwallet->IsLocked()) {
@@ -546,7 +518,7 @@ void SplitRemainder(std::vector<CRecipient>& vecSend, CAmount& remainder, CAmoun
     }
 }
 
-static CTransactionRef SplitUTXOs(CWallet * const pwallet, const CTxDestination &address, CAmount nValue, CAmount maxValue, const CCoinControl& coin_control, CAmount nTotal, int maxOutputs, CAmount& nSplited)
+static CTransactionRef SplitUTXOs(CWallet * const pwallet, const CTxDestination &address, CAmount nValue, CAmount maxValue, const CCoinControl& coin_control, CAmount nTotal, int maxOutputs, CAmount& nSplited, bool sign)
 {
     // Check amount
     if (nValue <= 0)
@@ -598,7 +570,7 @@ static CTransactionRef SplitUTXOs(CWallet * const pwallet, const CTxDestination 
     if((nTxAmount + pwallet->m_default_max_tx_fee) <= nTotal)
     {
         FeeCalculation fee_calc_out;
-        if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, true, 0, true)) {
+        if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, sign, 0, false)) {
             throw JSONRPCError(RPC_WALLET_ERROR, error.original);
         }
         nSplited = nFeeRequired;
@@ -610,7 +582,7 @@ static CTransactionRef SplitUTXOs(CWallet * const pwallet, const CTxDestination 
         lastRecipient.fSubtractFeeFromAmount = true;
         vecSend[vecSend.size() - 1] = lastRecipient;
         FeeCalculation fee_calc_out;
-        if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, true, 0, true)) {
+        if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, sign, 0, false)) {
             throw JSONRPCError(RPC_WALLET_ERROR, error.original);
         }
 
@@ -643,7 +615,7 @@ static CTransactionRef SplitUTXOs(CWallet * const pwallet, const CTxDestination 
                 }
 
                 FeeCalculation fee_calc_out;
-                if((!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, true, 0, true))) {
+                if((!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coin_control, fee_calc_out, sign, 0, false))) {
                     throw JSONRPCError(RPC_WALLET_ERROR, error.original);
                 }
                 if(payFeeRemainder)
@@ -661,7 +633,7 @@ static CTransactionRef SplitUTXOs(CWallet * const pwallet, const CTxDestination 
     }
 
     // Send the transaction
-    pwallet->CommitTransaction(tx, {} /* mapValue */, {} /* orderForm */);
+    if(sign) pwallet->CommitTransaction(tx, {} /* mapValue */, {} /* orderForm */);
 
     return tx;
 }
@@ -830,6 +802,7 @@ static RPCHelpMan splitutxosforaddress()
                     {"minValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is smaller than value (minimum 0.1 COIN)"},
                     {"maxValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is greater than value (minimum 0.1 COIN)"},
                     {"maxOutputs", RPCArg::Type::NUM, /* default */ "100", "Maximum outputs to create"},
+                    {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Create partially signed transaction."},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -884,12 +857,19 @@ static RPCHelpMan splitutxosforaddress()
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid value for maximum outputs");
     }
 
+    // Is psbt
+    bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    if (request.params.size() > 4){
+        fPsbt=request.params[4].get_bool();
+    }
+
     // Amount
     CAmount nSplitAmount = minValue;
     CAmount nRequiredAmount = nSplitAmount * maxOutputs;
 
     CCoinControl coin_control;
     coin_control.destChange = address;
+    if(fPsbt) coin_control.fAllowWatchOnly = true;
 
     // Find UTXOs for a address with value smaller than minValue and greater then maxValue
     std::vector<COutput> vecOutputs;
@@ -921,8 +901,36 @@ static RPCHelpMan splitutxosforaddress()
     UniValue obj(UniValue::VOBJ);
     if(coin_control.HasSelected() && nSplitAmount < nSelectedAmount){
         EnsureWalletIsUnlocked(pwallet);
-        CTransactionRef tx = SplitUTXOs(pwallet, address, nSplitAmount, maxValue, coin_control, nSelectedAmount, maxOutputs, splited);
-        obj.pushKV("txid",          tx->GetHash().GetHex());
+        CTransactionRef tx = SplitUTXOs(pwallet, address, nSplitAmount, maxValue, coin_control, nSelectedAmount, maxOutputs, splited, !fPsbt);
+        if(fPsbt){
+            // Make a blank psbt
+            PartiallySignedTransaction psbtx;
+            CMutableTransaction rawTx = CMutableTransaction(*tx);
+            psbtx.tx = rawTx;
+            for (unsigned int i = 0; i < rawTx.vin.size(); ++i) {
+                psbtx.inputs.push_back(PSBTInput());
+            }
+            for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
+                psbtx.outputs.push_back(PSBTOutput());
+            }
+
+            // Fill transaction with out data but don't sign
+            bool bip32derivs = true;
+            bool complete = true;
+            const TransactionError err = pwallet->FillPSBT(psbtx, complete, 1, false, bip32derivs);
+            if (err != TransactionError::OK) {
+                throw JSONRPCTransactionError(err);
+            }
+
+            // Serialize the PSBT
+            CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+            ssTx << psbtx;
+            obj.pushKV("psbt", EncodeBase64(ssTx.str()));
+        }
+        else
+        {
+            obj.pushKV("txid",          tx->GetHash().GetHex());
+        }
     }
 
     obj.pushKV("selected",      FormatMoney(total));
@@ -930,6 +938,29 @@ static RPCHelpMan splitutxosforaddress()
     return obj;
 },
     };
+}
+
+PSBTOutput GetPsbtOutput(const CTxOut& v, CWallet* const pwallet)
+{
+    PSBTOutput out;
+    if(v.scriptPubKey.HasOpSender())
+    {
+        CScript senderPubKey;
+        PKHash pkhash ;
+        CPubKey vchPubKeyOut;
+        KeyOriginInfo info;
+        bool ok = GetSenderPubKey(v.scriptPubKey, senderPubKey);
+        if(ok)
+        {
+            pkhash = ExtractPublicKeyHash(senderPubKey);
+            ok &= pkhash != PKHash();
+        }
+        if(ok) ok &=  pwallet->GetPubKey(pkhash, vchPubKeyOut);
+        if(ok) ok &=  pwallet->GetKeyOrigin(pkhash, info);
+        if(ok) out.hd_keypaths[vchPubKeyOut] = info;
+    }
+
+    return out;
 }
 
 void getDgpData(uint64_t& blockGasLimit, uint64_t& minGasPrice, CAmount& nGasPrice, int* pHeight = nullptr)
@@ -965,13 +996,15 @@ static RPCHelpMan createcontract()
                     {"senderAddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The qtum address that will be used to create the contract."},
                     {"broadcast", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Whether to broadcast the transaction or not."},
                     {"changeToSender", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Return the change to the sender."},
+                    {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Create partially signed transaction."},
                 },
                 RPCResult{
                     RPCResult::Type::ARR, "", "",
                     {
                         {RPCResult::Type::OBJ, "", "",
                         {
-                            {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                            {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                            {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                             {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
                             {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"},
                             {RPCResult::Type::STR, "address", "Expected contract address"},
@@ -1039,7 +1072,14 @@ static RPCHelpMan createcontract()
         fChangeToSender=request.params[5].get_bool();
     }
 
+    bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    if (request.params.size() > 6){
+        fPsbt=request.params[6].get_bool();
+    }
+    if(fPsbt) fBroadcast=false;
+
     CCoinControl coinControl;
+    if(fPsbt) coinControl.fAllowWatchOnly = true;
 
     CTxDestination signSenderAddress = CNoDestination();
     if(fHasSender){
@@ -1097,7 +1137,9 @@ static RPCHelpMan createcontract()
 
     CAmount nGasFee=nGasPrice*nGasLimit;
 
-    CAmount curBalance = pwallet->GetBalance().m_mine_trusted;
+    const auto bal = pwallet->GetBalance();
+    CAmount curBalance = bal.m_mine_trusted;
+    if(fPsbt) curBalance += bal.m_watchonly_trusted;
 
     // Check amount
     if (nGasFee <= 0)
@@ -1139,24 +1181,56 @@ static RPCHelpMan createcontract()
     CRecipient recipient = {scriptPubKey, 0, false};
     vecSend.push_back(recipient);
 
+    bool sign = !fPsbt;
     CTransactionRef tx;
     FeeCalculation fee_calc_out;
-    if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coinControl, fee_calc_out, true, nGasFee, true, signSenderAddress)) {
-        if (nFeeRequired > pwallet->GetBalance().m_mine_trusted)
+    if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coinControl, fee_calc_out, sign, nGasFee, true, signSenderAddress)) {
+        if (nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         else strError = error.original;
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
 
     CTxDestination txSenderDest;
-    GetSenderDest(pwallet, tx, txSenderDest);
+    pwallet->GetSenderDest(*tx, txSenderDest, sign);
 
     if (fHasSender && !(senderAddress == txSenderDest)){
            throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
     }
 
     UniValue result(UniValue::VOBJ);
-    if(fBroadcast){
+    if(fPsbt){
+        // Make a blank psbt
+        PartiallySignedTransaction psbtx;
+        CMutableTransaction rawTx = CMutableTransaction(*tx);
+        psbtx.tx = rawTx;
+        for (unsigned int i = 0; i < rawTx.vin.size(); ++i) {
+            psbtx.inputs.push_back(PSBTInput());
+        }
+        for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
+            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], pwallet));
+        }
+
+        // Fill transaction with out data but don't sign
+        bool bip32derivs = true;
+        bool complete = true;
+        const TransactionError err = pwallet->FillPSBT(psbtx, complete, 1, false, bip32derivs);
+        if (err != TransactionError::OK) {
+            throw JSONRPCTransactionError(err);
+        }
+
+        // Serialize the PSBT
+        CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+        ssTx << psbtx;
+        result.pushKV("psbt", EncodeBase64(ssTx.str()));
+
+        // Add sender information
+        CTxDestination txSenderAdress(txSenderDest);
+        CKeyID keyid = pwallet->GetKeyForDestination(txSenderAdress);
+        result.pushKV("sender", EncodeDestination(txSenderAdress));
+        result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
+    }
+    else if(fBroadcast){
     pwallet->CommitTransaction(tx, {}, {});
 
     std::string txId=tx->GetHash().GetHex();
@@ -1267,7 +1341,14 @@ UniValue SendToContract(CWallet* const pwallet, const UniValue& params)
         fChangeToSender=params[7].get_bool();
     }
 
+    bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    if (params.size() > 8){
+        fPsbt=params[8].get_bool();
+    }
+    if(fPsbt) fBroadcast=false;
+
     CCoinControl coinControl;
+    if(fPsbt) coinControl.fAllowWatchOnly = true;
 
     CTxDestination signSenderAddress = CNoDestination();
     if(fHasSender){
@@ -1327,7 +1408,9 @@ UniValue SendToContract(CWallet* const pwallet, const UniValue& params)
 
     CAmount nGasFee=nGasPrice*nGasLimit;
 
-    CAmount curBalance = pwallet->GetBalance().m_mine_trusted;
+    const auto bal = pwallet->GetBalance();
+    CAmount curBalance = bal.m_mine_trusted;
+    if(fPsbt) curBalance += bal.m_watchonly_trusted;
 
     // Check amount
     if (nGasFee <= 0)
@@ -1369,17 +1452,18 @@ UniValue SendToContract(CWallet* const pwallet, const UniValue& params)
     CRecipient recipient = {scriptPubKey, nAmount, false};
     vecSend.push_back(recipient);
 
+    bool sign = !fPsbt;
     CTransactionRef tx;
     FeeCalculation fee_calc_out;
-    if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coinControl, fee_calc_out, true, nGasFee, true, signSenderAddress)) {
-        if (nFeeRequired > pwallet->GetBalance().m_mine_trusted)
+    if (!pwallet->CreateTransaction(vecSend, tx, nFeeRequired, nChangePosRet, error, coinControl, fee_calc_out, sign, nGasFee, true, signSenderAddress)) {
+        if (nFeeRequired > curBalance)
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         else strError = error.original;
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
 
     CTxDestination txSenderDest;
-    GetSenderDest(pwallet, tx, txSenderDest);
+    pwallet->GetSenderDest(*tx, txSenderDest, sign);
 
     if (fHasSender && !(senderAddress == txSenderDest)){
         throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
@@ -1387,7 +1471,38 @@ UniValue SendToContract(CWallet* const pwallet, const UniValue& params)
 
     UniValue result(UniValue::VOBJ);
 
-    if(fBroadcast){
+    if(fPsbt){
+        // Make a blank psbt
+        PartiallySignedTransaction psbtx;
+        CMutableTransaction rawTx = CMutableTransaction(*tx);
+        psbtx.tx = rawTx;
+        for (unsigned int i = 0; i < rawTx.vin.size(); ++i) {
+            psbtx.inputs.push_back(PSBTInput());
+        }
+        for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
+            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], pwallet));
+        }
+
+        // Fill transaction with out data but don't sign
+        bool bip32derivs = true;
+        bool complete = true;
+        const TransactionError err = pwallet->FillPSBT(psbtx, complete, 1, false, bip32derivs);
+        if (err != TransactionError::OK) {
+            throw JSONRPCTransactionError(err);
+        }
+
+        // Serialize the PSBT
+        CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+        ssTx << psbtx;
+        result.pushKV("psbt", EncodeBase64(ssTx.str()));
+
+        // Add sender information
+        CTxDestination txSenderAdress(txSenderDest);
+        CKeyID keyid = pwallet->GetKeyForDestination(txSenderAdress);
+        result.pushKV("sender", EncodeDestination(txSenderAdress));
+        result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
+    }
+    else if(fBroadcast){
         pwallet->CommitTransaction(tx, {}, {});
 
         std::string txId=tx->GetHash().GetHex();
@@ -1513,14 +1628,44 @@ public:
                 return false;
         }
 
+        // Set psbt
+        it = lstParams.find(paramPsbt());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 8) {
+                bool val = it->second == "true" ? true : false;
+                UniValue param(UniValue::VBOOL);
+                param.setBool(val);
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+
         // Get execution result
         UniValue response = SendToContract(pwallet, params);
-        if(!response.isObject() || !response.exists("txid"))
+        if(!response.isObject())
             return false;
-        result = response["txid"].get_str();
+        if(privateKeysDisabled())
+        {
+            if(!response.exists("psbt"))
+                return false;
+        }
+        else
+        {
+            if(!response.exists("txid"))
+                return false;
+        }
+        result = privateKeysDisabled() ? response["psbt"].get_str() : response["txid"].get_str();
 
         return true;
     }
+
+    bool privateKeysDisabled() override
+    {
+        return pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    }
+
 private:
     CWallet* const pwallet;
 };
@@ -1543,13 +1688,15 @@ static RPCHelpMan sendtocontract()
                         {"senderAddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The qtum address that will be used as sender."},
                         {"broadcast", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Whether to broadcast the transaction or not."},
                         {"changeToSender", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Return the change to the sender."},
+                        {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Create partially signed transaction."},
                     },
                     RPCResult{
                         RPCResult::Type::ARR, "", "",
                         {
                             {RPCResult::Type::OBJ, "", "",
                             {
-                                {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                                {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                                {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                                 {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
                                 {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"},
                             }},
@@ -1591,7 +1738,8 @@ static RPCHelpMan removedelegationforaddress()
                         {
                             {RPCResult::Type::OBJ, "", "",
                             {
-                                {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                                {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                                {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                                 {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
                                 {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"},
                             }},
@@ -1653,7 +1801,8 @@ static RPCHelpMan setdelegateforaddress()
                         {
                             {RPCResult::Type::OBJ, "", "",
                             {
-                                {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                                {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                                {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                                 {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
                                 {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"},
                             }},
@@ -1678,6 +1827,7 @@ static RPCHelpMan setdelegateforaddress()
     UniValue gasLimit = request.params.size() > 3 ? request.params[3] : DEFAULT_GAS_LIMIT_OP_CREATE;
     UniValue gasPrice = request.params.size() > 4 ? request.params[4] : FormatMoney(nGasPrice);
     UniValue senderaddress = request.params[2];
+    bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
 
     // Parse the staker address
     CTxDestination destStaker = DecodeDestination(request.params[0].get_str());
@@ -1698,19 +1848,32 @@ static RPCHelpMan setdelegateforaddress()
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid contract sender address. Only P2PK and P2PKH allowed");
     }
 
-    // Sign the  staker address
-    std::string str_sig;
-    std::string hexStaker =  ToKeyID(*pkhStaker).GetReverseHex();
-    SigningResult res = wallet->SignMessage(hexStaker, *pkhSender, str_sig);
-    if(res == SigningResult::PRIVATE_KEY_NOT_AVAILABLE)
-    {
+    if (!pwallet->HasPrivateKey(destSender, fPsbt)) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
     }
-    if(res == SigningResult::SIGNING_FAILED)
+
+    // Sign the  staker address
+    std::vector<unsigned char> PoD;
+    std::string hexStaker =  ToKeyID(*pkhStaker).GetReverseHex();
+    if(fPsbt)
     {
-        throw JSONRPCError(RPC_WALLET_ERROR, "Fail to sign the staker address");
+        PoD.insert(PoD.end(), hexStaker.begin(), hexStaker.end());
+        PoD.resize(CPubKey::COMPACT_SIGNATURE_SIZE, 0);
     }
-    std::vector<unsigned char> PoD = DecodeBase64(str_sig.c_str());
+    else
+    {
+        std::string str_sig;
+        SigningResult res = wallet->SignMessage(hexStaker, *pkhSender, str_sig);
+        if(res == SigningResult::PRIVATE_KEY_NOT_AVAILABLE)
+        {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
+        }
+        if(res == SigningResult::SIGNING_FAILED)
+        {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Fail to sign the staker address");
+        }
+        PoD = DecodeBase64(str_sig.c_str());
+    }
 
     // Serialize the data
     std::string datahex;
@@ -4344,14 +4507,26 @@ static RPCHelpMan getwalletinfo()
 
     size_t kpExternalSize = pwallet->KeypoolCountExternalKeys();
     const auto bal = pwallet->GetBalance();
+    CAmount balance = bal.m_mine_trusted;
+    CAmount stake = bal.m_mine_stake;
+    CAmount unconfirmedBalance = bal.m_mine_untrusted_pending;
+    CAmount immatureBalance = bal.m_mine_immature;
+    bool privateKeysEnabled = !pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    if(!privateKeysEnabled)
+    {
+        balance += bal.m_watchonly_trusted;
+        stake += bal.m_watchonly_stake;
+        unconfirmedBalance += bal.m_watchonly_untrusted_pending;
+        immatureBalance += bal.m_watchonly_immature;
+    }
     int64_t kp_oldest = pwallet->GetOldestKeyPoolTime();
     obj.pushKV("walletname", pwallet->GetName());
     obj.pushKV("walletversion", pwallet->GetVersion());
     obj.pushKV("format", pwallet->GetDatabase().Format());
-    obj.pushKV("balance", ValueFromAmount(bal.m_mine_trusted));
-    obj.pushKV("stake", ValueFromAmount(bal.m_mine_stake));
-    obj.pushKV("unconfirmed_balance", ValueFromAmount(bal.m_mine_untrusted_pending));
-    obj.pushKV("immature_balance", ValueFromAmount(bal.m_mine_immature));
+    obj.pushKV("balance", ValueFromAmount(balance));
+    obj.pushKV("stake", ValueFromAmount(stake));
+    obj.pushKV("unconfirmed_balance", ValueFromAmount(unconfirmedBalance));
+    obj.pushKV("immature_balance", ValueFromAmount(immatureBalance));
     obj.pushKV("txcount",       (int)pwallet->mapWallet.size());
     if (kp_oldest > 0) {
         obj.pushKV("keypoololdest", kp_oldest);
@@ -4373,7 +4548,7 @@ static RPCHelpMan getwalletinfo()
         obj.pushKV("unlocked_until", pwallet->nRelockTime);
     }
     obj.pushKV("paytxfee", ValueFromAmount(pwallet->m_pay_tx_fee.GetFeePerK()));
-    obj.pushKV("private_keys_enabled", !pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS));
+    obj.pushKV("private_keys_enabled", privateKeysEnabled);
     obj.pushKV("avoid_reuse", pwallet->IsWalletFlagSet(WALLET_FLAG_AVOID_REUSE));
     if (pwallet->IsScanning()) {
         UniValue scanning(UniValue::VOBJ);
@@ -6483,7 +6658,8 @@ static RPCHelpMan qrc20approve()
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
                     {
-                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                     }
                 },
                 RPCExamples{
@@ -6555,7 +6731,14 @@ static RPCHelpMan qrc20approve()
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to approve token amount for spending");
 
     UniValue result(UniValue::VOBJ);
-    result.pushKV("txid", token.getTxId());
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
     return result;
 },
     };
@@ -6581,7 +6764,8 @@ static RPCHelpMan qrc20transfer()
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
                     {
-                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                     }
                 },
                 RPCExamples{
@@ -6663,7 +6847,14 @@ static RPCHelpMan qrc20transfer()
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to transfer token");
 
     UniValue result(UniValue::VOBJ);
-    result.pushKV("txid", token.getTxId());
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
     return result;
 },
     };
@@ -6690,7 +6881,8 @@ static RPCHelpMan qrc20transferfrom()
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
                     {
-                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                     }
                 },
                 RPCExamples{
@@ -6773,7 +6965,14 @@ static RPCHelpMan qrc20transferfrom()
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to spend token amount from address");
 
     UniValue result(UniValue::VOBJ);
-    result.pushKV("txid", token.getTxId());
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
     return result;
 },
     };
@@ -6798,7 +6997,8 @@ static RPCHelpMan qrc20burn()
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
                     {
-                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                     }
                 },
                 RPCExamples{
@@ -6879,7 +7079,14 @@ static RPCHelpMan qrc20burn()
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to burn token amount");
 
     UniValue result(UniValue::VOBJ);
-    result.pushKV("txid", token.getTxId());
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
     return result;
 },
     };
@@ -6905,7 +7112,8 @@ static RPCHelpMan qrc20burnfrom()
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
                     {
-                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                     }
                 },
                 RPCExamples{
@@ -6987,7 +7195,14 @@ static RPCHelpMan qrc20burnfrom()
         throw JSONRPCError(RPC_MISC_ERROR, "Fail to burn token amount from address");
 
     UniValue result(UniValue::VOBJ);
-    result.pushKV("txid", token.getTxId());
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
     return result;
 },
     };
@@ -7059,7 +7274,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendmany",                         &sendmany,                      {"dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode","fee_rate","verbose"} },
     { "wallet",             "sendmanywithdupes",                &sendmanywithdupes,             {"dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddress",                    &sendtoaddress,                 {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode","avoid_reuse","fee_rate","verbose","senderAddress","changeToSender"} },
-    { "wallet",             "splitutxosforaddress",             &splitutxosforaddress,          {"address","minValue","maxValue","maxOutputs"} },
+    { "wallet",             "splitutxosforaddress",             &splitutxosforaddress,          {"address","minValue","maxValue","maxOutputs","psbt"} },
     { "wallet",             "sethdseed",                        &sethdseed,                     {"newkeypool","seed"} },
     { "wallet",             "setlabel",                         &setlabel,                      {"address","label"} },
     { "wallet",             "settxfee",                         &settxfee,                      {"amount"} },
@@ -7075,8 +7290,8 @@ static const CRPCCommand commands[] =
     { "wallet",             "walletpassphrasechange",           &walletpassphrasechange,        {"oldpassphrase","newpassphrase"} },
     { "wallet",             "walletprocesspsbt",                &walletprocesspsbt,             {"psbt","sign","sighashtype","bip32derivs"} },
     { "wallet",             "reservebalance",                   &reservebalance,                {"reserve", "amount"} },
-    { "wallet",             "createcontract",                   &createcontract,                {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
-    { "wallet",             "sendtocontract",                   &sendtocontract,                {"contractaddress", "datahex", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender"} },
+    { "wallet",             "createcontract",                   &createcontract,                {"bytecode", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender", "psbt"} },
+    { "wallet",             "sendtocontract",                   &sendtocontract,                {"contractaddress", "datahex", "amount", "gasLimit", "gasPrice", "senderAddress", "broadcast", "changeToSender", "psbt"} },
     { "wallet",             "removedelegationforaddress",       &removedelegationforaddress,    {"address", "gasLimit", "gasPrice"} },
     { "wallet",             "setdelegateforaddress",            &setdelegateforaddress,         {"staker", "fee", "address", "gasLimit", "gasPrice"} },
     { "wallet",             "setsuperstakervaluesforaddress",          &setsuperstakervaluesforaddress,       {"params"} },

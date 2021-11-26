@@ -109,7 +109,7 @@ public:
     void UpdatePowNoRetargeting(bool fValue);
     void UpdatePoSNoRetargeting(bool fValue);
     void UpdateMuirGlacierHeight(int nHeight);
-
+    bool HasHardwareWalletSupport() const { return fHasHardwareWalletSupport; }
 protected:
     dev::eth::Network GetEVMNetwork() const;
     CChainParams() {}
@@ -133,6 +133,7 @@ protected:
     bool m_is_mockable_chain;
     CCheckpointData checkpointData;
     ChainTxData chainTxData;
+    bool fHasHardwareWalletSupport;
 };
 
 /**

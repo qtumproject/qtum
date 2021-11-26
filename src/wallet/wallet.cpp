@@ -33,6 +33,7 @@
 #include <wallet/coincontrol.h>
 #include <wallet/fees.h>
 #include <miner.h>
+#include <qtum/qtumledger.h>
 
 #include <univalue.h>
 
@@ -3419,7 +3420,10 @@ uint64_t CWallet::GetStakeWeight(uint64_t* pStakerWeight, uint64_t* pDelegateWei
     if(pDelegateWeight) *pDelegateWeight = nDelegateWeight;
 
     // Choose coins to use
-    CAmount nBalance = GetBalance().m_mine_trusted;
+    const auto bal = GetBalance();
+    CAmount nBalance = bal.m_mine_trusted;
+    if(IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS))
+        nBalance += bal.m_watchonly_trusted;
 
     if (nBalance <= m_reserve_balance)
         return nWeight;
@@ -3475,9 +3479,9 @@ uint64_t CWallet::GetStakeWeight(uint64_t* pStakerWeight, uint64_t* pDelegateWei
     return nWeight;
 }
 
-bool CWallet::CreateCoinStakeFromMine(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, COutPoint& headerPrevout)
+bool CWallet::CreateCoinStakeFromMine(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, bool sign, COutPoint& headerPrevout)
 {
-    bool fAllowWatchOnly = false;
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     CBlockIndex* pindexPrev = ::ChainActive().Tip();
     arith_uint256 bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
@@ -3492,7 +3496,10 @@ bool CWallet::CreateCoinStakeFromMine(unsigned int nBits, const CAmount& nTotalF
     txNew.vout.push_back(CTxOut(0, scriptEmpty));
 
     // Choose coins to use
-    CAmount nBalance = GetBalance().m_mine_trusted;
+    const auto bal = GetBalance();
+    CAmount nBalance = bal.m_mine_trusted;
+    if(fAllowWatchOnly)
+        nBalance += bal.m_watchonly_trusted;
 
     if (nBalance <= m_reserve_balance)
         return false;
@@ -3691,7 +3698,7 @@ bool CWallet::CreateCoinStakeFromMine(unsigned int nBits, const CAmount& nTotalF
     }
 
     // Sign the input coins
-    if(!SignTransactionStake(txNew, vwtxPrev))
+    if(sign && !SignTransactionStake(txNew, vwtxPrev))
         return error("CreateCoinStake : failed to sign coinstake");
 
     // Successfully generated coinstake
@@ -3699,9 +3706,9 @@ bool CWallet::CreateCoinStakeFromMine(unsigned int nBits, const CAmount& nTotalF
     return true;
 }
 
-bool CWallet::CreateCoinStakeFromDelegate(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+bool CWallet::CreateCoinStakeFromDelegate(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
 {
-    bool fAllowWatchOnly = false;
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     CBlockIndex* pindexPrev = ::ChainActive().Tip();
     arith_uint256 bnTargetPerCoinDay;
     bnTargetPerCoinDay.SetCompact(nBits);
@@ -3890,7 +3897,7 @@ bool CWallet::CreateCoinStakeFromDelegate(unsigned int nBits, const CAmount& nTo
     }
 
     // Sign the input coins
-    if(!SignTransactionStake(txNew, vwtxPrev))
+    if(sign && !SignTransactionStake(txNew, vwtxPrev))
         return error("CreateCoinStake : failed to sign coinstake");
 
     // Successfully generated coinstake
@@ -3953,17 +3960,17 @@ bool CWallet::CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned i
     return canSuperStake;
 }
 
-bool CWallet::CreateCoinStake(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+bool CWallet::CreateCoinStake(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
 {
     // Can super stake
     bool canSuperStake = CanSuperStake(setCoins, setDelegateCoins);
 
     // Create coinstake from coins that are delegated to me
-    if(canSuperStake && CreateCoinStakeFromDelegate(nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setDelegateCoins, vchPoD, headerPrevout))
+    if(canSuperStake && CreateCoinStakeFromDelegate(nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setDelegateCoins, sign, vchPoD, headerPrevout))
         return true;
 
     // Create coinstake from coins that are mine
-    if(setCoins.size() > 0 && CreateCoinStakeFromMine(nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setSelectedCoins, selectedOnly, headerPrevout))
+    if(setCoins.size() > 0 && CreateCoinStakeFromMine(nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setSelectedCoins, selectedOnly, sign, headerPrevout))
         return true;
 
     // Fail to create coinstake
@@ -4833,6 +4840,7 @@ std::shared_ptr<CWallet> CWallet::Create(interfaces::Chain& chain, const std::st
     walletInstance->m_staker_max_utxo_script_cache = gArgs.GetArg("-maxstakerutxoscriptcache", DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE);
     walletInstance->m_num_threads = gArgs.GetArg("-stakerthreads", GetNumCores());
     walletInstance->m_num_threads = std::max(1, walletInstance->m_num_threads);
+    walletInstance->m_ledger_id = gArgs.GetArg("-stakerledgerid", "");
 
     walletInstance->WalletLogPrintf("Wallet completed loading in %15dms\n", GetTimeMillis() - nStart);
 
@@ -5931,7 +5939,15 @@ void CWallet::StakeQtums(bool fStake, CConnman* connman)
 
 void CWallet::StartStake(CConnman *connman)
 {
-    m_enabled_staking = true;
+    if(IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS))
+    {
+        m_enabled_staking = !m_ledger_id.empty() && QtumLedger::instance().toolExists();
+    }
+    else
+    {
+        m_enabled_staking = true;
+    }
+
     StakeQtums(true, connman);
 }
 
@@ -6226,11 +6242,13 @@ bool CWallet::SelectCoinsForStaking(CAmount &nTargetValue, std::set<std::pair<co
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     std::map<COutPoint, uint32_t> immatureStakes = chain().getImmatureStakes();
     std::vector<uint256> maturedTx;
+    const bool include_watch_only = GetLegacyScriptPubKeyMan() && IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    const isminetype is_mine_filter = include_watch_only ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
         // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
-        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, ISMINE_SPENDABLE | ISMINE_NO)};
+        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, is_mine_filter | ISMINE_NO)};
         if(tx_credit_mine == 0)
             continue;
 
@@ -6485,11 +6503,13 @@ void CWallet::AvailableAddress(const std::vector<uint256> &maturedTx, size_t fro
 void CWallet::SelectAddress(std::map<uint160, bool> &mapAddress) const
 {
     std::vector<uint256> maturedTx;
+    const bool include_watch_only = GetLegacyScriptPubKeyMan() && IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    const isminetype is_mine_filter = include_watch_only ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
     for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
     {
         // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
-        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, ISMINE_SPENDABLE | ISMINE_NO)};
+        const CAmount tx_credit_mine{pcoin->GetAvailableCredit(/* fUseCache */ true, is_mine_filter | ISMINE_NO)};
         if(tx_credit_mine == 0)
             continue;
 
@@ -6555,13 +6575,79 @@ CKeyID CWallet::GetKeyForDestination(const CTxDestination& dest)
     return ::GetKeyForDestination(*provider, dest);
 }
 
-bool CWallet::GetPubKey(const PKHash& pkhash, CPubKey& pubkey)
+bool CWallet::GetPubKey(const PKHash& pkhash, CPubKey& pubkey) const
 {
     CScript script = GetScriptForDestination(pkhash);
     std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
     if(provider)
     {
         return provider->GetPubKey(ToKeyID(pkhash), pubkey);
+    }
+
+    return false;
+}
+
+bool CWallet::GetKeyOrigin(const PKHash& pkhash, KeyOriginInfo& info) const
+{
+    CScript script = GetScriptForDestination(pkhash);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    if(provider)
+    {
+        return provider->GetKeyOrigin(ToKeyID(pkhash), info);
+    }
+
+    return false;
+}
+
+bool CWallet::GetSenderDest(const CTransaction &tx, CTxDestination &txSenderDest, bool sign) const
+{
+    // Initialize variables
+    CScript senderPubKey;
+
+    // Get sender destination
+    if(tx.HasOpSender())
+    {
+        // Get destination from the outputs
+        for(CTxOut out : tx.vout)
+        {
+            if(out.scriptPubKey.HasOpSender())
+            {
+                if(sign)
+                {
+                    ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
+                }
+                else
+                {
+                    GetSenderPubKey(out.scriptPubKey, senderPubKey);
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        // Get destination from the inputs
+        if(tx.vin.size() > 0 && mapWallet.find(tx.vin[0].prevout.hash) != mapWallet.end())
+        {
+            senderPubKey = mapWallet.at(tx.vin[0].prevout.hash).tx->vout[tx.vin[0].prevout.n].scriptPubKey;
+        }
+    }
+
+    // Extract destination from script
+    return ExtractDestination(senderPubKey, txSenderDest);
+}
+
+bool CWallet::GetHDKeyPath(const CTxDestination &dest, std::string &hdkeypath) const
+{
+    CScript scriptPubKey = GetScriptForDestination(dest);
+    ScriptPubKeyMan* spk_man = GetScriptPubKeyMan(scriptPubKey);
+    if (spk_man) {
+        if (const std::unique_ptr<CKeyMetadata> meta = spk_man->GetMetadata(dest)) {
+            if (meta->has_key_origin) {
+                hdkeypath = WriteHDKeypath(meta->key_origin.path);
+                return true;
+            }
+        }
     }
 
     return false;

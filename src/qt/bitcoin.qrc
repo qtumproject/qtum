@@ -71,6 +71,8 @@
         <file alias="delegate">res/icons/delegate.png</file>
         <file alias="split">res/icons/split.png</file>
         <file alias="superstake">res/icons/superstake.png</file>
+        <file alias="ledger_on">res/icons/ledger_on.png</file>
+        <file alias="ledger_off">res/icons/ledger_off.png</file>
     </qresource>
     <qresource prefix="/animation">
         <file alias="spinner-000">res/animation/spinner-000.png</file>
