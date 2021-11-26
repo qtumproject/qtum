@@ -247,7 +247,7 @@ void CreateWalletActivity::askDevice()
     {
         QString errorMessage;
         bool canceled = false;
-        if(HardwareKeystoreDialog::SelectDevice(m_fingerprint, errorMessage, canceled, m_parent_widget))
+        if(HardwareKeystoreDialog::SelectDevice(m_fingerprint, errorMessage, canceled, false, m_parent_widget))
         {
             createWallet();
         }

@@ -1,1 +1,0 @@
-python3 -m ledgerblue.deleteApp --targetId 0x31100004 --appName Qtum --rootPrivateKey fea057826208738ba33ff0e1ebb8ebf682ab73753afb2d988df03b1b59187d58

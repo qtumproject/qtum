@@ -193,7 +193,7 @@ void SuperStakerItemWidget::updateLogo()
         else if (m_model->wallet().isLocked())
             ui->superStakerLogo->setToolTip(tr("Not staking because wallet is locked"));
         else if(m_model->hasLedgerProblem())
-            ui->superStakerLogo->setToolTip(tr("Not staking because the ledger fail to connect"));
+            ui->superStakerLogo->setToolTip(tr("Not staking because the ledger device failed to connect"));
         else
             ui->superStakerLogo->setToolTip(tr("Not staking"));
     }

@@ -63,6 +63,7 @@ private Q_SLOTS:
         walletModel->checkHardwareWallet();
         walletModel->checkCoinAddressesChanged();
         walletModel->checkStakeWeightChanged();
+        walletModel->checkHardwareDevice();
     }
 };
 
@@ -893,12 +894,12 @@ void WalletModel::checkHardwareWallet()
     if(hardwareWalletInitRequired)
     {
         // Init variables
-        QtumHwiTool hwiTool(this);
+        QtumHwiTool hwiTool;
         hwiTool.setModel(this);
         QString errorMessage;
         bool error = false;
 
-        if(hwiTool.isConnected(fingerprint))
+        if(hwiTool.isConnected(fingerprint, false))
         {
             // Setup key pool
             if(importPKH)
@@ -1011,6 +1012,60 @@ bool WalletModel::hasLedgerProblem()
     return wallet().privateKeysDisabled() &&
             wallet().getEnabledStaking() &&
             !getFingerprint(true).isEmpty();
+}
+
+QList<HWDevice> WalletModel::getDevices()
+{
+    return devices;
+}
+
+void WalletModel::checkHardwareDevice()
+{
+    int64_t time = GetTimeMillis();
+    if(time > (DEVICE_UPDATE_DELAY + deviceTime))
+    {
+        QList<HWDevice> tmpDevices;
+
+        // Get stake device
+        QString fingerprint_stake = getFingerprint(true);
+        if(!fingerprint_stake.isEmpty())
+        {
+            QtumHwiTool hwiTool;
+            QList<HWDevice> _devices;
+            if(hwiTool.enumerate(_devices, true))
+            {
+                for(HWDevice device : _devices)
+                {
+                    if(device.isValid() && device.fingerprint == fingerprint_stake)
+                    {
+                        tmpDevices.push_back(device);
+                    }
+                }
+            }
+        }
+
+        // Get not stake device
+        QString fingerprint_not_stake = getFingerprint();
+        if(!fingerprint_not_stake.isEmpty())
+        {
+            QtumHwiTool hwiTool;
+            QList<HWDevice> _devices;
+            if(hwiTool.enumerate(_devices, false))
+            {
+                for(HWDevice device : _devices)
+                {
+                    if(device.isValid() && device.fingerprint == fingerprint_not_stake)
+                    {
+                        tmpDevices.push_back(device);
+                    }
+                }
+            }
+        }
+
+        // Set update time
+        deviceTime = GetTimeMillis();
+        devices = tmpDevices;
+    }
 }
 
 void WalletModel::join()

@@ -383,10 +383,3 @@ void WalletFrame::signTxHardware(const QString& tx)
     if (walletView)
         walletView->signTxHardware(tx);
 }
-
-void WalletFrame::setupLedger()
-{
-    WalletView *walletView = currentWalletView();
-    if (walletView)
-        walletView->setupLedger();
-}

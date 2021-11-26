@@ -186,15 +186,38 @@ public:
 
         if(gArgs.GetChainName() != CBaseChainParams::MAIN)
         {
-            arguments << "--testnet";
             ledgerMainPath = false;
         }
+
+        arguments << "--chain" << gArgs.GetChainName();
 
         if(!toolExists)
         {
             LogPrintf("QtumLedger(): HWI tool not found %s\n", toolPath);
         }
     }
+
+#ifdef WIN32
+    bool getToolPath(std::string pythonProgram)
+    {
+        toolPath = boost::process::search_path(pythonProgram).string();
+        toolExists &= isPyPath(toolPath);
+        if(!toolExists)
+        {
+            std::string prog = boost::process::search_path("cmd").string();
+            std::vector<std::string> arg;
+            arg << "/c" << pythonProgram << "-c" << "import sys; print(sys.executable)";
+            process.start(prog, arg);
+            process.waitForFinished();
+            toolPath = process.readAllStandardOutput();
+            boost::erase_all(toolPath, "\r");
+            boost::erase_all(toolPath, "\n");
+            toolExists = isPyPath(toolPath);
+            process.clean();
+        }
+        return toolExists;
+    }
+#endif
 
     void initToolPath()
     {
@@ -205,21 +228,8 @@ public:
                 endsWith(toolPath, ".pY"))
         {
             arguments << toolPath;
-            toolPath = boost::process::search_path("python3").string();
-            toolExists &= isPyPath(toolPath);
-            if(!toolExists)
-            {
-                std::string prog = boost::process::search_path("cmd").string();
-                std::vector<std::string> arg;
-                arg << "/c" << "python3" << "-c" << "import sys; print(sys.executable)";
-                process.start(prog, arg);
-                process.waitForFinished();
-                toolPath = process.readAllStandardOutput();
-                boost::erase_all(toolPath, "\r");
-                boost::erase_all(toolPath, "\n");
-                toolExists = isPyPath(toolPath);
-                process.clean();
-            }
+            if(!getToolPath("python3"))
+                getToolPath("python");
         }
 #endif
     }
@@ -291,11 +301,11 @@ bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::stri
     return endSignBlockHeader(fingerprint, header, path, vchSig);
 }
 
-bool QtumLedger::isConnected(const std::string &fingerprint)
+bool QtumLedger::isConnected(const std::string &fingerprint, bool stake)
 {
     // Check if a device is connected
     std::vector<LedgerDevice> devices;
-    if(enumerate(devices))
+    if(enumerate(devices, stake))
     {
         for(LedgerDevice device: devices)
         {
@@ -307,7 +317,7 @@ bool QtumLedger::isConnected(const std::string &fingerprint)
     return false;
 }
 
-bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices)
+bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices, bool stake)
 {
     LOCK(cs_ledger);
     // Check if tool exists
@@ -323,7 +333,7 @@ bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices)
 
     wait();
 
-    return endEnumerate(devices);
+    return endEnumerate(devices, stake);
 }
 
 bool QtumLedger::signTx(const std::string &fingerprint, std::string &psbt)
@@ -489,7 +499,7 @@ bool QtumLedger::beginEnumerate(std::vector<LedgerDevice> &)
     return d->fStarted;
 }
 
-bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices)
+bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices, bool stake)
 {
     // Decode command line results
     UniValue jsonDocument = json_read_doc(d->strStdout);
@@ -510,7 +520,12 @@ bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices)
         device.error = json_get_key_string(data, "error");
         device.model = json_get_key_string(data, "model");
         device.code = json_get_key_string(data, "code");
-        devices.push_back(device);
+        device.app_name = json_get_key_string(data, "app_name");
+        bool isStakeApp = device.app_name == "Qtum Stake" || device.app_name == "Qtum Stake Test";
+        if(isStakeApp == stake)
+        {
+            devices.push_back(device);
+        }
     }
 
     return devices.size() > 0;
@@ -548,10 +563,13 @@ bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const
     std::string descType;
     switch (type) {
     case (int)OutputType::P2SH_SEGWIT:
-        descType = "--sh_wpkh";
+        descType = "sh_wit";
         break;
     case (int)OutputType::BECH32:
-        descType = "--wpkh";
+        descType = "wit";
+        break;
+    case (int)OutputType::LEGACY:
+        descType = "legacy";
         break;
     default:
         break;
@@ -561,7 +579,7 @@ bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const
     std::vector<std::string> arguments = d->arguments;
     arguments << "-f" << fingerprint << "getkeypool";
     if(descType != "")
-        arguments << descType;
+        arguments << "--addr-type" << descType;
     if(path != "")
     {
         arguments << "--path" << path;

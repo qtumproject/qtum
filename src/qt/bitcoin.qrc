@@ -71,6 +71,8 @@
         <file alias="delegate">res/icons/delegate.png</file>
         <file alias="split">res/icons/split.png</file>
         <file alias="superstake">res/icons/superstake.png</file>
+        <file alias="ledger_on">res/icons/ledger_on.png</file>
+        <file alias="ledger_off">res/icons/ledger_off.png</file>
     </qresource>
     <qresource prefix="/animation">
         <file alias="spinner-000">res/animation/spinner-000.png</file>
@@ -239,19 +241,5 @@
         <file alias="down_arrow_unit">res/styles/theme3/app-icons/down_arrow_unit.png</file>
         <file alias="bg">res/styles/theme3/app-icons/bg.png</file>
         <file alias="splash_bg">res/styles/theme3/app-icons/splash_bg.png</file>
-    </qresource>
-    <qresource prefix="/ledger">
-        <file alias="nanos_app">res/ledger/nanos_app.hex</file>
-        <file alias="nanos_load">res/ledger/nanos_load.txt</file>
-        <file alias="nanos_delete">res/ledger/nanos_delete.txt</file>
-        <file alias="nanos_stake_app">res/ledger/nanos_stake_app.hex</file>
-        <file alias="nanos_stake_load">res/ledger/nanos_stake_load.txt</file>
-        <file alias="nanos_stake_delete">res/ledger/nanos_stake_delete.txt</file>
-        <file alias="nanos_test_app">res/ledger/nanos_test_app.hex</file>
-        <file alias="nanos_test_load">res/ledger/nanos_test_load.txt</file>
-        <file alias="nanos_test_delete">res/ledger/nanos_test_delete.txt</file>
-        <file alias="nanos_stake_test_app">res/ledger/nanos_stake_test_app.hex</file>
-        <file alias="nanos_stake_test_load">res/ledger/nanos_stake_test_load.txt</file>
-        <file alias="nanos_stake_test_delete">res/ledger/nanos_stake_test_delete.txt</file>
     </qresource>
 </RCC>
