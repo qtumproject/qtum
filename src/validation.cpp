@@ -60,6 +60,7 @@
 #include <wallet/wallet.h>
 #include <util/convert.h>
 #include <util/signstr.h>
+#include <qtum/qtumledger.h>
 
 #include <algorithm>
 #include <string>
@@ -4843,6 +4844,88 @@ bool CheckFirstCoinstakeOutput(const CBlock& block)
 }
 
 #ifdef ENABLE_WALLET
+bool SignBlockHWI(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<unsigned char>& vchSig)
+{
+    // Check ledger ID
+    if(wallet.m_ledger_id == "") {
+        return false;
+    }
+    QtumLedger &device = QtumLedger::instance();
+
+    // Make a blank psbt
+    PartiallySignedTransaction psbtx_in;
+    CMutableTransaction rawTx = CMutableTransaction(*pblock->vtx[1]);
+    psbtx_in.tx = rawTx;
+    for (unsigned int i = 0; i < rawTx.vin.size(); ++i) {
+        psbtx_in.inputs.push_back(PSBTInput());
+    }
+    for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
+        psbtx_in.outputs.push_back(PSBTOutput());
+    }
+
+    // Get staker path
+    CScript stakerPubKey = rawTx.vout[1].scriptPubKey;
+    CTxDestination txStakerDest = ExtractPublicKeyHash(stakerPubKey);
+    std::string strStaker;
+    if(!wallet.GetHDKeyPath(txStakerDest, strStaker)) {
+        return false;
+    }
+
+    // Fill transaction with out data but don't sign
+    bool bip32derivs = true;
+    bool complete = true;
+    const TransactionError err = wallet.FillPSBT(psbtx_in, complete, 1, false, bip32derivs);
+    if (err != TransactionError::OK) {
+        return false;
+    }
+
+    // Serialize the PSBT
+    if(wallet.IsStakeClosing()) return false;
+    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    ssTx << psbtx_in;
+    std::string psbt = EncodeBase64(ssTx.str());
+    if(!device.signCoinStake(wallet.m_ledger_id, psbt)) {
+        return false;
+    }
+
+    // Unserialize the transactions
+    PartiallySignedTransaction psbtx_out;
+    std::string error;
+    if (!DecodeBase64PSBT(psbtx_out, psbt, error)) {
+        return false;
+    }
+
+    // Update block proof
+    CMutableTransaction txCoinStake;
+    complete = FinalizeAndExtractPSBT(psbtx_out, txCoinStake);
+    if(!complete) {
+        return false;
+    }
+    pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
+    pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+
+    // Sign block header
+    if(wallet.IsStakeClosing()) return false;
+    std::string header = pblock->GetWithoutSign();
+    if(!device.signBlockHeader(wallet.m_ledger_id, header, strStaker, vchSig)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool SignBlockLedger(std::shared_ptr<CBlock> pblock, CWallet& wallet, std::vector<unsigned char>& vchSig)
+{
+    LOCK(cs_ledger);
+    bool ret = SignBlockHWI(pblock, wallet, vchSig);
+    if(!ret && !wallet.IsStakeClosing())
+    {
+        std::string errorMessage = QtumLedger::instance().errorMessage();
+        LogPrintf("WARN: %s: fail to sign block (%s)\n", __func__, errorMessage);
+    }
+    return ret;
+}
+
 // novacoin: attempt to generate suitable proof-of-stake
 bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool tryOnly)
 {
@@ -4872,10 +4955,11 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     nTimeBlock &= ~consensusParams.StakeTimestampMask(nHeight);
     if(!spk_man)
         return false;
+    bool privateKeysDisabled = wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     bool found = false;
     {
         LOCK(cs_main);
-        found = wallet.CreateCoinStake(*spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, vchPoD, headerPrevout);
+        found = wallet.CreateCoinStake(*spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, !privateKeysDisabled, vchPoD, headerPrevout);
     }
     if (found)
     {
@@ -4906,7 +4990,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
 
                 // append a signature to our block and ensure that is compact
                 std::vector<unsigned char> vchSig;
-                bool isSigned = key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
+                bool isSigned = privateKeysDisabled ? SignBlockLedger(pblock, wallet, vchSig) : key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
                 pblock->SetBlockSignature(vchSig);
 
                 // check block header

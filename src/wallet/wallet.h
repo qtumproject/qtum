@@ -115,6 +115,9 @@ static const CAmount DEFAULT_STAKER_MIN_UTXO_SIZE{COIN/10};
 //! -maxstakerutxoscriptcache default
 static const int32_t DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE = 200000;
 
+//! -signpsbtwithhwitool default
+static const bool DEFAULT_SIGN_PSBT_WITH_HWI_TOOL = true;
+
 class CCoinControl;
 class COutput;
 class CScript;
@@ -781,11 +784,12 @@ private:
     boost::thread_group* stakeThread = nullptr;
     void StakeQtums(bool fStake, CConnman* connman);
 
-    bool CreateCoinStakeFromMine(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, COutPoint& headerPrevout);
-    bool CreateCoinStakeFromDelegate(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout);
+    bool CreateCoinStakeFromMine(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, bool sign, COutPoint& headerPrevout);
+    bool CreateCoinStakeFromDelegate(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout);
     bool GetDelegationStaker(const uint160& keyid, Delegation& delegation);
     const CWalletTx* GetCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const PKHash& superStaker, COutPoint& prevout, CAmount& nValueRet);
     const CScriptCache& GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey, std::map<COutPoint, CScriptCache>* insertScriptCache = nullptr) const;
+    bool GetKernelKey(const CKeyID& pubKeyHash, const FillableSigningProvider &keystore, bool canSign, CPubKey& pubKeyKernel, CKey& keyKernel) const;
 
 public:
     /*
@@ -1094,9 +1098,11 @@ public:
 
     uint64_t GetStakeWeight(uint64_t* pStakerWeight = nullptr, uint64_t* pDelegateWeight = nullptr) const;
     uint64_t GetSuperStakerWeight(const uint160& staker) const;
-    bool CreateCoinStake(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout);
+    bool CreateCoinStake(const FillableSigningProvider &keystore, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, CKey& key, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout);
     bool CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const;
     void UpdateMinerStakeCache(bool fStakeCache, const std::vector<COutPoint>& prevouts, CBlockIndex* pindexPrev);
+    bool GetSenderDest(const CTransaction& tx, CTxDestination& txSenderDest, bool sign=true) const;
+    bool GetHDKeyPath(const CTxDestination& dest, std::string& hdkeypath) const;
 
     bool DummySignTx(CMutableTransaction &txNew, const std::set<CTxOut> &txouts, bool use_max_sig = false) const
     {
@@ -1502,6 +1508,7 @@ public:
     std::map<uint160, bool> m_have_coin_superstaker;
     int m_num_threads = 1;
     mutable boost::thread_group threads;
+    std::string m_ledger_id;
 };
 
 /**

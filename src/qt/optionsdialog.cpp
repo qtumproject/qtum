@@ -13,12 +13,16 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+#ifdef ENABLE_WALLET
+#include <qt/hardwaresigntx.h>
+#endif
 
 #include <interfaces/node.h>
 #include <validation.h> // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
 #include <netbase.h>
 #include <txdb.h> // for -dbcache defaults
 #include <qt/styleSheet.h>
+#include <chainparams.h>
 
 #include <QDataWidgetMapper>
 #include <QDir>
@@ -69,6 +73,8 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     ui->proxyPortTorLabel->setEnabled(false);
     ui->proxyPortTor->setValidator(new QIntValidator(1, 65535, this));
 
+    ui->reserveBalance->setNotifyAlways(false);
+
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyIp, &QWidget::setEnabled);
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyIpLabel, &QWidget::setEnabled);
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyPort, &QWidget::setEnabled);
@@ -98,6 +104,22 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         ui->reserveBalanceLabel->setVisible(false);
         ui->reserveBalance->setVisible(false);
         ui->superStaking->setVisible(false);
+        ui->txtHWIToolPath->setVisible(false);
+        ui->toolHWIPath->setVisible(false);
+        ui->HWIToolLabel->setVisible(false);
+        ui->txtStakeLedgerId->setVisible(false);
+        ui->toolStakeLedgerId->setVisible(false);
+        ui->stakeLedgerIdlabel->setVisible(false);
+    }
+    else {
+        bool fHasHardwareWalletSupport = ::Params().HasHardwareWalletSupport();
+        ui->txtHWIToolPath->setVisible(fHasHardwareWalletSupport);
+        ui->toolHWIPath->setVisible(fHasHardwareWalletSupport);
+        ui->HWIToolLabel->setVisible(fHasHardwareWalletSupport);
+        ui->signPSBTHWITool->setVisible(fHasHardwareWalletSupport);
+        ui->txtStakeLedgerId->setVisible(fHasHardwareWalletSupport);
+        ui->toolStakeLedgerId->setVisible(fHasHardwareWalletSupport);
+        ui->stakeLedgerIdlabel->setVisible(fHasHardwareWalletSupport);
     }
 
     /* Display elements init */
@@ -212,9 +234,12 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->superStaking, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->threadsScriptVerif, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
     connect(ui->reserveBalance, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
+    connect(ui->txtHWIToolPath, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
+    connect(ui->txtStakeLedgerId, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
     /* Wallet */
     connect(ui->spendZeroConfChange, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->useChangeAddress, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
+    connect(ui->signPSBTHWITool, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Network */
     connect(ui->allowIncoming, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->connectSocks, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
@@ -246,6 +271,8 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->logEvents, OptionsModel::LogEvents);
     mapper->addMapping(ui->superStaking, OptionsModel::SuperStaking);
     mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance);
+    mapper->addMapping(ui->txtHWIToolPath, OptionsModel::HWIToolPath);
+    mapper->addMapping(ui->txtStakeLedgerId, OptionsModel::StakeLedgerId);
 
     /* Wallet */
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
@@ -253,6 +280,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->zeroBalanceAddressToken, OptionsModel::ZeroBalanceAddressToken);
     mapper->addMapping(ui->useChangeAddress, OptionsModel::UseChangeAddress);
     mapper->addMapping(ui->checkForUpdates, OptionsModel::CheckForUpdates);
+    mapper->addMapping(ui->signPSBTHWITool, OptionsModel::SignPSBTWithHWITool);
 
     /* Network */
     mapper->addMapping(ui->mapPortUpnp, OptionsModel::MapPortUPnP);
@@ -342,6 +370,33 @@ void OptionsDialog::on_okButton_clicked()
 void OptionsDialog::on_cancelButton_clicked()
 {
     reject();
+}
+
+void OptionsDialog::on_toolHWIPath_clicked()
+{
+    QString filename = GUIUtil::getOpenFileName(this,
+        tr("Select HWI tool path"), QDir::homePath(),
+        tr("HWI tool (hwi hwi.py hwi.exe)"), NULL);
+
+    if (filename.isEmpty())
+        return;
+
+    ui->txtHWIToolPath->setText(filename);
+}
+
+void OptionsDialog::on_toolStakeLedgerId_clicked()
+{
+#ifdef ENABLE_WALLET
+    // Get staking device
+    HardwareSignTx hardware(this);
+    QString fingerprint;
+    hardware.askDevice(true, &fingerprint);
+
+    if (fingerprint.isEmpty())
+        return;
+
+    ui->txtStakeLedgerId->setText(fingerprint);
+#endif
 }
 
 void OptionsDialog::on_hideTrayIcon_stateChanged(int fState)

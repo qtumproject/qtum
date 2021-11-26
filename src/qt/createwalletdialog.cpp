@@ -8,6 +8,7 @@
 
 #include <qt/createwalletdialog.h>
 #include <qt/forms/ui_createwalletdialog.h>
+#include <chainparams.h>
 
 #include <QPushButton>
 
@@ -19,6 +20,7 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Create"));
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     ui->wallet_name_line_edit->setFocus(Qt::ActiveWindowFocusReason);
+    ui->hardware_wallet_checkbox->setVisible(::Params().HasHardwareWalletSupport());
 
     connect(ui->wallet_name_line_edit, &QLineEdit::textEdited, [this](const QString& text) {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!text.isEmpty());
@@ -33,6 +35,8 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
         if (!ui->disable_privkeys_checkbox->isEnabled()) {
             ui->disable_privkeys_checkbox->setChecked(false);
         }
+
+        if(checked) ui->hardware_wallet_checkbox->setChecked(false);
     });
 
     connect(ui->disable_privkeys_checkbox, &QCheckBox::toggled, [this](bool checked) {
@@ -57,6 +61,31 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
         ui->descriptor_checkbox->setChecked(false);
     #endif
 
+    connect(ui->hardware_wallet_checkbox, &QCheckBox::toggled, [this](bool checked) {
+        // Disable and uncheck encrypt_wallet_checkbox when isHardwareWalletChecked is true,
+        // enable and check it if isHardwareWalletChecked is false
+        ui->encrypt_wallet_checkbox->setChecked(!checked);
+        ui->encrypt_wallet_checkbox->setEnabled(!checked);
+
+        // Disable disable_privkeys_checkbox
+        // and check it if isHardwareWalletChecked is true or uncheck if isHardwareWalletChecked is false
+        ui->disable_privkeys_checkbox->setEnabled(false);
+        ui->disable_privkeys_checkbox->setChecked(checked);
+
+        // Disable and check blank_wallet_checkbox if isHardwareWalletChecked is true and
+        // enable and uncheck it if isHardwareWalletChecked is false
+        ui->blank_wallet_checkbox->setEnabled(!checked);
+        ui->blank_wallet_checkbox->setChecked(checked);
+
+#ifdef USE_SQLITE
+        // Disable and uncheck descriptor_checkbox when isHardwareWalletChecked is true,
+        // enable it if isHardwareWalletChecked is false
+        if(checked) {
+            ui->descriptor_checkbox->setChecked(false);
+        }
+        ui->descriptor_checkbox->setEnabled(!checked);
+#endif
+    });
 }
 
 CreateWalletDialog::~CreateWalletDialog()
@@ -87,4 +116,9 @@ bool CreateWalletDialog::isMakeBlankWalletChecked() const
 bool CreateWalletDialog::isDescriptorWalletChecked() const
 {
     return ui->descriptor_checkbox->isChecked();
+}
+
+bool CreateWalletDialog::isHardwareWalletChecked() const
+{
+    return ui->hardware_wallet_checkbox->isChecked();
 }

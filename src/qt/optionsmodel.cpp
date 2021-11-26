@@ -153,6 +153,11 @@ void OptionsModel::Init(bool resetSettings)
     if (!settings.contains("bZeroBalanceAddressToken"))
         settings.setValue("bZeroBalanceAddressToken", DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
     bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
+
+    if (!settings.contains("signPSBTWithHWITool"))
+        settings.setValue("signPSBTWithHWITool", DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
+    if (!gArgs.SoftSetBoolArg("-signpsbtwithhwitool", settings.value("signPSBTWithHWITool").toBool()))
+        addOverriddenOption("-signpsbtwithhwitool");
 #endif
 
     if (!settings.contains("fCheckForUpdates"))
@@ -219,6 +224,20 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("Theme", "");
 
     theme = settings.value("Theme").toString();
+
+#ifdef ENABLE_WALLET
+    if (!settings.contains("HWIToolPath"))
+        settings.setValue("HWIToolPath", "");
+
+    if (!gArgs.SoftSetArg("-hwitoolpath", settings.value("HWIToolPath").toString().toStdString()))
+        addOverriddenOption("-hwitoolpath");
+
+    if (!settings.contains("StakeLedgerId"))
+        settings.setValue("StakeLedgerId", "");
+
+    if (!gArgs.SoftSetArg("-stakerledgerid", settings.value("StakeLedgerId").toString().toStdString()))
+        addOverriddenOption("-stakerledgerid");
+#endif
 }
 
 /** Helper function to copy contents from one QSettings to another.
@@ -373,6 +392,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("bZeroBalanceAddressToken");
         case ReserveBalance:
             return settings.value("nReserveBalance");
+        case SignPSBTWithHWITool:
+            return settings.value("signPSBTWithHWITool");
 #endif
         case DisplayUnit:
             return nDisplayUnit;
@@ -406,6 +427,12 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("fCheckForUpdates");
         case Theme:
             return settings.value("Theme");
+#ifdef ENABLE_WALLET
+        case HWIToolPath:
+            return settings.value("HWIToolPath");
+        case StakeLedgerId:
+            return settings.value("StakeLedgerId");
+#endif
         default:
             return QVariant();
         }
@@ -507,6 +534,13 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             settings.setValue("bZeroBalanceAddressToken", bZeroBalanceAddressToken);
             Q_EMIT zeroBalanceAddressTokenChanged(bZeroBalanceAddressToken);
             break;
+        case SignPSBTWithHWITool:
+            if (settings.value("signPSBTWithHWITool") != value) {
+                settings.setValue("signPSBTWithHWITool", value);
+                setRestartRequired(true);
+            }
+            break;
+
 #endif
         case DisplayUnit:
             setDisplayUnit(value);
@@ -601,6 +635,20 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+#ifdef ENABLE_WALLET
+        case HWIToolPath:
+            if (settings.value("HWIToolPath") != value) {
+                settings.setValue("HWIToolPath", value);
+                setRestartRequired(true);
+            }
+            break;
+        case StakeLedgerId:
+            if (settings.value("StakeLedgerId") != value) {
+                settings.setValue("StakeLedgerId", value);
+                setRestartRequired(true);
+            }
+            break;
+#endif
         default:
             break;
         }

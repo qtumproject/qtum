@@ -28,6 +28,7 @@
 #include <qt/stakepage.h>
 #include <qt/delegationpage.h>
 #include <qt/superstakerpage.h>
+#include <qt/hardwaresigntxdialog.h>
 #include <qt/walletframe.h>
 
 #include <interfaces/node.h>
@@ -119,6 +120,16 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     connect(sendCoinsPage, &SendCoinsDialog::message, this, &WalletView::message);
     // Pass through messages from transactionView
     connect(transactionView, &TransactionView::message, this, &WalletView::message);
+    // Pass through messages from createContractPage
+    connect(createContractPage, &CreateContract::message, this, &WalletView::message);
+    // Pass through messages from sendToContractPage
+    connect(sendToContractPage, &SendToContract::message, this, &WalletView::message);
+    // Pass through messages from QRCTokenPage
+    connect(QRCTokenPage, &QRCToken::message, this, &WalletView::message);
+    // Pass through messages from delegationPage
+    connect(delegationPage, &DelegationPage::message, this, &WalletView::message);
+    // Pass through messages from superStakerPage
+    connect(superStakerPage, &SuperStakerPage::message, this, &WalletView::message);
 
     connect(this, &WalletView::setPrivacy, overviewPage, &OverviewPage::setPrivacy);
 }
@@ -505,4 +516,13 @@ void WalletView::showProgress(const QString &title, int nProgress)
 void WalletView::requestedSyncWarningInfo()
 {
     Q_EMIT outOfSyncWarningClicked();
+}
+
+void WalletView::signTxHardware(const QString &tx)
+{
+    if(!walletModel)
+        return;
+    HardwareSignTxDialog dlg(tx, this);
+    dlg.setModel(walletModel);
+    dlg.exec();
 }

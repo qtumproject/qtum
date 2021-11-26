@@ -668,6 +668,8 @@ public:
             // Get the user created addresses in from the address book and add them if they are mine
             for (const auto& item : m_wallet->m_address_book) {
                 if(!m_wallet->IsMine(item.first)) continue;
+                if(item.second.purpose != "receive") continue;
+                if(item.second.destdata.size() == 0) continue;
 
                 std::string strAddress = EncodeDestination(item.first);
                 if (mapAddress.find(strAddress) == mapAddress.end())
@@ -1299,6 +1301,134 @@ public:
         }
 
         return keyID != 0;
+    }
+    bool getAddDelegationData(const std::string& psbt, std::map<int, SignDelegation>& signData, std::string& error) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        try
+        {
+            // Decode transaction
+            PartiallySignedTransaction decoded_psbt;
+            if(!DecodeBase64PSBT(decoded_psbt, psbt, error))
+            {
+                error = "Fail to decode PSBT transaction";
+                return false;
+            }
+
+            if(decoded_psbt.tx->HasOpCall())
+            {
+                // Get sender destination
+                CTransaction tx(*(decoded_psbt.tx));
+                CTxDestination txSenderDest;
+                if(m_wallet->GetSenderDest(tx, txSenderDest, false) == false)
+                {
+                    error = "Fail to get sender destination";
+                    return false;
+                }
+
+                // Get sender HD path
+                std::string strSender;
+                if(m_wallet->GetHDKeyPath(txSenderDest, strSender) == false)
+                {
+                    error = "Fail to get HD key path for sender";
+                    return false;
+                }
+
+                // Get unsigned staker
+                for(size_t i = 0; i < decoded_psbt.tx->vout.size(); i++){
+                    CTxOut v = decoded_psbt.tx->vout[i];
+                    if(v.scriptPubKey.HasOpCall()){
+                        std::vector<unsigned char> data;
+                        v.scriptPubKey.GetData(data);
+                        if(QtumDelegation::IsAddBytecode(data))
+                        {
+                            std::string hexStaker;
+                            if(!QtumDelegation::GetUnsignedStaker(data, hexStaker))
+                            {
+                                error = "Fail to get unsigned staker";
+                                return false;
+                            }
+
+                            // Set data to sign
+                            SignDelegation signDeleg;
+                            signDeleg.delegate = strSender;
+                            signDeleg.staker = hexStaker;
+                            signData[i] = signDeleg;
+                        }
+                    }
+                }
+            }
+        }
+        catch(...)
+        {
+            error = "Unknown error happen";
+            return false;
+        }
+
+        return true;
+    }
+    bool setAddDelegationData(std::string& psbt, const std::map<int, SignDelegation>& signData, std::string& error) override
+    {
+        // Decode transaction
+        PartiallySignedTransaction decoded_psbt;
+        if(!DecodeBase64PSBT(decoded_psbt, psbt, error))
+        {
+            error = "Fail to decode PSBT transaction";
+            return false;
+        }
+
+        // Set signed staker address
+        size_t size = decoded_psbt.tx->vout.size();
+        for (auto it = signData.begin(); it != signData.end(); it++)
+        {
+            size_t n = it->first;
+            std::string PoD = it->second.PoD;
+
+            if(n >= size)
+            {
+                error = "Output not found";
+                return false;
+            }
+
+            CTxOut& v = decoded_psbt.tx->vout[n];
+            if(v.scriptPubKey.HasOpCall()){
+                std::vector<unsigned char> data;
+                v.scriptPubKey.GetData(data);
+                CScript scriptRet;
+                if(QtumDelegation::SetSignedStaker(data, PoD) && v.scriptPubKey.SetData(data, scriptRet))
+                {
+                    v.scriptPubKey = scriptRet;
+                }
+                else
+                {
+                    error = "Fail to set PoD";
+                    return false;
+                }
+            }
+            else
+            {
+                error = "Output not op_call";
+                return false;
+            }
+        }
+
+        // Serialize the PSBT
+        CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+        ssTx << decoded_psbt;
+        psbt = EncodeBase64(ssTx.str());
+
+        return true;
+    }
+    void setStakerLedgerId(const std::string& ledgerId) override
+    {
+        LOCK(m_wallet->cs_wallet);
+        m_wallet->m_ledger_id = ledgerId;
+    }
+    std::string getStakerLedgerId() override
+    {
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->m_ledger_id;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
