@@ -81,11 +81,11 @@ class KeypoolRestoreTest(BitcoinTestFramework):
             # Check that we have marked all keys up to the used keypool key as used
             if self.options.descriptors:
                 if output_type == 'legacy':
-                    assert_equal(self.nodes[idx].getaddressinfo(self.nodes[idx].getnewaddress(address_type=output_type))['hdkeypath'], "m/44'/1'/0'/0/110")
+                    assert_equal(self.nodes[idx].getaddressinfo(self.nodes[idx].getnewaddress(address_type=output_type))['hdkeypath'], "m/44'/88'/0'/0/110")
                 elif output_type == 'p2sh-segwit':
-                    assert_equal(self.nodes[idx].getaddressinfo(self.nodes[idx].getnewaddress(address_type=output_type))['hdkeypath'], "m/49'/1'/0'/0/110")
+                    assert_equal(self.nodes[idx].getaddressinfo(self.nodes[idx].getnewaddress(address_type=output_type))['hdkeypath'], "m/49'/88'/0'/0/110")
                 elif output_type == 'bech32':
-                    assert_equal(self.nodes[idx].getaddressinfo(self.nodes[idx].getnewaddress(address_type=output_type))['hdkeypath'], "m/84'/1'/0'/0/110")
+                    assert_equal(self.nodes[idx].getaddressinfo(self.nodes[idx].getnewaddress(address_type=output_type))['hdkeypath'], "m/84'/88'/0'/0/110")
             else:
                 assert_equal(self.nodes[idx].getaddressinfo(self.nodes[idx].getnewaddress(address_type=output_type))['hdkeypath'], "m/88'/0'/110'")
 

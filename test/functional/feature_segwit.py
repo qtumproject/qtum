@@ -70,7 +70,7 @@ class SegWitTest(BitcoinTestFramework):
             [
                 "-acceptnonstdtxn=1",
                 "-rpcserialversion=1",
-                "-segwitheight=2364" if ENABLE_REDUCED_BLOCK_TIME else "-segwitheight=864",/
+                "-segwitheight=2364" if ENABLE_REDUCED_BLOCK_TIME else "-segwitheight=864",
                 "-addresstype=legacy",
             ],
             [

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
+import shutil
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.messages import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 from test_framework.util import *
@@ -16,12 +17,13 @@ OFFLINE_STAKING_ACTIVATION_HEIGHT = 3*COINBASE_MATURITY+101
 class QtumSimpleDelegationContractTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
-        self.num_nodes = 5
+        self.num_nodes = 6
         self.extra_args = [ ['-txindex=1', '-logevents=1', '-offlinestakingheight=' + str(OFFLINE_STAKING_ACTIVATION_HEIGHT)],
                             ['-txindex=1', '-logevents=1', '-offlinestakingheight=' + str(OFFLINE_STAKING_ACTIVATION_HEIGHT)],
                             ['-txindex', '-offlinestakingheight=' + str(OFFLINE_STAKING_ACTIVATION_HEIGHT)],
                             ['-logevents', '-offlinestakingheight=' + str(OFFLINE_STAKING_ACTIVATION_HEIGHT)],
-                            ['-offlinestakingheight=' + str(OFFLINE_STAKING_ACTIVATION_HEIGHT)]]
+                            ['-offlinestakingheight=' + str(OFFLINE_STAKING_ACTIVATION_HEIGHT)],
+                            ['-txindex=1', '-logevents=1', '-offlinestakingheight=' + str(OFFLINE_STAKING_ACTIVATION_HEIGHT)]]
 
     def get_unused_delegator_prevouts(self):
         delegator_prevouts = collect_prevouts(self.delegator, address=self.delegator_address, min_confirmations=COINBASE_MATURITY)
@@ -102,6 +104,7 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         staker_prevouts = collect_prevouts(self.staker, address=self.staker_address, min_confirmations=COINBASE_MATURITY, min_amount=100)
         staker_prevout_for_nas = staker_prevouts.pop(0)[0]
 
+        print(staker_prevout_for_nas)
         block = create_delegated_pos_block(self.staker, self.staker_eckey, staker_prevout_for_nas, self.delegator_address_hex, pod, fee, delegator_prevouts, nFees=0, nTime=t, use_pos_reward=use_pos_reward)
         assert_equal(self.staker.submitblock(bytes_to_hex_str(block.serialize())), None)
         assert_equal(self.staker.getbestblockhash(), block.hash)
@@ -122,12 +125,15 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         staker_prevouts = collect_prevouts(self.staker, address=self.staker_address, min_confirmations=COINBASE_MATURITY, min_amount=100)
         staker_prevout_for_nas = staker_prevouts.pop(0)[0]
 
+        print(staker_prevout_for_nas)
+
         dupe_prevout_block = create_delegated_pos_block(self.staker, self.staker_eckey, staker_prevout_for_nas, self.delegator_address_hex, pod, fee, dupe_delegator_prevouts, nFees=0, nTime=t, use_pos_reward=use_pos_reward)
         while dupe_prevout_block == None:
             for n in self.nodes: n.setmocktime(t+5)
             t += 0x10
             dupe_prevout_block = create_delegated_pos_block(self.staker, self.staker_eckey, staker_prevout_for_nas, self.delegator_address_hex, pod, fee, dupe_delegator_prevouts, nFees=0, nTime=t, use_pos_reward=use_pos_reward)
 
+        print([n.getblockcount() for n in self.nodes])
         for n in self.nodes:
             assert_equal(n.submitblock(bytes_to_hex_str(dupe_prevout_block.serialize())), 'stake-prevout-not-mature')
         for dupe_delegator_prevout in dupe_delegator_prevouts:
@@ -390,21 +396,31 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         # Allow the staker itself to advance past the activation block (to make sure there is no off-by-one error between the validation and the staker code)
         generatesynchronized(self.staker, OFFLINE_STAKING_ACTIVATION_HEIGHT-3-self.staker.getblockcount(), self.staker_address, self.nodes)
         self.sync_all()
+        print(time.time())
+        print([n.getblockcount() for n in self.nodes])
+
         t = self.staker.getblock(self.staker.getbestblockhash())['time'] & (0xffffffff - TIMESTAMP_MASK)
         self.stop_node(1)
         # delete the wallet so that the node will not immediately begin staking
         # We need to have time so set the correct mocktime before
-        mempool_path = os.path.join(self.staker.datadir, 'regtest', 'wallets', 'wallet.dat')
-        os.remove(mempool_path)
+        shutil.rmtree(self.wallet_path)
+        shutil.copytree(self.wallet_backup_path, self.wallet_path)
+
         self.start_node(1, ['-txindex=1', '-logevents=1', '-offlinestakingheight=' + str(OFFLINE_STAKING_ACTIVATION_HEIGHT), '-staking=1'])
+        print(time.time())
+        print([n.getblockcount() for n in self.nodes])
+
         #self.restart_node(1, ['-txindex=1', '-logevents=1', '-offlinestakingheight=1601'])
         t += 0x20
         for n in self.nodes: n.setmocktime(t)
         
         for i in range(len(self.nodes)):
             if i == 1: continue
-            connect_nodes(self.nodes[1], i)
+            self.connect_nodes(1, i)
 
+
+        print(time.time())
+        print([n.getblockcount() for n in self.nodes])
 
         # We need to generate one block to get clear the staking cache, since it will effectively cache forever due to the diff between mocktime and "real" time at startup
         generatesynchronized(self.staker, 1, None, self.nodes)
@@ -418,6 +434,8 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
 
         t += 0x10
 
+        print(time.time())
+        print([n.getblockcount() for n in self.nodes])
         assert_raises_rpc_error(-5, 'Address does not exist', self.staker.getaccountinfo, DELEGATION_CONTRACT_ADDRESS)
 
         self.stake_one_block(self.staker, t)
@@ -431,7 +449,7 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         for n in self.nodes: n.setmocktime(t+5)
         for i in range(len(self.nodes)):
             if i == 1: continue
-            connect_nodes(self.nodes[1], i)
+            self.connect_nodes(1, i)
 
 
 
@@ -474,7 +492,7 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
 
         for i in range(len(self.nodes)):
             if i == 4: continue
-            connect_nodes(self.nodes[4], i)
+            self.connect_nodes(4, i)
         self.sync_blocks()
 
         for node_send in self.nodes:
@@ -509,7 +527,7 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         # and reconnect
         for i in range(len(self.nodes)):
             if i == 4: continue
-            connect_nodes(self.nodes[4], i)
+            self.connect_nodes(4, i)
 
         self.sync_blocks()
         assert_equal(self.staker.getbestblockhash(), best_block_hash)
@@ -529,7 +547,7 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
 
 
     def run_test(self):
-        for n in self.nodes: n.setmocktime(int(time.time()) - 10000000)
+        for n in self.nodes: n.setmocktime(int(time.time()) - 1199)
         self.used_delegator_prevouts = []
         self.delegator = self.nodes[0]
         self.delegator_address = self.delegator.getnewaddress()
@@ -543,6 +561,10 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         self.staker_privkey = self.staker.dumpprivkey(self.staker_address)
         self.staker_eckey = wif_to_ECKey(self.staker_privkey)
 
+        self.wallet_clean_path = os.path.join(self.nodes[5].datadir, 'regtest', 'wallets')
+        self.wallet_path = os.path.join(self.staker.datadir, 'regtest', 'wallets')
+        self.wallet_backup_path = os.path.join(self.staker.datadir, 'regtest', 'backup_wallets')
+        shutil.copytree(self.wallet_clean_path, self.wallet_backup_path)
 
         self.staker.generatetoaddress(1, self.staker_address)
         self.sync_all()

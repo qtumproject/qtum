@@ -22,6 +22,7 @@ from test_framework.qtum import generatesynchronized
 class ListSinceBlockTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 4
+        self.extra_args =[['-addresstype=bech32']] * 4
         self.setup_clean_chain = True
 
     def skip_test_if_missing_module(self):

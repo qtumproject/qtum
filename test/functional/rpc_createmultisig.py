@@ -25,6 +25,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 3
         self.supports_cli = False
+        self.extra_args = [['-addresstype=bech32']] * 3
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -76,7 +77,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         # Check all permutations of keys because order matters apparently
         for keys in itertools.permutations([pk0, pk1, pk2]):
             # Results should be the same as this legacy one
-            legacy_addr = node0.createmultisig(2, keys, 'legacy')['address']
+            legacy_addr = wmulti0.createmultisig(2, keys, 'legacy')['address']
             assert_equal(legacy_addr, wmulti0.addmultisigaddress(2, keys, '', 'legacy')['address'])
 
             # Generate addresses with the segwit types. These should all make legacy addresses

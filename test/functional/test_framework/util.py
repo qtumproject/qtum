@@ -443,11 +443,12 @@ def find_output(node, txid, amount, *, blockhash=None):
 
 # Helper to create at least "count" utxos
 # Pass in a fee that is sufficient for relay and mining new transactions.
-def create_confirmed_utxos(fee, node, count):
+def create_confirmed_utxos(fee, node, count, sync_lambda=None):
     to_generate = int(0.5 * count) + COINBASE_MATURITY+1
     while to_generate > 0:
-        node.generate(min(25, to_generate))
-        to_generate -= 25
+        node.generate(min(16, to_generate))
+        if sync_lambda: sync_lambda()
+        to_generate -= 16
     utxos = node.listunspent()
     iterations = count - len(utxos)
     addr1 = node.getnewaddress()

@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.address import *
 from test_framework.qtum import *
 import pprint

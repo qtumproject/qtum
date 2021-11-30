@@ -22,6 +22,7 @@ from test_framework.util import (
     get_rpc_proxy,
 )
 from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import generatesynchronized
 
 got_loading_error = False
 def test_load_unload(node, name):
@@ -228,7 +229,10 @@ class MultiWalletTest(BitcoinTestFramework):
         assert_raises_rpc_error(-19, "Wallet file not specified", node.getwalletinfo)
 
         w1, w2, w3, w4, *_ = wallets
-        w1.generatetoaddress(nblocks=COINBASE_MATURITY+1, address=w1.getnewaddress())
+        w1newaddress = w1.getnewaddress()
+        for _ in range(0, COINBASE_MATURITY, 16):
+            w1.generatetoaddress(nblocks=16, address=w1newaddress)
+        w1.generatetoaddress(nblocks=1, address=w1newaddress)
         assert_equal(w1.getbalance(), 2*INITIAL_BLOCK_REWARD)
         assert_equal(w2.getbalance(), 0)
         assert_equal(w3.getbalance(), 0)
@@ -249,9 +253,9 @@ class MultiWalletTest(BitcoinTestFramework):
         self.log.info('Check for per-wallet settxfee call')
         assert_equal(w1.getwalletinfo()['paytxfee'], 0)
         assert_equal(w2.getwalletinfo()['paytxfee'], 0)
-        w2.settxfee(0.001)
+        w2.settxfee(0.01)
         assert_equal(w1.getwalletinfo()['paytxfee'], 0)
-        assert_equal(w2.getwalletinfo()['paytxfee'], Decimal('0.00100000'))
+        assert_equal(w2.getwalletinfo()['paytxfee'], Decimal('0.0100000'))
 
         self.log.info("Test dynamic wallet loading")
 

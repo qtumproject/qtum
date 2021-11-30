@@ -29,6 +29,7 @@ class ToolWalletTest(BitcoinTestFramework):
     def bitcoin_wallet_process(self, *args):
         binary = self.config["environment"]["BUILDDIR"] + '/src/qtum-wallet' + self.config["environment"]["EXEEXT"]
         args = ['-datadir={}'.format(self.nodes[0].datadir), '-chain=%s' % self.chain] + list(args)
+        print(*args)
         return subprocess.Popen([binary] + args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
     def assert_raises_tool_error(self, error, *args):

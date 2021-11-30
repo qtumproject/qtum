@@ -9,7 +9,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error
 )
-
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class WalletDescriptorTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -80,7 +80,7 @@ class WalletDescriptorTest(BitcoinTestFramework):
         send_wrpc = self.nodes[0].get_wallet_rpc("desc1")
 
         # Generate some coins
-        send_wrpc.generatetoaddress(101, send_wrpc.getnewaddress())
+        send_wrpc.generatetoaddress(COINBASE_MATURITY+1, send_wrpc.getnewaddress())
 
         # Make transactions
         self.log.info("Test sending and receiving")

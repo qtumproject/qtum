@@ -715,13 +715,13 @@ class SegWitTest(BitcoinTestFramework):
         if not self.segwit_active:
             # Just check mempool acceptance, but don't add the transaction to the mempool, since witness is disallowed
             # in blocks and the tx is impossible to mine right now.
-            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.00001000')}}])
+            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.00100000')}}])
             # Create the same output as tx3, but by replacing tx
             tx3_out = tx3.vout[0]
             tx3 = tx
             tx3.vout = [tx3_out]
             tx3.rehash()
-            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.00011000')}}])
+            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.01100000')}}])
         test_transaction_acceptance(self.nodes[0], self.test_node, tx3, with_witness=True, accepted=True)
 
         self.nodes[0].generate(1)
@@ -2163,13 +2163,13 @@ class SegWitTest(BitcoinTestFramework):
 
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
-        tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
+        tx.vout.append(CTxOut(self.utxo[0].nValue - 1000000, script_pubkey))
         tx.rehash()
 
         # Create a Segwit transaction
         tx2 = CTransaction()
         tx2.vin.append(CTxIn(COutPoint(tx.sha256, 0), b""))
-        tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000, script_pubkey))
+        tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000000, script_pubkey))
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [witness_program]
         tx2.rehash()

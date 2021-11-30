@@ -538,7 +538,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.nodes[1].getnewaddress()
         self.nodes[1].getrawchangeaddress()
         inputs = []
-        outputs = {self.nodes[0].getnewaddress():1.09999500}
+        outputs = {self.nodes[0].getnewaddress():1.09922}
         rawtx = self.nodes[1].createrawtransaction(inputs, outputs)
         # fund a transaction that does not require a new key for the change output
         self.nodes[1].fundrawtransaction(rawtx)
@@ -735,10 +735,10 @@ class RawTransactionsTest(BitcoinTestFramework):
         assert_fee_amount(result6['fee'], count_bytes(result6['hex']), 0)
 
         # With no arguments passed, expect fee of 141 satoshis.
-        assert_approx(node.fundrawtransaction(rawtx)["fee"], vexp=0.00000141, vspan=0.00000001)
+        assert_approx(node.fundrawtransaction(rawtx)["fee"], vexp=0.0009, vspan=0.00000001)
         # Expect fee to be 10,000x higher when an explicit fee rate 10,000x greater is specified.
         result = node.fundrawtransaction(rawtx, {"fee_rate": 10000})
-        assert_approx(result["fee"], vexp=0.0141, vspan=0.0001)
+        assert_approx(result["fee"], vexp=0.02250000, vspan=0.0001)
 
         self.log.info("Test fundrawtxn with invalid estimate_mode settings")
         for k, v in {"number": 42, "object": {"foo": "bar"}}.items():
@@ -759,7 +759,7 @@ class RawTransactionsTest(BitcoinTestFramework):
                     node.fundrawtransaction, rawtx, {"estimate_mode": mode, "conf_target": n, "add_inputs": True})
 
         self.log.info("Test invalid fee rate settings")
-        for param, value in {("fee_rate", 100000), ("feeRate", 1.000)}:
+        for param, value in {("fee_rate", 500000), ("feeRate", 5.000)}:
             assert_raises_rpc_error(-4, "Fee exceeds maximum configured by user (e.g. -maxtxfee, maxfeerate)",
                 node.fundrawtransaction, rawtx, {param: value, "add_inputs": True})
             assert_raises_rpc_error(-3, "Amount out of range",
@@ -774,7 +774,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         node.fundrawtransaction(rawtx, {"feeRate": 0.00000999, "add_inputs": True})
 
         self.log.info("- raises RPC error if both feeRate and fee_rate are passed")
-        assert_raises_rpc_error(-8, "Cannot specify both fee_rate (sat/vB) and feeRate (BTC/kvB)",
+        assert_raises_rpc_error(-8, "Cannot specify both fee_rate (sat/vB) and feeRate (QTUM/kvB)",
             node.fundrawtransaction, rawtx, {"fee_rate": 0.1, "feeRate": 0.1, "add_inputs": True})
 
         self.log.info("- raises RPC error if both feeRate and estimate_mode passed")

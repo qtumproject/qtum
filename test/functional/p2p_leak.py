@@ -10,6 +10,7 @@ received a VERACK.
 This test connects to a node and sends it a few messages, trying to entice it
 into sending us something it shouldn't."""
 
+from test_framework.qtumconfig import COINBASE_MATURITY
 import time
 
 from test_framework.messages import (
@@ -141,7 +142,7 @@ class P2PLeakTest(BitcoinTestFramework):
         assert_greater_than_or_equal(time.time() + 3600, ver.nTime)
         assert_equal(ver.addrFrom.port, 0)
         assert_equal(ver.addrFrom.ip, '0.0.0.0')
-        assert_equal(ver.nStartingHeight, 201)
+        assert_equal(ver.nStartingHeight, COINBASE_MATURITY+101)
         assert_equal(ver.nRelay, 1)
 
         self.log.info('Check that old peers are disconnected')
