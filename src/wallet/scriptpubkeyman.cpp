@@ -1908,14 +1908,18 @@ bool DescriptorScriptPubKeyMan::SetupDescriptorGeneration(const CExtKey& master_
         desc_prefix = "wpkh(" + xpub + "/84'";
         break;
     }
+    case OutputType::P2PK: {
+        desc_prefix = "pk(" + xpub + "/44'";
+        break;
+    }
     } // no default case, so the compiler can warn about missing cases
     assert(!desc_prefix.empty());
 
     // Mainnet derives at 0', testnet and regtest derive at 1'
     if (Params().IsTestChain()) {
-        desc_prefix += "/1'";
+        desc_prefix += "/88'";
     } else {
-        desc_prefix += "/0'";
+        desc_prefix += "/88'";
     }
 
     std::string internal_path = m_internal ? "/1" : "/0";
@@ -2264,4 +2268,75 @@ const std::vector<CScript> DescriptorScriptPubKeyMan::GetScriptPubKeys() const
         script_pub_keys.push_back(script_pub_key.first);
     }
     return script_pub_keys;
+}
+
+bool LegacyScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, int sighash, std::map<int, std::string> &output_errors) const
+{
+    return ::SignTransactionOutput(tx, this, sighash, output_errors);
+}
+
+bool DescriptorScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, int sighash, std::map<int, std::string> &output_errors) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = MakeUnique<FlatSigningProvider>();
+    for (CTxOut& output : tx.vout)
+    {
+        if(output.scriptPubKey.HasOpSender())
+        {
+            CScript scriptPubKey;
+            if(GetSenderPubKey(output.scriptPubKey, scriptPubKey))
+            {
+                std::unique_ptr<FlatSigningProvider> coin_keys = GetSigningProvider(scriptPubKey, true);
+                if (!coin_keys) {
+                    return false;
+                }
+                *keys = Merge(*keys, *coin_keys);
+            }
+        }
+    }
+
+    return ::SignTransactionOutput(tx, keys.get(), sighash, output_errors);
+}
+
+bool LegacyScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<CTxOut, unsigned int> > &coins) const
+{
+    return ::SignTransactionStake(tx, this, coins);
+}
+
+bool DescriptorScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<CTxOut, unsigned int> > &coins) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = MakeUnique<FlatSigningProvider>();
+    for (const auto& coin_pair : coins) {
+        std::unique_ptr<FlatSigningProvider> coin_keys = GetSigningProvider(coin_pair.first.scriptPubKey, true);
+        if (!coin_keys) {
+            continue;
+        }
+        *keys = Merge(*keys, *coin_keys);
+    }
+
+    return ::SignTransactionStake(tx, keys.get(), coins);
+}
+
+bool LegacyScriptPubKeyMan::SignBlockStake(CBlock &block, const PKHash &pkhash, bool compact) const
+{
+    CKey key;
+    if (!GetKey(ToKeyID(pkhash), key)) {
+        return false;
+    }
+
+    return ::SignBlockStake(block, key, compact);
+}
+
+bool DescriptorScriptPubKeyMan::SignBlockStake(CBlock &block, const PKHash &pkhash, bool compact) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = GetSigningProvider(GetScriptForDestination(pkhash), true);
+    if (!keys) {
+        return false;
+    }
+
+    CKey key;
+    if (!keys->GetKey(ToKeyID(pkhash), key)) {
+        return false;
+    }
+
+    return ::SignBlockStake(block, key, compact);
 }

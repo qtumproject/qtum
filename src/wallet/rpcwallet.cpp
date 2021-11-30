@@ -940,23 +940,24 @@ static RPCHelpMan splitutxosforaddress()
     };
 }
 
-PSBTOutput GetPsbtOutput(const CTxOut& v, LegacyScriptPubKeyMan& spk_man)
+PSBTOutput GetPsbtOutput(const CTxOut& v, CWallet* const pwallet)
 {
     PSBTOutput out;
     if(v.scriptPubKey.HasOpSender())
     {
         CScript senderPubKey;
-        bool ok = GetSenderPubKey(v.scriptPubKey, senderPubKey);
-        CKeyID key_id = ToKeyID(ExtractPublicKeyHash(senderPubKey));
-        ok &= !key_id.IsNull();
+        PKHash pkhash ;
         CPubKey vchPubKeyOut;
-        ok &=  spk_man.GetPubKey(key_id, vchPubKeyOut);
         KeyOriginInfo info;
-        ok &=  spk_man.GetKeyOrigin(key_id, info);
+        bool ok = GetSenderPubKey(v.scriptPubKey, senderPubKey);
         if(ok)
         {
-            out.hd_keypaths[vchPubKeyOut] = info;
+            pkhash = ExtractPublicKeyHash(senderPubKey);
+            ok &= pkhash != PKHash();
         }
+        if(ok) ok &=  pwallet->GetPubKey(pkhash, vchPubKeyOut);
+        if(ok) ok &=  pwallet->GetKeyOrigin(pkhash, info);
+        if(ok) out.hd_keypaths[vchPubKeyOut] = info;
     }
 
     return out;
@@ -1020,7 +1021,6 @@ static RPCHelpMan createcontract()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
     std::string bytecode=request.params[0].get_str();
@@ -1158,20 +1158,10 @@ static RPCHelpMan createcontract()
     {
         if(IsValidDestination(signSenderAddress))
         {
-            CKeyID key_id = GetKeyForDestination(spk_man, signSenderAddress);
-            if(fPsbt)
-            {
-                if(!pwallet->IsMine(signSenderAddress)) {
-                    throw JSONRPCError(RPC_WALLET_ERROR, "Sender address not mine");
-                }
+            if (!pwallet->HasPrivateKey(signSenderAddress, coinControl.fAllowWatchOnly)) {
+                throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
             }
-            else
-            {
-                CKey key;
-                if (!spk_man.GetKey(key_id, key)) {
-                    throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
-                }
-            }
+            CKeyID key_id = pwallet->GetKeyForDestination(signSenderAddress);
             std::vector<unsigned char> scriptSig;
             scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
         }
@@ -1218,7 +1208,7 @@ static RPCHelpMan createcontract()
             psbtx.inputs.push_back(PSBTInput());
         }
         for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
-            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], spk_man));
+            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], pwallet));
         }
 
         // Fill transaction with out data but don't sign
@@ -1236,7 +1226,7 @@ static RPCHelpMan createcontract()
 
         // Add sender information
         CTxDestination txSenderAdress(txSenderDest);
-        CKeyID keyid = GetKeyForDestination(spk_man, txSenderAdress);
+        CKeyID keyid = pwallet->GetKeyForDestination(txSenderAdress);
         result.pushKV("sender", EncodeDestination(txSenderAdress));
         result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
     }
@@ -1247,7 +1237,7 @@ static RPCHelpMan createcontract()
     result.pushKV("txid", txId);
 
     CTxDestination txSenderAdress(txSenderDest);
-    CKeyID keyid = GetKeyForDestination(spk_man, txSenderAdress);
+    CKeyID keyid = pwallet->GetKeyForDestination(txSenderAdress);
 
     result.pushKV("sender", EncodeDestination(txSenderAdress));
     result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
@@ -1278,7 +1268,7 @@ static RPCHelpMan createcontract()
     };
 }
 
-UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, const UniValue& params)
+UniValue SendToContract(CWallet* const pwallet, const UniValue& params)
 {
     uint64_t blockGasLimit = 0, minGasPrice = 0;
     CAmount nGasPrice = 0;
@@ -1439,20 +1429,10 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
     {
         if(IsValidDestination(signSenderAddress))
         {
-            CKeyID key_id = GetKeyForDestination(spk_man, signSenderAddress);
-            if(fPsbt)
-            {
-                if(!pwallet->IsMine(signSenderAddress)) {
-                    throw JSONRPCError(RPC_WALLET_ERROR, "Sender address not mine");
-                }
+            if (!pwallet->HasPrivateKey(signSenderAddress, coinControl.fAllowWatchOnly)) {
+                throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
             }
-            else
-            {
-                CKey key;
-                if (!spk_man.GetKey(key_id, key)) {
-                    throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available");
-                }
-            }
+            CKeyID key_id = pwallet->GetKeyForDestination(signSenderAddress);
             std::vector<unsigned char> scriptSig;
             scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(key_id) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
         }
@@ -1500,7 +1480,7 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
             psbtx.inputs.push_back(PSBTInput());
         }
         for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
-            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], spk_man));
+            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], pwallet));
         }
 
         // Fill transaction with out data but don't sign
@@ -1518,7 +1498,7 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
 
         // Add sender information
         CTxDestination txSenderAdress(txSenderDest);
-        CKeyID keyid = GetKeyForDestination(spk_man, txSenderAdress);
+        CKeyID keyid = pwallet->GetKeyForDestination(txSenderAdress);
         result.pushKV("sender", EncodeDestination(txSenderAdress));
         result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
     }
@@ -1529,7 +1509,7 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
         result.pushKV("txid", txId);
 
         CTxDestination txSenderAdress(txSenderDest);
-        CKeyID keyid = GetKeyForDestination(spk_man, txSenderAdress);
+        CKeyID keyid = pwallet->GetKeyForDestination(txSenderAdress);
 
         result.pushKV("sender", EncodeDestination(txSenderAdress));
         result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
@@ -1547,10 +1527,8 @@ UniValue SendToContract(CWallet* const pwallet, LegacyScriptPubKeyMan& spk_man, 
 class SendToken : public CallToken
 {
 public:
-    SendToken(CWallet* const _pwallet,
-              LegacyScriptPubKeyMan& _spk_man):
-        pwallet(_pwallet),
-        spk_man(_spk_man)
+    SendToken(CWallet* const _pwallet):
+        pwallet(_pwallet)
     {}
 
     bool execValid(const int& func, const bool& sendTo) override
@@ -1665,7 +1643,7 @@ public:
         }
 
         // Get execution result
-        UniValue response = SendToContract(pwallet, spk_man, params);
+        UniValue response = SendToContract(pwallet, params);
         if(!response.isObject())
             return false;
         if(privateKeysDisabled())
@@ -1690,7 +1668,6 @@ public:
 
 private:
     CWallet* const pwallet;
-    LegacyScriptPubKeyMan& spk_man;
 };
 
 static RPCHelpMan sendtocontract()
@@ -1735,10 +1712,9 @@ static RPCHelpMan sendtocontract()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
-    return SendToContract(pwallet, spk_man, request.params);
+    return SendToContract(pwallet, request.params);
 },
     };
 }
@@ -1779,7 +1755,6 @@ static RPCHelpMan removedelegationforaddress()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
     // Get send to contract parameters for removing delegation for address
@@ -1800,7 +1775,7 @@ static RPCHelpMan removedelegationforaddress()
     params.push_back(senderaddress);
 
     // Send to contract
-    return SendToContract(pwallet, spk_man, params);
+    return SendToContract(pwallet, params);
 },
     };
 }
@@ -1843,7 +1818,6 @@ static RPCHelpMan setdelegateforaddress()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
     // Get send to contract parameters for add delegation for address
@@ -1874,20 +1848,8 @@ static RPCHelpMan setdelegateforaddress()
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid contract sender address. Only P2PK and P2PKH allowed");
     }
 
-    // Get the private key for the sender address
-    CKey key;
-    CKeyID keyID = ToKeyID(*pkhSender);
-    if(fPsbt)
-    {
-        if(!pwallet->IsMine(destSender)) {
-            throw JSONRPCError(RPC_WALLET_ERROR, "Sender address not mine");
-        }
-    }
-    else
-    {
-        if (!spk_man.GetKey(keyID, key)) {
-            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
-        }
+    if (!pwallet->HasPrivateKey(destSender, fPsbt)) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
     }
 
     // Sign the  staker address
@@ -1900,8 +1862,17 @@ static RPCHelpMan setdelegateforaddress()
     }
     else
     {
-        if(!SignStr::SignMessage(key, hexStaker, PoD))
+        std::string str_sig;
+        SigningResult res = wallet->SignMessage(hexStaker, *pkhSender, str_sig);
+        if(res == SigningResult::PRIVATE_KEY_NOT_AVAILABLE)
+        {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
+        }
+        if(res == SigningResult::SIGNING_FAILED)
+        {
             throw JSONRPCError(RPC_WALLET_ERROR, "Fail to sign the staker address");
+        }
+        PoD = DecodeBase64(str_sig.c_str());
     }
 
     // Serialize the data
@@ -1919,7 +1890,7 @@ static RPCHelpMan setdelegateforaddress()
     params.push_back(senderaddress);
 
     // Send to contract
-    return SendToContract(pwallet, spk_man, params);
+    return SendToContract(pwallet, params);
 },
     };
 }
@@ -5507,11 +5478,18 @@ RPCHelpMan signrawsendertransactionwithwallet()
     }
 
     // Sign the transaction
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
-    LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
+    LOCK(pwallet->cs_wallet);
     EnsureWalletIsUnlocked(pwallet);
 
-    return SignTransactionSender(mtx, &spk_man, request.params[1]);
+    int nHashType = ParseSighashString(request.params[1]);
+
+    // Script verification errors
+    std::map<int, std::string> output_errors;
+
+    bool complete = pwallet->SignTransactionOutput(mtx, nHashType, output_errors);
+    UniValue result(UniValue::VOBJ);
+    SignTransactionOutputResultToJSON(mtx, complete, output_errors, result);
+    return result;
 },
     };
 }
@@ -5871,7 +5849,7 @@ public:
     UniValue operator()(const WitnessUnknown& id) const { return UniValue(UniValue::VOBJ); }
 };
 
-static UniValue DescribeWalletAddress(const CWallet* const pwallet, const CTxDestination& dest)
+UniValue DescribeWalletAddress(const CWallet* const pwallet, const CTxDestination& dest)
 {
     UniValue ret(UniValue::VOBJ);
     UniValue detail = DescribeAddress(dest);
@@ -6696,7 +6674,6 @@ static RPCHelpMan qrc20approve()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
     // Get mandatory parameters
@@ -6723,7 +6700,7 @@ static RPCHelpMan qrc20approve()
     }
 
     // Set token parameters
-    SendToken token(pwallet, spk_man);
+    SendToken token(pwallet);
     token.setAddress(contract);
     token.setSender(owner);
     token.setGasLimit(i64tostr(nGasLimit));
@@ -6803,7 +6780,6 @@ static RPCHelpMan qrc20transfer()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
     // Get mandatory parameters
@@ -6830,7 +6806,7 @@ static RPCHelpMan qrc20transfer()
     }
 
     // Set token parameters
-    SendToken token(pwallet, spk_man);
+    SendToken token(pwallet);
     token.setAddress(contract);
     token.setSender(owner);
     token.setGasLimit(i64tostr(nGasLimit));
@@ -6921,7 +6897,6 @@ static RPCHelpMan qrc20transferfrom()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
     // Get mandatory parameters
@@ -6949,7 +6924,7 @@ static RPCHelpMan qrc20transferfrom()
     }
 
     // Set token parameters
-    SendToken token(pwallet, spk_man);
+    SendToken token(pwallet);
     token.setAddress(contract);
     token.setSender(spender);
     token.setGasLimit(i64tostr(nGasLimit));
@@ -7038,7 +7013,6 @@ static RPCHelpMan qrc20burn()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
     // Get mandatory parameters
@@ -7064,7 +7038,7 @@ static RPCHelpMan qrc20burn()
     }
 
     // Set token parameters
-    SendToken token(pwallet, spk_man);
+    SendToken token(pwallet);
     token.setAddress(contract);
     token.setSender(owner);
     token.setGasLimit(i64tostr(nGasLimit));
@@ -7154,7 +7128,6 @@ static RPCHelpMan qrc20burnfrom()
     if (!wallet) return NullUniValue;
     CWallet* const pwallet = wallet.get();
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
 
     // Get mandatory parameters
@@ -7181,7 +7154,7 @@ static RPCHelpMan qrc20burnfrom()
     }
 
     // Set token parameters
-    SendToken token(pwallet, spk_man);
+    SendToken token(pwallet);
     token.setAddress(contract);
     token.setSender(spender);
     token.setGasLimit(i64tostr(nGasLimit));

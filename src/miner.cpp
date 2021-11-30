@@ -953,11 +953,9 @@ public:
         pwallet(_pwallet),
         cacheHeight(0),
         type(StakerType::STAKER_NORMAL),
-        spk_man(0),
-        privateKeysDisabled(false)
+        fAllowWatchOnly(false)
     {
-        spk_man = _pwallet->GetLegacyScriptPubKeyMan();
-        privateKeysDisabled = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+        fAllowWatchOnly = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
 
         // Get allow list
         for (const std::string& strAddress : gArgs.GetArgs("-stakingallowlist"))
@@ -1002,15 +1000,7 @@ public:
 
     bool Match(const DelegationEvent& event) const override
     {
-        bool mine = false;
-        if(privateKeysDisabled)
-        {
-            mine = pwallet->IsMine(PKHash(event.item.staker));
-        }
-        else
-        {
-            mine = spk_man->HaveKey(CKeyID(event.item.staker));
-        }
+        bool mine = pwallet->HasPrivateKey(PKHash(event.item.staker), fAllowWatchOnly);
         if(!mine)
             return false;
 
@@ -1087,8 +1077,7 @@ private:
     std::vector<uint160> allowList;
     std::vector<uint160> excludeList;
     int type;
-    LegacyScriptPubKeyMan* spk_man;
-    bool privateKeysDisabled;
+    bool fAllowWatchOnly;
 };
 
 class MyDelegations : public DelegationFilterBase
@@ -1098,21 +1087,14 @@ public:
         pwallet(_pwallet),
         cacheHeight(0),
         cacheAddressHeight(0),
-        spk_man(0),
-        privateKeysDisabled(false)
+        fAllowWatchOnly(false)
     {
-        spk_man = _pwallet->GetLegacyScriptPubKeyMan();
-        privateKeysDisabled = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+        fAllowWatchOnly = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 
     bool Match(const DelegationEvent& event) const override
     {
-        if(privateKeysDisabled)
-        {
-            return pwallet->IsMine(PKHash(event.item.delegate));
-        }
-
-        return spk_man->HaveKey(CKeyID(event.item.delegate));
+        return pwallet->HasPrivateKey(PKHash(event.item.delegate), fAllowWatchOnly);
     }
 
     void Update(int32_t nHeight)
@@ -1164,7 +1146,7 @@ public:
                 for(auto item : pwallet->mapDelegation)
                 {
                     uint160 address = item.second.delegateAddress;
-                    if(spk_man->HaveKey(CKeyID(address)))
+                    if(pwallet->HasPrivateKey(PKHash(address), fAllowWatchOnly))
                     {
                         if (mapAddress.find(address) == mapAddress.end())
                         {
@@ -1214,8 +1196,7 @@ private:
     int32_t cacheHeight;
     int32_t cacheAddressHeight;
     std::map<uint160, Delegation> cacheMyDelegations;
-    LegacyScriptPubKeyMan* spk_man;
-    bool privateKeysDisabled;
+    bool fAllowWatchOnly;
 };
 
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)

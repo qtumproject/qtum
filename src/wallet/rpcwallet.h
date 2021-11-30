@@ -10,6 +10,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <script/standard.h>
+#include <univalue.h>
 
 class CRPCCommand;
 class CWallet;
@@ -33,6 +35,7 @@ std::shared_ptr<CWallet> GetWalletForJSONRPCRequest(const JSONRPCRequest& reques
 void EnsureWalletIsUnlocked(const CWallet*);
 WalletContext& EnsureWalletContext(const util::Ref& context);
 LegacyScriptPubKeyMan& EnsureLegacyScriptPubKeyMan(CWallet& wallet, bool also_create = false);
+UniValue DescribeWalletAddress(const CWallet* const pwallet, const CTxDestination& dest);
 
 RPCHelpMan getaddressinfo();
 RPCHelpMan signrawtransactionwithwallet();

@@ -69,15 +69,14 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     result.has_create_or_call = wtx.tx->HasCreateOrCall();
     if(result.has_create_or_call)
     {
-        LegacyScriptPubKeyMan* spk_man = wallet.GetLegacyScriptPubKeyMan();
         CTxDestination tx_sender_address;
         if(wtx.tx && wtx.tx->vin.size() > 0 && wallet.mapWallet.find(wtx.tx->vin[0].prevout.hash) != wallet.mapWallet.end() &&
                 ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address)) {
-            result.tx_sender_key = GetKeyForDestination(*spk_man, tx_sender_address);
+            result.tx_sender_key = wallet.GetKeyForDestination(tx_sender_address);
         }
 
         for(CTxDestination address : result.txout_address) {
-            result.txout_keys.emplace_back(GetKeyForDestination(*spk_man, address));
+            result.txout_keys.emplace_back(wallet.GetKeyForDestination(address));
         }
     }
     return result;

@@ -39,7 +39,8 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keyst
 /** Create a transaction from univalue parameters */
 CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, bool rbf);
 
-UniValue SignTransactionSender(CMutableTransaction& mtx, FillableSigningProvider *keystore, const UniValue& hashType);
+void SignTransactionOutput(CMutableTransaction& mtx, FillableSigningProvider *keystore, const UniValue& hashType, UniValue& result);
+void SignTransactionOutputResultToJSON(CMutableTransaction& mtx, bool complete, std::map<int, std::string>& output_errors, UniValue& result);
 
 void CheckSenderSignatures(CMutableTransaction& mtx);
 
