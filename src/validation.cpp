@@ -4864,58 +4864,81 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
     //int64_t nSearchInterval = IsProtocolV2(nBestHeight+1) ? 1 : nSearchTime - nLastCoinStakeSearchTime;
     //IsProtocolV2 mean POS 2 or higher, so the modified line is:
     if(wallet.IsStakeClosing()) return false;
-    auto locked_chain = wallet.chain().lock();
-    LOCK(wallet.cs_wallet);
-    LegacyScriptPubKeyMan* spk_man = wallet.GetLegacyScriptPubKeyMan();
-    uint32_t nHeight = ::ChainActive().Height() + 1;
+    bool fSignWithLedger = false;
     const Consensus::Params& consensusParams = Params().GetConsensus();
-    nTimeBlock &= ~consensusParams.StakeTimestampMask(nHeight);
-    if(!spk_man)
-        return false;
-    bool privateKeysDisabled = wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
-    if (wallet.CreateCoinStake(*locked_chain, *spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, !privateKeysDisabled, vchPoD, headerPrevout))
     {
-        if (nTimeBlock >= ::ChainActive().Tip()->GetMedianTimePast()+1)
+        auto locked_chain = wallet.chain().lock();
+        LOCK(wallet.cs_wallet);
+        LegacyScriptPubKeyMan* spk_man = wallet.GetLegacyScriptPubKeyMan();
+        uint32_t nHeight = ::ChainActive().Height() + 1;
+        nTimeBlock &= ~consensusParams.StakeTimestampMask(nHeight);
+        if(!spk_man)
+            return false;
+        bool privateKeysDisabled = wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+        if (wallet.CreateCoinStake(*locked_chain, *spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, !privateKeysDisabled, vchPoD, headerPrevout))
         {
-            // make sure coinstake would meet timestamp protocol
-            //    as it would be the same as the block timestamp
-            pblock->nTime = nTimeBlock;
-            pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
-            pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
-            pblock->prevoutStake = headerPrevout;
-
-            if(tryOnly)
-                return true;
-
-            // Check timestamp against prev
-            if(pblock->GetBlockTime() <= ::ChainActive().Tip()->GetBlockTime() || FutureDrift(pblock->GetBlockTime(), nHeight, consensusParams) < ::ChainActive().Tip()->GetBlockTime())
+            if (nTimeBlock >= ::ChainActive().Tip()->GetMedianTimePast()+1)
             {
-                return false;
-            }
+                // make sure coinstake would meet timestamp protocol
+                //    as it would be the same as the block timestamp
+                pblock->nTime = nTimeBlock;
+                pblock->vtx[1] = MakeTransactionRef(std::move(txCoinStake));
+                pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+                pblock->prevoutStake = headerPrevout;
 
-            // Sign block
-            if (::ChainActive().Height() + 1 >= consensusParams.nOfflineStakeHeight)
-            {
-                // append PoD to the end of the block header
-                if(vchPoD.size() > 0)
-                    pblock->SetProofOfDelegation(vchPoD);
+                if(tryOnly)
+                    return true;
 
-                // append a signature to our block and ensure that is compact
-                std::vector<unsigned char> vchSig;
-                bool isSigned = privateKeysDisabled ? SignBlockLedger(pblock, wallet, vchSig) : key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
-                pblock->SetBlockSignature(vchSig);
+                // Check timestamp against prev
+                if(pblock->GetBlockTime() <= ::ChainActive().Tip()->GetBlockTime() || FutureDrift(pblock->GetBlockTime(), nHeight, consensusParams) < ::ChainActive().Tip()->GetBlockTime())
+                {
+                    return false;
+                }
 
-                // check block header
-                return isSigned && CheckHeaderPoS(*pblock, consensusParams);
-            }
-            else
-            {
-                // append a signature to our block and ensure that is LowS
-                return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt) &&
-                           EnsureLowS(pblock->vchBlockSigDlgt) &&
-                           CheckHeaderPoS(*pblock, consensusParams);
+                // Sign block
+                if (::ChainActive().Height() + 1 >= consensusParams.nOfflineStakeHeight)
+                {
+                    // append PoD to the end of the block header
+                    if(vchPoD.size() > 0)
+                        pblock->SetProofOfDelegation(vchPoD);
+
+                    fSignWithLedger = privateKeysDisabled;
+                    bool fSignWithWallet = !fSignWithLedger;
+
+                    if(fSignWithWallet)
+                    {
+                        // append a signature to our block and ensure that is compact
+                        std::vector<unsigned char> vchSig;
+                        bool isSigned = key.SignCompact(pblock->GetHashWithoutSign(), vchSig);
+                        pblock->SetBlockSignature(vchSig);
+
+                        // check block header
+                        return isSigned && CheckHeaderPoS(*pblock, consensusParams);
+                    }
+                }
+                else
+                {
+                    // append a signature to our block and ensure that is LowS
+                    return key.Sign(pblock->GetHashWithoutSign(), pblock->vchBlockSigDlgt) &&
+                               EnsureLowS(pblock->vchBlockSigDlgt) &&
+                               CheckHeaderPoS(*pblock, consensusParams);
+                }
             }
         }
+    }
+
+    if(fSignWithLedger)
+    {
+        std::vector<unsigned char> vchSig;
+        bool isSigned = SignBlockLedger(pblock, wallet, vchSig);
+        pblock->SetBlockSignature(vchSig);
+
+        if(wallet.IsStakeClosing()) return false;
+        auto locked_chain = wallet.chain().lock();
+        LOCK(wallet.cs_wallet);
+
+        // check block header
+        return isSigned && CheckHeaderPoS(*pblock, consensusParams);
     }
 
     return false;

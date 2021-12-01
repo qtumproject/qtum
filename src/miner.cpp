@@ -33,6 +33,7 @@
 #include <utility>
 
 unsigned int nMaxStakeLookahead = MAX_STAKE_LOOKAHEAD;
+unsigned int nMaxStakeLedgerLookahead = MAX_STAKE_LOOKAHEAD;
 unsigned int nBytecodeTimeBuffer = BYTECODE_TIME_BUFFER;
 unsigned int nStakeTimeBuffer = STAKE_TIME_BUFFER;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
@@ -54,6 +55,7 @@ void updateMinerParams(int nHeight, const Consensus::Params& consensusParams, bo
         nStakeTimeBuffer = std::max(STAKE_TIME_BUFFER / timeDownscale, timeDefault);
         nMinerSleep = std::max(STAKER_POLLING_PERIOD / timeDownscale, timeDefault);
         nMinerWaitWalidBlock = std::max(STAKER_WAIT_FOR_WALID_BLOCK / timeDownscale, timeDefault);
+        nMaxStakeLedgerLookahead = targetSpacing;
     }
 
     // Sleep for 20 seconds when mining with minimum difficulty to avoid creating blocks every 4 seconds
@@ -1445,7 +1447,7 @@ public:
                 // Look for possibility to create a block
                 d->beginningTime = GetAdjustedTime();
                 d->beginningTime &= ~d->stakeTimestampMask;
-                d->endingTime = d->beginningTime + nMaxStakeLookahead;
+                UpdateEndingTime();
 
                 for(uint32_t blockTime = d->beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
                 {
@@ -1660,9 +1662,21 @@ protected:
 
         d->beginningTime = GetAdjustedTime();
         d->beginningTime &= ~d->stakeTimestampMask;
-        d->endingTime = d->beginningTime + nMaxStakeLookahead;
+        UpdateEndingTime();
 
         return true;
+    }
+
+    void UpdateEndingTime()
+    {
+        if(d->privateKeysDisabled)
+        {
+            d->endingTime = d->beginningTime + nMaxStakeLedgerLookahead;
+        }
+        else
+        {
+            d->endingTime = d->beginningTime + nMaxStakeLookahead;
+        }
     }
 
     bool CacheData()
