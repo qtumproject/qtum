@@ -3,6 +3,7 @@
 #include <chainparams.h>
 #include <univalue.h>
 #include <util/strencodings.h>
+#include <util/time.h>
 #include <pubkey.h>
 #include <logging.h>
 #include <outputtype.h>
@@ -242,6 +243,8 @@ public:
     std::vector<std::string> arguments;
     bool toolExists = false;
     bool ledgerMainPath = true;
+    std::vector<LedgerDevice> devices;
+    int64_t devicesTime = 0;
 };
 
 QtumLedger::QtumLedger():
@@ -327,6 +330,10 @@ bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices, bool stake)
     // Enumerate hardware wallet devices
     if(isStarted())
         return false;
+
+    // Try get it from the cache
+    if(getDevicesCache(devices, stake))
+        return true;
 
     if(!beginEnumerate(devices))
         return false;
@@ -504,6 +511,7 @@ bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices, bool stake)
     // Decode command line results
     UniValue jsonDocument = json_read_doc(d->strStdout);
     UniValue jsonDevices = json_get_array(jsonDocument);
+    std::vector<LedgerDevice> cache;
     for(size_t i = 0; i < jsonDevices.size(); i++)
     {
         const UniValue& jsonDevice = jsonDevices[i];
@@ -521,13 +529,15 @@ bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices, bool stake)
         device.model = json_get_key_string(data, "model");
         device.code = json_get_key_string(data, "code");
         device.app_name = json_get_key_string(data, "app_name");
-        bool isStakeApp = device.app_name == "Qtum Stake" || device.app_name == "Qtum Stake Test";
+        bool isStakeApp = isStakeAppName(device.app_name);
         if(isStakeApp == stake)
         {
             devices.push_back(device);
         }
+        cache.push_back(device);
     }
 
+    setDevicesCache(cache);
     return devices.size() > 0;
 }
 
@@ -641,4 +651,51 @@ std::string QtumLedger::derivationPath(int type)
     }
 
     return derivPath;
+}
+
+bool QtumLedger::isStakeAppName(const std::string &app_name)
+{
+    return app_name == "Qtum Stake" || app_name == "Qtum Stake Test";
+}
+
+void QtumLedger::setDevicesCache(const std::vector<LedgerDevice> &devices)
+{
+    bool isValid = false;
+    for(LedgerDevice device : devices)
+    {
+        if(device.fingerprint != "")
+        {
+            isValid = true;
+            break;
+        }
+    }
+
+    if(isValid)
+    {
+        d->devicesTime = GetSystemTimeInSeconds() + 5;
+        d->devices = devices;
+    }
+}
+
+bool QtumLedger::getDevicesCache(std::vector<LedgerDevice> &devices, bool stake)
+{
+    if(d->devicesTime > GetSystemTimeInSeconds())
+    {
+        for(LedgerDevice device : d->devices)
+        {
+            bool isStakeApp = isStakeAppName(device.app_name);
+            if(isStakeApp == stake)
+            {
+                devices.push_back(device);
+            }
+        }
+        return true;
+    }
+
+    if(d->devicesTime)
+    {
+        d->devicesTime = 0;
+        d->devices.clear();
+    }
+    return false;
 }

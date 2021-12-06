@@ -148,6 +148,10 @@ private:
     bool beginGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string& desc);
     bool endGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal,  int from, int to, std::string& desc);
 
+    bool isStakeAppName(const std::string& app_name);
+    void setDevicesCache(const std::vector<LedgerDevice> &devices);
+    bool getDevicesCache(std::vector<LedgerDevice> &devices, bool stake);
+
 private:
     QtumLedger(const QtumLedger&);
     QtumLedger& operator=(const QtumLedger&);

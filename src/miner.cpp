@@ -1435,15 +1435,15 @@ public:
             // Cache mining data
             if(!CacheData()) continue;
 
-            // Check if ledger is connected
-            if(d->privateKeysDisabled)
-            {
-                if(!isLedgerConnected()) continue;
-            }
-
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
             {
+                // Check if ledger is connected
+                if(d->privateKeysDisabled)
+                {
+                    if(!isLedgerConnected()) continue;
+                }
+
                 // Look for possibility to create a block
                 d->beginningTime = GetAdjustedTime();
                 d->beginningTime &= ~d->stakeTimestampMask;
