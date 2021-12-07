@@ -22,7 +22,7 @@ class ReceiveRequestDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ReceiveRequestDialog(QWidget *parent = nullptr);
+    explicit ReceiveRequestDialog(const PlatformStyle *platformStyle, QWidget *parent = nullptr);
     ~ReceiveRequestDialog();
 
     void setModel(WalletModel *model);

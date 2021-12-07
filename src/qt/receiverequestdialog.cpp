@@ -18,10 +18,11 @@
 #include <config/bitcoin-config.h> /* for USE_QRCODE */
 #endif
 
-ReceiveRequestDialog::ReceiveRequestDialog(QWidget *parent) :
+ReceiveRequestDialog::ReceiveRequestDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::ReceiveRequestDialog),
-    model(nullptr)
+    model(nullptr),
+    platformStyle(_platformStyle)
 {
     ui->setupUi(this);
     GUIUtil::handleCloseWindowShortcut(this);
