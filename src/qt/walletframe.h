@@ -13,6 +13,7 @@ class PlatformStyle;
 class SendCoinsRecipient;
 class WalletModel;
 class WalletView;
+class TitleBar;
 
 QT_BEGIN_NAMESPACE
 class QStackedWidget;
@@ -60,9 +61,15 @@ private:
 
     const QSize m_size_hint;
 
+    TitleBar* m_title_bar = 0;
+
+    void setTabBarInfo(QObject* into);
+
 public:
     WalletView* currentWalletView() const;
     WalletModel* currentWalletModel() const;
+    void updateTabBar(WalletView* walletView = 0, int index = -1);
+    void setTitleBar(TitleBar* titleBar);
 
 public Q_SLOTS:
     /** Switch to overview (home) page */
@@ -73,6 +80,20 @@ public Q_SLOTS:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
+    /** Switch to create contract page */
+    void gotoCreateContractPage();
+    /** Switch to send contract page */
+    void gotoSendToContractPage();
+    /** Switch to call contract page */
+    void gotoCallContractPage();
+    /** Switch to token page */
+    void gotoTokenPage();
+    /** Switch to stake page */
+    void gotoStakePage();
+    /** Switch to delegation page */
+    void gotoDelegationPage();
+    /** Switch to super staker page */
+    void gotoSuperStakerPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -86,15 +107,21 @@ public Q_SLOTS:
     void encryptWallet();
     /** Backup the wallet */
     void backupWallet();
+    /** Restore the wallet */
+    void restoreWallet();
     /** Change encrypted wallet passphrase */
     void changePassphrase();
     /** Ask for passphrase to unlock wallet temporarily */
     void unlockWallet();
+    /** Lock the wallet */
+    void lockWallet();
 
     /** Show used sending addresses */
     void usedSendingAddresses();
     /** Show used receiving addresses */
     void usedReceivingAddresses();
+
+    void pageChanged(int index);
 };
 
 #endif // BITCOIN_QT_WALLETFRAME_H
