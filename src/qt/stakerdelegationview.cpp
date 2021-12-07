@@ -20,8 +20,7 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     QWidget(parent),
     model(0),
     delegationProxyModel(0),
-    delegationView(0),
-    columnResizingFixer(0)
+    delegationView(0)
 {
     // Build filter row
     setContentsMargins(0,0,0,0);
@@ -132,8 +131,6 @@ void StakerDelegationView::setModel(WalletModel *_model)
         delegationView->setColumnWidth(DelegationStakerItemModel::Date, DATE_COLUMN_WIDTH);
         delegationView->setColumnWidth(DelegationStakerItemModel::Fee, FEE_COLUMN_WIDTH);
         delegationView->setColumnWidth(DelegationStakerItemModel::Weight, AMOUNT_COLUMN_WIDTH);
-
-        columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(delegationView, AMOUNT_MINIMUM_COLUMN_WIDTH, MINIMUM_COLUMN_WIDTH, this, 3);
     }
 }
 
@@ -189,12 +186,6 @@ QWidget *StakerDelegationView::createDateRangeWidget()
     connect(dateTo, SIGNAL(dateChanged(QDate)), this, SLOT(dateRangeChanged()));
 
     return dateRangeWidget;
-}
-
-void StakerDelegationView::resizeEvent(QResizeEvent *event)
-{
-    QWidget::resizeEvent(event);
-    columnResizingFixer->stretchColumnWidth(DelegationStakerItemModel::Delegate);
 }
 
 void StakerDelegationView::dateRangeChanged()

@@ -31,8 +31,7 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
     QWidget(parent),
     model(0),
     tokenProxyModel(0),
-    tokenView(0),
-    columnResizingFixer(0)
+    tokenView(0)
 {
     // Build filter row
     setContentsMargins(0,0,0,0);
@@ -173,8 +172,6 @@ void TokenTransactionView::setModel(WalletModel *_model)
         tokenView->setColumnWidth(TokenTransactionTableModel::Type, TYPE_COLUMN_WIDTH);
         tokenView->setColumnWidth(TokenTransactionTableModel::Name, NAME_COLUMN_WIDTH);
         tokenView->setColumnWidth(TokenTransactionTableModel::Amount, AMOUNT_COLUMN_WIDTH);
-
-        columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tokenView, AMOUNT_MINIMUM_COLUMN_WIDTH, MINIMUM_COLUMN_WIDTH, this, 3);
     }
 }
 
@@ -260,12 +257,6 @@ void TokenTransactionView::removeFromNameWidget(const QModelIndex &parent, int s
         if(nameCount == 1 && nameIndex != -1)
             nameWidget->removeItem(nameIndex);
     }
-}
-
-void TokenTransactionView::resizeEvent(QResizeEvent *event)
-{
-    QWidget::resizeEvent(event);
-    columnResizingFixer->stretchColumnWidth(TokenTransactionTableModel::ToAddress);
 }
 
 bool TokenTransactionView::eventFilter(QObject *obj, QEvent *event)
