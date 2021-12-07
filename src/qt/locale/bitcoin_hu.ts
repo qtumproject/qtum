@@ -66,13 +66,13 @@
         <translation type="unfinished">Fogadási címek</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Ezek a te  Bitcoin címeid kifizetések küldéséhez. Mindíg ellenőrizd az összeget és a fogadó címet mielőtt coinokat küldenél.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Ezek a te  Qtum címeid kifizetések küldéséhez. Mindíg ellenőrizd az összeget és a fogadó címet mielőtt coinokat küldenél.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Ezek a Bitcoin címeid amelyeken fogadni tudsz Bitcoin utalásokat. Az "Új cím létrehozása" gombbal tudsz új címet létrehozni. Aláírni csak korábbi egyessel kezdődő címekkel lehet.</translation>
+        <translation type="unfinished">Ezek a Qtum címeid amelyeken fogadni tudsz Qtum utalásokat. Az "Új cím létrehozása" gombbal tudsz új címet létrehozni. Aláírni csak korábbi egyessel kezdődő címekkel lehet.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -163,8 +163,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Tárca titkosításának megerősítése</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Figyelem: Ha titkosítja a tárcáját és elveszíti a jelszavát, akkor &lt;b&gt;AZ ÖSSZES BITCOINJA ELVESZIK&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Figyelem: Ha titkosítja a tárcáját és elveszíti a jelszavát, akkor &lt;b&gt;AZ ÖSSZES QTUMJA ELVESZIK&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -183,7 +183,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Írja be a tárca régi és új jelszavát.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Ne feledd, hogy a tárca titkosítása nem nyújt teljes védelmet az adathalász programok fertőzésével szemben.</translation>
     </message>
     <message>
@@ -243,7 +243,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>QtumApplication</name>
     <message>
         <source>Runaway exception</source>
         <translation type="unfinished">Ajajj, nagy baj van: Runaway exception!</translation>
@@ -292,8 +292,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Összeg</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation type="unfinished">Ad meg egy Bitcoin címet (pl: %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation type="unfinished">Ad meg egy Qtum címet (pl: %1)</translation>
     </message>
     <message>
         <source>Inbound</source>
@@ -373,7 +373,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;Áttekintés</translation>
@@ -436,8 +436,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">A proxy &lt;b&gt;aktív&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Bitcoin küldése megadott címre</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>Qtum küldése megadott címre</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -488,16 +488,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Üzenet &amp;aláírása…</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>Üzenetek aláírása a Bitcoin-címeivel, amivel bizonyíthatja hogy a cím az Öné</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Üzenetek aláírása a Qtum-címeivel, amivel bizonyíthatja hogy a cím az Öné</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">Üzenet &amp;ellenőrzése…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Üzenetek ellenőrzése, hogy valóban a megjelölt Bitcoin-címekkel vannak-e aláírva</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Üzenetek ellenőrzése, hogy valóban a megjelölt Qtum-címekkel vannak-e aláírva</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -564,8 +564,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Csatlakozás az ügyfelekhez…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">Fizetési kérelem (QR-kódot és "bitcoin:" URI azonosítót hoz létre)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">Fizetési kérelem (QR-kódot és "qtum:" URI azonosítót hoz létre)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -618,12 +618,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>Naprakész</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation type="unfinished">Részlegesen aláírt Bitcoin tranzakció (PSBT) betöltése</translation>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation type="unfinished">Részlegesen aláírt Qtum tranzakció (PSBT) betöltése</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">Részlegesen aláírt Bitcoin tranzakció (PSBT) betöltése vágólapról</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation type="unfinished">Részlegesen aláírt Qtum tranzakció (PSBT) betöltése vágólapról</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -642,8 +642,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Fogadó címek</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation type="unfinished">Egy bitcoin: URI hivatkozás megnyitása</translation>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">Egy qtum: URI hivatkozás megnyitása</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -662,8 +662,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Összes tárca bezárása</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">A %1 súgó megjelenítése a Bitcoin lehetséges parancssori kapcsolóinak listájával</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="unfinished">A %1 súgó megjelenítése a Qtum lehetséges parancssori kapcsolóinak listájával</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -702,10 +702,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 kliens</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n aktív kapcsolat a Bitcoin hálózathoz</numerusform>
+            <numerusform>%n aktív kapcsolat a Qtum hálózathoz</numerusform>
         </translation>
     </message>
     <message>
@@ -1110,8 +1110,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Küldő cím szerkesztése</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation type="unfinished">A megadott "%1" cím nem egy érvényes Bitcoin-cím.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation type="unfinished">A megadott "%1" cím nem egy érvényes Qtum-cím.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1171,8 +1171,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 le fog töltődni és a Bitcoin blokk lánc egy másolatát fogja tárolni.</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 le fog töltődni és a Qtum blokk lánc egy másolatát fogja tárolni.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1252,12 +1252,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Űrlap</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation type="unfinished">A legutóbbi tranzakciók még lehet, hogy nem láthatók, és így előfordulhat, hogy a tárca egyenlege helytelen. A tárca azon nyomban az aktuális egyenleget fogja mutatni, amint befejezte a bitcoin hálózattal történő szinkronizációt, amely alább van részletezve.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation type="unfinished">A legutóbbi tranzakciók még lehet, hogy nem láthatók, és így előfordulhat, hogy a tárca egyenlege helytelen. A tárca azon nyomban az aktuális egyenleget fogja mutatni, amint befejezte a qtum hálózattal történő szinkronizációt, amely alább van részletezve.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">A hálózat nem fogadja el azoknak a bitcoinoknak az elköltését, amelyek érintettek a még nem látszódó tranzakciókban.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">A hálózat nem fogadja el azoknak a qtumoknak az elköltését, amelyek érintettek a még nem látszódó tranzakciókban.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1295,8 +1295,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation type="unfinished">Nyisd meg a bitcoin címedet</translation>
+        <source>Open qtum URI</source>
+        <translation type="unfinished">Nyisd meg a qtum címedet</translation>
     </message>
     </context>
 <context>
@@ -1402,16 +1402,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Költése a a jóváhagyatlan visszajárónak</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>A Bitcoin-kliens portjának automatikus megnyitása a routeren. Ez csak akkor működik, ha a routered támogatja az UPnP-t és az engedélyezve is van rajta.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>A Qtum-kliens portjának automatikus megnyitása a routeren. Ez csak akkor működik, ha a routered támogatja az UPnP-t és az engedélyezve is van rajta.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation>&amp;UPnP port-feltérképezés</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">A Bitcoin kliens port automatikus megnyitása a routeren. Ez csak akkor működik ha a router támogatja a NAT-PMP-t és ez engedélyezve is van. A külső port lehet véletlenszerűen választott.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation type="unfinished">A Qtum kliens port automatikus megnyitása a routeren. Ez csak akkor működik ha a router támogatja a NAT-PMP-t és ez engedélyezve is van. A külső port lehet véletlenszerűen választott.</translation>
     </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
@@ -1426,8 +1426,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Bejövő kapcsolatok engedélyezése.</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Csatlakozás a Bitcoin hálózatához SOCKS5 proxyn keresztül</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Csatlakozás a Qtum hálózatához SOCKS5 proxyn keresztül</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1490,8 +1490,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Mutassa a pénzküldés beállításait vagy ne.</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Csatlakozás a Bitcoin hálózathoz külön SOCKS5 proxy használatával a Tor rejtett szolgáltatásainak eléréséhez.</translation>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Csatlakozás a Qtum hálózathoz külön SOCKS5 proxy használatával a Tor rejtett szolgáltatásainak eléréséhez.</translation>
     </message>
     <message>
         <source>&amp;Third party transaction URLs</source>
@@ -1561,8 +1561,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>Űrlap</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>A kijelzett információ lehet, hogy elavult. A kapcsolat létrehozatalát követően tárcája automatikusan szinkronba kerül a Bitcoin hálózattal, de ez a folyamat még nem fejeződött be.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation>A kijelzett információ lehet, hogy elavult. A kapcsolat létrehozatalát követően tárcája automatikusan szinkronba kerül a Qtum hálózattal, de ez a folyamat még nem fejeződött be.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1760,16 +1760,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Hiba történt a fizetési kérelem során</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation type="unfinished">A bitcoin nem tud elindulni: click-to-pay kezelő</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation type="unfinished">A qtum nem tud elindulni: click-to-pay kezelő</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">URI kezelés</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation type="unfinished">'bitcoin://' nem érvényes egységes erőforrás azonosító (URI). Használd helyette a 'bitcoin'-t.</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation type="unfinished">'qtum://' nem érvényes egységes erőforrás azonosító (URI). Használd helyette a 'qtum'-t.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -1778,8 +1778,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">Ezt a tranzakciót nem tudom feldolgozni, mert a BIP70 nem támogatott. A jól ismert biztonsági hiányosságok miatt a BIP70-re való váltásra buzdító utasításokat hagyja figyelmen kívül. Amennyiben ezt az ünetet látja kérje meg azt akitől kapta a kérést, hogy adjon Önnek BIP21 kompatibilis URL-t.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
-        <translation type="unfinished">Nem sikerült az URI elemzése! Ezt okozhatja érvénytelen Bitcoin cím, vagy rossz URI paraméterezés.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <translation type="unfinished">Nem sikerült az URI elemzése! Ezt okozhatja érvénytelen Qtum cím, vagy rossz URI paraméterezés.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2152,8 +2152,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">&amp;Üzenet:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation type="unfinished">Egy opcionális üzenet csatolása a fizetési kérelemhez, amely megjelenik a kérelem megnyitásakor. Megjegyzés: Az üzenet nem lesz elküldve a fizetséggel a Bitcoin hálózaton keresztül.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation type="unfinished">Egy opcionális üzenet csatolása a fizetési kérelemhez, amely megjelenik a kérelem megnyitásakor. Megjegyzés: Az üzenet nem lesz elküldve a fizetséggel a Qtum hálózaton keresztül.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2409,7 +2409,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">Rejtsd el a tranzakciós költségek beállításait</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">Ha kevesebb a tranzakció mint amennyi hely lenne egy blokkban, akkor a bányászok és a többi node megkövetelheti a minimum díjat. E minimum díjat fizetni elegendő lehet, de tudnod kell, hogy ez esetleg soha nem konfirmálódó tranzakciót eredményezhet ahogy a tranzakciók száma magasabb lesz mint a network által megengedett.</translation>
     </message>
     <message>
@@ -2481,8 +2481,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">&amp;Aláírás nélkül létrehozása Unsigned</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Létrehoz egy Részlegesen Aláírt Bitcoin Tranzakciót (PSBT) melyet offline %1 tárcával vagy egy PSBT kompatibilis hardver tárcával használhatsz.</translation>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Létrehoz egy Részlegesen Aláírt Qtum Tranzakciót (PSBT) melyet offline %1 tárcával vagy egy PSBT kompatibilis hardver tárcával használhatsz.</translation>
     </message>
     <message>
         <source> from wallet '%1'</source>
@@ -2530,8 +2530,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">Később növelheti a tranzakció díját (lásd Replace-By-Fee, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Kérlek nézd át a tranzakciós javaslatot. Ez létrehoz egy Részlegesen Aláírt Bitcoin Tranzakciót (PSBT) amit elmenthetsz vagy kimásolhatsz. Aztán aláírhatod: offline %1 tárcával vagy egy PSBT kompatibilis hardver tárcával.</translation>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Kérlek nézd át a tranzakciós javaslatot. Ez létrehoz egy Részlegesen Aláírt Qtum Tranzakciót (PSBT) amit elmenthetsz vagy kimásolhatsz. Aztán aláírhatod: offline %1 tárcával vagy egy PSBT kompatibilis hardver tárcával.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -2600,8 +2600,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation type="unfinished">Figyelmeztetés: Érvénytelen Bitcoin cím</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation type="unfinished">Figyelmeztetés: Érvénytelen Qtum cím</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2639,8 +2639,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">Válassz egy korábban már használt címet</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation type="unfinished">Erre a Bitcoin címre küldje az összeget</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation type="unfinished">Erre a Qtum címre küldje az összeget</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -2655,7 +2655,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">A küldendő összeg a választott egységben.</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">Znesek plačila bo zmanjšan za znesek provizije. Prejemnik bo prejel manjše število kovancev, kot je bil vnešeni znesek. Če je prejemnikov več, bo provizija med njih enakomerno porazdeljena.</translation>
     </message>
     <message>
@@ -2683,8 +2683,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">Adjon egy címkét ehhez a címhez, hogy bekerüljön a használt címek közé</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">Sporočilo, ki ste ga pripeli na URI tipa bitcoin:. Shranjeno bo skupaj s podatki o transakciji. Opomba: Sporočilo ne bo poslano preko omrežja Bitcoin.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">Sporočilo, ki ste ga pripeli na URI tipa qtum:. Shranjeno bo skupaj s podatki o transakciji. Opomba: Sporočilo ne bo poslano preko omrežja Qtum.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2706,12 +2706,12 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation>Üzenet aláírása...</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">S svojimi naslovi lahko podpisujete sporočila ali pogodbe in s tem dokazujete, da na teh naslovih lahko prejemate kovance. Bodite previdni in ne podpisujte ničesar nejasnega ali naključnega, ker vas zlikovci preko ribarjenja (phishing) lahko prelisičijo, da na njih prepišete svojo identiteto. Podpisujte samo podrobno opisane izjave, s katerimi se strinjate.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation type="unfinished">Bitcoin cím, amivel alá kívánja írni az üzenetet</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation type="unfinished">Qtum cím, amivel alá kívánja írni az üzenetet</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2734,7 +2734,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation>A jelenleg kiválasztott aláírás másolása a rendszer-vágólapra</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
+        <source>Sign the message to prove you own this Qtum address</source>
         <translation>Üzenet</translation>
     </message>
     <message>
@@ -2758,8 +2758,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">Da preverite verodostojnost sporočila, spodaj vnesite: prejemnikov naslov, prejeto sporočilo (pazljivo skopirajte vse prelome vrstic, presledke, tabulatorje ipd.,) in prejeti podpis. Da se izognete napadom tipa man-in-the-middle, vedite, da iz veljavnega podpisa ne sledi nič drugega, kot tisto, kar je navedeno v sporočilu. Podpis samo potrjuje dejstvo, da ima podpisnik v lasti prejemni naslov, ne more pa dokazati vira nobene transakcije!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation type="unfinished">Bitcoin cím, amivel aláírta az üzenetet</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation type="unfinished">Qtum cím, amivel aláírta az üzenetet</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -2770,8 +2770,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">A kapott aláírás  amikor az üzenet alá lett írva.</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>Ellenőrizze az üzenetet, hogy valóban a megjelölt Bitcoin címmel van-e aláírva</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation>Ellenőrizze az üzenetet, hogy valóban a megjelölt Qtum címmel van-e aláírva</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -3404,14 +3404,14 @@ A Fájl &gt; Megnyitás menüben lehet megnyitni.
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>The %s developers</source>
         <translation type="unfinished">A %s fejlesztők</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s sérült. Megpróbálhatod a bitcoint-wallet tárcaj mentő eszközt, vagy mentésből helyreállítani a tárcát.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s sérült. Megpróbálhatod a qtumt-wallet tárcaj mentő eszközt, vagy mentésből helyreállítani a tárcát.</translation>
     </message>
     <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>

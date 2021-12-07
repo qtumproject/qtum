@@ -66,13 +66,13 @@
         <translation type="unfinished">Prijímajúce adresy</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Toto sú Vaše Bitcoin adresy pre posielanie platieb. Vždy skontrolujte sumu a prijímaciu adresu pred poslaním mincí.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Toto sú Vaše Qtum adresy pre posielanie platieb. Vždy skontrolujte sumu a prijímaciu adresu pred poslaním mincí.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Toto sú vaše Bitcoin adresy pre prijímanie platieb. Pre vytvorenie nových adries kliknite na "Vytvoriť novú prijímaciu adresu" na karte "Prijať". Podpisovanie je možné iba s adresami typu "legacy".</translation>
+        <translation type="unfinished">Toto sú vaše Qtum adresy pre prijímanie platieb. Pre vytvorenie nových adries kliknite na "Vytvoriť novú prijímaciu adresu" na karte "Prijať". Podpisovanie je možné iba s adresami typu "legacy".</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -163,8 +163,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Potvrďte zašifrovanie peňaženky</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Varovanie: Ak zašifrujete peňaženku a stratíte heslo, &lt;b&gt;STRATÍTE VŠETKY VAŠE BITCOINY&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Varovanie: Ak zašifrujete peňaženku a stratíte heslo, &lt;b&gt;STRATÍTE VŠETKY VAŠE QTUMY&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -183,8 +183,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Zadajte starú a novú frázu pre túto peňaženku.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Pamätajte, že zašifrovanie peňaženky neochráni úplne vaše bitcoiny pred ukradnutím škodlivými programami vo vašom počítači.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Pamätajte, že zašifrovanie peňaženky neochráni úplne vaše qtumy pred ukradnutím škodlivými programami vo vašom počítači.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -243,7 +243,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>QtumApplication</name>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Kritická chyba. %1  nemôže ďalej bezpečne pokračovať a ukončí sa.</translation>
@@ -276,8 +276,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Suma</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation type="unfinished">Zadajte bitcoin adresu (napr. %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation type="unfinished">Zadajte qtum adresu (napr. %1)</translation>
     </message>
     <message>
         <source>Inbound</source>
@@ -349,7 +349,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;Prehľad</translation>
@@ -412,8 +412,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Proxy sú &lt;b&gt;zapnuté&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Poslať bitcoins na adresu</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>Poslať qtums na adresu</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -444,12 +444,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>Zašifruj súkromné kľúče ktoré patria do vašej peňaženky</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>Podpísať správu s vašou Bitcoin adresou, aby ste preukázali, že ju vlastníte</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Podpísať správu s vašou Qtum adresou, aby ste preukázali, že ju vlastníte</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Overiť, či boli správy podpísané uvedenou Bitcoin adresou</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Overiť, či boli správy podpísané uvedenou Qtum adresou</translation>
     </message>
     <message>
         <source>Close Wallet…</source>
@@ -480,8 +480,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>Lišta nástrojov</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">Vyžiadať platby (vygeneruje QR kódy a bitcoin: URI)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">Vyžiadať platby (vygeneruje QR kódy a qtum: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -532,12 +532,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>Aktualizovaný</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation type="unfinished">Načítať sčasti podpísanú Bitcoin transakciu</translation>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation type="unfinished">Načítať sčasti podpísanú Qtum transakciu</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">Načítať čiastočne podpísanú Bitcoin transakciu, ktorú ste skopírovali</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation type="unfinished">Načítať čiastočne podpísanú Qtum transakciu, ktorú ste skopírovali</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -556,8 +556,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Prijímajúce adresy</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation type="unfinished">Otvoriť bitcoin: URI</translation>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">Otvoriť qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -576,8 +576,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Zatvoriť všetky peňaženky</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">Ukáž %1 zoznam možných nastavení Bitcoinu pomocou príkazového riadku</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="unfinished">Ukáž %1 zoznam možných nastavení Qtumu pomocou príkazového riadku</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -616,7 +616,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 klient</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -970,8 +970,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Upraviť odosielaciu adresu</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation type="unfinished">Vložená adresa "%1" nieje platnou adresou Bitcoin.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation type="unfinished">Vložená adresa "%1" nieje platnou adresou Qtum.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1033,7 +1033,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 bude sťahovať kopiu reťazca blokov.</translation>
     </message>
     <message>
@@ -1114,12 +1114,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Formulár</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation type="unfinished">Nedávne transakcie nemusia byť ešte viditeľné preto môže byť zostatok vo vašej peňaženke nesprávny. Táto informácia bude správna keď sa dokončí synchronizovanie peňaženky so sieťou bitcoin, ako je rozpísané nižšie.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation type="unfinished">Nedávne transakcie nemusia byť ešte viditeľné preto môže byť zostatok vo vašej peňaženke nesprávny. Táto informácia bude správna keď sa dokončí synchronizovanie peňaženky so sieťou qtum, ako je rozpísané nižšie.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Pokus o minutie bitcoinov, ktoré sú ovplyvnené ešte nezobrazenými transakciami, nebude sieťou akceptovaný.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">Pokus o minutie qtumov, ktoré sú ovplyvnené ešte nezobrazenými transakciami, nebude sieťou akceptovaný.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1157,8 +1157,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation type="unfinished">Otvoriť bitcoin URI</translation>
+        <source>Open qtum URI</source>
+        <translation type="unfinished">Otvoriť qtum URI</translation>
     </message>
     </context>
 <context>
@@ -1252,8 +1252,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Minúť nepotvrdený výdavok</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automaticky otvorit port pre Bitcoin na routeri. Toto funguje len ak router podporuje UPnP a je táto podpora aktivovaná.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automaticky otvorit port pre Qtum na routeri. Toto funguje len ak router podporuje UPnP a je táto podpora aktivovaná.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1268,8 +1268,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Povoliť prichá&amp;dzajúce spojenia</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Pripojiť do siete Bitcoin cez proxy server SOCKS5.</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Pripojiť do siete Qtum cez proxy server SOCKS5.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1317,15 +1317,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>Zvoľte ako deliť bitcoin pri zobrazovaní pri platbách a užívateľskom rozhraní.</translation>
+        <translation>Zvoľte ako deliť qtum pri zobrazovaní pri platbách a užívateľskom rozhraní.</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
         <translation type="unfinished">Či zobrazovať možnosti kontroly mincí alebo nie.</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Pripojiť k Bitcoin sieti skrz samostatnú SOCKS5 proxy pre službu Tor.</translation>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Pripojiť k Qtum sieti skrz samostatnú SOCKS5 proxy pre službu Tor.</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -1395,8 +1395,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>Formulár</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Zobrazené informácie môžu byť neaktuálne. Vaša peňaženka sa automaticky synchronizuje so sieťou Bitcoin po nadviazaní spojenia, ale tento proces ešte nie je ukončený.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation>Zobrazené informácie môžu byť neaktuálne. Vaša peňaženka sa automaticky synchronizuje so sieťou Qtum po nadviazaní spojenia, ale tento proces ešte nie je ukončený.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1594,20 +1594,20 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Chyba pri vyžiadaní platby</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation type="unfinished">Nemôžeme spustiť Bitcoin: obsluha click-to-pay</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation type="unfinished">Nemôžeme spustiť Qtum: obsluha click-to-pay</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">URI manipulácia</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation type="unfinished">'bitcoin://' je neplatná URI. Použite 'bitcoin:'</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation type="unfinished">'qtum://' je neplatná URI. Použite 'qtum:'</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
-        <translation type="unfinished">URI sa nedá analyzovať! To môže byť spôsobené neplatnou Bitcoin adresou alebo zle nastavenými vlastnosťami URI.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <translation type="unfinished">URI sa nedá analyzovať! To môže byť spôsobené neplatnou Qtum adresou alebo zle nastavenými vlastnosťami URI.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -1994,8 +1994,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Správa:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation type="unfinished">Pridať voliteľnú správu k výzve na zaplatenie, ktorá sa zobrazí keď bude výzva otvorená. Poznámka: Správa nebude poslaná s platbou cez sieť Bitcoin.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation type="unfinished">Pridať voliteľnú správu k výzve na zaplatenie, ktorá sa zobrazí keď bude výzva otvorená. Poznámka: Správa nebude poslaná s platbou cez sieť Qtum.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2239,8 +2239,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Skryť nastavenie poplatkov transakcie</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
-        <translation type="unfinished">Ak je v blokoch menej objemu transakcií ako priestoru, ťažiari ako aj vysielacie uzly, môžu uplatniť minimálny poplatok. Platiť iba minimálny poplatok je v poriadku, ale uvedomte si, že to môže mať za následok transakciu, ktorá sa nikdy nepotvrdí, akonáhle je väčší dopyt po bitcoinových transakciách, než dokáže sieť spracovať.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <translation type="unfinished">Ak je v blokoch menej objemu transakcií ako priestoru, ťažiari ako aj vysielacie uzly, môžu uplatniť minimálny poplatok. Platiť iba minimálny poplatok je v poriadku, ale uvedomte si, že to môže mať za následok transakciu, ktorá sa nikdy nepotvrdí, akonáhle je väčší dopyt po qtumových transakciách, než dokáže sieť spracovať.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -2311,8 +2311,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Vy&amp;tvoriť bez podpisu</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Vytvorí čiastočne podpísanú Bitcoin transakciu (Partially Signed Bitcoin Transaction - PSBT) na použitie napríklad s offline %1 peňaženkou alebo v hardvérovej peňaženke kompatibilnej s PSBT.</translation>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Vytvorí čiastočne podpísanú Qtum transakciu (Partially Signed Qtum Transaction - PSBT) na použitie napríklad s offline %1 peňaženkou alebo v hardvérovej peňaženke kompatibilnej s PSBT.</translation>
     </message>
     <message>
         <source> from wallet '%1'</source>
@@ -2432,8 +2432,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation type="unfinished">Varovanie: Neplatná Bitcoin adresa</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation type="unfinished">Varovanie: Neplatná Qtum adresa</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2471,7 +2471,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Vybrať predtým použitú adresu</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
+        <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Zvoľte adresu kam poslať platbu</translation>
     </message>
     <message>
@@ -2487,8 +2487,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Suma na odoslanie vo vybranej mene</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished">Poplatok sa odpočíta od čiastky, ktorú odosielate. Príjemca dostane menej bitcoinov ako zadáte. Ak je vybraných viacero príjemcov, poplatok je rozdelený rovným dielom.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation type="unfinished">Poplatok sa odpočíta od čiastky, ktorú odosielate. Príjemca dostane menej qtumov ako zadáte. Ak je vybraných viacero príjemcov, poplatok je rozdelený rovným dielom.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2515,8 +2515,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Vložte popis pre túto adresu aby sa uložila do zoznamu použitých adries</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">Správa ktorá bola pripojená k bitcoin: URI a ktorá bude uložená s transakcou pre Vaše potreby. Poznámka: Táto správa nebude poslaná cez sieť Bitcoin.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">Správa ktorá bola pripojená k qtum: URI a ktorá bude uložená s transakcou pre Vaše potreby. Poznámka: Táto správa nebude poslaná cez sieť Qtum.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2538,12 +2538,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>&amp;Podpísať Správu</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Môžete podpísať správy svojou adresou a dokázať, že viete prijímať mince zaslané na túto adresu. Buďte však opatrní a podpíšte len podrobné prehlásenia, s ktorými plne súhlasíte, nakoľko útoky typu "phishing" Vás môžu lákať k podpísaniu nejasných alebo príliš všeobecných tvrdení čím prevezmú vašu identitu.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation type="unfinished">Bitcoin adresa pre podpísanie správy s</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation type="unfinished">Qtum adresa pre podpísanie správy s</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2566,7 +2566,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>Kopírovať tento podpis do systémovej schránky</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
+        <source>Sign the message to prove you own this Qtum address</source>
         <translation>Podpíšte správu aby ste dokázali že vlastníte túto adresu</translation>
     </message>
     <message>
@@ -2590,8 +2590,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Vložte adresu príjemcu, správu (uistite sa, že presne kopírujete ukončenia riadkov, medzery, odrážky, atď.) a podpis pre potvrdenie správy. Buďte opatrní a nedomýšľajte si viac než je uvedené v samotnej podpísanej správe a môžete sa tak vyhnúť podvodu MITM útokom. Toto len potvrdzuje, že podpisujúca strana môže prijímať na tejto adrese, nepotvrdzuje to vlastníctvo žiadnej transakcie!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation type="unfinished">Adresa Bitcoin, ktorou bola podpísaná správa</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation type="unfinished">Adresa Qtum, ktorou bola podpísaná správa</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -2602,8 +2602,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Poskytnutý podpis pri podpísaní správy</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>Overím správy sa uistiť že bola podpísaná označenou Bitcoin adresou</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation>Overím správy sa uistiť že bola podpísaná označenou Qtum adresou</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -3218,7 +3218,7 @@ Choďte do Súbor &gt; Otvoriť Peňaženku, pre načítanie peňaženky.
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>The %s developers</source>
         <translation type="unfinished">Vývojári %s</translation>

@@ -66,13 +66,13 @@
         <translation type="unfinished">Endereço de recebimento</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Estes são os seus endereços para enviar pagamentos. Sempre cheque a quantia e o endereço do destinatário antes de enviar moedas.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Estes são seus endereços Bitcoin para receber pagamentos. Use o botão 'Criar novos endereços de recebimento' na barra receber para criar novos endereços.
+        <translation type="unfinished">Estes são seus endereços Qtum para receber pagamentos. Use o botão 'Criar novos endereços de recebimento' na barra receber para criar novos endereços.
 Somente é possível acessar com endereços do tipo 'legado'.</translation>
     </message>
     <message>
@@ -164,8 +164,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Confirmar criptografia da carteira</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Aviso: Se você criptografar sua carteira e perder sua frase de segurança, você vai &lt;b&gt;PERDER TODOS OS SEUS BITCOINS&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Aviso: Se você criptografar sua carteira e perder sua frase de segurança, você vai &lt;b&gt;PERDER TODOS OS SEUS QTUMS&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -184,8 +184,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Digite a senha antiga e a nova senha para a carteira</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Lembre-se que sua carteira criptografada não poderá proteger totalmente os seus bitcoins de serem roubados por softwares maldosos que infectem seu computador.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Lembre-se que sua carteira criptografada não poderá proteger totalmente os seus qtums de serem roubados por softwares maldosos que infectem seu computador.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -244,7 +244,7 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
     </message>
 </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>QtumApplication</name>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Aconteceu um erro fatal. %1 não pode continuar com segurança e será fechado.</translation>
@@ -285,8 +285,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Quantia</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation type="unfinished">Informe um endereço Bitcoin (ex: %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation type="unfinished">Informe um endereço Qtum (ex: %1)</translation>
     </message>
     <message>
         <source>Inbound</source>
@@ -348,7 +348,7 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;Visão geral</translation>
@@ -411,8 +411,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Proxy &lt;b&gt;ativado&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Enviar moedas para um endereço bitcoin</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>Enviar moedas para um endereço qtum</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -463,16 +463,16 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Assinar &amp;mensagem</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>Assine mensagens com seus endereços Bitcoin para provar que você é dono delas</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Assine mensagens com seus endereços Qtum para provar que você é dono delas</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verificar mensagem</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Verificar mensagens para se assegurar que elas foram assinadas pelo dono de Endereços Bitcoin específicos</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Verificar mensagens para se assegurar que elas foram assinadas pelo dono de Endereços Qtum específicos</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -539,8 +539,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Conectando...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">Solicitações de pagamentos (gera códigos QR e bitcoin: URIs)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">Solicitações de pagamentos (gera códigos QR e qtum: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -594,12 +594,12 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation>Atualizado</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
+        <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Carregar</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">Carregar Transação de Bitcoin Parcialmente Assinada da área de transferência</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation type="unfinished">Carregar Transação de Qtum Parcialmente Assinada da área de transferência</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -618,8 +618,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Endereço de &amp;recebimento</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation type="unfinished">Abrir um bitcoin: URI</translation>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">Abrir um qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -638,8 +638,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Fechar todas as carteiras</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">Mostrar a mensagem de ajuda do %1 para obter uma lista com possíveis opções de linha de comando Bitcoin</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="unfinished">Mostrar a mensagem de ajuda do %1 para obter uma lista com possíveis opções de linha de comando Qtum</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -678,11 +678,11 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Cliente %1</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n active connection(s) to Bitcoin network.</numerusform>
-            <numerusform>%n active connection(s) to Bitcoin network.</numerusform>
+            <numerusform>%n active connection(s) to Qtum network.</numerusform>
+            <numerusform>%n active connection(s) to Qtum network.</numerusform>
         </translation>
     </message>
     <message>
@@ -1067,7 +1067,7 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Editar endereço de envio</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">O endereço digitado "%1" não é um endereço válido.</translation>
     </message>
     <message>
@@ -1141,8 +1141,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 irá baixar e armazenar uma cópia da block chain do Bitcoin.</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 irá baixar e armazenar uma cópia da block chain do Qtum.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1234,12 +1234,12 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Formulário</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Transações recentes podem não estar visíveis ainda, portanto o seu saldo pode estar incorreto. Esta informação será corrigida assim que sua carteira for sincronizada com a rede, como detalhado abaixo.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Tentar gastar bitcoins que estão em transações ainda não exibidas, não vão ser aceitos pela rede.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">Tentar gastar qtums que estão em transações ainda não exibidas, não vão ser aceitos pela rede.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1285,8 +1285,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation type="unfinished">Abrir um bitcoin URI</translation>
+        <source>Open qtum URI</source>
+        <translation type="unfinished">Abrir um qtum URI</translation>
     </message>
     </context>
 <context>
@@ -1384,8 +1384,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Ga&amp;star troco não confirmado</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Abrir automaticamente no roteador as portas do cliente Bitcoin. Isto só funcionará se seu roteador suportar UPnP e esta função estiver habilitada.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Abrir automaticamente no roteador as portas do cliente Qtum. Isto só funcionará se seu roteador suportar UPnP e esta função estiver habilitada.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1400,8 +1400,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Permitir conexões de entrada</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Conectar na rede Bitcoin através de um proxy SOCKS5.</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Conectar na rede Qtum através de um proxy SOCKS5.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1464,8 +1464,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Mostrar ou não opções de controle da moeda.</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Conectar à rede Bitcoin através de um proxy SOCKS5 separado para serviços Tor onion.</translation>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Conectar à rede Qtum através de um proxy SOCKS5 separado para serviços Tor onion.</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -1535,8 +1535,8 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation>Formulário</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>A informação mostrada pode estar desatualizada. Sua carteira sincroniza automaticamente com a rede Bitcoin depois que a conexão é estabelecida, mas este processo ainda não está completo.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation>A informação mostrada pode estar desatualizada. Sua carteira sincroniza automaticamente com a rede Qtum depois que a conexão é estabelecida, mas este processo ainda não está completo.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1729,19 +1729,19 @@ Somente é possível acessar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Erro no pedido de pagamento</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation type="unfinished">Não foi possível iniciar bitcoin: manipulador click-to-pay</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation type="unfinished">Não foi possível iniciar qtum: manipulador click-to-pay</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Manipulação de URI</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation type="unfinished">'bitcoin://' não é um URI válido. Use 'bitcoin:'.</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation type="unfinished">'qtum://' não é um URI válido. Use 'qtum:'.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">A URI não pode ser analisada! Isto pode ser causado por um endereço inválido ou um parâmetro URI malformado.</translation>
     </message>
     <message>
@@ -2117,8 +2117,8 @@ Para mais informações sobre a utilização desse console. digite %6.
         <translation type="unfinished">&amp;Mensagem:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation type="unfinished">Uma mensagem opcional que será anexada na cobrança e será mostrada quando ela for aberta. Nota: A mensagem não será enviada com o pagamento pela rede Bitcoin.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation type="unfinished">Uma mensagem opcional que será anexada na cobrança e será mostrada quando ela for aberta. Nota: A mensagem não será enviada com o pagamento pela rede Qtum.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2382,7 +2382,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
 Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para um tamanho de transação de 500 bytes virtuais (metade de 1 kvB) resultaria em uma taxa de apenas 50 satoshis.</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">Quando o volume de transações é maior que o espaço nos blocos, os mineradores, bem como os nós de retransmissão, podem impor uma taxa mínima. Pagando apenas esta taxa mínima é muito bom, mas esteja ciente de que isso pode resultar em uma transação nunca confirmada, uma vez que há mais demanda por transações do que a rede pode processar.</translation>
     </message>
     <message>
@@ -2458,8 +2458,8 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Cr&amp;iar Não Assinado</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Cria uma Transação de Bitcoin Parcialmente Assinada (PSBT) para usar com ex: uma carteira %1 offline, ou uma PSBT-compatível hardware wallet.</translation>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Cria uma Transação de Qtum Parcialmente Assinada (PSBT) para usar com ex: uma carteira %1 offline, ou uma PSBT-compatível hardware wallet.</translation>
     </message>
     <message>
         <source> from wallet '%1'</source>
@@ -2510,8 +2510,8 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Você pode aumentar a taxa depois (sinaliza Replace-By-Fee, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Por favor, reveja sua proposta de transação. Será produzido uma Transação de Bitcoin Parcialmente Assinada (PSBT) que você pode copiar e assinar com ex: uma carteira %1 offline, ou uma PSBT-compatível hardware wallet.</translation>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Por favor, reveja sua proposta de transação. Será produzido uma Transação de Qtum Parcialmente Assinada (PSBT) que você pode copiar e assinar com ex: uma carteira %1 offline, ou uma PSBT-compatível hardware wallet.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -2581,8 +2581,8 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation type="unfinished">Aviso: Endereço Bitcoin inválido</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation type="unfinished">Aviso: Endereço Qtum inválido</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2620,8 +2620,8 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Escolha um endereço usado anteriormente</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation type="unfinished">O endereço Bitcoin para enviar o pagamento</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation type="unfinished">O endereço Qtum para enviar o pagamento</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -2636,8 +2636,8 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">A quantia a ser enviada na unidade selecionada</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished">A taxa será deduzida da quantia que está sendo enviada. O destinatário receberá menos bitcoins do que você colocou no campo de quantidade. Se vários destinatários estão selecionados, a taxa é dividida igualmente.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation type="unfinished">A taxa será deduzida da quantia que está sendo enviada. O destinatário receberá menos qtums do que você colocou no campo de quantidade. Se vários destinatários estão selecionados, a taxa é dividida igualmente.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2664,8 +2664,8 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Digite um rótulo para este endereço para adicioná-lo no catálogo</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">A mensagem que foi anexada ao bitcoin: URI na qual será gravada na transação para sua referência. Nota: Essa mensagem não será gravada publicamente na rede Bitcoin.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">A mensagem que foi anexada ao qtum: URI na qual será gravada na transação para sua referência. Nota: Essa mensagem não será gravada publicamente na rede Qtum.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2687,12 +2687,12 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation>&amp;Assinar mensagem</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Você pode assinar mensagens com seus endereços para provar que você pode receber bitcoins enviados por alguém. Cuidado para não assinar nada vago ou aleatório, pois ataques phishing podem tentar te enganar para assinar coisas para eles como se fosse você. Somente assine termos bem detalhados que você concorde.</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation type="unfinished">Você pode assinar mensagens com seus endereços para provar que você pode receber qtums enviados por alguém. Cuidado para não assinar nada vago ou aleatório, pois ataques phishing podem tentar te enganar para assinar coisas para eles como se fosse você. Somente assine termos bem detalhados que você concorde.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation type="unfinished">O endereço Bitcoin que assinará a mensagem</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation type="unfinished">O endereço Qtum que assinará a mensagem</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2715,8 +2715,8 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation>Copiar a assinatura para a área de transferência do sistema</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
-        <translation>Assinar mensagem para provar que você é dono deste endereço Bitcoin</translation>
+        <source>Sign the message to prove you own this Qtum address</source>
+        <translation>Assinar mensagem para provar que você é dono deste endereço Qtum</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -2739,8 +2739,8 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Coloque o endereço do autor, a mensagem (certifique-se de copiar toda a mensagem, incluindo quebras de linha, espaços, tabulações, etc.) e a assinatura abaixo para verificar a mensagem. Cuidado para não compreender mais da assinatura do que está na mensagem assinada de fato, para evitar ser enganado por um ataque man-in-the-middle. Note que isso somente prova que o signatário recebe com este endereço, não pode provar que é o remetente de nenhuma transação!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation type="unfinished">O endereço Bitcoin que foi usado para assinar a mensagem</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation type="unfinished">O endereço Qtum que foi usado para assinar a mensagem</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -2751,8 +2751,8 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">A assinatura fornecida quando a mensagem foi assinada</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>Verificar mensagem para se assegurar que ela foi assinada pelo dono de um endereço Bitcoin específico</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation>Verificar mensagem para se assegurar que ela foi assinada pelo dono de um endereço Qtum específico</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -3352,14 +3352,14 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>The %s developers</source>
         <translation type="unfinished">Desenvolvedores do %s</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s está corrompido. Tente usar a ferramenta de carteira bitcoin-wallet para salvamento ou restauração de backup.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s está corrompido. Tente usar a ferramenta de carteira qtum-wallet para salvamento ou restauração de backup.</translation>
     </message>
     <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>

@@ -66,11 +66,11 @@
         <translation type="unfinished">وەرگرتنی ناونیشانەکان</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">ئەمانە ناونیشانی بیتکۆبیتەکانی تۆنە بۆ ناردنی پارەدانەکان. هەمیشە بڕی و ناونیشانی وەرگرەکان بپشکنە پێش ناردنی دراوەکان.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ئەمانە ناونیشانی بیتکۆبیتەکانی تۆنە بۆ وەرگرتنی پارەدانەکان. دوگمەی 'دروستکردنیناونیشانی وەرگرتنی نوێ' لە تابی وەرگرتندا بۆ دروستکردنی ناونیشانی نوێ بەکاربێنە.
 واژووکردن تەنها دەکرێت لەگەڵ ناونیشانەکانی جۆری 'میرات'.</translation>
@@ -141,7 +141,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">دەستەواژەی تێپەڕەوی نوێ تێبنووسە بۆ جزدان.1 تکایە دەستەواژەی تێپەڕێک بەکاربێنە لە 2ten یان زیاتر لە هێما هەڕەمەکیەکان2، یان 38 یان زیاتر ووشەکان3.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">بیرت بێت کە ڕەمزاندنی جزدانەکەت ناتوانێت بەتەواوی بیتکۆبیتەکانت بپارێزێت لە دزرابوون لەلایەن وورنەری تووشکردنی کۆمپیوتەرەکەت.</translation>
     </message>
     <message>
@@ -203,7 +203,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Send</source>
         <translation>&amp;ناردن</translation>
@@ -240,7 +240,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>زانیاری</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -321,7 +321,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 کۆپیەکی زنجیرەی بلۆکی بیتکۆپ دائەبەزێنێت و خەزنی دەکات.</translation>
     </message>
     <message>
@@ -415,8 +415,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>PaymentServer</name>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation type="unfinished">ناتوانێت دەست بکات بە bitcoin: کرتە بکە بۆ-پارەدانی کار</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation type="unfinished">ناتوانێت دەست بکات بە qtum: کرتە بکە بۆ-پارەدانی کار</translation>
     </message>
     </context>
 <context>
@@ -598,7 +598,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">شاردنەوەی ڕێکخستنەکانی باجی مامەڵە</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">کاتێک قەبارەی مامەڵە کەمتر بێت لە بۆشایی بلۆکەکان، لەوانەیە کانەکان و گرێکانی گواستنەوە کەمترین کرێ جێبەجێ بکەن. پێدانی تەنیا ئەم کەمترین کرێیە تەنیا باشە، بەڵام ئاگاداربە کە ئەمە دەتوانێت ببێتە هۆی ئەوەی کە هەرگیز مامەڵەیەکی پشتڕاستکردنەوە ئەنجام بدرێت جارێک داواکاری زیاتر هەیە بۆ مامەڵەکانی بیت کۆبیتکۆ لەوەی کە تۆڕەکە دەتوانێت ئەنجامی بدات.</translation>
     </message>
     <message>
@@ -606,7 +606,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">یان</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">تکایە، پێداچوونەوە بکە بە پێشنیارەکانی مامەڵەکەت. ئەمە مامەڵەیەکی بیتکۆپەکی کەبەشیونکراو (PSBT) بەرهەمدەهێنێت کە دەتوانیت پاشەکەوتی بکەیت یان کۆپی بکەیت و پاشان واژووی بکەیت لەگەڵ بۆ ئەوەی بە دەرهێڵی %1 جزدانێک، یان جزدانێکی رەقەواڵەی گونجاو بە PSBT.</translation>
     </message>
     <message>
@@ -793,7 +793,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same.</source>
         <translation type="unfinished">ناتوانێت گرێدانێکی تایبەت دابین بکات و پەیوەندی دەرکەوی هەبێت لە هەمان کاتدا.</translation>

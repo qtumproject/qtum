@@ -63,8 +63,8 @@
         <translation type="unfinished">Mottar adresser </translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Dette er dine Bitcoin adresser for å sende betalinger.Alltid sjekk mengden og mottaker adressen før du sender mynter.  </translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Dette er dine Qtum adresser for å sende betalinger.Alltid sjekk mengden og mottaker adressen før du sender mynter.  </translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -132,7 +132,7 @@
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation>
@@ -141,7 +141,7 @@
         </translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />

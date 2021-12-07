@@ -62,13 +62,13 @@
         <translation type="unfinished">Adresa de primire</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Acestea sunt adresele tale Bitcoin pentru efectuarea platilor. Intotdeauna verifica atent suma de plata si adresa beneficiarului inainte de a trimite monede.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Acestea sunt adresele tale Qtum pentru efectuarea platilor. Intotdeauna verifica atent suma de plata si adresa beneficiarului inainte de a trimite monede.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Acestea sunt adresele Bitcoin pentru primirea plăților. Folosiți butonul " Creați o nouă adresă de primire" din fila de primire pentru a crea noi adrese.
+        <translation type="unfinished">Acestea sunt adresele Qtum pentru primirea plăților. Folosiți butonul " Creați o nouă adresă de primire" din fila de primire pentru a crea noi adrese.
 Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
@@ -160,8 +160,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Confirmaţi criptarea portofelului</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Atenţie: Dacă va criptati portofelul si ulterior pierdeti parola, &lt;b&gt;VEŢI PIERDE TOTI BITCOINII&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Atenţie: Dacă va criptati portofelul si ulterior pierdeti parola, &lt;b&gt;VEŢI PIERDE TOTI QTUMII&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -181,8 +181,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
  </translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Reţineti: criptarea portofelului dvs. nu vă poate proteja în totalitate bitcoin-urile împotriva furtului de malware care vă infectează computerul.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Reţineti: criptarea portofelului dvs. nu vă poate proteja în totalitate qtum-urile împotriva furtului de malware care vă infectează computerul.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -237,7 +237,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
 </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>QtumApplication</name>
     <message>
         <source>Runaway exception</source>
         <translation type="unfinished">Excepție de fugă</translation>
@@ -286,8 +286,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Sumă</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation type="unfinished">Introduceţi o adresă Bitcoin (de exemplu %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation type="unfinished">Introduceţi o adresă Qtum (de exemplu %1)</translation>
     </message>
     <message>
         <source>Inbound</source>
@@ -363,7 +363,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;Imagine de ansamblu</translation>
@@ -426,8 +426,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Proxy este&lt;b&gt;activat&lt;/b&gt;:%1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Trimite monede către o adresă Bitcoin</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>Trimite monede către o adresă Qtum</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -478,16 +478,16 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Semnați și transmiteți un mesaj...</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>Semnaţi mesaje cu adresa dvs. Bitcoin pentru a dovedi că vă aparţin</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Semnaţi mesaje cu adresa dvs. Qtum pentru a dovedi că vă aparţin</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verifică mesajul...</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Verificaţi mesaje pentru a vă asigura că au fost semnate cu adresa Bitcoin specificată</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Verificaţi mesaje pentru a vă asigura că au fost semnate cu adresa Qtum specificată</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -554,8 +554,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Conectarea cu colaboratorii...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">Cereţi plăţi (generează coduri QR şi bitcoin-uri: URls)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">Cereţi plăţi (generează coduri QR şi qtum-uri: URls)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -610,12 +610,12 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation>Actualizat</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation type="unfinished">Încărcați Tranzacția Bitcoin Parțial Semnată</translation>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation type="unfinished">Încărcați Tranzacția Qtum Parțial Semnată</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">Încărcați Tranzacția Bitcoin Parțial Semnată din clipboard</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation type="unfinished">Încărcați Tranzacția Qtum Parțial Semnată din clipboard</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -634,8 +634,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">&amp;Adresele de primire</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation type="unfinished">Deschidere bitcoin: o adresa URI sau o cerere de plată</translation>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">Deschidere qtum: o adresa URI sau o cerere de plată</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -654,8 +654,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Închideți toate portofelele</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">Arată mesajul de ajutor %1 pentru a obţine o listă cu opţiunile posibile de linii de comandă Bitcoin</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="unfinished">Arată mesajul de ajutor %1 pentru a obţine o listă cu opţiunile posibile de linii de comandă Qtum</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -690,7 +690,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Client %1</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -1040,8 +1040,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Editează adresa de trimitere</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation type="unfinished">Adresa introdusă "%1" nu este o adresă Bitcoin validă.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation type="unfinished">Adresa introdusă "%1" nu este o adresă Qtum validă.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1103,8 +1103,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 va descarca si stoca o copie a blockchainului Bitcoin</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 va descarca si stoca o copie a blockchainului Qtum</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1180,12 +1180,12 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
 <context>
     <name>ModalOverlay</name>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation type="unfinished">Tranzactiile recente pot sa nu fie inca vizibile, de aceea balanta portofelului poate fi incorecta. Aceasta informatie va fi corecta de indata ce portofelul va fi complet sincronizat cu reteaua Bitcoin, asa cum este detaliat mai jos.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation type="unfinished">Tranzactiile recente pot sa nu fie inca vizibile, de aceea balanta portofelului poate fi incorecta. Aceasta informatie va fi corecta de indata ce portofelul va fi complet sincronizat cu reteaua Qtum, asa cum este detaliat mai jos.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Incercarea de a cheltui bitcoini care sunt afectati de tranzactii ce inca nu sunt afisate nu va fi acceptata de retea.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">Incercarea de a cheltui qtumi care sunt afectati de tranzactii ce inca nu sunt afisate nu va fi acceptata de retea.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1303,8 +1303,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Cheltuire rest neconfirmat</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Deschide automat în router portul aferent clientului Bitcoin. Funcţionează doar dacă routerul duportă UPnP şi e activat.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Deschide automat în router portul aferent clientului Qtum. Funcţionează doar dacă routerul duportă UPnP şi e activat.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1319,8 +1319,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Permite conexiuni de intrar&amp;e</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Conectare la reţeaua Bitcoin printr-un proxy SOCKS.</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Conectare la reţeaua Qtum printr-un proxy SOCKS.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1368,7 +1368,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>Alegeţi subdiviziunea folosită la afişarea interfeţei şi la trimiterea de bitcoin.</translation>
+        <translation>Alegeţi subdiviziunea folosită la afişarea interfeţei şi la trimiterea de qtum.</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -1424,14 +1424,14 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>The supplied proxy address is invalid.</source>
-        <translation>Adresa bitcoin pe care aţi specificat-o nu este validă.</translation>
+        <translation>Adresa qtum pe care aţi specificat-o nu este validă.</translation>
     </message>
 </context>
 <context>
     <name>OverviewPage</name>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>Informaţiile afişate pot fi neactualizate. Portofelul dvs. se sincronizează automat cu reţeaua Bitcoin după ce o conexiune este stabilită, dar acest proces nu a fost finalizat încă.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation>Informaţiile afişate pot fi neactualizate. Portofelul dvs. se sincronizează automat cu reţeaua Qtum după ce o conexiune este stabilită, dar acest proces nu a fost finalizat încă.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1516,20 +1516,20 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Eroare la cererea de plată</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation type="unfinished">Bitcoin nu poate porni: click-to-pay handler</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation type="unfinished">Qtum nu poate porni: click-to-pay handler</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Gestionare URI</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation type="unfinished">'bitcoin://' nu este un URI valid. Folositi 'bitcoin:' in loc.</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation type="unfinished">'qtum://' nu este un URI valid. Folositi 'qtum:' in loc.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
-        <translation type="unfinished">URI nu poate fi analizat! Acest lucru poate fi cauzat de o adresă Bitcoin invalidă sau parametri URI deformaţi.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <translation type="unfinished">URI nu poate fi analizat! Acest lucru poate fi cauzat de o adresă Qtum invalidă sau parametri URI deformaţi.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -1842,8 +1842,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">&amp;Mesaj:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation type="unfinished">Un mesaj opţional de ataşat la cererea de plată, care va fi afişat cînd cererea este deschisă. Notă: Acest mesaj nu va fi trimis cu plata către reţeaua Bitcoin.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation type="unfinished">Un mesaj opţional de ataşat la cererea de plată, care va fi afişat cînd cererea este deschisă. Notă: Acest mesaj nu va fi trimis cu plata către reţeaua Qtum.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2199,8 +2199,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation type="unfinished">Atenţie: Adresa bitcoin nevalidă!</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation type="unfinished">Atenţie: Adresa qtum nevalidă!</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2238,8 +2238,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Alegeţi adrese folosite anterior</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation type="unfinished">Adresa bitcoin către care se face plata</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation type="unfinished">Adresa qtum către care se face plata</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -2250,8 +2250,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Înlătură această intrare</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished">Taxa va fi scazuta in suma trimisa. Destinatarul va primi mai putini bitcoin decat ati specificat in campul sumei trimise. Daca au fost selectati mai multi destinatari, taxa se va imparti in mod egal.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation type="unfinished">Taxa va fi scazuta in suma trimisa. Destinatarul va primi mai putini qtum decat ati specificat in campul sumei trimise. Daca au fost selectati mai multi destinatari, taxa se va imparti in mod egal.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2278,8 +2278,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Introduceţi eticheta pentru ca această adresa să fie introdusă în lista de adrese folosite</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">un mesaj a fost ataşat la bitcoin: URI care va fi stocat cu tranzacţia pentru referinţa dvs. Notă: Acest mesaj nu va fi trimis către reţeaua bitcoin.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">un mesaj a fost ataşat la qtum: URI care va fi stocat cu tranzacţia pentru referinţa dvs. Notă: Acest mesaj nu va fi trimis către reţeaua qtum.</translation>
     </message>
     <message>
         <source>Pay To:</source>
@@ -2297,11 +2297,11 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation>&amp;Semnează mesaj</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Puteţi semna mesaje/contracte cu adresele dvs. pentru a demostra ca puteti primi bitcoini trimisi la ele. Aveţi grijă să nu semnaţi nimic vag sau aleator, deoarece atacurile de tip phishing vă pot păcăli să le transferaţi identitatea. Semnaţi numai declaraţiile detaliate cu care sînteti de acord.</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation type="unfinished">Puteţi semna mesaje/contracte cu adresele dvs. pentru a demostra ca puteti primi qtumi trimisi la ele. Aveţi grijă să nu semnaţi nimic vag sau aleator, deoarece atacurile de tip phishing vă pot păcăli să le transferaţi identitatea. Semnaţi numai declaraţiile detaliate cu care sînteti de acord.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
+        <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Adresa cu care semnaţi mesajul</translation>
     </message>
     <message>
@@ -2325,8 +2325,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation>Copiază semnatura curentă în clipboard-ul sistemului</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
-        <translation>Semnează mesajul pentru a dovedi ca deţineţi acestă adresă Bitcoin</translation>
+        <source>Sign the message to prove you own this Qtum address</source>
+        <translation>Semnează mesajul pentru a dovedi ca deţineţi acestă adresă Qtum</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -2349,12 +2349,12 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Introduceţi adresa de semnatură, mesajul (asiguraţi-vă că aţi copiat spaţiile, taburile etc. exact) şi semnatura dedesubt pentru a verifica mesajul. Aveţi grijă să nu citiţi mai mult în semnatură decît mesajul în sine, pentru a evita să fiţi păcăliţi de un atac de tip man-in-the-middle. De notat ca aceasta dovedeste doar ca semnatarul primeste odata cu adresa, nu dovedesta insa trimiterea vreunei tranzactii.</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation type="unfinished">Introduceţi o adresă Bitcoin</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation type="unfinished">Introduceţi o adresă Qtum</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>Verificaţi mesajul pentru a vă asigura că a fost semnat cu adresa Bitcoin specificată</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation>Verificaţi mesajul pentru a vă asigura că a fost semnat cu adresa Qtum specificată</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -2900,7 +2900,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>The %s developers</source>
         <translation type="unfinished">Dezvoltatorii %s</translation>

@@ -66,11 +66,11 @@
         <translation type="unfinished">כתובות לקבלה</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">אלה כתובות הביטקוין שלך לשליחת תשלומים. חשוב לבדוק את הסכום ואת הכתובת המקבלת לפני שליחת מטבעות.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">אלה כתובת הביטקוין שלך לקבלת תשלומים. ניתן להשתמש בכפתור „יצירת כתובת קבלה חדשה” בלשונית הקבלה ליצירת כתובות חדשות.
 חתימה אפשרית רק עבור כתובות מסוג „legacy”.</translation>
@@ -159,7 +159,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">אישור הצפנת הארנק</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">אזהרה: הצפנת הארנק שלך ושיכחת הסיסמה &lt;b&gt;תגרום לאיבוד כל הביטקוינים שלך&lt;/b&gt;!</translation>
     </message>
     <message>
@@ -179,7 +179,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">נא לספק את הסיסמה הישנה ולתת סיסמה חדשה לארנק.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">זכור שהצפנת הארנק לא יכולה להגן עליך לגמרי מגניבת המטבעות שלך על ידי תוכנה זדונית שנמצאת על המחשב שלך.</translation>
     </message>
     <message>
@@ -235,7 +235,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>QtumApplication</name>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">אירעה שגיאה חמורה, %1 לא יכול להמשיך בבטחון ולכן יופסק.</translation>
@@ -268,7 +268,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">סכום</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
+        <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">נא לספק כתובת ביטקוין (למשל: %1)</translation>
     </message>
     <message>
@@ -367,7 +367,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;סקירה</translation>
@@ -430,7 +430,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">שרת הפרוקסי &lt;b&gt;פעיל&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
+        <source>Send coins to a Qtum address</source>
         <translation>שליחת מטבעות לכתובת ביטקוין</translation>
     </message>
     <message>
@@ -462,11 +462,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>הצפנת המפתחות הפרטיים ששייכים לארנק שלך</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation>חתום על הודעות עם כתובות הביטקוין שלך כדי להוכיח שהן בבעלותך</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation>אמת הודעות כדי להבטיח שהן נחתמו עם כתובת ביטקוין מסוימות</translation>
     </message>
     <message>
@@ -486,8 +486,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>סרגל כלים לשוניות</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">בקשת תשלומים (יצירה של קודים מסוג QR וסכימות כתובות משאב של :bitcoin)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">בקשת תשלומים (יצירה של קודים מסוג QR וסכימות כתובות משאב של :qtum)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -537,11 +537,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>עדכני</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
+        <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">העלה עיסקת ביטקוין חתומה חלקית</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">טעינת עסקת ביטקוין חתומה חלקית מלוח הגזירים</translation>
     </message>
     <message>
@@ -561,7 +561,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;כתובות לקבלה</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
+        <source>Open a qtum: URI</source>
         <translation type="unfinished">פתיחת ביטקוין: כתובת משאב</translation>
     </message>
     <message>
@@ -581,7 +581,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">סגירת כל הארנקים</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">יש להציג את הודעת העזרה של %1 כדי להציג רשימה עם אפשרויות שורת פקודה לביטקוין</translation>
     </message>
     <message>
@@ -622,7 +622,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">לקוח %1</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -983,7 +983,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">עריכת כתובת השליחה</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">הכתובת שסיפקת "%1" אינה כתובת ביטקוין תקנית.</translation>
     </message>
     <message>
@@ -1029,7 +1029,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>Intro</name>
     <message>
-        <source>Bitcoin</source>
+        <source>Qtum</source>
         <translation type="unfinished">ביטקוין</translation>
     </message>
     <message>
@@ -1049,7 +1049,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 תוריד ותאחסן עותק של שרשרת הבלוקים של ביטקוין.</translation>
     </message>
     <message>
@@ -1130,11 +1130,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">טופס</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">ייתכן שהעברות שבוצעו לאחרונה לא יופיעו עדיין, ולכן המאזן בארנק שלך יהיה שגוי. המידע הנכון יוצג במלואו כאשר הארנק שלך יסיים להסתנכרן עם רשת הביטקוין, כמפורט למטה.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">הרשת תסרב לקבל הוצאת ביטקוינים במידה והם כבר נמצאים בהעברות אשר לא מוצגות עדיין.</translation>
     </message>
     <message>
@@ -1169,7 +1169,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
+        <source>Open qtum URI</source>
         <translation type="unfinished">פתיחת כתובת משאב ביטקוין</translation>
     </message>
     <message>
@@ -1276,7 +1276,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">עודף &amp;בלתי מאושר מההשקעה</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>פתיחת הפתחה של ביטקוין בנתב באופן אוטומטי. עובד רק אם UPnP מופעל ונתמך בנתב.</translation>
     </message>
     <message>
@@ -1292,7 +1292,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">לאפשר חיבורים &amp;נכנסים</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">התחבר לרשת הביטקוין דרך פרוקסי SOCKS5.</translation>
     </message>
     <message>
@@ -1356,7 +1356,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">האם להציג תכונות שליטת מטבע או לא.</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
         <translation type="unfinished">התחבר לרשת ביטקוין דרך פרוקסי נפרד SOCKS5 proxy לשרותי שכבות בצל (onion services).</translation>
     </message>
     <message>
@@ -1431,7 +1431,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>טופס</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation>המידע המוצג עשוי להיות מיושן. הארנק שלך מסתנכרן באופן אוטומטי עם רשת הביטקוין לאחר יצירת החיבור, אך התהליך טרם הסתיים.</translation>
     </message>
     <message>
@@ -1625,19 +1625,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">שגיאת בקשת תשלום</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation type="unfinished">לא ניתן להפעיל את המקשר bitcoin: click-to-pay</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation type="unfinished">לא ניתן להפעיל את המקשר qtum: click-to-pay</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">טיפול בכתובות</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation type="unfinished">'//:bitcoin' אינה כתובת תקנית. נא להשתמש ב־"bitcoin:‎"‏ במקום.</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation type="unfinished">'//:qtum' אינה כתובת תקנית. נא להשתמש ב־"qtum:‎"‏ במקום.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">לא ניתן לנתח את כתובת המשאב! מצב זה יכול לקרות עקב כתובת ביטקוין שגויה או פרמטרים שגויים בכתובת המשאב.</translation>
     </message>
     <message>
@@ -1996,7 +1996,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">הו&amp;דעה:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">הודעת רשות לצירוף לבקשת התשלום שתוצג בעת פתיחת הבקשה. לתשומת לבך: ההודעה לא תישלח עם התשלום ברשת ביטקוין.</translation>
     </message>
     <message>
@@ -2241,7 +2241,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">הסתרת הגדרות עמלת עסקה</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">כאשר יש פחות נפח עסקאות מאשר מקום בבלוק, כורים וכן צמתות מקשרות יכולות להכתיב עמלות מינימום. התשלום של עמלת מינימום הנו תקין, אך יש לקחת בחשבון שהדבר יכול לגרום לעסקה שלא תאושר ברגע שיש יותר ביקוש לעסקאות ביטקוין מאשר הרשת יכולה לעבד.</translation>
     </message>
     <message>
@@ -2313,7 +2313,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">י&amp;צירת לא חתומה</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">יוצר עסקת ביטקוין חתומה חלקית (PSBT) לשימוש עם ארנק %1 לא מחובר למשל, או עם PSBT ארנק חומרה תואם.</translation>
     </message>
     <message>
@@ -2361,7 +2361,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">תוכלו להגדיל את העמלה מאוחר יותר (איתות Replace-By-Fee, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">בבקשה לסקור את העיסקה המוצעת. הדבר יצור עיסקת ביטקוין חתומה חלקית (PSBT) אשר ניתן לשמור או להעתיק ואז לחתום עם למשל ארנק לא מקוון %1, או עם ארנק חומרה תואם-PSBT.</translation>
     </message>
     <message>
@@ -2432,7 +2432,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
+        <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">אזהרה: כתובת ביטקיון שגויה</translation>
     </message>
     <message>
@@ -2471,7 +2471,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">בחירת כתובת שהייתה בשימוש</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
+        <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">כתובת הביטקוין של המוטב</translation>
     </message>
     <message>
@@ -2487,7 +2487,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">הסכום לשליחה במטבע הנבחר</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">העמלה תנוכה מהסכום שנשלח. הנמען יקבל פחות ביטקוינים ממה שסיפקת בשדה הסכום. אם נבחרו מספר נמענים, העמלה תחולק באופן שווה.</translation>
     </message>
     <message>
@@ -2515,7 +2515,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">יש לתת תווית לכתובת זו כדי להוסיף אותה לרשימת הכתובות בשימוש</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">הודעה שצורפה לביטקוין: כתובת שתאוחסן בהעברה לצורך מעקב מצדך. לתשומת לבך: הודעה זו לא תישלח ברשת הביטקוין.</translation>
     </message>
     <message>
@@ -2538,11 +2538,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>חתימה על הו&amp;דעה</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">אפשר לחתום על הודעות/הסכמים באמצעות הכתובות שלך, כדי להוכיח שבאפשרותך לקבל את הביטקוינים הנשלחים אליהן. יש להיזהר ולא לחתום על תוכן עמום או אקראי, מכיוון שתקיפות דיוג עשויות לנסות לגנוב את זהותך. יש לחתום רק על הצהרות מפורטות שהנך מסכים/ה להן.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
+        <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">כתובת הביטקוין איתה לחתום את ההודעה</translation>
     </message>
     <message>
@@ -2566,7 +2566,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>העתקת החתימה הנוכחית ללוח הגזירים</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
+        <source>Sign the message to prove you own this Qtum address</source>
         <translation>ניתן לחתום על ההודעה כדי להוכיח שכתובת ביטקוין זו בבעלותך</translation>
     </message>
     <message>
@@ -2590,7 +2590,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">יש להזין את כתובת הנמען, ההודעה (נא לוודא שהעתקת במדויק את תווי קפיצות השורה, רווחים, טאבים וכדומה). והחתימה מתחת אשר מאמתת את ההודעה. יש להיזהר שלא לקרוא לתוך החתימה יותר מאשר בהודעה החתומה עצמה, כדי להימנע מניצול לרעה של המתווך שבדרך. יש לשים לב שהדבר רק מוכיח שהצד החותם מקבל עם הכתובת. הדבר אינו מוכיח משלוח כלשהו של עסקה!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
+        <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">כתובת הביטקוין שאיתה נחתמה ההודעה</translation>
     </message>
     <message>
@@ -2602,7 +2602,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">החתימה שניתנת כאשר ההודעה נחתמה</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation>ניתן לאמת את ההודעה כדי להבטיח שהיא נחתמה עם כתובת הביטקוין הנתונה</translation>
     </message>
     <message>
@@ -3213,14 +3213,14 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>The %s developers</source>
         <translation type="unfinished">ה %s מפתחים</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s משובש. נסו להשתמש בכלי הארנק bitcoin-wallet כדי להציל או לשחזר מגיבוי..</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s משובש. נסו להשתמש בכלי הארנק qtum-wallet כדי להציל או לשחזר מגיבוי..</translation>
     </message>
     <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>

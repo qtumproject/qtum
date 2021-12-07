@@ -66,11 +66,11 @@
         <translation type="unfinished">آدرس‌های گیرنده</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">اینها آدرس‌های شما برای ارسال وجوه هستند. همیشه قبل از ارسال، مقدار و آدرس گیرنده را بررسی کنید.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">این‌ها نشانی‌های بیت‌کوین شما برای دریافت پرداخت‌ها هستند. از دکمهٔ «ساختن نشانی دریافت جدید» در زبانهٔ دریافت برای ساخت نشانی‌های جدید استفاده کنید.
 
@@ -167,7 +167,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">تایید رمزگذاری کیف پول</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">هشدار: اگر کیف پول خود را رمزگذاری کنید و عبارت خود را گام کنید ، این کار را انجام می دهید &lt;b&gt;تمام کویت های خود را از دست &lt;/b&gt;استفاده کنید!
 </translation>
     </message>
@@ -189,7 +189,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">رمز عبور قدیمی و رمز عبور جدید کیف پول خود را وارد کنید.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">به یاد داشته باشید که رمزگذاری کیف پول شما نمی تواند به طور کامل از سرقت بیت کوین شما در اثر آلوده شدن رایانه به بدافزار محافظت کند.
  </translation>
     </message>
@@ -257,7 +257,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>QtumApplication</name>
     <message>
         <source>Internal error</source>
         <translation type="unfinished">مشکل داخلی</translation>
@@ -282,7 +282,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">میزان وجه:</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
+        <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">آدرس بیت کوین را وارد کنید (به طور مثال %1)</translation>
     </message>
     <message>
@@ -367,7 +367,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation>بازبینی</translation>
@@ -432,7 +432,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پراکسی &lt;br&gt;فعال شده است: %1&lt;/br&gt;</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
+        <source>Send coins to a Qtum address</source>
         <translation>ارسال کوین به آدرس بیت کوین</translation>
     </message>
     <message>
@@ -482,7 +482,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">تغییر عبارت عبور</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation>پیام‌ها را با آدرس بیت‌کوین خود امضا کنید تا مالکیت آن‌ها را اثبات کنید</translation>
     </message>
     <message>
@@ -490,7 +490,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پیام تایید</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation>پیام ها را تأیید کنید تا مطمئن شوید با آدرس های مشخص شده بیت کوین امضا شده اند
  </translation>
     </message>
@@ -539,7 +539,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">هماهنگ‌سازی با شبکه</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">درخواست پرداخت (ساخت کد QR و بیت‌کوین: URIs)</translation>
     </message>
     <message>
@@ -605,7 +605,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ادرس درسافت</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
+        <source>Open a qtum: URI</source>
         <translation type="unfinished">بارک کردن یک بیت‌کوین: URI</translation>
     </message>
     <message>
@@ -656,7 +656,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">کلاینت: %1</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -1039,7 +1039,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ویرایش آدرس ارسالی</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">آدرس وارد شده "%1" آدرس معتبر بیت کوین نیست.</translation>
     </message>
     <message>
@@ -1078,7 +1078,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>Intro</name>
     <message>
-        <source>Bitcoin</source>
+        <source>Qtum</source>
         <translation type="unfinished">بیت کوین</translation>
     </message>
     <message>
@@ -1184,7 +1184,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">فرم</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">معاملات اخیر ممکن است هنوز قابل مشاهده نباشند ، بنابراین ممکن است موجودی کیف پول شما نادرست باشد. به محض اینکه همگام سازی کیف پول شما با شبکه بیت کوین به پایان رسید ، این اطلاعات درست خواهد بود ، همانطور که در زیر توضیح داده شده است.
  </translation>
     </message>
@@ -1296,7 +1296,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">مسیر اسکریپت امضاکنندهٔ جانبی</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>باز کردن خودکار درگاه شبکهٔ بیت‌کوین روی روترها. تنها زمانی کار می‌کند که روتر از پروتکل UPnP پشتیبانی کند و این پروتکل فعال باشد.</translation>
     </message>
     <message>
@@ -1450,8 +1450,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>فرم</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation>اطلاعات نمایش داده شده ممکن است قدیمی باشد. کیف پول شما پس از برقراری اتصال به طور خودکار با شبکه Bitcoin همگام سازی می شود ، اما این روند هنوز کامل نشده است.
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation>اطلاعات نمایش داده شده ممکن است قدیمی باشد. کیف پول شما پس از برقراری اتصال به طور خودکار با شبکه Qtum همگام سازی می شود ، اما این روند هنوز کامل نشده است.
  </translation>
     </message>
     <message>
@@ -1566,7 +1566,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">درخواست پرداخت با خطا مواجه شد</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
+        <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">نمی توان بیت کوین را شروع کرد: کنترل کننده کلیک برای پرداخت
  </translation>
     </message>
@@ -1896,7 +1896,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پیام:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">یک پیام اختیاری برای پیوست به درخواست پرداخت ، که با باز شدن درخواست نمایش داده می شود. توجه: پیام با پرداخت از طریق شبکه بیت کوین ارسال نمی شود.
  </translation>
     </message>
@@ -2283,7 +2283,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
+        <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">هشدار: آدرس بیت کوین نامعتبر</translation>
     </message>
     <message>
@@ -2323,8 +2323,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">انتخاب آدرس قبلا استفاده شده</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation type="unfinished">آدرس Bitcoin برای ارسال پرداخت به
+        <source>The Qtum address to send the payment to</source>
+        <translation type="unfinished">آدرس Qtum برای ارسال پرداخت به
  </translation>
     </message>
     <message>
@@ -2373,7 +2373,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>&amp;ثبت پیام</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
+        <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">نشانی بیت‌کوین برای امضاء پیغام با آن</translation>
     </message>
     <message>
@@ -2397,7 +2397,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>جریان را کپی کنید امضا به سیستم کلیپ بورد</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
+        <source>Sign the message to prove you own this Qtum address</source>
         <translation>پیام را امضا کنید تا ثابت کنید این آدرس بیت‌کوین متعلق به شماست</translation>
     </message>
     <message>
@@ -2417,7 +2417,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>&amp; تأیید پیام</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
+        <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">نشانی بیت‌کوین که پیغام با آن امضاء شده</translation>
     </message>
     <message>
@@ -2426,8 +2426,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
  </translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation>پیام را تأیید کنید تا مطمئن شوید با آدرس Bitcoin مشخص شده امضا شده است
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation>پیام را تأیید کنید تا مطمئن شوید با آدرس Qtum مشخص شده امضا شده است
  </translation>
     </message>
     <message>
@@ -2937,7 +2937,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>The %s developers</source>
         <translation type="unfinished">%s توسعه دهندگان</translation>

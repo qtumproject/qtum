@@ -66,13 +66,13 @@
         <translation type="unfinished">Alınan ünvanlar</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Bunlar ödənişləri göndərmək üçün Bitcoin ünvanlarınızdır. pul göndərməzdən əvvəl həmişə miqdarı və göndəriləcək ünvanı yoxlayın.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Bunlar ödənişləri göndərmək üçün Qtum ünvanlarınızdır. pul göndərməzdən əvvəl həmişə miqdarı və göndəriləcək ünvanı yoxlayın.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Bunlar ödəniş almaq üçün Bitcoin ünvanlarınızdır. Yeni ünvan yaratmaq üçün alacaqlar vərəqində 'Yeni alacaq ünvan yarat' düyməsini istifadə edin.
+        <translation type="unfinished">Bunlar ödəniş almaq üçün Qtum ünvanlarınızdır. Yeni ünvan yaratmaq üçün alacaqlar vərəqində 'Yeni alacaq ünvan yarat' düyməsini istifadə edin.
 Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
     </message>
     <message>
@@ -159,8 +159,8 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
         <translation type="unfinished">Pulqabı şifrələməsini təsdiqlə</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Unutmayın ki, cüzdanınızın şifrələməsi bitcoinlərinizi kompüterinizə zərərli proqram tərəfindən oğurlanmaqdan tamamilə qoruya bilməz.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Unutmayın ki, cüzdanınızın şifrələməsi qtumlərinizi kompüterinizə zərərli proqram tərəfindən oğurlanmaqdan tamamilə qoruya bilməz.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -221,7 +221,7 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Settings</source>
         <translation>&amp;Tənzimləmələr</translation>
@@ -250,7 +250,7 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
         <translation type="unfinished">Bir pulqabı aç</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -429,7 +429,7 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
         <translation type="unfinished">Ödəniş təxmin edilmədi. Fallbackfee sıradan çıxarıldı. Bir neçə blok gözləyin və ya Fallbackfee-ni fəallaşdırın.</translation>

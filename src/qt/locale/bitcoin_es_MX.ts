@@ -66,8 +66,8 @@
         <translation type="unfinished">Direcciones de recibo</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Estas son tus direcciones de Bitcoin para enviar pagos. Siempre revisa el monto y la dirección de envío antes de enviar monedas.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Estas son tus direcciones de Qtum para enviar pagos. Siempre revisa el monto y la dirección de envío antes de enviar monedas.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -158,8 +158,8 @@
         <translation type="unfinished">Confirmar la encriptación de cartera</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Advertencia: Si encripta su cartera y pierde su contraseña, &lt;b&gt;PERDERÁ TODOS SUS BITCOINS&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Advertencia: Si encripta su cartera y pierde su contraseña, &lt;b&gt;PERDERÁ TODOS SUS QTUMS&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -178,8 +178,8 @@
         <translation type="unfinished">Ingresa la antigua frase de contraseña y la nueva frase de contraseña para la billetera.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Recuerda que encriptar tu billetera no protege completamente tus bitcoins contra robo por malware que haya infectado tu computadora.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Recuerda que encriptar tu billetera no protege completamente tus qtums contra robo por malware que haya infectado tu computadora.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -238,7 +238,7 @@
     </message>
 </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>QtumApplication</name>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Ha ocurrido un error grave. %1 no puede continuar de forma segura y se cerrará.</translation>
@@ -322,7 +322,7 @@
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>QtumGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation>&amp;Vista previa</translation>
@@ -385,8 +385,8 @@
         <translation type="unfinished">El proxy está &lt;b&gt;habilitado&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation>Enviar monedas a una dirección Bitcoin</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation>Enviar monedas a una dirección Qtum</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -433,16 +433,16 @@
         <translation type="unfinished">&amp;Cambiar contraseña...</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation>Firme mensajes con sus direcciones de Bitcoin para demostrar que los posee</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation>Firme mensajes con sus direcciones de Qtum para demostrar que los posee</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verificar mensaje...</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation>Verifique los mensajes para asegurarse de que se firmaron con direcciones de Bitcoin especificadas.</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation>Verifique los mensajes para asegurarse de que se firmaron con direcciones de Qtum especificadas.</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -501,9 +501,9 @@
         <translation type="unfinished">Conectando a pares...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished"> 
-Solicitar pagos (genera códigos QR y bitcoin: URI)
+Solicitar pagos (genera códigos QR y qtum: URI)
  </translation>
     </message>
     <message>
@@ -558,8 +558,8 @@ Solicitar pagos (genera códigos QR y bitcoin: URI)
         <translation type="unfinished">Cerrar todas las carteras</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">Mostrar mensaje de ayuda %1  para obtener una lista con posibles líneas de comando de Bitcoin </translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="unfinished">Mostrar mensaje de ayuda %1  para obtener una lista con posibles líneas de comando de Qtum </translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -582,11 +582,11 @@ Solicitar pagos (genera códigos QR y bitcoin: URI)
         <translation type="unfinished">Ventana Principal</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n conexiones activas con la red Bitcoin</numerusform>
-            <numerusform>%n conexiones activas con la red Bitcoin </numerusform>
+            <numerusform>%n conexiones activas con la red Qtum</numerusform>
+            <numerusform>%n conexiones activas con la red Qtum </numerusform>
         </translation>
     </message>
     <message>
@@ -998,12 +998,12 @@ Solicitar pagos (genera códigos QR y bitcoin: URI)
         <translation type="unfinished">Formulario</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation type="unfinished">Las transacciones recientes pueden no ser visibles todavía, y por lo tanto el saldo de su cartera podría ser incorrecto. Esta información será correcta una vez que su cartera haya terminado de sincronizarse con la red de bitcoin, como se detalla abajo.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation type="unfinished">Las transacciones recientes pueden no ser visibles todavía, y por lo tanto el saldo de su cartera podría ser incorrecto. Esta información será correcta una vez que su cartera haya terminado de sincronizarse con la red de qtum, como se detalla abajo.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Los intentos de gastar bitcoins que se vean afectados por transacciones aún no mostradas no serán aceptados por la red.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">Los intentos de gastar qtums que se vean afectados por transacciones aún no mostradas no serán aceptados por la red.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1029,8 +1029,8 @@ Solicitar pagos (genera códigos QR y bitcoin: URI)
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation type="unfinished">Abrir la URI de bitcoin</translation>
+        <source>Open qtum URI</source>
+        <translation type="unfinished">Abrir la URI de qtum</translation>
     </message>
     </context>
 <context>
@@ -1292,8 +1292,8 @@ Para obtener más información, escriba %6.
         <translation type="unfinished">Mensaje:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation type="unfinished">Mensaje opcional para agregar a la solicitud de pago, el cual será mostrado cuando la solicitud este abierta. Nota: El mensaje no se manda con el pago a travéz de la red de Bitcoin.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation type="unfinished">Mensaje opcional para agregar a la solicitud de pago, el cual será mostrado cuando la solicitud este abierta. Nota: El mensaje no se manda con el pago a travéz de la red de Qtum.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -1536,8 +1536,8 @@ Para obtener más información, escriba %6.
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation type="unfinished">Advertencia: Dirección de Bitcoin invalida</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation type="unfinished">Advertencia: Dirección de Qtum invalida</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -1571,8 +1571,8 @@ Para obtener más información, escriba %6.
         <translation type="unfinished">Elegir la dirección utilizada anteriormente</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation type="unfinished">La dirección de Bitcoin para enviar el pago a</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation type="unfinished">La dirección de Qtum para enviar el pago a</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -1922,7 +1922,7 @@ Para obtener más información, escriba %6.
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>qtum-core</name>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
         <translation type="unfinished">No se pudo cambiar la versión %i a la versión anterior %i.  Versión del monedero sin cambios.</translation>
