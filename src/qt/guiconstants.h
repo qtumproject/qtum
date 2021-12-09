@@ -11,7 +11,7 @@
 static const int MODEL_UPDATE_DELAY = 2000;
 
 /* Milliseconds between device updates */
-static const int DEVICE_UPDATE_DELAY = 10000;
+static const int DEVICE_UPDATE_DELAY = 20000;
 
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;

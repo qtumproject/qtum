@@ -33,6 +33,7 @@
 #include <utility>
 
 unsigned int nMaxStakeLookahead = MAX_STAKE_LOOKAHEAD;
+unsigned int nMaxStakeLedgerLookahead = MAX_STAKE_LOOKAHEAD;
 unsigned int nBytecodeTimeBuffer = BYTECODE_TIME_BUFFER;
 unsigned int nStakeTimeBuffer = STAKE_TIME_BUFFER;
 unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
@@ -54,6 +55,7 @@ void updateMinerParams(int nHeight, const Consensus::Params& consensusParams, bo
         nStakeTimeBuffer = std::max(STAKE_TIME_BUFFER / timeDownscale, timeDefault);
         nMinerSleep = std::max(STAKER_POLLING_PERIOD / timeDownscale, timeDefault);
         nMinerWaitWalidBlock = std::max(STAKER_WAIT_FOR_WALID_BLOCK / timeDownscale, timeDefault);
+        nMaxStakeLedgerLookahead = targetSpacing;
     }
 
     // Sleep for 20 seconds when mining with minimum difficulty to avoid creating blocks every 4 seconds
@@ -1430,22 +1432,20 @@ public:
             // Is ready for mining
             if(!IsReady()) continue;
 
-            // Cache mining data
-            if(!CacheData()) continue;
-
             // Check if ledger is connected
             if(d->privateKeysDisabled)
             {
                 if(!isLedgerConnected()) continue;
             }
 
+            // Cache mining data
+            if(!CacheData()) continue;
+
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
             {
                 // Look for possibility to create a block
-                d->beginningTime = GetAdjustedTime();
-                d->beginningTime &= ~d->stakeTimestampMask;
-                d->endingTime = d->beginningTime + nMaxStakeLookahead;
+                UpdateSearchTime();
 
                 for(uint32_t blockTime = d->beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
                 {
@@ -1658,11 +1658,26 @@ protected:
             d->pwallet->UpdateMinerStakeCache(true, d->prevouts, d->pindexPrev);
         }
 
-        d->beginningTime = GetAdjustedTime();
-        d->beginningTime &= ~d->stakeTimestampMask;
-        d->endingTime = d->beginningTime + nMaxStakeLookahead;
+        UpdateSearchTime();
 
         return true;
+    }
+
+    void UpdateSearchTime()
+    {
+        d->beginningTime = GetAdjustedTime();
+        d->beginningTime &= ~d->stakeTimestampMask;
+        if(d->beginningTime == d->pindexPrev->GetBlockTime())
+            d->beginningTime += d->stakeTimestampMask+1;
+
+        if(d->privateKeysDisabled)
+        {
+            d->endingTime = d->beginningTime + nMaxStakeLedgerLookahead;
+        }
+        else
+        {
+            d->endingTime = d->beginningTime + nMaxStakeLookahead;
+        }
     }
 
     bool CacheData()
@@ -1833,7 +1848,10 @@ protected:
                     continue;
                 }
                 //if there is mined block by other staker wait for it to download
-                if(!SyncWithMiners()) break;
+                if(!SyncWithMiners()) {
+                    LogPrint(BCLog::COINSTAKE, "ThreadStakeMiner() : PoS block has expired, there is mined block by other staker\n");
+                    break;
+                }
                 validBlock=true;
             }
             if(validBlock) {
@@ -1864,8 +1882,11 @@ protected:
         if(ledgerId.empty())
             return false;
 
+        int64_t nTime1 = GetTimeMillis();
         QtumLedger &device = QtumLedger::instance();
         bool fConnected = device.isConnected(ledgerId, true);
+        int64_t nTime2 = GetTimeMillis();
+        LogPrint(BCLog::BENCH, "ThreadStakeMiner(): Is ledger connected %dms\n", (nTime2 - nTime1));
         if(!fConnected)
         {
             d->pwallet->m_last_coin_stake_search_interval = 0;
