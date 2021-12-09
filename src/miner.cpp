@@ -1432,22 +1432,20 @@ public:
             // Is ready for mining
             if(!IsReady()) continue;
 
+            // Check if ledger is connected
+            if(d->privateKeysDisabled)
+            {
+                if(!isLedgerConnected()) continue;
+            }
+
             // Cache mining data
             if(!CacheData()) continue;
 
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
             {
-                // Check if ledger is connected
-                if(d->privateKeysDisabled)
-                {
-                    if(!isLedgerConnected()) continue;
-                }
-
                 // Look for possibility to create a block
-                d->beginningTime = GetAdjustedTime();
-                d->beginningTime &= ~d->stakeTimestampMask;
-                UpdateEndingTime();
+                UpdateSearchTime();
 
                 for(uint32_t blockTime = d->beginningTime; blockTime < d->endingTime; blockTime += d->stakeTimestampMask+1)
                 {
@@ -1660,15 +1658,18 @@ protected:
             d->pwallet->UpdateMinerStakeCache(true, d->prevouts, d->pindexPrev);
         }
 
-        d->beginningTime = GetAdjustedTime();
-        d->beginningTime &= ~d->stakeTimestampMask;
-        UpdateEndingTime();
+        UpdateSearchTime();
 
         return true;
     }
 
-    void UpdateEndingTime()
+    void UpdateSearchTime()
     {
+        d->beginningTime = GetAdjustedTime();
+        d->beginningTime &= ~d->stakeTimestampMask;
+        if(d->beginningTime == d->pindexPrev->GetBlockTime())
+            d->beginningTime += d->stakeTimestampMask+1;
+
         if(d->privateKeysDisabled)
         {
             d->endingTime = d->beginningTime + nMaxStakeLedgerLookahead;
@@ -1847,7 +1848,10 @@ protected:
                     continue;
                 }
                 //if there is mined block by other staker wait for it to download
-                if(!SyncWithMiners()) break;
+                if(!SyncWithMiners()) {
+                    LogPrint(BCLog::COINSTAKE, "ThreadStakeMiner() : PoS block has expired, there is mined block by other staker\n");
+                    break;
+                }
                 validBlock=true;
             }
             if(validBlock) {
@@ -1878,8 +1882,11 @@ protected:
         if(ledgerId.empty())
             return false;
 
+        int64_t nTime1 = GetTimeMillis();
         QtumLedger &device = QtumLedger::instance();
         bool fConnected = device.isConnected(ledgerId, true);
+        int64_t nTime2 = GetTimeMillis();
+        LogPrint(BCLog::BENCH, "ThreadStakeMiner(): Is ledger connected %dms\n", (nTime2 - nTime1));
         if(!fConnected)
         {
             d->pwallet->m_last_coin_stake_search_interval = 0;

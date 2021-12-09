@@ -4877,7 +4877,8 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
         bool privateKeysDisabled = wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
         if (wallet.CreateCoinStake(*locked_chain, *spk_man, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, key, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, !privateKeysDisabled, vchPoD, headerPrevout))
         {
-            if (nTimeBlock >= ::ChainActive().Tip()->GetMedianTimePast()+1)
+            uint32_t nMedianTime = ::ChainActive().Tip()->GetMedianTimePast()+1;
+            if (nTimeBlock >= nMedianTime)
             {
                 // make sure coinstake would meet timestamp protocol
                 //    as it would be the same as the block timestamp
@@ -4886,14 +4887,15 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
                 pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
                 pblock->prevoutStake = headerPrevout;
 
-                if(tryOnly)
-                    return true;
-
                 // Check timestamp against prev
                 if(pblock->GetBlockTime() <= ::ChainActive().Tip()->GetBlockTime() || FutureDrift(pblock->GetBlockTime(), nHeight, consensusParams) < ::ChainActive().Tip()->GetBlockTime())
                 {
+                    LogPrint(BCLog::COINSTAKE, "SignBlock() : PoS block has expired, block time %d, tip time %d\n", pblock->GetBlockTime(), ::ChainActive().Tip()->GetBlockTime());
                     return false;
                 }
+
+                if(tryOnly)
+                    return true;
 
                 // Sign block
                 if (::ChainActive().Height() + 1 >= consensusParams.nOfflineStakeHeight)
@@ -4924,14 +4926,21 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& n
                                CheckHeaderPoS(*pblock, consensusParams);
                 }
             }
+            else
+            {
+                LogPrint(BCLog::COINSTAKE, "SignBlock() : PoS block has expired, block time %d, median tip time %d\n", nTimeBlock, nMedianTime);
+            }
         }
     }
 
     if(fSignWithLedger)
     {
+        int64_t nTime1 = GetTimeMillis();
         std::vector<unsigned char> vchSig;
         bool isSigned = SignBlockLedger(pblock, wallet, vchSig);
         pblock->SetBlockSignature(vchSig);
+        int64_t nTime2 = GetTimeMillis();
+        LogPrint(BCLog::BENCH, "SignBlock() : Sign with ledger %dms\n", (nTime2 - nTime1));
 
         if(wallet.IsStakeClosing()) return false;
         auto locked_chain = wallet.chain().lock();
