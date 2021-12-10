@@ -28,10 +28,23 @@ public:
     void setModel(WalletModel *model);
     void setInfo(const SendCoinsRecipient &info);
 
+public Q_SLOTS:
+    void clear();
+    void reject() override;
+    void accept() override;
+
 private Q_SLOTS:
     void on_btnCopyURI_clicked();
     void on_btnCopyAddress_clicked();
-    void updateDisplayUnit();
+    void on_btnRefreshAddress_clicked();
+    void on_btnRequestPayment_clicked();
+    void on_btnClear_clicked();
+
+    void update();
+
+private:
+    bool refreshAddress();
+    bool getDefaultAddress();
 
 private:
     Ui::ReceiveRequestDialog *ui;
