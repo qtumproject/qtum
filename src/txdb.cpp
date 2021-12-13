@@ -28,7 +28,6 @@ static constexpr uint8_t DB_HEIGHTINDEX{'h'};
 static constexpr uint8_t DB_STAKEINDEX{'s'};
 static constexpr uint8_t DB_DELEGATEINDEX{'d'};
 //////////////////////////////////////////
-//QTUM_INSERT_END
 
 static constexpr uint8_t DB_BEST_BLOCK{'B'};
 static constexpr uint8_t DB_HEAD_BLOCKS{'H'};
@@ -705,7 +704,7 @@ bool CBlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, 
                 pindexNew->nTime          = diskindex.nTime;
                 pindexNew->nBits          = diskindex.nBits;
                 pindexNew->nNonce         = diskindex.nNonce;
-                pindexNew->nMoneySupply   = diskindex.nMoneySupply;//QTUM_INSERT_LINE
+                pindexNew->nMoneySupply   = diskindex.nMoneySupply;
                 pindexNew->nStatus        = diskindex.nStatus;
                 pindexNew->nTx            = diskindex.nTx;
                 pindexNew->hashStateRoot  = diskindex.hashStateRoot; // qtum
