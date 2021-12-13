@@ -1,5 +1,5 @@
 ---
-name: "bitcoin-core-linux-22"
+name: "qtum-core-linux-22"
 enable_cache: true
 distro: "ubuntu"
 suites:
@@ -40,9 +40,16 @@ packages:
 #  - riscv64-linux-gnu
 - "binutils-riscv64-linux-gnu"
 - "g++-8-riscv64-linux-gnu"
+- "cmake"
+- "libcurl4-openssl-dev"
+- "libgmp-dev"
+- "libmicrohttpd-dev"
+- "libminiupnpc-dev"
 remotes:
-- "url": "https://github.com/bitcoin/bitcoin.git"
-  "dir": "bitcoin"
+- "url": "https://github.com/qtumproject/qtum.git"
+  "dir": "qtum"
+- "url": "https://github.com/qtumproject/qtum-evmone.git"
+  "dir": "qtum-evmone"
 files: []
 script: |
   set -e -o pipefail
@@ -107,7 +114,7 @@ script: |
   create_per-host_faketime_wrappers "2000-01-01 12:00:00"
   export PATH=${WRAP_DIR}:${PATH}
 
-  cd bitcoin
+  cd qtum
   BASEPREFIX="${PWD}/depends"
   # Build dependencies for each host
   for i in $HOSTS; do
@@ -147,11 +154,16 @@ script: |
     mkdir -p ${INSTALLPATH}
     tar --strip-components=1 -xf "${GIT_ARCHIVE}"
 
+    #this is a hack since gitian has no natural support for submodules
+    cp -r ../../qtum-evmone/* ./src/evmone
+    #make sure this file exists... 
+    cat ./src/evmone/include/evmone/evmone.h 
+
     ./autogen.sh
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}" LDFLAGS="${HOST_LDFLAGS}" CC=${i}-gcc-8 CXX=${i}-g++-8
-    make ${MAKEOPTS}
-    make ${MAKEOPTS} -C src check-security
-    make ${MAKEOPTS} -C src check-symbols
+    make V=1 ${MAKEOPTS}
+    make V=1 ${MAKEOPTS} -C src check-security
+    make V=1 ${MAKEOPTS} -C src check-symbols
     make install DESTDIR=${INSTALLPATH}
     cd installed
     find . -name "lib*.la" -delete
