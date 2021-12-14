@@ -20,6 +20,7 @@
 static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
 
 class CRPCCommand;
+class ChainstateManager;
 
 namespace RPCServer
 {
@@ -171,7 +172,7 @@ bool IsDeprecatedRPCEnabled(const std::string& method);
 extern CRPCTable tableRPC;
 
 extern double GetPoSKernelPS();
-extern double GetEstimatedAnnualROI();
+extern double GetEstimatedAnnualROI(ChainstateManager& chainman);
 
 void StartRPC();
 void InterruptRPC();

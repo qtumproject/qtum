@@ -319,7 +319,7 @@ public:
     double getEstimatedAnnualROI() override
     {
         LOCK(::cs_main);
-        return GetEstimatedAnnualROI();
+        return GetEstimatedAnnualROI(chainman());
     }
     int64_t getMoneySupply() override
     {
