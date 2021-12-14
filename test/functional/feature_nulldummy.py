@@ -14,7 +14,7 @@ Generate 427 more blocks.
 """
 import time
 
-from test_framework.blocktools import NORMAL_GBT_REQUEST_PARAMS, create_block, create_transaction, add_witness_commitment
+from test_framework.blocktools import NORMAL_GBT_REQUEST_PARAMS, create_block, create_transaction, add_witness_commitment, create_coinbase
 from test_framework.messages import CTransaction
 from test_framework.script import CScript
 from test_framework.test_framework import BitcoinTestFramework
@@ -82,7 +82,7 @@ class NULLDUMMYTest(BitcoinTestFramework):
             self.nodes[0].submitblock(bytes_to_hex_str(block.serialize()))
 
         # Generate the number blocks signalling  that the continuation of the test case expects
-        generatesynchronized(self.nodes[0], segwitheight-1-COINBASE_MATURITY-2-2, None, self.nodes)
+        generatesynchronized(self.nodes[0], segwitheight-1-COINBASE_MATURITY-2-2, self.address, self.nodes)
         self.lastblockhash = self.nodes[0].getbestblockhash()
         self.lastblockheight = self.nodes[0].getblockcount()
         self.lastblocktime = int(time.time()) + self.lastblockheight + 1

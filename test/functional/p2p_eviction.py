@@ -13,6 +13,7 @@ the same local address. See Issue #14210 for more info.
 Therefore, this test is limited to the remaining protection criteria.
 """
 
+from test_framework.qtumconfig import COINBASE_MATURITY
 import time
 
 from test_framework.blocktools import create_block, create_coinbase
@@ -45,7 +46,7 @@ class P2PEvict(BitcoinTestFramework):
         protected_peers = set()  # peers that we expect to be protected from eviction
         current_peer = -1
         node = self.nodes[0]
-        node.generatetoaddress(101, node.get_deterministic_priv_key().address)
+        node.generatetoaddress(COINBASE_MATURITY+1, node.get_deterministic_priv_key().address)
 
         self.log.info("Create 4 peers and protect them from eviction by sending us a block")
         for _ in range(4):

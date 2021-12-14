@@ -5,6 +5,7 @@
 """Test deprecation of RPC calls."""
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_raises_rpc_error, find_vout_for_address
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class DeprecatedRpcTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -26,7 +27,7 @@ class DeprecatedRpcTest(BitcoinTestFramework):
 
         if self.is_wallet_compiled():
             self.log.info("Test bumpfee RPC")
-            self.nodes[0].generate(101)
+            self.nodes[0].generate(COINBASE_MATURITY+1)
             self.nodes[0].createwallet(wallet_name='nopriv', disable_private_keys=True)
             noprivs0 = self.nodes[0].get_wallet_rpc('nopriv')
             w0 = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
@@ -50,7 +51,7 @@ class DeprecatedRpcTest(BitcoinTestFramework):
             txid = w0.sendrawtransaction(signed_tx)
             self.sync_all()
 
-            assert_raises_rpc_error(-32, 'Using bumpfee with wallets that have private keys disabled is deprecated. Use psbtbumpfee instead or restart bitcoind with -deprecatedrpc=bumpfee. This functionality will be removed in 0.22', noprivs0.bumpfee, txid)
+            assert_raises_rpc_error(-32, 'Using bumpfee with wallets that have private keys disabled is deprecated. Use psbtbumpfee instead or restart qtumd with -deprecatedrpc=bumpfee. This functionality will be removed in 0.22', noprivs0.bumpfee, txid)
             bumped_psbt = noprivs1.bumpfee(txid)
             assert 'psbt' in bumped_psbt
         else:

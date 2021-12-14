@@ -6,6 +6,7 @@
 
 from decimal import Decimal
 import random
+from test_framework.qtumconfig import COINBASE_MATURITY
 import threading
 
 from test_framework.test_framework import BitcoinTestFramework
@@ -62,7 +63,7 @@ class GetBlockTemplateLPTest(BitcoinTestFramework):
         assert not thr.is_alive()
 
         # Add enough mature utxos to the wallets, so that all txs spend confirmed coins
-        self.nodes[0].generate(100)
+        self.nodes[0].generate(COINBASE_MATURITY)
         self.sync_blocks()
 
         self.log.info("Test that introducing a new transaction into the mempool will terminate the longpoll")

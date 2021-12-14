@@ -463,9 +463,16 @@ class CScript(bytes):
         return other
 
     def __add__(self, other):
-        # add makes no sense for a CScript()
-        raise NotImplementedError
+        # Do the coercion outside of the try block so that errors in it are
+        # noticed.
+        other = self.__coerce_instance(other)
 
+        try:
+            # bytes.__add__ always returns bytes instances unfortunately
+            return CScript(super(CScript, self).__add__(other))
+        except TypeError:
+            raise TypeError('Can not add a %r instance to a CScript' % other.__class__)
+    
     def join(self, iterable):
         # join makes no sense for a CScript()
         raise NotImplementedError

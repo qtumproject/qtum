@@ -9,7 +9,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error
 )
-
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class WalletDescriptorTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -37,8 +37,8 @@ class WalletDescriptorTest(BitcoinTestFramework):
         self.log.info("Checking wallet info")
         wallet_info = self.nodes[0].getwalletinfo()
         assert_equal(wallet_info['format'], 'sqlite')
-        assert_equal(wallet_info['keypoolsize'], 300)
-        assert_equal(wallet_info['keypoolsize_hd_internal'], 300)
+        assert_equal(wallet_info['keypoolsize'], 400)
+        assert_equal(wallet_info['keypoolsize_hd_internal'], 400)
         assert 'keypoololdest' not in wallet_info
 
         # Check that getnewaddress works
@@ -46,33 +46,33 @@ class WalletDescriptorTest(BitcoinTestFramework):
         addr = self.nodes[0].getnewaddress("", "legacy")
         addr_info = self.nodes[0].getaddressinfo(addr)
         assert addr_info['desc'].startswith('pkh(')
-        assert_equal(addr_info['hdkeypath'], 'm/44\'/1\'/0\'/0/0')
+        assert_equal(addr_info['hdkeypath'], 'm/44\'/88\'/0\'/0/0')
 
         addr = self.nodes[0].getnewaddress("", "p2sh-segwit")
         addr_info = self.nodes[0].getaddressinfo(addr)
         assert addr_info['desc'].startswith('sh(wpkh(')
-        assert_equal(addr_info['hdkeypath'], 'm/49\'/1\'/0\'/0/0')
+        assert_equal(addr_info['hdkeypath'], 'm/49\'/88\'/0\'/0/0')
 
         addr = self.nodes[0].getnewaddress("", "bech32")
         addr_info = self.nodes[0].getaddressinfo(addr)
         assert addr_info['desc'].startswith('wpkh(')
-        assert_equal(addr_info['hdkeypath'], 'm/84\'/1\'/0\'/0/0')
+        assert_equal(addr_info['hdkeypath'], 'm/84\'/88\'/0\'/0/0')
 
         # Check that getrawchangeaddress works
         addr = self.nodes[0].getrawchangeaddress("legacy")
         addr_info = self.nodes[0].getaddressinfo(addr)
         assert addr_info['desc'].startswith('pkh(')
-        assert_equal(addr_info['hdkeypath'], 'm/44\'/1\'/0\'/1/0')
+        assert_equal(addr_info['hdkeypath'], 'm/44\'/88\'/0\'/1/0')
 
         addr = self.nodes[0].getrawchangeaddress("p2sh-segwit")
         addr_info = self.nodes[0].getaddressinfo(addr)
         assert addr_info['desc'].startswith('sh(wpkh(')
-        assert_equal(addr_info['hdkeypath'], 'm/49\'/1\'/0\'/1/0')
+        assert_equal(addr_info['hdkeypath'], 'm/49\'/88\'/0\'/1/0')
 
         addr = self.nodes[0].getrawchangeaddress("bech32")
         addr_info = self.nodes[0].getaddressinfo(addr)
         assert addr_info['desc'].startswith('wpkh(')
-        assert_equal(addr_info['hdkeypath'], 'm/84\'/1\'/0\'/1/0')
+        assert_equal(addr_info['hdkeypath'], 'm/84\'/88\'/0\'/1/0')
 
         # Make a wallet to receive coins at
         self.nodes[0].createwallet(wallet_name="desc2", descriptors=True)
@@ -80,7 +80,7 @@ class WalletDescriptorTest(BitcoinTestFramework):
         send_wrpc = self.nodes[0].get_wallet_rpc("desc1")
 
         # Generate some coins
-        send_wrpc.generatetoaddress(101, send_wrpc.getnewaddress())
+        send_wrpc.generatetoaddress(COINBASE_MATURITY+1, send_wrpc.getnewaddress())
 
         # Make transactions
         self.log.info("Test sending and receiving")

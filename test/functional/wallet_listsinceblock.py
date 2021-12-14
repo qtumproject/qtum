@@ -22,6 +22,7 @@ from test_framework.qtum import generatesynchronized
 class ListSinceBlockTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 4
+        self.extra_args =[['-addresstype=bech32']] * 4
         self.setup_clean_chain = True
 
     def skip_test_if_missing_module(self):
@@ -205,7 +206,7 @@ class ListSinceBlockTest(BitcoinTestFramework):
         # send from nodes[1] using utxo to nodes[0]
         change = '%.8f' % (float(utxo['amount']) - 1.03)
         recipient_dict = {
-            self.nodes[0].getnewaddress(): 1,
+            self.nodes[0].getnewaddress("", "bech32"): 1,
             self.nodes[1].getnewaddress(): change,
         }
         utxo_dicts = [{
@@ -232,6 +233,10 @@ class ListSinceBlockTest(BitcoinTestFramework):
         self.join_network()
 
         self.sync_all()
+
+        print(self.nodes[1].gettransaction(txid1))
+        print(txid1)
+        print(self.nodes[1].getrawmempool())
 
         # gettransaction should work for txid1
         assert self.nodes[0].gettransaction(txid1)['txid'] == txid1, "gettransaction failed to find txid1"

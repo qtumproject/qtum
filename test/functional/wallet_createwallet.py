@@ -86,8 +86,8 @@ class CreateWalletTest(BitcoinTestFramework):
         else:
             w3.sethdseed()
         assert_equal(w3.getwalletinfo()['keypoolsize'], 1)
-        w3.getnewaddress()
-        w3.getrawchangeaddress()
+        w3.getnewaddress("", "bech32")
+        w3.getrawchangeaddress("bech32")
 
         self.log.info("Test blank creation with privkeys enabled and then encryption")
         self.nodes[0].createwallet(wallet_name='w4', disable_private_keys=False, blank=True)
@@ -115,8 +115,8 @@ class CreateWalletTest(BitcoinTestFramework):
             }])
         else:
             w4.sethdseed()
-        w4.getnewaddress()
-        w4.getrawchangeaddress()
+        w4.getnewaddress("", "bech32")
+        w4.getrawchangeaddress("bech32")
 
         self.log.info("Test blank creation with privkeys disabled and then encryption")
         self.nodes[0].createwallet(wallet_name='w5', disable_private_keys=True, blank=True)
@@ -147,7 +147,7 @@ class CreateWalletTest(BitcoinTestFramework):
         w6.keypoolrefill(1)
         # There should only be 1 key for legacy, 3 for descriptors
         walletinfo = w6.getwalletinfo()
-        keys = 3 if self.options.descriptors else 1
+        keys = 4 if self.options.descriptors else 1
         assert_equal(walletinfo['keypoolsize'], keys)
         assert_equal(walletinfo['keypoolsize_hd_internal'], keys)
         # Allow empty passphrase, but there should be a warning

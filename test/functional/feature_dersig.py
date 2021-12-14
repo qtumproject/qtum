@@ -47,7 +47,7 @@ class BIP66Test(BitcoinTestFramework):
             '-reduceblocktimeheight=100000'
         ]]
         self.setup_clean_chain = True
-        self.rpc_timewait = 120
+        self.rpc_timeout = 120
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()

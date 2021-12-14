@@ -209,10 +209,10 @@ class TestNode():
         if self.enable_wallet and not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
 
-        if not ENABLE_REDUCED_BLOCK_TIME and not any(arg.startswith('-reduceblocktimeheight=') for arg in extra_args):
+        if not ENABLE_REDUCED_BLOCK_TIME and not any(arg.startswith('-reduceblocktimeheight=') for arg in extra_args) and self.chain == "regtest":
             extra_args.append('-reduceblocktimeheight=10000000')
 
-        if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=') for arg in extra_args):
+        if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=') for arg in extra_args) and self.chain == "regtest":
             extra_args.append('-offlinestakingheight=1')
 
         # Disable the spam filter as it may interfere with come tests sending lots and lots of blocks

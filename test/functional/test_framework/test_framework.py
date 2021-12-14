@@ -100,7 +100,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.setup_clean_chain = False
         self.nodes = []
         self.network_thread = None
-        self.rpc_timewait = 180  # Wait for up to 60 seconds for the RPC server to respond
+        self.rpc_timeout = 360  # Wait for up to 60 seconds for the RPC server to respond
         self.supports_cli = True
         self.bind_to_localhost_only = True
         self.parse_args()
@@ -116,6 +116,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         assert self.wallet_names is None or len(self.wallet_names) <= self.num_nodes
         if self.options.timeout_factor == 0 :
             self.options.timeout_factor = 99999
+        self.options.timeout_factor = 2
         self.rpc_timeout = int(self.rpc_timeout * self.options.timeout_factor) # optionally, increase timeout by a factor
 
     def main(self):
@@ -462,7 +463,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 get_datadir_path(self.options.tmpdir, i),
                 chain=self.chain,
                 rpchost=rpchost,
-                timewait=self.rpc_timewait,
+                timewait=self.rpc_timeout,
                 timeout_factor=self.options.timeout_factor,
                 bitcoind=binary[i],
                 bitcoin_cli=binary_cli[i],
@@ -649,7 +650,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.sync_blocks(nodes)
         self.sync_mempools(nodes)
 
-    def wait_until(self, test_function, timeout=60):
+    def wait_until(self, test_function, timeout=180):
         return wait_until_helper(test_function, timeout=timeout, timeout_factor=self.options.timeout_factor)
 
     # Private helper methods. These should not be accessed by the subclass test scripts.
@@ -704,7 +705,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                     extra_conf=["bind=127.0.0.1"],
                     extra_args=['-disablewallet'],
                     rpchost=None,
-                    timewait=self.rpc_timewait,
+                    timewait=self.rpc_timeout,
                     timeout_factor=self.options.timeout_factor,
                     bitcoind=self.options.bitcoind,
                     bitcoin_cli=self.options.bitcoincli,
@@ -730,7 +731,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             # see the tip age check in IsInitialBlockDownload().
             for i in range(4):
                 self.nodes[0].generatetoaddress(25, TestNode.PRIV_KEYS[i % 4].address)
-                sync_blocks(self.nodes)
+                self.sync_blocks()
 
             for i in range(4):
                 generatesynchronized(self.nodes[0], COINBASE_MATURITY // 4 if i != 3 else (COINBASE_MATURITY // 4) - 1, TestNode.PRIV_KEYS[i % 4].address, self.nodes)

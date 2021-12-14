@@ -6,7 +6,7 @@
 
 from test_framework.messages import CMerkleBlock, FromHex, ToHex
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import assert_equal, assert_raises_rpc_error, connect_nodes, sync_blocks
+from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet import MiniWallet
 from test_framework.qtumconfig import *
 from test_framework.qtum import generatesynchronized
@@ -26,7 +26,7 @@ class MerkleBlockTest(BitcoinTestFramework):
         # Add enough mature utxos to the wallet, so that all txs spend confirmed coins
         miniwallet.generate(5)
         generatesynchronized(self.nodes[0], COINBASE_MATURITY, None, self.nodes)
-        sync_blocks(self.nodes)
+        self.sync_blocks(self.nodes)
 
         chain_height = self.nodes[1].getblockcount()
         assert_equal(chain_height, COINBASE_MATURITY+5)

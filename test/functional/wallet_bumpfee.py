@@ -113,7 +113,7 @@ class BumpFeeTest(BitcoinTestFramework):
 
         self.log.info("Test invalid fee rate settings")
         assert_raises_rpc_error(-8, "Insufficient total fee 0.00", rbf_node.bumpfee, rbfid, {"fee_rate": 0})
-        assert_raises_rpc_error(-4, "Specified or calculated fee 0.141 is too high (cannot be higher than -maxtxfee 0.10",
+        assert_raises_rpc_error(-4, "Specified or calculated fee 14.10 is too high (cannot be higher than -maxtxfee 1.00",
             rbf_node.bumpfee, rbfid, {"fee_rate": TOO_HIGH})
         assert_raises_rpc_error(-3, "Amount out of range", rbf_node.bumpfee, rbfid, {"fee_rate": -1})
         for value in [{"foo": "bar"}, True]:
@@ -270,7 +270,7 @@ def test_small_output_with_feerate_succeeds(self, rbf_node, dest_address):
         assert_equal(len(input_list), 1)
         assert_equal(original_txin["txid"], new_item["txid"])
         assert_equal(original_txin["vout"], new_item["vout"])
-        rbfid_new_details = rbf_node.bumpfee(rbfid, {"fee_rate": round(0.03+i/100,8)})
+        rbfid_new_details = rbf_node.bumpfee(rbfid, {"fee_rate": round(30000+i*1000,8)})
         rbfid_new = rbfid_new_details["txid"]
         raw_pool = rbf_node.getrawmempool()
         assert rbfid not in raw_pool
@@ -335,8 +335,8 @@ def test_settxfee(self, rbf_node, dest_address):
     rbf_node.settxfee(Decimal("0.00000000"))  # unset paytxfee
 
     # check that settxfee respects -maxtxfee
-    self.restart_node(1, ['-maxtxfee=0.000025'] + self.extra_args[1])
-    assert_raises_rpc_error(-8, "txfee cannot be more than wallet max tx fee", rbf_node.settxfee, Decimal('0.00003'))
+    self.restart_node(1, ['-maxtxfee=0.0250000'] + self.extra_args[1])
+    assert_raises_rpc_error(-8, "txfee cannot be more than wallet max tx fee", rbf_node.settxfee, Decimal('0.03'))
     self.restart_node(1, self.extra_args[1])
     rbf_node.walletpassphrase(WALLET_PASSPHRASE, WALLET_PASSPHRASE_TIMEOUT)
     self.connect_nodes(1, 0)
@@ -423,7 +423,7 @@ def test_watchonly_psbt(self, peer_node, rbf_node, dest_address):
     self.sync_all()
 
     # Create single-input PSBT for transaction to be bumped
-    psbt = watcher.walletcreatefundedpsbt([], {dest_address: 0.05}, 0, {"fee_rate": 0.01}, True)['psbt']
+    psbt = watcher.walletcreatefundedpsbt([], {dest_address: 0.05}, 0, {"fee_rate": 1000}, True)['psbt']
     psbt_signed = signer.walletprocesspsbt(psbt=psbt, sign=True, sighashtype="ALL", bip32derivs=True)
     psbt_final = watcher.finalizepsbt(psbt_signed["psbt"])
     original_txid = watcher.sendrawtransaction(psbt_final["hex"])

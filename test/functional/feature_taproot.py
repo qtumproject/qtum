@@ -8,7 +8,6 @@ from test_framework.blocktools import (
     create_coinbase,
     create_block,
     add_witness_commitment,
-    MAX_BLOCK_SIGOPS_WEIGHT,
     NORMAL_GBT_REQUEST_PARAMS,
     WITNESS_SCALE_FACTOR,
 )
@@ -28,7 +27,6 @@ from test_framework.script import (
     LEAF_VERSION_TAPSCRIPT,
     LegacySignatureHash,
     LOCKTIME_THRESHOLD,
-    MAX_SCRIPT_ELEMENT_SIZE,
     OP_0,
     OP_1,
     OP_2,
@@ -83,12 +81,16 @@ from test_framework.address import (
     hash160,
     sha256,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY, MAX_BLOCK_SIGOPS_WEIGHT
+from test_framework.qtum import generatesynchronized
 from collections import OrderedDict, namedtuple
 from io import BytesIO
 import json
 import hashlib
 import os
 import random
+
+MAX_SCRIPT_ELEMENT_SIZE = 128000
 
 # === Framework for building spending transactions. ===
 #
@@ -590,8 +592,8 @@ SIG_POP_BYTE = {"failure": {"sign": byte_popper(default_sign)}}
 SINGLE_SIG = {"inputs": [getter("sign")]}
 SIG_ADD_ZERO = {"failure": {"sign": zero_appender(default_sign)}}
 
-DUST_LIMIT = 600
-MIN_FEE = 50000
+DUST_LIMIT = 400000
+MIN_FEE = 5000000
 
 # === Actual test cases ===
 
@@ -1438,7 +1440,7 @@ class TaprootTest(BitcoinTestFramework):
     def run_test(self):
         # Post-taproot activation tests go first (pre-taproot tests' blocks are invalid post-taproot).
         self.log.info("Post-activation tests...")
-        self.nodes[1].generate(101)
+        generatesynchronized(self.nodes[1], 1 + COINBASE_MATURITY, None, self.nodes)
         self.test_spenders(self.nodes[1], spenders_taproot_active(), input_counts=[1, 2, 2, 2, 2, 3])
 
         # Transfer value of the largest 500 coins to pre-taproot node.
