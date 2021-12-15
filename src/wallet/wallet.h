@@ -1067,6 +1067,8 @@ public:
 
     bool IsStakeClosing(){return {};};
 
+    uint64_t GetStakeWeight(uint64_t *pStakerWeight = nullptr, uint64_t *pDelegateWeight = nullptr) const{return {};};
+
     std::map<uint160, Delegation> m_delegations_staker;
     std::map<uint160, CAmount> m_delegations_weight;
     std::map<uint160, Delegation> m_my_delegations;
