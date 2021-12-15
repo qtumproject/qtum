@@ -437,7 +437,8 @@ static RPCHelpMan createrawtransaction()
     if (!request.params[3].isNull()) {
         rbf = request.params[3].isTrue();
     }
-    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf);
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf, chainman);
 
     return EncodeHexTx(CTransaction(rawTx));
 },
@@ -1503,7 +1504,8 @@ static RPCHelpMan createpsbt()
     if (!request.params[3].isNull()) {
         rbf = request.params[3].isTrue();
     }
-    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf);
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf, chainman);
 
     // Make a blank psbt
     PartiallySignedTransaction psbtx;

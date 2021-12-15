@@ -4410,6 +4410,7 @@ static RPCHelpMan send()
 
             std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
             if (!pwallet) return NullUniValue;
+            ChainstateManager& chainman = EnsureAnyChainman(request.context);
 
             UniValue options{request.params[4].isNull() ? UniValue::VOBJ : request.params[4]};
             if (options.exists("conf_target") || options.exists("estimate_mode")) {
@@ -4457,7 +4458,7 @@ static RPCHelpMan send()
             if (options.exists("replaceable")) {
                 rbf = options["replaceable"].get_bool();
             }
-            CMutableTransaction rawTx = ConstructTransaction(options["inputs"], request.params[0], options["locktime"], rbf);
+            CMutableTransaction rawTx = ConstructTransaction(options["inputs"], request.params[0], options["locktime"], rbf, chainman);
             CCoinControl coin_control;
             // Automatically select coins, unless at least one is manually selected. Can
             // be overridden by options.add_inputs.
@@ -4734,6 +4735,7 @@ static RPCHelpMan walletcreatefundedpsbt()
 {
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
 
     CWallet& wallet{*pwallet};
     // Make sure the results are valid at least up to the most recent block
@@ -4757,7 +4759,7 @@ static RPCHelpMan walletcreatefundedpsbt()
         RPCTypeCheckArgument(replaceable_arg, UniValue::VBOOL);
         rbf = replaceable_arg.isTrue();
     }
-    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf);
+    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf, chainman);
     CCoinControl coin_control;
     // Automatically select coins, unless at least one is manually selected. Can
     // be overridden by options.add_inputs.

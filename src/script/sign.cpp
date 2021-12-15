@@ -114,6 +114,11 @@ bool MutableTransactionSignatureOutputCreator::CreateSig(const SigningProvider& 
     return true;
 }
 
+bool MutableTransactionSignatureOutputCreator::CreateSchnorrSig(const SigningProvider &, std::vector<unsigned char> &, const XOnlyPubKey &, const uint256 *, const uint256 *, SigVersion ) const
+{
+    return false;
+}
+
 static bool GetCScript(const SigningProvider& provider, const SignatureData& sigdata, const CScriptID& scriptid, CScript& script)
 {
     if (provider.GetCScript(scriptid, script)) {

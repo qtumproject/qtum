@@ -38,6 +38,8 @@ class FillableSigningProvider;
 class CPubKey;
 class CScript;
 struct Sections;
+class ChainstateManager;
+struct NodeContext;
 
 /** Wrapper for UniValue::VType, which includes typeAny:
  * Used to denote don't care type. */
@@ -112,6 +114,10 @@ std::vector<CScript> EvalDescriptorStringOrObject(const UniValue& scanobject, Fl
 
 /** Returns, given services flags, a list of humanly readable (known) network services */
 UniValue GetServicesNames(ServiceFlags services);
+
+NodeContext& EnsureAnyNodeContext(const std::any& context);
+ChainstateManager& EnsureChainman(const NodeContext& node);
+ChainstateManager& EnsureAnyChainman(const std::any& context);
 
 /**
  * Serializing JSON objects depends on the outer type. Only arrays and

@@ -70,15 +70,6 @@ static Mutex cs_blockchange;
 static std::condition_variable cond_blockchange;
 static CUpdatedBlock latestblock GUARDED_BY(cs_blockchange);
 
-NodeContext& EnsureAnyNodeContext(const std::any& context)
-{
-    auto node_context = util::AnyPtr<NodeContext>(context);
-    if (!node_context) {
-        throw JSONRPCError(RPC_INTERNAL_ERROR, "Node context not found");
-    }
-    return *node_context;
-}
-
 CTxMemPool& EnsureMemPool(const NodeContext& node)
 {
     if (!node.mempool) {
@@ -90,19 +81,6 @@ CTxMemPool& EnsureMemPool(const NodeContext& node)
 CTxMemPool& EnsureAnyMemPool(const std::any& context)
 {
     return EnsureMemPool(EnsureAnyNodeContext(context));
-}
-
-ChainstateManager& EnsureChainman(const NodeContext& node)
-{
-    if (!node.chainman) {
-        throw JSONRPCError(RPC_INTERNAL_ERROR, "Node chainman not found");
-    }
-    return *node.chainman;
-}
-
-ChainstateManager& EnsureAnyChainman(const std::any& context)
-{
-    return EnsureChainman(EnsureAnyNodeContext(context));
 }
 
 CBlockPolicyEstimator& EnsureFeeEstimator(const NodeContext& node)

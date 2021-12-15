@@ -11,6 +11,8 @@
 #include <util/strencodings.h>
 #include <util/string.h>
 #include <util/translation.h>
+#include <validation.h>
+#include <node/context.h>
 
 #include <tuple>
 
@@ -1036,3 +1038,26 @@ UniValue GetServicesNames(ServiceFlags services)
 
     return servicesNames;
 }
+
+NodeContext& EnsureAnyNodeContext(const std::any& context)
+{
+    auto node_context = util::AnyPtr<NodeContext>(context);
+    if (!node_context) {
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Node context not found");
+    }
+    return *node_context;
+}
+
+ChainstateManager& EnsureChainman(const NodeContext& node)
+{
+    if (!node.chainman) {
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Node chainman not found");
+    }
+    return *node.chainman;
+}
+
+ChainstateManager& EnsureAnyChainman(const std::any& context)
+{
+    return EnsureChainman(EnsureAnyNodeContext(context));
+}
+
