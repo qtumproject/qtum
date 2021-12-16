@@ -182,3 +182,13 @@ void JSONRPCRequest::parse(const UniValue& valRequest)
     else
         throw JSONRPCError(RPC_INVALID_REQUEST, "Params must be an array or object");
 }
+
+bool JSONRPCRequest::PollAlive() { return false;}
+
+void JSONRPCRequest::PollStart() {}
+
+void JSONRPCRequest::PollPing() {}
+
+void JSONRPCRequest::PollCancel() {}
+
+void JSONRPCRequest::PollReply(const UniValue& result) {}

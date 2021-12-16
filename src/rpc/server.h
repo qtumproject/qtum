@@ -9,24 +9,75 @@
 #include <amount.h>
 #include <rpc/request.h>
 #include <rpc/util.h>
+#include <uint256.h>
 
 #include <functional>
 #include <map>
 #include <stdint.h>
 #include <string>
+#include <functional>
+#include <condition_variable>
+#include <mutex>
 
 #include <univalue.h>
+#include <util/system.h>
 
+struct CUpdatedBlock
+{
+    uint256 hash;
+    int height;
+};
+
+extern Mutex cs_blockchange;
+extern std::condition_variable cond_blockchange;
+extern CUpdatedBlock latestblock GUARDED_BY(cs_blockchange);
 static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
 
 class CRPCCommand;
 class ChainstateManager;
+class HTTPRequest;
 
 namespace RPCServer
 {
     void OnStarted(std::function<void ()> slot);
     void OnStopped(std::function<void ()> slot);
 }
+
+class JSONRPCRequestLong : public JSONRPCRequest
+{
+public:
+    JSONRPCRequestLong(HTTPRequest *_req);
+
+    /**
+     * Start long-polling
+     */
+    void PollStart() override;
+
+    /**
+     * Ping long-poll connection with an empty character to make sure it's still alive.
+     */
+    void PollPing() override;
+
+    /**
+     * Returns whether the underlying long-poll connection is still alive.
+     */
+    bool PollAlive() override;
+
+    /**
+     * End a long poll request.
+     */
+    void PollCancel() override;
+
+    /**
+     * Return the JSON result of a long poll request
+     */
+    void PollReply(const UniValue& result) override;
+
+    /**
+     * Return the http request
+     */
+     HTTPRequest* req();
+};
 
 /** Query whether RPC is running */
 bool IsRPCRunning();

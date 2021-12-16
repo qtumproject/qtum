@@ -10,6 +10,7 @@
 #include <sync.h>
 #include <util/strencodings.h>
 #include <util/system.h>
+#include <httpserver.h>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -30,6 +31,10 @@ static RPCTimerInterface* timerInterface = nullptr;
 static Mutex g_deadline_timers_mutex;
 static std::map<std::string, std::unique_ptr<RPCTimerBase> > deadlineTimers GUARDED_BY(g_deadline_timers_mutex);
 static bool ExecuteCommand(const CRPCCommand& command, const JSONRPCRequest& request, UniValue& result, bool last_handler);
+
+Mutex cs_blockchange;
+std::condition_variable cond_blockchange;
+CUpdatedBlock latestblock;
 
 struct RPCCommandExecutionInfo
 {
@@ -347,6 +352,49 @@ bool RPCIsInWarmup(std::string *outStatus)
     if (outStatus)
         *outStatus = rpcWarmupStatus;
     return fRPCInWarmup;
+}
+
+JSONRPCRequestLong::JSONRPCRequestLong(HTTPRequest *_req) {
+	httpreq = _req;
+}
+
+bool JSONRPCRequestLong::PollAlive() {
+    return !req()->isConnClosed();
+}
+
+void JSONRPCRequestLong::PollStart() {
+    // send an empty space to the client to ensure that it's still alive.
+    assert(!isLongPolling);
+    req()->WriteHeader("Content-Type", "application/json");
+    req()->WriteHeader("Connection", "close");
+    req()->Chunk(std::string(" "));
+    isLongPolling = true;
+}
+
+void JSONRPCRequestLong::PollPing() {
+    assert(isLongPolling);
+    // send an empty space to the client to ensure that it's still alive.
+    req()->Chunk(std::string(" "));
+}
+
+void JSONRPCRequestLong::PollCancel() {
+    assert(isLongPolling);
+    req()->ChunkEnd();
+}
+
+void JSONRPCRequestLong::PollReply(const UniValue& result) {
+    assert(isLongPolling);
+    UniValue reply(UniValue::VOBJ);
+    reply.pushKV("result", result);
+    reply.pushKV("error", NullUniValue);
+    reply.pushKV("id", id);
+
+    req()->Chunk(reply.write() + "\n");
+    req()->ChunkEnd();
+}
+
+HTTPRequest* JSONRPCRequestLong::req() {
+    return (HTTPRequest*)httpreq;
 }
 
 bool IsDeprecatedRPCEnabled(const std::string& method)
