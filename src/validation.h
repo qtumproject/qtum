@@ -435,6 +435,10 @@ unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consen
 
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
 
+void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+
+std::string exceptedMessage(const dev::eth::TransactionException& excepted, const dev::bytes& output);
+
 struct ByteCodeExecResult{
     uint64_t usedGas = 0;
     CAmount refundSender = 0;

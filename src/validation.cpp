@@ -1804,6 +1804,9 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
     return std::vector<ResultExecute>();
 }
 
+void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx, const CBlock& block){
+}
+
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
  *  can fail if those validity checks fail (among other reasons). */
@@ -4802,6 +4805,11 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex *pin
     }
 
     return std::min<double>(pindex->nChainTx / fTxTotal, 1.0);
+}
+
+std::string exceptedMessage(const dev::eth::TransactionException& excepted, const dev::bytes& output)
+{
+    return {};
 }
 
 std::optional<uint256> ChainstateManager::SnapshotBlockhash() const
