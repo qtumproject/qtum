@@ -188,7 +188,8 @@ public:
         int block_height;
         uint256 hashBlock;
         int nIndex;
-        Confirmation(Status s = UNCONFIRMED, int b = 0, uint256 h = uint256(), int i = 0) : status(s), block_height(b), hashBlock(h), nIndex(i) {}
+        bool hasDelegation;
+        Confirmation(Status s = UNCONFIRMED, int b = 0, uint256 h = uint256(), int i = 0, bool d = false) : status(s), block_height(b), hashBlock(h), nIndex(i), hasDelegation(d) {}
     };
 
     Confirmation m_confirm;
