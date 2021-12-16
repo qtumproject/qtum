@@ -349,6 +349,7 @@ public:
     bool IsCoinBase() const { return tx->IsCoinBase(); }
     bool IsCoinStake() const { return tx->IsCoinStake(); }
     bool IsImmatureCoinBase() const;
+    bool IsImmature() const{return {};};
 
     // Disable copying of CWalletTx objects to prevent bugs where instances get
     // copied in and out of the mapWallet map, and fields are updated in the
