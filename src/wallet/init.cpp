@@ -21,6 +21,7 @@
 #include <wallet/coincontrol.h>
 #include <wallet/wallet.h>
 #include <walletinitinterface.h>
+#include <miner.h>
 
 class WalletInit : public WalletInitInterface
 {
@@ -91,6 +92,19 @@ void WalletInit::AddWalletOptions(ArgsManager& argsman) const
     argsman.AddArg("-walletrejectlongchains", strprintf("Wallet will not create transactions that violate mempool chain limits (default: %u)", DEFAULT_WALLET_REJECT_LONG_CHAINS), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
 
     argsman.AddHiddenArgs({"-zapwallettxes"});
+
+    argsman.AddArg("-staking=<true/false>", "Enables or disables staking (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-stakecache=<true/false>", "Enables or disables the staking cache; significantly improves staking performance, but can use a lot of memory (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-rpcmaxgasprice", strprintf("The max value (in satoshis) for gas price allowed through RPC (default: %u)", MAX_RPC_GAS_PRICE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-reservebalance", strprintf("Reserved balance not used for staking (default: %u)", DEFAULT_RESERVE_BALANCE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-usechangeaddress", strprintf("Use change address (default: %u)", DEFAULT_USE_CHANGE_ADDRESS), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-stakingminutxovalue=<amt>", strprintf("The min value of utxo (in %s) selected for super staking (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-stakingminfee=<n>", strprintf("The min fee (in percentage) to accept when super staking (default: %u)", DEFAULT_STAKING_MIN_FEE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-superstaking=<true/false>", strprintf("Enables or disables super staking (default: %u)", DEFAULT_SUPER_STAKE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-minstakerutxosize=<amt>", strprintf("The min value of utxo (in %s) selected for staking (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_STAKER_MIN_UTXO_SIZE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-maxstakerutxoscriptcache=<n>", strprintf("Set max staker utxo script cache for staking (default: %d)", DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-stakerthreads=<n>", strprintf("Set the number of threads the staker use for processing (default is the number of cores to your machine: %d)", GetNumCores()), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-maxstakerwaitforbestheader=<n>", strprintf("Set max staker wait for best header in milliseconds (default: %d)", DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
 }
 
 bool WalletInit::ParameterInteraction() const
