@@ -46,9 +46,11 @@ public:
 
     void setCheckGasForCall(bool value);
 
+protected:
+    ChainstateManager &chainman;
+
 private:
     bool checkGasForCall = false;
-    ChainstateManager &chainman;
 };
 
 #endif // CONTRACT_UTIL_H
