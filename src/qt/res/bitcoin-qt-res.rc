@@ -20,7 +20,7 @@ BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
             VALUE "CompanyName",        "Qtum"
-            VALUE "FileDescription",    PACKAGE_NAME " (GUI node for Bitcoin)"
+            VALUE "FileDescription",    PACKAGE_NAME " (GUI node for Qtum)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "qtum-qt"
             VALUE "LegalCopyright",     COPYRIGHT_STR

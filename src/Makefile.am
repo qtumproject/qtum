@@ -944,7 +944,7 @@ qtum_tx_LDADD += $(BOOST_LIBS)
 #
 
 # bitcoin-wallet binary #
-qtum_wallet_SOURCES = bitcoin-wallet.cpp validation.cpp
+qtum_wallet_SOURCES = bitcoin-wallet.cpp validation.cpp rpc/server.cpp
 qtum_wallet_CPPFLAGS = $(qtum_bin_cppflags)
 qtum_wallet_CXXFLAGS = $(qtum_bin_cxxflags)
 qtum_wallet_LDFLAGS = $(qtum_bin_ldflags)
