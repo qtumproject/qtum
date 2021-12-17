@@ -169,6 +169,7 @@ struct WitnessUnknown
  *  A CTxDestination is the internal data type encoded in a bitcoin address
  */
 using CTxDestination = std::variant<CNoDestination, PKHash, ScriptHash, WitnessV0ScriptHash, WitnessV0KeyHash, WitnessV1Taproot, WitnessUnknown>;
+inline bool operator!=(const CTxDestination& lhs, const CTxDestination& rhs){ return !(lhs == rhs); }
 
 enum addresstype
 {
