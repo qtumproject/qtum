@@ -772,7 +772,55 @@ static RPCHelpMan sendtoaddress()
     ParseRecipients(address_amounts, subtractFeeFromAmount, recipients);
     const bool verbose{request.params[10].isNull() ? false : request.params[10].get_bool()};
 
-    return SendMoney(*pwallet, coin_control, recipients, mapValue, verbose);
+    bool fHasSender=false;
+    CTxDestination senderAddress;
+    if (request.params.size() > 11 && !request.params[11].isNull()){
+    senderAddress = DecodeDestination(request.params[11].get_str());
+        if (!IsValidDestination(senderAddress))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+        else
+            fHasSender=true;
+    }
+
+    bool fChangeToSender=false;
+    if (request.params.size() > 12 && !request.params[12].isNull()){
+        fChangeToSender=request.params[12].get_bool();
+    }
+
+    if(fHasSender){
+    //find a UTXO with sender address
+
+     UniValue results(UniValue::VARR);
+     std::vector<COutput> vecOutputs;
+
+     coin_control.fAllowOtherInputs=true;
+
+     assert(pwallet != NULL);
+     pwallet->AvailableCoins(vecOutputs, NULL);
+
+     for(const COutput& out : vecOutputs) {
+         CTxDestination destAdress;
+         const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+         bool fValidAddress = ExtractDestination(scriptPubKey, destAdress);
+
+         if (!fValidAddress || senderAddress != destAdress)
+             continue;
+
+         coin_control.Select(COutPoint(out.tx->GetHash(),out.i));
+
+         break;
+
+     }
+
+        if(!coin_control.HasSelected()){
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        }
+        if(fChangeToSender){
+            coin_control.destChange=senderAddress;
+        }
+    }
+
+    return SendMoney(*pwallet, coin_control, recipients, mapValue, verbose, fHasSender);
 },
     };
 }
