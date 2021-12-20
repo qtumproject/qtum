@@ -88,12 +88,12 @@
         <context-group purpose="location"><context context-type="linenumber">97</context></context-group>
       </trans-unit>
       <trans-unit id="_msg17">
-        <source xml:space="preserve">These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source xml:space="preserve">These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">104</context></context-group>
       </trans-unit>
       <trans-unit id="_msg18">
-        <source xml:space="preserve">These are your Bitcoin addresses for receiving payments. Use the &apos;Create new receiving address&apos; button in the receive tab to create new addresses.
+        <source xml:space="preserve">These are your Qtum addresses for receiving payments. Use the &apos;Create new receiving address&apos; button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">109</context></context-group>
@@ -213,7 +213,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">110</context></context-group>
       </trans-unit>
       <trans-unit id="_msg39">
-        <source xml:space="preserve">Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source xml:space="preserve">Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">111</context></context-group>
       </trans-unit>
@@ -239,7 +239,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">63</context></context-group>
       </trans-unit>
       <trans-unit id="_msg44">
-        <source xml:space="preserve">Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source xml:space="preserve">Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">118</context></context-group>
       </trans-unit>
@@ -451,8 +451,8 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">1362</context></context-group>
       </trans-unit>
       <trans-unit id="_msg82" approved="yes">
-        <source xml:space="preserve">Send coins to a Bitcoin address</source>
-        <target xml:space="preserve">Send coins to a Bitcoin address</target>
+        <source xml:space="preserve">Send coins to a Qtum address</source>
+        <target xml:space="preserve">Send coins to a Qtum address</target>
         <context-group purpose="location"><context context-type="linenumber">253</context></context-group>
       </trans-unit>
       <trans-unit id="_msg83" approved="yes">
@@ -516,8 +516,8 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">323</context></context-group>
       </trans-unit>
       <trans-unit id="_msg95" approved="yes">
-        <source xml:space="preserve">Sign messages with your Bitcoin addresses to prove you own them</source>
-        <target xml:space="preserve">Sign messages with your Bitcoin addresses to prove you own them</target>
+        <source xml:space="preserve">Sign messages with your Qtum addresses to prove you own them</source>
+        <target xml:space="preserve">Sign messages with your Qtum addresses to prove you own them</target>
         <context-group purpose="location"><context context-type="linenumber">324</context></context-group>
       </trans-unit>
       <trans-unit id="_msg96">
@@ -526,8 +526,8 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">325</context></context-group>
       </trans-unit>
       <trans-unit id="_msg97" approved="yes">
-        <source xml:space="preserve">Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <target xml:space="preserve">Verify messages to ensure they were signed with specified Bitcoin addresses</target>
+        <source xml:space="preserve">Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <target xml:space="preserve">Verify messages to ensure they were signed with specified Qtum addresses</target>
         <context-group purpose="location"><context context-type="linenumber">326</context></context-group>
       </trans-unit>
       <trans-unit id="_msg98">
@@ -611,7 +611,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">1045</context></context-group>
       </trans-unit>
       <trans-unit id="_msg114">
-        <source xml:space="preserve">Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source xml:space="preserve">Request payments (generates QR codes and qtum: URIs)</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">264</context></context-group>
       </trans-unit>
@@ -682,12 +682,12 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">1058</context></context-group>
       </trans-unit>
       <trans-unit id="_msg127">
-        <source xml:space="preserve">Load Partially Signed Bitcoin Transaction</source>
+        <source xml:space="preserve">Load Partially Signed Qtum Transaction</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">328</context></context-group>
       </trans-unit>
       <trans-unit id="_msg128">
-        <source xml:space="preserve">Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <source xml:space="preserve">Load Partially Signed Qtum Transaction from clipboard</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">330</context></context-group>
       </trans-unit>
@@ -712,7 +712,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">340</context></context-group>
       </trans-unit>
       <trans-unit id="_msg133">
-        <source xml:space="preserve">Open a bitcoin: URI</source>
+        <source xml:space="preserve">Open a qtum: URI</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">344</context></context-group>
       </trans-unit>
@@ -737,7 +737,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">359</context></context-group>
       </trans-unit>
       <trans-unit id="_msg138">
-        <source xml:space="preserve">Show the %1 help message to get a list with possible Bitcoin command-line options</source>
+        <source xml:space="preserve">Show the %1 help message to get a list with possible Qtum command-line options</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">363</context></context-group>
       </trans-unit>
@@ -790,11 +790,11 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">935</context></context-group>
         <note annotates="source" from="developer">A substring of the tooltip.</note>
         <trans-unit id="_msg148[0]">
-          <source xml:space="preserve">%n active connection(s) to Bitcoin network.</source>
+          <source xml:space="preserve">%n active connection(s) to Qtum network.</source>
           <target xml:space="preserve"></target>
         </trans-unit>
         <trans-unit id="_msg148[1]">
-          <source xml:space="preserve">%n active connection(s) to Bitcoin network.</source>
+          <source xml:space="preserve">%n active connection(s) to Qtum network.</source>
           <target xml:space="preserve"></target>
         </trans-unit>
       </group>
@@ -1330,7 +1330,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">36</context></context-group>
       </trans-unit>
       <trans-unit id="_msg246">
-        <source xml:space="preserve">The entered address &quot;%1&quot; is not a valid Bitcoin address.</source>
+        <source xml:space="preserve">The entered address &quot;%1&quot; is not a valid Qtum address.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">113</context></context-group>
       </trans-unit>
@@ -1386,8 +1386,8 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
     </group>
     <group restype="x-trolltech-linguist-context" resname="Intro">
       <trans-unit id="_msg256">
-        <source xml:space="preserve">Bitcoin</source>
-        <target xml:space="preserve" state="needs-review-translation">Bitcoin</target>
+        <source xml:space="preserve">Qtum</source>
+        <target xml:space="preserve" state="needs-review-translation">Qtum</target>
         <context-group purpose="location"><context context-type="linenumber">139</context></context-group>
       </trans-unit>
       <trans-unit id="_msg257">
@@ -1428,7 +1428,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         </trans-unit>
       </group>
       <trans-unit id="_msg263">
-        <source xml:space="preserve">%1 will download and store a copy of the Bitcoin block chain.</source>
+        <source xml:space="preserve">%1 will download and store a copy of the Qtum block chain.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">392</context></context-group>
       </trans-unit>
@@ -1547,12 +1547,12 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">14</context></context-group>
       </trans-unit>
       <trans-unit id="_msg284">
-        <source xml:space="preserve">Recent transactions may not yet be visible, and therefore your wallet&apos;s balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <source xml:space="preserve">Recent transactions may not yet be visible, and therefore your wallet&apos;s balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">133</context></context-group>
       </trans-unit>
       <trans-unit id="_msg285">
-        <source xml:space="preserve">Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source xml:space="preserve">Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">152</context></context-group>
       </trans-unit>
@@ -1630,7 +1630,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
   <file original="../forms/openuridialog.ui" datatype="x-trolltech-designer-ui" source-language="en" target-language="en"><body>
     <group restype="x-trolltech-linguist-context" resname="OpenURIDialog">
       <trans-unit id="_msg298">
-        <source xml:space="preserve">Open bitcoin URI</source>
+        <source xml:space="preserve">Open qtum URI</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">14</context></context-group>
       </trans-unit>
@@ -1788,13 +1788,13 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">243</context></context-group>
       </trans-unit>
       <trans-unit id="_msg328">
-        <source xml:space="preserve">Full path to a Bitcoin Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
+        <source xml:space="preserve">Full path to a Qtum Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">253</context></context-group>
       </trans-unit>
       <trans-unit id="_msg329" approved="yes">
-        <source xml:space="preserve">Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <target xml:space="preserve">Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</target>
+        <source xml:space="preserve">Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <target xml:space="preserve">Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</target>
         <context-group purpose="location"><context context-type="linenumber">285</context></context-group>
       </trans-unit>
       <trans-unit id="_msg330" approved="yes">
@@ -1803,7 +1803,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">288</context></context-group>
       </trans-unit>
       <trans-unit id="_msg331">
-        <source xml:space="preserve">Automatically open the Bitcoin client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <source xml:space="preserve">Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">295</context></context-group>
       </trans-unit>
@@ -1823,7 +1823,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">308</context></context-group>
       </trans-unit>
       <trans-unit id="_msg335">
-        <source xml:space="preserve">Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <source xml:space="preserve">Connect to the Qtum network through a SOCKS5 proxy.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">315</context></context-group>
       </trans-unit>
@@ -1931,7 +1931,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">212</context></context-group>
       </trans-unit>
       <trans-unit id="_msg356">
-        <source xml:space="preserve">Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <source xml:space="preserve">Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">502</context></context-group>
       </trans-unit>
@@ -2051,8 +2051,8 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">14</context></context-group>
       </trans-unit>
       <trans-unit id="_msg378" approved="yes">
-        <source xml:space="preserve">The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <target xml:space="preserve">The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</target>
+        <source xml:space="preserve">The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <target xml:space="preserve">The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</target>
         <context-group purpose="location"><context context-type="linenumber">76</context></context-group>
         <context-group purpose="location"><context context-type="linenumber">411</context></context-group>
       </trans-unit>
@@ -2314,7 +2314,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">173</context></context-group>
       </trans-unit>
       <trans-unit id="_msg427">
-        <source xml:space="preserve">Cannot start bitcoin: click-to-pay handler</source>
+        <source xml:space="preserve">Cannot start qtum: click-to-pay handler</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">174</context></context-group>
       </trans-unit>
@@ -2327,7 +2327,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">253</context></context-group>
       </trans-unit>
       <trans-unit id="_msg429">
-        <source xml:space="preserve">&apos;bitcoin://&apos; is not a valid URI. Use &apos;bitcoin:&apos; instead.</source>
+        <source xml:space="preserve">&apos;qtum://&apos; is not a valid URI. Use &apos;qtum:&apos; instead.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">224</context></context-group>
       </trans-unit>
@@ -2340,7 +2340,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <context-group purpose="location"><context context-type="linenumber">264</context></context-group>
       </trans-unit>
       <trans-unit id="_msg431">
-        <source xml:space="preserve">URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
+        <source xml:space="preserve">URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">254</context></context-group>
       </trans-unit>
@@ -2415,7 +2415,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
   <file original="../guiutil.cpp" datatype="cpp" source-language="en" target-language="en"><body>
     <group restype="x-trolltech-linguist-context" resname="QObject">
       <trans-unit id="_msg442">
-        <source xml:space="preserve">Enter a Bitcoin address (e.g. %1)</source>
+        <source xml:space="preserve">Enter a Qtum address (e.g. %1)</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">120</context></context-group>
       </trans-unit>
@@ -3210,7 +3210,7 @@ For more information on using this console, type %6.
         <context-group purpose="location"><context context-type="linenumber">53</context></context-group>
       </trans-unit>
       <trans-unit id="_msg579">
-        <source xml:space="preserve">An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
+        <source xml:space="preserve">An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">50</context></context-group>
       </trans-unit>
@@ -3584,7 +3584,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">851</context></context-group>
       </trans-unit>
       <trans-unit id="_msg649">
-        <source xml:space="preserve">When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <source xml:space="preserve">When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">886</context></context-group>
       </trans-unit>
@@ -3700,7 +3700,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">214</context></context-group>
       </trans-unit>
       <trans-unit id="_msg671">
-        <source xml:space="preserve">Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source xml:space="preserve">Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">215</context></context-group>
       </trans-unit>
@@ -3793,7 +3793,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">359</context></context-group>
       </trans-unit>
       <trans-unit id="_msg689">
-        <source xml:space="preserve">Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source xml:space="preserve">Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">335</context></context-group>
       </trans-unit>
@@ -3884,7 +3884,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         </trans-unit>
       </group>
       <trans-unit id="_msg706">
-        <source xml:space="preserve">Warning: Invalid Bitcoin address</source>
+        <source xml:space="preserve">Warning: Invalid Qtum address</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">954</context></context-group>
       </trans-unit>
@@ -3935,7 +3935,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">64</context></context-group>
       </trans-unit>
       <trans-unit id="_msg715">
-        <source xml:space="preserve">The Bitcoin address to send the payment to</source>
+        <source xml:space="preserve">The Qtum address to send the payment to</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">57</context></context-group>
       </trans-unit>
@@ -3967,7 +3967,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">170</context></context-group>
       </trans-unit>
       <trans-unit id="_msg721">
-        <source xml:space="preserve">The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source xml:space="preserve">The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">177</context></context-group>
       </trans-unit>
@@ -4003,7 +4003,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">148</context></context-group>
       </trans-unit>
       <trans-unit id="_msg728">
-        <source xml:space="preserve">A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
+        <source xml:space="preserve">A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">206</context></context-group>
       </trans-unit>
@@ -4034,12 +4034,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">27</context></context-group>
       </trans-unit>
       <trans-unit id="_msg733">
-        <source xml:space="preserve">You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source xml:space="preserve">You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">33</context></context-group>
       </trans-unit>
       <trans-unit id="_msg734">
-        <source xml:space="preserve">The Bitcoin address to sign the message with</source>
+        <source xml:space="preserve">The Qtum address to sign the message with</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">51</context></context-group>
       </trans-unit>
@@ -4082,8 +4082,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">140</context></context-group>
       </trans-unit>
       <trans-unit id="_msg742" approved="yes">
-        <source xml:space="preserve">Sign the message to prove you own this Bitcoin address</source>
-        <target xml:space="preserve">Sign the message to prove you own this Bitcoin address</target>
+        <source xml:space="preserve">Sign the message to prove you own this Qtum address</source>
+        <target xml:space="preserve">Sign the message to prove you own this Qtum address</target>
         <context-group purpose="location"><context context-type="linenumber">161</context></context-group>
       </trans-unit>
       <trans-unit id="_msg743" approved="yes">
@@ -4113,7 +4113,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">246</context></context-group>
       </trans-unit>
       <trans-unit id="_msg748">
-        <source xml:space="preserve">The Bitcoin address the message was signed with</source>
+        <source xml:space="preserve">The Qtum address the message was signed with</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">267</context></context-group>
       </trans-unit>
@@ -4130,8 +4130,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <context-group purpose="location"><context context-type="linenumber">309</context></context-group>
       </trans-unit>
       <trans-unit id="_msg751" approved="yes">
-        <source xml:space="preserve">Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <target xml:space="preserve">Verify the message to ensure it was signed with the specified Bitcoin address</target>
+        <source xml:space="preserve">Verify the message to ensure it was signed with the specified Qtum address</source>
+        <target xml:space="preserve">Verify the message to ensure it was signed with the specified Qtum address</target>
         <context-group purpose="location"><context context-type="linenumber">318</context></context-group>
       </trans-unit>
       <trans-unit id="_msg752" approved="yes">
@@ -5027,7 +5027,7 @@ Go to File &gt; Open Wallet to load a wallet.
         <context-group purpose="location"><context context-type="linenumber">12</context></context-group>
       </trans-unit>
       <trans-unit id="_msg912">
-        <source xml:space="preserve">%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
+        <source xml:space="preserve">%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">13</context></context-group>
       </trans-unit>
@@ -5077,7 +5077,7 @@ Go to File &gt; Open Wallet to load a wallet.
         <context-group purpose="location"><context context-type="linenumber">39</context></context-group>
       </trans-unit>
       <trans-unit id="_msg922">
-        <source xml:space="preserve">Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <source xml:space="preserve">Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">41</context></context-group>
       </trans-unit>
