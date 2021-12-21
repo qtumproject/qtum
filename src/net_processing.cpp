@@ -4902,3 +4902,6 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
     } // release cs_main
     return true;
 }
+
+void CleanBlockIndex()
+{}

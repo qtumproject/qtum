@@ -89,4 +89,6 @@ public:
                                 const std::chrono::microseconds time_received, const std::atomic<bool>& interruptMsgProc) = 0;
 };
 
+void CleanBlockIndex();
+
 #endif // BITCOIN_NET_PROCESSING_H

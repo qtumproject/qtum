@@ -160,6 +160,8 @@ static fs::path GetPidFile(const ArgsManager& args)
 // shutdown thing.
 //
 
+static boost::thread_group threadGroup;
+
 void Interrupt(NodeContext& node)
 {
     InterruptHTTPServer();
@@ -224,6 +226,10 @@ void Shutdown(NodeContext& node)
     if (node.scheduler) node.scheduler->stop();
     if (node.chainman && node.chainman->m_load_block.joinable()) node.chainman->m_load_block.join();
     StopScriptCheckWorkerThreads();
+
+    // Stop clean block index thread
+    threadGroup.interrupt_all();
+    threadGroup.join_all();
 
     // After the threads that potentially access these pointers have been stopped,
     // destruct and reset all to nullptr.
@@ -1744,6 +1750,68 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 break;
             }
 
+            /////////////////////////////////////////////////////////// qtum
+            if((args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) || (!args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) ||
+              (!args.IsArgSet("-dgpstorage") && !args.IsArgSet("-dgpevm"))){
+                fGettingValuesDGP = true;
+            } else {
+                fGettingValuesDGP = false;
+            }
+
+            dev::eth::NoProof::init();
+            fs::path qtumStateDir = gArgs.GetDataDirNet() / "stateQtum";
+            bool fStatus = fs::exists(qtumStateDir);
+            const std::string dirQtum(qtumStateDir.string());
+            const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+            dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+            globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+            dev::eth::ChainParams cp(chainparams.EVMGenesisInfo());
+            globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+            pstorageresult.reset(new StorageResults(qtumStateDir.string()));
+            if (fReset) {
+                pstorageresult->wipeResults();
+            }
+
+            {
+                LOCK(cs_main);
+                CChain& active_chain = chainman.ActiveChain();
+                if(active_chain.Tip() != nullptr){
+                globalState->setRoot(uintToh256(active_chain.Tip()->hashStateRoot));
+                globalState->setRootUTXO(uintToh256(active_chain.Tip()->hashUTXORoot));
+                } else {
+                    globalState->setRoot(dev::sha3(dev::rlp("")));
+                    globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+                    globalState->populateFrom(cp.genesisState);
+                }
+                globalState->db().commit();
+                globalState->dbUtxo().commit();
+            }
+
+            fRecordLogOpcodes = args.IsArgSet("-record-log-opcodes");
+            fIsVMlogFile = fs::exists(gArgs.GetDataDirNet() / "vmExecLogs.json");
+            ///////////////////////////////////////////////////////////
+
+            /////////////////////////////////////////////////////////////// // qtum
+            if (fAddressIndex != args.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
+                strLoadError = _("You need to rebuild the database using -reindex to change -addrindex");
+                break;
+            }
+            ///////////////////////////////////////////////////////////////
+            // Check for changed -logevents state
+            if (fLogEvents != args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+                strLoadError = _("You need to rebuild the database using -reindex to enable -logevents");
+                break;
+            }
+
+            if (!args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+            {
+                pstorageresult->wipeResults();
+                pblocktree->WipeHeightIndex();
+                fLogEvents = false;
+                pblocktree->WriteFlag("logevents", fLogEvents);
+            }
+
             if (!fReset) {
                 LOCK(cs_main);
                 auto chainstates{chainman.GetAll()};
@@ -1759,6 +1827,10 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
 
             try {
                 LOCK(cs_main);
+
+                CChain& active_chain = chainman.ActiveChain();
+                QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+                globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(active_chain.Height() + (active_chain.Height()+1 >= chainparams.GetConsensus().QIP7Height ? 0 : 1) ));
 
                 for (CChainState* chainstate : chainman.GetAll()) {
                     if (!is_coinsview_empty(chainstate)) {
@@ -1921,6 +1993,9 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     chainman.m_load_block = std::thread(&util::TraceThread, "loadblk", [=, &chainman, &args] {
         ThreadImport(chainman, vImportFiles, args);
     });
+
+    if(args.GetBoolArg("-cleanblockindex", DEFAULT_CLEANBLOCKINDEX))
+        threadGroup.create_thread(std::bind(&CleanBlockIndex));
 
     // Wait for genesis block to be processed
     {
