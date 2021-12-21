@@ -13,7 +13,7 @@
 #include <util/serfloat.h>
 #include <util/system.h>
 
-static const char* FEE_ESTIMATES_FILENAME = "fee_estimates.dat";
+const char* FEE_ESTIMATES_FILENAME = "fee_estimates.dat";
 
 static constexpr double INF_FEERATE = 1e99;
 

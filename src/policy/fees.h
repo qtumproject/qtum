@@ -38,6 +38,7 @@ static constexpr auto ALL_FEE_ESTIMATE_HORIZONS = std::array{
 };
 
 std::string StringForFeeEstimateHorizon(FeeEstimateHorizon horizon);
+extern const char* FEE_ESTIMATES_FILENAME;
 
 /* Enumeration of reason for returned fee estimate */
 enum class FeeReason {

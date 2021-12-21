@@ -17,6 +17,7 @@
 #include <util/system.h>
 #include <util/time.h>
 #include <util/translation.h>
+#include <libdevcore/Log.h>
 
 #include <memory>
 
@@ -81,6 +82,7 @@ void AddLoggingArgs(ArgsManager& argsman)
 void SetLoggingOptions(const ArgsManager& args)
 {
     LogInstance().m_print_to_file = !args.IsArgNegated("-debuglogfile");
+    LogInstance().m_file_pathVM = AbsPathForConfigVal(args.GetArg("-debugvmlogfile", DEFAULT_DEBUGVMLOGFILE));
     LogInstance().m_file_path = AbsPathForConfigVal(args.GetArg("-debuglogfile", DEFAULT_DEBUGLOGFILE));
     LogInstance().m_print_to_console = args.GetBoolArg("-printtoconsole", !args.GetBoolArg("-daemon", false));
     LogInstance().m_log_timestamps = args.GetBoolArg("-logtimestamps", DEFAULT_LOGTIMESTAMPS);
@@ -89,6 +91,8 @@ void SetLoggingOptions(const ArgsManager& args)
     LogInstance().m_log_threadnames = args.GetBoolArg("-logthreadnames", DEFAULT_LOGTHREADNAMES);
 #endif
     LogInstance().m_log_sourcelocations = args.GetBoolArg("-logsourcelocations", DEFAULT_LOGSOURCELOCATIONS);
+    LogInstance().m_show_evm_logs = args.GetBoolArg("-showevmlogs", DEFAULT_SHOWEVMLOGS);
+    dev::g_logPost = [&](std::string const& s, char const* c){ LogInstance().LogPrintStr(s + '\n', c, "", 0, true); };
 
     fLogIPs = args.GetBoolArg("-logips", DEFAULT_LOGIPS);
 }
@@ -130,6 +134,10 @@ bool StartLogging(const ArgsManager& args)
             return InitError(strprintf(Untranslated("Could not open debug log file %s"),
                 LogInstance().m_file_path.string()));
     }
+
+////////////////////////////////////////////////////////////////////// // qtum
+    dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
+//////////////////////////////////////////////////////////////////////
 
     if (!LogInstance().m_log_timestamps)
         LogPrintf("Startup time: %s\n", FormatISO8601DateTime(GetTime()));

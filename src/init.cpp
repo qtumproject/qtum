@@ -653,6 +653,19 @@ static void BlockNotifyGenesisWait(const CBlockIndex* pBlockIndex)
     }
 }
 
+// Delete local blockchain data
+void DeleteBlockChainData()
+{
+    // Delete block chain data paths
+    fs::path datadir = gArgs.GetDataDirNet();
+    fs::remove_all(datadir / "chainstate");
+    fs::remove_all(gArgs.GetBlocksDirPath());
+    fs::remove_all(datadir / "stateQtum");
+    fs::remove(datadir / "banlist.dat");
+    fs::remove(datadir / FEE_ESTIMATES_FILENAME);
+    fs::remove(datadir / "mempool.dat");
+}
+
 #if HAVE_SYSTEM
 static void StartupNotify(const ArgsManager& args)
 {
@@ -1345,6 +1358,11 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                   args.GetArg("-datadir", ""), fs::current_path().string());
     }
 
+    if(args.GetBoolArg("-deleteblockchaindata", false))
+    {
+        DeleteBlockChainData();
+    }
+
     InitSignatureCache();
     InitScriptExecutionCache();
 
@@ -1613,6 +1631,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
             const int64_t load_block_index_start_time = GetTimeMillis();
             try {
                 LOCK(cs_main);
+                chainman.Reset();
                 chainman.InitializeChainstate(Assert(node.mempool.get()));
                 chainman.m_total_coinstip_cache = nCoinCacheUsage;
                 chainman.m_total_coinsdb_cache = nCoinDBCache;
@@ -1622,6 +1641,9 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 // new CBlockTreeDB tries to delete the existing file, which
                 // fails if it's still open from the previous loop. Close it first:
                 pblocktree.reset();
+                pstorageresult.reset();
+                globalState.reset();
+                globalSealEngine.reset();
                 pblocktree.reset(new CBlockTreeDB(nBlockTreeDBCache, false, fReset));
 
                 if (fReset) {

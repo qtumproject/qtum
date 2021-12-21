@@ -267,7 +267,12 @@ void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& loggi
     std::string str_prefixed = LogEscapeMessage(str);
 
     if (m_log_sourcelocations && m_started_new_line) {
-        str_prefixed.insert(0, "[" + RemovePrefix(source_file, "./") + ":" + ToString(source_line) + "] [" + logging_function + "] ");
+        if(useVMLog) {
+            str_prefixed.insert(0, "[" + logging_function + "] ");
+        }
+        else {
+            str_prefixed.insert(0, "[" + RemovePrefix(source_file, "./") + ":" + ToString(source_line) + "] [" + logging_function + "] ");
+        }
     }
 
     if (m_log_threadnames && m_started_new_line) {

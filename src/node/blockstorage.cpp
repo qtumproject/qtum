@@ -18,6 +18,9 @@
 #include <undo.h>
 #include <util/system.h>
 #include <validation.h>
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#endif
 
 std::atomic_bool fImporting(false);
 std::atomic_bool fReindex(false);
@@ -523,6 +526,13 @@ void ThreadImport(ChainstateManager& chainman, std::vector<fs::path> vImportFile
             LogPrintf("Reindexing finished\n");
             // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
             chainman.ActiveChainstate().LoadGenesisBlock();
+
+#ifdef ENABLE_WALLET
+            // Clean not reverted coinstake transactions
+            for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
+                pwallet->CleanCoinStake();
+            }
+#endif
         }
 
         // -loadblock=
