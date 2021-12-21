@@ -402,8 +402,6 @@ libbitcoin_server_a_SOURCES = \
   versionbits.cpp \
   qtum/qtumstate.cpp \
   qtum/storageresults.cpp \
-  qtum/qtumdelegation.cpp \
-  qtum/qtumtoken.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
@@ -614,6 +612,8 @@ libbitcoin_common_a_SOURCES = \
   warnings.cpp \
   qtum/qtumutils.cpp \
   qtum/qtumDGP.cpp \
+  qtum/qtumtoken.cpp \
+  qtum/qtumdelegation.cpp \
   util/contractabi.cpp \
   libff/libff/algebra/curves/public_params.hpp \
   libff/libff/algebra/curves/curve_utils.hpp \
