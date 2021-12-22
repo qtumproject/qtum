@@ -759,4 +759,8 @@ public:
     }
 };
 
+void RefreshDelegates(CWallet *pwallet, bool refreshMyDelegates, bool refreshStakerDelegates)
+{
+}
+
 #endif
