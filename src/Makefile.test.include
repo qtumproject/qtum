@@ -15,6 +15,17 @@ TEST_BINARY=test/test_qtum$(EXEEXT)
 FUZZ_BINARY=test/fuzz/fuzz$(EXEEXT)
 
 JSON_TEST_FILES = \
+  test/qtumtests/data/btc_ecrecover.json \
+  test/qtumtests/data/ecrecover.json \
+  test/qtumtests/data/sha256.json \
+  test/qtumtests/data/ripemd160.json \
+  test/qtumtests/data/identity.json \
+  test/qtumtests/data/modexp.json \
+  test/qtumtests/data/modexp_eip2565.json \
+  test/qtumtests/data/alt_bn128_G1_add.json \
+  test/qtumtests/data/alt_bn128_G1_mul.json \
+  test/qtumtests/data/alt_bn128_pairing_product.json \
+  test/qtumtests/data/blake2_compression.json \
   test/data/script_tests.json \
   test/data/base58_encode_decode.json \
   test/data/blockfilters.json \
