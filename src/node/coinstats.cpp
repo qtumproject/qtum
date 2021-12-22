@@ -52,11 +52,11 @@ static void ApplyHash(CHashWriter& ss, const uint256& hash, const std::map<uint3
     for (auto it = outputs.begin(); it != outputs.end(); ++it) {
         if (it == outputs.begin()) {
             ss << hash;
-            ss << VARINT(it->second.nHeight * 2 + it->second.fCoinBase ? 1u : 0u);
+            ss << VARINT((it->second.nHeight << 2) + (it->second.fCoinBase ? 1u : 0u) + (it->second.fCoinStake ? 2u : 0u));
         }
 
         ss << VARINT(it->first + 1);
-        ss << it->second.out.scriptPubKey;
+        ss << *(const CScriptBase*)(&(it->second.out.scriptPubKey));
         ss << VARINT_MODE(it->second.out.nValue, VarIntMode::NONNEGATIVE_SIGNED);
 
         if (it == std::prev(outputs.end())) {
