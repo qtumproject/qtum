@@ -3041,10 +3041,20 @@ int CWalletTx::GetBlocksToMaturity() const
     return std::max(0, (COINBASE_MATURITY+1) - chain_depth);
 }
 
-bool CWalletTx::IsImmatureCoinBase() const
+bool CWalletTx::IsImmature() const
 {
     // note GetBlocksToMaturity is 0 for non-coinbase tx
     return GetBlocksToMaturity() > 0;
+}
+
+bool CWalletTx::IsImmatureCoinBase() const
+{
+    return IsCoinBase() && IsImmature();
+}
+
+bool CWalletTx::IsImmatureCoinStake() const
+{
+    return IsCoinStake() && IsImmature();
 }
 
 bool CWallet::IsCrypted() const

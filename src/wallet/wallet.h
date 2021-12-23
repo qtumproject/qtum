@@ -986,7 +986,9 @@ public:
     /** Get last block processed height */
     int GetLastBlockHeight() const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet)
     {
+#ifndef DEBUG_LOCKORDER
         AssertLockHeld(cs_wallet);
+#endif
         assert(m_last_block_processed_height >= 0);
         return m_last_block_processed_height;
     };

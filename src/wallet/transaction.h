@@ -269,12 +269,14 @@ public:
     CAmount GetDebit(const isminefilter& filter) const;
     CAmount GetCredit(const isminefilter& filter) const;
     CAmount GetImmatureCredit(bool fUseCache = true) const;
+    CAmount GetStakeCredit(bool fUseCache = true) const;
     // TODO: Remove "NO_THREAD_SAFETY_ANALYSIS" and replace it with the correct
     // annotation "EXCLUSIVE_LOCKS_REQUIRED(pwallet->cs_wallet)". The
     // annotation "NO_THREAD_SAFETY_ANALYSIS" was temporarily added to avoid
     // having to resolve the issue of member access into incomplete type CWallet.
     CAmount GetAvailableCredit(bool fUseCache = true, const isminefilter& filter = ISMINE_SPENDABLE) const NO_THREAD_SAFETY_ANALYSIS;
     CAmount GetImmatureWatchOnlyCredit(const bool fUseCache = true) const;
+    CAmount GetStakeWatchOnlyCredit(const bool fUseCache = true) const;
     CAmount GetChange() const;
 
     /** Get the marginal bytes if spending the specified output from this transaction */
@@ -348,8 +350,9 @@ public:
     const uint256& GetHash() const { return tx->GetHash(); }
     bool IsCoinBase() const { return tx->IsCoinBase(); }
     bool IsCoinStake() const { return tx->IsCoinStake(); }
+    bool IsImmature() const;
     bool IsImmatureCoinBase() const;
-    bool IsImmature() const{return {};};
+    bool IsImmatureCoinStake() const;
 
     // Disable copying of CWalletTx objects to prevent bugs where instances get
     // copied in and out of the mapWallet map, and fields are updated in the

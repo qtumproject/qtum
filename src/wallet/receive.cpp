@@ -169,9 +169,27 @@ CAmount CWalletTx::GetImmatureCredit(bool fUseCache) const
     return 0;
 }
 
+CAmount CWalletTx::GetStakeCredit(bool fUseCache) const
+{
+    if (IsImmatureCoinStake() && IsInMainChain()) {
+        return GetCachableAmount(IMMATURE_CREDIT, ISMINE_SPENDABLE, !fUseCache);
+    }
+
+    return 0;
+}
+
 CAmount CWalletTx::GetImmatureWatchOnlyCredit(const bool fUseCache) const
 {
     if (IsImmatureCoinBase() && IsInMainChain()) {
+        return GetCachableAmount(IMMATURE_CREDIT, ISMINE_WATCH_ONLY, !fUseCache);
+    }
+
+    return 0;
+}
+
+CAmount CWalletTx::GetStakeWatchOnlyCredit(const bool fUseCache) const
+{
+    if (IsImmatureCoinStake() && IsInMainChain()) {
         return GetCachableAmount(IMMATURE_CREDIT, ISMINE_WATCH_ONLY, !fUseCache);
     }
 
