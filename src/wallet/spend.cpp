@@ -87,7 +87,7 @@ void CWallet::AvailableCoins(std::vector<COutput>& vCoins, const CCoinControl* c
             continue;
         }
 
-        if (wtx.IsImmatureCoinBase())
+        if (wtx.IsImmature())
             continue;
 
         int nDepth = wtx.GetDepthInMainChain();

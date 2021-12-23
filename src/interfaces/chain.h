@@ -32,6 +32,8 @@ struct FeeCalculation;
 struct NodeContext;
 class ChainstateManager;
 class CTxMemPool;
+class CBlockIndex;
+class CCoinsViewCache;
 
 namespace interfaces {
 
@@ -295,6 +297,15 @@ public:
 
     //! Check if Taproot has activated
     virtual bool isTaprootActive() const = 0;
+
+    //! Get chain tip
+    virtual CBlockIndex* getTip() const =  0;
+
+    //! Get unspent outputs associated with a transaction.
+    virtual bool getUnspentOutput(const COutPoint& output, Coin& coin) = 0;
+
+    //! Get coins tip.
+    virtual CCoinsViewCache& getCoinsTip() = 0;
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for
