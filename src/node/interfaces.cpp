@@ -280,6 +280,13 @@ public:
     }
     void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
     {
+        LOCK(::cs_main);
+
+        QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+        int numBlocks = chainman().ActiveChain().Height();
+        blockGasLimit = qtumDGP.getBlockGasLimit(numBlocks);
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(numBlocks));
+        nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     }
     void getSyncInfo(int& numBlocks, bool& isSyncing) override
     {
