@@ -1150,6 +1150,9 @@ bool DumpMempool(const CTxMemPool& pool, FopenFn mockable_fopen_function = fsbri
 /** Load the mempool from disk. */
 bool LoadMempool(CTxMemPool& pool, CChainState& active_chainstate, FopenFn mockable_fopen_function = fsbridge::fopen);
 
+//! Get transaction gas fee
+CAmount GetTxGasFee(const CMutableTransaction& tx);
+
 /**
  * Return the expected assumeutxo value for a given height, if one exists.
  *

@@ -36,6 +36,7 @@
 #include <wallet/fees.h>
 #include <wallet/external_signer_scriptpubkeyman.h>
 #include <miner.h>
+#include <node/blockstorage.h>
 
 #include <univalue.h>
 
@@ -3450,6 +3451,10 @@ std::shared_ptr<CWallet> CWallet::Create(interfaces::Chain* chain, const std::st
         walletInstance->WalletLogPrintf("mapWallet.size() = %u\n",       walletInstance->mapWallet.size());
         walletInstance->WalletLogPrintf("m_address_book.size() = %u\n",  walletInstance->m_address_book.size());
     }
+
+    if(!fReindex)
+        // Clean not reverted coinstake transactions
+        walletInstance->CleanCoinStake();
 
     return walletInstance;
 }
