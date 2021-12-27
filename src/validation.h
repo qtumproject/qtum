@@ -397,6 +397,8 @@ bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, u
 std::map<COutPoint, uint32_t> GetImmatureStakes();
 /////////////////////////////////////////////////////////////////
 
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
+
 /** Functions for validating blocks and updating the block tree */
 
 /** Context-independent validity checks */
