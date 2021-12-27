@@ -441,9 +441,31 @@ unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consen
 
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
 
-void writeVMlog(const std::vector<ResultExecute>& res, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int nHeight);
+
+bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
+
+bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);
+
+void writeVMlog(const std::vector<ResultExecute>& res, ChainstateManager &chainman, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
 
 std::string exceptedMessage(const dev::eth::TransactionException& excepted, const dev::bytes& output);
+
+struct EthTransactionParams{
+    VersionVM version;
+    dev::u256 gasLimit;
+    dev::u256 gasPrice;
+    valtype code;
+    dev::Address receiveAddress;
+
+    bool operator!=(EthTransactionParams etp){
+        if(this->version.toRaw() != etp.version.toRaw() || this->gasLimit != etp.gasLimit ||
+        this->gasPrice != etp.gasPrice || this->code != etp.code ||
+        this->receiveAddress != etp.receiveAddress)
+            return true;
+        return false;
+    }
+};
 
 struct ByteCodeExecResult{
     uint64_t usedGas = 0;

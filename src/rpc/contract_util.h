@@ -7,7 +7,7 @@
 
 class ChainstateManager;
 
-UniValue CallToContract(const UniValue& params);
+UniValue CallToContract(const UniValue& params, ChainstateManager &chainman);
 
 UniValue SearchLogs(const UniValue& params, ChainstateManager &chainman);
 

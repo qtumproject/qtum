@@ -46,7 +46,7 @@ UniValue transactionReceiptToJSON(const QtumTransactionReceipt& txRec)
     return result;
 }
 
-UniValue CallToContract(const UniValue& params)
+UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
 {
     LOCK(cs_main);
 
@@ -94,7 +94,7 @@ UniValue CallToContract(const UniValue& params)
     std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit, nAmount);
 
     if(fRecordLogOpcodes){
-        writeVMlog(execResults);
+        writeVMlog(execResults, chainman);
     }
 
     UniValue result(UniValue::VOBJ);
@@ -458,7 +458,7 @@ bool CallToken::exec(const bool &sendTo, const std::map<std::string, std::string
     }
 
     // Get execution result
-    UniValue response = CallToContract(params);
+    UniValue response = CallToContract(params, chainman);
     if(!response.isObject() || !response.exists("executionResult"))
         return false;
     UniValue executionResult = response["executionResult"];

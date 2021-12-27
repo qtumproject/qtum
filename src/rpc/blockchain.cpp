@@ -1341,8 +1341,9 @@ RPCHelpMan callcontract()
             + HelpExampleRpc("callcontract", "\"\" 60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256")
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
-{ 
-    return CallToContract(request.params);
+{
+    ChainstateManager& chainman = EnsureAnyChainman(request.context); 
+    return CallToContract(request.params, chainman);
 },
     };
 }
