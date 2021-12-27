@@ -787,6 +787,10 @@ public:
         LOCK(::cs_main);
         return chainman().ActiveChainstate().CoinsTip();
     }
+    size_t getNodeCount(ConnectionDirection flags) override
+    {
+        return Assert(m_node.connman) ? m_node.connman->GetNodeCount(flags) : 0;
+    }
     NodeContext& m_node;
 };
 } // namespace

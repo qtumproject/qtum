@@ -59,7 +59,6 @@ const std::map<uint64_t,std::string> WALLET_FLAG_CAVEATS{
 RecursiveMutex cs_wallets;
 static std::vector<std::shared_ptr<CWallet>> vpwallets GUARDED_BY(cs_wallets);
 static std::list<LoadWalletFn> g_load_wallet_fns GUARDED_BY(cs_wallets);
-CConnman* CWallet::defaultConnman = 0;
 
 bool AddWalletSetting(interfaces::Chain& chain, const std::string& wallet_name)
 {
@@ -4522,15 +4521,15 @@ bool CWallet::RemoveSuperStakerEntry(const uint256& superStakerHash, bool fFlush
     return true;
 }
 
-void CWallet::StakeQtums(bool fStake, CConnman* connman)
+void CWallet::StakeQtums(bool fStake)
 {
-    ::StakeQtums(fStake, this, connman, stakeThread);
+    ::StakeQtums(fStake, this, stakeThread);
 }
 
-void CWallet::StartStake(CConnman *connman)
+void CWallet::StartStake()
 {
     m_enabled_staking = true;
-    StakeQtums(true, connman);
+    StakeQtums(true);
 }
 
 void CWallet::StopStake()
@@ -4544,7 +4543,7 @@ void CWallet::StopStake()
     {
         m_stop_staking_thread = true;
         m_enabled_staking = false;
-        StakeQtums(false, 0);
+        StakeQtums(false);
         stakeThread = 0;
         m_stop_staking_thread = false;
     }

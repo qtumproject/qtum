@@ -7,6 +7,7 @@
 
 #include <primitives/transaction.h> // For CTransactionRef
 #include <util/settings.h>          // For util::SettingsValue
+#include <netbase.h>                // For ConnectionDirection
 
 #include <functional>
 #include <memory>
@@ -306,6 +307,9 @@ public:
 
     //! Get coins tip.
     virtual CCoinsViewCache& getCoinsTip() = 0;
+
+    //! Get number of connections.
+    virtual size_t getNodeCount(ConnectionDirection flags) = 0;
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for

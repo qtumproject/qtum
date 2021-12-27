@@ -42,6 +42,7 @@
 
 /////////////////////////////////////////// qtum
 class CWalletTx;
+class CWallet;
 
 #include <qtum/qtumstate.h>
 #include <qtum/qtumDGP.h>
@@ -180,6 +181,8 @@ extern CBlockIndex *pindexBestHeader;
 
 /** Documentation for argument 'checklevel'. */
 extern const std::vector<std::string> CHECKLEVEL_DOC;
+
+int64_t FutureDrift(uint32_t nTime, int nHeight, const Consensus::Params& consensusParams);
 
 /** Unload database information */
 void UnloadBlockIndex(CTxMemPool* mempool, ChainstateManager& chainman);
@@ -398,6 +401,7 @@ std::map<COutPoint, uint32_t> GetImmatureStakes();
 
 /** Context-independent validity checks */
 bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
+bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly = false, bool tryOnly = false);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block) */
 bool TestBlockValidity(BlockValidationState& state,
