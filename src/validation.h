@@ -216,6 +216,9 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex* pin
 /** Prune block files up to a given height */
 void PruneBlockFilesManual(CChainState& active_chainstate, int nManualPruneHeight);
 
+/** Check if the transaction is confirmed in N previous blocks */
+bool IsConfirmedInNPrevBlocks(const CDiskTxPos& txindex, const CBlockIndex* pindexFrom, int nMaxDepth, int& nActualDepth);
+
 /**
 * Validation result for a single transaction mempool acceptance.
 */
