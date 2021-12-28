@@ -40,6 +40,8 @@
 #include <utility>
 #include <vector>
 
+#include <consensus/consensus.h>
+
 /////////////////////////////////////////// qtum
 class CWalletTx;
 class CWallet;
@@ -76,6 +78,7 @@ class CConnman;
 class CScriptCheck;
 class CTxMemPool;
 class ChainstateManager;
+struct CDiskTxPos;
 struct ChainTxData;
 
 struct DisconnectedBlockTransactions;
@@ -356,11 +359,14 @@ private:
     bool cacheStore;
     ScriptError error;
     PrecomputedTransactionData *txdata;
+    int nOut;
 
 public:
-    CScriptCheck(): ptxTo(nullptr), nIn(0), nFlags(0), cacheStore(false), error(SCRIPT_ERR_UNKNOWN_ERROR) {}
+    CScriptCheck(): ptxTo(nullptr), nIn(0), nFlags(0), cacheStore(false), error(SCRIPT_ERR_UNKNOWN_ERROR), nOut(-1) {}
     CScriptCheck(const CTxOut& outIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn, PrecomputedTransactionData* txdataIn) :
-        m_tx_out(outIn), ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn) { }
+        m_tx_out(outIn), ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn), nOut(-1) { }
+    CScriptCheck(const CTransaction& txToIn, int nOutIn, unsigned int nFlagsIn, bool cacheIn, PrecomputedTransactionData* txdataIn) :
+        ptxTo(&txToIn), nIn(0), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn), nOut(nOutIn){ }
 
     bool operator()();
 
@@ -372,9 +378,12 @@ public:
         std::swap(cacheStore, check.cacheStore);
         std::swap(error, check.error);
         std::swap(txdata, check.txdata);
+        std::swap(nOut, check.nOut);
     }
 
     ScriptError GetScriptError() const { return error; }
+
+    bool checkOutput() const { return nOut > -1; }
 };
 
 /** Initializes the script-execution cache */
@@ -403,7 +412,10 @@ bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensu
 
 /** Context-independent validity checks */
 bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
+bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKey);
+bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& address, uint8_t& fee, CCoinsViewCache& view);
 bool SignBlock(std::shared_ptr<CBlock> pblock, CWallet& wallet, const CAmount& nTotalFees, uint32_t nTime, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly = false, bool tryOnly = false);
+bool CheckCanonicalBlockSignature(const CBlockHeader* pblock);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block) */
 bool TestBlockValidity(BlockValidationState& state,
@@ -472,6 +484,54 @@ struct ByteCodeExecResult{
     CAmount refundSender = 0;
     std::vector<CTxOut> refundOutputs;
     std::vector<CTransaction> valueTransfers;
+};
+
+class LastHashes: public dev::eth::LastBlockHashesFace
+{
+public:
+    explicit LastHashes();
+
+    void set(CBlockIndex const* tip);
+
+    dev::h256s precedingHashes(dev::h256 const&) const override;
+
+    void clear() override;
+
+private:
+    dev::h256s m_lastHashes;
+};
+
+class ByteCodeExec {
+
+public:
+
+    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs, const uint64_t _blockGasLimit, CBlockIndex* _pindex, ChainstateManager& _chainman) : txs(_txs), block(_block), blockGasLimit(_blockGasLimit), pindex(_pindex), chainman(_chainman) {}
+
+    bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
+
+    bool processingResults(ByteCodeExecResult& result);
+
+    std::vector<ResultExecute>& getResult(){ return result; }
+
+private:
+
+    dev::eth::EnvInfo BuildEVMEnvironment();
+
+    dev::Address EthAddrFromScript(const CScript& scriptIn);
+
+    std::vector<QtumTransaction> txs;
+
+    std::vector<ResultExecute> result;
+
+    const CBlock& block;
+
+    const uint64_t blockGasLimit;
+
+    CBlockIndex* pindex;
+
+    LastHashes lastHashes;
+
+    ChainstateManager& chainman;
 };
 
 enum DisconnectResult
