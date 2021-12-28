@@ -228,6 +228,12 @@ int32_t VersionBitsCache::ComputeBlockVersion(const CBlockIndex* pindexPrev, con
     return nVersion;
 }
 
+void VersionBitsCache::Erase(CBlockIndex *pindex) {
+    for (int b = 0; b < Consensus::MAX_VERSION_BITS_DEPLOYMENTS; b++) {
+        m_caches[b].erase(pindex);
+    }
+}
+
 void VersionBitsCache::Clear()
 {
     LOCK(m_mutex);

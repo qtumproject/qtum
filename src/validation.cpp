@@ -5436,6 +5436,42 @@ bool CChainState::ResizeCoinsCaches(size_t coinstip_size, size_t coinsdb_size)
     return ret;
 }
 
+bool CChainState::RemoveBlockIndex(CBlockIndex *pindex)
+{
+    AssertLockHeld(cs_main);
+    // Check if the block index is present in any variable and remove it
+    if(pindexBestInvalid == pindex)
+        pindexBestInvalid = nullptr;
+
+    if(pindexBestHeader == pindex)
+        pindexBestHeader = nullptr;
+
+    // Check if the block index is present in any list and remove it
+    for (auto it=m_blockman.m_blocks_unlinked.begin(); it!=m_blockman.m_blocks_unlinked.end();){
+        if(it->first == pindex || it->second == pindex)
+        {
+            it = m_blockman.m_blocks_unlinked.erase(it);
+        }
+        else{
+            it++;
+        }
+    }
+
+    setBlockIndexCandidates.erase(pindex);
+
+    m_blockman.m_failed_blocks.erase(pindex);
+
+    setDirtyBlockIndex.erase(pindex);
+
+    for (int b = 0; b < VERSIONBITS_NUM_BITS; b++) {
+        warningcache[b].erase(pindex);
+    }
+
+    g_versionbitscache.Erase(pindex);
+
+    return true;
+}
+
 static const uint64_t MEMPOOL_DUMP_VERSION = 1;
 
 bool LoadMempool(CTxMemPool& pool, CChainState& active_chainstate, FopenFn mockable_fopen_function)

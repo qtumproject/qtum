@@ -447,6 +447,9 @@ public:
 
 extern std::unique_ptr<StorageResults> pstorageresult;
 
+//////////////////////////////////////////////////////// qtum
+bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin);
+
 bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin, ChainstateManager& chainman);
 
 unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams);
@@ -855,6 +858,11 @@ public:
      */
     std::set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexCandidates;
 
+    /**
+     * The set of all seen COutPoint entries for proof of stake.
+     */
+    std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
+
     //! @returns A reference to the in-memory cache of the UTXO set.
     CCoinsViewCache& CoinsTip() EXCLUSIVE_LOCKS_REQUIRED(cs_main)
     {
@@ -966,6 +974,8 @@ public:
     void PruneBlockIndexCandidates();
 
     void UnloadBlockIndex();
+
+    bool RemoveBlockIndex(CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 
     /** Check whether we are doing an initial block download (synchronizing from disk or network) */
     bool IsInitialBlockDownload() const;

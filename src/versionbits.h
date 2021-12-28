@@ -97,6 +97,8 @@ public:
      */
     int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Params& params);
 
+    void Erase(CBlockIndex *pindex);
+
     void Clear();
 };
 
