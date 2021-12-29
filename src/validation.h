@@ -450,6 +450,8 @@ public:
 
 extern std::unique_ptr<StorageResults> pstorageresult;
 
+bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, ChainstateManager& chainman);
+
 //////////////////////////////////////////////////////// qtum
 bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin);
 

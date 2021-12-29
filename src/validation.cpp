@@ -1990,6 +1990,91 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& m
     return true;
 }
 
+bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, ChainstateManager& chainman)
+{
+    size_t offset = block.IsProofOfStake() ? 1 : 0;
+    std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
+    std::vector<CTxOut>::iterator it;
+    for(size_t i = 0; i < vouts.size(); i++){
+        it=std::find(vTempVouts.begin(), vTempVouts.end(), vouts[i]);
+        if(it==vTempVouts.end()){
+            return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-gas-refund-missing", "CheckReward(): Gas refund missing");
+        }else{
+            vTempVouts.erase(it);
+        }
+    }
+
+    // Check block reward
+    if (block.IsProofOfWork())
+    {
+        // Check proof-of-work reward
+        CAmount blockReward = nFees + GetBlockSubsidy(nHeight, consensusParams);
+        if (block.vtx[offset]->GetValueOut() > blockReward) {
+            LogPrintf("ERROR: ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)\n", block.vtx[offset]->GetValueOut(), blockReward);
+            return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cb-amount");
+        }
+    }
+    else
+    {
+        // Check full reward
+        CAmount blockReward = nFees + GetBlockSubsidy(nHeight, consensusParams);
+        if (nActualStakeReward > blockReward)
+            return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cs-amount", strprintf("CheckReward(): coinstake pays too much (actual=%d vs limit=%d)", nActualStakeReward, blockReward));
+
+        // The first proof-of-stake blocks get full reward, the rest of them are split between recipients
+        int rewardRecipients = 1;
+        int nPrevHeight = nHeight -1;
+        if(nPrevHeight >= consensusParams.nFirstMPoSBlock && nPrevHeight < consensusParams.nLastMPoSBlock)
+            rewardRecipients = consensusParams.nMPoSRewardRecipients;
+
+        // Check reward recipients number
+        if(rewardRecipients < 1)
+            return error("CheckReward(): invalid reward recipients");
+
+        // Check reward can cover the gas refunds
+        if(blockReward < gasRefunds){
+            return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cs-gas-greater-than-reward", "CheckReward(): Block Reward is less than total gas refunds");
+        }
+
+        CAmount splitReward = (blockReward - gasRefunds) / rewardRecipients;
+
+        // Check that the reward is in the second output for the staker and the third output for the delegate
+        // Delegation contract data like the fee is checked in CheckProofOfStake
+        if(block.HasProofOfDelegation())
+        {
+            CAmount nReward = blockReward - gasRefunds - splitReward * (rewardRecipients -1);
+            CAmount nValueStaker = block.vtx[offset]->vout[1].nValue;
+            CAmount nValueDelegate = delegateOutputExist ? block.vtx[offset]->vout[2].nValue : 0;
+            CAmount nMinedReward = nValueStaker + nValueDelegate - nValueCoinPrev;
+            if(nReward != nMinedReward)
+                return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cs-delegate-reward", "CheckReward(): The block reward is not split correctly between the staker and the delegate");
+        }
+
+        //if only 1 then no MPoS logic required
+        if(rewardRecipients == 1){
+            return true;
+        }
+
+        // Generate the list of mpos outputs including all of their parameters
+        std::vector<CTxOut> mposOutputList;
+        if(!GetMPoSOutputs(mposOutputList, splitReward, nPrevHeight, consensusParams, chainman))
+            return error("CheckReward(): cannot create the list of MPoS outputs");
+      
+        for(size_t i = 0; i < mposOutputList.size(); i++){
+            it=std::find(vTempVouts.begin(), vTempVouts.end(), mposOutputList[i]);
+            if(it==vTempVouts.end()){
+                return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cs-mpos-missing", "CheckReward(): An MPoS participant was not properly paid");
+            }else{
+                vTempVouts.erase(it);
+            }
+        }
+
+        vTempVouts.clear();
+    }
+
+    return true;
+}
+
 valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs, CTxMemPool& mempool, int nOut = -1){
     CScript script;
     bool scriptFilled=false; //can't use script.empty() because an empty script is technically valid
