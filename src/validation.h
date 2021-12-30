@@ -498,7 +498,7 @@ class QtumTxConverter{
 
 public:
 
-    QtumTxConverter(CTransaction tx, CTxMemPool& _mempool, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL, unsigned int flags = SCRIPT_EXEC_BYTE_CODE) : txBit(tx), view(v), blockTransactions(blockTxs), sender(false), nFlags(flags), mempool(_mempool){}
+    QtumTxConverter(CTransaction tx, const CTxMemPool& _mempool, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL, unsigned int flags = SCRIPT_EXEC_BYTE_CODE) : txBit(tx), view(v), blockTransactions(blockTxs), sender(false), nFlags(flags), mempool(_mempool){}
 
     bool extractionQtumTransactions(ExtractQtumTX& qtumTx);
 
@@ -520,7 +520,7 @@ private:
     bool sender;
     dev::Address refundSender;
     unsigned int nFlags;
-    CTxMemPool& mempool;
+    const CTxMemPool& mempool;
 };
 
 class LastHashes: public dev::eth::LastBlockHashesFace
