@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork){
     // Create contract
     std::vector<QtumTransaction> txs;
     txs.push_back(createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
-    executeBC(txs);
+    executeBC(txs, *m_node.chainman);
 
     // Call btc_ecrecover
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork){
     txBtcEcrecover.push_back(createQtumTransaction(CODE[4], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
 
     // Execute contracts
-    auto result = executeBC(txBtcEcrecover);
+    auto result = executeBC(txBtcEcrecover, *m_node.chainman);
 
     // Check results
     dev::bytes output = parseOutput(result.first[0].execRes.output);
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork){
     // Create contract
     std::vector<QtumTransaction> txs;
     txs.push_back(createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
-    executeBC(txs);
+    executeBC(txs, *m_node.chainman);
 
     // Call btc_ecrecover
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork){
     txBtcEcrecover.push_back(createQtumTransaction(CODE[4], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
 
      // Execute contracts
-    auto result = executeBC(txBtcEcrecover);
+    auto result = executeBC(txBtcEcrecover, *m_node.chainman);
 
     // Check results
     dev::bytes output = parseOutput(result.first[0].execRes.output);
