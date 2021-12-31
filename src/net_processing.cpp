@@ -172,10 +172,6 @@ struct COrphanBlock {
     std::pair<COutPoint, unsigned int> stake;
     std::vector<unsigned char> vchBlock;
 };
-std::map<uint256, COrphanBlock*> mapOrphanBlocks GUARDED_BY(cs_main);
-std::multimap<uint256, COrphanBlock*> mapOrphanBlocksByPrev GUARDED_BY(cs_main);
-std::set<std::pair<COutPoint, unsigned int>> setStakeSeenOrphan GUARDED_BY(cs_main);
-size_t nOrphanBlocksSize = 0;
 
 // Internal stuff
 namespace {
@@ -286,6 +282,7 @@ public:
     PeerManagerImpl(const CChainParams& chainparams, CConnman& connman, CAddrMan& addrman,
                     BanMan* banman, CScheduler& scheduler, ChainstateManager& chainman,
                     CTxMemPool& pool, bool ignore_incoming_txs);
+    ~PeerManagerImpl();
 
     /** Overridden from CValidationInterface. */
     void BlockConnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindexConnected) override;
@@ -398,9 +395,25 @@ private:
     /** Send `feefilter` message. */
     void MaybeSendFeefilter(CNode& node, std::chrono::microseconds current_time) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 
+    /** Process net block. */
+    void PushGetBlocks(CNode* pnode, const CBlockIndex* pindexBegin, const uint256& hashEnd);
+    uint256 GetOrphanRoot(const uint256& hash) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    void PruneOrphanBlocks() EXCLUSIVE_LOCKS_REQUIRED(cs_main);
     bool ProcessNetBlockHeaders(CNode* pfrom, const std::vector<CBlockHeader>& block, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex=nullptr);
+    bool ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom);
 
-    bool ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman);
+    /** Clean block index. */
+    bool RemoveStateBlockIndex(CBlockIndex *pindex);
+    bool RemoveNetBlockIndex(CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    bool RemoveBlockIndex(CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    void CleanBlockIndex();
+
+    std::map<uint256, COrphanBlock*> mapOrphanBlocks GUARDED_BY(cs_main);
+    std::multimap<uint256, COrphanBlock*> mapOrphanBlocksByPrev GUARDED_BY(cs_main);
+    std::set<std::pair<COutPoint, unsigned int>> setStakeSeenOrphan GUARDED_BY(cs_main);
+    size_t nOrphanBlocksSize = 0;
+    boost::thread_group threadGroup;
 
     const CChainParams& m_chainparams;
     CConnman& m_connman;
@@ -1570,6 +1583,16 @@ PeerManagerImpl::PeerManagerImpl(const CChainParams& chainparams, CConnman& conn
     // schedule next run for 10-15 minutes in the future
     const std::chrono::milliseconds delta = std::chrono::minutes{10} + GetRandMillis(std::chrono::minutes{5});
     scheduler.scheduleFromNow([&] { ReattemptInitialBroadcast(scheduler); }, delta);
+
+    if(gArgs.GetBoolArg("-cleanblockindex", DEFAULT_CLEANBLOCKINDEX))
+        threadGroup.create_thread([this]{CleanBlockIndex();});
+}
+
+PeerManagerImpl::~PeerManagerImpl()
+{
+    // Stop clean block index thread
+    threadGroup.interrupt_all();
+    threadGroup.join_all();
 }
 
 /**
@@ -2583,7 +2606,7 @@ void PeerManagerImpl::ProcessGetCFCheckPt(CNode& peer, CDataStream& vRecv)
 void PeerManagerImpl::ProcessBlock(CNode& node, const std::shared_ptr<const CBlock>& block, bool force_processing)
 {
     bool new_block{false};
-    ProcessNetBlock(block, force_processing, &new_block, &node, m_connman);
+    ProcessNetBlock(block, force_processing, &new_block, &node);
     if (new_block) {
         node.nLastBlockTime = GetTime();
     } else {
@@ -5078,13 +5101,13 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
     return true;
 }
 
-void PushGetBlocks(CNode* pnode, const CBlockIndex* pindexBegin, const uint256& hashEnd, CConnman& connman, ChainstateManager& chainman)
+void PeerManagerImpl::PushGetBlocks(CNode* pnode, const CBlockIndex* pindexBegin, const uint256& hashEnd)
 {
     const CNetMsgMaker msgMaker(pnode->GetCommonVersion());
-    connman.PushMessage(pnode, msgMaker.Make(NetMsgType::GETBLOCKS, chainman.ActiveChain().GetLocator(pindexBegin), hashEnd));
+    m_connman.PushMessage(pnode, msgMaker.Make(NetMsgType::GETBLOCKS, m_chainman.ActiveChain().GetLocator(pindexBegin), hashEnd));
 }
 
-uint256 static GetOrphanRoot(const uint256& hash) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
+uint256 PeerManagerImpl::GetOrphanRoot(const uint256& hash)
 {
     AssertLockHeld(cs_main);
     std::map<uint256, COrphanBlock*>::iterator it = mapOrphanBlocks.find(hash);
@@ -5100,18 +5123,8 @@ uint256 static GetOrphanRoot(const uint256& hash) EXCLUSIVE_LOCKS_REQUIRED(cs_ma
     } while(true);
 }
 
-// ppcoin: find block wanted by given orphan block
-uint256 WantedByOrphan(const COrphanBlock* pblockOrphan) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
-{
-    AssertLockHeld(cs_main);
-    // Work back to the first block in the orphan chain
-    while (mapOrphanBlocks.count(pblockOrphan->hashPrev))
-        pblockOrphan = mapOrphanBlocks[pblockOrphan->hashPrev];
-    return pblockOrphan->hashPrev;
-}
-
 // Remove a random orphan block (which does not have any dependent orphans).
-void static PruneOrphanBlocks() EXCLUSIVE_LOCKS_REQUIRED(cs_main)
+void PeerManagerImpl::PruneOrphanBlocks()
 {
     AssertLockHeld(cs_main);
     size_t nMaxOrphanBlocksSize = gArgs.GetArg("-maxorphanblocksmib", DEFAULT_MAX_ORPHAN_BLOCKS) * ((size_t) 1 << 20);
@@ -5140,7 +5153,7 @@ void static PruneOrphanBlocks() EXCLUSIVE_LOCKS_REQUIRED(cs_main)
     }
 }
 
-bool PeerManagerImpl::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom, CConnman& connman)
+bool PeerManagerImpl::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom)
 {
     uint256 hash;
     {
@@ -5234,7 +5247,7 @@ bool PeerManagerImpl::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock
                     setStakeSeenOrphan.insert(pblock->GetProofOfStake());
 
                 // Ask this guy to fill in what we're missing
-                PushGetBlocks(pfrom, pindexBestHeader, GetOrphanRoot(hash), connman, m_chainman);
+                PushGetBlocks(pfrom, pindexBestHeader, GetOrphanRoot(hash));
             }
             return true;
         }
@@ -5278,8 +5291,127 @@ bool PeerManagerImpl::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock
     return true;
 }
 
-void CleanBlockIndex()
-{}
+bool PeerManagerImpl::RemoveStateBlockIndex(CBlockIndex *pindex)
+{
+    AssertLockHeld(cs_main);
+    return m_chainman.ActiveChainstate().RemoveBlockIndex(pindex);
+}
+
+bool PeerManagerImpl::RemoveNetBlockIndex(CBlockIndex *pindex)
+{
+    AssertLockHeld(cs_main);
+    // Make sure it's not listed somewhere already.
+    RemoveBlockRequest(pindex->GetBlockHash());
+
+    for (std::map<NodeId, CNodeState>::iterator it=mapNodeState.begin(); it!=mapNodeState.end(); it++)
+    {
+        CNodeState * state = &it->second;
+
+        if(state->pindexBestKnownBlock == pindex)
+            state->pindexBestKnownBlock = nullptr;
+
+        if(state->pindexLastCommonBlock == pindex)
+            state->pindexLastCommonBlock = nullptr;
+
+        if(state->pindexBestHeaderSent == pindex)
+            state->pindexBestHeaderSent = nullptr;
+
+        if(state->m_chain_sync.m_work_header == pindex)
+            state->m_chain_sync.m_work_header = nullptr;
+    }
+
+    return true;
+}
+
+bool PeerManagerImpl::NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck)
+{
+    AssertLockHeld(cs_main);
+    if(!m_chainman.ActiveChain().Contains(pindex))
+    {
+        if(pindex->nHeight <= pindexCheck->nHeight) return true;
+        const CBlockIndex *pindexBlock = pindex;
+        while(pindexBlock)
+        {
+           pindexBlock = pindexBlock->pprev;
+           if(pindexBlock->nHeight == pindexCheck->nHeight) return pindexBlock != pindexCheck;
+        }
+    }
+    return false;
+}
+
+bool PeerManagerImpl::RemoveBlockIndex(CBlockIndex *pindex)
+{
+    AssertLockHeld(cs_main);
+    bool ret = RemoveStateBlockIndex(pindex);
+    ret &= RemoveNetBlockIndex(pindex);
+    return ret;
+}
+
+void PeerManagerImpl::CleanBlockIndex()
+{
+    unsigned int cleanTimeout = gArgs.GetArg("-cleanblockindextimeout", DEFAULT_CLEANBLOCKINDEXTIMEOUT);
+    if(cleanTimeout == 0) cleanTimeout = DEFAULT_CLEANBLOCKINDEXTIMEOUT;
+
+    while(!ShutdownRequested())
+    {
+        if(!m_chainman.ActiveChainstate().IsInitialBlockDownload())
+        {
+            // Select block indexes to delete
+            std::vector<uint256> indexNeedErase;
+            {
+                LOCK(cs_main);
+                int nHeight = m_chainman.ActiveChain().Height();
+                int checkpointSpan = Params().GetConsensus().CheckpointSpan(nHeight);
+                const CBlockIndex *pindexCheck = m_chainman.ActiveChain()[nHeight - checkpointSpan -1];
+                if(pindexCheck)
+                {
+                    for (BlockMap::iterator it=m_chainman.BlockIndex().begin(); it!=m_chainman.BlockIndex().end(); it++)
+                    {
+                        CBlockIndex *pindex = (*it).second;
+                        if(NeedToEraseBlockIndex(pindex, pindexCheck))
+                        {
+                            indexNeedErase.push_back(pindex->GetBlockHash());
+                        }
+                    }
+                }
+            }
+
+            // Delete selected block indexes
+            if(indexNeedErase.size() > 0)
+            {
+                SyncWithValidationInterfaceQueue();
+
+                LOCK(cs_main);
+                std::vector<uint256> indexEraseDB;
+                for(uint256 blockHash : indexNeedErase)
+                {
+                    BlockMap::iterator it=m_chainman.BlockIndex().find(blockHash);
+                    if(it!=m_chainman.BlockIndex().end())
+                    {
+                        CBlockIndex *pindex = (*it).second;
+                        if(RemoveBlockIndex(pindex))
+                        {
+                            delete pindex;
+                            m_chainman.BlockIndex().erase(it);
+                            indexEraseDB.push_back(blockHash);
+                        }
+                    }
+                }
+
+                if(pblocktree)
+                {
+                    if(!pblocktree->EraseBlockIndex(indexEraseDB))
+                    {
+                        LogPrintf("Fail to erase block indexes.\n");
+                    }
+                }
+            }
+        }
+
+        for(unsigned int i = 0; (i < cleanTimeout) && !ShutdownRequested(); i++)
+            UninterruptibleSleep(std::chrono::seconds{1});
+    }
+}
 
 unsigned int GefaultHeaderSpamFilterMaxSize()
 {

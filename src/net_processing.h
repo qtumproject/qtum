@@ -89,8 +89,6 @@ public:
                                 const std::chrono::microseconds time_received, const std::atomic<bool>& interruptMsgProc) = 0;
 };
 
-void CleanBlockIndex();
-
 /** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */
 unsigned int GefaultHeaderSpamFilterMaxSize();
 

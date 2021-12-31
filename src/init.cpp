@@ -160,8 +160,6 @@ static fs::path GetPidFile(const ArgsManager& args)
 // shutdown thing.
 //
 
-static boost::thread_group threadGroup;
-
 void Interrupt(NodeContext& node)
 {
     InterruptHTTPServer();
@@ -226,10 +224,6 @@ void Shutdown(NodeContext& node)
     if (node.scheduler) node.scheduler->stop();
     if (node.chainman && node.chainman->m_load_block.joinable()) node.chainman->m_load_block.join();
     StopScriptCheckWorkerThreads();
-
-    // Stop clean block index thread
-    threadGroup.interrupt_all();
-    threadGroup.join_all();
 
     // After the threads that potentially access these pointers have been stopped,
     // destruct and reset all to nullptr.
@@ -1993,9 +1987,6 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     chainman.m_load_block = std::thread(&util::TraceThread, "loadblk", [=, &chainman, &args] {
         ThreadImport(chainman, vImportFiles, args);
     });
-
-    if(args.GetBoolArg("-cleanblockindex", DEFAULT_CLEANBLOCKINDEX))
-        threadGroup.create_thread(std::bind(&CleanBlockIndex));
 
     // Wait for genesis block to be processed
     {
