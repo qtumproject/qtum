@@ -1813,7 +1813,7 @@ RPCHelpMan getdelegationsforstaker()
     std::map<uint160, Delegation> delegations = qtumDelegation.DelegationsFromEvents(events);
 
     // Get chain parameters
-    std::map<COutPoint, uint32_t> immatureStakes = GetImmatureStakes();
+    std::map<COutPoint, uint32_t> immatureStakes = GetImmatureStakes(chainman);
     int height = chainman.ActiveChain().Height();
 
     // Fill the json object with information

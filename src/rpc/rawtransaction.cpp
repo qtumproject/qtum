@@ -69,7 +69,7 @@ static void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& 
     }
 }
 
-void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue& entry,
+void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue& entry, const CTxMemPool& mempool,
                       int nHeight = 0, int nConfirmations = 0, int nBlockTime = 0)
 {
 
@@ -104,7 +104,7 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
             // Add address and value info if spentindex enabled
             CSpentIndexValue spentInfo;
             CSpentIndexKey spentKey(txin.prevout.hash, txin.prevout.n);
-            if (GetSpentIndex(spentKey, spentInfo)) {
+            if (GetSpentIndex(spentKey, spentInfo, mempool)) {
                 in.pushKV("value", ValueFromAmount(spentInfo.satoshis));
                 in.pushKV("valueSat", spentInfo.satoshis);
                 if (spentInfo.addressType == 1) {
@@ -139,7 +139,7 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
         // Add spent information if spentindex is enabled
         CSpentIndexValue spentInfo;
         CSpentIndexKey spentKey(txid, i);
-        if (GetSpentIndex(spentKey, spentInfo)) {
+        if (GetSpentIndex(spentKey, spentInfo, mempool)) {
             out.pushKV("spentTxId", spentInfo.txid.GetHex());
             out.pushKV("spentIndex", (int)spentInfo.inputIndex);
             out.pushKV("spentHeight", spentInfo.blockHeight);
@@ -314,6 +314,7 @@ static RPCHelpMan getrawtransaction()
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     const NodeContext& node = EnsureAnyNodeContext(request.context);
+    const CTxMemPool& mempool = EnsureMemPool(node);
     ChainstateManager& chainman = EnsureChainman(node);
 
     bool in_active_chain = true;
@@ -397,7 +398,7 @@ static RPCHelpMan getrawtransaction()
     TxToJSON(*tx, hash_block, result, chainman.ActiveChainstate());
     if(fAddressIndex) {
         result.pushKV("hex", EncodeHexTx(*tx, RPCSerializationFlags()));
-        TxToJSONExpanded(*tx, hash_block, result, nHeight, nConfirmations, nBlockTime);
+        TxToJSONExpanded(*tx, hash_block, result, mempool, nHeight, nConfirmations, nBlockTime);
     }
     else {
         TxToJSON(*tx, hash_block, result, chainman.ActiveChainstate());

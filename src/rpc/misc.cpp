@@ -604,6 +604,8 @@ RPCHelpMan getblockhashes()
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
 
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+
     unsigned int high = request.params[0].get_int();
     unsigned int low = request.params[1].get_int();
     bool fActiveOnly = false;
@@ -625,7 +627,7 @@ RPCHelpMan getblockhashes()
     std::vector<std::pair<uint256, unsigned int> > blockHashes;
     bool found = false;
 
-    found = GetTimestampIndex(high, low, fActiveOnly, blockHashes);
+    found = GetTimestampIndex(high, low, fActiveOnly, blockHashes, chainman);
 
     if (!found) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for block hashes");
@@ -674,6 +676,8 @@ RPCHelpMan getspentinfo()
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
+    const NodeContext& node = EnsureAnyNodeContext(request.context);
+    const CTxMemPool& mempool = EnsureMemPool(node);
 
     UniValue txidValue = find_value(request.params[0].get_obj(), "txid");
     UniValue indexValue = find_value(request.params[0].get_obj(), "index");
@@ -688,7 +692,7 @@ RPCHelpMan getspentinfo()
     CSpentIndexKey key(txid, outputIndex);
     CSpentIndexValue value;
 
-    if (!GetSpentIndex(key, value)) {
+    if (!GetSpentIndex(key, value, mempool)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unable to get spent info");
     }
 

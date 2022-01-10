@@ -6427,9 +6427,18 @@ bool GetAddressIndex(uint256 addressHash, int type, std::vector<std::pair<CAddre
     return true;
 }
 
-bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool)
 {
-    return {};
+    if (!fAddressIndex)
+        return false;
+
+    if (mempool.getSpentIndex(key, value))
+        return true;
+
+    if (!pblocktree->ReadSpentIndex(key, value))
+        return false;
+
+    return true;
 }
 
 bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs)
@@ -6443,9 +6452,15 @@ bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAdd
     return true;
 }
 
-bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes)
+bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes, ChainstateManager& chainman)
 {
-    return {};
+    if (!fAddressIndex)
+        return error("Timestamp index not enabled");
+
+    if (!pblocktree->ReadTimestampIndex(high, low, fActiveOnly, hashes, chainman))
+        return error("Unable to get hashes for timestamps");
+
+    return true;
 }
 
 CAmount GetTxGasFee(const CMutableTransaction& _tx)
@@ -6487,8 +6502,22 @@ bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, u
     return true;
 }
 
-std::map<COutPoint, uint32_t> GetImmatureStakes()
+std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman)
 {
-    return {};
+    std::map<COutPoint, uint32_t> immatureStakes;
+    int height = chainman.ActiveChain().Height();
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(height + 1);
+    for(int i = 0; i < coinbaseMaturity -1; i++) {
+        CBlockIndex* block = chainman.ActiveChain()[height - i];
+        if(block)
+        {
+            immatureStakes[block->prevoutStake] = block->nTime;
+        }
+        else
+        {
+            break;
+        }
+    }
+    return immatureStakes;
 }
-
+//////////////////////////////////////////////////////////////////////////////////

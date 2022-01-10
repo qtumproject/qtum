@@ -1279,10 +1279,10 @@ void CTxMemPool::addSpentIndex(const CTxMemPoolEntry &entry, const CCoinsViewCac
     mapSpentInserted.insert(std::make_pair(txhash, inserted));
 }
 
-bool CTxMemPool::getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value)
+bool CTxMemPool::getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) const
 {
     LOCK(cs);
-    mapSpentIndex::iterator it;
+    mapSpentIndex::const_iterator it;
 
     it = mapSpent.find(key);
     if (it != mapSpent.end()) {

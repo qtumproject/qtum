@@ -541,7 +541,7 @@ public:
     std::map<COutPoint, uint32_t> getImmatureStakes() override
     {
         LOCK(cs_main);
-        return GetImmatureStakes();
+        return GetImmatureStakes(chainman());
     }
     std::optional<int> findLocatorFork(const CBlockLocator& locator) override
     {

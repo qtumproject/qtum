@@ -397,16 +397,16 @@ bool GetAddressIndex(uint256 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
                      int start = 0, int end = 0);
 
-bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool);
 
 bool GetAddressUnspent(uint256 addressHash, int type,
                        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs);
 
-bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);
+bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes, ChainstateManager& chainman);
 
 bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight);
 
-std::map<COutPoint, uint32_t> GetImmatureStakes();
+std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman);
 /////////////////////////////////////////////////////////////////
 
 bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);

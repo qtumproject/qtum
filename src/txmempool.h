@@ -781,7 +781,7 @@ public:
     bool removeAddressIndex(const uint256 txhash);
 
     void addSpentIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view);
-    bool getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
+    bool getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) const;
     bool removeSpentIndex(const uint256 txhash);
     /////////////////////////////////////////////////////////
 
