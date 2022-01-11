@@ -949,7 +949,7 @@ bool CWallet::FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, int& nC
     // CreateTransaction call and LockCoin calls (when lockUnspents is true).
     LOCK(cs_wallet);
 
-    CAmount nGasFee = GetTxGasFee(tx);
+    CAmount nGasFee = GetTxGasFee(tx, chain().mempool(), chain().chainman().ActiveChainstate());
     CTransactionRef tx_new;
     FeeCalculation fee_calc_out;
     if (!CreateTransaction(vecSend, tx_new, nFeeRet, nChangePosInOut, error, coinControl, fee_calc_out, false, nGasFee)) {
