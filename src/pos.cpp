@@ -559,7 +559,7 @@ bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee)
     return ret;
 }
 
-bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScriptHeight, const ScriptsElement& scriptElement, ChainstateManager &chainman)
+bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScriptHeight, const ScriptsElement& scriptElement, CChain& chain)
 {
     // Erase element from cache if not in range [nBlockHeight - nCacheScripts, nBlockHeight + nCacheScripts]
     if(nScriptHeight < (nBlockHeight - nCacheScripts) ||
@@ -567,20 +567,20 @@ bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScript
         return true;
 
     // Erase element from cache if hash different
-    CBlockIndex* pblockindex = chainman.ActiveChain()[nScriptHeight];
+    CBlockIndex* pblockindex = chain[nScriptHeight];
     if(pblockindex && pblockindex->GetBlockHash() != scriptElement.hash)
         return true;
 
     return false;
 }
 
-void CleanScriptCache(int nHeight, const Consensus::Params &consensusParams, ChainstateManager &chainman)
+void CleanScriptCache(int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     int nCacheScripts = consensusParams.nMPoSRewardRecipients * 1.5;
 
     // Remove the scripts from cache that are not used
     for (std::map<int, ScriptsElement>::iterator it=scriptsMap.begin(); it!=scriptsMap.end();){
-        if(NeedToEraseScriptFromCache(nHeight, nCacheScripts, it->first, it->second, chainman))
+        if(NeedToEraseScriptFromCache(nHeight, nCacheScripts, it->first, it->second, chain))
         {
             it = scriptsMap.erase(it);
         }
@@ -590,9 +590,9 @@ void CleanScriptCache(int nHeight, const Consensus::Params &consensusParams, Cha
     }
 }
 
-bool ReadFromScriptCache(BlockScript &script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params &consensusParams, ChainstateManager &chainman)
+bool ReadFromScriptCache(BlockScript &script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
-    CleanScriptCache(nHeight, consensusParams, chainman);
+    CleanScriptCache(nHeight, consensusParams, chain);
 
     // Find the script in the cache
     std::map<int, ScriptsElement>::iterator it = scriptsMap.find(nHeight);
@@ -608,9 +608,9 @@ bool ReadFromScriptCache(BlockScript &script, CBlockIndex* pblockindex, int nHei
     return false;
 }
 
-void AddToScriptCache(BlockScript script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params &consensusParams, ChainstateManager &chainman)
+void AddToScriptCache(BlockScript script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
-    CleanScriptCache(nHeight, consensusParams, chainman);
+    CleanScriptCache(nHeight, consensusParams, chain);
 
     // Add the script into the cache
     ScriptsElement listElement;
@@ -619,10 +619,10 @@ void AddToScriptCache(BlockScript script, CBlockIndex* pblockindex, int nHeight,
     scriptsMap.insert(std::pair<int, ScriptsElement>(nHeight, listElement));
 }
 
-bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const Consensus::Params &consensusParams, ChainstateManager &chainman)
+bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     // Check if the block index exist into the active chain
-    CBlockIndex* pblockindex = chainman.ActiveChain()[nHeight];
+    CBlockIndex* pblockindex = chain[nHeight];
     if(!pblockindex)
     {
         LogPrint(BCLog::COINSTAKE, "Block index not found\n");
@@ -631,7 +631,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
 
     // Try find the script from the cache
     BlockScript blockScript;
-    if(ReadFromScriptCache(blockScript, pblockindex, nHeight, consensusParams, chainman))
+    if(ReadFromScriptCache(blockScript, pblockindex, nHeight, consensusParams, chain))
     {
         mposScriptList.push_back(blockScript);
         return true;
@@ -682,7 +682,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
         mposScriptList.push_back(blockScript);
 
         // Update script cache
-        AddToScriptCache(blockScript, pblockindex, nHeight, consensusParams, chainman);
+        AddToScriptCache(blockScript, pblockindex, nHeight, consensusParams, chain);
     }
     else
     {
@@ -700,7 +700,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
     return true;
 }
 
-bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight, const Consensus::Params &consensusParams, ChainstateManager &chainman)
+bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     bool ret = true;
     nHeight -= consensusParams.CoinbaseMaturity(nHeight + 1);
@@ -708,16 +708,16 @@ bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight,
     // Populate the list of scripts for the reward recipients
     for(int i = 0; (i < consensusParams.nMPoSRewardRecipients - 1) && ret; i++)
     {
-        ret &= AddMPoSScript(mposScriptList, nHeight - i, consensusParams, chainman);
+        ret &= AddMPoSScript(mposScriptList, nHeight - i, consensusParams, chain);
     }
 
     return ret;
 }
 
-bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, ChainstateManager &chainman)
+bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     std::vector<BlockScript> mposScriptList;
-    if(!GetMPoSOutputScripts(mposScriptList, nHeight, consensusParams, chainman))
+    if(!GetMPoSOutputScripts(mposScriptList, nHeight, consensusParams, chain))
     {
         LogPrint(BCLog::COINSTAKE, "Fail to get the list of recipients\n");
         return false;
@@ -751,10 +751,10 @@ bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, i
     return true;
 }
 
-bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, ChainstateManager &chainman)
+bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     std::vector<CTxOut> mposOutputList;
-    if(!GetMPoSOutputs(mposOutputList, nRewardPiece, nHeight, consensusParams, chainman))
+    if(!GetMPoSOutputs(mposOutputList, nRewardPiece, nHeight, consensusParams, chain))
     {
         return false;
     }

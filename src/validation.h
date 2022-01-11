@@ -185,6 +185,9 @@ extern CBlockIndex *pindexBestHeader;
 /** Documentation for argument 'checklevel'. */
 extern const std::vector<std::string> CHECKLEVEL_DOC;
 
+/** The set of all seen COutPoint entries for proof of stake. */
+extern std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
+
 int64_t FutureDrift(uint32_t nTime, int nHeight, const Consensus::Params& consensusParams);
 
 /** Unload database information */
@@ -450,7 +453,7 @@ public:
 
 extern std::unique_ptr<StorageResults> pstorageresult;
 
-bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, ChainstateManager& chainman);
+bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, CChain& chain);
 
 //////////////////////////////////////////////////////// qtum
 bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin);
@@ -862,11 +865,6 @@ public:
      * missing the data for the block.
      */
     std::set<CBlockIndex*, CBlockIndexWorkComparator> setBlockIndexCandidates;
-
-    /**
-     * The set of all seen COutPoint entries for proof of stake.
-     */
-    std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
 
     //! @returns A reference to the in-memory cache of the UTXO set.
     CCoinsViewCache& CoinsTip() EXCLUSIVE_LOCKS_REQUIRED(cs_main)

@@ -5171,7 +5171,7 @@ bool PeerManagerImpl::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock
         // Duplicate stake allowed only when there is orphan child block
         // if the block header is already known, allow it (to account for headers being sent before the block itself)
         hash = pblock->GetHash();
-        if (!fReindex && !fImporting && pblock->IsProofOfStake() && m_chainman.ActiveChainstate().setStakeSeen.count(pblock->GetProofOfStake()) && !m_chainman.BlockIndex().count(hash) && !mapOrphanBlocksByPrev.count(hash))
+        if (!fReindex && !fImporting && pblock->IsProofOfStake() && setStakeSeen.count(pblock->GetProofOfStake()) && !m_chainman.BlockIndex().count(hash) && !mapOrphanBlocksByPrev.count(hash))
             return error("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
     }
 

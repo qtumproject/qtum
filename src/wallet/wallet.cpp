@@ -2361,7 +2361,7 @@ bool CWallet::CreateCoinStakeFromMine(const FillableSigningProvider& keystore, u
 
     if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
     {
-        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, chain().chainman()))
+        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, chain().chainman().ActiveChain()))
             return error("CreateCoinStake : failed to create MPoS reward outputs");
     }
 
@@ -2559,7 +2559,7 @@ bool CWallet::CreateCoinStakeFromDelegate(const FillableSigningProvider &keystor
 
     if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
     {
-        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, chain().chainman()))
+        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, chain().chainman().ActiveChain()))
             return error("CreateCoinStake : failed to create MPoS reward outputs");
     }
 

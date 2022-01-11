@@ -107,6 +107,7 @@ std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
 bool fRecordLogOpcodes = false;
 bool fIsVMlogFile = false;
 bool fGettingValuesDGP = false;
+std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
  //////////////////////////////
 
 bool CBlockIndexWorkComparator::operator()(const CBlockIndex *pa, const CBlockIndex *pb) const {
@@ -2191,7 +2192,7 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& m
     return true;
 }
 
-bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, ChainstateManager& chainman)
+bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, CChain& chain)
 {
     size_t offset = block.IsProofOfStake() ? 1 : 0;
     std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
@@ -2258,7 +2259,7 @@ bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, 
 
         // Generate the list of mpos outputs including all of their parameters
         std::vector<CTxOut> mposOutputList;
-        if(!GetMPoSOutputs(mposOutputList, splitReward, nPrevHeight, consensusParams, chainman))
+        if(!GetMPoSOutputs(mposOutputList, splitReward, nPrevHeight, consensusParams, chain))
             return error("CheckReward(): cannot create the list of MPoS outputs");
       
         for(size_t i = 0; i < mposOutputList.size(); i++){
@@ -2675,6 +2676,42 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
     assert(*pindex->phashBlock == block.GetHash());
     int64_t nTimeStart = GetTimeMicros();
 
+    ///////////////////////////////////////////////// // qtum
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(pindex->nHeight + (pindex->nHeight+1 >= m_params.GetConsensus().QIP7Height ? 0 : 1) ));
+    uint32_t sizeBlockDGP = qtumDGP.getBlockSize(pindex->nHeight + (pindex->nHeight+1 >= m_params.GetConsensus().QIP7Height ? 0 : 1));
+    uint64_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + (pindex->nHeight+1 >= m_params.GetConsensus().QIP7Height ? 0 : 1));
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(pindex->nHeight + (pindex->nHeight+1 >= m_params.GetConsensus().QIP7Height ? 0 : 1));
+    dgpMaxBlockSize = sizeBlockDGP ? sizeBlockDGP : dgpMaxBlockSize;
+    updateBlockSizeParams(dgpMaxBlockSize);
+    CBlock checkBlock(block.GetBlockHeader());
+    std::vector<CTxOut> checkVouts;
+
+    /////////////////////////////////////////////////
+    // We recheck the hardened checkpoints here since ContextualCheckBlock(Header) is not called in ConnectBlock.
+    if(fCheckpointsEnabled && !m_blockman.CheckHardened(pindex->nHeight, block.GetHash(), m_params.Checkpoints())) {
+        return state.Invalid(BlockValidationResult::BLOCK_CHECKPOINT, "bad-fork-hardened-checkpoint", strprintf("%s: expected hardened checkpoint at height %d", __func__, pindex->nHeight));
+    }
+
+
+    // Move this check from CheckBlock to ConnectBlock as it depends on DGP values
+    if (block.vtx.empty() || block.vtx.size() > dgpMaxBlockSize || ::GetSerializeSize(block, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > dgpMaxBlockSize) // qtum
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-blk-length", "size limits failed");
+
+    // Move this check from ContextualCheckBlock to ConnectBlock as it depends on DGP values
+    if (GetBlockWeight(block) > dgpMaxBlockWeight) {
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-blk-weight", strprintf("%s : weight limit failed", __func__));
+    }
+
+    bool delegateOutputExist = false;
+    if (!CheckDelegationOutput(block, delegateOutputExist, view)) {
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-delegate-output", strprintf("%s : delegation output check failed", __func__));
+    }
+
+    if (block.IsProofOfStake() && pindex->nHeight > m_params.GetConsensus().nEnableHeaderSignatureHeight && !CheckBlockInputPubKeyMatchesOutputPubKey(block, view, delegateOutputExist)) {
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-blk-coinstake-input-output-mismatch");
+    }
+
     // Check it again in case a previous version let a bad block in
     // NOTE: We don't currently (re-)invoke ContextualCheckBlock() or
     // ContextualCheckBlockHeader() here. This means that if we add a new
@@ -3020,11 +3057,11 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs (%.2fms/blk)]\n", (unsigned)block.vtx.size(), MILLI * (nTime3 - nTime2), MILLI * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : MILLI * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * MICRO, nTimeConnect * MILLI / nBlocksTotal);
 
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, m_params.GetConsensus());
-    if (block.vtx[0]->GetValueOut() > blockReward) {
-        LogPrintf("ERROR: ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)\n", block.vtx[0]->GetValueOut(), blockReward);
-        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cb-amount");
+    if(nFees < gasRefunds) { //make sure it won't overflow
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-blk-fees-greater-gasrefund", "ConnectBlock(): Less total fees than gas refund fees");
     }
+    if(!CheckReward(block, state, pindex->nHeight, m_params.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts, nValueCoinPrev, delegateOutputExist, m_chain))
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "block-reward-invalid", "ConnectBlock(): Reward check failed");
 
     if (!control.Wait()) {
         LogPrintf("ERROR: %s: CheckQueue failed\n", __func__);
@@ -3033,8 +3070,90 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
     LogPrint(BCLog::BENCH, "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs (%.2fms/blk)]\n", nInputs - 1, MILLI * (nTime4 - nTime2), nInputs <= 1 ? 0 : MILLI * (nTime4 - nTime2) / (nInputs-1), nTimeVerify * MICRO, nTimeVerify * MILLI / nBlocksTotal);
 
+////////////////////////////////////////////////////////////////// // qtum
+    if(pindex->nHeight == m_params.GetConsensus().nOfflineStakeHeight){
+        globalState->deployDelegationsContract();
+    }
+    checkBlock.hashMerkleRoot = BlockMerkleRoot(checkBlock);
+    checkBlock.hashStateRoot = h256Touint(globalState->rootHash());
+    checkBlock.hashUTXORoot = h256Touint(globalState->rootHashUTXO());
+
+    //If this error happens, it probably means that something with AAL created transactions didn't match up to what is expected
+    if((checkBlock.GetHash() != block.GetHash()) && !fJustCheck)
+    {
+        LogPrintf("Actual block data does not match block expected by AAL\n");
+        //Something went wrong with AAL, compare different elements and determine what the problem is
+        if(checkBlock.hashMerkleRoot != block.hashMerkleRoot){
+            //there is a mismatched tx, so go through and determine which txs
+            if(block.vtx.size() > checkBlock.vtx.size()){
+                LogPrintf("Unexpected AAL transactions in block. Actual txs: %i, expected txs: %i\n", block.vtx.size(), checkBlock.vtx.size());
+                for(size_t i=0;i<block.vtx.size();i++){
+                    if(i > checkBlock.vtx.size()-1){
+                        LogPrintf("Unexpected transaction: %s\n", block.vtx[i]->ToString());
+                    }else {
+                        if (block.vtx[i]->GetHash() != checkBlock.vtx[i]->GetHash()) {
+                            LogPrintf("Mismatched transaction at entry %i\n", i);
+                            LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
+                            LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
+                        }
+                    }
+                }
+            }else if(block.vtx.size() < checkBlock.vtx.size()){
+                LogPrintf("Actual block is missing AAL transactions. Actual txs: %i, expected txs: %i\n", block.vtx.size(), checkBlock.vtx.size());
+                for(size_t i=0;i<checkBlock.vtx.size();i++){
+                    if(i > block.vtx.size()-1){
+                        LogPrintf("Missing transaction: %s\n", checkBlock.vtx[i]->ToString());
+                    }else {
+                        if (block.vtx[i]->GetHash() != checkBlock.vtx[i]->GetHash()) {
+                            LogPrintf("Mismatched transaction at entry %i\n", i);
+                            LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
+                            LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
+                        }
+                    }
+                }
+            }else{
+                //count is correct, but a tx is wrong
+                for(size_t i=0;i<checkBlock.vtx.size();i++){
+                    if (block.vtx[i]->GetHash() != checkBlock.vtx[i]->GetHash()) {
+                        LogPrintf("Mismatched transaction at entry %i\n", i);
+                        LogPrintf("Actual: %s\n", block.vtx[i]->ToString());
+                        LogPrintf("Expected: %s\n", checkBlock.vtx[i]->ToString());
+                    }
+                }
+            }
+        }
+        if(checkBlock.hashUTXORoot != block.hashUTXORoot){
+            LogPrintf("Actual block data does not match hashUTXORoot expected by AAL block\n");
+        }
+        if(checkBlock.hashStateRoot != block.hashStateRoot){
+            LogPrintf("Actual block data does not match hashStateRoot expected by AAL block\n");
+        }
+
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "incorrect-transactions-or-hashes-block", "ConnectBlock(): Incorrect AAL transactions or hashes (hashStateRoot, hashUTXORoot)");
+    }
+
     if (fJustCheck)
+    {
+        dev::h256 prevHashStateRoot(dev::sha3(dev::rlp("")));
+        dev::h256 prevHashUTXORoot(dev::sha3(dev::rlp("")));
+        if(pindex->pprev->hashStateRoot != uint256() && pindex->pprev->hashUTXORoot != uint256()){
+            prevHashStateRoot = uintToh256(pindex->pprev->hashStateRoot);
+            prevHashUTXORoot = uintToh256(pindex->pprev->hashUTXORoot);
+        }
+        globalState->setRoot(prevHashStateRoot);
+        globalState->setRootUTXO(prevHashUTXORoot);
         return true;
+    }
+//////////////////////////////////////////////////////////////////
+
+    pindex->nMoneySupply = (pindex->pprev? pindex->pprev->nMoneySupply : 0) + nValueOut - nValueIn;
+    //only start checking this error after block 5000 and only on testnet and mainnet, not regtest
+    if(pindex->nHeight > 5000 && !m_params.MineBlocksOnDemand()) {
+        //sanity check in case an exploit happens that allows new coins to be minted
+        if(pindex->nMoneySupply > (uint64_t)(100000000 + ((pindex->nHeight - 5000) * 4)) * COIN){
+            return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "incorrect-money-supply", "ConnectBlock(): Unknown error caused actual money supply to exceed expected money supply");
+        }
+    }
 
     if (!WriteUndoDataForBlock(blockundo, state, pindex, m_params)) {
         return false;
@@ -3043,6 +3162,41 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
     if (!pindex->IsValid(BLOCK_VALID_SCRIPTS)) {
         pindex->RaiseValidity(BLOCK_VALID_SCRIPTS);
         setDirtyBlockIndex.insert(pindex);
+    }
+    if (fLogEvents)
+    {
+        for (const auto& e: heightIndexes)
+        {
+            if (!pblocktree->WriteHeightIndex(e.second.first, e.second.second))
+                return AbortNode(state, "Failed to write height index");
+        }
+    }
+
+    // The stake and delegate index is needed for MPoS, update it while MPoS is active
+    if(pindex->nHeight <= m_params.GetConsensus().nLastMPoSBlock)
+    {
+        if(block.IsProofOfStake()){
+            // Read the public key from the second output
+            std::vector<unsigned char> vchPubKey;
+            uint160 pkh;
+            if(GetBlockPublicKey(block, vchPubKey))
+            {
+                pkh = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
+                pblocktree->WriteStakeIndex(pindex->nHeight, pkh);
+            }else{
+                pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
+            }
+
+            if(block.HasProofOfDelegation())
+            {
+                uint160 address;
+                uint8_t fee = 0;
+                GetBlockDelegation(block, pkh, address, fee, view);
+                pblocktree->WriteDelegateIndex(pindex->nHeight, address, fee);
+            }
+        }else{
+            pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
+        }
     }
 
     assert(pindex->phashBlock);
@@ -3470,11 +3624,19 @@ bool CChainState::ConnectTip(BlockValidationState& state, CBlockIndex* pindexNew
     LogPrint(BCLog::BENCH, "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * MILLI, nTimeReadFromDisk * MICRO);
     {
         CCoinsViewCache view(&CoinsTip());
+
+        dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+        dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
+
         bool rv = ConnectBlock(blockConnecting, state, pindexNew, view);
         GetMainSignals().BlockChecked(blockConnecting, state);
         if (!rv) {
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
+
+            globalState->setRoot(oldHashStateRoot); // qtum
+            globalState->setRootUTXO(oldHashUTXORoot); // qtum
+            pstorageresult->clearCacheResult();
             return error("%s: ConnectBlock %s failed, %s", __func__, pindexNew->GetBlockHash().ToString(), state.ToString());
         }
         nTime3 = GetTimeMicros(); nTimeConnectTotal += nTime3 - nTime2;
@@ -4029,6 +4191,8 @@ CBlockIndex* BlockManager::AddToBlockIndex(const CBlockHeader& block)
     // competitive advantage.
     pindexNew->nSequenceId = 0;
     BlockMap::iterator mi = m_block_index.insert(std::make_pair(hash, pindexNew)).first;
+    if (pindexNew->IsProofOfStake())
+        setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nTime));
     pindexNew->phashBlock = &((*mi).first);
     BlockMap::iterator miPrev = m_block_index.find(block.hashPrevBlock);
     if (miPrev != m_block_index.end())
@@ -4039,6 +4203,7 @@ CBlockIndex* BlockManager::AddToBlockIndex(const CBlockHeader& block)
     }
     pindexNew->nTimeMax = (pindexNew->pprev ? std::max(pindexNew->pprev->nTimeMax, pindexNew->nTime) : pindexNew->nTime);
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
+    pindexNew->nStakeModifier = ComputeStakeModifier(pindexNew->pprev, block.IsProofOfWork() ? hash : block.prevoutStake.hash);
     pindexNew->RaiseValidity(BLOCK_VALID_TREE);
     if (pindexBestHeader == nullptr || pindexBestHeader->nChainWork < pindexNew->nChainWork)
         pindexBestHeader = pindexNew;
