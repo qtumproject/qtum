@@ -4510,7 +4510,7 @@ bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensu
 
     // Check that the header is valid (particularly PoW).  This is mostly
     // redundant with the call in AcceptBlockHeader.
-    if (!CheckBlockHeader(block, state, consensusParams, chainstate, fCheckPOW))
+    if (!CheckBlockHeader(block, state, consensusParams, chainstate, fCheckPOW, false))
         return false;
 
     if (block.IsProofOfStake() &&  block.GetBlockTime() > FutureDrift(GetAdjustedTime(), chainstate.m_chain.Height() + 1, consensusParams))
@@ -4719,15 +4719,15 @@ bool BlockManager::CheckSync(int nHeight, const CBlockIndex *pindexBest)
  *  in ConnectBlock().
  *  Note that -reindex-chainstate skips the validation that happens here!
  */
-static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidationState& state, BlockManager& blockman, const CChainParams& params, const CBlockIndex* pindexPrev, int64_t nAdjustedTime) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
+static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidationState& state, BlockManager& blockman, const CChainParams& params, const CBlockIndex* pindexPrev, int64_t nAdjustedTime, CChain& chain) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
     assert(pindexPrev != nullptr);
     const int nHeight = pindexPrev->nHeight + 1;
 
     // Check proof of work
     const Consensus::Params& consensusParams = params.GetConsensus();
-    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
-        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
+    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams, block.IsProofOfStake()))
+        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect difficulty value");
 
     // Check against checkpoints
     if (fCheckpointsEnabled) {
@@ -4739,14 +4739,21 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
             LogPrintf("ERROR: %s: forked chain older than last checkpoint (height %d)\n", __func__, nHeight);
             return state.Invalid(BlockValidationResult::BLOCK_CHECKPOINT, "bad-fork-prior-to-checkpoint");
         }
+        if(!blockman.CheckHardened(nHeight, block.GetHash(), params.Checkpoints())) {
+            return state.Invalid(BlockValidationResult::BLOCK_CHECKPOINT, "bad-fork-hardened-checkpoint", strprintf("%s: expected hardened checkpoint at height %d", __func__, nHeight));
+        }
     }
 
+    // Check that the block satisfies synchronized checkpoint
+    if (!blockman.CheckSync(nHeight, chain.Tip()))
+        return state.Invalid(BlockValidationResult::BLOCK_HEADER_SYNC, "bad-fork-prior-to-synch-checkpoint", strprintf("%s: forked chain older than synchronized checkpoint (height %d)", __func__, nHeight));
+
     // Check timestamp against prev
-    if (block.GetBlockTime() <= pindexPrev->GetMedianTimePast())
+    if (pindexPrev && block.IsProofOfStake() && block.GetBlockTime() <= pindexPrev->GetMedianTimePast())
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "time-too-old", "block's timestamp is too early");
 
     // Check timestamp
-    if (block.GetBlockTime() > nAdjustedTime + MAX_FUTURE_BLOCK_TIME)
+    if (block.IsProofOfStake() && block.GetBlockTime() > FutureDrift(nAdjustedTime, nHeight, consensusParams))
         return state.Invalid(BlockValidationResult::BLOCK_TIME_FUTURE, "time-too-new", "block timestamp too far in the future");
 
     // Reject blocks with outdated version
@@ -4956,7 +4963,7 @@ bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationS
             LogPrintf("ERROR: %s: prev block invalid\n", __func__);
             return state.Invalid(BlockValidationResult::BLOCK_INVALID_PREV, "bad-prevblk");
         }
-        if (!ContextualCheckBlockHeader(block, state, *this, chainparams, pindexPrev, GetAdjustedTime()))
+        if (!ContextualCheckBlockHeader(block, state, *this, chainparams, pindexPrev, GetAdjustedTime(), chainstate.m_chain))
             return error("%s: Consensus::ContextualCheckBlockHeader: %s, %s", __func__, hash.ToString(), state.ToString());
 
         /* Determine if this block descends from any block which has been found
@@ -5304,13 +5311,20 @@ bool TestBlockValidity(BlockValidationState& state,
     indexDummy.phashBlock = &block_hash;
 
     // NOTE: CheckBlockHeader is called by CheckBlock
-    if (!ContextualCheckBlockHeader(block, state, chainstate.m_blockman, chainparams, pindexPrev, GetAdjustedTime()))
+    if (!ContextualCheckBlockHeader(block, state, chainstate.m_blockman, chainparams, pindexPrev, GetAdjustedTime(), chainstate.m_chain))
         return error("%s: Consensus::ContextualCheckBlockHeader: %s", __func__, state.ToString());
     if (!CheckBlock(block, state, chainparams.GetConsensus(), chainstate, fCheckPOW, fCheckMerkleRoot))
         return error("%s: Consensus::CheckBlock: %s", __func__, state.ToString());
     if (!ContextualCheckBlock(block, state, chainparams.GetConsensus(), pindexPrev))
         return error("%s: Consensus::ContextualCheckBlock: %s", __func__, state.ToString());
+
+    dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
+
     if (!chainstate.ConnectBlock(block, state, &indexDummy, viewNew, true)) {
+        globalState->setRoot(oldHashStateRoot); // qtum
+        globalState->setRootUTXO(oldHashUTXORoot); // qtum
+        pstorageresult->clearCacheResult();
         return false;
     }
     assert(state.IsValid());
@@ -5666,6 +5680,13 @@ bool CVerifyDB::VerifyDB(
     int nGoodTransactions = 0;
     BlockValidationState state;
     int reportDone = 0;
+
+////////////////////////////////////////////////////////////////////////// // qtum
+    dev::h256 oldHashStateRoot(globalState->rootHash());
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
+    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+//////////////////////////////////////////////////////////////////////////
+
     LogPrintf("[0%%]..."); /* Continued */
 
     const bool is_snapshot_cs{!chainstate.m_from_snapshot_blockhash};
@@ -5686,12 +5707,19 @@ bool CVerifyDB::VerifyDB(
             LogPrintf("VerifyDB(): block verification stopping at height %d (pruning, no data)\n", pindex->nHeight);
             break;
         }
+
+        ///////////////////////////////////////////////////////////////////// // qtum
+        uint32_t sizeBlockDGP = qtumDGP.getBlockSize(pindex->nHeight);
+        dgpMaxBlockSize = sizeBlockDGP ? sizeBlockDGP : dgpMaxBlockSize;
+        updateBlockSizeParams(dgpMaxBlockSize);
+        /////////////////////////////////////////////////////////////////////
+
         CBlock block;
         // check level 0: read from disk
         if (!ReadBlockFromDisk(block, pindex, chainparams.GetConsensus()))
             return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
         // check level 1: verify block validity
-        if (nCheckLevel >= 1 && !CheckBlock(block, state, chainparams.GetConsensus(), chainstate))
+        if (nCheckLevel >= 1 && !CheckBlock(block, state, chainparams.GetConsensus(), chainstate,false))
             return error("%s: *** found bad block at %d, hash=%s (%s)\n", __func__,
                          pindex->nHeight, pindex->GetBlockHash().ToString(), state.ToString());
         // check level 2: verify undo validity
@@ -5742,11 +5770,21 @@ bool CVerifyDB::VerifyDB(
             CBlock block;
             if (!ReadBlockFromDisk(block, pindex, chainparams.GetConsensus()))
                 return error("VerifyDB(): *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
+
+            dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+            dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
+
             if (!chainstate.ConnectBlock(block, state, pindex, coins)) {
+                globalState->setRoot(oldHashStateRoot); // qtum
+                globalState->setRootUTXO(oldHashUTXORoot); // qtum
+                pstorageresult->clearCacheResult();
                 return error("VerifyDB(): *** found unconnectable block at %d, hash=%s (%s)", pindex->nHeight, pindex->GetBlockHash().ToString(), state.ToString());
             }
             if (ShutdownRequested()) return true;
         }
+    } else {
+        globalState->setRoot(oldHashStateRoot); // qtum
+        globalState->setRootUTXO(oldHashUTXORoot); // qtum
     }
 
     LogPrintf("[DONE].\n");
@@ -5935,6 +5973,7 @@ bool CChainState::LoadGenesisBlock()
         if (blockPos.IsNull())
             return error("%s: writing genesis block to disk failed", __func__);
         CBlockIndex *pindex = m_blockman.AddToBlockIndex(block);
+        pindex->hashProof = m_params.GetConsensus().hashGenesisBlock;
         ReceivedBlockTransactions(block, pindex, blockPos);
     } catch (const std::runtime_error& e) {
         return error("%s: failed to write genesis block: %s", __func__, e.what());
@@ -6016,8 +6055,10 @@ void CChainState::LoadExternalBlockFile(FILE* fileIn, FlatFilePos* dbp)
                     }
                 }
 
-                // Activate the genesis block so normal node progress can continue
-                if (hash == m_params.GetConsensus().hashGenesisBlock) {
+                // In Bitcoin this only needed to be done for genesis and at the end of block indexing
+                // But for Qtum PoS we need to sync this after every block to ensure txdb is populated for
+                // validating PoS proofs
+                {
                     BlockValidationState state;
                     if (!ActivateBestChain(state, nullptr)) {
                         break;
