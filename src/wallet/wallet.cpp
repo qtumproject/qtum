@@ -2225,7 +2225,7 @@ bool CWallet::CreateCoinStakeFromMine(const FillableSigningProvider& keystore, u
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
         COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, chain().getCoinsTip(), cache, chain().chainman()))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, chain().getCoinsTip(), cache, chain().chainman().ActiveChain()))
         {
             // Found a kernel
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
@@ -2429,7 +2429,7 @@ bool CWallet::CreateCoinStakeFromDelegate(const FillableSigningProvider &keystor
         boost::this_thread::interruption_point();
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, chain().getCoinsTip(), cache, chain().chainman()))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, chain().getCoinsTip(), cache, chain().chainman().ActiveChain()))
         {
             // Found a kernel
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
@@ -2437,7 +2437,7 @@ bool CWallet::CreateCoinStakeFromDelegate(const FillableSigningProvider &keystor
 
             Coin coinPrev;
             if(!chain().getUnspentOutput(prevoutStake, coinPrev)){
-                if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev, chain().chainman())) {
+                if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev, chain().chainman().ActiveChain())) {
                     return error("CreateCoinStake: Could not find coin and it was not at the tip");
                 }
             }
