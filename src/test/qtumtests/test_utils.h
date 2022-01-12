@@ -67,7 +67,7 @@ inline std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::
     CBlock block(generateBlock());
     QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainman.ActiveChain().Tip()->nHeight + 1);
-    ByteCodeExec exec(block, txs, blockGasLimit, chainman.ActiveChain().Tip(), chainman);
+    ByteCodeExec exec(block, txs, blockGasLimit, chainman.ActiveChain().Tip(), chainman.ActiveChain());
     exec.performByteCode();
     std::vector<ResultExecute> res = exec.getResult();
     ByteCodeExecResult bceExecRes;

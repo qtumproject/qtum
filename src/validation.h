@@ -208,7 +208,7 @@ void StopScriptCheckWorkerThreads();
  * @param[out] hashBlock       The hash of block_index, if the tx was found via block_index
  * @returns                    The tx if found, otherwise nullptr
  */
-CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, const Consensus::Params& consensusParams, uint256& hashBlock, bool fAllowSlow = false);
+CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, const Consensus::Params& consensusParams, uint256& hashBlock, CChainState* chainstate = nullptr);
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams);
 
 bool AbortNode(BlockValidationState& state, const std::string& strMessage, const bilingual_str& userMessage = bilingual_str{});
@@ -470,7 +470,7 @@ bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
 
 bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);
 
-void writeVMlog(const std::vector<ResultExecute>& res, ChainstateManager &chainman, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+void writeVMlog(const std::vector<ResultExecute>& res, CChain& chain, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
 
 std::string exceptedMessage(const dev::eth::TransactionException& excepted, const dev::bytes& output);
 
@@ -501,7 +501,7 @@ class QtumTxConverter{
 
 public:
 
-    QtumTxConverter(CTransaction tx, const CTxMemPool& _mempool, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL, unsigned int flags = SCRIPT_EXEC_BYTE_CODE) : txBit(tx), view(v), blockTransactions(blockTxs), sender(false), nFlags(flags), mempool(_mempool){}
+    QtumTxConverter(CTransaction tx, CChainState& _chainstate, const CTxMemPool* _mempool, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL, unsigned int flags = SCRIPT_EXEC_BYTE_CODE) : txBit(tx), view(v), blockTransactions(blockTxs), sender(false), nFlags(flags), chainstate(_chainstate), mempool(_mempool){}
 
     bool extractionQtumTransactions(ExtractQtumTX& qtumTx);
 
@@ -523,7 +523,8 @@ private:
     bool sender;
     dev::Address refundSender;
     unsigned int nFlags;
-    const CTxMemPool& mempool;
+    CChainState& chainstate;
+    const CTxMemPool* mempool;
 };
 
 class LastHashes: public dev::eth::LastBlockHashesFace
@@ -545,7 +546,7 @@ class ByteCodeExec {
 
 public:
 
-    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs, const uint64_t _blockGasLimit, CBlockIndex* _pindex, ChainstateManager& _chainman) : txs(_txs), block(_block), blockGasLimit(_blockGasLimit), pindex(_pindex), chainman(_chainman) {}
+    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs, const uint64_t _blockGasLimit, CBlockIndex* _pindex, CChain& _chain) : txs(_txs), block(_block), blockGasLimit(_blockGasLimit), pindex(_pindex), chain(_chain) {}
 
     bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
 
@@ -571,7 +572,7 @@ private:
 
     LastHashes lastHashes;
 
-    ChainstateManager& chainman;
+    CChain& chain;
 };
 
 enum DisconnectResult

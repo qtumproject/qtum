@@ -94,7 +94,7 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
     std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit, nAmount);
 
     if(fRecordLogOpcodes){
-        writeVMlog(execResults, chainman);
+        writeVMlog(execResults, chainman.ActiveChain());
     }
 
     UniValue result(UniValue::VOBJ);
