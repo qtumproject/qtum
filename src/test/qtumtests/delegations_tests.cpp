@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(checking_delegations_contract){
     // Get delegation for address
     Delegation delegation;
     uint160 address(ParseHex(DELEGATE_ADDRESS_HEX));
-    bool contractRet = qtumDelegation.GetDelegation(address, delegation);
+    bool contractRet = qtumDelegation.GetDelegation(address, delegation, m_node.chainman->ActiveChainstate());
     BOOST_CHECK(contractRet == true);
 
     // Verify delegation is valid
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(checking_delegations_contract){
 
     // Get delegation for address
     delegation = Delegation();
-    contractRet = qtumDelegation.GetDelegation(address, delegation);
+    contractRet = qtumDelegation.GetDelegation(address, delegation, m_node.chainman->ActiveChainstate());
     BOOST_CHECK(contractRet == true);
 
     // Verify delegation is valid

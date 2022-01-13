@@ -987,7 +987,7 @@ public:
             {
                 PKHash keyID = std::get<PKHash>(dest);
                 uint160 address(keyID);
-                contractRet = m_qtumDelegation.ExistDelegationContract() ? m_qtumDelegation.GetDelegation(address, delegation) : false;
+                contractRet = m_qtumDelegation.ExistDelegationContract() ? m_qtumDelegation.GetDelegation(address, delegation, m_wallet->chain().chainman().ActiveChainstate()) : false;
                 if(contractRet)
                 {
                     validated = m_qtumDelegation.VerifyDelegation(address, delegation);
@@ -1051,7 +1051,7 @@ public:
         {
             PKHash keyID = std::get<PKHash>(dest);
             uint160 address(keyID);
-            details.c_contract_return = m_qtumDelegation.ExistDelegationContract() ? m_qtumDelegation.GetDelegation(address, delegation) : false;
+            details.c_contract_return = m_qtumDelegation.ExistDelegationContract() ? m_qtumDelegation.GetDelegation(address, delegation, m_wallet->chain().chainman().ActiveChainstate()) : false;
             if(details.c_contract_return)
             {
                 details.c_entry_exist = m_qtumDelegation.VerifyDelegation(address, delegation);

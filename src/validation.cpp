@@ -760,7 +760,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
             return state.Invalid(TxValidationResult::TX_INVALID_SENDER_SCRIPT, "bad-txns-invalid-sender-script");
         }
 
-        QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+        QtumDGP qtumDGP(globalState.get(), m_active_chainstate, fGettingValuesDGP);
         uint64_t minGasPrice = qtumDGP.getMinGasPrice(m_active_chainstate.m_chain.Tip()->nHeight + 1);
         uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(m_active_chainstate.m_chain.Tip()->nHeight + 1);
         size_t count = 0;
@@ -2196,8 +2196,46 @@ bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
     return true;
 }
 
-std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount){
-    return std::vector<ResultExecute>();
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, CChainState& chainstate, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount){
+    CBlock block;
+    CMutableTransaction tx;
+
+    CBlockIndex* pblockindex = chainstate.m_blockman.m_block_index[chainstate.m_chain.Tip()->GetBlockHash()];
+    ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
+    block.nTime = GetAdjustedTime();
+
+    if(block.IsProofOfStake())
+    	block.vtx.erase(block.vtx.begin()+2,block.vtx.end());
+    else
+    	block.vtx.erase(block.vtx.begin()+1,block.vtx.end());
+
+    QtumDGP qtumDGP(globalState.get(), chainstate, fGettingValuesDGP);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainstate.m_chain.Tip()->nHeight + 1);
+
+    if(gasLimit == 0){
+        gasLimit = blockGasLimit - 1;
+    }
+    dev::Address senderAddress = sender == dev::Address() ? dev::Address("ffffffffffffffffffffffffffffffffffffffff") : sender;
+    tx.vout.push_back(CTxOut(nAmount, CScript() << OP_DUP << OP_HASH160 << senderAddress.asBytes() << OP_EQUALVERIFY << OP_CHECKSIG));
+    block.vtx.push_back(MakeTransactionRef(CTransaction(tx)));
+    dev::u256 nonce = globalState->getNonce(senderAddress);
+ 
+    QtumTransaction callTransaction;
+    if(addrContract == dev::Address())
+    {
+        callTransaction = QtumTransaction(nAmount, 1, dev::u256(gasLimit), opcode, nonce);
+    }
+    else
+    {
+        callTransaction = QtumTransaction(nAmount, 1, dev::u256(gasLimit), addrContract, opcode, nonce);
+    }
+    callTransaction.forceSender(senderAddress);
+    callTransaction.setVersion(VersionVM::GetEVMDefault());
+
+    
+    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, callTransaction), blockGasLimit, pblockindex, chainstate.m_chain);
+    exec.performByteCode(dev::eth::Permanence::Reverted);
+    return exec.getResult();
 }
 
 bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice){
@@ -2651,7 +2689,7 @@ size_t QtumTxConverter::correctedStackSize(size_t size){
 }
 ///////////////////////////////////////////////////////////////////////
 
-bool CheckDelegationOutput(const CBlock& block, bool& delegateOutputExist, CCoinsViewCache& view)
+bool CheckDelegationOutput(const CBlock& block, bool& delegateOutputExist, CCoinsViewCache& view, CChainState& chainstate)
 {
     if(block.IsProofOfStake() && block.HasProofOfDelegation())
     {
@@ -2662,7 +2700,7 @@ bool CheckDelegationOutput(const CBlock& block, bool& delegateOutputExist, CCoin
             staker = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
             uint160 address;
             uint8_t fee = 0;
-            if(GetBlockDelegation(block, staker, address, fee, view))
+            if(GetBlockDelegation(block, staker, address, fee, view, chainstate))
             {
                 delegateOutputExist = IsDelegateOutputExist(fee);
                 return true;
@@ -2693,7 +2731,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
     int64_t nTimeStart = GetTimeMicros();
 
     ///////////////////////////////////////////////// // qtum
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    QtumDGP qtumDGP(globalState.get(), *this, fGettingValuesDGP);
     globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(pindex->nHeight + (pindex->nHeight+1 >= m_params.GetConsensus().QIP7Height ? 0 : 1) ));
     uint32_t sizeBlockDGP = qtumDGP.getBlockSize(pindex->nHeight + (pindex->nHeight+1 >= m_params.GetConsensus().QIP7Height ? 0 : 1));
     uint64_t minGasPrice = qtumDGP.getMinGasPrice(pindex->nHeight + (pindex->nHeight+1 >= m_params.GetConsensus().QIP7Height ? 0 : 1));
@@ -2720,7 +2758,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
     }
 
     bool delegateOutputExist = false;
-    if (!CheckDelegationOutput(block, delegateOutputExist, view)) {
+    if (!CheckDelegationOutput(block, delegateOutputExist, view, *this)) {
         return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-delegate-output", strprintf("%s : delegation output check failed", __func__));
     }
 
@@ -3372,7 +3410,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
             {
                 uint160 address;
                 uint8_t fee = 0;
-                GetBlockDelegation(block, pkh, address, fee, view);
+                GetBlockDelegation(block, pkh, address, fee, view, *this);
                 pblocktree->WriteDelegateIndex(pindex->nHeight, address, fee);
             }
         }else{
@@ -4587,7 +4625,7 @@ bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKe
     return false;
 }
 
-bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& address, uint8_t& fee, CCoinsViewCache& view)
+bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& address, uint8_t& fee, CCoinsViewCache& view, CChainState& chainstate)
 {
     // Check block parameters
     if (block.IsProofOfWork())
@@ -4611,7 +4649,7 @@ bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& add
 
     // Get the fee from the delegation contract
     uint8_t inFee = 0;
-    if(!GetDelegationFeeFromContract(address, inFee))
+    if(!GetDelegationFeeFromContract(address, inFee, chainstate))
         return false;
 
     bool delegateOutputExist = IsDelegateOutputExist(inFee);
@@ -5043,7 +5081,7 @@ bool CChainState::UpdateHashProof(const CBlock& block, BlockValidationState& sta
     if (block.IsProofOfStake())
     {
         uint256 targetProofOfStake;
-        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, block.GetProofOfDelegation(), block.prevoutStake, hashProof, targetProofOfStake, view))
+        if (!CheckProofOfStake(pindex->pprev, state, *block.vtx[1], block.nBits, block.nTime, block.GetProofOfDelegation(), block.prevoutStake, hashProof, targetProofOfStake, view, *this))
         {
             return error("UpdateHashProof() : check proof-of-stake failed for block %s", hash.ToString());
         }
@@ -5860,7 +5898,7 @@ bool CVerifyDB::VerifyDB(
 ////////////////////////////////////////////////////////////////////////// // qtum
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    QtumDGP qtumDGP(globalState.get(), chainstate, fGettingValuesDGP);
 //////////////////////////////////////////////////////////////////////////
 
     LogPrintf("[0%%]..."); /* Continued */

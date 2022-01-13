@@ -116,7 +116,7 @@ RPCHelpMan getdgpinfo()
     LOCK(cs_main);
 
     CChain& active_chain = chainman.ActiveChain();
-    QtumDGP qtumDGP(globalState.get());
+    QtumDGP qtumDGP(globalState.get(), chainman.ActiveChainstate());
 
     UniValue obj(UniValue::VOBJ);
     obj.pushKV("maxblocksize", (uint64_t)qtumDGP.getBlockSize(active_chain.Height()));

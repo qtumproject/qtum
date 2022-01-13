@@ -162,7 +162,7 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
 }
 
 // Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, CChainState& chainstate)
 {
     if (!tx.IsCoinStake())
         return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
@@ -210,7 +210,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
         // Get the delegation from the contract
         uint160 address = uint160(ExtractPublicKeyHash(coinHeaderPrev.out.scriptPubKey));
         Delegation delegation;
-        if(!qtumDelegation.GetDelegation(address, delegation)) {
+        if(!qtumDelegation.GetDelegation(address, delegation, chainstate)) {
             return state.Invalid(BlockValidationResult::BLOCK_HEADER_REJECT, "stake-get-delegation-failed", strprintf("CheckProofOfStake() : Failed to get delegation from the delegation contract")); // Internal error, get delegation from the delegation contract
         }
 
@@ -546,11 +546,11 @@ int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin, bool delegateOu
     return (nValueStaker * 100 + nReward - 1) / nReward;
 }
 
-bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee)
+bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, CChainState& chainstate)
 {
     Delegation delegation;
     QtumDelegation& qtumDelegation = GetQtumDelegation();
-    bool ret = qtumDelegation.GetDelegation(address, delegation);
+    bool ret = qtumDelegation.GetDelegation(address, delegation, chainstate);
     if(ret) ret &= qtumDelegation.VerifyDelegation(address, delegation);
     if(ret)
     {

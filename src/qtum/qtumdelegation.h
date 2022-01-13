@@ -9,6 +9,7 @@
 class QtumDelegationPriv;
 class ContractABI;
 class ChainstateManager;
+class CChainState;
 
 extern const std::string strDelegationsABI;
 const ContractABI &DelegationABI();
@@ -108,7 +109,7 @@ public:
      * @param delegation Delegation information for an address
      * @return true/false
      */
-    bool GetDelegation(const uint160& address, Delegation& delegation) const;
+    bool GetDelegation(const uint160& address, Delegation& delegation, CChainState& chainstate) const;
 
     /**
      * @brief VerifyDelegation Verify delegation for an address

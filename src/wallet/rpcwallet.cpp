@@ -943,7 +943,7 @@ void getDgpData(uint64_t& blockGasLimit, uint64_t& minGasPrice, CAmount& nGasPri
     if(globalState.get() && chainman)
     {
         LOCK(cs_main);
-        QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+        QtumDGP qtumDGP(globalState.get(), chainman->ActiveChainstate(), fGettingValuesDGP);
         int height = chainman->ActiveChain().Height();
         blockGasLimit = qtumDGP.getBlockGasLimit(height);
         minGasPrice = CAmount(qtumDGP.getMinGasPrice(height));

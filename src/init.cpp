@@ -1823,7 +1823,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 LOCK(cs_main);
 
                 CChain& active_chain = chainman.ActiveChain();
-                QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+                QtumDGP qtumDGP(globalState.get(), chainman.ActiveChainstate(), fGettingValuesDGP);
                 globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(active_chain.Height() + (active_chain.Height()+1 >= chainparams.GetConsensus().QIP7Height ? 0 : 1) ));
 
                 for (CChainState* chainstate : chainman.GetAll()) {

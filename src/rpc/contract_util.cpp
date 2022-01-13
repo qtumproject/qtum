@@ -91,7 +91,7 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
     }
 
 
-    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit, nAmount);
+    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), chainman.ActiveChainstate(), senderAddress, gasLimit, nAmount);
 
     if(fRecordLogOpcodes){
         writeVMlog(execResults, chainman.ActiveChain());

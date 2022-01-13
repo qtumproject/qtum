@@ -65,7 +65,7 @@ inline QtumTransaction createQtumTransaction(valtype data, dev::u256 value, dev:
 
 inline std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::vector<QtumTransaction> txs, ChainstateManager& chainman){
     CBlock block(generateBlock());
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    QtumDGP qtumDGP(globalState.get(), chainman.ActiveChainstate(), fGettingValuesDGP);
     uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainman.ActiveChain().Tip()->nHeight + 1);
     ByteCodeExec exec(block, txs, blockGasLimit, chainman.ActiveChain().Tip(), chainman.ActiveChain());
     exec.performByteCode();

@@ -34,7 +34,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
 
 // Check kernel hash target and coinstake signature
 // Sets hashProofOfStake on success return
-bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view);
+bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, CChainState& chainstate);
 
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params& consensusParams);
@@ -63,7 +63,7 @@ bool IsDelegateOutputExist(int inFee);
 
 int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin, bool delegateOutputExist);
 
-bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee);
+bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, CChainState& chainstate);
 
 unsigned int GetStakeSplitOutputs();
 

@@ -1683,6 +1683,7 @@ RPCHelpMan getdelegationinfoforaddress()
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
 
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
     LOCK(cs_main);
 
     // Parse the public key hash address
@@ -1702,7 +1703,7 @@ RPCHelpMan getdelegationinfoforaddress()
     Delegation delegation;
     PKHash pkhash = std::get<PKHash>(dest);
     uint160 address = uint160(pkhash);
-    if(!qtumDelegation.GetDelegation(address, delegation)) {
+    if(!qtumDelegation.GetDelegation(address, delegation, chainman.ActiveChainstate())) {
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Failed to get delegation");
     }
     bool verified = qtumDelegation.VerifyDelegation(address, delegation);
