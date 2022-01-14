@@ -594,6 +594,12 @@ bool CWallet::CreateTransactionInternal(
     const OutputType change_type = TransactionChangeType(coin_control.m_change_type ? *coin_control.m_change_type : m_default_change_type, vecSend);
     ReserveDestination reservedest(this, change_type);
     unsigned int outputs_to_subtract_fee_from = 0; // The number of outputs which we are subtracting the fee from
+    COutPoint senderInput;
+    if(hasSender && coin_control.HasSelected()){
+    	std::vector<COutPoint> vSenderInputs;
+    	coin_control.ListSelected(vSenderInputs);
+    	senderInput=vSenderInputs[0];
+    }
     for (const auto& recipient : vecSend) {
         recipients_sum += recipient.nAmount;
 
@@ -698,7 +704,7 @@ bool CWallet::CreateTransactionInternal(
     }
 
     // Include the fees for things that aren't inputs, excluding the change output
-    const CAmount not_input_fees = coin_selection_params.m_effective_feerate.GetFee(coin_selection_params.tx_noinputs_size);
+    const CAmount not_input_fees = coin_selection_params.m_effective_feerate.GetFee(coin_selection_params.tx_noinputs_size)+nGasFee;
     CAmount selection_target = recipients_sum + not_input_fees;
 
     // Get available coins
@@ -708,6 +714,7 @@ bool CWallet::CreateTransactionInternal(
     // Choose coins to use
     CAmount inputs_sum = 0;
     std::set<CInputCoin> setCoins;
+    std::vector<CInputCoin> vCoins;
     if (!SelectCoins(vAvailableCoins, /* nTargetValue */ selection_target, setCoins, inputs_sum, coin_control, coin_selection_params))
     {
         error = _("Insufficient funds");
@@ -718,6 +725,22 @@ bool CWallet::CreateTransactionInternal(
     // We will reduce the fee from this change output later, and remove the output if it is too small.
     const CAmount change_and_fee = inputs_sum - recipients_sum;
     assert(change_and_fee >= 0);
+    if(change_and_fee > 0)
+    { 
+        // send change to existing address
+        if (!m_use_change_address &&
+                !std::holds_alternative<CNoDestination>(coin_control.destChange) &&
+                setCoins.size() > 0)
+        {
+            // setCoins will be added as inputs to the new transaction
+            // Set the first input script as change script for the new transaction
+            auto pcoin = setCoins.begin();
+            scriptChange = pcoin->txout.scriptPubKey;
+
+            change_prototype_txout = CTxOut(0, scriptChange);
+            coin_selection_params.change_output_size = GetSerializeSize(change_prototype_txout);
+        }
+    }
     CTxOut newTxOut(change_and_fee, scriptChange);
 
     if (nChangePosInOut == -1)
@@ -734,9 +757,25 @@ bool CWallet::CreateTransactionInternal(
     assert(nChangePosInOut != -1);
     auto change_position = txNew.vout.insert(txNew.vout.begin() + nChangePosInOut, newTxOut);
 
+    // Move sender input to position 0
+    std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
+    if(hasSender && coin_control.HasSelected()){
+        for (std::vector<CInputCoin>::size_type i = 0 ; i != vCoins.size(); i++){
+            if(vCoins[i].outpoint==senderInput){
+                if(i==0)break;
+                iter_swap(vCoins.begin(),vCoins.begin()+i);
+                break;
+            }
+        }
+    }
+
     // Shuffle selected coins and fill in final vin
-    std::vector<CInputCoin> selected_coins(setCoins.begin(), setCoins.end());
-    Shuffle(selected_coins.begin(), selected_coins.end(), FastRandomContext());
+    std::vector<CInputCoin> selected_coins(vCoins.begin(), vCoins.end());
+    int shuffleOffset = 0;
+    if(hasSender && coin_control.HasSelected() && selected_coins.size() > 0 && selected_coins[0].outpoint==senderInput){
+        shuffleOffset = 1;
+    }
+    Shuffle(selected_coins.begin() + shuffleOffset, selected_coins.end(), FastRandomContext());
 
     // Note how the sequence number is set to non-maxint so that
     // the nLockTime set above actually works.
@@ -758,7 +797,7 @@ bool CWallet::CreateTransactionInternal(
         error = _("Signing transaction failed");
         return false;
     }
-    nFeeRet = coin_selection_params.m_effective_feerate.GetFee(nBytes);
+    nFeeRet = coin_selection_params.m_effective_feerate.GetFee(nBytes)+nGasFee;
 
     // Subtract fee from the change output if not subtracting it from recipient outputs
     CAmount fee_needed = nFeeRet;
@@ -779,7 +818,7 @@ bool CWallet::CreateTransactionInternal(
         // Because we have dropped this change, the tx size and required fee will be different, so let's recalculate those
         tx_sizes = CalculateMaximumSignedTxSize(CTransaction(txNew), this, coin_control.fAllowWatchOnly);
         nBytes = tx_sizes.vsize;
-        fee_needed = coin_selection_params.m_effective_feerate.GetFee(nBytes);
+        fee_needed = coin_selection_params.m_effective_feerate.GetFee(nBytes)+nGasFee;
     }
 
     // The only time that fee_needed should be less than the amount available for fees (in change_and_fee - change_amount) is when
@@ -833,6 +872,36 @@ bool CWallet::CreateTransactionInternal(
         return false;
     }
 
+    if (sign)
+    {
+        // Signing transaction outputs
+        int nOut = 0;
+        for (const auto& output : txNew.vout)
+        {
+            if(output.scriptPubKey.HasOpSender())
+            {
+                const CScript& scriptPubKey = GetScriptForDestination(signSenderAddress);
+                SignatureData sigdata;
+
+                auto spk_man = GetLegacyScriptPubKeyMan();
+                if (!ProduceSignature(*spk_man, MutableTransactionSignatureOutputCreator(&txNew, nOut, output.nValue, SIGHASH_ALL), scriptPubKey, sigdata))
+                {
+                    error = _("Signing transaction output failed");
+                    return false;
+                }
+                else
+                {
+                    if(!UpdateOutput(txNew.vout.at(nOut), sigdata))
+                    {
+                        error = _("Update transaction output failed");
+                        return false;
+                    }
+                }
+            }
+            nOut++;
+        }
+    }
+
     if (sign && !SignTransaction(txNew)) {
         error = _("Signing transaction failed");
         return false;
@@ -849,7 +918,7 @@ bool CWallet::CreateTransactionInternal(
         return false;
     }
 
-    if (nFeeRet > m_default_max_tx_fee) {
+    if (!tx->HasCreateOrCall() && nFeeRet > m_default_max_tx_fee) {
         error = TransactionErrorString(TransactionError::MAX_FEE_EXCEEDED);
         return false;
     }
