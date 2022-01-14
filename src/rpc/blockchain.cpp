@@ -1020,7 +1020,7 @@ static RPCHelpMan getstorage()
                 "\nGet contract storage data.\n",
                 {
                     {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"blockNum", RPCArg::Type::NUM,  RPCArg::Default{"latest"}, "Number of block to get state from."},
+                    {"blockNum", RPCArg::Type::NUM,  RPCArg::Default{-1}, "Number of block to get state from."},
                     {"index", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Zero-based index position of the storage"},
                 },
                 RPCResult{
@@ -1389,10 +1389,10 @@ RPCHelpMan waitforlogs()
                 "By calling waitforlogs repeatedly using the returned `nextBlock` number, a client can receive a stream of up-to-date log entires.\n"
                 "\nThis call is different from the similarly named `searchlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n",
                 {
-                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Default{"null"}, "The block number to start looking for logs."},
-                    {"toBlock", RPCArg::Type::NUM, RPCArg::Default{"null"}, "The block number to stop looking for logs. If null, will wait indefinitely into the future."},
+                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The block number to start looking for logs."},
+                    {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The block number to stop looking for logs. If null, will wait indefinitely into the future."},
                     {"filter", RPCArg::Type::STR, RPCArg::Default{"{}"}, "\"{ addresses?: Hex160String[], topics?: Hex256String[] }\", Filter conditions for logs."},
-                    {"minconf", RPCArg::Type::NUM, RPCArg::Default{"6"}, "Minimal number of confirmations before a log is returned"},
+                    {"minconf", RPCArg::Type::NUM, RPCArg::Default{6}, "Minimal number of confirmations before a log is returned"},
                 },
                 RPCResult{RPCResult::Type::STR, "", 
                 "An object with the following properties:\n"
@@ -1844,8 +1844,8 @@ RPCHelpMan listcontracts()
     return RPCHelpMan{"listcontracts",
                 "\nGet the contracts list.\n",
                 {
-                    {"start", RPCArg::Type::NUM, RPCArg::Default{"1"}, "The starting account index"},
-                    {"maxDisplay", RPCArg::Type::NUM, RPCArg::Default{"20"}, "Max accounts to list"},
+                    {"start", RPCArg::Type::NUM, RPCArg::Default{1}, "The starting account index"},
+                    {"maxDisplay", RPCArg::Type::NUM, RPCArg::Default{20}, "Max accounts to list"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -3725,8 +3725,8 @@ static RPCHelpMan qrc20listtransactions()
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
-                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Default{"0"}, "The number of the earliest block."},
-                    {"minconf", RPCArg::Type::NUM, RPCArg::Default{"6"}, "Minimal number of confirmations."},
+                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Default{0}, "The number of the earliest block."},
+                    {"minconf", RPCArg::Type::NUM, RPCArg::Default{6}, "Minimal number of confirmations."},
                 },
                RPCResult{
             RPCResult::Type::ARR, "", "",

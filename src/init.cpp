@@ -1988,6 +1988,8 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
         ThreadImport(chainman, vImportFiles, args);
     });
 
+    node.peerman->InitCleanBlockIndex();
+
     // Wait for genesis block to be processed
     {
         WAIT_LOCK(g_genesis_wait_mutex, lock);

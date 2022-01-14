@@ -307,6 +307,7 @@ public:
     void Misbehaving(const NodeId pnode, const int howmuch, const std::string& message) override;
     void ProcessMessage(CNode& pfrom, const std::string& msg_type, CDataStream& vRecv,
                         const std::chrono::microseconds time_received, const std::atomic<bool>& interruptMsgProc) override;
+    void InitCleanBlockIndex() override;
 
 private:
     void _RelayTransaction(const uint256& txid, const uint256& wtxid)
@@ -1583,9 +1584,6 @@ PeerManagerImpl::PeerManagerImpl(const CChainParams& chainparams, CConnman& conn
     // schedule next run for 10-15 minutes in the future
     const std::chrono::milliseconds delta = std::chrono::minutes{10} + GetRandMillis(std::chrono::minutes{5});
     scheduler.scheduleFromNow([&] { ReattemptInitialBroadcast(scheduler); }, delta);
-
-    if(gArgs.GetBoolArg("-cleanblockindex", DEFAULT_CLEANBLOCKINDEX))
-        threadGroup.create_thread([this]{CleanBlockIndex();});
 }
 
 PeerManagerImpl::~PeerManagerImpl()
@@ -5411,6 +5409,12 @@ void PeerManagerImpl::CleanBlockIndex()
         for(unsigned int i = 0; (i < cleanTimeout) && !ShutdownRequested(); i++)
             UninterruptibleSleep(std::chrono::seconds{1});
     }
+}
+
+void PeerManagerImpl::InitCleanBlockIndex()
+{
+    if(gArgs.GetBoolArg("-cleanblockindex", DEFAULT_CLEANBLOCKINDEX))
+        threadGroup.create_thread([this]{CleanBlockIndex();});
 }
 
 unsigned int GefaultHeaderSpamFilterMaxSize()

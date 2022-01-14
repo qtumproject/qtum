@@ -92,7 +92,7 @@ void SetLoggingOptions(const ArgsManager& args)
 #endif
     LogInstance().m_log_sourcelocations = args.GetBoolArg("-logsourcelocations", DEFAULT_LOGSOURCELOCATIONS);
     LogInstance().m_show_evm_logs = args.GetBoolArg("-showevmlogs", DEFAULT_SHOWEVMLOGS);
-    dev::g_logPost = [&](std::string const& s, char const* c){ LogInstance().LogPrintStr(s + '\n', c, "", 0, true); };
+    dev::g_logPost = [&](std::string const& s, char const* c){ LogInstance().LogPrintStr(s + '\n', c ? c : "", "", 0, true); };
 
     fLogIPs = args.GetBoolArg("-logips", DEFAULT_LOGIPS);
 }
