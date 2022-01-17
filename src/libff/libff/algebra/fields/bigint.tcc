@@ -13,6 +13,9 @@
 #include <cstring>
 #include <random>
 
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-variable"
+
 namespace libff {
 
 template<mp_size_t n>

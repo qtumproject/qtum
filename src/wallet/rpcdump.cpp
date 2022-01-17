@@ -939,6 +939,10 @@ static std::string RecurseImportData(const CScript& script, ImportData& import_d
     case TxoutType::NONSTANDARD:
     case TxoutType::WITNESS_UNKNOWN:
     case TxoutType::WITNESS_V1_TAPROOT:
+    case TxoutType::CREATE_SENDER:
+    case TxoutType::CALL_SENDER:
+    case TxoutType::CREATE:
+    case TxoutType::CALL:
         return "unrecognized script";
     } // no default case, so the compiler can warn about missing cases
     CHECK_NONFATAL(false);

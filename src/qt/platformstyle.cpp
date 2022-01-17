@@ -288,6 +288,7 @@ QIcon PlatformStyle::MultiStatesIconV1(const QString &resourcename, PlatformStyl
     case PushButtonLight:
     {
         color = multiStatesIconColor3;
+        [[fallthrough]];
     }
     case PushButtonIcon:
     case PushButton:

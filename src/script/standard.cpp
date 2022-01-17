@@ -499,6 +499,10 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet,
     case TxoutType::MULTISIG:
     case TxoutType::NULL_DATA:
     case TxoutType::NONSTANDARD:
+    case TxoutType::CREATE_SENDER:
+    case TxoutType::CALL_SENDER:
+    case TxoutType::CREATE:
+    case TxoutType::CALL:
         return false;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
