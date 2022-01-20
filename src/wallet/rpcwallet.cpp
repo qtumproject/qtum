@@ -1561,19 +1561,24 @@ static RPCHelpMan sendtocontract()
                         {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
                         {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                         {"senderAddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The qtum address that will be used as sender."},
-                        {"broadcast", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Whether to broadcast the transaction or not."},
-                        {"changeToSender", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Return the change to the sender."},
+                        {"broadcast", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Whether to broadcast the transaction or not, default: true."},
+                        {"changeToSender", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Return the change to the sender, default: true."},
                     },
-                    RPCResult{
-                        RPCResult::Type::ARR, "", "",
-                        {
-                            {RPCResult::Type::OBJ, "", "",
+                    {
+                        RPCResult{"if broadcast is set to true",
+                            RPCResult::Type::OBJ, "", "",
                             {
                                 {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
                                 {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
-                                {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"},
-                            }},
-                        }
+                                {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"}
+                            },
+                        },
+                        RPCResult{"if broadcast is set to false",
+                            RPCResult::Type::OBJ, "", "",
+                            {
+                                {RPCResult::Type::STR_HEX, "raw transaction", "The hex string of the raw transaction"}
+                            },
+                        },
                     },
                     RPCExamples{
                     HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\"")
@@ -1609,14 +1614,11 @@ static RPCHelpMan removedelegationforaddress()
                         {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     },
                     RPCResult{
-                        RPCResult::Type::ARR, "", "",
+                        RPCResult::Type::OBJ, "", "",
                         {
-                            {RPCResult::Type::OBJ, "", "",
-                            {
-                                {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
-                                {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
-                                {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"},
-                            }},
+                            {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                            {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
+                            {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"}
                         }
                     },
                     RPCExamples{
@@ -1673,14 +1675,11 @@ static RPCHelpMan setdelegateforaddress()
                         {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     },
                     RPCResult{
-                        RPCResult::Type::ARR, "", "",
+                        RPCResult::Type::OBJ, "", "",
                         {
-                            {RPCResult::Type::OBJ, "", "",
-                            {
-                                {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
-                                {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
-                                {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"},
-                            }},
+                            {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                            {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
+                            {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"}
                         }
                     },
                     RPCExamples{
