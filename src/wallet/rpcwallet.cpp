@@ -968,20 +968,25 @@ static RPCHelpMan createcontract()
                     {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
                     {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice QTUM price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"senderAddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The qtum address that will be used to create the contract."},
-                    {"broadcast", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Whether to broadcast the transaction or not."},
-                    {"changeToSender", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Return the change to the sender."},
+                    {"broadcast", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Whether to broadcast the transaction or not, default: true."},
+                    {"changeToSender", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Return the change to the sender, default: true."},
                 },
-                RPCResult{
-                    RPCResult::Type::ARR, "", "",
-                    {
-                        {RPCResult::Type::OBJ, "", "",
+                {
+                    RPCResult{"if broadcast is set to true",
+                        RPCResult::Type::OBJ, "", "",
                         {
                             {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
                             {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
                             {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"},
-                            {RPCResult::Type::STR, "address", "Expected contract address"},
-                        }},
-                    }
+                            {RPCResult::Type::STR, "address", "Expected contract address"}
+                        },
+                    },
+                    RPCResult{"if broadcast is set to false",
+                        RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR_HEX, "raw transaction", "The hex string of the raw transaction"}
+                        },
+                    },
                 },
                 RPCExamples{
                 HelpExampleCli("createcontract", "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\"")
@@ -992,7 +997,7 @@ static RPCHelpMan createcontract()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
     int height = 0;
     getDgpData(blockGasLimit, minGasPrice, nGasPrice, &height, &chainman);
 
@@ -1579,7 +1584,7 @@ static RPCHelpMan sendtocontract()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
@@ -1623,7 +1628,7 @@ static RPCHelpMan removedelegationforaddress()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
@@ -1687,7 +1692,7 @@ static RPCHelpMan setdelegateforaddress()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
@@ -6064,7 +6069,7 @@ static RPCHelpMan send()
 
             std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
             if (!pwallet) return NullUniValue;
-            ChainstateManager& chainman = EnsureAnyChainman(request.context);
+            ChainstateManager& chainman = pwallet->chain().chainman();
 
             UniValue options{request.params[4].isNull() ? UniValue::VOBJ : request.params[4]};
             if (options.exists("conf_target") || options.exists("estimate_mode")) {
@@ -6389,7 +6394,7 @@ static RPCHelpMan walletcreatefundedpsbt()
 {
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     CWallet& wallet{*pwallet};
     // Make sure the results are valid at least up to the most recent block
@@ -6584,7 +6589,7 @@ static RPCHelpMan qrc20approve()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
@@ -6684,7 +6689,7 @@ static RPCHelpMan qrc20transfer()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
@@ -6795,7 +6800,7 @@ static RPCHelpMan qrc20transferfrom()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
@@ -6905,7 +6910,7 @@ static RPCHelpMan qrc20burn()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
@@ -7014,7 +7019,7 @@ static RPCHelpMan qrc20burnfrom()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
     LOCK(pwallet->cs_wallet);
