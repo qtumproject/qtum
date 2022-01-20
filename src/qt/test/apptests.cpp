@@ -64,7 +64,7 @@ void AppTests::appTests()
 #endif
 
     fs::create_directories([] {
-        BasicTestingSetup test{CBaseChainParams::REGTEST}; // Create a temp data directory to backup the gui settings to
+        BasicTestingSetup test{CBaseChainParams::UNITTEST}; // Create a temp data directory to backup the gui settings to
         return gArgs.GetDataDirNet() / "blocks";
     }());
 

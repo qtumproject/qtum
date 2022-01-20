@@ -20,7 +20,7 @@ void initialize_message()
 {
     static const ECCVerifyHandle ecc_verify_handle;
     ECC_Start();
-    SelectParams(CBaseChainParams::REGTEST);
+    SelectParams(CBaseChainParams::UNITTEST);
 }
 
 FUZZ_TARGET_INIT(message, initialize_message)

@@ -29,7 +29,7 @@ void initialize_key()
 {
     static const ECCVerifyHandle ecc_verify_handle;
     ECC_Start();
-    SelectParams(CBaseChainParams::REGTEST);
+    SelectParams(CBaseChainParams::UNITTEST);
 }
 
 FUZZ_TARGET_INIT(key, initialize_key)

@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     //
     // All tests must use their own testing setup (if needed).
     {
-        BasicTestingSetup dummy{CBaseChainParams::REGTEST};
+        BasicTestingSetup dummy{CBaseChainParams::UNITTEST};
     }
 
     NodeContext node_context;

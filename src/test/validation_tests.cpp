@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(signet_parse_tests)
 //! Test retrieval of valid assumeutxo values.
 BOOST_AUTO_TEST_CASE(test_assumeutxo)
 {
-    const auto params = CreateChainParams(*m_node.args, CBaseChainParams::REGTEST);
+    const auto params = CreateChainParams(*m_node.args, CBaseChainParams::UNITTEST);
 
     // These heights don't have assumeutxo configurations associated, per the contents
     // of chainparams.cpp.
