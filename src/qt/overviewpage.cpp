@@ -463,14 +463,15 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 void OverviewPage::setMonospacedFont(bool use_embedded_font)
 {
     QFont f = GUIUtil::fixedPitchFont(use_embedded_font);
-    f.setWeight(QFont::Bold);
     ui->labelBalance->setFont(f);
     ui->labelUnconfirmed->setFont(f);
     ui->labelImmature->setFont(f);
+    ui->labelStake->setFont(f);
     ui->labelTotal->setFont(f);
     ui->labelWatchAvailable->setFont(f);
     ui->labelWatchPending->setFont(f);
     ui->labelWatchImmature->setFont(f);
+    ui->labelWatchStake->setFont(f);
     ui->labelWatchTotal->setFont(f);
 }
 

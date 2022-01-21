@@ -182,13 +182,11 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 
     QFont embedded_font{GUIUtil::fixedPitchFont(true)};
     ui->embeddedFont_radioButton->setText(ui->embeddedFont_radioButton->text().arg(QFontInfo(embedded_font).family()));
-    embedded_font.setWeight(QFont::Bold);
     ui->embeddedFont_label_1->setFont(embedded_font);
     ui->embeddedFont_label_9->setFont(embedded_font);
 
     QFont system_font{GUIUtil::fixedPitchFont(false)};
     ui->systemFont_radioButton->setText(ui->systemFont_radioButton->text().arg(QFontInfo(system_font).family()));
-    system_font.setWeight(QFont::Bold);
     ui->systemFont_label_1->setFont(system_font);
     ui->systemFont_label_9->setFont(system_font);
     // Checking the embeddedFont_radioButton automatically unchecks the systemFont_radioButton.
