@@ -163,20 +163,20 @@ BOOST_AUTO_TEST_CASE(test_assumeutxo)
 
     // These heights don't have assumeutxo configurations associated, per the contents
     // of chainparams.cpp.
-    std::vector<int> bad_heights{0, 100, 111, 115, 209, 211};
+    std::vector<int> bad_heights{0, 2000, 2011, 2015, 2109, 2111};
 
     for (auto empty : bad_heights) {
         const auto out = ExpectedAssumeutxo(empty, *params);
         BOOST_CHECK(!out);
     }
 
-    const auto out110 = *ExpectedAssumeutxo(110, *params);
-    BOOST_CHECK_EQUAL(out110.hash_serialized.ToString(), "1ebbf5850204c0bdb15bf030f47c7fe91d45c44c712697e4509ba67adb01c618");
-    BOOST_CHECK_EQUAL(out110.nChainTx, 110U);
+    const auto out110 = *ExpectedAssumeutxo(2010, *params);
+    BOOST_CHECK_EQUAL(out110.hash_serialized.ToString(), "f3ad83776715ee9b09a7a43421b6fe17701fb2247370a4ea9fcf0b073639cac9");
+    BOOST_CHECK_EQUAL(out110.nChainTx, 2010U);
 
-    const auto out210 = *ExpectedAssumeutxo(200, *params);
-    BOOST_CHECK_EQUAL(out210.hash_serialized.ToString(), "51c8d11d8b5c1de51543c579736e786aa2736206d1e11e627568029ce092cf62");
-    BOOST_CHECK_EQUAL(out210.nChainTx, 200U);
+    const auto out210 = *ExpectedAssumeutxo(2100, *params);
+    BOOST_CHECK_EQUAL(out210.hash_serialized.ToString(), "677f8902ca481677862d19fbe8c6214f596c8b475aabfe4273361485fc4e6fb4");
+    BOOST_CHECK_EQUAL(out210.nChainTx, 2100U);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

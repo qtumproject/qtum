@@ -204,7 +204,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_activate_snapshot, TestChain100Setup)
     ChainstateManager& chainman = *Assert(m_node.chainman);
 
     size_t initial_size;
-    size_t initial_total_coins{100};
+    size_t initial_total_coins{2000};
 
     // Make some initial assertions about the contents of the chainstate.
     {
@@ -230,7 +230,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_activate_snapshot, TestChain100Setup)
 
     // Mine 10 more blocks, putting at us height 110 where a valid assumeutxo value can
     // be found.
-    constexpr int snapshot_height = 110;
+    constexpr int snapshot_height = 2010;
     mineBlocks(10);
     initial_size += 10;
     initial_total_coins += 10;
@@ -315,7 +315,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_activate_snapshot, TestChain100Setup)
     }
 
     // Mine some new blocks on top of the activated snapshot chainstate.
-    constexpr size_t new_coins{100};
+    constexpr size_t new_coins{2000};
     mineBlocks(new_coins);  // Defined in TestChain100Setup.
 
     {
