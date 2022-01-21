@@ -3695,7 +3695,7 @@ bool CWallet::AddTokenTxEntry(const CTokenTx &tokenTx, bool fFlushOnClose)
         wtokenTx.strLabel = it->second.strLabel;
     }
     int64_t blockTime;
-    uint256 blockHash = chain().getBlockHash(wtokenTx.blockNumber);
+    uint256 blockHash = wtokenTx.blockNumber < 0 ? uint256() : chain().getBlockHash(wtokenTx.blockNumber);
     bool found = !blockHash.IsNull() && chain().findBlock(blockHash, FoundBlock().time(blockTime));
     wtokenTx.nCreateTime = found ? blockTime : chain().getAdjustedTime();
 
