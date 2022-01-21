@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(versionbits_computeblockversion)
         // min_activation_height test, even if we're not using that in a
         // live deployment
         ArgsManager args;
-        args.ForceSetArg("-vbparams", "testdummy:1199145601:1230767999:403200"); // January 1, 2008 - December 31, 2008, min act height 403200
+        args.ForceSetArg("-vbparams", "testdummy:1199145601:1230767999:401760"); // January 1, 2008 - December 31, 2008, min act height 401760
         const auto chainParams = CreateChainParams(args, CBaseChainParams::UNITTEST);
         check_computeblockversion(chainParams->GetConsensus(), Consensus::DEPLOYMENT_TESTDUMMY);
     }
