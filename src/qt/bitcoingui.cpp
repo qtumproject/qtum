@@ -671,6 +671,7 @@ void BitcoinGUI::createToolBars()
 
 void BitcoinGUI::createTitleBars()
 {
+#ifdef ENABLE_WALLET
     if(walletFrame)
     {
         // Create wallet selector
@@ -692,6 +693,7 @@ void BitcoinGUI::createTitleBars()
         walletFrame->setTitleBar(appTitleBar);
         connect(appNavigationBar, SIGNAL(resized(QSize)), appTitleBar, SLOT(on_navigationResized(QSize)));
     }
+#endif // ENABLE_WALLET
 }
 
 void BitcoinGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndHeaderTipInfo* tip_info)
