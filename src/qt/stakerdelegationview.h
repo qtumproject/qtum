@@ -66,6 +66,10 @@ private:
 
     QWidget *createDateRangeWidget();
 
+    GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
+
+    void resizeEvent(QResizeEvent* event) override;
+
 private Q_SLOTS:
     void contextualMenu(const QPoint &);
     void dateRangeChanged();
