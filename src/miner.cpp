@@ -1243,9 +1243,9 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
     return true;
 }
 
-bool SleepStaker(CWallet *pwallet, u_int64_t milliseconds)
+bool SleepStaker(CWallet *pwallet, uint64_t milliseconds)
 {
-    u_int64_t seconds = milliseconds / 1000;
+    uint64_t seconds = milliseconds / 1000;
     milliseconds %= 1000;
 
     for(unsigned int i = 0; i < seconds; i++)
@@ -1482,7 +1482,7 @@ protected:
         return d && d->pwallet && !d->pwallet->IsStakeClosing() && !d->fError;
     }
 
-    bool Sleep(u_int64_t milliseconds)
+    bool Sleep(uint64_t milliseconds)
     {
         return SleepStaker(d->pwallet, milliseconds);
     }
