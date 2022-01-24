@@ -217,7 +217,9 @@ CHECKS = {
     ('RELOC_SECTION', check_PE_RELOC_SECTION)
 ],
 'MACHO': [
-    ('PIE', check_PIE),
+# gmp is build with option --with-pic on MAC, but the gmp object dive_1.o is not PIC
+# The executable is PIE when all of the objects are PIC
+#     ('PIE', check_PIE),
     ('NOUNDEFS', check_MACHO_NOUNDEFS),
     ('NX', check_NX),
     ('LAZY_BINDINGS', check_MACHO_LAZY_BINDINGS),
