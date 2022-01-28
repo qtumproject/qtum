@@ -1024,7 +1024,14 @@ static RPCHelpMan getstorage()
                     {"index", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Zero-based index position of the storage"},
                 },
                 RPCResult{
-                    RPCResult::Type::STR, "", "The storage data of the contract"},
+                    RPCResult::Type::OBJ, "", "The storage data of the contract",
+                    {
+                        {RPCResult::Type::OBJ, "", true, "",
+                        {
+                            {RPCResult::Type::STR_HEX, "", ""},
+                        }},
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
             + HelpExampleRpc("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
@@ -1394,19 +1401,33 @@ RPCHelpMan waitforlogs()
                     {"filter", RPCArg::Type::STR, RPCArg::Default{"{}"}, "\"{ addresses?: Hex160String[], topics?: Hex256String[] }\", Filter conditions for logs."},
                     {"minconf", RPCArg::Type::NUM, RPCArg::Default{6}, "Minimal number of confirmations before a log is returned"},
                 },
-                RPCResult{RPCResult::Type::STR, "", 
-                "An object with the following properties:\n"
-                "1. logs (LogEntry[]) Array of matchiing log entries. This may be empty if `filter` removed all entries."
-                "2. count (int) How many log entries are returned."
-                "3. nextBlock (int) To wait for new log entries haven't seen before, use this number as `fromBlock`"
-                "\nUsage:\n"
-                "`waitforlogs` waits for new logs, starting from the tip of the chain.\n"
-                "`waitforlogs 600` waits for new logs, but starting from block 600. If there are logs available, this call will return immediately.\n"
-                "`waitforlogs 600 700` waits for new logs, but only up to 700th block\n"
-                "`waitforlogs null null` this is equivalent to `waitforlogs`, using default parameter values\n"
-                "`waitforlogs null null` { \"addresses\": [ \"ff0011...\" ], \"topics\": [ \"c0fefe\"] }` waits for logs in the future matching the specified conditions\n"
-                "\nSample Output:\n"
-                "{\n  \"entries\": [\n    {\n      \"blockHash\": \"56d5f1f5ec239ef9c822d9ed600fe9aa63727071770ac7c0eabfc903bf7316d4\",\n      \"blockNumber\": 3286,\n      \"transactionHash\": \"00aa0f041ce333bc3a855b2cba03c41427cda04f0334d7f6cb0acad62f338ddc\",\n      \"transactionIndex\": 2,\n      \"from\": \"3f6866e2b59121ada1ddfc8edc84a92d9655675f\",\n      \"to\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"cumulativeGasUsed\": 23709,\n      \"gasUsed\": 23709,\n      \"contractAddress\": \"8e1ee0b38b719abe8fa984c986eabb5bb5071b6b\",\n      \"topics\": [\n        \"f0e1159fa6dc12bb31e0098b7a1270c2bd50e760522991c6f0119160028d9916\",\n        \"0000000000000000000000000000000000000000000000000000000000000002\"\n      ],\n      \"data\": \"00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003\"\n    }\n  ],\n\n  \"count\": 7,\n  \"nextblock\": 801\n}\n"
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::ARR, "entries", "Array of matchiing log entries. This may be empty if `filter` removed all entries.",
+                            {
+                                {RPCResult::Type::OBJ, "", "",
+                                    {
+                                        {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                                        {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                                        {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                                        {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
+                                        {RPCResult::Type::STR, "from", "The from address"},
+                                        {RPCResult::Type::STR, "to", "The to address"},
+                                        {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
+                                        {RPCResult::Type::NUM, "gasUsed", "The gas used"},
+                                        {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
+                                        {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                                        {RPCResult::Type::ARR, "topics", "The topic",
+                                            {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                        {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                    }
+                                }
+                            }
+                        },
+                        {RPCResult::Type::NUM, "count", "How many log entries are returned"},
+                        {RPCResult::Type::NUM, "nextBlock", "To wait for new log entries haven't seen before, use this number as `fromBlock`"},
+                    }
                 },
                 RPCExamples{
                     HelpExampleCli("waitforlogs", "") + HelpExampleCli("waitforlogs", "600") + HelpExampleCli("waitforlogs", "600 700") + HelpExampleCli("waitforlogs", "null null")
@@ -1560,30 +1581,33 @@ RPCHelpMan searchlogs()
                     {"topics", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [null, \"0x00...\"]."},
                     {"minconf", RPCArg::Type::NUM, RPCArg::Default{0}, "Minimal number of confirmations before a log is returned"},
                 },
-               RPCResult{
-            RPCResult::Type::ARR, "", "",
-                {
-                    {RPCResult::Type::OBJ, "", "",
-                        {
-                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
-                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
-                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
-                            {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
-                            {RPCResult::Type::STR, "from", "The from address"},
-                            {RPCResult::Type::STR, "to", "The to address"},
-                            {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
-                            {RPCResult::Type::NUM, "gasUsed", "The gas used"},
-                            {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
-                            {RPCResult::Type::STR, "excepted", "The thrown exception"},
-                            {RPCResult::Type::ARR, "log", "The logs from the receipt",
-                                {
-                                    {RPCResult::Type::STR, "address", "The contract address"},
-                                    {RPCResult::Type::ARR, "topics", "The topic",
-                                        {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
-                                    {RPCResult::Type::STR_HEX, "data", "The logged data"},
-                                }},
-                        }}
-                }},
+                RPCResult{
+                    RPCResult::Type::ARR, "", "",
+                    {
+                        {RPCResult::Type::OBJ, "", "",
+                            {
+                                {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                                {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                                {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                                {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
+                                {RPCResult::Type::STR, "from", "The from address"},
+                                {RPCResult::Type::STR, "to", "The to address"},
+                                {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
+                                {RPCResult::Type::NUM, "gasUsed", "The gas used"},
+                                {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
+                                {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                                {RPCResult::Type::ARR, "log", "The logs from the receipt",
+                                    {
+                                        {RPCResult::Type::STR, "address", "The contract address"},
+                                        {RPCResult::Type::ARR, "topics", "The topic",
+                                            {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                        {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                    }
+                                },
+                            }
+                        }
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
             + HelpExampleRpc("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
