@@ -582,18 +582,21 @@ RPCHelpMan getblockhashes()
                     },
                 },
                 {
-                    RPCResult{
-                        RPCResult::Type::OBJ, "", "",
+                    RPCResult{"if logicalTimes is set to false",
+                        RPCResult::Type::ARR, "", "",
                         {
-                            {RPCResult::Type::STR_HEX, "hash", "The block hash"},
-                        }
+                            {RPCResult::Type::STR_HEX, "", "The block hash"}
+                        },
                     },
-                    RPCResult{
-                        RPCResult::Type::OBJ, "", "",
+                    RPCResult{"if logicalTimes is set to true",
+                        RPCResult::Type::ARR, "", "",
                         {
-                            {RPCResult::Type::STR_HEX, "blockhash", "The block hash"},
-                            {RPCResult::Type::NUM, "logicalts", "The logical timestamp"},
-                        }
+                            {RPCResult::Type::OBJ, "", "",
+                            {
+                                {RPCResult::Type::STR_HEX, "blockhash", "The block hash"},
+                                {RPCResult::Type::NUM, "logicalts", "The logical timestamp"},
+                            }}
+                        },
                     },
                 },
                 RPCExamples{
