@@ -1809,27 +1809,24 @@ static RPCHelpMan setsuperstakervaluesforaddress()
                          },
                     },
                     RPCResult{
-                    RPCResult::Type::ARR, "", "",
-                    {
-                            {RPCResult::Type::OBJ, "", "",
-                                    {
-                                            {RPCResult::Type::STR, "address", "Address of the staker."},
-                                            {RPCResult::Type::BOOL, "customconfig", "Custom configuration exist."},
-                                            {RPCResult::Type::NUM, "stakingminfee", "Minimum fee for delegate."},
-                                            {RPCResult::Type::NUM, "stakingminutxovalue", "Minimum UTXO value for delegate."},
-                                            {RPCResult::Type::ARR, "allow", "List of allowed delegate addresses.",
-                                                    {
-                                                            {RPCResult::Type::STR, "address", "The delegate address"},
-                                                    },
-                                            },
-                                            {RPCResult::Type::ARR, "exclude", "List of excluded delegate addresses.",
-                                                    {
-                                                            {RPCResult::Type::STR, "address", "The delegate address"},
-                                                    },
-                                            },
-                                    }},
-                    }
-                },
+                        RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR, "address", "Address of the staker."},
+                            {RPCResult::Type::BOOL, "customconfig", "Custom configuration exist."},
+                            {RPCResult::Type::NUM, "stakingminfee", true, "Minimum fee for delegate."},
+                            {RPCResult::Type::NUM, "stakingminutxovalue", true, "Minimum UTXO value for delegate."},
+                            {RPCResult::Type::ARR, "allow", true, "List of allowed delegate addresses.",
+                                {
+                                    {RPCResult::Type::STR, "address", "The delegate address"},
+                                },
+                            },
+                            {RPCResult::Type::ARR, "exclude", true, "List of excluded delegate addresses.",
+                                {
+                                    {RPCResult::Type::STR, "address", "The delegate address"},
+                                },
+                            }
+                        }
+                    },
                     RPCExamples{
                         HelpExampleCli("setsuperstakervaluesforaddress", "\"{\\\"address\\\":\\\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\\\",\\\"stakingminutxovalue\\\": \\\"100\\\",\\\"stakingminfee\\\": 10}\"")
                         + HelpExampleCli("setsuperstakervaluesforaddress", "\"{\\\"address\\\":\\\"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\\\",\\\"stakingminutxovalue\\\": \\\"100\\\",\\\"stakingminfee\\\": 10,\\\"allow\\\":[\\\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\\\"]}\"")
@@ -1944,27 +1941,27 @@ static RPCHelpMan listsuperstakercustomvalues()
                     HELP_REQUIRING_PASSPHRASE,
                     {},
                     RPCResult{
-                    RPCResult::Type::ARR, "", "",
-                    {
+                        RPCResult::Type::ARR, "", "",
+                        {
                             {RPCResult::Type::OBJ, "", "",
+                            {
+                                {RPCResult::Type::STR, "address", "Address of the staker."},
+                                {RPCResult::Type::BOOL, "customconfig", "Custom configuration exist."},
+                                {RPCResult::Type::NUM, "stakingminfee", true, "Minimum fee for delegate."},
+                                {RPCResult::Type::NUM, "stakingminutxovalue", true, "Minimum UTXO value for delegate."},
+                                {RPCResult::Type::ARR, "allow", true, "List of allowed delegate addresses.",
                                     {
-                                            {RPCResult::Type::STR, "address", "Address of the staker."},
-                                            {RPCResult::Type::BOOL, "customconfig", "Custom configuration exist."},
-                                            {RPCResult::Type::NUM, "stakingminfee", "Minimum fee for delegate."},
-                                            {RPCResult::Type::NUM, "stakingminutxovalue", "Minimum UTXO value for delegate."},
-                                            {RPCResult::Type::ARR, "allow", "List of allowed delegate addresses.",
-                                                    {
-                                                            {RPCResult::Type::STR, "address", "The delegate address"},
-                                                    },
-                                            },
-                                            {RPCResult::Type::ARR, "exclude", "List of excluded delegate addresses.",
-                                                    {
-                                                            {RPCResult::Type::STR, "address", "The delegate address"},
-                                                    },
-                                            },
-                                    }},
-                    }
-                },
+                                        {RPCResult::Type::STR, "address", "The delegate address"},
+                                    },
+                                },
+                                {RPCResult::Type::ARR, "exclude", true, "List of excluded delegate addresses.",
+                                    {
+                                        {RPCResult::Type::STR, "address", "The delegate address"},
+                                    },
+                                }
+                            }}
+                        },
+                    },
                     RPCExamples{
                     HelpExampleCli("listsuperstakercustomvalues", "")
                     + HelpExampleRpc("listsuperstakercustomvalues", "")
@@ -2002,27 +1999,24 @@ static RPCHelpMan listsuperstakervaluesforaddress()
                         {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The super staker Qtum address."},
                     },
                     RPCResult{
-                    RPCResult::Type::ARR, "", "",
-                    {
-                            {RPCResult::Type::OBJ, "", "",
-                                    {
-                                            {RPCResult::Type::STR, "address", "Address of the staker."},
-                                            {RPCResult::Type::BOOL, "customconfig", "Custom configuration exist."},
-                                            {RPCResult::Type::NUM, "stakingminfee", "Minimum fee for delegate."},
-                                            {RPCResult::Type::NUM, "stakingminutxovalue", "Minimum UTXO value for delegate."},
-                                            {RPCResult::Type::ARR, "allow", "List of allowed delegate addresses.",
-                                                    {
-                                                            {RPCResult::Type::STR, "address", "The delegate address"},
-                                                    },
-                                            },
-                                            {RPCResult::Type::ARR, "exclude", "List of excluded delegate addresses.",
-                                                    {
-                                                            {RPCResult::Type::STR, "address", "The delegate address"},
-                                                    },
-                                            },
-                                    }},
-                    }
-                },
+                        RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR, "address", "Address of the staker."},
+                            {RPCResult::Type::BOOL, "customconfig", "Custom configuration exist."},
+                            {RPCResult::Type::NUM, "stakingminfee", true, "Minimum fee for delegate."},
+                            {RPCResult::Type::NUM, "stakingminutxovalue", true, "Minimum UTXO value for delegate."},
+                            {RPCResult::Type::ARR, "allow", true, "List of allowed delegate addresses.",
+                                {
+                                    {RPCResult::Type::STR, "address", "The delegate address"},
+                                },
+                            },
+                            {RPCResult::Type::ARR, "exclude", true, "List of excluded delegate addresses.",
+                                {
+                                    {RPCResult::Type::STR, "address", "The delegate address"},
+                                },
+                            }
+                        }
+                    },
                     RPCExamples{
                     HelpExampleCli("listsuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
                     + HelpExampleRpc("listsuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
@@ -2073,7 +2067,7 @@ static RPCHelpMan removesuperstakervaluesforaddress()
                     {
                         {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The super staker Qtum address."},
                     },
-                    RPCResults{},
+                    RPCResult{RPCResult::Type::NONE, "", ""},
                     RPCExamples{
                     HelpExampleCli("removesuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
                     + HelpExampleRpc("removesuperstakervaluesforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
@@ -3956,7 +3950,13 @@ static RPCHelpMan reservebalance()
                 {"reserve", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED,"is true or false to turn balance reserve on or off."},
                 {"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "is a real and rounded to cent."},
             },
-             RPCResults{},
+            RPCResult{
+                RPCResult::Type::OBJ, "", "",
+                {
+                    {RPCResult::Type::BOOL, "reserve", "Balance reserve on or off"},
+                    {RPCResult::Type::STR_AMOUNT, "amount", "Amount reserve rounded to cent"}
+                }
+            },
              RPCExamples{
             "\nSet reserve balance to 100\n"
             + HelpExampleCli("reservebalance", "true 100") +
