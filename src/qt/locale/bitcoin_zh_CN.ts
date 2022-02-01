@@ -662,7 +662,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 客户端</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>%n 条到QTUM网络的活动连接</numerusform>
@@ -2901,7 +2901,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="vanished">命令行选项(&amp;C)</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <translation type="vanished">
             <numerusform>%n 条到QTUM网络的活动连接</numerusform>
         </translation>

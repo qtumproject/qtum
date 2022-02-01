@@ -674,7 +674,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 클라이언트</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>QTUM 네트워크에 %n 개의 연결이 활성화 되고 있습니다.</numerusform>
@@ -2795,7 +2795,7 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">커멘드 라인 옵션</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <translation type="vanished">
             <numerusform>QTUM네트워크에 대한 활성화된 연결은 %n 개입니다.</numerusform>
         </translation>
