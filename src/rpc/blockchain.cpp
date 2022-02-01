@@ -557,7 +557,12 @@ static RPCHelpMan getdifficulty()
                 "\nReturns the proof-of-stake difficulty as a multiple of the minimum difficulty.\n",
                 {},
                 RPCResult{
-                    RPCResult::Type::NUM, "", "the proof-of-work difficulty as a multiple of the minimum difficulty."},
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::NUM, "proof-of-work", "the proof-of-work difficulty as a multiple of the minimum difficulty."},
+                        {RPCResult::Type::NUM, "proof-of-stake", "the proof-of-stake difficulty as a multiple of the minimum difficulty."},
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("getdifficulty", "")
             + HelpExampleRpc("getdifficulty", "")

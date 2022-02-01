@@ -464,16 +464,6 @@ static RPCHelpMan getmininginfo()
     NodeContext& node = EnsureAnyNodeContext(request.context);
     const CTxMemPool& mempool = EnsureMemPool(node);
     ChainstateManager& chainman = EnsureChainman(node);
-    LOCK(cs_main);
-    const CChain& active_chain = chainman.ActiveChain();
-
-    UniValue obj(UniValue::VOBJ);
-    UniValue diff(UniValue::VOBJ);
-    UniValue weight(UniValue::VOBJ);
-
-    obj.pushKV("blocks",           active_chain.Height());
-    if (BlockAssembler::m_last_block_weight) obj.pushKV("currentblockweight", *BlockAssembler::m_last_block_weight);
-    if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
 
     uint64_t nWeight = 0;
     uint64_t lastCoinStakeSearchInterval = 0;
@@ -487,6 +477,17 @@ static RPCHelpMan getmininginfo()
         lastCoinStakeSearchInterval = pwallet->m_last_coin_stake_search_interval;
     }
 #endif
+
+    LOCK(cs_main);
+    const CChain& active_chain = chainman.ActiveChain();
+
+    UniValue obj(UniValue::VOBJ);
+    UniValue diff(UniValue::VOBJ);
+    UniValue weight(UniValue::VOBJ);
+
+    obj.pushKV("blocks",           active_chain.Height());
+    if (BlockAssembler::m_last_block_weight) obj.pushKV("currentblockweight", *BlockAssembler::m_last_block_weight);
+    if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
 
     diff.pushKV("proof-of-work",   GetDifficulty(GetLastBlockIndex(pindexBestHeader, false)));
     diff.pushKV("proof-of-stake",  GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
@@ -541,8 +542,6 @@ static RPCHelpMan getstakinginfo()
 {
 
     NodeContext& node = EnsureAnyNodeContext(request.context);
-    LOCK(cs_main);
-    const CTxMemPool& mempool = EnsureMemPool(node);
 
     uint64_t nWeight = 0;
     uint64_t nStakerWeight = 0;
@@ -559,6 +558,9 @@ static RPCHelpMan getstakinginfo()
         lastCoinStakeSearchInterval = pwallet->m_enabled_staking ? pwallet->m_last_coin_stake_search_interval : 0;
     }
 #endif
+
+    LOCK(cs_main);
+    const CTxMemPool& mempool = EnsureMemPool(node);
 
     uint64_t nNetworkWeight = GetPoSKernelPS();
     bool staking = lastCoinStakeSearchInterval && nWeight;
