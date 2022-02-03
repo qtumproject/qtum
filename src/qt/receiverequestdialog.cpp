@@ -88,7 +88,8 @@ bool ReceiveRequestDialog::refreshAddress()
     info.address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, info.label, "", address_type);
 
     /* Store request for later reference */
-    model->getRecentRequestsTableModel()->addNewRequest(info);
+    if(!info.address.isEmpty())
+        model->getRecentRequestsTableModel()->addNewRequest(info);
 
     return true;
 }
