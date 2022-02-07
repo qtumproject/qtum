@@ -2068,7 +2068,7 @@
       "minfeerate": 400,
       "mintxsize": 225,
       "outs": 4,
-      "subsidy": 2000000000000,
+      "subsidy": 20000000000
       "swtotal_size": 0,
       "swtotal_weight": 0,
       "swtxs": 0,

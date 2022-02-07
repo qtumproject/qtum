@@ -180,7 +180,7 @@ void SuperStakerItemWidget::updateLogo()
     }
     else
     {
-        if (m_model->node().getNodeCount(CConnman::CONNECTIONS_ALL) == 0)
+        if (m_model->node().getNodeCount(ConnectionDirection::Both) == 0)
             ui->superStakerLogo->setToolTip(tr("Not staking because wallet is offline"));
         else if (m_model->node().isInitialBlockDownload())
             ui->superStakerLogo->setToolTip(tr("Not staking because wallet is syncing"));

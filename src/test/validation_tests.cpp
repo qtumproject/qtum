@@ -1,10 +1,11 @@
-// Copyright (c) 2014-2019 The Bitcoin Core developers
+// Copyright (c) 2014-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainparams.h>
 #include <net.h>
 #include <signet.h>
+#include <uint256.h>
 #include <validation.h>
 
 #include <test/util/setup_common.h>
@@ -111,7 +112,7 @@ BOOST_AUTO_TEST_CASE(signet_parse_tests)
     CMutableTransaction cb;
     cb.vout.emplace_back(0, CScript{});
     block.vtx.push_back(MakeTransactionRef(cb));
-    block.vtx.push_back(MakeTransactionRef(cb)); // Add dummy tx to excercise merkle root code
+    block.vtx.push_back(MakeTransactionRef(cb)); // Add dummy tx to exercise merkle root code
     BOOST_CHECK(!SignetTxs::Create(block, challenge));
     BOOST_CHECK(!CheckSignetBlockSolution(block, signet_params->GetConsensus()));
 
@@ -153,6 +154,29 @@ BOOST_AUTO_TEST_CASE(signet_parse_tests)
     block.vtx.at(0) = MakeTransactionRef(cb);
     BOOST_CHECK(!SignetTxs::Create(block, challenge));
     BOOST_CHECK(!CheckSignetBlockSolution(block, signet_params->GetConsensus()));
+}
+
+//! Test retrieval of valid assumeutxo values.
+BOOST_AUTO_TEST_CASE(test_assumeutxo)
+{
+    const auto params = CreateChainParams(*m_node.args, CBaseChainParams::UNITTEST);
+
+    // These heights don't have assumeutxo configurations associated, per the contents
+    // of chainparams.cpp.
+    std::vector<int> bad_heights{0, 2000, 2011, 2015, 2109, 2111};
+
+    for (auto empty : bad_heights) {
+        const auto out = ExpectedAssumeutxo(empty, *params);
+        BOOST_CHECK(!out);
+    }
+
+    const auto out110 = *ExpectedAssumeutxo(2010, *params);
+    BOOST_CHECK_EQUAL(out110.hash_serialized.ToString(), "f3ad83776715ee9b09a7a43421b6fe17701fb2247370a4ea9fcf0b073639cac9");
+    BOOST_CHECK_EQUAL(out110.nChainTx, 2010U);
+
+    const auto out210 = *ExpectedAssumeutxo(2100, *params);
+    BOOST_CHECK_EQUAL(out210.hash_serialized.ToString(), "677f8902ca481677862d19fbe8c6214f596c8b475aabfe4273361485fc4e6fb4");
+    BOOST_CHECK_EQUAL(out210.nChainTx, 2100U);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

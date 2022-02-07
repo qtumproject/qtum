@@ -355,6 +355,7 @@ void EncodedObjectFilter::Put(const byte *inString, size_t length)
 				break;
 			}
 			m_state = BODY;		// fall through
+			[[fallthrough]];
 		}
 		case BODY:
 			m_lengthRemaining -= m_queue.TransferTo(CurrentTarget(), m_lengthRemaining);

@@ -17,6 +17,9 @@
 #include <libff/algebra/fields/field_utils.hpp>
 #include <libff/algebra/fields/fp_aux.tcc>
 
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-variable"
+
 namespace libff {
 
 template<mp_size_t n, const bigint<n>& modulus>

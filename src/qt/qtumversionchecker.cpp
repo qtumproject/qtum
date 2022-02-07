@@ -13,7 +13,7 @@
 
 QtumVersionChecker::QtumVersionChecker(QObject *parent) : QObject(parent)
 {
-    currentVersion = Version(CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, CLIENT_VERSION_REVISION);
+    currentVersion = Version(CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, 0);
 }
 
 QtumVersionChecker::~QtumVersionChecker()

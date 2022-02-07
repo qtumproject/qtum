@@ -5,6 +5,7 @@
 #include <script/script.h>
 #include <qtum/qtumstate.h>
 #include <libevm/VMFace.h>
+#include <validation.h>
 
 using namespace std;
 using namespace dev;
@@ -21,7 +22,7 @@ QtumState::QtumState() : dev::eth::State(dev::Invalid256, dev::OverlayDB(), dev:
     stateUTXO = SecureTrieDB<Address, OverlayDB>(&dbUTXO);
 }
 
-ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& _sealEngine, QtumTransaction const& _t, Permanence _p, OnOpFunc const& _onOp){
+ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& _sealEngine, QtumTransaction const& _t, CChain& _chain, Permanence _p, OnOpFunc const& _onOp){
 
     assert(_t.getVersion().toRaw() == VersionVM::GetEVMDefault().toRaw());
 
@@ -57,7 +58,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         startGasUsed = _envInfo.gasUsed();
         if (!e.execute()){
             e.go(onOp);
-            if(ChainActive().Height() >= consensusParams.QIP7Height){
+            if(_chain.Height() >= consensusParams.QIP7Height){
             	validateTransfersWithChangeLog();
             }
         } else {
@@ -94,7 +95,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         printfErrorLog(dev::eth::toTransactionException(_e));
         res.excepted = dev::eth::toTransactionException(_e);
         res.gasUsed = _t.gas();
-        if(ChainActive().Height() < consensusParams.nFixUTXOCacheHFHeight  && _p != Permanence::Reverted){
+        if(_chain.Height() < consensusParams.nFixUTXOCacheHFHeight  && _p != Permanence::Reverted){
             deleteAccounts(_sealEngine.deleteAddresses);
             commit(CommitBehaviour::RemoveEmptyAccounts);
         } else {

@@ -36,7 +36,7 @@ bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
 
         /////////////////////////////////////////////////////////// // qtum
         if (txout.scriptPubKey.HasOpCall() || txout.scriptPubKey.HasOpCreate() || txout.scriptPubKey.HasOpSender()) {
-            std::vector<valtype> vSolutions;
+            std::vector<std::vector<unsigned char>> vSolutions;
             TxoutType whichType = Solver(txout.scriptPubKey, vSolutions, true);
             if (whichType == TxoutType::NONSTANDARD) {
                 return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-contract-nonstandard");

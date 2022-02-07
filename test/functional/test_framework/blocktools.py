@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2019 The Bitcoin Core developers
+# Copyright (c) 2015-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Utilities for manipulating blocks and transactions."""
@@ -23,35 +23,37 @@ from .messages import (
     CTxIn,
     CTxInWitness,
     CTxOut,
-    FromHex,
-    ToHex,
     hash256,
     hex_str_to_bytes,
     ser_uint256,
-    sha256,
+    tx_from_hex,
     uint256_from_str,
 )
 from .script import (
     CScript,
     CScriptNum,
     CScriptOp,
-    OP_0,
     OP_1,
     OP_CHECKMULTISIG,
     OP_CHECKSIG,
     OP_RETURN,
     OP_TRUE,
-    hash160,
+)
+from .script_util import (
+    key_to_p2wpkh_script,
+    script_to_p2wsh_script,
 )
 from .util import assert_equal
-from .qtumconfig import INITIAL_BLOCK_REWARD, INITIAL_BLOCK_REWARD_POS
 
 WITNESS_SCALE_FACTOR = 4
 MAX_BLOCK_SIGOPS = 20000
 MAX_BLOCK_SIGOPS_WEIGHT = MAX_BLOCK_SIGOPS * WITNESS_SCALE_FACTOR
 
 # Genesis block time (regtest)
-TIME_GENESIS_BLOCK = 1504695029
+TIME_GENESIS_BLOCK = 1296688602
+
+# Coinbase transaction outputs can only be spent after this number of new blocks (network rule)
+COINBASE_MATURITY = 100
 
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"
@@ -59,7 +61,7 @@ WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"
 NORMAL_GBT_REQUEST_PARAMS = {"rules": ["segwit"]}
 
 
-def create_block(hashprev=None, coinbase=None, ntime=None, *, version=4, tmpl=None, txlist=None):
+def create_block(hashprev=None, coinbase=None, ntime=None, *, version=None, tmpl=None, txlist=None):
     """Create a block (with regtest difficulty)."""
     block = CBlock()
     if tmpl is None:
@@ -77,7 +79,7 @@ def create_block(hashprev=None, coinbase=None, ntime=None, *, version=4, tmpl=No
     if txlist:
         for tx in txlist:
             if not hasattr(tx, 'calc_sha256'):
-                tx = FromHex(CTransaction(), tx)
+                tx = tx_from_hex(tx)
             block.vtx.append(tx)
     block.hashMerkleRoot = block.calc_merkle_root()
     block.calc_sha256()
@@ -88,7 +90,7 @@ def get_witness_script(witness_root, witness_nonce):
     output_data = WITNESS_COMMITMENT_HEADER + ser_uint256(witness_commitment)
     return CScript([OP_RETURN, output_data])
 
-def add_witness_commitment(block, nonce=0, is_pos=False):
+def add_witness_commitment(block, nonce=0):
     """Add a witness commitment to the block's coinbase transaction.
 
     According to BIP141, blocks with witness rules active must commit to the
@@ -96,7 +98,7 @@ def add_witness_commitment(block, nonce=0, is_pos=False):
     # First calculate the merkle root of the block's
     # transactions, with witnesses.
     witness_nonce = nonce
-    witness_root = block.calc_witness_merkle_root(is_pos)
+    witness_root = block.calc_witness_merkle_root()
     # witness_nonce should go to coinbase witness.
     block.vtx[0].wit.vtxinwit = [CTxInWitness()]
     block.vtx[0].wit.vtxinwit[0].scriptWitness.stack = [ser_uint256(witness_nonce)]
@@ -116,7 +118,7 @@ def script_BIP34_coinbase_height(height):
     return CScript([CScriptNum(height)])
 
 
-def create_coinbase(height, pubkey=None, extra_output_script=None, fees=0, value=None):
+def create_coinbase(height, pubkey=None, extra_output_script=None, fees=0, nValue=50):
     """Create a coinbase transaction.
 
     If pubkey is passed in, the coinbase output will be a P2PK output;
@@ -127,15 +129,11 @@ def create_coinbase(height, pubkey=None, extra_output_script=None, fees=0, value
     coinbase = CTransaction()
     coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), script_BIP34_coinbase_height(height), 0xffffffff))
     coinbaseoutput = CTxOut()
-    if value:
-        coinbaseoutput.nValue = value
-    elif height > 5000:
-        coinbaseoutput.nValue = int(INITIAL_BLOCK_REWARD_POS*COIN)
-    else:
-        coinbaseoutput.nValue = INITIAL_BLOCK_REWARD * COIN
-    #halvings = int(height / 150)  # regtest
-    #coinbaseoutput.nValue >>= halvings
-    coinbaseoutput.nValue += fees
+    coinbaseoutput.nValue = nValue * COIN
+    if nValue == 50:
+        halvings = int(height / 150)  # regtest
+        coinbaseoutput.nValue >>= halvings
+        coinbaseoutput.nValue += fees
     if pubkey is not None:
         coinbaseoutput.scriptPubKey = CScript([pubkey, OP_CHECKSIG])
     else:
@@ -168,7 +166,7 @@ def create_transaction(node, txid, to_address, *, amount):
         sign for the output that is being spent.
     """
     raw_tx = create_raw_transaction(node, txid, to_address, amount=amount)
-    tx = FromHex(CTransaction(), raw_tx)
+    tx = tx_from_hex(raw_tx)
     return tx
 
 def create_raw_transaction(node, txid, to_address, *, amount):
@@ -209,13 +207,11 @@ def witness_script(use_p2wsh, pubkey):
     scriptPubKey."""
     if not use_p2wsh:
         # P2WPKH instead
-        pubkeyhash = hash160(hex_str_to_bytes(pubkey))
-        pkscript = CScript([OP_0, pubkeyhash])
+        pkscript = key_to_p2wpkh_script(pubkey)
     else:
         # 1-of-1 multisig
         witness_program = CScript([OP_1, hex_str_to_bytes(pubkey), OP_1, OP_CHECKMULTISIG])
-        scripthash = sha256(witness_program)
-        pkscript = CScript([OP_0, scripthash])
+        pkscript = script_to_p2wsh_script(witness_program)
     return pkscript.hex()
 
 def create_witness_tx(node, use_p2wsh, utxo, pubkey, encode_p2sh, amount):
@@ -245,9 +241,9 @@ def send_to_witness(use_p2wsh, node, utxo, pubkey, encode_p2sh, amount, sign=Tru
         return node.sendrawtransaction(signed["hex"])
     else:
         if (insert_redeem_script):
-            tx = FromHex(CTransaction(), tx_to_witness)
+            tx = tx_from_hex(tx_to_witness)
             tx.vin[0].scriptSig += CScript([hex_str_to_bytes(insert_redeem_script)])
-            tx_to_witness = ToHex(tx)
+            tx_to_witness = tx.serialize().hex()
 
     return node.sendrawtransaction(tx_to_witness)
 

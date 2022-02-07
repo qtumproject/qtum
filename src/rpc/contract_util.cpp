@@ -3,6 +3,7 @@
 #include <util/system.h>
 #include <key_io.h>
 #include <rpc/server.h>
+#include <txdb.h>
 
 UniValue executionResultToJSON(const dev::eth::ExecutionResult& exRes)
 {
@@ -45,7 +46,7 @@ UniValue transactionReceiptToJSON(const QtumTransactionReceipt& txRec)
     return result;
 }
 
-UniValue CallToContract(const UniValue& params)
+UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
 {
     LOCK(cs_main);
 
@@ -70,8 +71,8 @@ UniValue CallToContract(const UniValue& params)
     if(params.size() >= 3){
         CTxDestination qtumSenderAddress = DecodeDestination(params[2].get_str());
         if (IsValidDestination(qtumSenderAddress)) {
-            const PKHash *keyid = boost::get<PKHash>(&qtumSenderAddress);
-            senderAddress = dev::Address(HexStr(valtype(keyid->begin(),keyid->end())));
+            PKHash keyid = std::get<PKHash>(qtumSenderAddress);
+            senderAddress = dev::Address(HexStr(valtype(keyid.begin(),keyid.end())));
         }else{
             senderAddress = dev::Address(params[2].get_str());
         }
@@ -90,10 +91,10 @@ UniValue CallToContract(const UniValue& params)
     }
 
 
-    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), senderAddress, gasLimit, nAmount);
+    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), chainman.ActiveChainstate(), senderAddress, gasLimit, nAmount);
 
     if(fRecordLogOpcodes){
-        writeVMlog(execResults);
+        writeVMlog(execResults, chainman.ActiveChain());
     }
 
     UniValue result(UniValue::VOBJ);
@@ -309,7 +310,7 @@ private:
 
 };
 
-UniValue SearchLogs(const UniValue& _params)
+UniValue SearchLogs(const UniValue& _params, ChainstateManager &chainman)
 {
     if(!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
@@ -322,7 +323,7 @@ UniValue SearchLogs(const UniValue& _params)
 
     std::vector<std::vector<uint256>> hashesToBlock;
 
-    curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses);
+    curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses, chainman);
 
     if (curheight == -1) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
@@ -388,7 +389,8 @@ UniValue SearchLogs(const UniValue& _params)
     return result;
 }
 
-CallToken::CallToken()
+CallToken::CallToken(ChainstateManager &_chainman):
+    chainman(_chainman)
 {
     setQtumTokenExec(this);
 }
@@ -456,7 +458,7 @@ bool CallToken::exec(const bool &sendTo, const std::map<std::string, std::string
     }
 
     // Get execution result
-    UniValue response = CallToContract(params);
+    UniValue response = CallToContract(params, chainman);
     if(!response.isObject() || !response.exists("executionResult"))
         return false;
     UniValue executionResult = response["executionResult"];
@@ -550,7 +552,7 @@ bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, 
 
     params.push_back(minconf);
 
-    resultVar = SearchLogs(params);
+    resultVar = SearchLogs(params, chainman);
 
     return true;
 }

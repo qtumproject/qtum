@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Bitcoin Core developers
+// Copyright (c) 2020-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,12 +15,12 @@
 #include <string>
 #include <vector>
 
-void initialize()
+void initialize_pow()
 {
     SelectParams(CBaseChainParams::MAIN);
 }
 
-void test_one_input(const std::vector<uint8_t>& buffer)
+FUZZ_TARGET_INIT(pow, initialize_pow)
 {
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
     const Consensus::Params& consensus_params = Params().GetConsensus();
@@ -34,7 +34,7 @@ void test_one_input(const std::vector<uint8_t>& buffer)
         }
         CBlockIndex current_block{*block_header};
         {
-            CBlockIndex* previous_block = !blocks.empty() ? &blocks[fuzzed_data_provider.ConsumeIntegralInRange<size_t>(0, blocks.size() - 1)] : nullptr;
+            CBlockIndex* previous_block = blocks.empty() ? nullptr : &PickValue(fuzzed_data_provider, blocks);
             const int current_height = (previous_block != nullptr && previous_block->nHeight != std::numeric_limits<int>::max()) ? previous_block->nHeight + 1 : 0;
             if (fuzzed_data_provider.ConsumeBool()) {
                 current_block.pprev = previous_block;
@@ -43,7 +43,10 @@ void test_one_input(const std::vector<uint8_t>& buffer)
                 current_block.nHeight = current_height;
             }
             if (fuzzed_data_provider.ConsumeBool()) {
-                current_block.nTime = fixed_time + current_height * consensus_params.TargetSpacing(current_height);
+                const uint32_t seconds = current_height * consensus_params.TargetSpacing(current_height);
+                if (!AdditionOverflow(fixed_time, seconds)) {
+                    current_block.nTime = fixed_time + seconds;
+                }
             }
             if (fuzzed_data_provider.ConsumeBool()) {
                 current_block.nBits = fixed_bits;
@@ -58,14 +61,14 @@ void test_one_input(const std::vector<uint8_t>& buffer)
         {
             (void)GetBlockProof(current_block);
             (void)CalculateNextWorkRequired(&current_block, fuzzed_data_provider.ConsumeIntegralInRange<int64_t>(0, std::numeric_limits<int64_t>::max()), consensus_params);
-            if (current_block.nHeight != std::numeric_limits<int>::max() && current_block.nHeight - (consensus_params.DifficultyAdjustmentInterval() - 1) >= 0) {
+            if (current_block.nHeight != std::numeric_limits<int>::max() && current_block.nHeight - (consensus_params.DifficultyAdjustmentInterval(current_block.nHeight) - 1) >= 0) {
                 (void)GetNextWorkRequired(&current_block, &(*block_header), consensus_params);
             }
         }
         {
-            const CBlockIndex* to = &blocks[fuzzed_data_provider.ConsumeIntegralInRange<size_t>(0, blocks.size() - 1)];
-            const CBlockIndex* from = &blocks[fuzzed_data_provider.ConsumeIntegralInRange<size_t>(0, blocks.size() - 1)];
-            const CBlockIndex* tip = &blocks[fuzzed_data_provider.ConsumeIntegralInRange<size_t>(0, blocks.size() - 1)];
+            const CBlockIndex* to = &PickValue(fuzzed_data_provider, blocks);
+            const CBlockIndex* from = &PickValue(fuzzed_data_provider, blocks);
+            const CBlockIndex* tip = &PickValue(fuzzed_data_provider, blocks);
             try {
                 (void)GetBlockProofEquivalentTime(*to, *from, *tip, consensus_params);
             } catch (const uint_error&) {

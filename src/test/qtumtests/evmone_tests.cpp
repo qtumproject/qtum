@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(checking_create_with_value){
     std::vector<QtumTransaction> txs;
     txs.push_back(createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
     txs.push_back(createQtumTransaction(CODE[1], 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
 
     // Check create with value
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::CreateWithValue);

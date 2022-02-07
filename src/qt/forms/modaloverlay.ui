@@ -236,7 +236,7 @@
                       </sizepolicy>
                      </property>
                      <property name="text">
-                      <string>Unknown...</string>
+                      <string>Unknown…</string>
                      </property>
                     </widget>
                    </item>
@@ -262,7 +262,7 @@
                       </sizepolicy>
                      </property>
                      <property name="text">
-                      <string>Unknown...</string>
+                      <string>Unknown…</string>
                      </property>
                     </widget>
                    </item>
@@ -291,16 +291,6 @@
                        </property>
                       </widget>
                      </item>
-                     <item>
-                      <widget class="QProgressBar" name="progressBar">
-                       <property name="value">
-                        <number>24</number>
-                       </property>
-                       <property name="format">
-                        <string/>
-                       </property>
-                      </widget>
-                     </item>
                     </layout>
                    </item>
                    <item row="4" column="0">
@@ -325,7 +315,7 @@
                       </sizepolicy>
                      </property>
                      <property name="text">
-                      <string>calculating...</string>
+                      <string>calculating…</string>
                      </property>
                     </widget>
                    </item>
@@ -351,7 +341,7 @@
                       </sizepolicy>
                      </property>
                      <property name="text">
-                      <string>calculating...</string>
+                      <string>calculating…</string>
                      </property>
                     </widget>
                    </item>

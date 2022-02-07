@@ -5,12 +5,13 @@
 #ifndef BITCOIN_INTERFACES_CHAIN_H
 #define BITCOIN_INTERFACES_CHAIN_H
 
-#include <optional.h>               // For Optional and nullopt
 #include <primitives/transaction.h> // For CTransactionRef
 #include <util/settings.h>          // For util::SettingsValue
+#include <netbase.h>                // For ConnectionDirection
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <stddef.h>
 #include <stdint.h>
 #include <string>
@@ -30,6 +31,10 @@ struct bilingual_str;
 struct CBlockLocator;
 struct FeeCalculation;
 struct NodeContext;
+class ChainstateManager;
+class CTxMemPool;
+class CBlockIndex;
+class CCoinsViewCache;
 
 namespace interfaces {
 
@@ -45,6 +50,12 @@ public:
     FoundBlock& time(int64_t& time) { m_time = &time; return *this; }
     FoundBlock& maxTime(int64_t& max_time) { m_max_time = &max_time; return *this; }
     FoundBlock& mtpTime(int64_t& mtp_time) { m_mtp_time = &mtp_time; return *this; }
+    //! Return whether block has delagation.
+    FoundBlock& hasDelegation(bool& has_delegation) { m_has_delegation = &has_delegation; return *this; }
+    //! Return whether block is in the active (most-work) chain.
+    FoundBlock& inActiveChain(bool& in_active_chain) { m_in_active_chain = &in_active_chain; return *this; }
+    //! Return next block in the active chain if current block is in the active chain.
+    FoundBlock& nextBlock(const FoundBlock& next_block) { m_next_block = &next_block; return *this; }
     //! Read block data from disk. If the block exists but doesn't have data
     //! (for example due to pruning), the CBlock variable will be set to null.
     FoundBlock& data(CBlock& data) { m_data = &data; return *this; }
@@ -54,6 +65,9 @@ public:
     int64_t* m_time = nullptr;
     int64_t* m_max_time = nullptr;
     int64_t* m_mtp_time = nullptr;
+    bool* m_has_delegation = nullptr;
+    bool* m_in_active_chain = nullptr;
+    const FoundBlock* m_next_block = nullptr;
     CBlock* m_data = nullptr;
 };
 
@@ -78,23 +92,24 @@ public:
 //!   wallet cache it, fee estimation being driven by node mempool, wallet
 //!   should be the consumer.
 //!
-//! * The `guessVerificationProgress`, `getBlockHeight`, `getBlockHash`, etc
-//!   methods can go away if rescan logic is moved on the node side, and wallet
-//!   only register rescan request.
+//! * `guessVerificationProgress` and similar methods can go away if rescan
+//!   logic moves out of the wallet, and the wallet just requests scans from the
+//!   node (https://github.com/bitcoin/bitcoin/issues/11756)
 class Chain
 {
 public:
     virtual ~Chain() {}
 
+    //! Get chain state manager
+    virtual ChainstateManager& chainman() = 0;
+
+    //! Get mempool
+    virtual const CTxMemPool& mempool() = 0;
+
     //! Get current chain height, not including genesis block (returns 0 if
     //! chain only contains genesis block, nullopt if chain does not contain
     //! any blocks)
-    virtual Optional<int> getHeight() = 0;
-
-    //! Get block height above genesis block. Returns 0 for genesis block,
-    //! 1 for following block, and so on. Returns nullopt for a block not
-    //! included in the current chain.
-    virtual Optional<int> getBlockHeight(const uint256& hash, bool* hasDelegation = nullptr) = 0;
+    virtual std::optional<int> getHeight() = 0;
 
     //! Get block hash. Height must be valid or this function will abort.
     virtual uint256 getBlockHash(int height) = 0;
@@ -103,20 +118,13 @@ public:
     //! pruned), and contains transactions.
     virtual bool haveBlockOnDisk(int height) = 0;
 
-    //! Return height of the first block in the chain with timestamp equal
-    //! or greater than the given time and height equal or greater than the
-    //! given height, or nullopt if there is no block with a high enough
-    //! timestamp and height. Also return the block hash as an optional output parameter
-    //! (to avoid the cost of a second lookup in case this information is needed.)
-    virtual Optional<int> findFirstBlockWithTimeAndHeight(int64_t time, int height, uint256* hash) = 0;
-
     //! Get locator for the current chain tip.
     virtual CBlockLocator getTipLocator() = 0;
 
     //! Return height of the highest block on chain in common with the locator,
     //! which will either be the original block used to create the locator,
     //! or one of its ancestors.
-    virtual Optional<int> findLocatorFork(const CBlockLocator& locator) = 0;
+    virtual std::optional<int> findLocatorFork(const CBlockLocator& locator) = 0;
 
     //! Check if transaction will be final given chain height current time.
     virtual bool checkFinalTx(const CTransaction& tx) = 0;
@@ -130,11 +138,6 @@ public:
     //! with a high enough timestamp and height. Optionally return block
     //! information.
     virtual bool findFirstBlockWithTimeAndHeight(int64_t min_time, int min_height, const FoundBlock& block={}) = 0;
-
-    //! Find next block if block is part of current chain. Also flag if
-    //! there was a reorg and the specified block hash is no longer in the
-    //! current chain, and optionally return block information.
-    virtual bool findNextBlock(const uint256& block_hash, int block_height, const FoundBlock& next={}, bool* reorg=nullptr) = 0;
 
     //! Find ancestor of block at specified height and optionally return
     //! ancestor information.
@@ -169,10 +172,13 @@ public:
     //! Return true if data is available for all blocks in the specified range
     //! of blocks. This checks all blocks that are ancestors of block_hash in
     //! the height range from min_height to max_height, inclusive.
-    virtual bool hasBlocks(const uint256& block_hash, int min_height = 0, Optional<int> max_height = {}) = 0;
+    virtual bool hasBlocks(const uint256& block_hash, int min_height = 0, std::optional<int> max_height = {}) = 0;
 
     //! Check if transaction is RBF opt in.
     virtual RBFTransactionState isRBFOptIn(const CTransaction& tx) = 0;
+
+    //! Check if transaction is in mempool.
+    virtual bool isInMempool(const uint256& txid) = 0;
 
     //! Check if transaction has descendants in mempool.
     virtual bool hasDescendantsInMempool(const uint256& txid) = 0;
@@ -289,6 +295,21 @@ public:
     //! to be prepared to handle this by ignoring notifications about unknown
     //! removed transactions and already added new transactions.
     virtual void requestMempoolTransactions(Notifications& notifications) = 0;
+
+    //! Check if Taproot has activated
+    virtual bool isTaprootActive() const = 0;
+
+    //! Get chain tip
+    virtual CBlockIndex* getTip() const =  0;
+
+    //! Get unspent outputs associated with a transaction.
+    virtual bool getUnspentOutput(const COutPoint& output, Coin& coin) = 0;
+
+    //! Get coins tip.
+    virtual CCoinsViewCache& getCoinsTip() = 0;
+
+    //! Get number of connections.
+    virtual size_t getNodeCount(ConnectionDirection flags) = 0;
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for

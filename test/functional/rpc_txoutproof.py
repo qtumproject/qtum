@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2019 The Bitcoin Core developers
+# Copyright (c) 2014-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test gettxoutproof and verifytxoutproof RPCs."""
 
-from test_framework.messages import CMerkleBlock, FromHex, ToHex
+from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.messages import (
+    CMerkleBlock,
+    from_hex,
+)
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import assert_equal, assert_raises_rpc_error, connect_nodes, sync_blocks
+from test_framework.util import (
+    assert_equal,
+    assert_raises_rpc_error,
+    connect_nodes,
+    sync_blocks,
+)
 from test_framework.wallet import MiniWallet
 from test_framework.qtumconfig import *
 from test_framework.qtum import generatesynchronized
@@ -80,7 +89,7 @@ class MerkleBlockTest(BitcoinTestFramework):
         # We can't get a proof if we specify transactions from different blocks
         assert_raises_rpc_error(-5, "Not all transactions found in specified or retrieved block", self.nodes[0].gettxoutproof, [txid1, txid3])
         # Test empty list
-        assert_raises_rpc_error(-5, "Transaction not yet in block", self.nodes[0].gettxoutproof, [])
+        assert_raises_rpc_error(-8, "Parameter 'txids' cannot be empty", self.nodes[0].gettxoutproof, [])
         # Test duplicate txid
         assert_raises_rpc_error(-8, 'Invalid parameter, duplicated txid', self.nodes[0].gettxoutproof, [txid1, txid1])
 
@@ -89,10 +98,10 @@ class MerkleBlockTest(BitcoinTestFramework):
         assert txid1 in self.nodes[0].verifytxoutproof(proof)
         assert txid2 in self.nodes[1].verifytxoutproof(proof)
 
-        tweaked_proof = FromHex(CMerkleBlock(), proof)
+        tweaked_proof = from_hex(CMerkleBlock(), proof)
 
         # Make sure that our serialization/deserialization is working
-        assert txid1 in self.nodes[0].verifytxoutproof(ToHex(tweaked_proof))
+        assert txid1 in self.nodes[0].verifytxoutproof(tweaked_proof.serialize().hex())
 
         # Check to see if we can go up the merkle tree and pass this off as a
         # single-transaction block
@@ -101,7 +110,7 @@ class MerkleBlockTest(BitcoinTestFramework):
         tweaked_proof.txn.vBits = [True] + [False]*7
 
         for n in self.nodes:
-            assert not n.verifytxoutproof(ToHex(tweaked_proof))
+            assert not n.verifytxoutproof(tweaked_proof.serialize().hex())
 
         # TODO: try more variants, eg transactions at different depths, and
         # verify that the proofs are invalid

@@ -92,9 +92,9 @@ bool QtumToken::ToHash160(const std::string& strQtumAddress, std::string& strHas
     CTxDestination qtumAddress = DecodeDestination(strQtumAddress);
     if(!IsValidDestination(qtumAddress))
         return false;
-    const PKHash * keyid = boost::get<PKHash>(&qtumAddress);
-    if(keyid){
-        strHash160 = HexStr(valtype(keyid->begin(),keyid->end()));
+    if(std::holds_alternative<PKHash>(qtumAddress)){
+        PKHash keyid = std::get<PKHash>(qtumAddress);
+        strHash160 = HexStr(valtype(keyid.begin(),keyid.end()));
     }else{
         return false;
     }

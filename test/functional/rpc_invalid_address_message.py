@@ -6,7 +6,10 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 
-from test_framework.util import assert_raises_rpc_error
+from test_framework.util import (
+    assert_equal,
+    assert_raises_rpc_error,
+)
 
 BECH32_VALID = 'bcrt1qtmp74ayg7p24uslctssvjm06q5phz4yrxucgnv'
 BECH32_INVALID_BECH32 = 'bcrt1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqdmchcc'
@@ -35,18 +38,23 @@ class InvalidAddressErrorMessageTest(BitcoinTestFramework):
         # Bech32
         info = node.validateaddress(BECH32_INVALID_SIZE)
         assert not info['isvalid']
+        assert_equal(info['error'], 'Invalid Bech32 address data size')
 
         info = node.validateaddress(BECH32_INVALID_PREFIX)
         assert not info['isvalid']
+        assert_equal(info['error'], 'Invalid prefix for Bech32 address')
 
         info = node.validateaddress(BECH32_INVALID_BECH32)
         assert not info['isvalid']
+        assert_equal(info['error'], 'Version 1+ witness address must use Bech32m checksum')
 
         info = node.validateaddress(BECH32_INVALID_BECH32M)
         assert not info['isvalid']
+        assert_equal(info['error'], 'Version 0 witness address must use Bech32 checksum')
 
         info = node.validateaddress(BECH32_INVALID_V0_SIZE)
         assert not info['isvalid']
+        assert_equal(info['error'], 'Invalid Bech32 v0 address data size')
 
         info = node.validateaddress(BECH32_VALID)
         assert info['isvalid']
@@ -55,6 +63,7 @@ class InvalidAddressErrorMessageTest(BitcoinTestFramework):
         # Base58
         info = node.validateaddress(BASE58_INVALID_PREFIX)
         assert not info['isvalid']
+        assert_equal(info['error'], 'Invalid prefix for Base58-encoded address')
 
         info = node.validateaddress(BASE58_VALID)
         assert info['isvalid']
@@ -63,17 +72,18 @@ class InvalidAddressErrorMessageTest(BitcoinTestFramework):
         # Invalid address format
         info = node.validateaddress(INVALID_ADDRESS)
         assert not info['isvalid']
+        assert_equal(info['error'], 'Invalid address format')
 
     def test_getaddressinfo(self):
         node = self.nodes[0]
 
-        assert_raises_rpc_error(-5, "Invalid address", node.getaddressinfo, BECH32_INVALID_SIZE)
+        assert_raises_rpc_error(-5, "Invalid Bech32 address data size", node.getaddressinfo, BECH32_INVALID_SIZE)
 
-        assert_raises_rpc_error(-5, "Invalid address", node.getaddressinfo, BECH32_INVALID_PREFIX)
+        assert_raises_rpc_error(-5, "Invalid prefix for Bech32 address", node.getaddressinfo, BECH32_INVALID_PREFIX)
 
-        assert_raises_rpc_error(-5, "Invalid address", node.getaddressinfo, BASE58_INVALID_PREFIX)
+        assert_raises_rpc_error(-5, "Invalid prefix for Base58-encoded address", node.getaddressinfo, BASE58_INVALID_PREFIX)
 
-        assert_raises_rpc_error(-5, "Invalid address", node.getaddressinfo, INVALID_ADDRESS)
+        assert_raises_rpc_error(-5, "Invalid address format", node.getaddressinfo, INVALID_ADDRESS)
 
     def run_test(self):
         self.test_validateaddress()

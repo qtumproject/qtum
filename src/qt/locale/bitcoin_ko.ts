@@ -92,7 +92,7 @@
     </message>
     <message>
         <source>&amp;New</source>
-        <translation>&amp; 새로 만들기</translation>
+        <translation>새 항목(&amp;N)</translation>
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
@@ -100,11 +100,11 @@
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>&amp; 복사</translation>
+        <translation>복사(&amp;C)</translation>
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation>닫기</translation>
+        <translation>닫기(&amp;L)</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
@@ -120,11 +120,11 @@
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>&amp; 내보내기</translation>
+        <translation>내보내기 (&amp;E)</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp; 삭제</translation>
+        <translation>삭제(&amp;D)</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -136,7 +136,7 @@
     </message>
     <message>
         <source>C&amp;hoose</source>
-        <translation>선택</translation>
+        <translation>선택(&amp;H)</translation>
     </message>
     <message>
         <source>Sending addresses</source>
@@ -158,30 +158,32 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Copy Address</source>
-        <translation>&amp; 주소 복사</translation>
+        <translation>주소 복사(&amp;C)</translation>
     </message>
     <message>
         <source>Copy &amp;Label</source>
-        <translation>라벨 복사</translation>
+        <translation>라벨 복사(&amp;L)</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation>&amp; 편집</translation>
+        <translation>편집(&amp;E)</translation>
     </message>
     <message>
         <source>Export Address List</source>
         <translation>주소 리스트 내보내기</translation>
     </message>
     <message>
-        <source>Comma separated file (*.csv)</source>
-        <translation>csv 파일 (*.csv)</translation>
+        <source>Comma separated file</source>
+        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <translation>콤마로 분리된 파일</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
-        <translation>내보내기 오류</translation>
+        <translation>내보내기 실패</translation>
     </message>
     <message>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
         <translation>%1에 주소 리스트 저장하는 도중 에러가 발생했습니다. 다시 시도해주세요.</translation>
     </message>
 </context>
@@ -237,14 +239,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Unlock wallet</source>
         <translation>지갑 언락</translation>
-    </message>
-    <message>
-        <source>This operation needs your wallet passphrase to decrypt the wallet.</source>
-        <translation>해당 작업은 비밀번호를 통해 지갑의 암호를 해제해야 합니다. </translation>
-    </message>
-    <message>
-        <source>Decrypt wallet</source>
-        <translation>지갑 암호 해제</translation>
     </message>
     <message>
         <source>Change passphrase</source>
@@ -315,10 +309,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>암호 해제를 위한 비밀번호가 정확하지 않습니다. </translation>
     </message>
     <message>
-        <source>Wallet decryption failed</source>
-        <translation>지갑 암호 해제 실패</translation>
-    </message>
-    <message>
         <source>Wallet passphrase was successfully changed.</source>
         <translation>지갑의 비밀번호가 성공적으로 수정되었습니다.</translation>
     </message>
@@ -347,11 +337,26 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>BitcoinApplication</name>
+    <message>
+        <source>Runaway exception</source>
+        <translation>런어웨이 예외</translation>
+    </message>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation>치명적인 오류가 발생했습니다. %1 를 더이상 안전하게 진행할 수 없어 곧 종료합니다.</translation>
     </message>
+    <message>
+        <source>Internal error</source>
+        <translation>내부 에러</translation>
+    </message>
+    <message>
+        <source>An internal error occurred. %1 will attempt to continue safely. This is an unexpected bug which can be reported as described below.</source>
+        <translation>내부 오류가 발생했습니다. %1 안전하게 계속하려고 합니다. 이것은 아래 설명으로 보고될 수 있는 예상치 못한 버그입니다.</translation>
+    </message>
+</context>
+<context>
+    <name>BitcoinGUI</name>
     <message>
         <source>My &amp;wallet</source>
         <translation type="unfinished">나의 지갑</translation>
@@ -445,8 +450,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Qt와 관련된 정보 표시</translation>
     </message>
     <message>
-        <source>&amp;Options...</source>
-        <translation type="unfinished">옵션</translation>
+        <source>&amp;Options…</source>
+        <translation type="unfinished">옵션(&amp;O)</translation>
     </message>
     <message>
         <source>Modify configuration options for %1</source>
@@ -461,16 +466,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">메인 윈도우 표시 또는 숨기기</translation>
     </message>
     <message>
-        <source>&amp;Encrypt Wallet...</source>
-        <translation type="unfinished">지갑 암호화</translation>
+        <source>&amp;Encrypt Wallet…</source>
+        <translation type="unfinished">지갑 암호화(&amp;E)</translation>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
         <translation type="unfinished">지갑 프라이빗 키 암호화</translation>
     </message>
     <message>
-        <source>&amp;Backup Wallet...</source>
-        <translation type="unfinished">백업지갑</translation>
+        <source>&amp;Backup Wallet…</source>
+        <translation type="unfinished">지갑 백업(&amp;B)</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -485,7 +490,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">다른 곳에서 지갑 복구</translation>
     </message>
     <message>
-        <source>Create Wallet...</source>
+        <source>Create Wallet…</source>
         <translation>지갑 생성하기...</translation>
     </message>
     <message>
@@ -493,8 +498,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>새로운 지갑 생성하기</translation>
     </message>
     <message>
-        <source>&amp;Change Passphrase...</source>
-        <translation type="unfinished">비밀번호 변경</translation>
+        <source>&amp;Change Passphrase…</source>
+        <translation type="unfinished">암호문 변경(&amp;C)</translation>
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
@@ -517,16 +522,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">지갑 락업</translation>
     </message>
     <message>
-        <source>Sign &amp;message...</source>
-        <translation type="unfinished">메시지 서명</translation>
+        <source>Sign &amp;message…</source>
+        <translation type="unfinished">메시지 서명(&amp;M)</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">소유하고 있는 QTUM 주소의 키로 메시지 서명을 하여 해당 QTUM 주소의 소유권을 증명하세요. </translation>
     </message>
     <message>
-        <source>&amp;Verify message...</source>
-        <translation type="unfinished">메시지 검증</translation>
+        <source>&amp;Verify message…</source>
+        <translation type="unfinished">메시지 검증(&amp;V)</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
@@ -561,8 +566,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">사용했던 입금 주소와 라벨 리스트 표시</translation>
     </message>
     <message>
-        <source>Open &amp;URI...</source>
-        <translation type="unfinished">&amp;URI 열기</translation>
+        <source>Open &amp;URI…</source>
+        <translation type="unfinished">URI 열기(&amp;U)...</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -573,15 +578,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">지갑 열기</translation>
     </message>
     <message>
-        <source>Close Wallet...</source>
-        <translation type="unfinished">지갑 닫기</translation>
+        <source>Close Wallet…</source>
+        <translation type="unfinished">지갑 닫기...</translation>
     </message>
     <message>
         <source>Close wallet</source>
         <translation type="unfinished">지갑 닫기</translation>
     </message>
     <message>
-        <source>Close All Wallets...</source>
+        <source>Close All Wallets…</source>
         <translation>모든 지갑 닫기...</translation>
     </message>
     <message>
@@ -669,51 +674,65 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 클라이언트</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network</source>
+        <source>%n active connection(s) to Qtum network.</source>
+        <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>QTUM네트워크에 대한 활성화된 연결은 %n 개입니다.</numerusform>
+            <numerusform>QTUM 네트워크에 %n 개의 연결이 활성화 되고 있습니다.</numerusform>
         </translation>
     </message>
     <message>
-        <source>Click to disable network activity.</source>
-        <translation type="unfinished">네트워크 활동 비활성화</translation>
+        <source>Click for more actions.</source>
+        <extracomment>A substring of the tooltip. "More actions" are available via the context menu.</extracomment>
+        <translation>추가 작업을 하려면 클릭하세요.</translation>
+    </message>
+    <message>
+        <source>Show Peers tab</source>
+        <extracomment>A context menu item. The "Peers tab" is an element of the "Node window".</extracomment>
+        <translation>피어 탭 보기</translation>
+    </message>
+    <message>
+        <source>Disable network activity</source>
+        <extracomment>A context menu item.</extracomment>
+        <translation type="unfinished">네트워크 비활성화 하기</translation>
     </message>
     <message>
         <source>Network activity disabled.</source>
+        <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">네트워크 활동 금지 </translation>
     </message>
     <message>
-        <source>Click to enable network activity again.</source>
-        <translation type="unfinished">네트워크 활동 활성화</translation>
+        <source>Enable network activity</source>
+        <extracomment>A context menu item. The network activity was disabled previously.</extracomment>
+        <translation>네트워크 활성화 하기</translation>
     </message>
     <message>
-        <source>Syncing Headers (%1%)...</source>
-        <translation type="unfinished">블록 헤드 동기화 (%1%)...</translation>
+        <source>Syncing Headers (%1%)…</source>
+        <translation type="unfinished">헤더 동기화 중 (%1%)...</translation>
     </message>
     <message>
-        <source>Synchronizing with network...</source>
-        <translation type="unfinished">네트워크 동기화를 진행중입니다. </translation>
+        <source>Synchronizing with network…</source>
+        <translation type="unfinished">네트워크와 동기화 중...</translation>
     </message>
     <message>
-        <source>Indexing blocks on disk...</source>
-        <translation type="unfinished">블록 데이터를 위한 목록을 생성중입니다. </translation>
+        <source>Indexing blocks on disk…</source>
+        <translation type="unfinished">디스크에서 블록 색인 중...</translation>
     </message>
     <message>
-        <source>Processing blocks on disk...</source>
-        <translation type="unfinished">블록 데이터를 처리중입니다. </translation>
+        <source>Processing blocks on disk…</source>
+        <translation type="unfinished">디스크에서 블록 처리 중...</translation>
     </message>
     <message>
-        <source>Reindexing blocks on disk...</source>
-        <translation type="unfinished">블록 데이터를 위한 목록을 다시 생성하고 있습니다. </translation>
+        <source>Reindexing blocks on disk…</source>
+        <translation type="unfinished">디스크에서 블록 다시 색인 중...</translation>
     </message>
     <message>
-        <source>Connecting to peers...</source>
-        <translation type="unfinished">노드에 연결중입니다. </translation>
+        <source>Connecting to peers…</source>
+        <translation type="unfinished">피어에 연결 중...</translation>
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation type="unfinished">
-            <numerusform>%n 개의 블록 거래 기록 처리</numerusform>
+            <numerusform>%n 블록 만큼의 거래 기록이 처리됩니다.</numerusform>
         </translation>
     </message>
     <message>
@@ -721,16 +740,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">최신 업데이트 완료</translation>
     </message>
     <message>
-        <source>&amp;Load PSBT from file...</source>
-        <translation>파일로부터 PSBT 불러오기(&amp;L)</translation>
+        <source>&amp;Load PSBT from file…</source>
+        <translation>파일에서 PSBT 불러오기(&amp;L)</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation>부분적으로 서명된 QTUM 트랜잭션 불러오기</translation>
     </message>
     <message>
-        <source>Load PSBT from clipboard...</source>
-        <translation>클립보드로부터 PSBT 불러오기...</translation>
+        <source>Load PSBT from clipboard…</source>
+        <translation>클립보드에서 PSBT 불러오기</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
@@ -741,8 +760,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 딜레이</translation>
     </message>
     <message>
-        <source>Catching up...</source>
-        <translation type="unfinished">업데이트 중</translation>
+        <source>Catching up…</source>
+        <translation type="unfinished">따라잡기...</translation>
     </message>
     <message>
         <source>Last received block was generated %1 ago.</source>
@@ -1039,28 +1058,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>확인됨</translation>
     </message>
     <message>
-        <source>Copy address</source>
-        <translation>주소 복사</translation>
-    </message>
-    <message>
-        <source>Copy label</source>
-        <translation>라벨 복사</translation>
-    </message>
-    <message>
         <source>Copy amount</source>
-        <translation>금액 복사</translation>
-    </message>
-    <message>
-        <source>Copy transaction ID</source>
-        <translation>거래 ID 복사</translation>
-    </message>
-    <message>
-        <source>Lock unspent</source>
-        <translation>미사용 금액 락업</translation>
-    </message>
-    <message>
-        <source>Unlock unspent</source>
-        <translation>미사용 금액 언락</translation>
+        <translation>거래액 복사</translation>
     </message>
     <message>
         <source>Copy quantity</source>
@@ -1122,8 +1121,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>CreateWalletActivity</name>
     <message>
-        <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
-        <translation>지갑 &lt;b&gt;%1&lt;/b&gt; 생성중...</translation>
+        <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <translation>지갑 생성 &lt;b&gt;%1&lt;/b&gt; 진행 중...</translation>
     </message>
     <message>
         <source>Create wallet failed</source>
@@ -1240,12 +1239,20 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>지갑 이름</translation>
     </message>
     <message>
+        <source>Wallet</source>
+        <translation>지갑</translation>
+    </message>
+    <message>
         <source>Encrypt the wallet. The wallet will be encrypted with a passphrase of your choice.</source>
         <translation>지갑 암호화하기. 해당 지갑은 당신이 설정한 문자열 비밀번호로 암호화될 겁니다.</translation>
     </message>
     <message>
         <source>Encrypt Wallet</source>
         <translation>지갑 암호화</translation>
+    </message>
+    <message>
+        <source>Advanced Options</source>
+        <translation>고급 옵션</translation>
     </message>
     <message>
         <source>Disable private keys for this wallet. Wallets with private keys disabled will have no private keys and cannot have an HD seed or imported private keys. This is ideal for watch-only wallets.</source>
@@ -1597,8 +1604,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>확인을 클릭하시면 %1 는 %4 블록체인(%2GB)을 다운로드 및 실행할 것입니다. %4 블록체인이 실행되면 %3에서 최초 거래부터 다운로드를 시작할 예정입니다. </translation>
     </message>
     <message>
+        <source>Limit block chain storage to</source>
+        <translation>블록체인 스토리지를 다음으로 제한하기 </translation>
+    </message>
+    <message>
         <source>Reverting this setting requires re-downloading the entire blockchain. It is faster to download the full chain first and prune it later. Disables some advanced features.</source>
         <translation>이 설정을 되돌리면 전체 블록 체인을 다시 다운로드 해야 합니다. 전체 체인을 먼저 다운로드하고 나중에 정리하는 것이 더 빠릅니다. 일부 고급 기능을 비활성화합니다.</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation>GB</translation>
     </message>
     <message>
         <source>If you have chosen to limit block chain storage (pruning), the historical data must still be downloaded and processed, but will be deleted afterward to keep your disk usage low.</source>
@@ -1617,16 +1632,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>QTUM</translation>
     </message>
     <message>
-        <source>Discard blocks after verification, except most recent %1 GB (prune)</source>
-        <translation>가장 최근의 %1 GB를 제외하고 확인 후 블록 폐기 (정리)</translation>
-    </message>
-    <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
         <translation>해당 디렉토리에 최소 %1 GB의 데이터가 저장될 예정이고 시간이 흐를수록 데이터는 늘어날 예정입니다. </translation>
     </message>
     <message>
         <source>Approximately %1 GB of data will be stored in this directory.</source>
         <translation>해당 디렉토리에 약 %1 GB의 데이터를 저장할 예정입니다. </translation>
+    </message>
+    <message numerus="yes">
+        <source>(sufficient to restore backups %n day(s) old)</source>
+        <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
+        <translation>
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
@@ -1644,21 +1662,17 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Error</source>
         <translation>에러</translation>
     </message>
-    <message numerus="yes">
-        <source>%n GB of free space available</source>
-        <translation>
-            <numerusform>사용 가능한 공간: %n GB</numerusform>
-        </translation>
+    <message>
+        <source>%1 GB of free space available</source>
+        <translation>사용 가능 공간의 %1GB </translation>
     </message>
-    <message numerus="yes">
-        <source>(of %n GB needed)</source>
-        <translation>
-            <numerusform>(%n GB의 공간이 필요합니다. )</numerusform>
-        </translation>
+    <message>
+        <source>(of %1 GB needed)</source>
+        <translation>(필요한 %1GB 중)</translation>
     </message>
-    <message numerus="yes">
-        <source>(%n GB needed for full chain)</source>
-        <translation><numerusform>(Full 체인이 되려면 %n GB 가 필요합니다)</numerusform></translation>
+    <message>
+        <source>(%1 GB needed for full chain)</source>
+        <translation>(전체 체인에 필요한 %1GB)</translation>
     </message>
     <message>
         <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
@@ -1684,8 +1698,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>남은 블록 개수</translation>
     </message>
     <message>
-        <source>Unknown...</source>
-        <translation>알 수 없음</translation>
+        <source>Unknown…</source>
+        <translation>알 수 없음...</translation>
     </message>
     <message>
         <source>Last block time</source>
@@ -1700,8 +1714,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>시간당 진도 증감</translation>
     </message>
     <message>
-        <source>calculating...</source>
-        <translation>계산 중</translation>
+        <source>calculating…</source>
+        <translation>계산 중...</translation>
     </message>
     <message>
         <source>Estimated time left until synced</source>
@@ -1712,16 +1726,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>숨기기</translation>
     </message>
     <message>
-        <source>Esc</source>
-        <translation>Esc</translation>
-    </message>
-    <message>
         <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
         <translation>%1가 현재 동기화 중입니다. 이것은 피어에서 헤더와 블록을 다운로드하고 블록 체인의 끝에 도달 할 때까지 유효성을 검사합니다.</translation>
     </message>
     <message>
-        <source>Unknown. Syncing Headers (%1, %2%)...</source>
-        <translation>알 수 없음. 블록헤드 동기화 중(%1, %2%)...</translation>
+        <source>Unknown. Syncing Headers (%1, %2%)…</source>
+        <translation>알 수 없음. 헤더 동기화 중(%1, %2)...</translation>
     </message>
     <message>
         <source>Wallet backup prompt</source>
@@ -1747,10 +1757,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <source>Open qtum URI</source>
         <translation>QTUM URI 열기</translation>
     </message>
-    <message>
-        <source>URI:</source>
-        <translation>URI:</translation>
-    </message>
 </context>
 <context>
     <name>OpenWalletActivity</name>
@@ -1767,8 +1773,8 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>기본 지갑</translation>
     </message>
     <message>
-        <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;...</source>
-        <translation>지갑 &lt;b&gt;%1&lt;/b&gt; 여는중...</translation>
+        <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <translation>지갑 열기 &lt;b&gt;%1&lt;/b&gt; 진행 중...</translation>
     </message>
 </context>
 <context>
@@ -1806,14 +1812,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>해당 종류의 네트워크로 피어 연결 시 제공된 SOCKS5 프록시의 사용 여부 표시</translation>
     </message>
     <message>
-        <source>Hide the icon from the system tray.</source>
-        <translation>시스템 알림에서 아이콘 숨기기</translation>
-    </message>
-    <message>
-        <source>&amp;Hide tray icon</source>
-        <translation>트레이 아이콘 숨기기</translation>
-    </message>
-    <message>
         <source>Minimize instead of exit the application when the window is closed. When this option is enabled, the application will be closed only after selecting Exit in the menu.</source>
         <translation>해당 옵션을 선택할 경우, 윈도우를 닫아도 프로그램 종료가 아닌 최소화가 진행되고 메뉴에서 &apos;종료&apos;를 선택해야만 프로그램이 종료됩니다. </translation>
     </message>
@@ -1842,24 +1840,12 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>네트워크</translation>
     </message>
     <message>
-        <source>Disables some advanced features but all blocks will still be fully validated. Reverting this setting requires re-downloading the entire blockchain. Actual disk usage may be somewhat higher.</source>
-        <translation>고급 기능 비활성화 기능, 단 블록 데이터는 여전히 모두 검증될 예정입니다. 해당 설정을 취소할 경우 모든 블록체인 데이터는 다시 다운로드되고 실제 사용되는 디스크 용량은 다소 높을 수 있습니다. </translation>
-    </message>
-    <message>
         <source>Prune &amp;block storage to</source>
         <translation>블록 저장공간 변경</translation>
     </message>
     <message>
-        <source>GB</source>
-        <translation>GB</translation>
-    </message>
-    <message>
         <source>Reverting this setting requires re-downloading the entire blockchain.</source>
         <translation>경고：해당 설정을 복구하려면 블록체인 데이터 전체를 다시 다운로드해야 합니다. </translation>
-    </message>
-    <message>
-        <source>MiB</source>
-        <translation>MiB</translation>
     </message>
     <message>
         <source>(0 = auto, &lt;0 = leave that many cores free)</source>
@@ -1894,6 +1880,14 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>&amp;UPnP를 통한 포트 맵핑</translation>
     </message>
     <message>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation>라우터에서 QTUM 클라이언트 포트를 자동으로 엽니다. 이는 라우터가 NAT-PMP를 지원하고 활성화 된 경우에만 작동합니다. 외부 포트는 무작위 일 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Map port using NA&amp;T-PMP</source>
+        <translation>NAT-PMP 사용 포트 매핑하기(&amp;T)</translation>
+    </message>
+    <message>
         <source>Accept connections from outside.</source>
         <translation>외부 연결 수락</translation>
     </message>
@@ -1926,20 +1920,16 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>피어 연결 방식:</translation>
     </message>
     <message>
-        <source>IPv4</source>
-        <translation>IPv4</translation>
-    </message>
-    <message>
-        <source>IPv6</source>
-        <translation>IPv6</translation>
-    </message>
-    <message>
-        <source>Tor</source>
-        <translation>Tor</translation>
-    </message>
-    <message>
         <source>&amp;Window</source>
         <translation>윈도우</translation>
+    </message>
+    <message>
+        <source>Show the icon in the system tray.</source>
+        <translation>시스템 트레이에 있는 아이콘 숨기기</translation>
+    </message>
+    <message>
+        <source>&amp;Show tray icon</source>
+        <translation>트레이 아이콘 보기(&amp;S)</translation>
     </message>
     <message>
         <source>Show only a tray icon after minimizing the window.</source>
@@ -2234,10 +2224,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>클립보드로 복사</translation>
     </message>
     <message>
-        <source>Save...</source>
-        <translation>저장...</translation>
-    </message>
-    <message>
         <source>Close</source>
         <translation>닫기</translation>
     </message>
@@ -2275,11 +2261,7 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     </message>
     <message>
         <source>Save Transaction Data</source>
-        <translation>거래 데이터 저장</translation>
-    </message>
-    <message>
-        <source>Partially Signed Transaction (Binary) (*.psbt)</source>
-        <translation>부분적으로 서명된 QTUM 트랜잭션 (2진 표기) (*.psbt)</translation>
+        <translation>트랜잭션 데이터 저장</translation>
     </message>
     <message>
         <source>PSBT saved to disk.</source>
@@ -2354,22 +2336,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>'qtum://"은 잘못된 URI입니다. 'qtum:'을 사용하십시오.</translation>
     </message>
     <message>
-        <source>Cannot process payment request because BIP70 is not supported.</source>
-        <translation>BIP70을 지원하지 않아서 지불 요청을 처리할 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.</source>
-        <translation>BIP70의 보안적 결함 때문에 상점에 불문하고 "지갑을 바꾸라"라는 권고 또는 지시는 대부분의 경우 무시하는 방법을 강력하게 권장합니다.</translation>
-    </message>
-    <message>
-        <source>If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
-        <translation>만약 이 오류 메시지가 보인다면, 상점에 BIP21이 호환되는 URI를 제공해달라고 요청해주세요.</translation>
-    </message>
-    <message>
-        <source>Invalid payment address %1</source>
-        <translation>무효한 송금 주소 %1</translation>
-    </message>
-    <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation>URI 주소를 분석할 수 없습니다. 무효한 퀀텀 주소 또는 URI 파라미터 서식 오류일 수 있습니다. </translation>
     </message>
@@ -2386,27 +2352,43 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <name>PeerTableModel</name>
     <message>
         <source>User Agent</source>
+        <extracomment>Title of Peers Table column which contains the peer's User Agent string.</extracomment>
         <translation>사용자 에이전트</translation>
     </message>
     <message>
-        <source>Node/Service</source>
-        <translation>노드 / 서비스</translation>
-    </message>
-    <message>
-        <source>NodeId</source>
-        <translation>노드 ID</translation>
-    </message>
-    <message>
         <source>Ping</source>
+        <extracomment>Title of Peers Table column which indicates the current latency of the connection with the peer.</extracomment>
         <translation>Ping</translation>
     </message>
     <message>
+        <source>Peer</source>
+        <extracomment>Title of Peers Table column which contains a unique number used to identify a connection.</extracomment>
+        <translation>피어</translation>
+    </message>
+    <message>
         <source>Sent</source>
-        <translation>보내기</translation>
+        <extracomment>Title of Peers Table column which indicates the total amount of network information we have sent to the peer.</extracomment>
+        <translation>보냄</translation>
     </message>
     <message>
         <source>Received</source>
-        <translation>받은</translation>
+        <extracomment>Title of Peers Table column which indicates the total amount of network information we have received from the peer.</extracomment>
+        <translation>받음</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <extracomment>Title of Peers Table column which contains the IP/Onion/I2P address of the connected peer.</extracomment>
+        <translation>주소</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <extracomment>Title of Peers Table column which describes the type of peer connection. The "type" describes why the connection exists.</extracomment>
+        <translation>형식</translation>
+    </message>
+    <message>
+        <source>Network</source>
+        <extracomment>Title of Peers Table column which states the network the peer connected through.</extracomment>
+        <translation>네트워크</translation>
     </message>
 </context>
 <context>
@@ -2418,6 +2400,14 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation>QTUM 주소를 입력해주세요 (예시, %1)</translation>
+    </message>
+    <message>
+        <source>Inbound</source>
+        <translation>인바운드</translation>
+    </message>
+    <message>
+        <source>Outbound</source>
+        <translation>아웃바운드</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -2439,42 +2429,34 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <source>None</source>
         <translation>없음</translation>
     </message>
-    <message>
-        <source>N/A</source>
-        <translation>사용 불가</translation>
-    </message>
-    <message>
-        <source>%1 ms</source>
-        <translation>%1 밀리세컨드</translation>
-    </message>
     <message numerus="yes">
         <source>%n second(s)</source>
         <translation>
-            <numerusform>%n 초</numerusform>
+            <numerusform>%n초</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
         <translation>
-            <numerusform>%n 분</numerusform>
+            <numerusform>%n분</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
         <translation>
-            <numerusform>%n 시간</numerusform>
+            <numerusform>%n시간</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n day(s)</source>
         <translation>
-            <numerusform>%n 일</numerusform>
+            <numerusform>%n일</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n week(s)</source>
         <translation>
-            <numerusform>%n 주</numerusform>
+            <numerusform>%n주</numerusform>
         </translation>
     </message>
     <message>
@@ -2484,16 +2466,12 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message numerus="yes">
         <source>%n year(s)</source>
         <translation>
-            <numerusform>%n 년</numerusform>
+            <numerusform>%n년</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 B</source>
         <translation>%1 바이트</translation>
-    </message>
-    <message>
-        <source>%1 KB</source>
-        <translation>%1 KB</translation>
     </message>
     <message>
         <source>%1 MB</source>
@@ -2520,8 +2498,8 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>설정 초기화 오류 : %1</translation>
     </message>
     <message>
-        <source>%1 didn&apos;t yet exit safely...</source>
-        <translation>%1 안전하게 종료되지 않았습니다. </translation>
+        <source>%1 didn't yet exit safely…</source>
+        <translation>%1가 아직 안전하게 종료되지 않았습니다...</translation>
     </message>
     <message>
         <source>unknown</source>
@@ -2601,10 +2579,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
 <context>
     <name>QRImageWidget</name>
     <message>
-        <source>&amp;Save Image...</source>
-        <translation>이미지 저장(&amp;S)...</translation>
-    </message>
-    <message>
         <source>&amp;Copy Image</source>
         <translation>이미지 복사(&amp;C)</translation>
     </message>
@@ -2625,8 +2599,9 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>QR코드 저장</translation>
     </message>
     <message>
-        <source>PNG Image (*.png)</source>
-        <translation>PNG 이미지(*.png)</translation>
+        <source>PNG Image</source>
+        <extracomment>Expanded name of the PNG file format. See https://en.wikipedia.org/wiki/Portable_Network_Graphics</extracomment>
+        <translation>PNG 이미지</translation>
     </message>
 </context>
 <context>
@@ -2820,7 +2795,7 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation type="vanished">커멘드 라인 옵션</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <translation type="vanished">
             <numerusform>QTUM네트워크에 대한 활성화된 연결은 %n 개입니다.</numerusform>
         </translation>
@@ -3059,10 +3034,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
 <context>
     <name>RPCConsole</name>
     <message>
-        <source>N/A</source>
-        <translation>사용 불가</translation>
-    </message>
-    <message>
         <source>Client version</source>
         <translation>클라이언트 버전</translation>
     </message>
@@ -3075,20 +3046,12 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>일반</translation>
     </message>
     <message>
-        <source>Using BerkeleyDB version</source>
-        <translation>사용된 BerkeleyDB 버전</translation>
-    </message>
-    <message>
         <source>Datadir</source>
         <translation>데이터 디렉토리</translation>
     </message>
     <message>
         <source>To specify a non-default location of the data directory use the &apos;%1&apos; option.</source>
         <translation>디폴트로 설정된 데이터 디렉토리를 사용하고 싶지 않다면 &apos;%1&apos; 옵션을 사용하세요.</translation>
-    </message>
-    <message>
-        <source>Blocksdir</source>
-        <translation>블록 저장 디렉토리</translation>
     </message>
     <message>
         <source>To specify a non-default location of the blocks directory use the &apos;%1&apos; option.</source>
@@ -3157,10 +3120,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>Select a peer to view detailed information.</source>
         <translation>노드를 선택하여 자세한 정보를 확인하세요</translation>
-    </message>
-    <message>
-        <source>Direction</source>
-        <translation>방향</translation>
     </message>
     <message>
         <source>Version</source>
@@ -3287,10 +3246,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>1 시간(&amp;H)</translation>
     </message>
     <message>
-        <source>1 &amp;day</source>
-        <translation>1 일(&amp;D)</translation>
-    </message>
-    <message>
         <source>1 &amp;week</source>
         <translation>1 주(&amp;W)</translation>
     </message>
@@ -3311,26 +3266,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>다시 허용</translation>
     </message>
     <message>
-        <source>Welcome to the %1 RPC console.</source>
-        <translation>%1 RPC 콘솔 사용을 환영합니다. </translation>
-    </message>
-    <message>
-        <source>Use up and down arrows to navigate history, and %1 to clear screen.</source>
-        <translation>상하 방향키를 통해 내역을 조회하시고 %1 을 눌러 화면 내역을 제거하세요. </translation>
-    </message>
-    <message>
-        <source>Type %1 for an overview of available commands.</source>
-        <translation>%1을 입력하여 사용 가능한 명령어 정보를 확인하세요. </translation>
-    </message>
-    <message>
-        <source>For more information on using this console type %1.</source>
-        <translation>콘솔 사용에 대한 더 많은 정보를 확인하고 싶다면 %1를 입력하세요. </translation>
-    </message>
-    <message>
-        <source>WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.</source>
-        <translation>경고：사용자들의 지갑 정보 도용을 위해 해당 영역에 명령어를 입력하라고 종용하는 사기 행위가 발생한적이 있습니다. 명령어에 대한 충분한 이해도가 없는 경우 해당 콘솔을 사용하지 않을 것을 권장 드립니다. </translation>
-    </message>
-    <message>
         <source>Network activity disabled</source>
         <translation>네트워크 비활성화</translation>
     </message>
@@ -3343,24 +3278,33 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>“%1” 지갑을 사용한 명령어 실행</translation>
     </message>
     <message>
-        <source>(node id: %1)</source>
-        <translation>(노드 ID: %1)</translation>
+        <source>Executing…</source>
+        <extracomment>A console message indicating an entered command is currently being executed.</extracomment>
+        <translation>실행 중...</translation>
+    </message>
+    <message>
+        <source>(peer: %1)</source>
+        <translation>(피어: %1)</translation>
     </message>
     <message>
         <source>via %1</source>
         <translation>%1을 통해</translation>
     </message>
     <message>
-        <source>never</source>
-        <translation>아니요</translation>
+        <source>Yes</source>
+        <translation>예</translation>
     </message>
     <message>
-        <source>Inbound</source>
-        <translation>인바운드</translation>
+        <source>No</source>
+        <translation>아니오</translation>
     </message>
     <message>
-        <source>Outbound</source>
-        <translation>아웃바운드</translation>
+        <source>To</source>
+        <translation>받는 주소</translation>
+    </message>
+    <message>
+        <source>From</source>
+        <translation>보낸 주소</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -3454,20 +3398,8 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>제거</translation>
     </message>
     <message>
-        <source>Copy URI</source>
-        <translation>URI 복사</translation>
-    </message>
-    <message>
-        <source>Copy label</source>
-        <translation>라벨 복사</translation>
-    </message>
-    <message>
-        <source>Copy message</source>
-        <translation>메시지 복사</translation>
-    </message>
-    <message>
-        <source>Copy amount</source>
-        <translation>금액 복사</translation>
+        <source>Copy &amp;URI</source>
+        <translation>URI 복사(&amp;U)</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -3503,10 +3435,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>Copy &amp;Address</source>
         <translation type="vanished">주소 복사</translation>
-    </message>
-    <message>
-        <source>&amp;Save Image...</source>
-        <translation type="vanished">이미지 저장</translation>
     </message>
     <message>
         <source>Request payment to %1</source>
@@ -3693,8 +3621,8 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>코인 통제 기능</translation>
     </message>
     <message>
-        <source>Inputs...</source>
-        <translation>입력</translation>
+        <source>Inputs…</source>
+        <translation>입력...</translation>
     </message>
     <message>
         <source>automatically selected</source>
@@ -3710,11 +3638,11 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     </message>
     <message>
         <source>Bytes:</source>
-        <translation>바이트：</translation>
+        <translation>바이트:</translation>
     </message>
     <message>
         <source>Amount:</source>
-        <translation>금액：</translation>
+        <translation>금액:</translation>
     </message>
     <message>
         <source>Fee:</source>
@@ -3741,8 +3669,8 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>거래 수수료:</translation>
     </message>
     <message>
-        <source>Choose...</source>
-        <translation type="vanished">선택</translation>
+        <source>Choose…</source>
+        <translation type="vanished">선택...</translation>
     </message>
     <message>
         <source>Using the fallbackfee can result in sending a transaction that will take several hours or days (or never) to confirm. Consider choosing your fee manually or wait until you have validated the complete chain.</source>
@@ -3751,14 +3679,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>Warning: Fee estimation is currently not possible.</source>
         <translation>경고: 거래 수수료 예측이 불가합니다. </translation>
-    </message>
-    <message>
-        <source>Specify a custom fee per kB (1,000 bytes) of the transaction&apos;s virtual size.
-
-Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satoshis per kB&quot; for a transaction size of 500 bytes (half of 1 kB) would ultimately yield a fee of only 50 satoshis.</source>
-        <translation type="vanished">按照交易的虚拟大小自定义每kB ( 1,000 字节 )要交多少手续费。
-
-注意：手续费是按照字节数计算的，对于一笔大小为500字节（1kB的一半）的交易来说，&quot;每kB付100聪手续费&quot;就意味着手续费一共只付了50聪。</translation>
     </message>
     <message>
         <source>per kilobyte</source>
@@ -3775,10 +3695,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Custom:</source>
         <translation type="vanished">사용자 지정</translation>
-    </message>
-    <message>
-        <source>(Smart fee not initialized yet. This usually takes a few blocks...)</source>
-        <translation>(스마트 거래 수수료가 아직 초기화 되지 않았습니다. 일반적으로 몇 개의 블록 생성 시간이 소요됩니다. )</translation>
     </message>
     <message>
         <source>Send to multiple recipients at once</source>
@@ -3826,7 +3742,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <source>Balance:</source>
-        <translation>잔액：</translation>
+        <translation>잔액:</translation>
     </message>
     <message>
         <source>Confirm the send action</source>
@@ -3905,10 +3821,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>트랜잭션 데이터 저장</translation>
     </message>
     <message>
-        <source>Partially Signed Transaction (Binary) (*.psbt)</source>
-        <translation>부분적으로 서명된 QTUM 트랜잭션 (2진 표기) (*.psbt)</translation>
-    </message>
-    <message>
         <source>PSBT saved</source>
         <translation>PSBT 저장됨</translation>
     </message>
@@ -3943,10 +3855,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message>
         <source>Total Amount</source>
         <translation>총액</translation>
-    </message>
-    <message>
-        <source>To review recipient list click "Show Details..."</source>
-        <translation>수령인 목록을 검토하려면 "거래 세부 내역 보기..." 를 클릭하십시오</translation>
     </message>
     <message>
         <source>Confirm send coins</source>
@@ -3999,7 +3907,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation>
-            <numerusform>%n 개의 블록 이후 승인될 예정입니다.</numerusform>
+            <numerusform>%n 블록 안에 승인이 시작될 것으로 추정됩니다.</numerusform>
         </translation>
     </message>
     <message>
@@ -4008,7 +3916,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <source>Warning: Unknown change address</source>
-        <translation>경고：알 수 없는 잔액 주소</translation>
+        <translation>경고:알 수 없는 잔액 주소</translation>
     </message>
     <message>
         <source>Confirm custom change address</source>
@@ -4058,16 +3966,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>지불 목적 주소</translation>
     </message>
     <message>
-        <source>Alt+A</source>
-        <translation>Alt+A</translation>
-    </message>
-    <message>
         <source>Paste address from clipboard</source>
         <translation>클립보드에서 복사한 주소 붙여넣기</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -4319,8 +4219,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
 <context>
     <name>ShutdownWindow</name>
     <message>
-        <source>%1 is shutting down...</source>
-        <translation>%1 를 종료하고 있습니다. </translation>
+        <source>%1 is shutting down…</source>
+        <translation>%1 종료 중입니다...</translation>
     </message>
     <message>
         <source>Do not shut down the computer until this window disappears.</source>
@@ -4347,19 +4247,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <source>Choose previously used address</source>
-        <translation>이전에 사용했던 주소 선택</translation>
-    </message>
-    <message>
-        <source>Alt+A</source>
-        <translation>Alt+A</translation>
+        <translation>이전에 사용한 주소를 선택하기</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
-        <translation>클립보드에서 복사한 주소 붙여넣기</translation>
-    </message>
-    <message>
-        <source>Alt+P</source>
-        <translation>Alt+P</translation>
+        <translation>클립보드로 부터 주소 붙여넣기</translation>
     </message>
     <message>
         <source>Enter the message you want to sign here</source>
@@ -4834,18 +4726,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
 </context>
 <context>
-    <name>TrafficGraphWidget</name>
-    <message>
-        <source>KB/s</source>
-        <translation>KB/s</translation>
-    </message>
-</context>
-<context>
     <name>TransactionDesc</name>
     <message numerus="yes">
         <source>Open for %n more block(s)</source>
         <translation>
-            <numerusform>%n 개의 블록 후에 실행</numerusform>
+            <numerusform>%n개의 더 많은 블록 열기</numerusform>
         </translation>
     </message>
     <message>
@@ -4927,7 +4812,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
         <translation>
-            <numerusform>성숙한 상태까지 %n 개 블록 남음</numerusform>
+            <numerusform>%n개의 블록검증이 더 필요함</numerusform>
         </translation>
     </message>
     <message>
@@ -5047,7 +4932,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     <message numerus="yes">
         <source>Open for %n more block(s)</source>
         <translation>
-            <numerusform>%n 개의 블록 후에 실행</numerusform>
+            <numerusform>%n개의 더 많은 블록 열기</numerusform>
         </translation>
     </message>
     <message>
@@ -5174,16 +5059,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>올해</translation>
     </message>
     <message>
-        <source>Range...</source>
-        <translation>범위 지정</translation>
-    </message>
-    <message>
         <source>Received with</source>
         <translation>입금</translation>
     </message>
     <message>
         <source>Sent to</source>
-        <translation>에게 지불</translation>
+        <translation>받는 주소 :</translation>
     </message>
     <message>
         <source>To yourself</source>
@@ -5206,52 +5087,13 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         <translation>최소 금액</translation>
     </message>
     <message>
-        <source>Abandon transaction</source>
-        <translation>거래 포기</translation>
-    </message>
-    <message>
-        <source>Increase transaction fee</source>
-        <translation>거래 수수료 증가</translation>
-    </message>
-    <message>
-        <source>Copy address</source>
-        <translation>주소 복사</translation>
-    </message>
-    <message>
-        <source>Copy label</source>
-        <translation>라벨 복사</translation>
-    </message>
-    <message>
-        <source>Copy amount</source>
-        <translation>금액 복사</translation>
-    </message>
-    <message>
-        <source>Copy transaction ID</source>
-        <translation>거래 ID 복사</translation>
-    </message>
-    <message>
-        <source>Copy raw transaction</source>
-        <translation>거래 내역 원본 복사</translation>
-    </message>
-    <message>
-        <source>Copy full transaction details</source>
-        <translation>거래 내역 전부 복사</translation>
-    </message>
-    <message>
-        <source>Edit label</source>
-        <translation>라벨 편집</translation>
-    </message>
-    <message>
-        <source>Show transaction details</source>
-        <translation>거래 내역 표시</translation>
-    </message>
-    <message>
         <source>Export Transaction History</source>
         <translation>거래 내역 내보내기</translation>
     </message>
     <message>
-        <source>Comma separated file (*.csv)</source>
-        <translation>csv 파일 (*.csv)</translation>
+        <source>Comma separated file</source>
+        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <translation>콤마로 분리된 파일</translation>
     </message>
     <message>
         <source>Confirmed</source>
@@ -5457,8 +5299,9 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>지갑 백업</translation>
     </message>
     <message>
-        <source>Wallet Data (*.dat)</source>
-        <translation>지갑파일(*.dat)</translation>
+        <source>Wallet Data</source>
+        <extracomment>Name of the wallet data file format.</extracomment>
+        <translation>지갑 정보</translation>
     </message>
     <message>
         <source>Backup Failed</source>
@@ -5532,10 +5375,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>%s가 손상되었습니다. '비트 코인-지갑'을 사용하여 백업을 구제하거나 복원하십시오.</translation>
     </message>
     <message>
-        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use version 169900 or no version specified.</source>
-        <translation>HD 분할을 하지 않은 지갑은 pre split keypool로 업그레이드 하지 않고는 업그레이드를 진행할 수 없습니다. 버전 169900나 버전을 지정하지 않는 것을 사용해주십시오.</translation>
-    </message>
-    <message>
         <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
         <translation>유효하지 않은 금액 -maxtxfee=&lt;amount&gt;: '%s' (거래가 막히는 상황을 방지하게 위해 적어도 %s 의 중계 수수료를 지정해야 합니다)</translation>
     </message>
@@ -5554,14 +5393,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
         <translation type="unfinished">%s이 당신에게 유용하다면 기부를 통해 도움을 주시길 바랍니다. 웹사이트 %s 방문을 통해 해당 소프트웨어에 대한 더 많은 정보를 얻을 수 있습니다. </translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to prepare the statement to fetch sqlite wallet schema version: %s</source>
-        <translation>에스큐엘라이트 데이터베이스 : 에스큐엘라이트 지갑 스키마 버전을 가져오는 실행문 준비에 실패하였습니다 : %s</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to prepare the statement to fetch the application id: %s</source>
-        <translation>에스큐엘라이트 데이터베이스 : 응용 프로그램 ID를 가져오는 실행문 준비에 실패하였습니다 : %s</translation>
     </message>
     <message>
         <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
@@ -5588,10 +5419,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>이것은 일반 코인 선택보다 부분적 지출 회피를 우선시하기 위해 지불하는 최대 거래 수수료 (일반 수수료에 추가)입니다.</translation>
     </message>
     <message>
-        <source>Transaction needs a change address, but we can't generate it. Please call keypoolrefill first.</source>
-        <translation>거래에 변경 주소가 필요하지만 생성 할 수 없습니다. 먼저 keypoolrefill에 전화하십시오.</translation>
-    </message>
-    <message>
         <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
         <translation type="unfinished">테스트용으로 사전 배포하는 버전입니다. 리스크에 대한 책임을 지지 않으며 마이닝 또는 비즈니스에 사용하지 않을 것을 권장 드립니다. </translation>
     </message>
@@ -5612,16 +5439,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">블록을 다시 정렬하지 못했습니다. -reindex-chainstate 를 통해 데이터베이스를 다시 구축하세요. </translation>
     </message>
     <message>
-        <source>Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain</source>
-        <translation type="unfinished">데이터베이스를 포크 전 상태로 돌릴 수 없습니다. 블록체인을 다시 다운로드 해주세요. </translation>
-    </message>
-    <message>
         <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
         <translation type="unfinished">경고：사용 금지된 지갑{%s}에서 프라이빗 키가 감지됩니다. </translation>
-    </message>
-    <message>
-        <source>Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.</source>
-        <translation type="unfinished">경고：네트워크에서 완전한 합의를 이루지 못했습니다. 일부 마이너가 문제를 겪고 있는 듯 합니다. </translation>
     </message>
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
@@ -5660,10 +5479,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">-maxmempool 의 최소값 %d MB</translation>
     </message>
     <message>
-        <source>Cannot downgrade wallet</source>
-        <translation type="unfinished">지갑을 다운그레이드하지 못했습니다. </translation>
-    </message>
-    <message>
         <source>Cannot resolve -%s address: &apos;%s&apos;</source>
         <translation type="unfinished">- %s 주소： &apos;%s&apos;를 분석하지 못했습니다. </translation>
     </message>
@@ -5678,10 +5493,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>
         <translation type="unfinished">%s 에 대한 config 세팅은 [%s] 섹션에 있는 %s 네트워크에만 유효합니다. </translation>
-    </message>
-    <message>
-        <source>Copyright (C) %i-%i</source>
-        <translation type="unfinished">Copyright (C) %i-%i</translation>
     </message>
     <message>
         <source>Corrupted block database detected</source>
@@ -5772,10 +5583,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>데이터베이스를 검증 실패</translation>
     </message>
     <message>
-        <source>Importing...</source>
-        <translation type="unfinished">가져오는 중</translation>
-    </message>
-    <message>
         <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
         <translation type="unfinished">제네시스 블록을 확인 할 수 없습니다. 네트워크를 확인해주세요. </translation>
     </message>
@@ -5820,14 +5627,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>에스큐엘라이트 데이터베이스 : 데이터베이스를 확인하는 실행문 출력을 실패하였습니다 : %s.</translation>
     </message>
     <message>
-        <source>SQLiteDatabase: Failed to fetch sqlite wallet schema version: %s</source>
-        <translation>에스큐엘라이트 데이터베이스 : 에스큐엘라이트 지갑 스키마 버전 가져오기를 실패하였습니다 : %s</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to fetch the application id: %s</source>
-        <translation>에스큐엘라이트 데이터베이스 : 어플리케이션 아이디 가져오기를 실패하였습니다 : %s</translation>
-    </message>
-    <message>
         <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
         <translation>에스큐엘라이트 데이터베이스 : 데이터베이스를 확인하는 실행문 준비에 실패하였습니다 : %s.</translation>
     </message>
@@ -5852,32 +5651,12 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">키풀이 소진되었습니다. Keypoolrefill을 먼저 실행하십시오. </translation>
     </message>
     <message>
-        <source>Loading P2P addresses...</source>
-        <translation type="unfinished">P2P주소를 불러오고 있습니다. </translation>
-    </message>
-    <message>
-        <source>Loading banlist...</source>
-        <translation type="unfinished">블랙 리스트를 불러오고 있습니다. </translation>
-    </message>
-    <message>
-        <source>Loading block index...</source>
-        <translation type="unfinished">블록 목록을 불러오고 있습니다. </translation>
-    </message>
-    <message>
-        <source>Loading wallet...</source>
-        <translation type="unfinished">지갑을 불러오고 있습니다. </translation>
-    </message>
-    <message>
         <source>Need to specify a port with -whitebind: &apos;%s&apos;</source>
         <translation type="unfinished">-whitebind: &apos;%s&apos; 특정 포트를 지정해야 함.</translation>
     </message>
     <message>
         <source>No proxy server specified. Use -proxy=&lt;ip&gt; or -proxy=&lt;ip:port&gt;.</source>
         <translation>프록시 서버가 지정되지 않았습니다. -proxy =&lt;ip&gt; 또는 -proxy =&lt;ip:port&gt;를 사용하십시오.</translation>
-    </message>
-    <message>
-        <source>Prune mode is incompatible with -blockfilterindex.</source>
-        <translation>블록 축소 모드는 -blockfileterindex와 호환되지 않습니다.</translation>
     </message>
     <message>
         <source>Not enough file descriptors available.</source>
@@ -5892,24 +5671,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">수정 모드와 -txindex 는 호환되지 않습니다. </translation>
     </message>
     <message>
-        <source>Pruning blockstore...</source>
-        <translation type="unfinished">블록 저장공간을 수정하고 있습니다. </translation>
-    </message>
-    <message>
         <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
         <translation type="unfinished">시스템 제한으로 -maxconnections를 %d에서 %d로 낮췄습니다. </translation>
-    </message>
-    <message>
-        <source>Replaying blocks...</source>
-        <translation type="unfinished">블록에 대한 계산을 다시 진행하고 있습니다. </translation>
-    </message>
-    <message>
-        <source>Rescanning...</source>
-        <translation type="unfinished">다시 스캔하고 있습니다. </translation>
-    </message>
-    <message>
-        <source>Rewinding blocks...</source>
-        <translation type="unfinished">블록 되돌리기</translation>
     </message>
     <message>
         <source>Section [%s] is not recognized.</source>
@@ -5940,18 +5703,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>알 수 없는 변경 형식 '%s'</translation>
     </message>
     <message>
-        <source>Starting network threads...</source>
-        <translation type="unfinished">네트워크 쓰레드를 가동하고 있습니다. </translation>
-    </message>
-    <message>
         <source>The source code is available from %s.</source>
         <translation type="unfinished">소스코드는 %s 확인할 수 있습니다. </translation>
-    </message>
-    <message>
-        <source>The specified config file %s does not exist
-</source>
-        <translation type="unfinished">지정한 설정파일 %s이 존재하지 않습니다. 
-</translation>
     </message>
     <message>
         <source>The transaction amount is too small to pay the fee</source>
@@ -5980,10 +5733,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Transaction amounts must not be negative</source>
         <translation type="unfinished">거래금액은 마이너스가 될 수 없습니다. </translation>
-    </message>
-    <message>
-        <source>Transaction fee and change calculation failed</source>
-        <translation type="unfinished">거래 수수료 및 잔액 계산 실패</translation>
     </message>
     <message>
         <source>Transaction has too long of a mempool chain</source>
@@ -6050,12 +5799,12 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">사용자의 에이전트 커멘트(%s)에 불안전한 문자열이 포함되어 있습니다. </translation>
     </message>
     <message>
-        <source>Verifying blocks...</source>
-        <translation type="unfinished">블록을 검증하고 있습니다. </translation>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">블록 검증 중...</translation>
     </message>
     <message>
-        <source>Verifying wallet(s)...</source>
-        <translation type="unfinished">지갑을 검증하고 있습니다. </translation>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">지갑(들) 검증 중...</translation>
     </message>
     <message>
         <source>Wallet %s resides outside wallet directory %s</source>
@@ -6068,10 +5817,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Warning</source>
         <translation type="unfinished">경고</translation>
-    </message>
-    <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation type="unfinished">경고: 알 수 없는 거래 규칙이 활성화되었습니다. (versionbit %i)</translation>
     </message>
 </context>
 <context>
@@ -6087,10 +5832,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
         <translation type="vanished">수정：지갑의 마지막 동기화가 수정된 데이터를 초과했습니다. -reindex를 실행하십시오 (모든 블록체인을 다운로드하여 수정된 노드를 확인합니다.)</translation>
-    </message>
-    <message>
-        <source>Pruning blockstore...</source>
-        <translation type="vanished">블록 저장공간을 수정하고 있습니다. </translation>
     </message>
     <message>
         <source>Unable to start HTTP server. See debug log for details.</source>
@@ -6129,14 +5870,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="vanished">%s이 당신에게 유용하다면 기부를 통해 도움을 주시길 바랍니다. 웹사이트 %s 방문을 통해 해당 소프트웨어에 대한 더 많은 정보를 얻을 수 있습니다. </translation>
     </message>
     <message>
-        <source>SQLiteDatabase: Failed to prepare the statement to fetch sqlite wallet schema version: %s</source>
-        <translation>에스큐엘라이트 데이터베이스 : 에스큐엘라이트 지갑 스키마 버전을 가져오는 실행문 준비에 실패하였습니다 : %s</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to prepare the statement to fetch the application id: %s</source>
-        <translation>에스큐엘라이트 데이터베이스 : 응용 프로그램 ID를 가져오는 실행문 준비에 실패하였습니다 : %s</translation>
-    </message>
-    <message>
         <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
         <translation>에스큐엘라이트 데이터베이스 : 알 수 없는 에스큐엘라이트 지갑 스키마 버전 %d. %d 버전만 지원합니다.</translation>
     </message>
@@ -6157,14 +5890,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="vanished">블록을 다시 정렬하지 못했습니다. -reindex-chainstate 를 통해 데이터베이스를 다시 구축하세요. </translation>
     </message>
     <message>
-        <source>Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain</source>
-        <translation type="vanished">데이터베이스를 포크 전 상태로 돌릴 수 없습니다. 블록체인을 다시 다운로드 해주세요. </translation>
-    </message>
-    <message>
-        <source>Warning: The network does not appear to fully agree! Some miners appear to be experiencing issues.</source>
-        <translation type="vanished">경고：네트워크에서 완전한 합의를 이루지 못했습니다. 일부 마이너가 문제를 겪고 있는 듯 합니다. </translation>
-    </message>
-    <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
         <translation type="vanished">경고：노드 중 일부가 동의를 하지 않습니다. 당신의 노드 혹은 다른 노드들에게 업그레이드가 필요해 보입니다. </translation>
     </message>
@@ -6183,10 +5908,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>
         <translation type="vanished">%s에 대한 설정은 %s [%s] 섹션에 위치한 네트워크에서만 유효합니다. </translation>
-    </message>
-    <message>
-        <source>Copyright (C) %i-%i</source>
-        <translation type="vanished">Copyright (C) %i-%i</translation>
     </message>
     <message>
         <source>Corrupted block database detected</source>
@@ -6253,10 +5974,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>데이터베이스를 검증 실패</translation>
     </message>
     <message>
-        <source>Importing...</source>
-        <translation type="vanished">불러오는 중</translation>
-    </message>
-    <message>
         <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
         <translation type="vanished">제네시스 블록이 잘못되었거나 확인되지 않습니다. 네트워크를 확인해주세요. </translation>
     </message>
@@ -6279,14 +5996,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
         <translation>에스큐엘라이트 데이터베이스 : 데이터베이스를 확인하는 실행문 출력을 실패하였습니다 : %s.</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to fetch sqlite wallet schema version: %s</source>
-        <translation>에스큐엘라이트 데이터베이스 : 에스큐엘라이트 지갑 스키마 버전 가져오기를 실패하였습니다 : %s</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to fetch the application id: %s</source>
-        <translation>에스큐엘라이트 데이터베이스 : 어플리케이션 아이디 가져오기를 실패하였습니다 : %s</translation>
     </message>
     <message>
         <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
@@ -6313,14 +6022,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="vanished">거래 목록 데이터베이스를 업그레이드하고 있습니다. </translation>
     </message>
     <message>
-        <source>Loading P2P addresses...</source>
-        <translation type="vanished">P2P주소를 불러오고 있습니다. </translation>
-    </message>
-    <message>
-        <source>Loading banlist...</source>
-        <translation type="vanished">블랙 리스트를 불러오고 있습니다. </translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation type="vanished">파일 디스크립터가 충분하지 않습니다. </translation>
     </message>
@@ -6333,20 +6034,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="vanished">수정 모드와 -txindex 는 호환되지 않습니다. </translation>
     </message>
     <message>
-        <source>Replaying blocks...</source>
-        <translation type="vanished">블록에 대한 계산을 다시 진행하고 있습니다. </translation>
-    </message>
-    <message>
-        <source>Rewinding blocks...</source>
-        <translation type="vanished">블록 복구</translation>
-    </message>
-    <message>
         <source>The source code is available from %s.</source>
         <translation type="vanished">소스코드는 %s 확인할 수 있습니다. </translation>
-    </message>
-    <message>
-        <source>Transaction fee and change calculation failed</source>
-        <translation type="vanished">거래 수수료 및 잔액 계산 실패</translation>
     </message>
     <message>
         <source>Unable to bind to %s on this computer. %s is probably already running.</source>
@@ -6369,8 +6058,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="vanished">사용자의 에이전트 커멘트(%s)에 불안전한 문자열이 포함되어 있습니다. </translation>
     </message>
     <message>
-        <source>Verifying blocks...</source>
-        <translation type="vanished">블록을 검증하고 있습니다. </translation>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">블록 검증 중...</translation>
     </message>
     <message>
         <source>Wallet needed to be rewritten: restart %s to complete</source>
@@ -6383,10 +6072,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
         <translation>%s가 손상되었습니다. '비트 코인-지갑'을 사용하여 백업을 구제하거나 복원하십시오.</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use version 169900 or no version specified.</source>
-        <translation>HD 분할을 하지 않은 지갑은 pre split keypool로 업그레이드 하지 않고는 업그레이드를 진행할 수 없습니다. 버전 169900나 버전을 지정하지 않는 것을 사용해주십시오.</translation>
     </message>
     <message>
         <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
@@ -6403,10 +6088,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
         <translation>이것은 일반 코인 선택보다 부분적 지출 회피를 우선시하기 위해 지불하는 최대 거래 수수료 (일반 수수료에 추가)입니다.</translation>
-    </message>
-    <message>
-        <source>Transaction needs a change address, but we can't generate it. Please call keypoolrefill first.</source>
-        <translation>거래에 변경 주소가 필요하지만 생성 할 수 없습니다. 먼저 keypoolrefill에 전화하십시오.</translation>
     </message>
     <message>
         <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
@@ -6469,10 +6150,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>프록시 서버가 지정되지 않았습니다. -proxy =&lt;ip&gt; 또는 -proxy =&lt;ip:port&gt;를 사용하십시오.</translation>
     </message>
     <message>
-        <source>Prune mode is incompatible with -blockfilterindex.</source>
-        <translation>블록 축소 모드는 -blockfileterindex와 호환되지 않습니다.</translation>
-    </message>
-    <message>
         <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
         <translation type="vanished">시스템 제한으로 -maxconnections를 %d에서 %d로 낮췄습니다. </translation>
     </message>
@@ -6495,12 +6172,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Specified -walletdir &quot;%s&quot; is not a directory</source>
         <translation type="vanished">-walletdir “%s”는 디렉토리가 아닙니다. </translation>
-    </message>
-    <message>
-        <source>The specified config file %s does not exist
-</source>
-        <translation type="vanished">지정한 설정파일 %s이 존재하지 않습니다. 
-</translation>
     </message>
     <message>
         <source>The transaction amount is too small to pay the fee</source>
@@ -6535,8 +6206,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>알 수 없는 -blockfileterindex 값 %s.</translation>
     </message>
     <message>
-        <source>Verifying wallet(s)...</source>
-        <translation type="vanished">지갑을 검증하고 있습니다. </translation>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">지갑(들) 검증 중...</translation>
     </message>
     <message>
         <source>Wallet %s resides outside wallet directory %s</source>
@@ -6545,10 +6216,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Warning</source>
         <translation type="vanished">경고</translation>
-    </message>
-    <message>
-        <source>Warning: unknown new rules activated (versionbit %i)</source>
-        <translation type="vanished">경고: 알 수 없는 거래 규칙이 활성화되었습니다. (versionbit %i)</translation>
     </message>
     <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
@@ -6569,10 +6236,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Keypool ran out, please call keypoolrefill first</source>
         <translation type="vanished">키풀이 소진되었습니다. Keypoolrefill을 먼저 실행하십시오. </translation>
-    </message>
-    <message>
-        <source>Starting network threads...</source>
-        <translation type="vanished">네트워크 쓰레드를 가동하고 있습니다. </translation>
     </message>
     <message>
         <source>The wallet will avoid paying less than the minimum relay fee.</source>
@@ -6617,22 +6280,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Cannot write to data directory &apos;%s&apos;; check permissions.</source>
         <translation type="vanished">데이터 디렉토리&apos;%s&apos;에 입력할 수 없습니다. 권한을 확인해주세요.</translation>
-    </message>
-    <message>
-        <source>Loading block index...</source>
-        <translation type="vanished">블록 목록을 불러오고 있습니다. </translation>
-    </message>
-    <message>
-        <source>Loading wallet...</source>
-        <translation type="vanished">지갑을 불러오고 있습니다. </translation>
-    </message>
-    <message>
-        <source>Cannot downgrade wallet</source>
-        <translation type="vanished">지갑을 다운그레이드하지 못했습니다. </translation>
-    </message>
-    <message>
-        <source>Rescanning...</source>
-        <translation type="vanished">다시 스캔하고 있습니다. </translation>
     </message>
     <message>
         <source>Done loading</source>

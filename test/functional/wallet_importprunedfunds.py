@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2018 The Bitcoin Core developers
+# Copyright (c) 2014-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the importprunedfunds and removeprunedfunds RPCs."""
 from decimal import Decimal
 
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.address import key_to_p2wpkh
 from test_framework.key import ECKey
 from test_framework.test_framework import BitcoinTestFramework
@@ -48,7 +49,7 @@ class ImportPrunedFundsTest(BitcoinTestFramework):
         self.sync_all()
 
         # Node 1 sync test
-        assert_equal(self.nodes[1].getblockcount(), 1+COINBASE_MATURITY)
+        assert_equal(self.nodes[1].getblockcount(), COINBASE_MATURITY + 1)
 
         # Address Test - before import
         address_info = self.nodes[1].getaddressinfo(address1)

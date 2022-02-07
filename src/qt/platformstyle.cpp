@@ -26,7 +26,6 @@ static const struct {
     /* Other: linux, unix, ... */
     {"other", true, true, false}
 };
-static const unsigned platform_styles_count = sizeof(platform_styles)/sizeof(*platform_styles);
 
 namespace {
 /* Local functions for colorizing single-color images */
@@ -112,6 +111,21 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     multiStatesIconColor1 = GetStringStyleValue("platformstyle/multi-states-icon-color1", "#ffffff");
     multiStatesIconColor2 = GetStringStyleValue("platformstyle/multi-states-icon-color2", "#2d2d2d");
     multiStatesIconColor3 = GetStringStyleValue("platformstyle/multi-states-icon-color3", "#5a5a5d");
+}
+
+QColor PlatformStyle::TextColor() const
+{
+    return textColor;
+}
+
+QColor PlatformStyle::SingleColor() const
+{
+    return singleColor;
+}
+
+QColor PlatformStyle::MenuColor() const
+{
+    return menuColor;
 }
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const
@@ -240,15 +254,13 @@ void PlatformStyle::TableColor(PlatformStyle::TableColorType type, QColor &color
 
 const PlatformStyle *PlatformStyle::instantiate(const QString &platformId)
 {
-    for (unsigned x=0; x<platform_styles_count; ++x)
-    {
-        if (platformId == platform_styles[x].platformId)
-        {
+    for (const auto& platform_style : platform_styles) {
+        if (platformId == platform_style.platformId) {
             return new PlatformStyle(
-                    platform_styles[x].platformId,
-                    platform_styles[x].imagesOnButtons,
-                    platform_styles[x].colorizeIcons,
-                    platform_styles[x].useExtraSpacing);
+                    platform_style.platformId,
+                    platform_style.imagesOnButtons,
+                    platform_style.colorizeIcons,
+                    platform_style.useExtraSpacing);
         }
     }
     return nullptr;
@@ -276,6 +288,7 @@ QIcon PlatformStyle::MultiStatesIconV1(const QString &resourcename, PlatformStyl
     case PushButtonLight:
     {
         color = multiStatesIconColor3;
+        [[fallthrough]];
     }
     case PushButtonIcon:
     case PushButton:

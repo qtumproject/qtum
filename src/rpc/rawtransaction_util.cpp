@@ -21,7 +21,7 @@
 #include <validation.h>
 #include <util/moneystr.h>
 
-CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, bool rbf)
+CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, bool rbf, ChainstateManager& chainman)
 {
     if (outputs_in.isNull()) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, output argument must be non-null");
@@ -123,9 +123,10 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
 
             // Get dgp gas limit and gas price
             LOCK(cs_main);
-            QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-            uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(::ChainActive().Height());
-            uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(::ChainActive().Height()));
+            CChain& active_chain = chainman.ActiveChain();
+            QtumDGP qtumDGP(globalState.get(), chainman.ActiveChainstate(), fGettingValuesDGP);
+            uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(active_chain.Height());
+            uint64_t minGasPrice = CAmount(qtumDGP.getMinGasPrice(active_chain.Height()));
             CAmount nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
 
             bool createContract = Contract.exists("bytecode") && Contract["bytecode"].isStr();
@@ -220,13 +221,13 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
             }
 
              // Build op_sender script
-            if(fHasSender && ::ChainActive().Height() >= Params().GetConsensus().QIP5Height)
+            if(fHasSender && active_chain.Height() >= Params().GetConsensus().QIP5Height)
             {
-                const PKHash *keyID = boost::get<PKHash>(&senderAddress);
-                if(!keyID)
+                if(!std::holds_alternative<PKHash>(senderAddress))
                     throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Only pubkeyhash addresses are supported");
+                PKHash keyID = std::get<PKHash>(senderAddress);
                 std::vector<unsigned char> scriptSig;
-                scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(*keyID) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
+                scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(keyID) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
             }
 
             CTxOut out(nAmount, scriptPubKey);
@@ -426,7 +427,7 @@ void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, 
     SignTransactionResultToJSON(mtx, complete, coins, input_errors, result);
 }
 
-void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const std::map<COutPoint, Coin>& coins, std::map<int, std::string>& input_errors, UniValue& result)
+void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const std::map<COutPoint, Coin>& coins, const std::map<int, std::string>& input_errors, UniValue& result)
 {
     // Make errors UniValue
     UniValue vErrors(UniValue::VARR);

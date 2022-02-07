@@ -59,13 +59,13 @@ BOOST_AUTO_TEST_CASE(checking_istanbul_after_fork){
     // Create contract
     std::vector<QtumTransaction> txs;
     txs.push_back(createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
-    executeBC(txs);
+    executeBC(txs, *m_node.chainman);
 
     // Call is it istanbul
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
     std::vector<QtumTransaction> txIsItIstanbul;
     txIsItIstanbul.push_back(createQtumTransaction(CODE[1], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
-    auto result = executeBC(txIsItIstanbul);
+    auto result = executeBC(txIsItIstanbul, *m_node.chainman);
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(globalSealEngine->chainParams().chainID));
 }
 
@@ -77,13 +77,13 @@ BOOST_AUTO_TEST_CASE(checking_istanbul_before_fork){
     // Create contract
     std::vector<QtumTransaction> txs;
     txs.push_back(createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
-    executeBC(txs);
+    executeBC(txs, *m_node.chainman);
 
     // Call is it istanbul
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
     std::vector<QtumTransaction> txIsItIstanbul;
     txIsItIstanbul.push_back(createQtumTransaction(CODE[1], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
-    auto result = executeBC(txIsItIstanbul);
+    auto result = executeBC(txIsItIstanbul, *m_node.chainman);
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) != dev::h256(globalSealEngine->chainParams().chainID));
 }
 

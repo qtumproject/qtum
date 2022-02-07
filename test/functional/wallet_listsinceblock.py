@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2019 The Bitcoin Core developers
+# Copyright (c) 2017-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the listsinceblock RPC."""
 
 from test_framework.address import key_to_p2wpkh
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.key import ECKey
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.messages import BIP125_SEQUENCE_NUMBER
@@ -16,7 +17,6 @@ from test_framework.util import (
 from test_framework.wallet_util import bytes_to_wif
 
 from decimal import Decimal
-from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.qtum import generatesynchronized
 
 class ListSinceBlockTest(BitcoinTestFramework):

@@ -97,7 +97,6 @@ public:
         return m_blocks.emplace_back(std::move(current_block)).get();
     }
 };
-} // namespace
 
 std::unique_ptr<const CChainParams> g_params;
 
@@ -110,7 +109,7 @@ void initialize()
 
 constexpr uint32_t MAX_START_TIME = 4102444800; // 2100-01-01
 
-void test_one_input(const std::vector<uint8_t>& buffer)
+FUZZ_TARGET_INIT(versionbits, initialize)
 {
     const CChainParams& params = *g_params;
     const int64_t interval = params.GetConsensus().nPowTargetSpacing;
@@ -348,3 +347,4 @@ void test_one_input(const std::vector<uint8_t>& buffer)
         assert(exp_since > 0 || exp_state == ThresholdState::DEFINED);
     }
 }
+} // namespace

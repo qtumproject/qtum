@@ -119,7 +119,7 @@ BOOST_FIXTURE_TEST_SUITE(bytecodeexec_tests, TestingSetup)
 BOOST_AUTO_TEST_CASE(bytecodeexec_txs_empty){
     initState();
     std::vector<QtumTransaction> txs;
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
     BOOST_CHECK(result.first.size() == 0);
 }
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_create_contract){
     initState();
     QtumTransaction txEth = createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), HASHTX, dev::Address());
     std::vector<QtumTransaction> txs(1, txEth);
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
     
     std::vector<dev::Address> addrs = {createQtumAddress(txs[0].getHashWith(), txs[0].getNVout())};
     valtype code = ParseHex("60606040525b600b5b5b565b0000a165627a7a723058209cedb722bf57a30e3eb00eeefc392103ea791a2001deed29f5c3809ff10eb1dd0029");
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_create_contract_OutOfGasIntrinsic){
     initState();
     QtumTransaction txEth = createQtumTransaction(CODE[0], 0, dev::u256(100), dev::u256(1), HASHTX, dev::Address());
     std::vector<QtumTransaction> txs(1, txEth);
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
 
     std::vector<dev::Address> addrs = {dev::Address()};
     checkExecResult(result.first, 1, 0, dev::eth::TransactionException::OutOfGasIntrinsic, addrs, valtype(), dev::u256(0));
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_create_contract_OutOfGas){
     initState();
     QtumTransaction txEth = createQtumTransaction(CODE[1], 0, GASLIMIT, dev::u256(1), HASHTX, dev::Address());
     std::vector<QtumTransaction> txs(1, txEth);
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
 
     std::vector<dev::Address> addrs = {dev::Address()};
     checkExecResult(result.first, 1, 0, dev::eth::TransactionException::OutOfGas, addrs, valtype(), dev::u256(0));
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_OutOfGasIntrinsic_create_contract_normal_creat
         txs.push_back(txEth);
         ++hash;
     }
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
 
     valtype code = ParseHex("60606040525b600b5b5b565b0000a165627a7a723058209cedb722bf57a30e3eb00eeefc392103ea791a2001deed29f5c3809ff10eb1dd0029");
     checkExecResult(result.first, 10, 5, dev::eth::TransactionException::OutOfGasIntrinsic, newAddressGen, code, dev::u256(0), true);
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_OutOfGas_create_contract_normal_create_contrac
         txs.push_back(txEth);
         ++hash;
     }
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
     
     valtype code = ParseHex("60606040525b600b5b5b565b0000a165627a7a723058209cedb722bf57a30e3eb00eeefc392103ea791a2001deed29f5c3809ff10eb1dd0029");
     checkExecResult(result.first, 10, 5, dev::eth::TransactionException::OutOfGas, newAddressGen, code, dev::u256(0), true);
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_create_contract_many){
         txs.push_back(txEth);
         ++hash;
     }
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
 
     valtype code = ParseHex("60606040525b600b5b5b565b0000a165627a7a723058209cedb722bf57a30e3eb00eeefc392103ea791a2001deed29f5c3809ff10eb1dd0029");
     checkExecResult(result.first, 130, 130, dev::eth::TransactionException::None, newAddressGen, code, dev::u256(0));
@@ -217,11 +217,11 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer){
     initState();
     QtumTransaction txEthCreate = createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), HASHTX, dev::Address());
     std::vector<QtumTransaction> txsCreate(1, txEthCreate);
-    executeBC(txsCreate);
+    executeBC(txsCreate, *m_node.chainman);
     std::vector<dev::Address> addrs = {createQtumAddress(txsCreate[0].getHashWith(), txsCreate[0].getNVout())};
     QtumTransaction txEthCall = createQtumTransaction(ParseHex("00"), 1300, GASLIMIT, dev::u256(1), HASHTX, addrs[0]);
     std::vector<QtumTransaction> txsCall(1, txEthCall);
-    auto result = executeBC(txsCall);
+    auto result = executeBC(txsCall, *m_node.chainman);
 
     checkExecResult(result.first, 1, 1, dev::eth::TransactionException::None, addrs, valtype(), dev::u256(1300));
     checkBCEResult(result.second, 21037, 478963, 1, CAmount(GASLIMIT), 1);
@@ -231,11 +231,11 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_OutOfGasIntrinsic_retur
     initState();
     QtumTransaction txEthCreate = createQtumTransaction(CODE[0], 0, GASLIMIT, dev::u256(1), HASHTX, dev::Address());
     std::vector<QtumTransaction> txsCreate(1, txEthCreate);
-    executeBC(txsCreate);
+    executeBC(txsCreate, *m_node.chainman);
     dev::Address newAddress(createQtumAddress(txsCreate[0].getHashWith(), txsCreate[0].getNVout()));
     QtumTransaction txEthCall = createQtumTransaction(ParseHex("00"), 1300, dev::u256(1), dev::u256(1), HASHTX, newAddress);
     std::vector<QtumTransaction> txsCall(1, txEthCall);
-    auto result = executeBC(txsCall);
+    auto result = executeBC(txsCall, *m_node.chainman);
 
     std::vector<dev::Address> addrs = {txEthCall.receiveAddress()};
     checkExecResult(result.first, 1, 1, dev::eth::TransactionException::OutOfGasIntrinsic, addrs, valtype(), dev::u256(0));
@@ -246,11 +246,11 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_OutOfGas_return_value){
     initState();
     QtumTransaction txEthCreate = createQtumTransaction(CODE[2], 0, GASLIMIT, dev::u256(1), HASHTX, dev::Address());
     std::vector<QtumTransaction> txsCreate(1, txEthCreate);
-    executeBC(txsCreate);
+    executeBC(txsCreate, *m_node.chainman);
     dev::Address newAddress(createQtumAddress(txsCreate[0].getHashWith(), txsCreate[0].getNVout()));
     QtumTransaction txEthCall = createQtumTransaction(ParseHex("00"), 1300, GASLIMIT, dev::u256(1), HASHTX, newAddress);
     std::vector<QtumTransaction> txsCall(1, txEthCall);
-    auto result = executeBC(txsCall);
+    auto result = executeBC(txsCall, *m_node.chainman);
 
     std::vector<dev::Address> addrs = {txEthCall.receiveAddress()};
     checkExecResult(result.first, 1, 1, dev::eth::TransactionException::OutOfGas, addrs, valtype(), dev::u256(0));
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_many){
         txs.push_back(txEth);
         ++hash;
     }
-    executeBC(txs);
+    executeBC(txs, *m_node.chainman);
     std::vector<QtumTransaction> txsCall;
     std::vector<dev::Address> addrs;
     valtype codeCall(ParseHex("00"));
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_transfer_many){
         addrs.push_back(txEthCall.receiveAddress());
         ++hashCall;
     }
-    auto result = executeBC(txsCall);
+    auto result = executeBC(txsCall, *m_node.chainman);
     
     checkExecResult(result.first, 130, 130, dev::eth::TransactionException::None, addrs, valtype(), dev::u256(1300));
     checkBCEResult(result.second, 2734810, 62265190, 130, CAmount(GASLIMIT * 130), 130);
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_OutOfGas_transfer_many_return_va
         txs.push_back(txEth);
         ++hash;
     }
-    executeBC(txs);
+    executeBC(txs, *m_node.chainman);
     std::vector<QtumTransaction> txsCall;
     std::vector<dev::Address> addrs;
     valtype codeCall(ParseHex("00"));
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_call_contract_OutOfGas_transfer_many_return_va
         addrs.push_back(txEthCall.receiveAddress());
         ++hashCall;
     }
-    auto result = executeBC(txsCall);
+    auto result = executeBC(txsCall, *m_node.chainman);
 
     checkExecResult(result.first, 130, 130, dev::eth::TransactionException::OutOfGas, addrs, valtype(), dev::u256(0));
     checkBCEResult(result.second, CAmount(GASLIMIT) * 130, 0, 0, CAmount(GASLIMIT) * 130, 130);
@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_suicide){
         ++hash;
     }
 
-    executeBC(txsCreate);
+    executeBC(txsCreate, *m_node.chainman);
 
     std::vector<QtumTransaction> txsCall;
     std::vector<dev::Address> addrs;
@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_suicide){
         txsCall.push_back(txEthCall);
         addrs.push_back(txEthCall.receiveAddress());
     }
-    auto result = executeBC(txsCall);
+    auto result = executeBC(txsCall, *m_node.chainman);
 
     checkExecResult(result.first, 9, 1, dev::eth::TransactionException::None, addrs, valtype(), dev::u256(0));
     checkBCEResult(result.second, 96588, 4403412, 9, CAmount(GASLIMIT * 9), 9);
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_contract_create_contracts){
     initState();
     QtumTransaction txEthCreate = createQtumTransaction(CODE[3], 0, GASLIMIT, dev::u256(1), HASHTX, dev::Address());
     std::vector<QtumTransaction> txs(1, txEthCreate);
-    executeBC(txs);
+    executeBC(txs, *m_node.chainman);
     std::vector<QtumTransaction> txsCall;
     valtype codeCall(ParseHex("3f811b80"));
     dev::Address newAddress(createQtumAddress(txEthCreate.getHashWith(), txEthCreate.getNVout()));
@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE(bytecodeexec_contract_create_contracts){
         txsCall.push_back(txEthCall);
         addrs.push_back(txEthCall.receiveAddress());
     }
-    auto result = executeBC(txsCall);
+    auto result = executeBC(txsCall, *m_node.chainman);
 
     checkExecResult(result.first, 20, 21, dev::eth::TransactionException::None, addrs, valtype(), dev::u256(0));
     BOOST_CHECK(result.second.usedGas + result.second.refundSender == GASLIMIT * 20);

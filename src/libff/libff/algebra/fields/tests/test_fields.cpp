@@ -15,6 +15,9 @@
 #include <libff/algebra/fields/fp12_2over3over2.hpp>
 #include <libff/algebra/fields/fp6_3over2.hpp>
 
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
+
 using namespace libff;
 
 template<typename FieldT>

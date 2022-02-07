@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,12 +8,12 @@
 #include <QFrame>
 #include <QMap>
 
-class BitcoinGUI;
 class ClientModel;
 class PlatformStyle;
 class SendCoinsRecipient;
 class WalletModel;
 class WalletView;
+class TitleBar;
 
 QT_BEGIN_NAMESPACE
 class QStackedWidget;
@@ -31,12 +31,12 @@ class WalletFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit WalletFrame(const PlatformStyle *platformStyle, BitcoinGUI *_gui = nullptr);
+    explicit WalletFrame(const PlatformStyle* platformStyle, QWidget* parent);
     ~WalletFrame();
 
     void setClientModel(ClientModel *clientModel);
 
-    bool addWallet(WalletModel *walletModel);
+    bool addWallet(WalletModel* walletModel, WalletView* walletView);
     void setCurrentWallet(WalletModel* wallet_model);
     void removeWallet(WalletModel* wallet_model);
     void removeAllWallets();
@@ -48,12 +48,10 @@ public:
     QSize sizeHint() const override { return m_size_hint; }
 
 Q_SIGNALS:
-    /** Notify that the user has requested more information about the out-of-sync warning */
-    void requestedSyncWarningInfo();
+    void createWalletButtonClicked();
 
 private:
     QStackedWidget *walletStack;
-    BitcoinGUI *gui;
     ClientModel *clientModel;
     QMap<WalletModel*, WalletView*> mapWalletViews;
 
@@ -63,10 +61,15 @@ private:
 
     const QSize m_size_hint;
 
+    TitleBar* m_title_bar = 0;
+
+    void setTabBarInfo(QObject* into);
+
 public:
     WalletView* currentWalletView() const;
     WalletModel* currentWalletModel() const;
     void updateTabBar(WalletView* walletView = 0, int index = -1);
+    void setTitleBar(TitleBar* titleBar);
 
 public Q_SLOTS:
     /** Switch to overview (home) page */
@@ -101,7 +104,7 @@ public Q_SLOTS:
     void gotoLoadPSBT(bool from_clipboard = false);
 
     /** Encrypt the wallet */
-    void encryptWallet(bool status);
+    void encryptWallet();
     /** Backup the wallet */
     void backupWallet();
     /** Restore the wallet */
@@ -117,9 +120,7 @@ public Q_SLOTS:
     void usedSendingAddresses();
     /** Show used receiving addresses */
     void usedReceivingAddresses();
-    /** Pass on signal over requested out-of-sync-warning information */
-    void outOfSyncWarningClicked();
-    
+
     void pageChanged(int index);
 };
 

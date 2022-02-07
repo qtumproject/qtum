@@ -5,9 +5,11 @@
 #include <validation.h>
 #include <qtum/qtumtoken.h>
 
-UniValue CallToContract(const UniValue& params);
+class ChainstateManager;
 
-UniValue SearchLogs(const UniValue& params);
+UniValue CallToContract(const UniValue& params, ChainstateManager &chainman);
+
+UniValue SearchLogs(const UniValue& params, ChainstateManager &chainman);
 
 void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec);
 
@@ -30,7 +32,7 @@ void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h2
 class CallToken : public QtumTokenExec, public QtumToken
 {
 public:
-    CallToken();
+    CallToken(ChainstateManager &_chainman);
 
     bool execValid(const int& func, const bool& sendTo) override;
 
@@ -43,6 +45,9 @@ public:
     bool searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, UniValue& resultVar);
 
     void setCheckGasForCall(bool value);
+
+protected:
+    ChainstateManager &chainman;
 
 private:
     bool checkGasForCall = false;

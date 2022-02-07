@@ -51,6 +51,7 @@ After running `./autogen.sh`, which generates the `./configure` file, use `./con
 
 ```sh
 --without-miniupnpc
+--without-natpmp
 --disable-bench
 --disable-wallet
 --without-gui
@@ -73,9 +74,9 @@ When rebuilding during development, note that running `make`, without giving a t
 Obviously, it is important to build and run the tests at appropriate times -- but when you just want a quick compile to check your work, consider picking one or a set of build targets relevant to what you're working on, e.g.:
 
 ```sh
-make src/bitcoind src/bitcoin-cli
-make src/qt/bitcoin-qt
-make -C src bitcoin_bench
+make src/qtumd src/qtum-cli
+make src/qt/qtum-qt
+make -C src qtum_bench
 ```
 
 (You can and should combine this with `-j`, as above, for a parallel build.)

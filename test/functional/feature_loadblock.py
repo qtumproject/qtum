@@ -16,9 +16,10 @@ import sys
 import tempfile
 import urllib
 
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
-from test_framework.qtumconfig import COINBASE_MATURITY
+
 
 class LoadblockTest(BitcoinTestFramework):
     def set_test_params(self):

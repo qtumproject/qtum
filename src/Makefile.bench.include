@@ -35,6 +35,7 @@ bench_bench_qtum_SOURCES = \
   bench/mempool_stress.cpp \
   bench/nanobench.h \
   bench/nanobench.cpp \
+  bench/peer_eviction.cpp \
   bench/rpc_blockchain.cpp \
   bench/rpc_mempool.cpp \
   bench/util_time.cpp \
@@ -75,7 +76,7 @@ bench_bench_qtum_SOURCES += bench/coin_selection.cpp
 bench_bench_qtum_SOURCES += bench/wallet_balance.cpp
 endif
 
-bench_bench_qtum_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(MINIUPNPC_LIBS) $(SQLITE_LIBS) $(LIBFF) $(GMP_LIBS) $(GMPXX_LIBS)
+bench_bench_qtum_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(SQLITE_LIBS) $(LIBFF) $(GMP_LIBS) $(GMPXX_LIBS)
 bench_bench_qtum_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 
 CLEAN_BITCOIN_BENCH = bench/*.gcda bench/*.gcno $(GENERATED_BENCH_FILES)
