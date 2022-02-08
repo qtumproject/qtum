@@ -131,6 +131,7 @@ private:
     WalletFrame* walletFrame = nullptr;
 
     UnitDisplayStatusBarControl* unitDisplayControl = nullptr;
+    QLabel *labelLedgerIcon = nullptr;
     GUIUtil::ThemedLabel* labelWalletEncryptionIcon = nullptr;
     GUIUtil::ThemedLabel* labelWalletHDStatusIcon = nullptr;
     GUIUtil::ClickableLabel* labelProxyIcon = nullptr;
@@ -183,6 +184,7 @@ private:
     QAction* delegationAction = nullptr;
     QAction* superStakerAction = nullptr;
     QAction* walletStakeAction = nullptr;
+    QAction* signTxHardwareAction = nullptr;
     QAction* m_create_wallet_action{nullptr};
     QAction* m_open_wallet_action{nullptr};
     QMenu* m_open_wallet_menu{nullptr};
@@ -338,6 +340,8 @@ public Q_SLOTS:
     void gotoVerifyMessageTab(QString addr = "");
     /** Load Partially Signed Bitcoin Transaction from file or clipboard */
     void gotoLoadPSBT(bool from_clipboard = false);
+    /** Sign transaction with hardware wallet*/
+    void signTxHardware(const QString& tx = "");
 
     /** Show open dialog */
     void openClicked();
@@ -366,6 +370,8 @@ public Q_SLOTS:
     /** Simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
 #ifdef ENABLE_WALLET
+    /** Update ledger icon **/
+    void updateLedgerIcon();
     /** Update staking icon **/
     void updateStakingIcon();
 #endif // ENABLE_WALLET

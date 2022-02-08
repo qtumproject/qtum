@@ -76,6 +76,9 @@ public:
         CheckForUpdates,        // bool
         ReserveBalance,         // CAmount
         Theme,                  // QString
+        HWIToolPath,            // QString
+        SignPSBTWithHWITool,    // bool
+        StakeLedgerId,          // QString
         OptionIDRowCount,
     };
 

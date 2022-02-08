@@ -32,6 +32,7 @@ public:
     bool isMakeBlankWalletChecked() const;
     bool isDescriptorWalletChecked() const;
     bool isExternalSignerChecked() const;
+    bool isHardwareWalletChecked() const;
 
 private:
     Ui::CreateWalletDialog *ui;

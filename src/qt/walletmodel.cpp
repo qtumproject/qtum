@@ -33,6 +33,7 @@
 #include <util/translation.h>
 #include <wallet/coincontrol.h>
 #include <wallet/wallet.h> // for CRecipient
+#include <qt/qtumhwitool.h>
 
 #include <stdint.h>
 #include <functional>
@@ -60,8 +61,10 @@ private Q_SLOTS:
             return;
 
         // Update the model with results of task that take more time to be completed
+        walletModel->checkHardwareWallet();
         walletModel->checkCoinAddressesChanged();
         walletModel->checkStakeWeightChanged();
+        walletModel->checkHardwareDevice();
     }
 };
 
@@ -106,6 +109,8 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
 
     connect(addressTableModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(checkCoinAddresses()));
     connect(addressTableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(checkCoinAddresses()));
+    connect(recentRequestsTableModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(checkCoinAddresses()));
+    connect(recentRequestsTableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(checkCoinAddresses()));
 
     subscribeToCoreSignals();
 }
@@ -861,6 +866,208 @@ void WalletModel::checkStakeWeightChanged()
 void WalletModel::checkCoinAddresses()
 {
     updateCoinAddresses = true;
+}
+
+QString WalletModel::getFingerprint(bool stake) const
+{
+    if(stake)
+    {
+        std::string ledgerId = wallet().getStakerLedgerId();
+        return QString::fromStdString(ledgerId);
+    }
+
+    return fingerprint;
+}
+
+void WalletModel::setFingerprint(const QString &value, bool stake)
+{
+    if(stake)
+    {
+        wallet().setStakerLedgerId(value.toStdString());
+    }
+    else
+    {
+        fingerprint = value;
+    }
+}
+
+void WalletModel::checkHardwareWallet()
+{
+    if(hardwareWalletInitRequired)
+    {
+        // Init variables
+        QtumHwiTool hwiTool;
+        hwiTool.setModel(this);
+        QString errorMessage;
+        bool error = false;
+
+        if(hwiTool.isConnected(fingerprint, false))
+        {
+            // Setup key pool
+            if(importPKH)
+            {
+                QStringList pkhdesc;
+                bool OK = hwiTool.getKeyPoolPKH(fingerprint, pathPKH, pkhdesc);
+                if(OK) OK &= hwiTool.importMulti(pkhdesc);
+
+                if(!OK)
+                {
+                    error = true;
+                    errorMessage = tr("Import PKH failed.\n") + hwiTool.errorMessage();
+                }
+            }
+
+            if(importP2SH)
+            {
+                QStringList p2shdesc;
+                bool OK = hwiTool.getKeyPoolP2SH(fingerprint, pathP2SH, p2shdesc);
+                if(OK) OK &= hwiTool.importMulti(p2shdesc);
+
+                if(!OK)
+                {
+                    error = true;
+                    if(!errorMessage.isEmpty()) errorMessage += "\n\n";
+                    errorMessage += tr("Import P2SH failed.\n") + hwiTool.errorMessage();
+                }
+            }
+
+            if(importBech32)
+            {
+                QStringList bech32desc;
+                bool OK = hwiTool.getKeyPoolBech32(fingerprint, pathBech32, bech32desc);
+                if(OK) OK &= hwiTool.importMulti(bech32desc);
+
+                if(!OK)
+                {
+                    error = true;
+                    if(!errorMessage.isEmpty()) errorMessage += "\n\n";
+                    errorMessage += tr("Import Bech32 failed.\n") + hwiTool.errorMessage();
+                }
+            }
+
+            // Rescan the chain
+            if(rescan && !error)
+                hwiTool.rescanBlockchain();
+        }
+        else
+        {
+            error = true;
+            errorMessage = tr("Ledger not connected.");
+        }
+
+        // Display error message if happen
+        if(error)
+        {
+            if(errorMessage.isEmpty())
+                errorMessage = tr("unknown error");
+            Q_EMIT message(tr("Import addresses"), errorMessage,
+                           CClientUIInterface::MSG_ERROR);
+        }
+
+        hardwareWalletInitRequired = false;
+    }
+}
+
+void WalletModel::importAddressesData(bool _rescan, bool _importPKH, bool _importP2SH, bool _importBech32, QString _pathPKH, QString _pathP2SH, QString _pathBech32)
+{
+    rescan = _rescan;
+    importPKH = _importPKH;
+    importP2SH = _importP2SH;
+    importBech32 = _importBech32;
+    pathPKH = _pathPKH;
+    pathP2SH = _pathP2SH;
+    pathBech32 = _pathBech32;
+    hardwareWalletInitRequired = true;
+}
+
+bool WalletModel::getSignPsbtWithHwiTool()
+{
+    if(!::Params().HasHardwareWalletSupport())
+        return false;
+
+    return wallet().privateKeysDisabled() && gArgs.GetBoolArg("-signpsbtwithhwitool", DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
+}
+
+bool WalletModel::createUnsigned()
+{
+    if(wallet().privateKeysDisabled())
+    {
+        if(!::Params().HasHardwareWalletSupport())
+            return true;
+
+        QString hwiToolPath = GUIUtil::getHwiToolPath();
+        if(QFile::exists(hwiToolPath))
+        {
+            return !getSignPsbtWithHwiTool();
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool WalletModel::hasLedgerProblem()
+{
+    return wallet().privateKeysDisabled() &&
+            wallet().getEnabledStaking() &&
+            !getFingerprint(true).isEmpty();
+}
+
+QList<HWDevice> WalletModel::getDevices()
+{
+    return devices;
+}
+
+void WalletModel::checkHardwareDevice()
+{
+    int64_t time = GetTimeMillis();
+    if(time > (DEVICE_UPDATE_DELAY + deviceTime))
+    {
+        QList<HWDevice> tmpDevices;
+
+        // Get stake device
+        QString fingerprint_stake = getFingerprint(true);
+        if(!fingerprint_stake.isEmpty())
+        {
+            QtumHwiTool hwiTool;
+            QList<HWDevice> _devices;
+            if(hwiTool.enumerate(_devices, true))
+            {
+                for(HWDevice device : _devices)
+                {
+                    if(device.isValid() && device.fingerprint == fingerprint_stake)
+                    {
+                        tmpDevices.push_back(device);
+                    }
+                }
+            }
+        }
+
+        // Get not stake device
+        QString fingerprint_not_stake = getFingerprint();
+        if(!fingerprint_not_stake.isEmpty())
+        {
+            QtumHwiTool hwiTool;
+            QList<HWDevice> _devices;
+            if(hwiTool.enumerate(_devices, false))
+            {
+                for(HWDevice device : _devices)
+                {
+                    if(device.isValid() && device.fingerprint == fingerprint_not_stake)
+                    {
+                        tmpDevices.push_back(device);
+                    }
+                }
+            }
+        }
+
+        // Set update time
+        deviceTime = GetTimeMillis();
+        devices = tmpDevices;
+    }
 }
 
 void WalletModel::join()

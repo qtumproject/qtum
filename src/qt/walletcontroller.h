@@ -128,10 +128,12 @@ Q_SIGNALS:
 
 private:
     void askPassphrase();
+    void askDevice();
     void createWallet();
     void finish();
 
     SecureString m_passphrase;
+    QString m_fingerprint;
     CreateWalletDialog* m_create_wallet_dialog{nullptr};
     AskPassphraseDialog* m_passphrase_dialog{nullptr};
 };

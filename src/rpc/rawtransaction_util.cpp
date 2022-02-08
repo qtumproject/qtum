@@ -458,53 +458,31 @@ static void TxOutErrorToJSON(const CTxOut& output, UniValue& vErrorsRet, const s
     vErrorsRet.push_back(entry);
 }
 
-UniValue SignTransactionSender(CMutableTransaction& mtx, FillableSigningProvider *keystore, const UniValue& hashType)
+void SignTransactionOutput(CMutableTransaction &mtx, FillableSigningProvider *keystore, const UniValue &hashType, UniValue &result)
 {
     int nHashType = ParseSighashString(hashType);
 
     // Script verification errors
+    std::map<int, std::string> output_errors;
+
+    bool complete = SignTransactionOutput(mtx, keystore, nHashType, output_errors);
+    SignTransactionOutputResultToJSON(mtx, complete, output_errors, result);
+}
+
+void SignTransactionOutputResultToJSON(CMutableTransaction &mtx, bool complete, std::map<int, std::string> &output_errors, UniValue &result)
+{
+    // Make errors UniValue
     UniValue vErrors(UniValue::VARR);
-
-    // Signing transaction outputs
-    int nOut = 0;
-    for (const auto& output : mtx.vout)
-    {
-        if(output.scriptPubKey.HasOpSender())
-        {
-            CScript scriptPubKey;
-            if(!GetSenderPubKey(output.scriptPubKey, scriptPubKey))
-            {
-                TxOutErrorToJSON(output, vErrors, "Fail to get sender public key");
-                continue;
-            }
-
-            SignatureData sigdata;
-
-            if (!ProduceSignature(*keystore, MutableTransactionSignatureOutputCreator(&mtx, nOut, output.nValue, nHashType), scriptPubKey, sigdata))
-            {
-                TxOutErrorToJSON(output, vErrors, "Signing transaction output failed");
-                continue;
-            }
-            else
-            {
-                if(!UpdateOutput(mtx.vout.at(nOut), sigdata))
-                {
-                    TxOutErrorToJSON(output, vErrors, "Update transaction output failed");
-                    continue;
-                }
-            }
-        }
-        nOut++;
+    for (const auto& err_pair : output_errors) {
+        TxOutErrorToJSON(mtx.vout.at(err_pair.first), vErrors, err_pair.second);
     }
 
-    bool fComplete = vErrors.empty();
-
-    UniValue result(UniValue::VOBJ);
     result.pushKV("hex", EncodeHexTx(CTransaction(mtx)));
-    result.pushKV("complete", fComplete);
+    result.pushKV("complete", complete);
     if (!vErrors.empty()) {
+        if (result.exists("errors")) {
+            vErrors.push_backV(result["errors"].getValues());
+        }
         result.pushKV("errors", vErrors);
     }
-
-    return result;
 }

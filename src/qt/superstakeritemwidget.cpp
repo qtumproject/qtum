@@ -192,6 +192,8 @@ void SuperStakerItemWidget::updateLogo()
             ui->superStakerLogo->setToolTip(tr("Not staking because you don't have mature delegated coins"));
         else if (m_model->wallet().isLocked())
             ui->superStakerLogo->setToolTip(tr("Not staking because wallet is locked"));
+        else if(m_model->hasLedgerProblem())
+            ui->superStakerLogo->setToolTip(tr("Not staking because the ledger device failed to connect"));
         else
             ui->superStakerLogo->setToolTip(tr("Not staking"));
     }

@@ -28,9 +28,13 @@ QT_FORMS_UI = \
   qt/forms/delegationitemwidget.ui \
   qt/forms/delegationpage.ui \
   qt/forms/delegationsstakerdialog.ui \
+  qt/forms/derivationpathdialog.ui \
   qt/forms/editaddressdialog.ui \
   qt/forms/editcontractinfodialog.ui \
   qt/forms/editsuperstakerdialog.ui \
+  qt/forms/hardwaredevicedialog.ui \
+  qt/forms/hardwarekeystoredialog.ui \
+  qt/forms/hardwaresigntxdialog.ui \
   qt/forms/helpmessagedialog.ui \
   qt/forms/intro.ui \
   qt/forms/modaloverlay.ui \
@@ -95,9 +99,13 @@ QT_MOC_CPP = \
   qt/moc_delegationpage.cpp \
   qt/moc_delegationsstakerdialog.cpp \
   qt/moc_delegationstakeritemmodel.cpp \
+  qt/moc_derivationpathdialog.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_editcontractinfodialog.cpp \
   qt/moc_editsuperstakerdialog.cpp \
+  qt/moc_hardwaredevicedialog.cpp \
+  qt/moc_hardwarekeystoredialog.cpp \
+  qt/moc_hardwaresigntxdialog.cpp \
   qt/moc_guiutil.cpp \
   qt/moc_intro.cpp \
   qt/moc_macdockiconhandler.cpp \
@@ -161,6 +169,9 @@ QT_MOC_CPP = \
   qt/moc_utilitydialog.cpp \
   qt/moc_walletcontroller.cpp \
   qt/moc_qtumversionchecker.cpp \
+  qt/moc_qtumhwitool.cpp \
+  qt/moc_waitmessagebox.cpp \
+  qt/moc_hardwaresigntx.cpp \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
   qt/moc_walletview.cpp
@@ -222,11 +233,15 @@ BITCOIN_QT_H = \
   qt/delegationpage.h \
   qt/delegationsstakerdialog.h \
   qt/delegationstakeritemmodel.h \
+  qt/derivationpathdialog.h \
   qt/editaddressdialog.h \
   qt/editcontractinfodialog.h \
   qt/editsuperstakerdialog.h \
   qt/eventlog.h \
   qt/execrpccommand.h \
+  qt/hardwaredevicedialog.h \
+  qt/hardwarekeystoredialog.h \
+  qt/hardwaresigntxdialog.h \
   qt/guiconstants.h \
   qt/guiutil.h \
   qt/intro.h \
@@ -299,12 +314,15 @@ BITCOIN_QT_H = \
   qt/utilitydialog.h \
   qt/walletcontroller.h \
   qt/qtumversionchecker.h \
+  qt/waitmessagebox.h \
   qt/walletframe.h \
   qt/walletmodel.h \
   qt/walletmodeltransaction.h \
   qt/walletview.h \
   qt/winshutdownmonitor.h \
-  qt/qtumpushbutton.h
+  qt/qtumpushbutton.h \
+  qt/qtumhwitool.h \
+  qt/hardwaresigntx.h
 
 RES_FONTS = \
   qt/res/fonts/RobotoMono-Bold.ttf
@@ -382,7 +400,9 @@ RES_ICONS = \
   qt/res/icons/plus_full.png \
   qt/res/icons/split.png \
   qt/res/icons/delegate.png \
-  qt/res/icons/superstake.png
+  qt/res/icons/superstake.png \
+  qt/res/icons/ledger_on.png \
+  qt/res/icons/ledger_off.png
 
 BITCOIN_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
@@ -423,7 +443,9 @@ BITCOIN_QT_BASE_CPP = \
   qt/trafficgraphwidget.cpp \
   qt/utilitydialog.cpp \
   qt/qtumversionchecker.cpp \
-  qt/qtumpushbutton.cpp
+  qt/qtumpushbutton.cpp \
+  qt/qtumhwitool.cpp \
+  qt/hardwaresigntx.cpp
 
 BITCOIN_QT_WINDOWS_CPP = qt/winshutdownmonitor.cpp
 
@@ -452,12 +474,16 @@ BITCOIN_QT_WALLET_CPP = \
   qt/delegationlistwidget.cpp \
   qt/delegationpage.cpp \
   qt/delegationsstakerdialog.cpp \
+  qt/derivationpathdialog.cpp \
   qt/eventlog.cpp \
   qt/execrpccommand.cpp \
   qt/createwalletdialog.cpp \
   qt/editaddressdialog.cpp \
   qt/editcontractinfodialog.cpp \
   qt/editsuperstakerdialog.cpp \
+  qt/hardwaredevicedialog.cpp \
+  qt/hardwarekeystoredialog.cpp \
+  qt/hardwaresigntxdialog.cpp \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \
   qt/paymentserver.cpp \
@@ -496,6 +522,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/tokenitemwidget.cpp \
   qt/tokenlistwidget.cpp \
   qt/walletcontroller.cpp \
+  qt/waitmessagebox.cpp \
   qt/walletframe.cpp \
   qt/walletmodel.cpp \
   qt/walletmodeltransaction.cpp \
@@ -639,7 +666,7 @@ qt_libbitcoinqt_a_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 qt_libbitcoinqt_a_OBJCXXFLAGS = $(AM_OBJCXXFLAGS) $(QT_PIE_FLAGS)
 
 qt_libbitcoinqt_a_SOURCES = $(BITCOIN_QT_CPP) $(BITCOIN_QT_H) $(QT_FORMS_UI) \
-  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(RES_FONTS) $(RES_ICONS) $(RES_ANIMATION) $(RES_TOKENS) $(RES_STYLES)
+  $(QT_QRC) $(QT_QRC_LOCALE) $(QT_TS) $(RES_FONTS) $(RES_ICONS) $(RES_ANIMATION) $(RES_TOKENS) $(RES_STYLES) $(RES_LEDGER)
 if TARGET_DARWIN
   qt_libbitcoinqt_a_SOURCES += $(BITCOIN_MM)
 endif
@@ -711,7 +738,7 @@ $(QT_QRC_LOCALE_CPP): $(QT_QRC_LOCALE) $(QT_QM)
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name bitcoin_locale --format-version 1 $(@D)/temp_$(<F) > $@
 	@rm $(@D)/temp_$(<F)
 
-$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_FONTS) $(RES_ICONS) $(RES_ANIMATION) $(RES_TOKENS) $(RES_STYLES)
+$(QT_QRC_CPP): $(QT_QRC) $(QT_FORMS_H) $(RES_FONTS) $(RES_ICONS) $(RES_ANIMATION) $(RES_TOKENS) $(RES_STYLES) $(RES_LEDGER)
 	@test -f $(RCC)
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(RCC) -name bitcoin --format-version 1 $< > $@
 

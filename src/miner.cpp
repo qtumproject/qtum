@@ -27,6 +27,7 @@
 #include <node/blockstorage.h>
 #include <net.h>
 #include <key_io.h>
+#include <qtum/qtumledger.h>
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
 #endif
@@ -953,9 +954,9 @@ public:
         pwallet(_pwallet),
         cacheHeight(0),
         type(StakerType::STAKER_NORMAL),
-        spk_man(0)
+        fAllowWatchOnly(false)
     {
-        spk_man = _pwallet->GetLegacyScriptPubKeyMan();
+        fAllowWatchOnly = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
 
         // Get allow list
         for (const std::string& strAddress : gArgs.GetArgs("-stakingallowlist"))
@@ -1000,7 +1001,7 @@ public:
 
     bool Match(const DelegationEvent& event) const override
     {
-        bool mine = spk_man->HaveKey(CKeyID(event.item.staker));
+        bool mine = pwallet->HasPrivateKey(PKHash(event.item.staker), fAllowWatchOnly);
         if(!mine)
             return false;
 
@@ -1077,7 +1078,7 @@ private:
     std::vector<uint160> allowList;
     std::vector<uint160> excludeList;
     int type;
-    LegacyScriptPubKeyMan* spk_man;
+    bool fAllowWatchOnly;
 };
 
 class MyDelegations : public DelegationFilterBase
@@ -1087,14 +1088,14 @@ public:
         pwallet(_pwallet),
         cacheHeight(0),
         cacheAddressHeight(0),
-        spk_man(0)
+        fAllowWatchOnly(false)
     {
-        spk_man = _pwallet->GetLegacyScriptPubKeyMan();
+        fAllowWatchOnly = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 
     bool Match(const DelegationEvent& event) const override
     {
-        return spk_man->HaveKey(CKeyID(event.item.delegate));
+        return pwallet->HasPrivateKey(PKHash(event.item.delegate), fAllowWatchOnly);
     }
 
     void Update(int32_t nHeight)
@@ -1146,7 +1147,7 @@ public:
                 for(auto item : pwallet->mapDelegation)
                 {
                     uint160 address = item.second.delegateAddress;
-                    if(spk_man->HaveKey(CKeyID(address)))
+                    if(pwallet->HasPrivateKey(PKHash(address), fAllowWatchOnly))
                     {
                         if (mapAddress.find(address) == mapAddress.end())
                         {
@@ -1196,7 +1197,7 @@ private:
     int32_t cacheHeight;
     int32_t cacheAddressHeight;
     std::map<uint160, Delegation> cacheMyDelegations;
-    LegacyScriptPubKeyMan* spk_man;
+    bool fAllowWatchOnly;
 };
 
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
@@ -1321,6 +1322,7 @@ public:
     int numThreads = 1;
     boost::thread_group threads;
     mutable RecursiveMutex cs_worker;
+    bool privateKeysDisabled = false;;
 
 public:
     DelegationsStaker delegationsStaker;
@@ -1381,6 +1383,7 @@ public:
             waitBestHeaderAttempts = maxWaitForBestHeader / nMinerWaitBestBlockHeader;
         }
         if(pwallet) numThreads = pwallet->m_num_threads;
+        if(pwallet) privateKeysDisabled = pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 
     void clearCache()
@@ -1432,6 +1435,12 @@ public:
 
             // Cache mining data
             if(!CacheData()) continue;
+
+            // Check if ledger is connected
+            if(d->privateKeysDisabled)
+            {
+                if(!isLedgerConnected()) continue;
+            }
 
             // Check if miner have coins for staking
             if(HaveCoinsForStake())
@@ -1605,7 +1614,9 @@ protected:
         LOCK(d->pwallet->cs_wallet);
 
         d->clearCache();
-        CAmount nBalance = d->pwallet->GetBalance().m_mine_trusted;
+        const auto bal = d->pwallet->GetBalance();
+        CAmount nBalance = bal.m_mine_trusted;
+        if(d->privateKeysDisabled) nBalance += bal.m_watchonly_trusted;
         d->nTargetValue = nBalance - d->pwallet->m_reserve_balance;
         CAmount nValueIn = 0;
         int32_t nHeightTip = 0;
@@ -1844,6 +1855,32 @@ protected:
         //return back to low priority
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
         return false;
+    }
+
+    bool isLedgerConnected()
+    {
+        if(d->pwallet->IsStakeClosing())
+            return false;
+
+        std::string ledgerId;
+        {
+            LOCK(d->pwallet->cs_wallet);
+            ledgerId = d->pwallet->m_ledger_id;
+        }
+
+        if(ledgerId.empty())
+            return false;
+
+        QtumLedger &device = QtumLedger::instance();
+        bool fConnected = device.isConnected(ledgerId, true);
+        if(!fConnected)
+        {
+            d->pwallet->m_last_coin_stake_search_interval = 0;
+            LogPrintf("ThreadStakeMiner(): Ledger not connected with fingerprint %s\n", d->pwallet->m_ledger_id);
+            Sleep(10000);
+        }
+
+        return fConnected;
     }
 };
 

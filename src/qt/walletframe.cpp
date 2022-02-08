@@ -359,3 +359,10 @@ void WalletFrame::setTitleBar(TitleBar *titleBar)
 {
     m_title_bar = titleBar;
 }
+
+void WalletFrame::signTxHardware(const QString& tx)
+{
+    WalletView *walletView = currentWalletView();
+    if (walletView)
+        walletView->signTxHardware(tx);
+}

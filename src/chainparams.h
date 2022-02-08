@@ -134,8 +134,8 @@ public:
     void UpdatePowNoRetargeting(bool fValue);
     void UpdatePoSNoRetargeting(bool fValue);
     void UpdateMuirGlacierHeight(int nHeight);
+    bool HasHardwareWalletSupport() const { return fHasHardwareWalletSupport; }
     void UpdateLondonHeight(int nHeight);
-
     //! Get allowed assumeutxo configuration.
     //! @see ChainstateManager
     const MapAssumeutxo& Assumeutxo() const { return m_assumeutxo_data; }
@@ -165,6 +165,7 @@ protected:
     CCheckpointData checkpointData;
     MapAssumeutxo m_assumeutxo_data;
     ChainTxData chainTxData;
+    bool fHasHardwareWalletSupport;
 };
 
 /**
