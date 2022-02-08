@@ -5223,7 +5223,7 @@ CKeyID CWallet::GetKeyForDestination(const CTxDestination& dest)
 {
     CScript script = GetScriptForDestination(dest);
     std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
-    if(!provider) provider = MakeUnique<FlatSigningProvider>();
+    if(!provider) provider = std::make_unique<FlatSigningProvider>();
     return ::GetKeyForDestination(*provider, dest);
 }
 

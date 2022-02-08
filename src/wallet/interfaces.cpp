@@ -55,6 +55,7 @@ using interfaces::DelegationDetails;
 using interfaces::SuperStakerInfo;
 using interfaces::DelegationStakerInfo;
 using interfaces::SuperStakerAddressList;
+using interfaces::SignDelegation;
 
 namespace wallet {
 namespace {

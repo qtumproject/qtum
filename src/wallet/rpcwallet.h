@@ -36,7 +36,7 @@ std::shared_ptr<CWallet> GetWalletForJSONRPCRequest(const JSONRPCRequest& reques
 void EnsureWalletIsUnlocked(const CWallet&);
 WalletContext& EnsureWalletContext(const std::any& context);
 LegacyScriptPubKeyMan& EnsureLegacyScriptPubKeyMan(CWallet& wallet, bool also_create = false);
-UniValue DescribeWalletAddress(const CWallet* const pwallet, const CTxDestination& dest);
+UniValue DescribeWalletAddress(const CWallet& wallet, const CTxDestination& dest);
 
 RPCHelpMan getaddressinfo();
 RPCHelpMan signrawtransactionwithwallet();

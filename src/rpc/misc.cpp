@@ -871,14 +871,14 @@ RPCHelpMan listconf()
 }
 ///////////////////////////////////////////////////////////////////////
 #ifdef ENABLE_WALLET
-bool getAddressToPubKey(const CWallet* const pwallet, std::string addr, std::string& pubkey)
+bool getAddressToPubKey(const CWallet& wallet, std::string addr, std::string& pubkey)
 {
     CTxDestination dest = DecodeDestination(addr);
     // Make sure the destination is valid
     if (!IsValidDestination(dest)) {
         return false;
     }
-    UniValue detail = DescribeWalletAddress(pwallet, dest);
+    UniValue detail = DescribeWalletAddress(wallet, dest);
     if(detail.exists("pubkey") && detail["pubkey"].isStr())
     {
         pubkey = detail["pubkey"].get_str();
@@ -920,8 +920,8 @@ static RPCHelpMan createmultisig()
 {
 
 #ifdef ENABLE_WALLET
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    CWallet* const pwallet = wallet.get();
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
 
     LOCK(pwallet->cs_wallet);
     std::string pubkey;
@@ -936,7 +936,7 @@ static RPCHelpMan createmultisig()
         if (IsHex(keys[i].get_str()) && (keys[i].get_str().length() == 66 || keys[i].get_str().length() == 130)) {
             pubkeys.push_back(HexToPubKey(keys[i].get_str()));
 #ifdef ENABLE_WALLET
-        } else if (getAddressToPubKey(pwallet, keys[i].get_str(), pubkey)){
+        } else if (getAddressToPubKey(*pwallet, keys[i].get_str(), pubkey)){
             pubkeys.push_back(HexToPubKey(pubkey));
 #endif
         } else {

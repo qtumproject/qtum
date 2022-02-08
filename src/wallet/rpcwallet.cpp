@@ -942,7 +942,7 @@ static RPCHelpMan splitutxosforaddress()
     };
 }
 
-PSBTOutput GetPsbtOutput(const CTxOut& v, CWallet* const pwallet)
+PSBTOutput GetPsbtOutput(const CTxOut& v, CWallet& wallet)
 {
     PSBTOutput out;
     if(v.scriptPubKey.HasOpSender())
@@ -957,8 +957,8 @@ PSBTOutput GetPsbtOutput(const CTxOut& v, CWallet* const pwallet)
             pkhash = ExtractPublicKeyHash(senderPubKey);
             ok &= pkhash != PKHash();
         }
-        if(ok) ok &=  pwallet->GetPubKey(pkhash, vchPubKeyOut);
-        if(ok) ok &=  pwallet->GetKeyOrigin(pkhash, info);
+        if(ok) ok &=  wallet.GetPubKey(pkhash, vchPubKeyOut);
+        if(ok) ok &=  wallet.GetKeyOrigin(pkhash, info);
         if(ok) out.hd_keypaths[vchPubKeyOut] = info;
     }
 
@@ -1221,7 +1221,7 @@ static RPCHelpMan createcontract()
             psbtx.inputs.push_back(PSBTInput());
         }
         for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
-            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], pwallet));
+            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], *pwallet));
         }
 
         // Fill transaction with out data but don't sign
@@ -1492,13 +1492,13 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
             psbtx.inputs.push_back(PSBTInput());
         }
         for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
-            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], pwallet));
+            psbtx.outputs.push_back(GetPsbtOutput(rawTx.vout[i], wallet));
         }
 
         // Fill transaction with out data but don't sign
         bool bip32derivs = true;
         bool complete = true;
-        const TransactionError err = pwallet->FillPSBT(psbtx, complete, 1, false, bip32derivs);
+        const TransactionError err = wallet.FillPSBT(psbtx, complete, 1, false, bip32derivs);
         if (err != TransactionError::OK) {
             throw JSONRPCTransactionError(err);
         }
@@ -1510,7 +1510,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
 
         // Add sender information
         CTxDestination txSenderAdress(txSenderDest);
-        CKeyID keyid = pwallet->GetKeyForDestination(txSenderAdress);
+        CKeyID keyid = wallet.GetKeyForDestination(txSenderAdress);
         result.pushKV("sender", EncodeDestination(txSenderAdress));
         result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
     }
@@ -1677,7 +1677,7 @@ public:
 
     bool privateKeysDisabled() override
     {
-        return pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+        return wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 
 private:
@@ -1865,8 +1865,6 @@ static RPCHelpMan setdelegateforaddress()
     PKHash pkhSender = std::get<PKHash>(destSender);
 
     // Get the private key for the sender address
-    CKey key;
-    CKeyID keyID = ToKeyID(pkhSender);
     if (!pwallet->HasPrivateKey(destSender, fPsbt)) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
     }
@@ -1882,7 +1880,7 @@ static RPCHelpMan setdelegateforaddress()
     else
     {
         std::string str_sig;
-        SigningResult res = wallet->SignMessage(hexStaker, *pkhSender, str_sig);
+        SigningResult res = pwallet->SignMessage(hexStaker, pkhSender, str_sig);
         if(res == SigningResult::PRIVATE_KEY_NOT_AVAILABLE)
         {
             throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
@@ -5869,7 +5867,7 @@ public:
     UniValue operator()(const WitnessUnknown& id) const { return UniValue(UniValue::VOBJ); }
 };
 
-static UniValue DescribeWalletAddress(const CWallet& wallet, const CTxDestination& dest)
+UniValue DescribeWalletAddress(const CWallet& wallet, const CTxDestination& dest)
 {
     UniValue ret(UniValue::VOBJ);
     UniValue detail = DescribeAddress(dest);

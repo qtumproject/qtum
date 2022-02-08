@@ -2345,7 +2345,7 @@ bool LegacyScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, int s
 
 bool DescriptorScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, int sighash, std::map<int, std::string> &output_errors) const
 {
-    std::unique_ptr<FlatSigningProvider> keys = MakeUnique<FlatSigningProvider>();
+    std::unique_ptr<FlatSigningProvider> keys = std::make_unique<FlatSigningProvider>();
     for (CTxOut& output : tx.vout)
     {
         if(output.scriptPubKey.HasOpSender())
@@ -2372,7 +2372,7 @@ bool LegacyScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const 
 
 bool DescriptorScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<CTxOut, unsigned int> > &coins) const
 {
-    std::unique_ptr<FlatSigningProvider> keys = MakeUnique<FlatSigningProvider>();
+    std::unique_ptr<FlatSigningProvider> keys = std::make_unique<FlatSigningProvider>();
     for (const auto& coin_pair : coins) {
         std::unique_ptr<FlatSigningProvider> coin_keys = GetSigningProvider(coin_pair.first.scriptPubKey, true);
         if (!coin_keys) {
