@@ -467,6 +467,7 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
 
             if (sendStatus.status == WalletModel::OK) {
                 Q_EMIT coinsSent(m_current_transaction->getWtx()->GetHash());
+                accept();
             } else {
                 send_failure = true;
             }
