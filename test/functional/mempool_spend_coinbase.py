@@ -15,6 +15,7 @@ but less mature coinbase spends are NOT.
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet import MiniWallet
+from test_framework.qtumconfig import *
 
 
 class MempoolSpendCoinbaseTest(BitcoinTestFramework):
@@ -25,7 +26,7 @@ class MempoolSpendCoinbaseTest(BitcoinTestFramework):
         wallet = MiniWallet(self.nodes[0])
 
         # Invalidate two blocks, so that miniwallet has access to a coin that will mature in the next block
-        chain_height = 198
+        chain_height = COINBASE_MATURITY + 98
         self.nodes[0].invalidateblock(self.nodes[0].getblockhash(chain_height + 1))
         assert_equal(chain_height, self.nodes[0].getblockcount())
 

@@ -10,6 +10,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 def reset_balance(node, discardaddr):
     '''Throw away all owned coins by the node so it gets a balance of 0.'''
@@ -42,7 +43,7 @@ def count_unspent(node):
     r["reused"]["supported"] = supports_reused
     return r
 
-def assert_unspent(node, total_count=None, total_sum=None, reused_supported=None, reused_count=None, reused_sum=None, margin=0.001):
+def assert_unspent(node, total_count=None, total_sum=None, reused_supported=None, reused_count=None, reused_sum=None, margin=0.01):
     '''Make assertions about a node's unspent output statistics'''
     stats = count_unspent(node)
     if total_count is not None:
@@ -56,7 +57,7 @@ def assert_unspent(node, total_count=None, total_sum=None, reused_supported=None
     if reused_sum is not None:
         assert_approx(stats["reused"]["sum"], reused_sum, margin)
 
-def assert_balances(node, mine, margin=0.001):
+def assert_balances(node, mine, margin=0.01):
     '''Make assertions about a node's getbalances output'''
     got = node.getbalances()["mine"]
     for k,v in mine.items():
@@ -210,8 +211,8 @@ class AvoidReuseTest(BitcoinTestFramework):
         assert_balances(self.nodes[1], mine={"used": 0, "trusted": 5})
 
         # node 1 should now have about 5 btc left (for both cases)
-        assert_approx(self.nodes[1].getbalance(), 5, 0.001)
-        assert_approx(self.nodes[1].getbalance(avoid_reuse=False), 5, 0.001)
+        assert_approx(self.nodes[1].getbalance(), 5, 0.01)
+        assert_approx(self.nodes[1].getbalance(avoid_reuse=False), 5, 0.01)
 
     def test_sending_from_reused_address_fails(self, second_addr_type):
         '''
@@ -268,8 +269,8 @@ class AvoidReuseTest(BitcoinTestFramework):
             assert_balances(self.nodes[1], mine={"used": 10, "trusted": 5})
 
             # node 1 should now have a balance of 5 (no dirty) or 15 (including dirty)
-            assert_approx(self.nodes[1].getbalance(), 5, 0.001)
-            assert_approx(self.nodes[1].getbalance(avoid_reuse=False), 15, 0.001)
+            assert_approx(self.nodes[1].getbalance(), 5, 0.01)
+            assert_approx(self.nodes[1].getbalance(avoid_reuse=False), 15, 0.01)
 
             assert_raises_rpc_error(-6, "Insufficient funds", self.nodes[1].sendtoaddress, retaddr, 10)
 
@@ -281,8 +282,8 @@ class AvoidReuseTest(BitcoinTestFramework):
             assert_balances(self.nodes[1], mine={"used": 10, "trusted": 1})
 
             # node 1 should now have about 1 btc left (no dirty) and 11 (including dirty)
-            assert_approx(self.nodes[1].getbalance(), 1, 0.001)
-            assert_approx(self.nodes[1].getbalance(avoid_reuse=False), 11, 0.001)
+            assert_approx(self.nodes[1].getbalance(), 1, 0.01)
+            assert_approx(self.nodes[1].getbalance(avoid_reuse=False), 11, 0.01)
 
     def test_getbalances_used(self):
         '''
