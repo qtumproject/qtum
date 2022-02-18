@@ -219,7 +219,7 @@ This command depends on a couple of python packages, so it is required that you 
 Ensuring that `python` is installed, you can install the deploy dependencies by running the following commands in your terminal:
 
 ``` bash
-brew imagemagick --with-librsvg
+brew install librsvg
 ```
 
 ``` bash
