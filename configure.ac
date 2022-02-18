@@ -480,6 +480,7 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   AX_CHECK_COMPILE_FLAG([-Wno-unknown-pragmas],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-unknown-pragmas"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wno-strict-aliasing],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-strict-aliasing"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wno-duplicated-branches],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-duplicated-branches"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wno-c++11-narrowing],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-c++11-narrowing"],,[[$CXXFLAG_WERROR]])
 fi
 
 dnl Don't allow extended (non-ASCII) symbols in identifiers. This is easier for code review.
@@ -714,6 +715,13 @@ case $host in
 
          if $BREW list --versions qt5 >/dev/null; then
            export PKG_CONFIG_PATH="$($BREW --prefix qt5 2>/dev/null)/lib/pkgconfig:$PKG_CONFIG_PATH"
+         fi
+
+         gmp_prefix=`$BREW --prefix gmp 2>/dev/null`
+         if test x$gmp_prefix != x; then
+           GMP_CFLAGS="-I$gmp_prefix/include"
+           GMP_LIBS="-L$gmp_prefix/lib -lgmp"
+           GMPXX_LIBS="-L$gmp_prefix/lib -lgmpxx"
          fi
        fi
      else
@@ -1563,11 +1571,15 @@ fi
 
 # These packages don't provide pkgconfig config files across all
 # platforms, so we use older autoconf detection mechanisms:
-AC_CHECK_HEADER([gmp.h],,AC_MSG_ERROR(libgmp headers missing))
-AC_CHECK_LIB([gmp],[__gmpn_sub_n],GMP_LIBS=-lgmp, [AC_MSG_ERROR(libgmp missing)])
+if test "x$GMP_LIBS" = "x"; then
+  AC_CHECK_HEADER([gmp.h],,AC_MSG_ERROR(libgmp headers missing))
+  AC_CHECK_LIB([gmp],[__gmpn_sub_n],GMP_LIBS=-lgmp, [AC_MSG_ERROR(libgmp missing)])
+fi
 
-AC_CHECK_HEADER([gmpxx.h],,AC_MSG_ERROR(libgmpxx headers missing))
-AC_CHECK_LIB([gmpxx],[main],GMPXX_LIBS=-lgmpxx, [AC_MSG_ERROR(libgmpxx missing)])
+if test "x$GMPXX_LIBS" = "x"; then
+  AC_CHECK_HEADER([gmpxx.h],,AC_MSG_ERROR(libgmpxx headers missing))
+  AC_CHECK_LIB([gmpxx],[main],GMPXX_LIBS=-lgmpxx, [AC_MSG_ERROR(libgmpxx missing)])
+fi
 
 save_CXXFLAGS="${CXXFLAGS}"
 CXXFLAGS="${CXXFLAGS} ${CRYPTO_CFLAGS} ${SSL_CFLAGS}"
@@ -1901,6 +1913,7 @@ AC_SUBST(ZMQ_LIBS)
 AC_SUBST(QR_LIBS)
 AC_SUBST(GMP_LIBS)
 AC_SUBST(GMPXX_LIBS)
+AC_SUBST(GMP_CFLAGS)
 AC_SUBST(HAVE_GMTIME_R)
 AC_SUBST(HAVE_FDATASYNC)
 AC_SUBST(HAVE_FULLFSYNC)

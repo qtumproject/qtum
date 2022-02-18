@@ -8,7 +8,7 @@ EXTRA_LIBRARIES += $(LIBFF_INT)
 
 LIBFF += $(LIBFF_INT)
 
-LIBFF_CPPFLAGS += -I$(srcdir)/cryptopp/include
+LIBFF_CPPFLAGS += -I$(srcdir)/cryptopp/include $(GMP_CFLAGS)
 
 LIBFF_CPPFLAGS_INT =
 LIBFF_CPPFLAGS_INT += -I$(srcdir)/libff
