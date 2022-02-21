@@ -3,7 +3,7 @@ What is Qtum?
 
 Qtum is a decentralized blockchain project built on Bitcoin's UTXO model, with support for Ethereum Virtual Machine based smart contracts, and secured by a proof of stake consensus model. It achieves this through the revolutionary Account Abstraction Layer which allows the EVM to communicate with Qtum's Bitcoin-like UTXO blockchain. For more general information about Qtum as well as links to join our community, go to https://qtum.org
 
-Welcome to the Qtum Ignition Main Network. This is the main network where the tokens hold value and should be guarded very carefully. If you are testing the network, or developing unstable software on Qtum, we highly recommend using either testnet or regtest mode. 
+Welcome to the Qtum Fastlane Main Network. This is the main network where the tokens hold value and should be guarded very carefully. If you are testing the network, or developing unstable software on Qtum, we highly recommend using either testnet or regtest mode. 
 
 The major features of the Qtum network include:
 
@@ -89,7 +89,7 @@ Qtum Core uses a full node model, and thus requires downloading the entire block
 
 ### Qtum Web Wallet
 
-A browser wallet that supports the Ledger hardware wallet, offline cold wallet, and restoration from mobile wallets.
+A browser wallet that supports the Ledger hardware wallet, offline cold wallet, restoration from mobile wallets, creation of QRC20 tokens and QRC1155 NFTs.
 
 Web site https://qtumwallet.org
 
@@ -109,11 +109,9 @@ Android Download: https://play.google.com/store/apps/details?id=org.qtum.newwall
 
 iOS Download: https://github.com/qtumproject/qtum-ios (open source, deprecated)
 
-### Ledger Chrome Wallet
+### Qnekt Chrome Wallet
 
-This light wallet runs in your Chrome browser as a browser extension. This wallet requires a Ledger device to use.
-
-How to install: https://ledger.zendesk.com/hc/en-us/articles/115003776913-How-to-install-and-use-Qtum-with-Ledger
+This light wallet runs in your Chrome browser as a browser extension, based on the popular MetaMask wallet.
 
 
 ### Community Resources
@@ -127,15 +125,14 @@ Make sure to check out these resources as well for more information and to keep 
 *	/r/Qtum on Reddit https://www.reddit.com/r/Qtum/
 *	Qtum.org https://qtum.org
 *	Qtum on Facebook https://www.facebook.com/QtumOfficial/
-*	Qtum Forum https://forum.qtum.org
 
 ### Qtum Smart Contract Limitations
 
 *	EVM smart contracts cannot receive coins from or send coins to any address type other than pay-to-pubkeyhash (starts with Q) addresses. This is due to a limitation in the EVM
 *	Contracts are not allowed to create contracts with an initial endowment of coins. The contract must first be created, and then be sent coins in a separate transaction. Humans are also not allowed to create contracts with an initial endowment of coins.
 *	Although all of the infrastructure is present, Qtum Core does not currently parse Solidity event data. You must parse this yourself using either searchlogs or -record-log-opcodes features.
-*	It is not possible to send a contract coins without also executing the contract. This is also the case of Ethereum. This was promised in earlier discussions and technically does work, but due to lack of time for testing this feature was disabled. We hope to reenable this feature with release of the x86 virtual machine in 2020.
-*	In Qtum there can be multiple addresses used to create a proof-of-stake block. However, the EVM can only see the first output using the coinbase operation in Solidity (this address is also the one registered for the continuous staker rewards after 500 blocks).
+*	It is not possible to send a contract coins without also executing the contract. This is also the case of Ethereum. This was promised in earlier discussions and technically does work, but due to lack of time for testing this feature was disabled.
+*	In Qtum there can be multiple addresses used to create a proof-of-stake block. However, the EVM can only see the first output using the coinbase operation in Solidity (this address is also the one registered for the continuous staker rewards after 2000 blocks).
 
 ----------
 
