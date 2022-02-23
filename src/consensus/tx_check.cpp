@@ -6,7 +6,9 @@
 
 #include <primitives/transaction.h>
 #include <consensus/validation.h>
+#ifndef BUILD_BITCOIN_INTERNAL
 #include <script/standard.h>
+#endif
 
 bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
 {
@@ -34,6 +36,7 @@ bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
         if (!MoneyRange(nValueOut))
             return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-txouttotal-toolarge");
 
+#ifndef BUILD_BITCOIN_INTERNAL
         /////////////////////////////////////////////////////////// // qtum
         if (txout.scriptPubKey.HasOpCall() || txout.scriptPubKey.HasOpCreate() || txout.scriptPubKey.HasOpSender()) {
             std::vector<std::vector<unsigned char>> vSolutions;
@@ -43,6 +46,7 @@ bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
             }
         }
         ///////////////////////////////////////////////////////////
+#endif
     }
 
     // Check for duplicate inputs (see CVE-2018-17144)
