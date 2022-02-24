@@ -110,6 +110,13 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
 #endif
 
     connect(ui->hardware_wallet_checkbox, &QCheckBox::toggled, [this](bool checked) {
+#ifdef ENABLE_EXTERNAL_SIGNER
+        // Uncheck external signer when hardware wallet is checked
+        if(checked) {
+            ui->external_signer_checkbox->setChecked(false);
+        }
+#endif
+
         // Disable and uncheck encrypt_wallet_checkbox when isHardwareWalletChecked is true,
         // enable and check it if isHardwareWalletChecked is false
         ui->encrypt_wallet_checkbox->setChecked(!checked);
@@ -196,3 +203,4 @@ bool CreateWalletDialog::isHardwareWalletChecked() const
 {
     return ui->hardware_wallet_checkbox->isChecked();
 }
+
