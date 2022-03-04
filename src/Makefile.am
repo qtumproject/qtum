@@ -328,7 +328,8 @@ BITCOIN_CORE_H = \
   qtum/qtumutils.h \
   qtum/qtumdelegation.h \
   qtum/qtumtoken.h \
-  qtum/qtumledger.h
+  qtum/qtumledger.h \
+  qtum/qtumnft.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -616,6 +617,7 @@ libbitcoin_common_a_SOURCES = \
   qtum/qtumDGP.cpp \
   qtum/qtumtoken.cpp \
   qtum/qtumdelegation.cpp \
+  qtum/qtumnft.cpp \
   util/contractabi.cpp \
   libff/libff/algebra/curves/public_params.hpp \
   libff/libff/algebra/curves/curve_utils.hpp \
