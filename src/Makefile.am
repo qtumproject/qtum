@@ -278,7 +278,8 @@ BITCOIN_CORE_H = \
   qtum/qtumutils.h \
   qtum/qtumdelegation.h \
   qtum/qtumtoken.h \
-  qtum/qtumledger.h
+  qtum/qtumledger.h \
+  qtum/qtumnft.h
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
@@ -537,6 +538,7 @@ libbitcoin_common_a_SOURCES = \
   warnings.cpp \
   qtum/qtumutils.cpp \
   qtum/qtumDGP.cpp \
+  qtum/qtumnft.cpp \
   util/contractabi.cpp \
   cpp-ethereum/aleth/buildinfo.c \
   cpp-ethereum/aleth/buildinfo.h \
