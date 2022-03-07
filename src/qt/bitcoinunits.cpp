@@ -323,6 +323,28 @@ QString BitcoinUnits::formatInt(const int64_t &nIn, bool fPlus, BitcoinUnits::Se
     return quotient_str;
 }
 
+QString BitcoinUnits::formatInt256(const int256_t &nIn, bool fPlus, BitcoinUnits::SeparatorStyle separators)
+{
+    int256_t n = nIn;
+    int256_t quotient = (n > 0 ? n : -n);
+    QString quotient_str = QString::fromStdString(quotient.str());
+
+    // Use SI-style thin space separators as these are locale independent and can't be
+    // confused with the decimal marker.
+    QChar thin_sp(THIN_SP_CP);
+    int q_size = quotient_str.size();
+    if (separators == SeparatorStyle::ALWAYS || (separators == SeparatorStyle::STANDARD && q_size > 4))
+        for (int i = 3; i < q_size; i += 3)
+            quotient_str.insert(q_size - i, thin_sp);
+
+    if (n < 0)
+        quotient_str.insert(0, '-');
+    else if (fPlus && n > 0)
+        quotient_str.insert(0, '+');
+
+    return quotient_str;
+}
+
 QString BitcoinUnits::getAmountColumnTitle(int unit)
 {
     QString amountTitle = QObject::tr("Amount");
