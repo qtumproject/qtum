@@ -215,6 +215,7 @@ public:
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 3;
+        consensus.nftAddress = uint160(ParseHex("4e4d13a577072f0f5cb6fc1a17c96489de0f533e")); // NFT contract
     }
 };
 
@@ -354,6 +355,7 @@ public:
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 3;
+        consensus.nftAddress = uint160(ParseHex("16c98b19e66e931b7ada0d5ca41006f33cea5c29")); // NFT contract
     }
 };
 
@@ -495,6 +497,7 @@ public:
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 3;
+        consensus.nftAddress = uint160(ParseHex("0000000000000000000000000000000000000000")); // NFT contract
     }
 };
 
@@ -614,6 +617,7 @@ public:
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 3;
+        consensus.nftAddress = uint160(ParseHex("0000000000000000000000000000000000000000")); // NFT contract
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
@@ -924,4 +928,14 @@ void CChainParams::UpdateLondonHeight(int nHeight)
 void UpdateLondonHeight(int nHeight)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdateLondonHeight(nHeight);
+}
+
+void CChainParams::UpdateNftAddress(const uint160& address)
+{
+    consensus.nftAddress = address;
+}
+
+void UpdateNftAddress(const uint160& address)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateNftAddress(address);
 }
