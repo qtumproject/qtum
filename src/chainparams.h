@@ -105,6 +105,7 @@ public:
     void UpdatePoSNoRetargeting(bool fValue);
     void UpdateMuirGlacierHeight(int nHeight);
     bool HasHardwareWalletSupport() const { return fHasHardwareWalletSupport; }
+    void UpdateNftAddress(const uint160& address);
 protected:
     dev::eth::Network GetEVMNetwork() const;
     CChainParams() {}
@@ -210,5 +211,10 @@ void UpdatePoSNoRetargeting(bool fValue);
  * Allows modifying the muir glacier block height regtest parameter.
  */
 void UpdateMuirGlacierHeight(int nHeight);
+
+/**
+ * Allows modifying the nft address regtest parameter.
+ */
+void UpdateNftAddress(const uint160& address);
 
 #endif // BITCOIN_CHAINPARAMS_H

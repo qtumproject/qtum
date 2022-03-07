@@ -118,6 +118,7 @@ struct Params {
     /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
     int nCoinbaseMaturity;
     int nRBTCoinbaseMaturity;
+    uint160 nftAddress;
     int64_t DifficultyAdjustmentInterval(int height) const
     {
         int64_t targetTimespan = TargetTimespan(height);
