@@ -52,6 +52,7 @@ struct DelegationDetails;
 struct SuperStakerInfo;
 struct DelegationStakerInfo;
 struct SignDelegation;
+struct NftTx;
 
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
@@ -444,6 +445,9 @@ public:
     //! Get staker ledger id.
     virtual std::string getStakerLedgerId() = 0;
 
+    //! Add wallet nft transaction entry.
+    virtual bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose=true) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
@@ -763,6 +767,21 @@ struct SignDelegation
     std::string delegate;
     std::string staker;
     std::string PoD;
+};
+
+// Wallet nft transaction
+struct NftTx
+{
+    std::string contract_address;
+    std::string sender_address;
+    std::string receiver_address;
+    uint256 value;
+    uint256 id;
+    uint256 tx_hash;
+    int64_t time = 0;
+    uint256 block_hash;
+    int64_t block_number = -1;
+    uint256 hash;
 };
 
 //! Return implementation of Wallet interface. This function is defined in
