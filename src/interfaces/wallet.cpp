@@ -1479,6 +1479,10 @@ public:
         LOCK(m_wallet->cs_wallet);
         return m_wallet->m_ledger_id;
     }
+    bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose) override
+    {
+        return false;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));

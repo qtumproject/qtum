@@ -56,7 +56,8 @@ QT_FORMS_UI = \
   qt/forms/titlebar.ui \
   qt/forms/tokendescdialog.ui \
   qt/forms/tokenitemwidget.ui \
-  qt/forms/transactiondescdialog.ui
+  qt/forms/transactiondescdialog.ui \
+  qt/forms/sendnftdialog.ui
 
 QT_MOC_CPP = \
   qt/moc_abifunctionfield.cpp \
@@ -165,7 +166,8 @@ QT_MOC_CPP = \
   qt/moc_hardwaresigntx.cpp \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
-  qt/moc_walletview.cpp
+  qt/moc_walletview.cpp \
+  qt/moc_sendnftdialog.cpp
 
 BITCOIN_MM = \
   qt/macdockiconhandler.mm \
@@ -310,7 +312,9 @@ BITCOIN_QT_H = \
   qt/winshutdownmonitor.h \
   qt/qtumpushbutton.h \
   qt/qtumhwitool.h \
-  qt/hardwaresigntx.h
+  qt/hardwaresigntx.h \
+  qt/sendnftdialog.h \
+  qt/nft.h
 
 RES_ICONS = \
   qt/res/icons/add.png \
@@ -485,6 +489,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/sendcoinsentry.cpp \
   qt/sendtocontract.cpp \
   qt/sendtokenpage.cpp \
+  qt/sendnftdialog.cpp \
   qt/signverifymessagedialog.cpp \
   qt/superstakeritemwidget.cpp \
   qt/superstakerlistwidget.cpp \
