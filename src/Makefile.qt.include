@@ -57,7 +57,8 @@ QT_FORMS_UI = \
   qt/forms/tokendescdialog.ui \
   qt/forms/tokenitemwidget.ui \
   qt/forms/transactiondescdialog.ui \
-  qt/forms/sendnftdialog.ui
+  qt/forms/sendnftdialog.ui \
+  qt/forms/createnftdialog.ui
 
 QT_MOC_CPP = \
   qt/moc_abifunctionfield.cpp \
@@ -167,7 +168,8 @@ QT_MOC_CPP = \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
   qt/moc_walletview.cpp \
-  qt/moc_sendnftdialog.cpp
+  qt/moc_sendnftdialog.cpp \
+  qt/moc_createnftdialog.cpp
 
 BITCOIN_MM = \
   qt/macdockiconhandler.mm \
@@ -314,7 +316,8 @@ BITCOIN_QT_H = \
   qt/qtumhwitool.h \
   qt/hardwaresigntx.h \
   qt/sendnftdialog.h \
-  qt/nft.h
+  qt/nft.h \
+  qt/createnftdialog.h
 
 RES_ICONS = \
   qt/res/icons/add.png \
@@ -457,6 +460,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/contractresult.cpp \
   qt/contracttablemodel.cpp \
   qt/createcontract.cpp \
+  qt/createnftdialog.cpp \
   qt/delegationfilterproxy.cpp \
   qt/delegationitemwidget.cpp \
   qt/delegationlistwidget.cpp \

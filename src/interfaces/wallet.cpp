@@ -1483,6 +1483,14 @@ public:
     {
         return false;
     }
+    bool addNftEntry(const NftInfo &nft) override
+    {
+        return false;
+    }
+    bool existNftEntry(const NftInfo &nft) override
+    {
+        return false;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));

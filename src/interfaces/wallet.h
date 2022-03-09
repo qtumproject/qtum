@@ -50,6 +50,7 @@ struct SuperStakerInfo;
 struct DelegationStakerInfo;
 struct SignDelegation;
 struct NftTx;
+struct NftInfo;
 
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
@@ -444,6 +445,12 @@ public:
     //! Add wallet nft transaction entry.
     virtual bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose=true) = 0;
 
+    //! Add wallet nft entry.
+    virtual bool addNftEntry(const NftInfo &nft) = 0;
+
+    //! Check if exist wallet nft entry.
+    virtual bool existNftEntry(const NftInfo &nft) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
@@ -732,6 +739,19 @@ struct SignDelegation
     std::string delegate;
     std::string staker;
     std::string PoD;
+};
+
+// Wallet nft information.
+struct NftInfo
+{
+    std::string contract_address;
+    std::string nft_name;
+    std::string sender_address;
+    uint256 id;
+    int64_t time = 0;
+    uint256 block_hash;
+    int64_t block_number = -1;
+    uint256 hash;
 };
 
 // Wallet nft transaction

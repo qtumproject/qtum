@@ -14,6 +14,7 @@ class Nft : public QtumNft
 public:
     void setModel(WalletModel *model){};
     bool transfer(const std::string& _to, const std::string& _value, bool& success, bool sendTo = false){return false;};
+    bool name(std::string& result, bool sendTo = false){return false;};
 };
 
 #endif // NFT_H
