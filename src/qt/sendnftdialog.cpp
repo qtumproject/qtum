@@ -42,8 +42,8 @@ SendNftDialog::SendNftDialog(QWidget *parent) :
     // Set stylesheet
     SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonDark);
 
-    ui->labelAddress->setToolTip(tr("The address that will receive the nfts."));
-    ui->labelAmount->setToolTip(tr("The amount in Nft to send."));
+    ui->labelAddress->setToolTip(tr("The address that will receive the NFTs."));
+    ui->labelAmount->setToolTip(tr("The amount in NFT to send."));
     m_nftABI = new Nft();
     m_selectedNft = new SelectedNft();
 
@@ -184,7 +184,7 @@ void SendNftDialog::on_confirmClicked()
 
         QString questionString;
         if (bCreateUnsigned) {
-            questionString.append(tr("Do you want to draft this send nft transaction?"));
+            questionString.append(tr("Do you want to draft this send NFT transaction?"));
             questionString.append("<br /><span style='font-size:10pt;'>");
             questionString.append(tr("Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
             questionString.append("</span><br /><br />");
@@ -196,7 +196,7 @@ void SendNftDialog::on_confirmClicked()
         questionString.append(tr("<br />%3 <br />")
                               .arg(QString::fromStdString(toAddress)));
 
-        const QString confirmation = bCreateUnsigned ? tr("Confirm send nft proposal.") : tr("Confirm send nft.");
+        const QString confirmation = bCreateUnsigned ? tr("Confirm send NFT proposal.") : tr("Confirm send NFT.");
         const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
         SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
         confirmationDialog.exec();
@@ -243,7 +243,7 @@ void SendNftDialog::on_confirmClicked()
             }
             else
             {
-                QMessageBox::warning(this, tr("Send nft"), QString::fromStdString(m_nftABI->getErrorMessage()));
+                QMessageBox::warning(this, tr("Send NFT"), QString::fromStdString(m_nftABI->getErrorMessage()));
             }
             clearAll();
             QDialog::accept();

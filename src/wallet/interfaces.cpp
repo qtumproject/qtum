@@ -57,6 +57,7 @@ using interfaces::DelegationStakerInfo;
 using interfaces::SuperStakerAddressList;
 using interfaces::SignDelegation;
 using interfaces::NftTx;
+using interfaces::NftInfo;
 
 namespace wallet {
 namespace {
@@ -1451,6 +1452,14 @@ public:
         return m_wallet->m_ledger_id;
     }
     bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose) override
+    {
+        return false;
+    }
+    bool addNftEntry(const NftInfo &nft) override
+    {
+        return false;
+    }
+    bool existNftEntry(const NftInfo &nft) override
     {
         return false;
     }
