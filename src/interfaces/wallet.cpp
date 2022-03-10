@@ -1491,6 +1491,14 @@ public:
     {
         return false;
     }
+    NftInfo getNft(const uint256& id) override
+    {
+        return {};
+    }
+    std::vector<NftInfo> getNfts() override
+    {
+        return {};
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));
@@ -1552,6 +1560,11 @@ public:
     {
         return MakeHandler(m_wallet->NotifyDelegationsStakerChanged.connect(
             [fn](CWallet*, const uint160& id, ChangeType status) { fn(id, status); }));
+    }
+    std::unique_ptr<Handler> handleNftChanged(NftChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyNftChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
 
     std::shared_ptr<CWallet> m_wallet;

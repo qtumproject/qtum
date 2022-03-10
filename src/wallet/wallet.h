@@ -1268,6 +1268,10 @@ public:
     boost::signals2::signal<void (CWallet *wallet, const uint160 &addressDelegate,
             ChangeType status)> NotifyDelegationsStakerChanged;
 
+    /** Wallet NFT added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashToken,
+            ChangeType status)> NotifyNftChanged;
+
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
     /** Set whether this wallet broadcasts transactions. */
