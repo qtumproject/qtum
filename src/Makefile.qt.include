@@ -58,7 +58,8 @@ QT_FORMS_UI = \
   qt/forms/tokenitemwidget.ui \
   qt/forms/transactiondescdialog.ui \
   qt/forms/sendnftdialog.ui \
-  qt/forms/createnftdialog.ui
+  qt/forms/createnftdialog.ui \
+  qt/forms/nftitemwidget.ui
 
 QT_MOC_CPP = \
   qt/moc_abifunctionfield.cpp \
@@ -170,7 +171,8 @@ QT_MOC_CPP = \
   qt/moc_walletview.cpp \
   qt/moc_sendnftdialog.cpp \
   qt/moc_createnftdialog.cpp \
-  qt/moc_nftitemmodel.cpp
+  qt/moc_nftitemmodel.cpp \
+  qt/moc_nftitemwidget.cpp
 
 BITCOIN_MM = \
   qt/macdockiconhandler.mm \
@@ -320,7 +322,8 @@ BITCOIN_QT_H = \
   qt/sendnftdialog.h \
   qt/nft.h \
   qt/createnftdialog.h \
-  qt/nftitemmodel.h
+  qt/nftitemmodel.h \
+  qt/nftitemwidget.h
 
 RES_ICONS = \
   qt/res/icons/add.png \
@@ -517,6 +520,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/transactionview.cpp \
   qt/tokenitemwidget.cpp \
   qt/tokenlistwidget.cpp \
+  qt/nftitemwidget.cpp \
   qt/walletcontroller.cpp \
   qt/waitmessagebox.cpp \
   qt/walletframe.cpp \
