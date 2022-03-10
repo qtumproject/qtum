@@ -40,6 +40,7 @@ class TokenTransactionTableModel;
 class ContractTableModel;
 class WalletWorker;
 class TokenItemModel;
+class NftItemModel;
 class SuperStakerItemModel;
 class DelegationStakerItemModel;
 
@@ -93,6 +94,7 @@ public:
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
     TokenItemModel *getTokenItemModel();
+    NftItemModel *getNftItemModel();
     TokenTransactionTableModel *getTokenTransactionTableModel();
     DelegationItemModel *getDelegationItemModel();
     SuperStakerItemModel *getSuperStakerItemModel();
@@ -222,6 +224,7 @@ private:
     TransactionTableModel *transactionTableModel;
     RecentRequestsTableModel *recentRequestsTableModel;
     TokenItemModel *tokenItemModel;
+    NftItemModel *nftItemModel;
     TokenTransactionTableModel *tokenTransactionTableModel;
     DelegationItemModel *delegationItemModel;
     SuperStakerItemModel *superStakerItemModel;
@@ -263,6 +266,7 @@ private:
     void unsubscribeFromCoreSignals();
     bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);
     void checkTokenBalanceChanged();
+    void checkNftBalanceChanged();
     void checkDelegationChanged();
     void checkSuperStakerChanged();
 

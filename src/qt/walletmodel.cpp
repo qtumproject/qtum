@@ -23,6 +23,7 @@
 #include <qt/delegationitemmodel.h>
 #include <qt/superstakeritemmodel.h>
 #include <qt/delegationstakeritemmodel.h>
+#include <qt/nftitemmodel.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -81,6 +82,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
     transactionTableModel(nullptr),
     recentRequestsTableModel(nullptr),
     tokenItemModel(nullptr),
+    nftItemModel(nullptr),
     tokenTransactionTableModel(nullptr),
     delegationItemModel(nullptr),
     superStakerItemModel(nullptr),
@@ -98,6 +100,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
     transactionTableModel = new TransactionTableModel(platformStyle, this);
     recentRequestsTableModel = new RecentRequestsTableModel(this);
     tokenItemModel = new TokenItemModel(this);
+    nftItemModel = new NftItemModel(this);
     tokenTransactionTableModel = new TokenTransactionTableModel(platformStyle, this);
     delegationItemModel = new DelegationItemModel(this);
     superStakerItemModel = new SuperStakerItemModel(this);
@@ -228,6 +231,14 @@ void WalletModel::checkTokenBalanceChanged()
     if(tokenItemModel)
     {
         tokenItemModel->checkTokenBalanceChanged();
+    }
+}
+
+void WalletModel::checkNftBalanceChanged()
+{
+    if(nftItemModel)
+    {
+        nftItemModel->checkNftBalanceChanged();
     }
 }
 
@@ -433,6 +444,11 @@ RecentRequestsTableModel *WalletModel::getRecentRequestsTableModel()
 TokenItemModel *WalletModel::getTokenItemModel()
 {
     return tokenItemModel;
+}
+
+NftItemModel *WalletModel::getNftItemModel()
+{
+    return nftItemModel;
 }
 
 TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
@@ -1088,6 +1104,8 @@ void WalletModel::join()
     // Join models
     if(tokenItemModel)
         tokenItemModel->join();
+    if(nftItemModel)
+        nftItemModel->join();
     if(delegationItemModel)
         delegationItemModel->join();
     if(superStakerItemModel)

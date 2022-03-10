@@ -181,7 +181,8 @@ QT_MOC_CPP = \
   qt/moc_sendnftdialog.cpp \
   qt/moc_createnftdialog.cpp \
   qt/moc_nftitemmodel.cpp \
-  qt/moc_nftitemwidget.cpp
+  qt/moc_nftitemwidget.cpp \
+  qt/moc_nftlistwidget.cpp
 
 BITCOIN_MM = \
   qt/macdockiconhandler.mm \
@@ -335,7 +336,8 @@ BITCOIN_QT_H = \
   qt/nft.h \
   qt/createnftdialog.h \
   qt/nftitemmodel.h \
-  qt/nftitemwidget.h
+  qt/nftitemwidget.h \
+  qt/nftlistwidget.h
 
 RES_FONTS = \
   qt/res/fonts/RobotoMono-Bold.ttf
@@ -539,6 +541,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/tokenitemwidget.cpp \
   qt/tokenlistwidget.cpp \
   qt/nftitemwidget.cpp \
+  qt/nftlistwidget.cpp \
   qt/walletcontroller.cpp \
   qt/waitmessagebox.cpp \
   qt/walletframe.cpp \
