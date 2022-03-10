@@ -455,6 +455,12 @@ public:
     //! Check if exist wallet nft entry.
     virtual bool existNftEntry(const NftInfo &nft) = 0;
 
+    //! Get nft information.
+    virtual NftInfo getNft(const uint256& id) = 0;
+
+    //! Get list of all nfts.
+    virtual std::vector<NftInfo> getNfts() = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
@@ -513,6 +519,10 @@ public:
     //! Register handler for delegations staker changed messages.
     using DelegationsStakerChangedFn = std::function<void(const uint160& id, ChangeType status)>;
     virtual std::unique_ptr<Handler> handleDelegationsStakerChanged(DelegationsStakerChangedFn fn) = 0;
+
+    //! Register handler for nft changed messages.
+    using NftChangedFn = std::function<void(const uint256& id, ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleNftChanged(NftChangedFn fn) = 0;
 
     //! Return pointer to internal wallet class, useful for testing.
     virtual CWallet* wallet() { return nullptr; }
