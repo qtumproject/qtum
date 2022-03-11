@@ -88,6 +88,8 @@ public Q_SLOTS:
     void gotoCallContractPage();
     /** Switch to token page */
     void gotoTokenPage();
+    /** Switch to nft page */
+    void gotoNftPage();
     /** Switch to stake page */
     void gotoStakePage();
     /** Switch to delegation page */

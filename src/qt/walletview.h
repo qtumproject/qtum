@@ -25,6 +25,7 @@ class QRCToken;
 class StakePage;
 class DelegationPage;
 class SuperStakerPage;
+class NftPage;
 class WalletFrame;
 
 QT_BEGIN_NAMESPACE
@@ -78,6 +79,7 @@ private:
     StakePage *stakePage;
     DelegationPage* delegationPage;
     SuperStakerPage* superStakerPage;
+    NftPage* nftPage;
 
     TransactionView *transactionView;
 
@@ -108,6 +110,8 @@ public Q_SLOTS:
     void gotoDelegationPage();
     /** Switch to super staker page */
     void gotoSuperStakerPage();
+    /** Switch to nft page */
+    void gotoNftPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

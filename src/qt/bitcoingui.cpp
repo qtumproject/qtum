@@ -368,6 +368,9 @@ void BitcoinGUI::createActions()
     QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(QRCTokenAction);
 
+    tokenAction = new QAction(tr("Tokens"), this);
+    nftAction = new QAction(tr("NFTs"), this);
+
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -389,8 +392,10 @@ void BitcoinGUI::createActions()
     connect(sendToContractAction, SIGNAL(triggered()), this, SLOT(gotoSendToContractPage()));
     connect(callContractAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(callContractAction, SIGNAL(triggered()), this, SLOT(gotoCallContractPage()));
-    connect(QRCTokenAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(QRCTokenAction, SIGNAL(triggered()), this, SLOT(gotoTokenPage()));
+    connect(tokenAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(tokenAction, SIGNAL(triggered()), this, SLOT(gotoTokenPage()));
+    connect(nftAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(nftAction, SIGNAL(triggered()), this, SLOT(gotoNftPage()));
     connect(stakeAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
     connect(stakeAction, &QAction::triggered, this, &BitcoinGUI::gotoStakePage);
     connect(delegationAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -683,7 +688,10 @@ void BitcoinGUI::createToolBars()
         walletStakeActions.append(delegationAction);
         walletStakeActions.append(superStakerAction);
         appNavigationBar->mapGroup(walletStakeAction, walletStakeActions);
-        appNavigationBar->addAction(QRCTokenAction);
+        QList<QAction*> walletTokenActions;
+        walletTokenActions.append(tokenAction);
+        walletTokenActions.append(nftAction);
+        appNavigationBar->mapGroup(QRCTokenAction, walletTokenActions);
         appNavigationBar->buildUi();
         overviewAction->setChecked(true);
     }
@@ -930,6 +938,8 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     historyAction->setEnabled(enabled);
     smartContractAction->setEnabled(enabled);
     QRCTokenAction->setEnabled(enabled);
+    tokenAction->setEnabled(enabled);
+    nftAction->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
     restoreWalletAction->setEnabled(enabled);
@@ -1075,8 +1085,14 @@ void BitcoinGUI::gotoHistoryPage()
 
 void BitcoinGUI::gotoTokenPage()
 {
-    QRCTokenAction->setChecked(true);
+    tokenAction->setChecked(true);
     if (walletFrame) walletFrame->gotoTokenPage();
+}
+
+void BitcoinGUI::gotoNftPage()
+{
+    nftAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoNftPage();
 }
 
 void BitcoinGUI::gotoDelegationPage()

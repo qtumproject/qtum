@@ -30,6 +30,7 @@
 #include <qt/superstakerpage.h>
 #include <qt/hardwaresigntxdialog.h>
 #include <qt/walletframe.h>
+#include <qt/nftpage.h>
 
 #include <interfaces/node.h>
 #include <node/ui_interface.h>
@@ -83,6 +84,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     callContractPage = new CallContract(platformStyle);
 
     QRCTokenPage = new QRCToken(platformStyle);
+    nftPage = new NftPage(platformStyle);
 
     stakePage = new StakePage(platformStyle);
     delegationPage = new DelegationPage(platformStyle);
@@ -94,6 +96,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     addWidget(sendToContractPage);
     addWidget(callContractPage);
     addWidget(QRCTokenPage);
+    addWidget(nftPage);
     addWidget(stakePage);
     addWidget(delegationPage);
     addWidget(superStakerPage);
@@ -130,6 +133,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     connect(sendToContractPage, &SendToContract::message, this, &WalletView::message);
     // Pass through messages from QRCTokenPage
     connect(QRCTokenPage, &QRCToken::message, this, &WalletView::message);
+    // Pass through messages from NftPage
+    connect(nftPage, &NftPage::message, this, &WalletView::message);
     // Pass through messages from delegationPage
     connect(delegationPage, &DelegationPage::message, this, &WalletView::message);
     // Pass through messages from superStakerPage
@@ -152,6 +157,7 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     sendToContractPage->setClientModel(_clientModel);
     callContractPage->setClientModel(_clientModel);
     QRCTokenPage->setClientModel(_clientModel);
+    nftPage->setClientModel(_clientModel);
     stakePage->setClientModel(_clientModel);
     delegationPage->setClientModel(_clientModel);
     superStakerPage->setClientModel(_clientModel);
@@ -171,6 +177,7 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
     sendToContractPage->setModel(_walletModel);
     callContractPage->setModel(_walletModel);
     QRCTokenPage->setModel(_walletModel);
+    nftPage->setModel(_walletModel);
     stakePage->setWalletModel(_walletModel);
     delegationPage->setModel(_walletModel);
     superStakerPage->setModel(_walletModel);
@@ -305,6 +312,11 @@ void WalletView::gotoCallContractPage()
 void WalletView::gotoTokenPage()
 {
     setCurrentWidget(QRCTokenPage);
+}
+
+void WalletView::gotoNftPage()
+{
+    setCurrentWidget(nftPage);
 }
 
 void WalletView::gotoStakePage()

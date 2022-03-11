@@ -1077,7 +1077,7 @@ Token Page Widget CSS
     background-color: rgba(38, 52, 80, 20%);
     border: 1px solid rgba(56, 72, 105, 20%);
 }
-#tokenItemFrame, #delegationItemFrame, #superStakerItemFrame{
+#tokenItemFrame, #nftItemFrame, #delegationItemFrame, #superStakerItemFrame{
     background-color: #222f4b;
     border-radius: 6px;
 }
@@ -1099,6 +1099,9 @@ TokenItemWidget #senderAddress{
 TokenItemWidget #tokenLogo{
     background-color: #334263;
     border-radius: 20px;
+}
+NftListWidget{
+    background-color: #1a2845;
 }
 DelegationListWidget{
     background-color: #1a2845;
