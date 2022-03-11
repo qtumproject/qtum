@@ -149,6 +149,13 @@ void WalletFrame::gotoTokenPage()
         i.value()->gotoTokenPage();
 }
 
+void WalletFrame::gotoNftPage()
+{
+    QMap<WalletModel*, WalletView*>::const_iterator i;
+    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
+        i.value()->gotoNftPage();
+}
+
 void WalletFrame::gotoDelegationPage()
 {
     QMap<WalletModel*, WalletView*>::const_iterator i;

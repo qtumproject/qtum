@@ -165,6 +165,8 @@ private:
     QAction* sendToContractAction = nullptr;
     QAction* callContractAction = nullptr;
     QAction* QRCTokenAction = nullptr;
+    QAction* tokenAction = nullptr;
+    QAction* nftAction = nullptr;
     QAction* stakeAction = nullptr;
     QAction* sendTokenAction = nullptr;
     QAction* receiveTokenAction = nullptr;
@@ -309,6 +311,8 @@ public Q_SLOTS:
     void gotoCallContractPage();
     /** Switch to token page */
     void gotoTokenPage();
+    /** Switch to nft page */
+    void gotoNftPage();
     /** Switch to stake page */
     void gotoStakePage();
     /** Switch to delegation page */
