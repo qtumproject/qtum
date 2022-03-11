@@ -20,7 +20,7 @@ NftItemWidget::NftItemWidget(const PlatformStyle *platformStyle, QWidget *parent
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(type);
     ui->buttonSend->setIcon(m_platfromStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
-    ui->buttonAdd->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
+    ui->buttonCreate->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
     ui->nftLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/add_token" : ":/icons/token").pixmap(NFT_ITEM_ICONSIZE, NFT_ITEM_ICONSIZE));
 }
 
@@ -49,9 +49,9 @@ void NftItemWidget::setPosition(int position)
     m_position = position;
 }
 
-void NftItemWidget::on_buttonAdd_clicked()
+void NftItemWidget::on_buttonCreate_clicked()
 {
-    Q_EMIT clicked(m_position, Buttons::Add);
+    Q_EMIT clicked(m_position, Buttons::Create);
 }
 
 void NftItemWidget::on_buttonSend_clicked()

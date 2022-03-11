@@ -210,7 +210,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QToolButton" name="buttonAdd">
+           <widget class="QToolButton" name="buttonCreate">
             <property name="text">
              <string/>
             </property>
