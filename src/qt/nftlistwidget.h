@@ -31,7 +31,7 @@ public:
 
 Q_SIGNALS:
     void sendNft(const QModelIndex& index);
-    void addNft();
+    void createNft();
     void clicked(const QModelIndex& index);
 
 public Q_SLOTS:

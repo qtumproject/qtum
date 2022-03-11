@@ -21,7 +21,7 @@ public:
     };
 
     enum Buttons{
-        Add = 0,
+        Create = 0,
         Send = 1
     };
 
@@ -38,7 +38,7 @@ Q_SIGNALS:
     void clicked(int position, int button);
 
 private Q_SLOTS:
-    void on_buttonAdd_clicked();
+    void on_buttonCreate_clicked();
 
     void on_buttonSend_clicked();
 

@@ -160,9 +160,9 @@ void NftListWidget::insertItem(int position, NftItemWidget *item)
 void NftListWidget::on_clicked(int position, int button)
 {
     QModelIndex index = indexAt(position);
-    if(button == NftItemWidget::Add)
+    if(button == NftItemWidget::Create)
     {
-        Q_EMIT addNft();
+        Q_EMIT createNft();
     }
     else if(button == NftItemWidget::Send)
     {
