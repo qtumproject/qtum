@@ -465,7 +465,8 @@ BITCOIN_QT_BASE_CPP = \
   qt/qtumpushbutton.cpp \
   qt/qtumhwitool.cpp \
   qt/hardwaresigntx.cpp \
-  qt/nftitemmodel.cpp
+  qt/nftitemmodel.cpp \
+  qt/nft.cpp
 
 BITCOIN_QT_WINDOWS_CPP = qt/winshutdownmonitor.cpp
 
