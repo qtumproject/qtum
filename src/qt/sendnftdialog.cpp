@@ -23,7 +23,6 @@
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
 struct SelectedNft{
-    std::string address;
     std::string sender;
     std::string balance;
 };
@@ -173,7 +172,6 @@ void SendNftDialog::on_confirmClicked()
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
 
-        m_nftABI->setAddress(m_selectedNft->address);
         m_nftABI->setSender(m_selectedNft->sender);
         m_nftABI->setGasLimit(QString::number(gasLimit).toStdString());
         m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
@@ -231,7 +229,6 @@ void SendNftDialog::on_confirmClicked()
                     if(isSent)
                     {
                         interfaces::NftTx nftTx;
-                        nftTx.contract_address = m_selectedNft->address;
                         nftTx.sender_address = m_selectedNft->sender;
                         nftTx.receiver_address = toAddress;
                         dev::u256 nValue(amountToSend);
@@ -260,10 +257,9 @@ void SendNftDialog::updateDisplayUnit()
     }
 }
 
-void SendNftDialog::setNftData(std::string address, std::string sender, std::string balance)
+void SendNftDialog::setNftData(std::string sender, std::string balance)
 {
     // Update data with the current nft
-    m_selectedNft->address = address;
     m_selectedNft->sender = sender;
     m_selectedNft->balance = balance;
 

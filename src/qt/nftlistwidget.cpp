@@ -129,7 +129,6 @@ void NftListWidget::updateRow(const QModelIndex &index, int position)
         std::string name = m_nftModel->data(index, NftItemModel::NameRole).toString().toStdString();
         std::string sender = m_nftModel->data(index, NftItemModel::SenderRole).toString().toStdString();
         std::string balance = m_nftModel->data(index, NftItemModel::RawBalanceRole).toString().toStdString();
-        std::string address = m_nftModel->data(index, NftItemModel::AddressRole).toString().toStdString();
         int256_t totalSupply(balance);
         NftItemWidget* item = m_rows[position];
         item->setPosition(position);

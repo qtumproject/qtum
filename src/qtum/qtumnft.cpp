@@ -6,6 +6,7 @@
 #include <util/strencodings.h>
 #include <util/convert.h>
 #include <libethcore/ABI.h>
+#include <chainparams.h>
 
 namespace QtumNft_NS
 {
@@ -202,6 +203,7 @@ void QtumNft::clear()
 
     d->lstParams[QtumNft_NS::PARAM_BROADCAST] = "true";
     d->lstParams[QtumNft_NS::PARAM_CHANGE_TO_SENDER] = "true";
+    d->lstParams[QtumNft_NS::PARAM_ADDRESS] = Params().GetConsensus().nftAddress.GetHex();
 }
 
 std::string QtumNft::getTxId()

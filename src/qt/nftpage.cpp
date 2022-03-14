@@ -35,7 +35,6 @@ NftPage::NftPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QAction *copySenderAction = new QAction(tr("Copy receive address"), this);
     QAction *copyNftBalanceAction = new QAction(tr("Copy nft balance"), this);
     QAction *copyNftNameAction = new QAction(tr("Copy nft name"), this);
-    QAction *copyNftAddressAction = new QAction(tr("Copy contract address"), this);
 
     m_nftList = new NftListWidget(platformStyle, this);
     m_nftList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -49,9 +48,7 @@ NftPage::NftPage(const PlatformStyle *platformStyle, QWidget *parent) :
     contextMenu->addAction(copySenderAction);
     contextMenu->addAction(copyNftBalanceAction);
     contextMenu->addAction(copyNftNameAction);
-    contextMenu->addAction(copyNftAddressAction);
 
-    connect(copyNftAddressAction, &QAction::triggered, this, &NftPage::copyNftAddress);
     connect(copyNftBalanceAction, &QAction::triggered, this, &NftPage::copyNftBalance);
     connect(copyNftNameAction, &QAction::triggered, this, &NftPage::copyNftName);
     connect(copySenderAction, &QAction::triggered, this, &NftPage::copySenderAddress);
@@ -109,10 +106,9 @@ void NftPage::on_currentNftChanged(QModelIndex index)
         if(index.isValid())
         {
             m_selectedNftHash = m_nftList->nftModel()->data(index, NftItemModel::HashRole).toString();
-            std::string address = m_nftList->nftModel()->data(index, NftItemModel::AddressRole).toString().toStdString();
             std::string sender = m_nftList->nftModel()->data(index, NftItemModel::SenderRole).toString().toStdString();
             std::string balance = m_nftList->nftModel()->data(index, NftItemModel::RawBalanceRole).toString().toStdString();
-            m_sendNftDialog->setNftData(address, sender, balance);
+            m_sendNftDialog->setNftData(sender, balance);
 
             if(!m_sendNftDialog->isEnabled())
                 m_sendNftDialog->setEnabled(true);
@@ -167,15 +163,6 @@ void NftPage::contextualMenu(const QPoint &point)
     {
         indexMenu = index;
         contextMenu->exec(QCursor::pos());
-    }
-}
-
-void NftPage::copyNftAddress()
-{
-    if(indexMenu.isValid())
-    {
-        GUIUtil::setClipboard(indexMenu.data(NftItemModel::AddressRole).toString());
-        indexMenu = QModelIndex();
     }
 }
 
