@@ -89,7 +89,6 @@ void CreateNftDialog::on_confirmButton_clicked()
     if(ui->lineEditSenderAddress->isValidAddress())
     {
         interfaces::NftInfo nftInfo;
-        nftInfo.contract_address = ui->lineEditNftUri->text().toStdString();
         nftInfo.nft_name = ui->lineEditNftName->text().toStdString();
         nftInfo.sender_address = ui->lineEditSenderAddress->currentText().toStdString();
 
@@ -123,10 +122,8 @@ void CreateNftDialog::on_confirmButton_clicked()
 
 void CreateNftDialog::on_addressChanged()
 {
-    QString nftAddress = ui->lineEditNftUri->text();
     if(m_nftABI)
     {
-        m_nftABI->setAddress(nftAddress.toStdString());
         std::string name;
         bool ret = m_nftABI->name(name);
         ui->lineEditNftName->setText(QString::fromStdString(name));

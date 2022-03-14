@@ -25,7 +25,6 @@ public:
     {
         hash = nftInfo.hash;
         createTime.setTime_t(nftInfo.time);
-        contractAddress = QString::fromStdString(nftInfo.contract_address);
         nftName = QString::fromStdString(nftInfo.nft_name);
         senderAddress = QString::fromStdString(nftInfo.sender_address);
     }
@@ -34,7 +33,6 @@ public:
     {
         hash = obj.hash;
         createTime = obj.createTime;
-        contractAddress = obj.contractAddress;
         nftName = obj.nftName;
         senderAddress = obj.senderAddress;
         balance = obj.balance;
@@ -45,7 +43,6 @@ public:
 
     uint256 hash;
     QDateTime createTime;
-    QString contractAddress;
     QString nftName;
     QString senderAddress;
     int256_t balance;
@@ -117,14 +114,12 @@ private Q_SLOTS:
         {
             // List the events and update the nft tx
             std::vector<NftEvent> nftEvents;
-            nftAbi.setAddress(nftInfo.contract_address);
             nftAbi.setSender(nftInfo.sender_address);
             nftAbi.transferEvents(nftEvents, fromBlock, toBlock);
             for(size_t i = 0; i < nftEvents.size(); i++)
             {
                 NftEvent event = nftEvents[i];
                 interfaces::NftTx nftTx;
-                nftTx.contract_address = event.address;
                 nftTx.sender_address = event.sender;
                 nftTx.receiver_address = event.receiver;
                 nftTx.value = event.value;
@@ -138,12 +133,11 @@ private Q_SLOTS:
         }
     }
 
-    void updateBalance(QString hash, QString contractAddress, QString senderAddress)
+    void updateBalance(QString hash, QString senderAddress)
     {
         if(walletModel && walletModel->node().shutdownRequested())
             return;
 
-        nftAbi.setAddress(contractAddress.toStdString());
         nftAbi.setSender(senderAddress.toStdString());
         std::string strBalance;
         if(nftAbi.balanceOf(strBalance))
@@ -377,9 +371,6 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
     case NftItemModel::HashRole:
         return QString::fromStdString(rec->hash.ToString());
         break;
-    case NftItemModel::AddressRole:
-        return rec->contractAddress;
-        break;
     case NftItemModel::NameRole:
         return rec->nftName;
         break;
@@ -505,7 +496,7 @@ void NftItemModel::updateBalance(const NftItemEntry &entry)
 {
     QString hash = QString::fromStdString(entry.hash.ToString());
     QMetaObject::invokeMethod(worker, "updateBalance", Qt::QueuedConnection,
-                              Q_ARG(QString, hash), Q_ARG(QString, entry.contractAddress), Q_ARG(QString, entry.senderAddress));
+                              Q_ARG(QString, hash), Q_ARG(QString, entry.senderAddress));
 }
 
 void NftItemModel::join()

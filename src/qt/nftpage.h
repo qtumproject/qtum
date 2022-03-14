@@ -42,7 +42,6 @@ public Q_SLOTS:
     void on_currentChanged(QModelIndex current, QModelIndex previous);
     void on_rowsInserted(QModelIndex index, int first, int last);
     void contextualMenu(const QPoint &);
-    void copyNftAddress();
     void copyNftBalance();
     void copyNftName();
     void copySenderAddress();
