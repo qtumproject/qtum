@@ -50,8 +50,8 @@ SendNftDialog::SendNftDialog(QWidget *parent) :
     // Set defaults
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
     ui->lineEditGasPrice->setSingleStep(SINGLE_STEP);
-    ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_SEND);
-    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
+    ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_CREATE);
+    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->confirmButton->setEnabled(false);
 
     // Connect signals with slots
@@ -104,7 +104,7 @@ void SendNftDialog::clearAll()
 {
     ui->lineEditAddress->setText("");
     ui->lineEditAmount->clear();
-    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_SEND);
+    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
 }
 
