@@ -24,7 +24,6 @@ public:
 private Q_SLOTS:
     void on_clearButton_clicked();
     void on_confirmButton_clicked();
-    void on_addressChanged();
     void on_updateConfirmButton();
     void on_zeroBalanceAddressToken(bool enable);
 
@@ -35,7 +34,6 @@ private:
     Nft *m_nftABI;
     WalletModel* m_model;
     ClientModel* m_clientModel;
-    bool m_validNftAddress;
 };
 
 #endif // CREATENFTDIALOG_H

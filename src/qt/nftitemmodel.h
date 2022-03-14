@@ -32,6 +32,7 @@ public:
         SenderRole = Qt::UserRole + 3,
         BalanceRole = Qt::UserRole + 4,
         RawBalanceRole = Qt::UserRole + 5,
+        IdRole = Qt::UserRole + 6,
     };
 
     NftItemModel(WalletModel *parent = 0);

@@ -107,8 +107,9 @@ void NftPage::on_currentNftChanged(QModelIndex index)
         {
             m_selectedNftHash = m_nftList->nftModel()->data(index, NftItemModel::HashRole).toString();
             std::string sender = m_nftList->nftModel()->data(index, NftItemModel::SenderRole).toString().toStdString();
+            std::string id = m_nftList->nftModel()->data(index, NftItemModel::IdRole).toString().toStdString();
             std::string balance = m_nftList->nftModel()->data(index, NftItemModel::RawBalanceRole).toString().toStdString();
-            m_sendNftDialog->setNftData(sender, balance);
+            m_sendNftDialog->setNftData(sender, id, balance);
 
             if(!m_sendNftDialog->isEnabled())
                 m_sendNftDialog->setEnabled(true);

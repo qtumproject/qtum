@@ -342,6 +342,12 @@ bool QtumNft::safeTransferFrom(const std::string &_from, const std::string &_to,
     return output.size() == 0;
 }
 
+bool QtumNft::safeTransfer(const std::string &to, const std::string &id, const std::string &amount, bool sendTo)
+{
+    std::string from = d->lstParams[QtumNft_NS::PARAM_SENDER];
+    return safeTransferFrom(from, to, id, amount, sendTo);
+}
+
 bool QtumNft::transferEvents(std::vector<NftEvent> &nftEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
 {
     return execEvents(fromBlock, toBlock, minconf, d->evtTransfer, nftEvents);

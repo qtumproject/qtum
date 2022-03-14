@@ -27,6 +27,7 @@ public:
         createTime.setTime_t(nftInfo.time);
         nftName = QString::fromStdString(nftInfo.nft_name);
         senderAddress = QString::fromStdString(nftInfo.sender_address);
+        id = nftInfo.id;
     }
 
     NftItemEntry( const NftItemEntry &obj)
@@ -36,6 +37,7 @@ public:
         nftName = obj.nftName;
         senderAddress = obj.senderAddress;
         balance = obj.balance;
+        id = obj.id;
     }
 
     ~NftItemEntry()
@@ -46,6 +48,7 @@ public:
     QString nftName;
     QString senderAddress;
     int256_t balance;
+    uint256 id;
 };
 
 class NftTxWorker : public QObject
@@ -133,14 +136,15 @@ private Q_SLOTS:
         }
     }
 
-    void updateBalance(QString hash, QString senderAddress)
+    void updateBalance(QString hash, QString senderAddress, QString id)
     {
         if(walletModel && walletModel->node().shutdownRequested())
             return;
 
         nftAbi.setSender(senderAddress.toStdString());
         std::string strBalance;
-        if(nftAbi.balanceOf(strBalance))
+        std::string strId = id.toStdString();
+        if(nftAbi.balanceOf(strBalance, strId))
         {
             QString balance = QString::fromStdString(strBalance);
             Q_EMIT balanceChanged(hash, balance);
@@ -383,6 +387,9 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
     case NftItemModel::RawBalanceRole:
         return QString::fromStdString(rec->balance.str());
         break;
+    case NftItemModel::IdRole:
+        return QString::fromStdString(rec->id.ToString());;
+        break;
     default:
         break;
     }
@@ -495,8 +502,9 @@ void NftItemModel::balanceChanged(QString hash, QString balance)
 void NftItemModel::updateBalance(const NftItemEntry &entry)
 {
     QString hash = QString::fromStdString(entry.hash.ToString());
+    QString id = QString::fromStdString(entry.id.ToString());
     QMetaObject::invokeMethod(worker, "updateBalance", Qt::QueuedConnection,
-                              Q_ARG(QString, hash), Q_ARG(QString, entry.senderAddress));
+                              Q_ARG(QString, hash), Q_ARG(QString, entry.senderAddress), Q_ARG(QString, id));
 }
 
 void NftItemModel::join()
