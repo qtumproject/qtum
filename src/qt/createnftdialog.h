@@ -23,9 +23,11 @@ public:
 
 private Q_SLOTS:
     void on_clearButton_clicked();
+    void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
     void on_confirmButton_clicked();
     void on_updateConfirmButton();
     void on_zeroBalanceAddressToken(bool enable);
+    void updateDisplayUnit();
 
 Q_SIGNALS:
 
@@ -34,6 +36,7 @@ private:
     Nft *m_nftABI;
     WalletModel* m_model;
     ClientModel* m_clientModel;
+    bool bCreateUnsigned = false;
 };
 
 #endif // CREATENFTDIALOG_H

@@ -5,15 +5,23 @@
 #include <qt/clientmodel.h>
 #include <qt/walletmodel.h>
 #include <qt/nft.h>
+#include <qt/bitcoinunits.h>
 #include <qt/qvalidatedlineedit.h>
 #include <qt/contractutil.h>
 #include <validation.h>
 #include <qt/addresstablemodel.h>
 #include <qt/optionsmodel.h>
 #include <qt/styleSheet.h>
+#include <util/moneystr.h>
 
 #include <QRegularExpressionValidator>
 #include <QMessageBox>
+
+namespace CreateNftDialog_NS
+{
+static const CAmount SINGLE_STEP = 0.00000001*COIN;
+}
+using namespace CreateNftDialog_NS;
 
 CreateNftDialog::CreateNftDialog(QWidget *parent) :
     QDialog(parent),
@@ -43,6 +51,12 @@ CreateNftDialog::CreateNftDialog(QWidget *parent) :
     ui->lineEditSenderAddress->setSenderAddress(true);
     if(ui->lineEditSenderAddress->isEditable())
         ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->setEmptyIsValid(false);
+
+    // Set defaults
+    ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
+    ui->lineEditGasPrice->setSingleStep(SINGLE_STEP);
+    ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_CREATE);
+    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
 }
 
 CreateNftDialog::~CreateNftDialog()
@@ -57,6 +71,11 @@ CreateNftDialog::~CreateNftDialog()
 void CreateNftDialog::setClientModel(ClientModel *clientModel)
 {
     m_clientModel = clientModel;
+
+    if (m_clientModel)
+    {
+        connect(m_clientModel, SIGNAL(gasInfoChanged(quint64, quint64, quint64)), this, SLOT(on_gasInfoChanged(quint64, quint64, quint64)));
+    }
 }
 
 void CreateNftDialog::clearAll()
@@ -64,6 +83,8 @@ void CreateNftDialog::clearAll()
     ui->lineEditNftUri->setText("");
     ui->lineEditNftName->setText("");
     ui->lineEditSenderAddress->setCurrentIndex(-1);
+    ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
+    ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
 }
 
 void CreateNftDialog::setModel(WalletModel *_model)
@@ -74,12 +95,34 @@ void CreateNftDialog::setModel(WalletModel *_model)
 
     ui->lineEditSenderAddress->setWalletModel(m_model);
     m_nftABI->setModel(m_model);
+
+    if (m_model && m_model->getOptionsModel())
+        connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &CreateNftDialog::updateDisplayUnit);
+
+    // update the display unit, to not use the default ("QTUM")
+    updateDisplayUnit();
+
+    bCreateUnsigned = m_model->createUnsigned();
+
+    if (bCreateUnsigned) {
+        ui->confirmButton->setText(tr("Cr&eate Unsigned"));
+        ui->confirmButton->setToolTip(tr("Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+    }
 }
 
 void CreateNftDialog::on_clearButton_clicked()
 {
     clearAll();
     QDialog::reject();
+}
+
+void CreateNftDialog::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice)
+{
+    Q_UNUSED(nGasPrice);
+    ui->labelGasLimit->setToolTip(tr("Gas limit. Default = %1, Max = %2").arg(DEFAULT_GAS_LIMIT_OP_CREATE).arg(blockGasLimit));
+    ui->labelGasPrice->setToolTip(tr("Gas price: QTUM price per gas unit. Default = %1, Min = %2").arg(QString::fromStdString(FormatMoney(DEFAULT_GAS_PRICE))).arg(QString::fromStdString(FormatMoney(minGasPrice))));
+    ui->lineEditGasPrice->SetMinValue(minGasPrice);
+    ui->lineEditGasLimit->setMaximum(blockGasLimit);
 }
 
 void CreateNftDialog::on_confirmButton_clicked()
@@ -92,6 +135,14 @@ void CreateNftDialog::on_confirmButton_clicked()
 
         if(m_model)
         {
+            int unit = BitcoinUnits::BTC;
+            uint64_t gasLimit = ui->lineEditGasLimit->value();
+            CAmount gasPrice = ui->lineEditGasPrice->value();
+
+            m_nftABI->setSender(nftInfo.sender_address);
+            m_nftABI->setGasLimit(QString::number(gasLimit).toStdString());
+            m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
+
             if(!m_model->wallet().isMineAddress(nftInfo.sender_address))
             {
                 QString address = QString::fromStdString(nftInfo.sender_address);
@@ -115,6 +166,15 @@ void CreateNftDialog::on_confirmButton_clicked()
                 QDialog::accept();
             }
         }
+    }
+}
+
+void CreateNftDialog::updateDisplayUnit()
+{
+    if(m_model && m_model->getOptionsModel())
+    {
+        // Update gasPriceAmount with the current unit
+        ui->lineEditGasPrice->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
     }
 }
 
