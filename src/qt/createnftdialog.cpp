@@ -35,7 +35,6 @@ CreateNftDialog::CreateNftDialog(QWidget *parent) :
 
     m_nftABI = new Nft();
 
-    connect(ui->lineEditNftUri, &QLineEdit::textChanged, this, &CreateNftDialog::on_addressChanged);
     connect(ui->lineEditNftName, &QLineEdit::textChanged, this, &CreateNftDialog::on_updateConfirmButton);
     connect(ui->lineEditSenderAddress, &QComboBox::currentTextChanged, this, &CreateNftDialog::on_updateConfirmButton);
 
@@ -44,7 +43,6 @@ CreateNftDialog::CreateNftDialog(QWidget *parent) :
     ui->lineEditSenderAddress->setSenderAddress(true);
     if(ui->lineEditSenderAddress->isEditable())
         ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->setEmptyIsValid(false);
-    m_validNftAddress = false;
 }
 
 CreateNftDialog::~CreateNftDialog()
@@ -120,18 +118,6 @@ void CreateNftDialog::on_confirmButton_clicked()
     }
 }
 
-void CreateNftDialog::on_addressChanged()
-{
-    if(m_nftABI)
-    {
-        std::string name;
-        bool ret = m_nftABI->name(name);
-        ui->lineEditNftName->setText(QString::fromStdString(name));
-        m_validNftAddress = ret;
-    }
-    on_updateConfirmButton();
-}
-
 void CreateNftDialog::on_updateConfirmButton()
 {
     bool enabled = true;
@@ -143,7 +129,6 @@ void CreateNftDialog::on_updateConfirmButton()
     {
         enabled = false;
     }
-    enabled &= m_validNftAddress;
     ui->confirmButton->setEnabled(enabled);
 }
 

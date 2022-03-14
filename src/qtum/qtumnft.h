@@ -72,6 +72,7 @@ public:
     bool createNFT(const std::string& name, const std::string& url, const std::string& desc, const std::string& count, bool sendTo = false);
     bool isApprovedForAll(const std::string& account, const std::string& operant, bool& success, bool sendTo = false);
     bool safeTransferFrom(const std::string& from, const std::string& to, const std::string& id, const std::string& amount, bool sendTo = false);
+    bool safeTransfer(const std::string& to, const std::string& id, const std::string& amount, bool sendTo = false);
 
     // ABI Events
     bool transferEvents(std::vector<NftEvent>& nftEvents, int64_t fromBlock = 0, int64_t toBlock = -1, int64_t minconf = 0);

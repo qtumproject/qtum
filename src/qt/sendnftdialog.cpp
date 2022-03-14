@@ -24,6 +24,7 @@ static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
 struct SelectedNft{
     std::string sender;
+    std::string id;
     std::string balance;
 };
 
@@ -201,8 +202,7 @@ void SendNftDialog::on_confirmClicked()
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
         if(retval == QMessageBox::Yes)
         {
-            bool success;
-            if(m_nftABI->transfer(toAddress, amountToSend, success, true))
+            if(m_nftABI->safeTransfer(toAddress, m_selectedNft->id, amountToSend, true))
             {
                 if(bCreateUnsigned)
                 {
@@ -230,6 +230,7 @@ void SendNftDialog::on_confirmClicked()
                     {
                         interfaces::NftTx nftTx;
                         nftTx.sender_address = m_selectedNft->sender;
+                        nftTx.id = uint256S(m_selectedNft->id);
                         nftTx.receiver_address = toAddress;
                         dev::u256 nValue(amountToSend);
                         nftTx.value = u256Touint(nValue);
@@ -257,10 +258,11 @@ void SendNftDialog::updateDisplayUnit()
     }
 }
 
-void SendNftDialog::setNftData(std::string sender, std::string balance)
+void SendNftDialog::setNftData(std::string sender, std::string id, std::string balance)
 {
     // Update data with the current nft
     m_selectedNft->sender = sender;
+    m_selectedNft->sender = id;
     m_selectedNft->balance = balance;
 
     // Convert values for different number of decimals

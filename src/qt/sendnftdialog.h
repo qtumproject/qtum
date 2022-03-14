@@ -26,7 +26,7 @@ public:
     bool isValidAddress();
     bool isDataValid();
 
-    void setNftData(std::string sender, std::string balance);
+    void setNftData(std::string sender, std::string id, std::string balance);
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user

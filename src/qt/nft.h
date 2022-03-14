@@ -23,10 +23,6 @@ public:
     bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, const int& numTopics, std::vector<NftEvent>& result) override;
     bool privateKeysDisabled() override;
 
-    bool transfer(const std::string& _to, const std::string& _value, bool& success, bool sendTo = false){return false;};
-    bool name(std::string& result, bool sendTo = false){return false;};
-    bool balanceOf(std::string& result, bool sendTo = false){return false;};
-
 private:
     NftData* d;
 };
