@@ -455,6 +455,9 @@ public:
     //! Check if exist wallet nft entry.
     virtual bool existNftEntry(const NftInfo &nft) = 0;
 
+    //! Remove wallet nft entry.
+    virtual bool removeNftEntry(const std::string &sHash) = 0;
+
     //! Get nft information.
     virtual NftInfo getNft(const uint256& id) = 0;
 
