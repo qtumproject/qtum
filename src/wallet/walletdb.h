@@ -40,6 +40,7 @@ class CTokenInfo;
 class CTokenTx;
 class CDelegationInfo;
 class CSuperStakerInfo;
+class CNftInfo;
 class uint160;
 class uint256;
 
@@ -88,6 +89,7 @@ extern const std::string TOKENTX;
 extern const std::string CONTRACTDATA;
 extern const std::string DELEGATION;
 extern const std::string SUPERSTAKER;
+extern const std::string NFT;
 } // namespace DBKeys
 
 /* simple HD chain data model */
@@ -240,6 +242,9 @@ public:
 
     bool WriteSuperStaker(const CSuperStakerInfo& wsuperStaker);
     bool EraseSuperStaker(uint256 hash);
+
+    bool WriteNft(const CNftInfo& wnft);
+    bool EraseNft(uint256 hash);
 
     bool WriteKeyMetadata(const CKeyMetadata& meta, const CPubKey& pubkey, const bool overwrite);
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);

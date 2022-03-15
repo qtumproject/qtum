@@ -130,8 +130,8 @@ void CreateNftDialog::on_confirmButton_clicked()
     if(ui->lineEditSenderAddress->isValidAddress())
     {
         interfaces::NftInfo nftInfo;
-        nftInfo.nft_name = ui->lineEditNftName->text().toStdString();
-        nftInfo.sender_address = ui->lineEditSenderAddress->currentText().toStdString();
+        nftInfo.name = ui->lineEditNftName->text().toStdString();
+        nftInfo.owner = ui->lineEditSenderAddress->currentText().toStdString();
 
         if(m_model)
         {
@@ -139,13 +139,13 @@ void CreateNftDialog::on_confirmButton_clicked()
             uint64_t gasLimit = ui->lineEditGasLimit->value();
             CAmount gasPrice = ui->lineEditGasPrice->value();
 
-            m_nftABI->setSender(nftInfo.sender_address);
+            m_nftABI->setSender(nftInfo.owner);
             m_nftABI->setGasLimit(QString::number(gasLimit).toStdString());
             m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
 
-            if(!m_model->wallet().isMineAddress(nftInfo.sender_address))
+            if(!m_model->wallet().isMineAddress(nftInfo.owner))
             {
-                QString address = QString::fromStdString(nftInfo.sender_address);
+                QString address = QString::fromStdString(nftInfo.owner);
                 QString message = tr("The %1 address \"%2\" is not yours, please change it to new one.\n").arg("NFT", address);
                 QMessageBox::warning(this, tr("Invalid NFT address"), message);
             }

@@ -24,9 +24,9 @@ public:
     NftItemEntry(const interfaces::NftInfo &nftInfo)
     {
         hash = nftInfo.hash;
-        createTime.setTime_t(nftInfo.time);
-        nftName = QString::fromStdString(nftInfo.nft_name);
-        senderAddress = QString::fromStdString(nftInfo.sender_address);
+        createTime.setTime_t(nftInfo.create_time);
+        nftName = QString::fromStdString(nftInfo.name);
+        senderAddress = QString::fromStdString(nftInfo.owner);
         id = nftInfo.id;
     }
 
@@ -117,7 +117,7 @@ private Q_SLOTS:
         {
             // List the events and update the nft tx
             std::vector<NftEvent> nftEvents;
-            nftAbi.setSender(nftInfo.sender_address);
+            nftAbi.setSender(nftInfo.owner);
             nftAbi.transferEvents(nftEvents, fromBlock, toBlock);
             for(size_t i = 0; i < nftEvents.size(); i++)
             {
