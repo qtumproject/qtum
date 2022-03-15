@@ -63,6 +63,7 @@ const std::string CONTRACTDATA{"contractdata"};
 const std::string DELEGATION{"delegation"};
 const std::string SUPERSTAKER{"superstaker"};
 const std::string NFT{"nft"};
+const std::string NFTTX{"nfttx"};
 } // namespace DBKeys
 
 //
@@ -665,6 +666,20 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 
             pwallet->LoadNft(wnft);
         }
+        else if (strType == DBKeys::NFTTX)
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CNftTx wNftTx;
+            ssValue >> wNftTx;
+            if (wNftTx.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CNftTx corrupt";
+                return false;
+            }
+
+            pwallet->LoadNftTx(wNftTx);
+        }
         else if (strType == DBKeys::CONTRACTDATA)
         {
             std::string strAddress, strKey, strValue;
@@ -1213,6 +1228,16 @@ bool WalletBatch::WriteNft(const CNftInfo &wnft)
 bool WalletBatch::EraseNft(uint256 hash)
 {
     return EraseIC(std::make_pair(DBKeys::NFT, hash));
+}
+
+bool WalletBatch::WriteNftTx(const CNftTx &wNftTx)
+{
+    return WriteIC(std::make_pair(DBKeys::NFTTX, wNftTx.GetHash()), wNftTx);
+}
+
+bool WalletBatch::EraseNftTx(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::NFTTX, hash));
 }
 
 std::unique_ptr<WalletDatabase> MakeDatabase(const fs::path& path, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error)

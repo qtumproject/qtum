@@ -808,12 +808,12 @@ struct NftInfo
 // Wallet nft transaction
 struct NftTx
 {
-    std::string sender_address;
-    std::string receiver_address;
-    uint256 value;
+    std::string sender;
+    std::string receiver;
     uint256 id;
+    uint256 value;
     uint256 tx_hash;
-    int64_t time = 0;
+    int64_t create_time = 0;
     uint256 block_hash;
     int64_t block_number = -1;
     uint256 hash;
