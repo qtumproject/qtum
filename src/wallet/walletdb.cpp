@@ -48,6 +48,7 @@ const std::string TOKENTX{"tokentx"};
 const std::string CONTRACTDATA{"contractdata"};
 const std::string DELEGATION{"delegation"};
 const std::string SUPERSTAKER{"superstaker"};
+const std::string NFT{"nft"};
 } // namespace DBKeys
 
 //
@@ -455,6 +456,20 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             }
 
             pwallet->LoadSuperStaker(wsuperStaker);
+        }
+        else if (strType == DBKeys::NFT)
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CNftInfo wnft;
+            ssValue >> wnft;
+            if (wnft.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CNftInfo corrupt";
+                return false;
+            }
+
+            pwallet->LoadNft(wnft);
         }
         else if (strType == DBKeys::CONTRACTDATA)
         {
@@ -897,4 +912,14 @@ bool WalletBatch::WriteSuperStaker(const CSuperStakerInfo &wsuperStaker)
 bool WalletBatch::EraseSuperStaker(uint256 hash)
 {
     return EraseIC(std::make_pair(DBKeys::SUPERSTAKER, hash));
+}
+
+bool WalletBatch::WriteNft(const CNftInfo &wnft)
+{
+    return WriteIC(std::make_pair(DBKeys::NFT, wnft.GetHash()), wnft);
+}
+
+bool WalletBatch::EraseNft(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::NFT, hash));
 }

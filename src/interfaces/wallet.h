@@ -754,10 +754,14 @@ struct SignDelegation
 // Wallet nft information.
 struct NftInfo
 {
-    std::string nft_name;
-    std::string sender_address;
+    std::string owner;
     uint256 id;
-    int64_t time = 0;
+    uint256 NFTId;
+    std::string name;
+    std::string url;
+    std::string desc;
+    int64_t create_time = 0;
+    uint32_t count = 0;
     uint256 block_hash;
     int64_t block_number = -1;
     uint256 hash;

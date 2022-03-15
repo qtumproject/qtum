@@ -5039,6 +5039,14 @@ bool CWallet::LoadTokenTx(const CTokenTx &tokenTx)
     return true;
 }
 
+bool CWallet::LoadNft(const CNftInfo &nft)
+{
+    uint256 hash = nft.GetHash();
+    mapNft[hash] = nft;
+
+    return true;
+}
+
 bool CWallet::AddTokenEntry(const CTokenInfo &token, bool fFlushOnClose)
 {
     LOCK(cs_wallet);
@@ -5121,6 +5129,45 @@ bool CWallet::AddTokenTxEntry(const CTokenTx &tokenTx, bool fFlushOnClose)
     NotifyTokenTransactionChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
 
     LogPrintf("AddTokenTxEntry %s\n", wtokenTx.GetHash().ToString());
+
+    return true;
+}
+
+bool CWallet::AddNftEntry(const CNftInfo &nft, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    uint256 hash = nft.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CNftInfo>::iterator it = mapNft.find(hash);
+    if(it!=mapNft.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CNftInfo wnft = nft;
+    if(!fInsertedNew)
+    {
+        wnft.nCreateTime = chain().getAdjustedTime();
+    }
+    else
+    {
+        wnft.nCreateTime = it->second.nCreateTime;
+    }
+
+    if (!batch.WriteNft(wnft))
+        return false;
+
+    mapNft[hash] = wnft;
+
+    NotifyNftChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    LogPrintf("AddNftEntry %s\n", wnft.GetHash().ToString());
 
     return true;
 }
@@ -5397,6 +5444,11 @@ uint256 CSuperStakerInfo::GetHash() const
     return SerializeHash(*this, SER_GETHASH, 0);
 }
 
+uint256 CNftInfo::GetHash() const
+{
+    return SerializeHash(*this, SER_GETHASH, 0);
+}
+
 bool CWallet::GetTokenTxDetails(const CTokenTx &wtx, uint256 &credit, uint256 &debit, std::string &tokenSymbol, uint8_t &decimals) const
 {
     LOCK(cs_wallet);
@@ -5482,6 +5534,36 @@ bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
     }
 
     LogPrintf("RemoveTokenEntry %s\n", tokenHash.ToString());
+
+    return true;
+}
+
+bool CWallet::RemoveNftEntry(const uint256 &nftHash, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    bool fFound = false;
+
+    std::map<uint256, CNftInfo>::iterator it = mapNft.find(nftHash);
+    if(it!=mapNft.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        // Remove from disk
+        if (!batch.EraseNft(nftHash))
+            return false;
+
+        mapNft.erase(it);
+
+        NotifyNftChanged(this, nftHash, CT_DELETED);
+    }
+
+    LogPrintf("RemoveNftEntry %s\n", nftHash.ToString());
 
     return true;
 }
