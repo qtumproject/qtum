@@ -5047,6 +5047,14 @@ bool CWallet::LoadNft(const CNftInfo &nft)
     return true;
 }
 
+bool CWallet::LoadNftTx(const CNftTx &nftTx)
+{
+    uint256 hash = nftTx.GetHash();
+    mapNftTx[hash] = nftTx;
+
+    return true;
+}
+
 bool CWallet::AddTokenEntry(const CTokenInfo &token, bool fFlushOnClose)
 {
     LOCK(cs_wallet);
@@ -5168,6 +5176,41 @@ bool CWallet::AddNftEntry(const CNftInfo &nft, bool fFlushOnClose)
     NotifyNftChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
 
     LogPrintf("AddNftEntry %s\n", wnft.GetHash().ToString());
+
+    return true;
+}
+
+bool CWallet::AddNftTxEntry(const CNftTx &nftTx, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    uint256 hash = nftTx.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CNftTx>::iterator it = mapNftTx.find(hash);
+    if(it!=mapNftTx.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CNftTx wnftTx = nftTx;
+    int64_t blockTime;
+    uint256 blockHash = wnftTx.blockNumber < 0 ? uint256() : chain().getBlockHash(wnftTx.blockNumber);
+    bool found = !blockHash.IsNull() && chain().findBlock(blockHash, FoundBlock().time(blockTime));
+    wnftTx.nCreateTime = found ? blockTime : chain().getAdjustedTime();
+
+    if (!batch.WriteNftTx(wnftTx))
+        return false;
+
+    mapNftTx[hash] = wnftTx;
+
+    NotifyNftTransactionChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    LogPrintf("AddNftTxEntry %s\n", wnftTx.GetHash().ToString());
 
     return true;
 }
@@ -5449,6 +5492,11 @@ uint256 CNftInfo::GetHash() const
     return SerializeHash(*this, SER_GETHASH, 0);
 }
 
+uint256 CNftTx::GetHash() const
+{
+    return SerializeHash(*this, SER_GETHASH, 0);
+}
+
 bool CWallet::GetTokenTxDetails(const CTokenTx &wtx, uint256 &credit, uint256 &debit, std::string &tokenSymbol, uint8_t &decimals) const
 {
     LOCK(cs_wallet);
@@ -5496,6 +5544,22 @@ bool CWallet::IsTokenTxMine(const CTokenTx &wtx) const
                 ret = true;
             }
         }
+    }
+
+    return ret;
+}
+
+bool CWallet::IsNftTxMine(const CNftTx &wtx) const
+{
+    LOCK(cs_wallet);
+    bool ret = false;
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    CTxDestination sender = DecodeDestination(wtx.strSender);
+    CTxDestination receiver = DecodeDestination(wtx.strReceiver);
+    if(HasPrivateKey(sender, fAllowWatchOnly) ||
+        HasPrivateKey(receiver, fAllowWatchOnly))
+    {
+        ret = true;
     }
 
     return ret;

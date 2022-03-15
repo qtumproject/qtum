@@ -14,6 +14,7 @@ struct NftEvent{
     uint256 blockHash;
     uint64_t blockNumber;
     uint256 transactionHash;
+    uint256 id;
     uint256 value;
 
     NftEvent()
@@ -26,6 +27,7 @@ struct NftEvent{
         blockHash.SetNull();
         blockNumber = 0;
         transactionHash.SetNull();
+        id.SetNull();
         value.SetNull();
     }
 };

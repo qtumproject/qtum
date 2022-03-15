@@ -123,8 +123,9 @@ private Q_SLOTS:
             {
                 NftEvent event = nftEvents[i];
                 interfaces::NftTx nftTx;
-                nftTx.sender_address = event.sender;
-                nftTx.receiver_address = event.receiver;
+                nftTx.sender = event.sender;
+                nftTx.receiver = event.receiver;
+                nftTx.id = event.id;
                 nftTx.value = event.value;
                 nftTx.tx_hash = event.transactionHash;
                 nftTx.block_hash = event.blockHash;

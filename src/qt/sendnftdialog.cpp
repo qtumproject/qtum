@@ -229,9 +229,9 @@ void SendNftDialog::on_confirmClicked()
                     if(isSent)
                     {
                         interfaces::NftTx nftTx;
-                        nftTx.sender_address = m_selectedNft->sender;
+                        nftTx.sender = m_selectedNft->sender;
+                        nftTx.receiver = toAddress;
                         nftTx.id = uint256S(m_selectedNft->id);
-                        nftTx.receiver_address = toAddress;
                         dev::u256 nValue(amountToSend);
                         nftTx.value = u256Touint(nValue);
                         nftTx.tx_hash = uint256S(m_nftABI->getTxId());

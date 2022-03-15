@@ -126,6 +126,7 @@ class ReserveDestination;
 namespace boost { class thread_group; }
 class CTokenInfo;
 class CNftInfo;
+class CNftTx;
 
 //! Default for -addresstype
 constexpr OutputType DEFAULT_ADDRESS_TYPE{OutputType::LEGACY};
@@ -862,6 +863,8 @@ public:
 
     std::map<uint256, CNftInfo> mapNft;
 
+    std::map<uint256, CNftTx> mapNftTx;
+
     bool fUpdatedSuperStaker = false;
 
     std::map<COutPoint, CStakeCache> minerStakeCache;
@@ -978,6 +981,8 @@ public:
     bool LoadTokenTx(const CTokenTx &tokenTx);
 
     bool LoadNft(const CNftInfo &nft);
+
+    bool LoadNftTx(const CNftTx &nftTx);
 
     //! Adds a contract data tuple to the store, without saving it to disk
     bool LoadContractData(const std::string &address, const std::string &key, const std::string &value);
@@ -1277,6 +1282,10 @@ public:
     boost::signals2::signal<void (CWallet *wallet, const uint256 &hashNft,
             ChangeType status)> NotifyNftChanged;
 
+    /** Wallet nft transaction added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashTx,
+            ChangeType status)> NotifyNftTransactionChanged;
+
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
     /** Set whether this wallet broadcasts transactions. */
@@ -1418,6 +1427,12 @@ public:
 
     /* Remove nft entry from the wallet */
     bool RemoveNftEntry(const uint256& nftHash, bool fFlushOnClose=true);
+
+    /* Add nft tx entry into the wallet */
+    bool AddNftTxEntry(const CNftTx& nftTx, bool fFlushOnClose=true);
+
+    /* Check if nft transaction is mine */
+    bool IsNftTxMine(const CNftTx &wtx) const;
 
     /* Load delegation entry into the wallet */
     bool LoadDelegation(const CDelegationInfo &delegation);
@@ -1786,6 +1801,51 @@ public:
         strDesc = "";
         nCreateTime = 0;
         nCount = 0;
+        blockHash.SetNull();
+        blockNumber = -1;
+    }
+
+    uint256 GetHash() const;
+};
+
+class CNftTx
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strSender;
+    std::string strReceiver;
+    uint256 id;
+    uint256 nValue;
+    uint256 transactionHash;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
+
+    CNftTx()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CNftTx, obj) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.blockHash, obj.blockNumber);
+        }
+        READWRITE(obj.strSender, obj.strReceiver, obj.id, obj.nValue, obj.transactionHash);
+    }
+
+    void SetNull()
+    {
+        nVersion = CNftTx::CURRENT_VERSION;
+        nCreateTime = 0;
+        strSender = "";
+        strReceiver = "";
+        id.SetNull();
+        nValue.SetNull();
+        transactionHash.SetNull();
         blockHash.SetNull();
         blockNumber = -1;
     }
