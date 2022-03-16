@@ -218,6 +218,37 @@ NftInfo MakeWalletNftInfo(const CNftInfo& nft)
     return result;
 }
 
+//! Construct nft transaction.
+CNftTx MakeNftTx(const NftTx& nftTx)
+{
+    CNftTx result;
+    result.strSender = nftTx.sender;
+    result.strReceiver = nftTx.receiver;
+    result.id = nftTx.id;
+    result.nValue = nftTx.value;
+    result.transactionHash = nftTx.tx_hash;
+    result.nCreateTime = nftTx.create_time;
+    result.blockHash = nftTx.block_hash;
+    result.blockNumber = nftTx.block_number;
+    return result;
+}
+
+//! Construct wallet nft transaction.
+NftTx MakeWalletNftTx(const CNftTx& nftTx)
+{
+    NftTx result;
+    result.sender = nftTx.strSender;
+    result.receiver = nftTx.strReceiver;
+    result.id = nftTx.id;
+    result.value = nftTx.nValue;
+    result.tx_hash = nftTx.transactionHash;
+    result.create_time = nftTx.nCreateTime;
+    result.block_hash = nftTx.blockHash;
+    result.block_number = nftTx.blockNumber;
+    result.hash = nftTx.GetHash();
+    return result;
+}
+
 uint160 StringToKeyId(const std::string& strAddress)
 {
     CTxDestination dest = DecodeDestination(strAddress);
@@ -1514,10 +1545,6 @@ public:
         LOCK(m_wallet->cs_wallet);
         return m_wallet->m_ledger_id;
     }
-    bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose) override
-    {
-        return false;
-    }
     bool addNftEntry(const NftInfo &nft) override
     {
         return m_wallet->AddNftEntry(MakeNftInfo(nft), true);
@@ -1555,6 +1582,35 @@ public:
             result.emplace_back(MakeWalletNftInfo(entry.second));
         }
         return result;
+    }
+    bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose) override
+    {
+        return m_wallet->AddNftTxEntry(MakeNftTx(nftTx), fFlushOnClose);
+    }
+    NftTx getNftTx(const uint256& txid) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapNftTx.find(txid);
+        if (mi != m_wallet->mapNftTx.end()) {
+            return MakeWalletNftTx(mi->second);
+        }
+        return {};
+    }
+    std::vector<NftTx> getNftTxs() override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<NftTx> result;
+        result.reserve(m_wallet->mapNftTx.size());
+        for (const auto& entry : m_wallet->mapNftTx) {
+            result.emplace_back(MakeWalletNftTx(entry.second));
+        }
+        return result;
+    }
+    bool isNftTxMine(const NftTx &wtx) override
+    {
+        return m_wallet->IsNftTxMine(MakeNftTx(wtx));
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
@@ -1621,6 +1677,11 @@ public:
     std::unique_ptr<Handler> handleNftChanged(NftChangedFn fn) override
     {
         return MakeHandler(m_wallet->NotifyNftChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
+    }
+    std::unique_ptr<Handler> handleNftTransactionChanged(NftTransactionChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyNftTransactionChanged.connect(
             [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
 

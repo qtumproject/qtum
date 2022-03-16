@@ -176,7 +176,7 @@ bool Nft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int
 
             // Parse data
             std::string data = variantLog.value("data").toString().toStdString();
-            nftEvent.value = Nft::ToUint256(data);
+            nftEvent.value = Nft::ToInt32(data);
 
             result.push_back(nftEvent);
         }

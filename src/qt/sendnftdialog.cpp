@@ -6,7 +6,7 @@
 #include <qt/optionsmodel.h>
 #include <validation.h>
 #include <util/moneystr.h>
-#include <util/convert.h>
+#include <util/strencodings.h>
 #include <qt/nft.h>
 #include <qt/bitcoinunits.h>
 #include <wallet/wallet.h>
@@ -232,8 +232,9 @@ void SendNftDialog::on_confirmClicked()
                         nftTx.sender = m_selectedNft->sender;
                         nftTx.receiver = toAddress;
                         nftTx.id = uint256S(m_selectedNft->id);
-                        dev::u256 nValue(amountToSend);
-                        nftTx.value = u256Touint(nValue);
+                        int32_t nValue = 0;
+                        ParseInt32(amountToSend, &nValue);
+                        nftTx.value = nValue;
                         nftTx.tx_hash = uint256S(m_nftABI->getTxId());
                         m_model->wallet().addNftTxEntry(nftTx);
                     }

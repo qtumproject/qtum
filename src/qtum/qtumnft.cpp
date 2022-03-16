@@ -105,12 +105,12 @@ bool QtumNft::ToQtumAddress(const std::string& strHash160, std::string& strQtumA
     return false;
 }
 
-uint256 QtumNft::ToUint256(const std::string &data)
+int32_t QtumNft::ToInt32(const std::string &data)
 {
     dev::bytes rawData = dev::fromHex(data);
     dev::bytesConstRef o(&rawData);
     dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
-    return u256Touint(outData);
+    return (int32_t)outData;
 }
 
 QtumNft::QtumNft():
@@ -425,13 +425,14 @@ void QtumNft::addNftEvent(std::vector<NftEvent> &nftEvents, NftEvent nftEvent)
         if(nftTx.address != nftEvent.address) continue;
         if(nftTx.sender != nftEvent.sender) continue;
         if(nftTx.receiver != nftEvent.receiver) continue;
+        if(nftTx.id != nftEvent.id) continue;
         if(nftTx.blockHash != nftEvent.blockHash) continue;
         if(nftTx.blockNumber != nftEvent.blockNumber) continue;
         if(nftTx.transactionHash != nftEvent.transactionHash) continue;
 
         // Update the value
-        dev::u256 nftValue = uintTou256(nftTx.value) + uintTou256(nftEvent.value);
-        nftTx.value = u256Touint(nftValue);
+        int32_t nftValue = nftTx.value + nftEvent.value;
+        nftTx.value = nftValue;
         nftEvents[i] = nftTx;
         found = true;
         break;
