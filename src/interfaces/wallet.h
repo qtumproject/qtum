@@ -446,9 +446,6 @@ public:
     //! Get staker ledger id.
     virtual std::string getStakerLedgerId() = 0;
 
-    //! Add wallet nft transaction entry.
-    virtual bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose=true) = 0;
-
     //! Add wallet nft entry.
     virtual bool addNftEntry(const NftInfo &nft) = 0;
 
@@ -463,6 +460,18 @@ public:
 
     //! Get list of all nfts.
     virtual std::vector<NftInfo> getNfts() = 0;
+
+    //! Add wallet nft transaction entry.
+    virtual bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose=true) = 0;
+
+    //! Get nft transaction information.
+    virtual NftTx getNftTx(const uint256& txid) = 0;
+
+    //! Get list of all wallet nft transactions.
+    virtual std::vector<NftTx> getNftTxs() = 0;
+
+    //! Check if nft transaction is mine
+    virtual bool isNftTxMine(const NftTx &wtx) = 0;
 
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
@@ -526,6 +535,10 @@ public:
     //! Register handler for nft changed messages.
     using NftChangedFn = std::function<void(const uint256& id, ChangeType status)>;
     virtual std::unique_ptr<Handler> handleNftChanged(NftChangedFn fn) = 0;
+
+    //! Register handler for nft transaction changed messages.
+    using NftTransactionChangedFn = std::function<void(const uint256& id, ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleNftTransactionChanged(NftTransactionChangedFn fn) = 0;
 
     //! Return pointer to internal wallet class, useful for testing.
     virtual CWallet* wallet() { return nullptr; }
@@ -799,7 +812,7 @@ struct NftInfo
     std::string url;
     std::string desc;
     int64_t create_time = 0;
-    uint32_t count = 0;
+    int32_t count = 0;
     uint256 block_hash;
     int64_t block_number = -1;
     uint256 hash;
@@ -811,7 +824,7 @@ struct NftTx
     std::string sender;
     std::string receiver;
     uint256 id;
-    uint256 value;
+    int32_t value = 0;
     uint256 tx_hash;
     int64_t create_time = 0;
     uint256 block_hash;

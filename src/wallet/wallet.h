@@ -1426,7 +1426,7 @@ public:
 
     // Wallet data for nft transaction
     int64_t nCreateTime;
-    uint32_t nCount;
+    int32_t nCount;
     uint256 blockHash;
     int64_t blockNumber;
 
@@ -1469,7 +1469,7 @@ public:
     std::string strSender;
     std::string strReceiver;
     uint256 id;
-    uint256 nValue;
+    int32_t nValue;
     uint256 transactionHash;
 
     // Wallet data for token transaction
@@ -1497,7 +1497,7 @@ public:
         strSender = "";
         strReceiver = "";
         id.SetNull();
-        nValue.SetNull();
+        nValue = 0;
         transactionHash.SetNull();
         blockHash.SetNull();
         blockNumber = -1;

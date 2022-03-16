@@ -15,7 +15,7 @@ struct NftEvent{
     uint64_t blockNumber;
     uint256 transactionHash;
     uint256 id;
-    uint256 value;
+    int32_t value;
 
     NftEvent()
     {
@@ -28,7 +28,7 @@ struct NftEvent{
         blockNumber = 0;
         transactionHash.SetNull();
         id.SetNull();
-        value.SetNull();
+        value = 0;
     }
 };
 
@@ -83,7 +83,7 @@ public:
     // Static functions
     static bool ToHash160(const std::string& strQtumAddress, std::string& strHash160);
     static bool ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress);
-    static uint256 ToUint256(const std::string& data);
+    static int32_t ToInt32(const std::string& data);
     static void addNftEvent(std::vector<NftEvent> &nftEvents, NftEvent nftEvent);
 
     // Get param functions
