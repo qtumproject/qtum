@@ -49,6 +49,9 @@ public Q_SLOTS:
     void on_createNft();
 
 private:
+    bool checkLogEvents();
+
+private:
     Ui::NftPage *ui;
     SendNftDialog* m_sendNftDialog;
     CreateNftDialog* m_createNftDialog;

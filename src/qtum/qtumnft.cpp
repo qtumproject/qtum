@@ -203,7 +203,7 @@ void QtumNft::clear()
 
     d->lstParams[QtumNft_NS::PARAM_BROADCAST] = "true";
     d->lstParams[QtumNft_NS::PARAM_CHANGE_TO_SENDER] = "true";
-    d->lstParams[QtumNft_NS::PARAM_ADDRESS] = Params().GetConsensus().nftAddress.GetHex();
+    d->lstParams[QtumNft_NS::PARAM_ADDRESS] = Params().GetConsensus().nftAddress.GetReverseHex();
 }
 
 std::string QtumNft::getTxId()

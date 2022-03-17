@@ -21,6 +21,10 @@ public:
     void setModel(WalletModel *_model);
     void setClientModel(ClientModel *clientModel);
 
+Q_SIGNALS:
+    // Fired when a message should be reported to the user
+    void message(const QString &title, const QString &message, unsigned int style);
+
 private Q_SLOTS:
     void on_clearButton_clicked();
     void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
@@ -28,8 +32,6 @@ private Q_SLOTS:
     void on_updateConfirmButton();
     void on_zeroBalanceAddressToken(bool enable);
     void updateDisplayUnit();
-
-Q_SIGNALS:
 
 private:
     Ui::CreateNftDialog *ui;
