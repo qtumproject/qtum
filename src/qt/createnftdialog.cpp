@@ -8,11 +8,14 @@
 #include <qt/bitcoinunits.h>
 #include <qt/qvalidatedlineedit.h>
 #include <qt/contractutil.h>
-#include <validation.h>
 #include <qt/addresstablemodel.h>
 #include <qt/optionsmodel.h>
+#include <qt/sendcoinsdialog.h>
 #include <qt/styleSheet.h>
+#include <qt/hardwaresigntx.h>
+#include <qt/guiutil.h>
 #include <util/moneystr.h>
+#include <node/ui_interface.h>
 
 #include <QRegularExpressionValidator>
 #include <QMessageBox>
@@ -127,44 +130,92 @@ void CreateNftDialog::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPri
 
 void CreateNftDialog::on_confirmButton_clicked()
 {
-    if(ui->lineEditSenderAddress->isValidAddress())
+    if(!ui->lineEditSenderAddress->isValidAddress())
+        return;
+
+    WalletModel::UnlockContext ctx(m_model->requestUnlock());
+    if(!ctx.isValid())
     {
-        interfaces::NftInfo nftInfo;
-        nftInfo.name = ui->lineEditNftName->text().toStdString();
-        nftInfo.owner = ui->lineEditSenderAddress->currentText().toStdString();
+        return;
+    }
 
-        if(m_model)
+    if(m_model)
+    {
+        int unit = BitcoinUnits::BTC;
+        uint64_t gasLimit = ui->lineEditGasLimit->value();
+        CAmount gasPrice = ui->lineEditGasPrice->value();
+        std::string owner = ui->lineEditSenderAddress->currentText().toStdString();
+        std::string name = ui->lineEditNftName->text().toStdString();
+        std::string url = ui->lineEditNftUri->text().toStdString();
+        std::string desc = ui->lineEditNftDesc->text().toStdString();
+        int32_t count = ui->spinBoxNftAmount->value();
+        QString countFormated = QString::number(count);
+
+        m_nftABI->setSender(owner);
+        m_nftABI->setGasLimit(QString::number(gasLimit).toStdString());
+        m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
+
+        QString questionString;
+        if (bCreateUnsigned) {
+            questionString.append(tr("Do you want to draft this create NFT transaction?"));
+            questionString.append("<br /><span style='font-size:10pt;'>");
+            questionString.append(tr("Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+            questionString.append("</span><br /><br />");
+        } else {
+            questionString.append(tr("Are you sure you want to create NFT? <br /><br />"));
+        }
+        questionString.append(tr("<b>%1 %2 </b> to ")
+                              .arg(countFormated).arg(QString::fromStdString(name)));
+        questionString.append(tr("<br />%3 <br />")
+                              .arg(QString::fromStdString(owner)));
+
+        const QString confirmation = bCreateUnsigned ? tr("Confirm create NFT proposal.") : tr("Confirm create NFT.");
+        const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
+        confirmationDialog.exec();
+        QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
+        if(retval == QMessageBox::Yes)
         {
-            int unit = BitcoinUnits::BTC;
-            uint64_t gasLimit = ui->lineEditGasLimit->value();
-            CAmount gasPrice = ui->lineEditGasPrice->value();
-
-            m_nftABI->setSender(nftInfo.owner);
-            m_nftABI->setGasLimit(QString::number(gasLimit).toStdString());
-            m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
-
-            if(!m_model->wallet().isMineAddress(nftInfo.owner))
+            if(m_nftABI->createNFT(name, url, desc, countFormated.toStdString(), true))
             {
-                QString address = QString::fromStdString(nftInfo.owner);
-                QString message = tr("The %1 address \"%2\" is not yours, please change it to new one.\n").arg("NFT", address);
-                QMessageBox::warning(this, tr("Invalid NFT address"), message);
-            }
-            else if(m_model->wallet().existNftEntry(nftInfo))
-            {
-                QMessageBox::information(this, tr("NFT exist"), tr("The NFT already exist with the specified contract and sender addresses."));
+                if(bCreateUnsigned)
+                {
+                    QString psbt = QString::fromStdString(m_nftABI->getPsbt());
+                    GUIUtil::setClipboard(psbt);
+                    Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                }
+                else
+                {
+                    bool isSent = true;
+                    if(m_model->getSignPsbtWithHwiTool())
+                    {
+                        QVariantMap variantMap;
+                        QString psbt = QString::fromStdString(m_nftABI->getPsbt());
+                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                            isSent = false;
+                        else
+                        {
+                            std::string txid = variantMap["txid"].toString().toStdString();
+                            m_nftABI->setTxId(txid);
+                        }
+                    }
+
+                    if(isSent)
+                    {
+                        interfaces::NftTx nftTx;
+                        nftTx.receiver = owner;
+                        nftTx.value = count;
+                        nftTx.tx_hash = uint256S(m_nftABI->getTxId());
+                        m_model->wallet().addNftTxEntry(nftTx);
+                    }
+                }
             }
             else
             {
-                m_model->wallet().addNftEntry(nftInfo);
-
-                if(!fLogEvents)
-                {
-                    QMessageBox::information(this, tr("Log events"), tr("Enable log events from the option menu in order to receive NFT transactions."));
-                }
-
-                clearAll();
-                QDialog::accept();
+                QMessageBox::warning(this, tr("Create NFT"), QString::fromStdString(m_nftABI->getErrorMessage()));
             }
+            clearAll();
+            QDialog::accept();
         }
     }
 }

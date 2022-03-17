@@ -6,6 +6,7 @@
 #include <qt/styleSheet.h>
 #include <qt/nftlistwidget.h>
 #include <qt/guiutil.h>
+#include <validation.h>
 
 #include <QPainter>
 #include <QAbstractItemDelegate>
@@ -91,12 +92,18 @@ void NftPage::setClientModel(ClientModel *_clientModel)
 
 void NftPage::on_goToSendNftDialog()
 {
-    m_sendNftDialog->show();
+    if(checkLogEvents())
+    {
+        m_sendNftDialog->show();
+    }
 }
 
 void NftPage::on_goToCreateNftDialog()
 {
-    m_createNftDialog->show();
+    if(checkLogEvents())
+    {
+        m_createNftDialog->show();
+    }
 }
 
 void NftPage::on_currentNftChanged(QModelIndex index)
@@ -203,4 +210,13 @@ void NftPage::on_sendNft(const QModelIndex &index)
 void NftPage::on_createNft()
 {
     on_goToCreateNftDialog();
+}
+
+bool NftPage::checkLogEvents()
+{
+    if(!fLogEvents)
+    {
+        QMessageBox::information(this, tr("Log events"), tr("Enable log events from the option menu in order to receive NFT transactions."));
+    }
+    return fLogEvents;
 }
