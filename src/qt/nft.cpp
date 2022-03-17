@@ -137,10 +137,10 @@ bool Nft::exec(const bool &sendTo, const std::map<std::string, std::string> &lst
     return true;
 }
 
-bool Nft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, std::vector<NftEvent> &result)
+bool Nft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, std::vector<NftEvent> &result)
 {
     QVariant resultVar;
-    if(!(d->eventLog->searchTokenTx(d->model->node(), d->model, fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, numTopics, resultVar)))
+    if(!(d->eventLog->searchNftTx(d->model->node(), d->model, fromBlock, toBlock, minconf, eventName, contractAddress, resultVar)))
         return false;
 
     QList<QVariant> list = resultVar.toList();
@@ -160,15 +160,15 @@ bool Nft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int
             // Create new event
             NftEvent nftEvent;
             nftEvent.address = variantMap.value("contractAddress").toString().toStdString();
-            if(numTopics > 1)
-            {
-                nftEvent.sender = topicsList[1].toString().toStdString().substr(24);
-                Nft::ToQtumAddress(nftEvent.sender, nftEvent.sender);
-            }
             if(numTopics > 2)
             {
-                nftEvent.receiver = topicsList[2].toString().toStdString().substr(24);
-                Nft::ToQtumAddress(nftEvent.receiver, nftEvent.receiver);
+                nftEvent.sender = topicsList[2].toString().toStdString().substr(24);
+                Nft::ToQtumAddress(nftEvent.sender, nftEvent.sender, false);
+            }
+            if(numTopics > 3)
+            {
+                nftEvent.receiver = topicsList[3].toString().toStdString().substr(24);
+                Nft::ToQtumAddress(nftEvent.receiver, nftEvent.receiver, false);
             }
             nftEvent.blockHash = uint256S(variantMap.value("blockHash").toString().toStdString());
             nftEvent.blockNumber = variantMap.value("blockNumber").toLongLong();
@@ -176,7 +176,16 @@ bool Nft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int
 
             // Parse data
             std::string data = variantLog.value("data").toString().toStdString();
-            nftEvent.value = Nft::ToInt32(data);
+            if(data.size() >= ContractABI_NS::HEX_INSTRUCTION_SIZE)
+            {
+                std::string outData = data.substr(0, ContractABI_NS::HEX_INSTRUCTION_SIZE);
+                nftEvent.id = Nft::ToUint256(outData);
+            }
+            if(data.size() >= 2 * ContractABI_NS::HEX_INSTRUCTION_SIZE)
+            {
+                std::string outData = data.substr(ContractABI_NS::HEX_INSTRUCTION_SIZE, ContractABI_NS::HEX_INSTRUCTION_SIZE);
+                nftEvent.value = Nft::ToInt32(outData);
+            }
 
             result.push_back(nftEvent);
         }

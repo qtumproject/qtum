@@ -43,9 +43,6 @@ inline std::string startsWithNumber(const std::string& str, size_t& pos)
     pos += s.length();
     return s;
 }
-
-// define constransts
-const static int HEX_INSTRUCTION_SIZE = 64;
 }
 using namespace ContractABI_NS;
 

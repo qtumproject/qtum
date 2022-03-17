@@ -37,7 +37,7 @@ bool QtumNftExec::exec(const bool &, const std::map<std::string, std::string> &,
     return false;
 }
 
-bool QtumNftExec::execEvents(const int64_t &, const int64_t &, const int64_t&, const std::string &, const std::string &, const std::string &, const int &, std::vector<NftEvent> &)
+bool QtumNftExec::execEvents(const int64_t &, const int64_t &, const int64_t&, const std::string &, const std::string &, const int &, std::vector<NftEvent> &)
 {
     return false;
 }
@@ -61,7 +61,6 @@ struct QtumNftData
     int funcIsApprovedForAll;
     int funcSafeTransferFrom;
     int evtTransfer;
-    int evtBurn;
 
     std::string txid;
     std::string psbt;
@@ -74,8 +73,7 @@ struct QtumNftData
         funcCreateNFT(-1),
         funcIsApprovedForAll(-1),
         funcSafeTransferFrom(-1),
-        evtTransfer(-1),
-        evtBurn(-1)
+        evtTransfer(-1)
     {}
 };
 
@@ -93,9 +91,15 @@ bool QtumNft::ToHash160(const std::string& strQtumAddress, std::string& strHash1
     return true;
 }
 
-bool QtumNft::ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress)
+bool QtumNft::ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress, bool isNullValid)
 {
     uint160 key(ParseHex(strHash160.c_str()));
+    if(!isNullValid && key.IsNull())
+    {
+        strQtumAddress = "";
+        return true;
+    }
+
     PKHash keyid(key);
     CTxDestination qtumAddress = keyid;
     if(IsValidDestination(qtumAddress)){
@@ -103,6 +107,14 @@ bool QtumNft::ToQtumAddress(const std::string& strHash160, std::string& strQtumA
         return true;
     }
     return false;
+}
+
+uint256 QtumNft::ToUint256(const std::string &data)
+{
+    dev::bytes rawData = dev::fromHex(data);
+    dev::bytesConstRef o(&rawData);
+    dev::u256 outData = dev::eth::ABIDeserialiser<dev::u256>::deserialise(o);
+    return u256Touint(outData);
 }
 
 int32_t QtumNft::ToInt32(const std::string &data)
@@ -142,13 +154,9 @@ QtumNft::QtumNft():
             {
                 d->funcSafeTransferFrom = i;
             }
-            else if(func.name == "Transfer")
+            else if(func.name == "TransferSingle")
             {
                 d->evtTransfer = i;
-            }
-            else if(func.name == "Burn")
-            {
-                d->evtBurn = i;
             }
         }
     }
@@ -353,11 +361,6 @@ bool QtumNft::transferEvents(std::vector<NftEvent> &nftEvents, int64_t fromBlock
     return execEvents(fromBlock, toBlock, minconf, d->evtTransfer, nftEvents);
 }
 
-bool QtumNft::burnEvents(std::vector<NftEvent> &nftEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
-{
-    return execEvents(fromBlock, toBlock, minconf, d->evtBurn, nftEvents);
-}
-
 bool QtumNft::exec(const std::vector<std::string> &input, int func, std::vector<std::string> &output, bool sendTo)
 {
     // Convert the input data into hex encoded binary data
@@ -422,13 +425,13 @@ void QtumNft::addNftEvent(std::vector<NftEvent> &nftEvents, NftEvent nftEvent)
     {
         // Compare the event data
         NftEvent nftTx = nftEvents[i];
+        if(nftTx.transactionHash != nftEvent.transactionHash) continue;
         if(nftTx.address != nftEvent.address) continue;
         if(nftTx.sender != nftEvent.sender) continue;
         if(nftTx.receiver != nftEvent.receiver) continue;
         if(nftTx.id != nftEvent.id) continue;
         if(nftTx.blockHash != nftEvent.blockHash) continue;
         if(nftTx.blockNumber != nftEvent.blockNumber) continue;
-        if(nftTx.transactionHash != nftEvent.transactionHash) continue;
 
         // Update the value
         int32_t nftValue = nftTx.value + nftEvent.value;
@@ -456,11 +459,8 @@ bool QtumNft::execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, in
     std::vector<NftEvent> result;
     std::string eventName = function.selector();
     std::string contractAddress = d->lstParams[QtumNft_NS::PARAM_ADDRESS];
-    std::string senderAddress = d->lstParams[QtumNft_NS::PARAM_SENDER];
-    ToHash160(senderAddress, senderAddress);
-    senderAddress  = "000000000000000000000000" + senderAddress;
     int numTopics = function.numIndexed() + 1;
-    if(!(d->nftExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, numTopics, result)))
+    if(!(d->nftExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, numTopics, result)))
         return false;
 
     // Parse the result events
