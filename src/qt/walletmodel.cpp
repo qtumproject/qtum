@@ -172,6 +172,7 @@ void WalletModel::pollBalanceChanged()
         checkTokenBalanceChanged();
         checkDelegationChanged();
         checkSuperStakerChanged();
+        checkNftBalanceChanged();
     }
 
     if(balanceChanged)

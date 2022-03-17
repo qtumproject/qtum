@@ -38,7 +38,7 @@ public:
     virtual bool execValid(const int& func, const bool& sendTo);
     virtual bool execEventsValid(const int& func, const int64_t& fromBlock);
     virtual bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message);
-    virtual bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, const int& numTopics, std::vector<NftEvent>& result);
+    virtual bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const int& numTopics, std::vector<NftEvent>& result);
     virtual bool privateKeysDisabled();
     virtual ~QtumNftExec();
 };
@@ -78,11 +78,11 @@ public:
 
     // ABI Events
     bool transferEvents(std::vector<NftEvent>& nftEvents, int64_t fromBlock = 0, int64_t toBlock = -1, int64_t minconf = 0);
-    bool burnEvents(std::vector<NftEvent>& nftEvents, int64_t fromBlock = 0, int64_t toBlock = -1, int64_t minconf = 0);
 
     // Static functions
     static bool ToHash160(const std::string& strQtumAddress, std::string& strHash160);
-    static bool ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress);
+    static bool ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress, bool isNullValid = true);
+    static uint256 ToUint256(const std::string& data);
     static int32_t ToInt32(const std::string& data);
     static void addNftEvent(std::vector<NftEvent> &nftEvents, NftEvent nftEvent);
 
