@@ -7,6 +7,27 @@
 
 struct QtumNftData;
 
+struct WalletNFTInfo {
+    uint256 NFTId;
+    std::string name;
+    std::string url;
+    std::string desc;
+    int64_t createAt;
+    int32_t count;
+
+    WalletNFTInfo()
+    {
+        SetNull();
+    }
+
+    void SetNull()
+    {
+        NFTId.SetNull();
+        createAt = 0;
+        count = 0;
+    }
+};
+
 struct NftEvent{
     std::string address;
     std::string sender;
@@ -75,6 +96,7 @@ public:
     bool isApprovedForAll(const std::string& account, const std::string& operant, bool& success, bool sendTo = false);
     bool safeTransferFrom(const std::string& from, const std::string& to, const std::string& id, const std::string& amount, bool sendTo = false);
     bool safeTransfer(const std::string& to, const std::string& id, const std::string& amount, bool sendTo = false);
+    bool walletNFTList(WalletNFTInfo& result, const std::string& id, bool sendTo = false);
 
     // ABI Events
     bool transferEvents(std::vector<NftEvent>& nftEvents, int64_t fromBlock = 0, int64_t toBlock = -1, int64_t minconf = 0);

@@ -1434,6 +1434,9 @@ public:
     /* Check if nft transaction is mine */
     bool IsNftTxMine(const CNftTx &wtx) const;
 
+    /* Get raw nft from tx (Owner and Id for NFT)*/
+    std::vector<CNftInfo> GetRawNftFromTx() const;
+
     /* Load delegation entry into the wallet */
     bool LoadDelegation(const CDelegationInfo &delegation);
 
@@ -1770,12 +1773,8 @@ public:
     std::string strName;
     std::string strUrl;
     std::string strDesc;
-
-    // Wallet data for nft transaction
     int64_t nCreateTime;
     int32_t nCount;
-    uint256 blockHash;
-    int64_t blockNumber;
 
     CNftInfo()
     {
@@ -1785,7 +1784,7 @@ public:
     SERIALIZE_METHODS(CNftInfo, obj) {
         if (!(s.GetType() & SER_GETHASH))
         {
-            READWRITE(obj.nVersion, obj.nCreateTime, obj.nCount, obj.blockHash, obj.blockNumber);
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.nCount);
         }
         READWRITE(obj.strOwner, obj.id, obj.NFTId, obj.strName, obj.strUrl, obj.strDesc);
     }
@@ -1801,8 +1800,6 @@ public:
         strDesc = "";
         nCreateTime = 0;
         nCount = 0;
-        blockHash.SetNull();
-        blockNumber = -1;
     }
 
     uint256 GetHash() const;

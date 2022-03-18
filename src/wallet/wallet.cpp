@@ -5565,6 +5565,41 @@ bool CWallet::IsNftTxMine(const CNftTx &wtx) const
     return ret;
 }
 
+std::vector<CNftInfo> CWallet::GetRawNftFromTx() const
+{
+    LOCK(cs_wallet);
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    std::vector<CNftInfo> nftList;
+    for(auto it = mapNftTx.begin(); it != mapNftTx.end(); it++)
+    {
+        CNftTx wtx = it->second;
+        bool found = false;
+        for(const CNftInfo& info : nftList)
+        {
+            if(info.id == wtx.id &&
+                    info.strOwner == wtx.strReceiver)
+            {
+                CTxDestination receiver = DecodeDestination(wtx.strReceiver);
+                if(HasPrivateKey(receiver, fAllowWatchOnly))
+                {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if(!found)
+        {
+            CNftInfo info;
+            info.id = wtx.id;
+            info.strOwner = wtx.strReceiver;
+            nftList.push_back(info);
+        }
+    }
+
+    return nftList;
+}
+
 bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
 {
     LOCK(cs_wallet);
