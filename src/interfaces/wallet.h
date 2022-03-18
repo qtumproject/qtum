@@ -461,6 +461,15 @@ public:
     //! Get list of all nfts.
     virtual std::vector<NftInfo> getNfts() = 0;
 
+    //! Remove unconfirmed nft tx entry.
+    virtual bool removeUnconfirmedNftTxEntry(const NftTx &nftTx) = 0;
+
+    //! Check if exist wallet nft tx entry.
+    virtual bool existNftTxEntry(const NftTx &nftTx) = 0;
+
+    //! Add wallet nft transactions entries.
+    virtual bool addNftTxEntries(const std::vector<NftTx> &nftTxs)  = 0;
+
     //! Add wallet nft transaction entry.
     virtual bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose=true) = 0;
 
