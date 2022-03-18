@@ -1583,6 +1583,60 @@ public:
         }
         return result;
     }
+    bool removeUnconfirmedNftTxEntry(const NftTx &nftTx) override
+    {
+        bool ret = true;
+        if(!nftTx.tx_hash.IsNull())
+        {
+            LOCK(m_wallet->cs_wallet);
+            std::vector<uint256> nftIds;
+            for (const auto& entry : m_wallet->mapNftTx)
+            {
+                if(entry.second.blockNumber == -1 &&
+                        entry.second.transactionHash == nftTx.tx_hash)
+                {
+                    nftIds.push_back(entry.first);
+                }
+            }
+            for(const auto& entry : nftIds)
+            {
+                ret &= m_wallet->RemoveNftEntry(entry, false);
+            }
+        }
+
+        return ret;
+    }
+    bool existNftTxEntry(const NftTx &nftTx) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        uint256 hash = MakeNftTx(nftTx).GetHash();
+        std::map<uint256, CNftTx>::iterator it = m_wallet->mapNftTx.find(hash);
+
+        return it != m_wallet->mapNftTx.end();
+    }
+    bool addNftTxEntries(const std::vector<NftTx> &nftTxs) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        bool ret = true;
+        for (const NftTx& nftTx : nftTxs)
+        {
+            // Check if the nft is mine
+            if(isNftTxMine(nftTx))
+            {
+                // Remove the unconfirmed nft tx entry
+                ret &= removeUnconfirmedNftTxEntry(nftTx);
+
+                // Add the new nft tx entry
+                if(!existNftTxEntry(nftTx))
+                {
+                    ret &= addNftTxEntry(nftTx, true);
+                }
+            }
+        }
+        return ret;
+    }
     bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose) override
     {
         return m_wallet->AddNftTxEntry(MakeNftTx(nftTx), fFlushOnClose);

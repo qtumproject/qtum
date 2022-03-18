@@ -56,68 +56,25 @@ class NftTxWorker : public QObject
     Q_OBJECT
 public:
     WalletModel *walletModel;
-    bool first;
     Nft nftAbi;
+    int64_t fromBlock = 0;
+    int64_t toBlock = -1;
     NftTxWorker(WalletModel *_walletModel):
-        walletModel(_walletModel), first(true) {}
+        walletModel(_walletModel) {}
 
 private Q_SLOTS:
-    void updateNftTx(const QString &hash)
+    void updateNftTx()
     {
         if(walletModel && walletModel->node().shutdownRequested())
             return;
 
-        // Initialize variables
-        uint256 nftHash = uint256S(hash.toStdString());
-        int64_t fromBlock = 0;
-        int64_t toBlock = -1;
-        interfaces::NftInfo nftInfo;
-        uint256 blockHash;
-        bool found = false;
-
-        int64_t backInPast = first ? Params().GetConsensus().MaxCheckpointSpan() : 10;
-        first = false;
-
         // Get current height and block hash
         toBlock = walletModel->node().getNumBlocks();
-        blockHash = walletModel->node().getBlockHash(toBlock);
-
-        if(toBlock > -1)
-        {
-            // Find the nft tx in the wallet
-            nftInfo = walletModel->wallet().getNft(nftHash);
-            found = nftInfo.hash == nftHash;
-            if(found)
-            {
-                // Get the start location for search the event log
-                if(nftInfo.block_number < toBlock)
-                {
-                    if(walletModel->node().getBlockHash(nftInfo.block_number) == nftInfo.block_hash)
-                    {
-                        fromBlock = nftInfo.block_number;
-                    }
-                    else
-                    {
-                        fromBlock = nftInfo.block_number - backInPast;
-                    }
-                }
-                else
-                {
-                    fromBlock = toBlock - backInPast;
-                }
-                if(fromBlock < 0)
-                    fromBlock = 0;
-
-                nftInfo.block_hash = blockHash;
-                nftInfo.block_number = toBlock;
-            }
-        }
-
-        if(found)
+        if(fromBlock < toBlock)
         {
             // List the events and update the nft tx
             std::vector<NftEvent> nftEvents;
-            nftAbi.setSender(nftInfo.owner);
+            std::vector<interfaces::NftTx> nftTxs;
             nftAbi.transferEvents(nftEvents, fromBlock, toBlock);
             for(size_t i = 0; i < nftEvents.size(); i++)
             {
@@ -130,10 +87,11 @@ private Q_SLOTS:
                 nftTx.tx_hash = event.transactionHash;
                 nftTx.block_hash = event.blockHash;
                 nftTx.block_number = event.blockNumber;
-                walletModel->wallet().addNftTxEntry(nftTx, false);
+                nftTxs.push_back(nftTx);
             }
-
-            walletModel->wallet().addNftEntry(nftInfo);
+            walletModel->wallet().addNftTxEntries(nftTxs);
+            fromBlock = toBlock - 10;
+            if(fromBlock < 0) fromBlock = 0;
         }
     }
 
@@ -434,14 +392,7 @@ void NftItemModel::checkNftBalanceChanged()
     // Update nft transactions
     if(fLogEvents)
     {
-        // Search for nft transactions
-        for(int i = 0; i < priv->cachedNftItem.size(); i++)
-        {
-            NftItemEntry nftEntry = priv->cachedNftItem[i];
-            QString hash = QString::fromStdString(nftEntry.hash.ToString());
-            QMetaObject::invokeMethod(worker, "updateNftTx", Qt::QueuedConnection,
-                                      Q_ARG(QString, hash));
-        }
+        QMetaObject::invokeMethod(worker, "updateNftTx", Qt::QueuedConnection);
     }
 }
 
