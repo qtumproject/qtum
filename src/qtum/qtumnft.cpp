@@ -262,7 +262,7 @@ bool QtumNft::balanceOf(const std::string &_account, const std::string& id, std:
     return true;
 }
 
-bool QtumNft::balanceOf(std::string &result, const std::string& id, bool sendTo)
+bool QtumNft::balanceOf(const std::string& id, std::string &result, bool sendTo)
 {
     std::string account = d->lstParams[QtumNft_NS::PARAM_SENDER];
     return balanceOf(account, id, result, sendTo);

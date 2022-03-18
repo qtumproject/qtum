@@ -27,6 +27,7 @@ public:
         createTime.setTime_t(nftInfo.create_time);
         nftName = QString::fromStdString(nftInfo.name);
         senderAddress = QString::fromStdString(nftInfo.owner);
+        balance = nftInfo.count;
         id = nftInfo.id;
     }
 
@@ -47,7 +48,7 @@ public:
     QDateTime createTime;
     QString nftName;
     QString senderAddress;
-    int256_t balance;
+    int32_t balance;
     uint256 id;
 };
 
@@ -93,26 +94,43 @@ private Q_SLOTS:
             fromBlock = toBlock - 10;
             if(fromBlock < 0) fromBlock = 0;
         }
-    }
 
-    void updateBalance(QString hash, QString senderAddress, QString id)
-    {
-        if(walletModel && walletModel->node().shutdownRequested())
-            return;
-
-        nftAbi.setSender(senderAddress.toStdString());
-        std::string strBalance;
-        std::string strId = id.toStdString();
-        if(nftAbi.balanceOf(strBalance, strId))
+        std::map<uint256, WalletNFTInfo> listNftInfo;
+        for(interfaces::NftInfo nft : walletModel->wallet().getRawNftFromTx())
         {
-            QString balance = QString::fromStdString(strBalance);
-            Q_EMIT balanceChanged(hash, balance);
+            bool isOk = true;
+            WalletNFTInfo info;
+            std::string strId = uintTou256(nft.id).str();
+            auto search = listNftInfo.find(nft.id);
+            nftAbi.setSender(nft.owner);
+            if(search != listNftInfo.end())
+            {
+                info = search->second;
+            }
+            else
+            {
+                isOk &= nftAbi.walletNFTList(info, strId);
+                if(isOk)
+                {
+                    listNftInfo[nft.id] = info;
+                }
+            }
+
+            if(!isOk) continue;
+            nft.NFTId = info.NFTId;
+            nft.name = info.name;
+            nft.url = info.url;
+            nft.desc = info.desc;
+            nft.create_time = info.createAt;
+            std::string strCount;
+            isOk &= nftAbi.balanceOf(strId, strCount);
+
+            if(!isOk) continue;
+            dev::u256 count(strCount);
+            nft.count = (int32_t)count;
+            walletModel->wallet().addNftEntry(nft);
         }
     }
-
-Q_SIGNALS:
-    // Signal that balance in nft changed
-    void balanceChanged(QString hash, QString balance);
 };
 
 #include <qt/nftitemmodel.moc>
@@ -149,10 +167,6 @@ public:
             for(interfaces::NftInfo nft : wallet.getNfts())
             {
                 NftItemEntry nftItem(nft);
-                if(parent)
-                {
-                    parent->updateBalance(nftItem);
-                }
                 cachedNftItem.append(nftItem);
             }
         }
@@ -210,26 +224,6 @@ public:
         }
     }
 
-    int updateBalance(QString hash, QString balance)
-    {
-        uint256 updated;
-        updated.SetHex(hash.toStdString());
-        int256_t val(balance.toStdString());
-
-        for(int i = 0; i < cachedNftItem.size(); i++)
-        {
-            NftItemEntry item = cachedNftItem[i];
-            if(item.hash == updated && item.balance != val)
-            {
-                item.balance = val;
-                cachedNftItem[i] = item;
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
     int size()
     {
         return cachedNftItem.size();
@@ -263,7 +257,6 @@ NftItemModel::NftItemModel(WalletModel *parent):
     worker = new NftTxWorker(walletModel);
     worker->nftAbi.setModel(walletModel);
     worker->moveToThread(&(t));
-    connect(worker, &NftTxWorker::balanceChanged, this, &NftItemModel::balanceChanged);
 
     t.start();
 
@@ -341,10 +334,10 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         return rec->senderAddress;
         break;
     case NftItemModel::BalanceRole:
-        return BitcoinUnits::formatInt256(rec->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+        return BitcoinUnits::formatInt(rec->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
         break;
     case NftItemModel::RawBalanceRole:
-        return QString::fromStdString(rec->balance.str());
+        return QString::number(rec->balance);
         break;
     case NftItemModel::IdRole:
         return QString::fromStdString(rec->id.ToString());;
@@ -368,7 +361,6 @@ void NftItemModel::updateNft(const QString &hash, int status, bool showNft)
     if(showNft)
     {
         nftEntry = NftItemEntry(nft);
-        updateBalance(nftEntry);
     }
     else
     {
@@ -381,13 +373,6 @@ void NftItemModel::checkNftBalanceChanged()
 {
     if(!priv)
         return;
-
-    // Update nft balance
-    for(int i = 0; i < priv->cachedNftItem.size(); i++)
-    {
-        NftItemEntry nftEntry = priv->cachedNftItem[i];
-        updateBalance(nftEntry);
-    }
 
     // Update nft transactions
     if(fLogEvents)
@@ -440,23 +425,6 @@ void NftItemModel::unsubscribeFromCoreSignals()
 {
     // Disconnect signals from wallet
     m_handler_nft_changed->disconnect();
-}
-
-void NftItemModel::balanceChanged(QString hash, QString balance)
-{
-    int index = priv->updateBalance(hash, balance);
-    if(index > -1)
-    {
-        emitDataChanged(index);
-    }
-}
-
-void NftItemModel::updateBalance(const NftItemEntry &entry)
-{
-    QString hash = QString::fromStdString(entry.hash.ToString());
-    QString id = QString::fromStdString(entry.id.ToString());
-    QMetaObject::invokeMethod(worker, "updateBalance", Qt::QueuedConnection,
-                              Q_ARG(QString, hash), Q_ARG(QString, entry.senderAddress), Q_ARG(QString, id));
 }
 
 void NftItemModel::join()

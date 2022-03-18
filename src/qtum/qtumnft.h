@@ -90,7 +90,7 @@ public:
 
     // ABI Functions
     bool balanceOf(const std::string& account, const std::string& id, std::string& result, bool sendTo = false);
-    bool balanceOf(std::string& result, const std::string& id, bool sendTo = false);
+    bool balanceOf(const std::string& id, std::string& result, bool sendTo = false);
     bool createNFT(const std::string& owner, const std::string& name, const std::string& url, const std::string& desc, const std::string& count, bool sendTo = false);
     bool createNFT(const std::string& name, const std::string& url, const std::string& desc, const std::string& count, bool sendTo = false);
     bool isApprovedForAll(const std::string& account, const std::string& operant, bool& success, bool sendTo = false);
