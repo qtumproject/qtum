@@ -60,6 +60,7 @@ struct QtumNftData
     int funcCreateNFT;
     int funcIsApprovedForAll;
     int funcSafeTransferFrom;
+    int funcWalletNFTList;
     int evtTransfer;
 
     std::string txid;
@@ -73,6 +74,7 @@ struct QtumNftData
         funcCreateNFT(-1),
         funcIsApprovedForAll(-1),
         funcSafeTransferFrom(-1),
+        funcWalletNFTList(-1),
         evtTransfer(-1)
     {}
 };
@@ -153,6 +155,10 @@ QtumNft::QtumNft():
             else if(func.name == "safeTransferFrom")
             {
                 d->funcSafeTransferFrom = i;
+            }
+            else if(func.name == "walletNFTList")
+            {
+                d->funcWalletNFTList = i;
             }
             else if(func.name == "TransferSingle")
             {
@@ -354,6 +360,36 @@ bool QtumNft::safeTransfer(const std::string &to, const std::string &id, const s
 {
     std::string from = d->lstParams[QtumNft_NS::PARAM_SENDER];
     return safeTransferFrom(from, to, id, amount, sendTo);
+}
+
+bool QtumNft::walletNFTList(WalletNFTInfo &result, const std::string &id, bool sendTo)
+{
+    std::vector<std::string> input;
+    input.push_back(id);
+    std::vector<std::string> output;
+
+    if(!exec(input, d->funcWalletNFTList, output, sendTo))
+        return false;
+
+    if(!sendTo)
+    {
+        if(output.size() < 6)
+            return false;
+        else
+        {
+            dev::u256 NFTId(output[0]);
+            result.NFTId = u256Touint(NFTId);
+            result.name = output[1];
+            result.url = output[2];
+            result.desc = output[3];
+            dev::u256 createAt(output[4]);
+            result.createAt = (int64_t)createAt;
+            dev::u256 count(output[5]);
+            result.count = (int32_t)count;
+        }
+    }
+
+    return true;
 }
 
 bool QtumNft::transferEvents(std::vector<NftEvent> &nftEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)

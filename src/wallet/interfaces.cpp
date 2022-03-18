@@ -222,8 +222,6 @@ CNftInfo MakeNftInfo(const NftInfo& nft)
     result.strDesc = nft.desc;
     result.nCreateTime = nft.create_time;
     result.nCount = nft.count;
-    result.blockHash = nft.block_hash;
-    result.blockNumber = nft.block_number;
     return result;
 }
 
@@ -239,8 +237,6 @@ NftInfo MakeWalletNftInfo(const CNftInfo& nft)
     result.desc = nft.strDesc;
     result.create_time = nft.nCreateTime;
     result.count = nft.nCount;
-    result.block_hash = nft.blockHash;
-    result.block_number = nft.blockNumber;
     result.hash = nft.GetHash();
     return result;
 }
@@ -1552,6 +1548,15 @@ public:
         result.reserve(m_wallet->mapNft.size());
         for (const auto& entry : m_wallet->mapNft) {
             result.emplace_back(MakeWalletNftInfo(entry.second));
+        }
+        return result;
+    }
+    std::vector<NftInfo> getRawNftFromTx() override
+    {
+        std::vector<NftInfo> result;
+        std::vector<CNftInfo> rawNfts = m_wallet->GetRawNftFromTx();
+        for (const auto& entry : rawNfts) {
+            result.emplace_back(MakeWalletNftInfo(entry));
         }
         return result;
     }

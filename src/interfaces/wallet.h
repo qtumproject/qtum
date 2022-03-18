@@ -461,6 +461,9 @@ public:
     //! Get list of all nfts.
     virtual std::vector<NftInfo> getNfts() = 0;
 
+    //! Get list of raw nft from tx.
+    virtual std::vector<NftInfo> getRawNftFromTx() = 0;
+
     //! Remove unconfirmed nft tx entry.
     virtual bool removeUnconfirmedNftTxEntry(const NftTx &nftTx) = 0;
 
@@ -822,8 +825,6 @@ struct NftInfo
     std::string desc;
     int64_t create_time = 0;
     int32_t count = 0;
-    uint256 block_hash;
-    int64_t block_number = -1;
     uint256 hash;
 };
 
