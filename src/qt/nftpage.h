@@ -41,12 +41,14 @@ public Q_SLOTS:
     void on_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
     void on_currentChanged(QModelIndex current, QModelIndex previous);
     void on_rowsInserted(QModelIndex index, int first, int last);
-    void contextualMenu(const QPoint &);
-    void copyNftBalance();
-    void copyNftName();
-    void copySenderAddress();
     void on_sendNft(const QModelIndex& index);
     void on_createNft();
+    void contextualMenu(const QPoint &);
+    void copyBalance();
+    void copyName();
+    void copyOwnerAddress();
+    void copyUrl();
+    void copyDesc();
 
 private:
     bool checkLogEvents();

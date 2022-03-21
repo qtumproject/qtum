@@ -25,20 +25,26 @@ public:
     {
         hash = nftInfo.hash;
         createTime.setTime_t(nftInfo.create_time);
-        nftName = QString::fromStdString(nftInfo.name);
-        senderAddress = QString::fromStdString(nftInfo.owner);
+        name = QString::fromStdString(nftInfo.name);
+        owner = QString::fromStdString(nftInfo.owner);
+        url = QString::fromStdString(nftInfo.url);
+        desc = QString::fromStdString(nftInfo.desc);
         balance = nftInfo.count;
         id = nftInfo.id;
+        NFTId = nftInfo.NFTId;
     }
 
     NftItemEntry( const NftItemEntry &obj)
     {
         hash = obj.hash;
         createTime = obj.createTime;
-        nftName = obj.nftName;
-        senderAddress = obj.senderAddress;
+        name = obj.name;
+        owner = obj.owner;
+        url = obj.url;
+        desc = obj.desc;
         balance = obj.balance;
         id = obj.id;
+        NFTId = obj.NFTId;
     }
 
     ~NftItemEntry()
@@ -46,10 +52,13 @@ public:
 
     uint256 hash;
     QDateTime createTime;
-    QString nftName;
-    QString senderAddress;
+    QString name;
+    QString owner;
+    QString url;
+    QString desc;
     int32_t balance;
     uint256 id;
+    uint256 NFTId;
 };
 
 class NftTxWorker : public QObject
@@ -309,7 +318,7 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         switch(index.column())
         {
         case Name:
-            return rec->nftName;
+            return rec->name;
         case Balance:
             return BitcoinUnits::formatInt256(rec->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
         default:
@@ -320,10 +329,10 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         return QString::fromStdString(rec->hash.ToString());
         break;
     case NftItemModel::NameRole:
-        return rec->nftName;
+        return rec->name;
         break;
-    case NftItemModel::SenderRole:
-        return rec->senderAddress;
+    case NftItemModel::OwnerRole:
+        return rec->owner;
         break;
     case NftItemModel::BalanceRole:
         return BitcoinUnits::formatInt(rec->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
@@ -333,6 +342,15 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         break;
     case NftItemModel::IdRole:
         return QString::fromStdString(rec->id.ToString());
+        break;
+    case NftItemModel::UrlRole:
+        return rec->url;
+        break;
+    case NftItemModel::DescRole:
+        return rec->desc;
+        break;
+    case NftItemModel::NftIdRole:
+        return QString::fromStdString(rec->NFTId.ToString());
         break;
     default:
         break;
