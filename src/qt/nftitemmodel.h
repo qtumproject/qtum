@@ -29,10 +29,13 @@ public:
     enum DataRole{
         HashRole = Qt::UserRole + 1,
         NameRole = Qt::UserRole + 2,
-        SenderRole = Qt::UserRole + 3,
+        OwnerRole = Qt::UserRole + 3,
         BalanceRole = Qt::UserRole + 4,
         RawBalanceRole = Qt::UserRole + 5,
         IdRole = Qt::UserRole + 6,
+        UrlRole = Qt::UserRole + 7,
+        DescRole = Qt::UserRole + 8,
+        NftIdRole = Qt::UserRole + 9,
     };
 
     NftItemModel(WalletModel *parent = 0);
