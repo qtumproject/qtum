@@ -271,6 +271,8 @@
  <tabstops>
   <tabstop>lineEditAddress</tabstop>
   <tabstop>lineEditAmount</tabstop>
+  <tabstop>lineEditGasLimit</tabstop>
+  <tabstop>lineEditGasPrice</tabstop>
   <tabstop>confirmButton</tabstop>
   <tabstop>clearButton</tabstop>
  </tabstops>

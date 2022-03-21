@@ -100,7 +100,6 @@ private Q_SLOTS:
         {
             bool isOk = true;
             WalletNFTInfo info;
-            std::string strId = uintTou256(nft.id).str();
             auto search = listNftInfo.find(nft.id);
             nftAbi.setSender(nft.owner);
             if(search != listNftInfo.end())
@@ -109,7 +108,7 @@ private Q_SLOTS:
             }
             else
             {
-                isOk &= nftAbi.walletNFTList(info, strId);
+                isOk &= nftAbi.walletNFTList(info, nft.id);
                 if(isOk)
                 {
                     listNftInfo[nft.id] = info;
@@ -122,12 +121,11 @@ private Q_SLOTS:
             nft.url = info.url;
             nft.desc = info.desc;
             nft.create_time = info.createAt;
-            std::string strCount;
-            isOk &= nftAbi.balanceOf(strId, strCount);
+            int32_t count = 0;
+            isOk &= nftAbi.balanceOf(nft.id, count);
 
             if(!isOk) continue;
-            dev::u256 count(strCount);
-            nft.count = (int32_t)count;
+            nft.count = count;
             walletModel->wallet().addNftEntry(nft);
         }
     }
@@ -173,22 +171,16 @@ public:
         std::sort(cachedNftItem.begin(), cachedNftItem.end(), NftItemEntryLessThan());
     }
 
-    void updateEntry(const NftItemEntry &_item, int status)
+    void updateEntry(const NftItemEntry &item, int status)
     {
         // Find address / label in model
-        NftItemEntry item;
         QList<NftItemEntry>::iterator lower = qLowerBound(
-            cachedNftItem.begin(), cachedNftItem.end(), _item, NftItemEntryLessThan());
+            cachedNftItem.begin(), cachedNftItem.end(), item, NftItemEntryLessThan());
         QList<NftItemEntry>::iterator upper = qUpperBound(
-            cachedNftItem.begin(), cachedNftItem.end(), _item, NftItemEntryLessThan());
+            cachedNftItem.begin(), cachedNftItem.end(), item, NftItemEntryLessThan());
         int lowerIndex = (lower - cachedNftItem.begin());
         int upperIndex = (upper - cachedNftItem.begin());
         bool inModel = (lower != upper);
-        item = _item;
-        if(inModel)
-        {
-            item.balance = cachedNftItem[lowerIndex].balance;
-        }
 
         switch(status)
         {
@@ -340,7 +332,7 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         return QString::number(rec->balance);
         break;
     case NftItemModel::IdRole:
-        return QString::fromStdString(rec->id.ToString());;
+        return QString::fromStdString(rec->id.ToString());
         break;
     default:
         break;
