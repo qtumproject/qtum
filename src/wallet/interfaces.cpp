@@ -1515,7 +1515,9 @@ public:
     }
     bool addNftEntry(const NftInfo &nft) override
     {
-        return m_wallet->AddNftEntry(MakeNftInfo(nft), true);
+        CNftInfo info = MakeNftInfo(nft);
+        return m_wallet->IsNftMine(info) &&
+                m_wallet->AddNftEntry(info, true);
     }
     bool existNftEntry(const NftInfo &nft) override
     {
@@ -1616,7 +1618,9 @@ public:
     }
     bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose) override
     {
-        return m_wallet->AddNftTxEntry(MakeNftTx(nftTx), fFlushOnClose);
+        CNftTx wtx = MakeNftTx(nftTx);
+        return m_wallet->IsNftTxMine(wtx) &&
+                m_wallet->AddNftTxEntry(wtx, fFlushOnClose);
     }
     NftTx getNftTx(const uint256& txid) override
     {

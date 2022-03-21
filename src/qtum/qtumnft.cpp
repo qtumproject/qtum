@@ -235,13 +235,14 @@ void QtumNft::setTxId(const std::string& txid)
     d->txid = txid;
 }
 
-bool QtumNft::balanceOf(const std::string &_account, const std::string& id, std::string &result, bool sendTo)
+bool QtumNft::balanceOf(const std::string &_account, const uint256& _id, int32_t &result, bool sendTo)
 {
     std::string account = _account;
     if(!ToHash160(account, account))
     {
         return false;
     }
+    std::string id = uintTou256(_id).str();
 
     std::vector<std::string> input;
     input.push_back(account);
@@ -255,26 +256,27 @@ bool QtumNft::balanceOf(const std::string &_account, const std::string& id, std:
     {
         if(output.size() == 0)
             return false;
-        else
-            result = output[0];
+        else if(!ParseInt32(output[0], &result))
+            return false;
     }
 
     return true;
 }
 
-bool QtumNft::balanceOf(const std::string& id, std::string &result, bool sendTo)
+bool QtumNft::balanceOf(const uint256& id, int32_t &result, bool sendTo)
 {
     std::string account = d->lstParams[QtumNft_NS::PARAM_SENDER];
     return balanceOf(account, id, result, sendTo);
 }
 
-bool QtumNft::createNFT(const std::string &_owner, const std::string &name, const std::string &url, const std::string &desc, const std::string &count, bool sendTo)
+bool QtumNft::createNFT(const std::string &_owner, const std::string &name, const std::string &url, const std::string &desc, const int32_t &_count, bool sendTo)
 {
     std::string owner = _owner;
     if(!ToHash160(owner, owner))
     {
         return false;
     }
+    std::string count = i64tostr(_count);
 
     std::vector<std::string> input;
     input.push_back(owner);
@@ -290,7 +292,7 @@ bool QtumNft::createNFT(const std::string &_owner, const std::string &name, cons
     return output.size() == 0;
 }
 
-bool QtumNft::createNFT(const std::string &name, const std::string &url, const std::string &desc, const std::string &count, bool sendTo)
+bool QtumNft::createNFT(const std::string &name, const std::string &url, const std::string &desc, const int32_t &count, bool sendTo)
 {
     std::string owner = d->lstParams[QtumNft_NS::PARAM_SENDER];
     return createNFT(owner, name, url, desc, count, sendTo);
@@ -329,7 +331,7 @@ bool QtumNft::isApprovedForAll(const std::string &_account, const std::string &_
     return true;
 }
 
-bool QtumNft::safeTransferFrom(const std::string &_from, const std::string &_to, const std::string &id, const std::string &amount, bool sendTo)
+bool QtumNft::safeTransferFrom(const std::string &_from, const std::string &_to, const uint256 &_id, const int32_t &_amount, bool sendTo)
 {
     std::string from = _from;
     if(!ToHash160(from, from))
@@ -342,6 +344,9 @@ bool QtumNft::safeTransferFrom(const std::string &_from, const std::string &_to,
     {
         return false;
     }
+
+    std::string id = uintTou256(_id).str();
+    std::string amount = i64tostr(_amount);
 
     std::vector<std::string> input;
     input.push_back(from);
@@ -356,14 +361,16 @@ bool QtumNft::safeTransferFrom(const std::string &_from, const std::string &_to,
     return output.size() == 0;
 }
 
-bool QtumNft::safeTransfer(const std::string &to, const std::string &id, const std::string &amount, bool sendTo)
+bool QtumNft::safeTransfer(const std::string &to, const uint256 &id, const int32_t &amount, bool sendTo)
 {
     std::string from = d->lstParams[QtumNft_NS::PARAM_SENDER];
     return safeTransferFrom(from, to, id, amount, sendTo);
 }
 
-bool QtumNft::walletNFTList(WalletNFTInfo &result, const std::string &id, bool sendTo)
+bool QtumNft::walletNFTList(WalletNFTInfo &result, const uint256 &_id, bool sendTo)
 {
+    std::string id = uintTou256(_id).str();
+
     std::vector<std::string> input;
     input.push_back(id);
     std::vector<std::string> output;

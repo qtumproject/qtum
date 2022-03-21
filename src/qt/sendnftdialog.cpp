@@ -24,7 +24,7 @@ static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
 struct SelectedNft{
     std::string sender;
-    std::string id;
+    uint256 id;
     std::string balance;
 };
 
@@ -178,7 +178,7 @@ void SendNftDialog::on_confirmClicked()
         m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
 
         std::string toAddress = ui->lineEditAddress->text().toStdString();
-        std::string amountToSend = ui->lineEditAmount->text().toStdString();
+        int32_t amountToSend = ui->lineEditAmount->text().toInt();
         QString amountFormated = BitcoinUnits::formatInt256(ui->lineEditAmount->value(), false, BitcoinUnits::SeparatorStyle::ALWAYS);
 
         QString questionString;
@@ -231,10 +231,8 @@ void SendNftDialog::on_confirmClicked()
                         interfaces::NftTx nftTx;
                         nftTx.sender = m_selectedNft->sender;
                         nftTx.receiver = toAddress;
-                        nftTx.id = uint256S(m_selectedNft->id);
-                        int32_t nValue = 0;
-                        ParseInt32(amountToSend, &nValue);
-                        nftTx.value = nValue;
+                        nftTx.id = m_selectedNft->id;
+                        nftTx.value = amountToSend;
                         nftTx.tx_hash = uint256S(m_nftABI->getTxId());
                         m_model->wallet().addNftTxEntry(nftTx);
                     }
@@ -263,7 +261,7 @@ void SendNftDialog::setNftData(std::string sender, std::string id, std::string b
 {
     // Update data with the current nft
     m_selectedNft->sender = sender;
-    m_selectedNft->sender = id;
+    m_selectedNft->id = uint256S(id);
     m_selectedNft->balance = balance;
 
     // Convert values for different number of decimals

@@ -89,14 +89,14 @@ public:
     void setTxId(const std::string& txid);
 
     // ABI Functions
-    bool balanceOf(const std::string& account, const std::string& id, std::string& result, bool sendTo = false);
-    bool balanceOf(const std::string& id, std::string& result, bool sendTo = false);
-    bool createNFT(const std::string& owner, const std::string& name, const std::string& url, const std::string& desc, const std::string& count, bool sendTo = false);
-    bool createNFT(const std::string& name, const std::string& url, const std::string& desc, const std::string& count, bool sendTo = false);
+    bool balanceOf(const std::string& account, const uint256& id, int32_t& result, bool sendTo = false);
+    bool balanceOf(const uint256& id, int32_t& result, bool sendTo = false);
+    bool createNFT(const std::string& owner, const std::string& name, const std::string& url, const std::string& desc, const int32_t& count, bool sendTo = false);
+    bool createNFT(const std::string& name, const std::string& url, const std::string& desc, const int32_t& count, bool sendTo = false);
     bool isApprovedForAll(const std::string& account, const std::string& operant, bool& success, bool sendTo = false);
-    bool safeTransferFrom(const std::string& from, const std::string& to, const std::string& id, const std::string& amount, bool sendTo = false);
-    bool safeTransfer(const std::string& to, const std::string& id, const std::string& amount, bool sendTo = false);
-    bool walletNFTList(WalletNFTInfo& result, const std::string& id, bool sendTo = false);
+    bool safeTransferFrom(const std::string& from, const std::string& to, const uint256& id, const int32_t& amount, bool sendTo = false);
+    bool safeTransfer(const std::string& to, const uint256& id, const int32_t& amount, bool sendTo = false);
+    bool walletNFTList(WalletNFTInfo& result, const uint256& id, bool sendTo = false);
 
     // ABI Events
     bool transferEvents(std::vector<NftEvent>& nftEvents, int64_t fromBlock = 0, int64_t toBlock = -1, int64_t minconf = 0);

@@ -4386,6 +4386,20 @@ bool CWallet::IsNftTxMine(const CNftTx &wtx) const
     return ret;
 }
 
+bool CWallet::IsNftMine(const CNftInfo &info) const
+{
+    LOCK(cs_wallet);
+    bool ret = false;
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    CTxDestination owner = DecodeDestination(info.strOwner);
+    if(HasPrivateKey(owner, fAllowWatchOnly))
+    {
+        ret = true;
+    }
+
+    return ret;
+}
+
 std::vector<CNftInfo> CWallet::GetRawNftFromTx() const
 {
     LOCK(cs_wallet);
@@ -4394,23 +4408,19 @@ std::vector<CNftInfo> CWallet::GetRawNftFromTx() const
     for(auto it = mapNftTx.begin(); it != mapNftTx.end(); it++)
     {
         CNftTx wtx = it->second;
+        CTxDestination receiver = DecodeDestination(wtx.strReceiver);
+        if(!HasPrivateKey(receiver, fAllowWatchOnly))
+            continue;
+
         bool found = false;
         for(const CNftInfo& info : nftList)
         {
-            if(info.id == wtx.id &&
-                    info.strOwner == wtx.strReceiver)
-            {
-                CTxDestination receiver = DecodeDestination(wtx.strReceiver);
-                if(HasPrivateKey(receiver, fAllowWatchOnly))
-                {
-                    found = true;
-                    break;
-                }
-            }
+            if(info.id == wtx.id && info.strOwner == wtx.strReceiver)
+                found = true;
         }
 
         if(!found)
-        {
+        {            
             CNftInfo info;
             info.id = wtx.id;
             info.strOwner = wtx.strReceiver;

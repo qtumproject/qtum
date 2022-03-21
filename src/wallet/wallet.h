@@ -1122,6 +1122,9 @@ public:
     /* Check if nft transaction is mine */
     bool IsNftTxMine(const CNftTx &wtx) const;
 
+    /* Check if nft is mine */
+    bool IsNftMine(const CNftInfo &info) const;
+
     /* Get raw nft from tx (Owner and Id for NFT)*/
     std::vector<CNftInfo> GetRawNftFromTx() const;
 
