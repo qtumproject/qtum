@@ -407,6 +407,22 @@ bool TokenTxStatus(CWallet& wallet, const uint256& txid, int& block_number, bool
     return true;
 }
 
+bool NftTxStatus(CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
+{
+    auto mi = wallet.mapNftTx.find(txid);
+    if (mi == wallet.mapNftTx.end()) {
+        return false;
+    }
+    block_number = mi->second.blockNumber;
+    auto it = wallet.mapWallet.find(mi->second.transactionHash); 
+    if(it != wallet.mapWallet.end())
+    {
+        in_mempool = it->second.InMempool();
+    }
+    num_blocks = wallet.GetLastBlockHeight();
+    return true;
+}
+
 class WalletImpl : public Wallet
 {
 public:
@@ -1650,6 +1666,12 @@ public:
     bool getNftTxDetails(const NftTx &wtx, int32_t& credit, int32_t& debit) override
     {
         return m_wallet->GetNftTxDetails(MakeNftTx(wtx), credit, debit);
+    }
+    bool getNftTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        return NftTxStatus(*m_wallet, txid, block_number, in_mempool, num_blocks);
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
