@@ -175,7 +175,8 @@ QT_MOC_CPP = \
   qt/moc_nftitemmodel.cpp \
   qt/moc_nftitemwidget.cpp \
   qt/moc_nftlistwidget.cpp \
-  qt/moc_nftpage.cpp
+  qt/moc_nftpage.cpp \
+  qt/moc_nfttransactiondesc.cpp
 
 BITCOIN_MM = \
   qt/macdockiconhandler.mm \
@@ -329,7 +330,8 @@ BITCOIN_QT_H = \
   qt/nftitemwidget.h \
   qt/nftlistwidget.h \
   qt/nftpage.h \
-  qt/nfttransactionrecord.h
+  qt/nfttransactionrecord.h \
+  qt/nfttransactiondesc.h
 
 RES_ICONS = \
   qt/res/icons/add.png \
@@ -531,6 +533,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/nftlistwidget.cpp \
   qt/nftpage.cpp \
   qt/nfttransactionrecord.cpp \
+  qt/nfttransactiondesc.cpp \
   qt/walletcontroller.cpp \
   qt/waitmessagebox.cpp \
   qt/walletframe.cpp \
