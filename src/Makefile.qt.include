@@ -340,7 +340,8 @@ BITCOIN_QT_H = \
   qt/nftitemmodel.h \
   qt/nftitemwidget.h \
   qt/nftlistwidget.h \
-  qt/nftpage.h
+  qt/nftpage.h \
+  qt/nfttransactionrecord.h
 
 RES_FONTS = \
   qt/res/fonts/RobotoMono-Bold.ttf
@@ -547,6 +548,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/nftitemwidget.cpp \
   qt/nftlistwidget.cpp \
   qt/nftpage.cpp \
+  qt/nfttransactionrecord.cpp \
   qt/walletcontroller.cpp \
   qt/waitmessagebox.cpp \
   qt/walletframe.cpp \

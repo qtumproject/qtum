@@ -4431,6 +4431,30 @@ std::vector<CNftInfo> CWallet::GetRawNftFromTx() const
     return nftList;
 }
 
+bool CWallet::GetNftTxDetails(const CNftTx &wtx, int32_t &credit, int32_t &debit) const
+{
+    LOCK(cs_wallet);
+    bool ret = false;
+
+    for(auto it = mapNft.begin(); it != mapNft.end(); it++)
+    {
+        CNftInfo info = it->second;
+        if(wtx.strSender == info.strOwner)
+        {
+            debit = wtx.nValue;
+            ret = true;
+        }
+
+        if(wtx.strReceiver == info.strOwner)
+        {
+            credit = wtx.nValue;
+            ret = true;
+        }
+    }
+
+    return ret;
+}
+
 bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
 {
     LOCK(cs_wallet);

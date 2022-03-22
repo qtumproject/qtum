@@ -1128,6 +1128,9 @@ public:
     /* Get raw nft from tx (Owner and Id for NFT)*/
     std::vector<CNftInfo> GetRawNftFromTx() const;
 
+    /* Get details nft tx entry into the wallet */
+    bool GetNftTxDetails(const CNftTx &wtx, int32_t& credit, int32_t& debit) const;
+
     /* Load delegation entry into the wallet */
     bool LoadDelegation(const CDelegationInfo &delegation);
 

@@ -1647,6 +1647,10 @@ public:
     {
         return m_wallet->IsNftTxMine(MakeNftTx(wtx));
     }
+    bool getNftTxDetails(const NftTx &wtx, int32_t& credit, int32_t& debit) override
+    {
+        return m_wallet->GetNftTxDetails(MakeNftTx(wtx), credit, debit);
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));
