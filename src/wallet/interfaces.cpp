@@ -1673,6 +1673,14 @@ public:
 
         return NftTxStatus(*m_wallet, txid, block_number, in_mempool, num_blocks);
     }
+    bool tryGetNftTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+        return NftTxStatus(*m_wallet, txid, block_number, in_mempool, num_blocks);
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));

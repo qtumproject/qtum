@@ -491,6 +491,9 @@ public:
     //! Get updated status for a particular nft transaction.
     virtual bool getNftTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) = 0;
 
+    //! Try to get updated status for a particular nft transaction, if possible without blocking.
+    virtual bool tryGetNftTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
