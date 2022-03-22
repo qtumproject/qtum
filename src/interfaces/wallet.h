@@ -481,6 +481,9 @@ public:
     //! Check if nft transaction is mine
     virtual bool isNftTxMine(const NftTx &wtx) = 0;
 
+    //! Get nft transaction details
+    virtual bool getNftTxDetails(const NftTx &wtx, int32_t& credit, int32_t& debit) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
