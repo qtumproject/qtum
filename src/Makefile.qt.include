@@ -180,7 +180,8 @@ QT_MOC_CPP = \
   qt/moc_nfttransactiondesc.cpp \
   qt/moc_nfttransactiontablemodel.cpp \
   qt/moc_nftdescdialog.cpp \
-  qt/moc_nfttxfilterproxy.cpp
+  qt/moc_nfttxfilterproxy.cpp \
+  qt/moc_nfttransactionview.cpp
 
 BITCOIN_MM = \
   qt/macdockiconhandler.mm \
@@ -338,7 +339,8 @@ BITCOIN_QT_H = \
   qt/nfttransactiondesc.h \
   qt/nfttransactiontablemodel.h \
   qt/nftdescdialog.h \
-  qt/nfttxfilterproxy.h
+  qt/nfttxfilterproxy.h \
+  qt/nfttransactionview.h
 
 RES_ICONS = \
   qt/res/icons/add.png \
@@ -544,6 +546,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/nfttransactiontablemodel.cpp \
   qt/nftdescdialog.cpp \
   qt/nfttxfilterproxy.cpp \
+  qt/nfttransactionview.cpp \
   qt/walletcontroller.cpp \
   qt/waitmessagebox.cpp \
   qt/walletframe.cpp \
