@@ -43,6 +43,7 @@ class TokenItemModel;
 class NftItemModel;
 class SuperStakerItemModel;
 class DelegationStakerItemModel;
+class NftTransactionTableModel;
 
 class CCoinControl;
 class CKeyID;
@@ -99,6 +100,7 @@ public:
     DelegationItemModel *getDelegationItemModel();
     SuperStakerItemModel *getSuperStakerItemModel();
     DelegationStakerItemModel *getDelegationStakerItemModel();
+    NftTransactionTableModel *getNftTransactionTableModel();
 
     EncryptionStatus getEncryptionStatus() const;
 
@@ -229,6 +231,7 @@ private:
     DelegationItemModel *delegationItemModel;
     SuperStakerItemModel *superStakerItemModel;
     DelegationStakerItemModel *delegationStakerItemModel;
+    NftTransactionTableModel *nftTransactionTableModel;
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;

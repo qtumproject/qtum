@@ -2,6 +2,7 @@
 #include <qt/forms/ui_nftpage.h>
 #include <qt/nftitemmodel.h>
 #include <qt/walletmodel.h>
+#include <qt/nfttransactionview.h>
 #include <qt/platformstyle.h>
 #include <qt/styleSheet.h>
 #include <qt/nftlistwidget.h>
@@ -32,6 +33,9 @@ NftPage::NftPage(const PlatformStyle *platformStyle, QWidget *parent) :
 
     m_sendNftDialog->setEnabled(false);
 
+    m_nftTransactionView = new NftTransactionView(m_platformStyle, this);
+    m_nftTransactionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->nftViewLayout->addWidget(m_nftTransactionView);
 
     QAction *copyOwnerAction = new QAction(tr("Copy owner address"), this);
     QAction *copyBalanceAction = new QAction(tr("Copy NFT balance"), this);
@@ -76,6 +80,7 @@ void NftPage::setModel(WalletModel *_model)
     m_createNftDialog->setModel(m_model);
     m_sendNftDialog->setModel(m_model);
     m_nftList->setModel(m_model);
+    m_nftTransactionView->setModel(_model);
     if(m_model && m_model->getNftItemModel())
     {
         // Set current nft

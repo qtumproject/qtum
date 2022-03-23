@@ -24,6 +24,7 @@
 #include <qt/superstakeritemmodel.h>
 #include <qt/delegationstakeritemmodel.h>
 #include <qt/nftitemmodel.h>
+#include <qt/nfttransactiontablemodel.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -87,6 +88,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
     delegationItemModel(nullptr),
     superStakerItemModel(nullptr),
     delegationStakerItemModel(nullptr),
+    nftTransactionTableModel(nullptr),
     cachedEncryptionStatus(Unencrypted),
     timer(new QTimer(this)),
     nWeight(0),
@@ -105,6 +107,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
     delegationItemModel = new DelegationItemModel(this);
     superStakerItemModel = new SuperStakerItemModel(this);
     delegationStakerItemModel = new DelegationStakerItemModel(this);
+    nftTransactionTableModel = new NftTransactionTableModel(platformStyle, this);
 
     worker = new WalletWorker(this);
     worker->moveToThread(&(t));
@@ -188,6 +191,9 @@ void WalletModel::pollBalanceChanged()
 
         if(tokenTransactionTableModel)
             tokenTransactionTableModel->updateConfirmations();
+
+        if(nftTransactionTableModel)
+            nftTransactionTableModel->updateConfirmations();
 
         if(cachedBlockHashChanged)
         {
@@ -470,6 +476,11 @@ SuperStakerItemModel *WalletModel::getSuperStakerItemModel()
 DelegationStakerItemModel *WalletModel::getDelegationStakerItemModel()
 {
     return delegationStakerItemModel;
+}
+
+NftTransactionTableModel *WalletModel::getNftTransactionTableModel()
+{
+    return nftTransactionTableModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
