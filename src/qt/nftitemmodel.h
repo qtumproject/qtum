@@ -31,11 +31,10 @@ public:
         NameRole = Qt::UserRole + 2,
         OwnerRole = Qt::UserRole + 3,
         BalanceRole = Qt::UserRole + 4,
-        RawBalanceRole = Qt::UserRole + 5,
-        IdRole = Qt::UserRole + 6,
-        UrlRole = Qt::UserRole + 7,
-        DescRole = Qt::UserRole + 8,
-        NftIdRole = Qt::UserRole + 9,
+        IdRole = Qt::UserRole + 5,
+        UrlRole = Qt::UserRole + 6,
+        DescRole = Qt::UserRole + 7,
+        NftIdRole = Qt::UserRole + 8,
     };
 
     NftItemModel(WalletModel *parent = 0);

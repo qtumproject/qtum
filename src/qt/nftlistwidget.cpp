@@ -126,13 +126,14 @@ void NftListWidget::updateRow(const QModelIndex &index, int position)
 {
     if(index.isValid())
     {
-        std::string name = m_nftModel->data(index, NftItemModel::NameRole).toString().toStdString();
-        std::string owner = m_nftModel->data(index, NftItemModel::OwnerRole).toString().toStdString();
-        std::string balance = m_nftModel->data(index, NftItemModel::RawBalanceRole).toString().toStdString();
-        int256_t totalSupply(balance);
+        QString name = m_nftModel->data(index, NftItemModel::NameRole).toString();
+        QString owner = m_nftModel->data(index, NftItemModel::OwnerRole).toString();
+        QString balance = m_nftModel->data(index, NftItemModel::BalanceRole).toString();
+        QString desc = m_nftModel->data(index, NftItemModel::DescRole).toString();
+        QString url = m_nftModel->data(index, NftItemModel::UrlRole).toString();
         NftItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(QString::fromStdString(name), BitcoinUnits::formatInt256(totalSupply, false, BitcoinUnits::SeparatorStyle::ALWAYS), QString::fromStdString(owner), "");
+        item->setData(name, balance, owner, desc, url);
 
     }
 }

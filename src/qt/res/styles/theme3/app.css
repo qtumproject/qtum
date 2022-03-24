@@ -1106,6 +1106,24 @@ TokenItemWidget #tokenLogo{
 NftListWidget{
     background-color: #e4ebf5;
 }
+NftItemWidget #nftName{
+    color: #000000;
+    font: 13pt;
+}
+NftItemWidget #nftDesc{
+    color: #6b80af;
+    font: 13pt;
+}
+NftItemWidget #nftOwner{
+    color: #d5dde9;
+    font: 10pt;
+}
+NftItemWidget #nftBalance{
+    background-color: #a1daff;
+    border-radius: 20px;
+    color: white;
+    font: 16px;
+}
 DelegationListWidget{
     background-color: #e4ebf5;
 }
