@@ -94,8 +94,6 @@ public:
     static QString formatTokenWithUnit(const QString unit, int decimals, const int256_t& amount, bool plussign=false, SeparatorStyle separators=separatorStandard);
     //! Format integer number as string (with and without separator)
     static QString formatInt(const int64_t& number, bool plussign=false, SeparatorStyle separators=separatorStandard);
-    //! Format integer 256 bit number as string (with and without separator)
-    static QString formatInt256(const int256_t& number, bool plussign=false, SeparatorStyle separators=separatorStandard);
     ///@}
 
     //! @name AbstractListModel implementation

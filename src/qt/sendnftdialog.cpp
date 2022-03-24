@@ -56,7 +56,7 @@ SendNftDialog::SendNftDialog(QWidget *parent) :
 
     // Connect signals with slots
     connect(ui->lineEditAddress, &QValidatedLineEdit::textChanged, this, &SendNftDialog::on_updateConfirmButton);
-    connect(ui->lineEditAmount, &TokenAmountField::valueChanged,this, &SendNftDialog::on_updateConfirmButton);
+    connect(ui->lineEditAmount, QOverload<int>::of(&QSpinBox::valueChanged), [=](int){ on_updateConfirmButton(); });
     connect(ui->confirmButton, &QPushButton::clicked, this, &SendNftDialog::on_confirmClicked);
 
     ui->lineEditAddress->setCheckValidator(new BitcoinAddressCheckValidator(parent, true));
@@ -103,9 +103,11 @@ void SendNftDialog::setClientModel(ClientModel *_clientModel)
 void SendNftDialog::clearAll()
 {
     ui->lineEditAddress->setText("");
+    ui->lineEditAmount->setValue(0);
     ui->lineEditAmount->clear();
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
+    ui->lineEditAddress->setFocus();
 }
 
 bool SendNftDialog::isValidAddress()
@@ -120,20 +122,14 @@ bool SendNftDialog::isDataValid()
 
     if(!isValidAddress())
         dataValid = false;
-    if(!ui->lineEditAmount->validate())
+    if(ui->lineEditAmount->value() <= 0)
         dataValid = false;
-    if(ui->lineEditAmount->value(0) <= 0)
-    {
-        ui->lineEditAmount->setValid(false);
-        dataValid = false;
-    }
     return dataValid;
 }
 
 void SendNftDialog::on_clearButton_clicked()
 {
-    clearAll();
-    QDialog::reject();
+    reject();
 }
 
 void SendNftDialog::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice)
@@ -179,7 +175,7 @@ void SendNftDialog::on_confirmClicked()
 
         std::string toAddress = ui->lineEditAddress->text().toStdString();
         int32_t amountToSend = ui->lineEditAmount->text().toInt();
-        QString amountFormated = BitcoinUnits::formatInt256(ui->lineEditAmount->value(), false, BitcoinUnits::SeparatorStyle::ALWAYS);
+        QString amountFormated = QString::number(ui->lineEditAmount->value());
 
         QString questionString;
         if (bCreateUnsigned) {
@@ -242,8 +238,7 @@ void SendNftDialog::on_confirmClicked()
             {
                 QMessageBox::warning(this, tr("Send NFT"), QString::fromStdString(m_nftABI->getErrorMessage()));
             }
-            clearAll();
-            QDialog::accept();
+            accept();
         }
     }
 }
@@ -265,21 +260,34 @@ void SendNftDialog::setNftData(std::string sender, std::string id, std::string b
     m_selectedNft->balance = balance;
 
     // Convert values for different number of decimals
-    int256_t totalSupply(balance);
-    int256_t value(ui->lineEditAmount->value());
+    QString strBalance = QString::fromStdString(balance);
+    int32_t totalSupply = strBalance.toInt();
+    int32_t value = ui->lineEditAmount->value();
     if(value > totalSupply)
     {
         value = totalSupply;
     }
 
     // Update the amount field with the current nft data
+    ui->lineEditAmount->setValue(0);
     ui->lineEditAmount->clear();
-    ui->lineEditAmount->setDecimalUnits(0);
-    ui->lineEditAmount->setTotalSupply(totalSupply);
+    ui->lineEditAmount->setMaximum(totalSupply);
     if(value != 0)
     {
         ui->lineEditAmount->setValue(value);
     }
-    ui->labelNftBalance->setText(BitcoinUnits::formatInt256(totalSupply, false, BitcoinUnits::SeparatorStyle::ALWAYS));
-    setWindowTitle(tr("Send"));
+    ui->labelNftBalance->setText(strBalance);
+    setWindowTitle(tr("Send NFT"));
+}
+
+void SendNftDialog::reject()
+{
+    clearAll();
+    QDialog::reject();
+}
+
+void SendNftDialog::accept()
+{
+    clearAll();
+    QDialog::accept();
 }
