@@ -21,7 +21,10 @@ NftItemWidget::NftItemWidget(const PlatformStyle *platformStyle, QWidget *parent
     ui->stackedWidget->setCurrentIndex(type);
     ui->buttonSend->setIcon(m_platfromStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
     ui->buttonCreate->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
-    ui->nftLogo->setPixmap(platformStyle->MultiStatesIcon(m_type == New ? ":/icons/add_token" : ":/icons/token").pixmap(NFT_ITEM_ICONSIZE, NFT_ITEM_ICONSIZE));
+    if(m_type == New)
+    {
+        updateLogo();
+    }
 }
 
 NftItemWidget::~NftItemWidget()
@@ -29,19 +32,16 @@ NftItemWidget::~NftItemWidget()
     delete ui;
 }
 
-void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, const QString &senderAddress, const QString &filename)
+void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, const QString &nftOwner, const QString& nftDesc, const QString& nftUri)
 {
     if(nftName != ui->nftName->text())
         ui->nftName->setText(nftName);
+    if(nftDesc != ui->nftDesc->text())
+        ui->nftDesc->setText(nftDesc);
+    if(nftOwner != ui->nftOwner->text())
+        ui->nftOwner->setText(nftOwner);
     if(nftBalance != ui->nftBalance->text())
         ui->nftBalance->setText(nftBalance);
-    if(senderAddress != ui->senderAddress->text())
-        ui->senderAddress->setText(senderAddress);
-    if(m_filename != filename)
-    {
-        m_filename = filename;
-        updateLogo();
-    }
 }
 
 void NftItemWidget::setPosition(int position)
@@ -66,15 +66,6 @@ int NftItemWidget::position() const
 
 void NftItemWidget::updateLogo()
 {
-    QPixmap pixmap;
-    if(QFile::exists(m_filename))
-    {
-        QIcon icon(m_filename);
-        pixmap = icon.pixmap(ui->nftLogo->width(), ui->nftLogo->height());
-    }
-    else
-    {
-        pixmap = m_platfromStyle->MultiStatesIcon(":/icons/token").pixmap(NFT_ITEM_ICONSIZE, NFT_ITEM_ICONSIZE);
-    }
-    ui->nftLogo->setPixmap(pixmap);
+    QPixmap pixmap = m_platfromStyle->MultiStatesIcon(":/icons/token").pixmap(NFT_ITEM_ICONSIZE, NFT_ITEM_ICONSIZE);;
+    ui->nftBalance->setPixmap(pixmap);
 }

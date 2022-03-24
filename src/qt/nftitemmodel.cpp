@@ -320,7 +320,7 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         case Name:
             return rec->name;
         case Balance:
-            return BitcoinUnits::formatInt256(rec->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+            return QString::number(rec->balance);
         default:
             break;
         }
@@ -335,9 +335,6 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         return rec->owner;
         break;
     case NftItemModel::BalanceRole:
-        return BitcoinUnits::formatInt(rec->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
-        break;
-    case NftItemModel::RawBalanceRole:
         return QString::number(rec->balance);
         break;
     case NftItemModel::IdRole:

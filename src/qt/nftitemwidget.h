@@ -28,7 +28,7 @@ public:
     explicit NftItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~NftItemWidget();
 
-    void setData(const QString& nftName, const QString& nftBalance, const QString& senderAddress, const QString& filename);
+    void setData(const QString& nftName, const QString& nftBalance, const QString& nftOwner, const QString& nftDesc, const QString& nftUri);
 
     void setPosition(int position);
 
@@ -50,7 +50,6 @@ private:
     const PlatformStyle *m_platfromStyle;
     ItemType m_type;
     int m_position;
-    QString m_filename;
 };
 
 #endif // NFTITEMWIDGET_H
