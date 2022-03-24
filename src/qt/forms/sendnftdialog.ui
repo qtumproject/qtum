@@ -53,9 +53,6 @@
      <property name="verticalSpacing">
       <number>15</number>
      </property>
-     <item row="2" column="1">
-      <widget class="TokenAmountField" name="lineEditAmount"/>
-     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="labelAddress">
        <property name="minimumSize">
@@ -171,6 +168,16 @@
      <item row="4" column="1">
       <widget class="BitcoinAmountField" name="lineEditGasPrice"/>
      </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="lineEditAmount">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="maximum">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -259,12 +266,6 @@
    <class>BitcoinAmountField</class>
    <extends>QLineEdit</extends>
    <header>qt/bitcoinamountfield.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>TokenAmountField</class>
-   <extends>QLineEdit</extends>
-   <header>qt/tokenamountfield.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
