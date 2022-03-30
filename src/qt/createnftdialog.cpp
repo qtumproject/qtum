@@ -19,6 +19,7 @@
 
 #include <QRegularExpressionValidator>
 #include <QMessageBox>
+#include <QUrl>
 
 namespace CreateNftDialog_NS
 {
@@ -46,7 +47,9 @@ CreateNftDialog::CreateNftDialog(QWidget *parent) :
 
     m_nftABI = new Nft();
 
+    connect(ui->lineEditNftUri, &QLineEdit::textChanged, this, &CreateNftDialog::on_updateConfirmButton);
     connect(ui->lineEditNftName, &QLineEdit::textChanged, this, &CreateNftDialog::on_updateConfirmButton);
+    connect(ui->lineEditNftDesc, &QLineEdit::textChanged, this, &CreateNftDialog::on_updateConfirmButton);
     connect(ui->lineEditSenderAddress, &QComboBox::currentTextChanged, this, &CreateNftDialog::on_updateConfirmButton);
 
     ui->lineEditSenderAddress->setAddressColumn(AddressTableModel::Address);
@@ -85,6 +88,8 @@ void CreateNftDialog::clearAll()
 {
     ui->lineEditNftUri->setText("");
     ui->lineEditNftName->setText("");
+    ui->lineEditNftDesc->setText("");
+    ui->spinBoxNftAmount->setValue(1);
     ui->lineEditSenderAddress->setCurrentIndex(-1);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -176,7 +181,7 @@ void CreateNftDialog::on_confirmButton_clicked()
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
         if(retval == QMessageBox::Yes)
         {
-            if(m_nftABI->createNFT(name, url, desc, countFormated.toStdString(), true))
+            if(m_nftABI->createNFT(name, url, desc, count, true))
             {
                 if(bCreateUnsigned)
                 {
@@ -205,6 +210,7 @@ void CreateNftDialog::on_confirmButton_clicked()
                         interfaces::NftTx nftTx;
                         nftTx.receiver = owner;
                         nftTx.value = count;
+                        nftTx.id = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
                         nftTx.tx_hash = uint256S(m_nftABI->getTxId());
                         m_model->wallet().addNftTxEntry(nftTx);
                     }
@@ -212,7 +218,10 @@ void CreateNftDialog::on_confirmButton_clicked()
             }
             else
             {
-                QMessageBox::warning(this, tr("Create NFT"), QString::fromStdString(m_nftABI->getErrorMessage()));
+                QString errorMessage = QString::fromStdString(m_nftABI->getErrorMessage());
+                if(errorMessage.isEmpty())
+                    errorMessage = tr("Fail to create NFT.");
+                QMessageBox::warning(this, tr("Create NFT problem"), errorMessage);
             }
             clearAll();
             QDialog::accept();
@@ -232,7 +241,16 @@ void CreateNftDialog::updateDisplayUnit()
 void CreateNftDialog::on_updateConfirmButton()
 {
     bool enabled = true;
+    QUrl url(ui->lineEditNftUri->text());
+    if(!url.isValid())
+    {
+        enabled = false;
+    }
     if(ui->lineEditNftName->text().isEmpty())
+    {
+        enabled = false;
+    }
+    if(ui->lineEditNftDesc->text().isEmpty())
     {
         enabled = false;
     }

@@ -115,7 +115,7 @@
         </size>
        </property>
        <property name="text">
-        <string>NFT URI</string>
+        <string>NFT URL</string>
        </property>
       </widget>
      </item>

@@ -236,7 +236,10 @@ void SendNftDialog::on_confirmClicked()
             }
             else
             {
-                QMessageBox::warning(this, tr("Send NFT"), QString::fromStdString(m_nftABI->getErrorMessage()));
+                QString errorMessage = QString::fromStdString(m_nftABI->getErrorMessage());
+                if(errorMessage.isEmpty())
+                    errorMessage = tr("Fail to send NFT.");
+                QMessageBox::warning(this, tr("Send NFT problem"), errorMessage);
             }
             accept();
         }

@@ -44,6 +44,7 @@ private Q_SLOTS:
 
 private:
     void updateLogo();
+    void getLabelText(const QString& itemName, QString& itemText, QString& itemTooltip);
 
 private:
     Ui::NftItemWidget *ui;
