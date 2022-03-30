@@ -18,7 +18,8 @@ QList<NftTransactionRecord> NftTransactionRecord::decomposeTransaction(interface
     QList<NftTransactionRecord> parts;
     qint32 credit = 0;
     qint32 debit = 0;
-    if(wtx.value && wallet.getNftTxDetails(wtx, credit, debit))
+    std::string name;
+    if(wtx.value && wallet.getNftTxDetails(wtx, credit, debit, name))
     {
         // Get nft transaction data
         NftTransactionRecord rec;
@@ -27,6 +28,8 @@ QList<NftTransactionRecord> NftTransactionRecord::decomposeTransaction(interface
         rec.debit = -debit;
         rec.hash = wtx.hash;
         rec.txid = wtx.tx_hash;
+        rec.name = name;
+        rec.id = wtx.id;
         qint32 net = rec.credit + rec.debit;
 
         // Determine type
@@ -103,4 +106,9 @@ bool NftTransactionRecord::statusUpdateNeeded(int numBlocks)
 QString NftTransactionRecord::getTxID() const
 {
     return QString::fromStdString(txid.ToString());
+}
+
+bool NftTransactionRecord::nameUpdateNeeded()
+{
+    return name == "";
 }

@@ -1431,6 +1431,9 @@ public:
     /* Add nft tx entry into the wallet */
     bool AddNftTxEntry(const CNftTx& nftTx, bool fFlushOnClose=true);
 
+    /* Remove nft tx entry from the wallet */
+    bool RemoveNftTxEntry(const uint256& nftHash, bool fFlushOnClose=true);
+
     /* Check if nft transaction is mine */
     bool IsNftTxMine(const CNftTx &wtx) const;
 
@@ -1441,7 +1444,7 @@ public:
     std::vector<CNftInfo> GetRawNftFromTx() const;
 
     /* Get details nft tx entry into the wallet */
-    bool GetNftTxDetails(const CNftTx &wtx, int32_t& credit, int32_t& debit) const;
+    bool GetNftTxDetails(const CNftTx &wtx, int32_t& credit, int32_t& debit, std::string& name) const;
 
     /* Load delegation entry into the wallet */
     bool LoadDelegation(const CDelegationInfo &delegation);

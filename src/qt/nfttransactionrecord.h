@@ -64,7 +64,7 @@ public:
     static const int RecommendedNumConfirmations = 10;
 
     NftTransactionRecord():
-            hash(), txid(), time(0), type(Other), address(""), debit(0), credit(0), label("")
+            hash(), txid(), time(0), type(Other), address(""), debit(0), credit(0), name("")
     {
     }
 
@@ -81,7 +81,8 @@ public:
     std::string address;
     qint32 debit;
     qint32 credit;
-    std::string label;
+    std::string name;
+    uint256 id;
     /**@}*/
 
     /** Return the unique identifier for this transaction (part) */
@@ -97,6 +98,10 @@ public:
     /** Return whether a status update is needed.
      */
     bool statusUpdateNeeded(int numBlocks);
+
+    /** Return whether a name update is needed.
+     */
+    bool nameUpdateNeeded();
 };
 
 #endif // BITCOIN_QT_TRANSACTIONRECORD_H
