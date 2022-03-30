@@ -230,6 +230,10 @@ public:
             if (wallet.tryGetNftTxStatus(rec->hash, blockNumber, inMempool, numBlocks) && rec->statusUpdateNeeded(numBlocks)) {
                 rec->updateStatus(blockNumber, numBlocks);
             }
+            std::string name;
+            if(rec->nameUpdateNeeded() && wallet.tryGetNftName(rec->id, name)) {
+                rec->name = name;
+            }
             return rec;
         }
         return 0;
@@ -409,7 +413,7 @@ QString NftTransactionTableModel::formatTxToAddress(const NftTransactionRecord *
         return QString::fromStdString(wtx->address);
     case NftTransactionRecord::RecvWithAddress:
     case NftTransactionRecord::SendToAddress:
-        return lookupAddress(wtx->address, wtx->label, tooltip);
+        return lookupAddress(wtx->address, "", tooltip);
     case NftTransactionRecord::SendToOther:
         return QString::fromStdString(wtx->address);
     case NftTransactionRecord::SendToSelf:
@@ -420,7 +424,7 @@ QString NftTransactionTableModel::formatTxToAddress(const NftTransactionRecord *
 
 QString NftTransactionTableModel::formatTxName(const NftTransactionRecord *wtx) const
 {
-    return QString::fromStdString(wtx->label);
+    return QString::fromStdString(wtx->name);
 }
 
 QVariant NftTransactionTableModel::addressColor(const NftTransactionRecord *wtx) const
@@ -572,7 +576,7 @@ QVariant NftTransactionTableModel::data(const QModelIndex &index, int role) cons
     case LongDescriptionRole:
         return priv->describe(walletModel->wallet(), rec);
     case NameRole:
-        return QString::fromStdString(rec->label);
+        return QString::fromStdString(rec->name);
     case AddressRole:
         return QString::fromStdString(rec->address);
     case LabelRole:
@@ -588,7 +592,7 @@ QVariant NftTransactionTableModel::data(const QModelIndex &index, int role) cons
             QString details;
             QDateTime date = QDateTime::fromTime_t(static_cast<uint>(rec->time));
             QString txLabel = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
-            QString name = QString::fromStdString(rec->label);
+            QString name = QString::fromStdString(rec->name);
 
             details.append(date.toString("M/d/yy HH:mm"));
             details.append(" ");

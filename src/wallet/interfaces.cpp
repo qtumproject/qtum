@@ -1584,18 +1584,18 @@ public:
         if(!nftTx.tx_hash.IsNull())
         {
             LOCK(m_wallet->cs_wallet);
-            std::vector<uint256> nftIds;
+            std::vector<uint256> nftTxIds;
             for (const auto& entry : m_wallet->mapNftTx)
             {
                 if(entry.second.blockNumber == -1 &&
                         entry.second.transactionHash == nftTx.tx_hash)
                 {
-                    nftIds.push_back(entry.first);
+                    nftTxIds.push_back(entry.first);
                 }
             }
-            for(const auto& entry : nftIds)
+            for(const auto& entry : nftTxIds)
             {
-                ret &= m_wallet->RemoveNftEntry(entry, false);
+                ret &= m_wallet->RemoveNftTxEntry(entry, false);
             }
         }
 
@@ -1663,9 +1663,9 @@ public:
     {
         return m_wallet->IsNftTxMine(MakeNftTx(wtx));
     }
-    bool getNftTxDetails(const NftTx &wtx, int32_t& credit, int32_t& debit) override
+    bool getNftTxDetails(const NftTx &wtx, int32_t& credit, int32_t& debit, std::string& name) override
     {
-        return m_wallet->GetNftTxDetails(MakeNftTx(wtx), credit, debit);
+        return m_wallet->GetNftTxDetails(MakeNftTx(wtx), credit, debit, name);
     }
     bool getNftTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
     {
@@ -1680,6 +1680,23 @@ public:
             return false;
         }
         return NftTxStatus(*m_wallet, txid, block_number, in_mempool, num_blocks);
+    }
+    bool tryGetNftName(const uint256& id, std::string& name) override
+    {
+        TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+        for(auto it = m_wallet->mapNft.begin(); it != m_wallet->mapNft.end(); it++)
+        {
+            CNftInfo info = it->second;
+            if(id == info.id)
+            {
+                name = info.strName;
+                break;
+            }
+        }
+        return name != "";
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {

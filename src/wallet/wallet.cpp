@@ -4431,7 +4431,7 @@ std::vector<CNftInfo> CWallet::GetRawNftFromTx() const
     return nftList;
 }
 
-bool CWallet::GetNftTxDetails(const CNftTx &wtx, int32_t &credit, int32_t &debit) const
+bool CWallet::GetNftTxDetails(const CNftTx &wtx, int32_t &credit, int32_t &debit, std::string &name) const
 {
     LOCK(cs_wallet);
     bool ret = false;
@@ -4449,6 +4449,11 @@ bool CWallet::GetNftTxDetails(const CNftTx &wtx, int32_t &credit, int32_t &debit
         {
             credit = wtx.nValue;
             ret = true;
+        }
+
+        if(ret && wtx.id == info.id)
+        {
+            name = info.strName;
         }
     }
 
@@ -4518,6 +4523,36 @@ bool CWallet::RemoveNftEntry(const uint256 &nftHash, bool fFlushOnClose)
     }
 
     LogPrintf("RemoveNftEntry %s\n", nftHash.ToString());
+
+    return true;
+}
+
+bool CWallet::RemoveNftTxEntry(const uint256 &nftTxHash, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    bool fFound = false;
+
+    std::map<uint256, CNftTx>::iterator it = mapNftTx.find(nftTxHash);
+    if(it!=mapNftTx.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        // Remove from disk
+        if (!batch.EraseNftTx(nftTxHash))
+            return false;
+
+        mapNftTx.erase(it);
+
+        NotifyTokenTransactionChanged(this, nftTxHash, CT_DELETED);
+    }
+
+    LogPrintf("RemoveNftTxEntry %s\n", nftTxHash.ToString());
 
     return true;
 }
