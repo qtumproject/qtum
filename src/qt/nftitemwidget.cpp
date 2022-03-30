@@ -34,12 +34,25 @@ NftItemWidget::~NftItemWidget()
 
 void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, const QString &nftOwner, const QString& nftDesc, const QString& nftUri)
 {
-    if(nftName != ui->nftName->text())
-        ui->nftName->setText(nftName);
-    if(nftDesc != ui->nftDesc->text())
-        ui->nftDesc->setText(nftDesc);
+    QString textName;
+    QString tooltipName;
+    getLabelText(nftName, textName, tooltipName);
+    if(textName != ui->nftName->text())
+        ui->nftName->setText(textName);
+    if(tooltipName != ui->nftName->toolTip())
+        ui->nftName->setToolTip(tooltipName);
+
+    QString textDesc;
+    QString tooltipDesc;
+    getLabelText(nftDesc, textDesc, tooltipDesc);
+    if(textDesc != ui->nftDesc->text())
+        ui->nftDesc->setText(textDesc);
+    if(tooltipDesc != ui->nftDesc->toolTip())
+        ui->nftDesc->setToolTip(tooltipDesc);
+
     if(nftOwner != ui->nftOwner->text())
         ui->nftOwner->setText(nftOwner);
+
     if(nftBalance != ui->nftBalance->text())
         ui->nftBalance->setText(nftBalance);
 }
@@ -68,4 +81,18 @@ void NftItemWidget::updateLogo()
 {
     QPixmap pixmap = m_platfromStyle->MultiStatesIcon(":/icons/token").pixmap(NFT_ITEM_ICONSIZE, NFT_ITEM_ICONSIZE);;
     ui->nftBalance->setPixmap(pixmap);
+}
+
+void NftItemWidget::getLabelText(const QString &itemName, QString &itemText, QString &itemTooltip)
+{
+    if(itemName.length() > 50)
+    {
+        itemText = itemName.mid(0, 47) + "...";
+        itemTooltip = itemName;
+    }
+    else
+    {
+        itemText = itemName;
+        itemTooltip = "";
+    }
 }

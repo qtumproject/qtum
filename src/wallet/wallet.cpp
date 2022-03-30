@@ -5728,7 +5728,7 @@ bool CWallet::RemoveNftTxEntry(const uint256 &nftTxHash, bool fFlushOnClose)
 
         mapNftTx.erase(it);
 
-        NotifyTokenTransactionChanged(this, nftTxHash, CT_DELETED);
+        NotifyNftTransactionChanged(this, nftTxHash, CT_DELETED);
     }
 
     LogPrintf("RemoveNftTxEntry %s\n", nftTxHash.ToString());
