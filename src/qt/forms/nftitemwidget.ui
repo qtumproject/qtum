@@ -77,7 +77,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QLabel" name="nftUri">
+           <widget class="NftUrlLabel" name="nftUrl">
             <property name="minimumSize">
              <size>
               <width>70</width>
@@ -91,7 +91,7 @@
              </size>
             </property>
             <property name="text">
-             <string>URI</string>
+             <string/>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -233,6 +233,11 @@
    <class>QtumPushButton</class>
    <extends>QPushButton</extends>
    <header>qt/qtumpushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>NftUrlLabel</class>
+   <extends>QLabel</extends>
+   <header>qt/nfturllabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
