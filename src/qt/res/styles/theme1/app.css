@@ -1128,6 +1128,9 @@ NftItemWidget #nftBalance{
     border-radius: 20px;
     font: 16px;
 }
+NftUrlLabel{
+    border: 1px solid #575757;
+}
 DelegationListWidget{
     background-color: #2e2e2e;
 }
