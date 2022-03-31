@@ -8,9 +8,9 @@
 #include <qt/nftitemmodel.h>
 #include <qt/walletmodel.h>
 #include <qt/bitcoinunits.h>
+#include <qt/nftfilterproxy.h>
 
 #include <QAbstractItemModel>
-#include <QSortFilterProxyModel>
 
 #include <QObject>
 
@@ -33,7 +33,7 @@ void NftListWidget::setModel(WalletModel *_model)
     if(m_model && m_model->getNftItemModel())
     {
         // Sort nfts by name
-        QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+        NftFilterProxy *proxyModel = new NftFilterProxy(this);
         NftItemModel* nftModel = m_model->getNftItemModel();
         proxyModel->setSourceModel(nftModel);
         proxyModel->sort(0, Qt::AscendingOrder);
