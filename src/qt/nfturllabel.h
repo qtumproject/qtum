@@ -4,9 +4,11 @@
 #include <QLabel>
 #include <QWidget>
 #include <Qt>
+#include <QMouseEvent>
+#include <QPixmap>
 
 class NftUrlLabel : public QLabel { 
-    Q_OBJECT 
+    Q_OBJECT
 
 public:
     explicit NftUrlLabel(QWidget* parent = Q_NULLPTR);
@@ -18,11 +20,15 @@ public:
 Q_SIGNALS:
     void clicked();
 
+public Q_SLOTS:
+    void on_clicked();
+
 protected:
-    void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
-    QString nftUrl;
+    QString m_nftUrl;
+    QPixmap m_pixmap;
 
 };
 
