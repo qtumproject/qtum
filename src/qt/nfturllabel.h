@@ -17,6 +17,9 @@ public:
     QString getNftUrl() const;
     void setNftUrl(const QString &value);
 
+    QString getThumbnail() const;
+    void setThumbnail(const QString &thumbnail);
+
 Q_SIGNALS:
     void clicked();
 
@@ -28,7 +31,8 @@ protected:
 
 private:
     QString m_nftUrl;
-    QPixmap m_pixmap;
+    QString m_thumbnail;
+    QPixmap m_defPixmap;
 
 };
 

@@ -485,7 +485,7 @@ bool GetPixmapFromUrl(QPixmap& pixmap, const QString& url, int maxWidth, int max
         {
             QByteArray downloadedData = response->readAll();
             pixmap.loadFromData(downloadedData);
-            pixmap.scaled(maxWidth, maxHeight);
+            pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio);
             result = true;
         }
     } else

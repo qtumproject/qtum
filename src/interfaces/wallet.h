@@ -838,6 +838,7 @@ struct NftInfo
     int64_t create_time = 0;
     int32_t count = 0;
     uint256 hash;
+    std::string thumbnail;
 };
 
 // Wallet nft transaction

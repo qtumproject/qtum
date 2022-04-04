@@ -9,11 +9,13 @@
 #include <algorithm>
 #include <consensus/consensus.h>
 #include <chainparams.h>
+#include <qt/guiutil.h>
 
 #include <QDateTime>
 #include <QFont>
 #include <QDebug>
 #include <QThread>
+#include <QBuffer>
 
 class NftItemEntry
 {
@@ -32,6 +34,7 @@ public:
         balance = nftInfo.count;
         id = nftInfo.id;
         NFTId = nftInfo.NFTId;
+        thumbnail = QString::fromStdString(nftInfo.thumbnail);
     }
 
     NftItemEntry( const NftItemEntry &obj)
@@ -45,6 +48,7 @@ public:
         balance = obj.balance;
         id = obj.id;
         NFTId = obj.NFTId;
+        thumbnail = obj.thumbnail;
     }
 
     ~NftItemEntry()
@@ -59,6 +63,7 @@ public:
     int32_t balance;
     uint256 id;
     uint256 NFTId;
+    QString thumbnail;
 };
 
 class NftTxWorker : public QObject
@@ -69,8 +74,45 @@ public:
     Nft nftAbi;
     int64_t fromBlock = 0;
     int64_t toBlock = -1;
+    bool initThumbnail = true;
+    QMap<QString, QString> thumbnailCache;
+    QMap<QString, QDateTime> thumbnailTime;
+    int thumbnailSize = 70; // 70 pix
+    int thumbnailRecheck = 600; // 10 min
     NftTxWorker(WalletModel *_walletModel):
         walletModel(_walletModel) {}
+
+private:
+    void cacheThumbnail()
+    {
+        if(initThumbnail)
+        {
+            initThumbnail = false;
+            for(interfaces::NftInfo nft : walletModel->wallet().getNfts())
+            {
+                QString url = QString::fromStdString(nft.url);
+                QString thumbnail = QString::fromStdString(nft.thumbnail);
+                thumbnailCache[url] = thumbnail;
+            }
+        }
+    }
+
+    bool checkThumbnailTime(const QString& hash)
+    {
+        QDateTime now = QDateTime::currentDateTime();
+        bool ret = false;
+        if(!thumbnailTime.contains(hash))
+        {
+            ret = true;
+        }
+        else
+        {
+
+            QDateTime time = thumbnailTime[hash];
+            ret = time.secsTo(now) > thumbnailRecheck;
+        }
+        return ret;
+    }
 
 private Q_SLOTS:
     void updateNftTx()
@@ -136,6 +178,47 @@ private Q_SLOTS:
             if(!isOk) continue;
             nft.count = count;
             walletModel->wallet().addNftEntry(nft);
+        }
+    }
+
+    void updateThumbnail()
+    {
+        cacheThumbnail();
+
+        for(interfaces::NftInfo nft : walletModel->wallet().getNfts())
+        {
+            QString hash = QString::fromStdString(nft.hash.ToString());
+            QString url = QString::fromStdString(nft.url);
+            if(nft.count > 0 && nft.thumbnail == "" &&
+                    GUIUtil::HasPixmapForUrl(url) && checkThumbnailTime(hash))
+            {
+                QString thumbnail;
+                if(thumbnailCache.contains(url))
+                {
+                    thumbnail = thumbnailCache[url];
+                }
+                else
+                {
+                    QPixmap pixmap;
+                    if(GUIUtil::GetPixmapFromUrl(pixmap, url, thumbnailSize, thumbnailSize))
+                    {
+                        QByteArray data;
+                        QBuffer buffer(&data);
+                        buffer.open(QIODevice::WriteOnly);
+                        pixmap.save(&buffer, "PNG");
+                        thumbnail = data.toBase64();
+                        thumbnailCache[url] = thumbnail;
+                    }
+                }
+
+                if(!thumbnail.isEmpty())
+                {
+                    nft.thumbnail = thumbnail.toStdString();
+                    walletModel->wallet().addNftEntry(nft);
+                }
+                QDateTime now = QDateTime::currentDateTime();
+                thumbnailTime[hash] = now;
+            }
         }
     }
 };
@@ -349,6 +432,9 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
     case NftItemModel::NftIdRole:
         return QString::fromStdString(rec->NFTId.ToString());
         break;
+    case NftItemModel::ThumbnailRole:
+        return rec->thumbnail;
+        break;
     default:
         break;
     }
@@ -385,6 +471,7 @@ void NftItemModel::checkNftBalanceChanged()
     if(fLogEvents)
     {
         QMetaObject::invokeMethod(worker, "updateNftTx", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(worker, "updateThumbnail", Qt::QueuedConnection);
     }
 }
 
