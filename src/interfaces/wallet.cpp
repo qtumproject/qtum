@@ -195,6 +195,7 @@ CNftInfo MakeNftInfo(const NftInfo& nft)
     result.strDesc = nft.desc;
     result.nCreateTime = nft.create_time;
     result.nCount = nft.count;
+    result.strThumbnail = nft.thumbnail;
     return result;
 }
 
@@ -211,6 +212,7 @@ NftInfo MakeWalletNftInfo(const CNftInfo& nft)
     result.create_time = nft.nCreateTime;
     result.count = nft.nCount;
     result.hash = nft.GetHash();
+    result.thumbnail = nft.strThumbnail;
     return result;
 }
 

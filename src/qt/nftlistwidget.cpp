@@ -131,9 +131,10 @@ void NftListWidget::updateRow(const QModelIndex &index, int position)
         QString balance = m_nftModel->data(index, NftItemModel::BalanceRole).toString();
         QString desc = m_nftModel->data(index, NftItemModel::DescRole).toString();
         QString url = m_nftModel->data(index, NftItemModel::UrlRole).toString();
+        QString thumbnail = m_nftModel->data(index, NftItemModel::ThumbnailRole).toString();
         NftItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(name, balance, owner, desc, url);
+        item->setData(name, balance, owner, desc, url, thumbnail);
 
     }
 }

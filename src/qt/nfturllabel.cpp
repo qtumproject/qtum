@@ -14,8 +14,8 @@ NftUrlLabel::NftUrlLabel(QWidget* parent)
 {
     connect(this, &NftUrlLabel::clicked, this, &NftUrlLabel::on_clicked);
     QColor colorIcon = GetStringStyleValue("nfturllabel/color-icon", "#575757");
-    m_pixmap = PlatformStyle::SingleColorIcon(QStringLiteral(":/icons/prompticon"), colorIcon).pixmap(NFT_URI_ITEM_WIDTH, NFT_URI_ITEM_HEIGHT);
-    setPixmap(m_pixmap);
+    m_defPixmap = PlatformStyle::SingleColorIcon(QStringLiteral(":/icons/prompticon"), colorIcon).pixmap(NFT_URI_ITEM_WIDTH, NFT_URI_ITEM_HEIGHT);
+    setPixmap(m_defPixmap);
 }
 
 NftUrlLabel::~NftUrlLabel() {}
@@ -39,4 +39,30 @@ void NftUrlLabel::setNftUrl(const QString &value)
 void NftUrlLabel::on_clicked()
 {
     QDesktopServices::openUrl(QUrl(m_nftUrl, QUrl::TolerantMode));
+}
+
+QString NftUrlLabel::getThumbnail() const
+{
+    return m_thumbnail;
+}
+
+void NftUrlLabel::setThumbnail(const QString &thumbnail)
+{
+    bool found = false;
+    m_thumbnail = thumbnail;
+    if(m_thumbnail != "")
+    {
+        QByteArray buffer = QByteArray::fromBase64(m_thumbnail.toUtf8());
+        QPixmap pixmap;
+        if(pixmap.loadFromData(buffer, "PNG"))
+        {
+            setPixmap(pixmap);
+            found = true;
+        }
+    }
+
+    if(!found)
+    {
+        setPixmap(m_defPixmap);
+    }
 }

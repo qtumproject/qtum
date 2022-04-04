@@ -1784,6 +1784,7 @@ public:
     std::string strDesc;
     int64_t nCreateTime;
     int32_t nCount;
+    std::string strThumbnail;
 
     CNftInfo()
     {
@@ -1793,14 +1794,14 @@ public:
     SERIALIZE_METHODS(CNftInfo, obj) {
         if (!(s.GetType() & SER_GETHASH))
         {
-            READWRITE(obj.nVersion, obj.nCreateTime, obj.nCount);
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.nCount, obj.strThumbnail);
         }
         READWRITE(obj.strOwner, obj.id, obj.NFTId, obj.strName, obj.strUrl, obj.strDesc);
     }
 
     void SetNull()
     {
-        nVersion = CNftInfo::CURRENT_VERSION;;
+        nVersion = CNftInfo::CURRENT_VERSION;
         strOwner = "";
         id.SetNull();
         NFTId.SetNull();
@@ -1809,6 +1810,7 @@ public:
         strDesc = "";
         nCreateTime = 0;
         nCount = 0;
+        strThumbnail = "";
     }
 
     uint256 GetHash() const;

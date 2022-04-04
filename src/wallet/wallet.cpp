@@ -5159,13 +5159,28 @@ bool CWallet::AddNftEntry(const CNftInfo &nft, bool fFlushOnClose)
 
     // Write to disk
     CNftInfo wnft = nft;
-    if(!fInsertedNew)
+    if(fInsertedNew)
     {
         wnft.nCreateTime = chain().getAdjustedTime();
     }
     else
     {
-        wnft.nCreateTime = it->second.nCreateTime;
+        if(!wnft.nCreateTime)
+        {
+            wnft.nCreateTime = it->second.nCreateTime;
+        }
+
+        if(wnft.nCount > 0)
+        {
+            if(wnft.strThumbnail == "")
+            {
+                wnft.strThumbnail = it->second.strThumbnail;
+            }
+        }
+        else
+        {
+            wnft.strThumbnail = "";
+        }
     }
 
     if (!batch.WriteNft(wnft))
