@@ -30,6 +30,8 @@
 #include <qt/hardwaresigntxdialog.h>
 #include <qt/walletframe.h>
 #include <qt/nftpage.h>
+#include <qt/nfttransactiontablemodel.h>
+#include <qt/nfttransactionrecord.h>
 
 #include <interfaces/node.h>
 #include <ui_interface.h>
@@ -192,6 +194,10 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
         connect(_walletModel->getTokenTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
                 this, SLOT(processNewTokenTransaction(QModelIndex,int,int)));
 
+        // Balloon pop-up for new nft transaction
+        connect(_walletModel->getNftTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(processNewNftTransaction(QModelIndex,int,int)));
+
         // Ask for passphrase if needed
         connect(_walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
         connect(stakePage, SIGNAL(requireUnlock(bool)), this, SLOT(unlockWallet(bool)));
@@ -251,6 +257,37 @@ void WalletView::processNewTokenTransaction(const QModelIndex &parent, int start
         break;
     }
     Q_EMIT incomingTokenTransaction(date, amount, type, address, label, walletModel->getWalletName(), title);
+}
+
+void WalletView::processNewNftTransaction(const QModelIndex &parent, int start, int /*end*/)
+{
+    // Prevent balloon-spam when initial block download is in progress
+    if (!walletModel || !clientModel || clientModel->node().isInitialBlockDownload())
+        return;
+
+    NftTransactionTableModel *nttm = walletModel->getNftTransactionTableModel();
+    if (!nttm || nttm->processingQueuedTransactions())
+        return;
+
+    QString date = nttm->index(start, NftTransactionTableModel::Date, parent).data().toString();
+    QString amount(nttm->index(start, NftTransactionTableModel::Amount, parent).data(NftTransactionTableModel::FormattedAmountWithUnitRole).toString());
+    QString type = nttm->index(start, NftTransactionTableModel::Type, parent).data().toString();
+    QModelIndex index = nttm->index(start, 0, parent);
+    QString address = nttm->data(index, NftTransactionTableModel::AddressRole).toString();
+    QString name = nttm->data(index, NftTransactionTableModel::NameRole).toString();
+    QString title;
+    int txType = nttm->data(index, NftTransactionTableModel::TypeRole).toInt();
+    switch (txType)
+    {
+    case NftTransactionRecord::RecvWithAddress:
+    case NftTransactionRecord::RecvFromOther:
+        title = tr("Incoming transaction");
+        break;
+    default:
+        title = tr("Sent transaction");
+        break;
+    }
+    Q_EMIT incomingNftTransaction(date, amount, type, address, name, walletModel->getWalletName(), title);
 }
 
 void WalletView::gotoOverviewPage()

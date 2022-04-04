@@ -1412,6 +1412,22 @@ void BitcoinGUI::incomingTokenTransaction(const QString& date, const QString& am
     message(title, msg, CClientUIInterface::MSG_INFORMATION);
 }
 
+void BitcoinGUI::incomingNftTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& name, const QString& walletName, const QString& title)
+{
+    // On new transaction, make an info balloon
+    QString msg = tr("Date: %1\n").arg(date) +
+                  tr("Amount: %1\n").arg(amount);
+    if (m_node.walletClient().getWallets().size() > 1 && !walletName.isEmpty()) {
+        msg += tr("Wallet: %1\n").arg(walletName);
+    }
+    msg += tr("Type: %1\n").arg(type);
+    if (!name.isEmpty())
+        msg += tr("Name: %1\n").arg(name);
+    else if (!address.isEmpty())
+        msg += tr("Address: %1\n").arg(address);
+    message(title, msg, CClientUIInterface::MSG_INFORMATION);
+}
+
 #endif // ENABLE_WALLET
 
 void BitcoinGUI::dragEnterEvent(QDragEnterEvent *event)
