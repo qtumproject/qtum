@@ -58,6 +58,13 @@
 #include <QThread>
 #include <QUrlQuery>
 #include <QtGlobal>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QEventLoop>
+#include <QTimer>
+#include <QByteArray>
+#include <QRegularExpression>
 
 #if defined(Q_OS_MAC)
 
@@ -67,6 +74,8 @@ void ForceActivation();
 #endif
 
 namespace GUIUtil {
+
+const QString imagePattern("[^\\s]+(.*?)\\.(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$");
 
 QString dateTimeStr(const QDateTime &date)
 {
@@ -421,6 +430,46 @@ bool openBitcoinConf()
 #endif
 
     return res;
+}
+
+bool HasPixmapForUrl(const QString& url)
+{
+    QRegularExpression regExpression(imagePattern);
+    QRegularExpressionMatch matchImage = regExpression.match(QUrl(url).fileName());
+    return matchImage.hasMatch();
+}
+
+bool GetPixmapFromUrl(QPixmap& pixmap, const QString& url, int maxWidth, int maxHeight)
+{
+    bool result = false;
+    QNetworkAccessManager manager;
+    QNetworkReply *response = manager.get(QNetworkRequest(QUrl(url)));
+    QTimer timer;
+    timer.setSingleShot(true);
+    QEventLoop event;
+    QObject::connect(&timer, &QTimer::timeout, &event, &QEventLoop::quit);
+    QObject::connect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
+    timer.start(30000); // 30 seconds
+    event.exec();
+
+    if(timer.isActive())
+    {
+        timer.stop();
+        if(response->error() == QNetworkReply::NoError)
+        {
+            QByteArray downloadedData = response->readAll();
+            pixmap.loadFromData(downloadedData);
+            pixmap.scaled(maxWidth, maxHeight);
+            result = true;
+        }
+    } else
+    {
+        // timeout
+        QObject::disconnect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        response->abort();
+    }
+
+    return result;
 }
 
 ToolTipToRichTextFilter::ToolTipToRichTextFilter(int _size_threshold, QObject *parent) :
