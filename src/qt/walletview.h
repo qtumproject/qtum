@@ -132,6 +132,12 @@ public Q_SLOTS:
     */
     void processNewTokenTransaction(const QModelIndex& parent, int start, int /*end*/);
 
+    /** Show incoming nft transaction notification for new nft transactions.
+
+        The new items are those between start and end inclusive, under the given parent item.
+    */
+    void processNewNftTransaction(const QModelIndex& parent, int start, int /*end*/);
+
     /** Encrypt the wallet */
     void encryptWallet();
     /** Backup the wallet */
@@ -172,6 +178,8 @@ Q_SIGNALS:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
     /** Notify that a new token transaction appeared */
     void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& walletName, const QString& title);
+    /** Notify that a new nft transaction appeared */
+    void incomingNftTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& name, const QString& walletName, const QString& title);
     /** Notify that the out of sync warning icon has been pressed */
     void outOfSyncWarningClicked();
     void showMore();

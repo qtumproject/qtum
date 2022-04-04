@@ -462,6 +462,7 @@ QString NftTransactionTableModel::formatTxAmount(const NftTransactionRecord *wtx
 
 QString NftTransactionTableModel::formatTxAmountWithUnit(const NftTransactionRecord *wtx, bool showUnconfirmed, BitcoinUnits::SeparatorStyle separators) const
 {
+    Q_UNUSED(showUnconfirmed);
     QString unit = tr("NFT");
     QString str = BitcoinUnits::formatInt(wtx->credit + wtx->debit, false, separators) + " " + unit;
     return QString(str);

@@ -863,6 +863,7 @@ void BitcoinGUI::addWallet(WalletModel* walletModel)
     connect(wallet_view, &WalletView::incomingTokenTransaction, this, &BitcoinGUI::incomingTokenTransaction);
     connect(wallet_view, &WalletView::hdEnabledStatusChanged, this, &BitcoinGUI::updateWalletStatus);
     connect(wallet_view, &WalletView::currentChanged, walletFrame, &WalletFrame::pageChanged);
+    connect(wallet_view, &WalletView::incomingNftTransaction, this, &BitcoinGUI::incomingNftTransaction);
     connect(this, &BitcoinGUI::setPrivacy, wallet_view, &WalletView::setPrivacy);
     wallet_view->setPrivacy(isPrivacyModeActivated());
     const QString display_name = walletModel->getDisplayName();
@@ -1507,6 +1508,22 @@ void BitcoinGUI::incomingTokenTransaction(const QString& date, const QString& am
     msg += tr("Type: %1\n").arg(type);
     if (!label.isEmpty())
         msg += tr("Label: %1\n").arg(label);
+    else if (!address.isEmpty())
+        msg += tr("Address: %1\n").arg(address);
+    message(title, msg, CClientUIInterface::MSG_INFORMATION);
+}
+
+void BitcoinGUI::incomingNftTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& name, const QString& walletName, const QString& title)
+{
+    // On new transaction, make an info balloon
+    QString msg = tr("Date: %1\n").arg(date) +
+                  tr("Amount: %1\n").arg(amount);
+    if (m_node.walletClient().getWallets().size() > 1 && !walletName.isEmpty()) {
+        msg += tr("Wallet: %1\n").arg(walletName);
+    }
+    msg += tr("Type: %1\n").arg(type);
+    if (!name.isEmpty())
+        msg += tr("Name: %1\n").arg(name);
     else if (!address.isEmpty())
         msg += tr("Address: %1\n").arg(address);
     message(title, msg, CClientUIInterface::MSG_INFORMATION);
