@@ -23,6 +23,7 @@
 #include <QString>
 #include <QTableView>
 #include <QToolButton>
+#include <QPixmap>
 
 #include <cassert>
 #include <chrono>
@@ -173,6 +174,21 @@ namespace GUIUtil
 
     // Open the config file
     bool openBitcoinConf();
+
+    /** Has pixmap for NFT url. For now we only support get pixmap from image or gif NFT and not for video.
+      @param[in] url  Url to NFT
+      @returns Return true if we can get pixmap from NFT url
+     */
+    bool HasPixmapForUrl(const QString& url);
+
+    /** Get pixmap for NFT url.
+      @param[in] url  Url to NFT
+      @param[in] maxWidth Max width of pixmap
+      @param[in] maxHeight Max height of pixmap
+      @param[out] pixmap Object to return pixmap from NFT url
+      @returns Return result of get pixmap operation
+     */
+    bool GetPixmapFromUrl(QPixmap& pixmap, const QString& url, int maxWidth, int maxHeight);
 
     /** Qt event filter that intercepts ToolTipChange events, and replaces the tooltip with a rich text
       representation if needed. This assures that Qt can word-wrap long tooltip messages.
