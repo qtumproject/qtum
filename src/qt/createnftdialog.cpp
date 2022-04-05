@@ -150,9 +150,9 @@ void CreateNftDialog::on_confirmButton_clicked()
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         std::string owner = ui->lineEditSenderAddress->currentText().toStdString();
-        std::string name = ui->lineEditNftName->text().toStdString();
-        std::string url = ui->lineEditNftUri->text().toStdString();
-        std::string desc = ui->lineEditNftDesc->text().toStdString();
+        std::string name = ui->lineEditNftName->text().trimmed().toStdString();
+        std::string url = ui->lineEditNftUri->text().trimmed().toStdString();
+        std::string desc = ui->lineEditNftDesc->text().trimmed().toStdString();
         int32_t count = ui->spinBoxNftAmount->value();
         QString countFormated = QString::number(count);
 
@@ -241,16 +241,16 @@ void CreateNftDialog::updateDisplayUnit()
 void CreateNftDialog::on_updateConfirmButton()
 {
     bool enabled = true;
-    QUrl url(ui->lineEditNftUri->text());
+    QUrl url(ui->lineEditNftUri->text().trimmed());
     if(!url.isValid())
     {
         enabled = false;
     }
-    if(ui->lineEditNftName->text().isEmpty())
+    if(ui->lineEditNftName->text().trimmed().isEmpty())
     {
         enabled = false;
     }
-    if(ui->lineEditNftDesc->text().isEmpty())
+    if(ui->lineEditNftDesc->text().trimmed().isEmpty())
     {
         enabled = false;
     }
