@@ -4454,22 +4454,26 @@ bool CWallet::GetNftTxDetails(const CNftTx &wtx, int32_t &credit, int32_t &debit
     for(auto it = mapNft.begin(); it != mapNft.end(); it++)
     {
         CNftInfo info = it->second;
-        if(wtx.strSender == info.strOwner)
-        {
-            debit = wtx.nValue;
-            ret = true;
-        }
-
-        if(wtx.strReceiver == info.strOwner)
-        {
-            credit = wtx.nValue;
-            ret = true;
-        }
-
-        if(ret && wtx.id == info.id)
+        if(wtx.id == info.id)
         {
             name = info.strName;
+            break;
         }
+    }
+
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    CTxDestination sender = DecodeDestination(wtx.strSender);
+    if(HasPrivateKey(sender, fAllowWatchOnly))
+    {
+        debit = wtx.nValue;
+        ret = true;
+    }
+
+    CTxDestination receiver = DecodeDestination(wtx.strReceiver);
+    if(HasPrivateKey(receiver, fAllowWatchOnly))
+    {
+        credit = wtx.nValue;
+        ret = true;
     }
 
     return ret;
