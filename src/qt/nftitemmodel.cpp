@@ -92,7 +92,10 @@ private:
             {
                 QString url = QString::fromStdString(nft.url);
                 QString thumbnail = QString::fromStdString(nft.thumbnail);
-                thumbnailCache[url] = thumbnail;
+                if(!thumbnail.isEmpty())
+                {
+                    thumbnailCache[url] = thumbnail;
+                }
             }
         }
     }
@@ -207,7 +210,10 @@ private Q_SLOTS:
                         buffer.open(QIODevice::WriteOnly);
                         pixmap.save(&buffer, "PNG");
                         thumbnail = data.toBase64();
-                        thumbnailCache[url] = thumbnail;
+                        if(!thumbnail.isEmpty())
+                        {
+                            thumbnailCache[url] = thumbnail;
+                        }
                     }
                 }
 
