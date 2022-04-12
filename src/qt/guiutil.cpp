@@ -75,7 +75,7 @@ void ForceActivation();
 
 namespace GUIUtil {
 
-const QString imagePattern("[^\\s]+(.*?)\\.(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$");
+const QString imagePattern("[^\\s]+(.*?)\\.(jpg|jpeg|png|ico|gif|JPG|JPEG|PNG|ICO|GIF)$");
 
 QString dateTimeStr(const QDateTime &date)
 {
@@ -458,9 +458,13 @@ bool GetPixmapFromUrl(QPixmap& pixmap, const QString& url, int maxWidth, int max
         if(response->error() == QNetworkReply::NoError)
         {
             QByteArray downloadedData = response->readAll();
-            pixmap.loadFromData(downloadedData);
-            pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio);
-            result = true;
+            if (pixmap.loadFromData(downloadedData)) {
+                pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio);
+                result = !pixmap.isNull();
+            }
+            else {
+                result = false;
+            }
         }
     } else
     {
