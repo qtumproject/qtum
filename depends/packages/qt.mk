@@ -4,7 +4,7 @@ $(package)_download_path=https://download.qt.io/official_releases/qt/5.9/$($(pac
 $(package)_suffix=opensource-src-$($(package)_version).tar.xz
 $(package)_file_name=qtbase-$($(package)_suffix)
 $(package)_sha256_hash=9b9dec1f67df1f94bce2955c5604de992d529dde72050239154c56352da0907d
-$(package)_dependencies=zlib
+$(package)_dependencies=zlib openssl
 $(package)_linux_dependencies=freetype fontconfig libxcb
 $(package)_build_subdir=qtbase
 $(package)_qt_libs=corelib network widgets gui plugins testlib
@@ -31,22 +31,23 @@ $(package)_config_opts += -no-compile-examples
 $(package)_config_opts += -no-cups
 $(package)_config_opts += -no-egl
 $(package)_config_opts += -no-eglfs
-$(package)_config_opts += -no-freetype
-$(package)_config_opts += -no-gif
 $(package)_config_opts += -no-glib
 $(package)_config_opts += -no-icu
-$(package)_config_opts += -no-ico
 $(package)_config_opts += -no-iconv
 $(package)_config_opts += -no-kms
 $(package)_config_opts += -no-linuxfb
-$(package)_config_opts += -no-libjpeg
 $(package)_config_opts += -no-libproxy
 $(package)_config_opts += -no-libudev
 $(package)_config_opts += -no-mtdev
+$(package)_config_opts += -ssl
+$(package)_config_opts += -openssl
+$(package)_config_opts += -openssl-linked
+$(package)_config_opts += -L $(host_prefix)/lib
 $(package)_config_opts += -no-openvg
 $(package)_config_opts += -no-reduce-relocations
 $(package)_config_opts += -no-qml-debug
 $(package)_config_opts += -no-sctp
+$(package)_config_opts += -no-securetransport
 $(package)_config_opts += -no-sql-db2
 $(package)_config_opts += -no-sql-ibase
 $(package)_config_opts += -no-sql-oci
@@ -70,6 +71,8 @@ $(package)_config_opts += -qt-libpng
 $(package)_config_opts += -qt-pcre
 $(package)_config_opts += -qt-harfbuzz
 $(package)_config_opts += -system-zlib
+$(package)_config_opts += -qt-libjpeg
+$(package)_config_opts += -qt-freetype
 $(package)_config_opts += -static
 $(package)_config_opts += -silent
 $(package)_config_opts += -v
@@ -108,6 +111,7 @@ $(package)_config_opts += -no-feature-xml
 
 $(package)_config_opts_darwin = -no-dbus
 $(package)_config_opts_darwin += -no-opengl
+$(package)_config_opts_darwin += OPENSSL_LIBS="-llibssl -llibcrypto"
 
 ifneq ($(build_os),darwin)
 $(package)_config_opts_darwin += -xplatform macx-clang-linux
@@ -122,10 +126,10 @@ $(package)_config_opts_linux  = -qt-xkbcommon-x11
 $(package)_config_opts_linux += -qt-xcb
 $(package)_config_opts_linux += -no-xcb-xlib
 $(package)_config_opts_linux += -no-feature-xlib
-$(package)_config_opts_linux += -system-freetype
 $(package)_config_opts_linux += -fontconfig
 $(package)_config_opts_linux += -no-opengl
 $(package)_config_opts_linux += -dbus-runtime
+$(package)_config_opts_linux += OPENSSL_LIBS="-llibssl -llibcrypto"
 $(package)_config_opts_arm_linux += -platform linux-g++ -xplatform bitcoin-linux-g++
 $(package)_config_opts_i686_linux  = -xplatform linux-g++-32
 $(package)_config_opts_x86_64_linux = -xplatform linux-g++-64
@@ -139,6 +143,7 @@ $(package)_config_opts_mingw32 = -no-opengl
 $(package)_config_opts_mingw32 += -no-dbus
 $(package)_config_opts_mingw32 += -xplatform win32-g++
 $(package)_config_opts_mingw32 += -device-option CROSS_COMPILE="$(host)-"
+$(package)_config_opts_mingw32 += OPENSSL_LIBS="-llibssl -llibcrypto -lws2_32 -lgdi32"
 
 $(package)_config_opts_android = -xplatform android-clang
 $(package)_config_opts_android += -android-sdk $(ANDROID_SDK)
@@ -150,7 +155,6 @@ $(package)_config_opts_android += -qpa xcb
 $(package)_config_opts_android += -no-eglfs
 $(package)_config_opts_android += -no-dbus
 $(package)_config_opts_android += -opengl es2
-$(package)_config_opts_android += -qt-freetype
 $(package)_config_opts_android += -no-fontconfig
 $(package)_config_opts_android += -L $(host_prefix)/lib
 $(package)_config_opts_android += -I $(host_prefix)/include
