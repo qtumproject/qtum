@@ -134,9 +134,15 @@ AC_DEFUN([BITCOIN_QT_CONFIGURE],[
       if test -d "$qt_plugin_path/platforms/android"; then
         QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms/android -lqtfreetype -lEGL"
       fi
+      if test -d "$qt_plugin_path/imageformats"; then
+        QT_LIBS="$QT_LIBS -L$qt_plugin_path/imageformats"
+      fi
     fi
 
     AC_DEFINE(QT_STATICPLUGIN, 1, [Define this symbol if qt plugins are static])
+    _BITCOIN_QT_CHECK_STATIC_PLUGIN([QGifPlugin], [-lqgif])
+    _BITCOIN_QT_CHECK_STATIC_PLUGIN([QICOPlugin], [-lqico])
+    _BITCOIN_QT_CHECK_STATIC_PLUGIN([QJpegPlugin], [-lqjpeg])
     if test "x$TARGET_OS" != xandroid; then
       _BITCOIN_QT_CHECK_STATIC_PLUGIN([QMinimalIntegrationPlugin], [-lqminimal])
       AC_DEFINE(QT_QPA_PLATFORM_MINIMAL, 1, [Define this symbol if the minimal qt platform exists])
