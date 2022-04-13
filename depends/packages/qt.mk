@@ -4,7 +4,7 @@ $(package)_download_path=https://download.qt.io/official_releases/qt/5.12/$($(pa
 $(package)_suffix=everywhere-src-$($(package)_version).tar.xz
 $(package)_file_name=qtbase-$($(package)_suffix)
 $(package)_sha256_hash=1c1b4e33137ca77881074c140d54c3c9747e845a31338cfe8680f171f0bc3a39
-$(package)_linux_dependencies=fontconfig libxcb libxkbcommon
+$(package)_linux_dependencies=freetype fontconfig libxcb libxkbcommon
 $(package)_dependencies=openssl
 $(package)_qt_libs=corelib network widgets gui plugins testlib
 $(package)_linguist_tools = lrelease lupdate lconvert
@@ -75,7 +75,6 @@ $(package)_config_opts += -qt-pcre
 $(package)_config_opts += -qt-harfbuzz
 $(package)_config_opts += -qt-zlib
 $(package)_config_opts += -qt-libjpeg
-$(package)_config_opts += -qt-freetype
 $(package)_config_opts += -static
 $(package)_config_opts += -v
 $(package)_config_opts += -no-feature-bearermanagement
@@ -117,7 +116,8 @@ $(package)_config_opts_darwin += -no-opengl
 $(package)_config_opts_darwin += -pch
 $(package)_config_opts_darwin += -no-feature-corewlan
 $(package)_config_opts_darwin += QMAKE_MACOSX_DEPLOYMENT_TARGET=$(OSX_MIN_VERSION)
-$(package)_config_opts_darwin += OPENSSL_LIBS="-llibssl -llibcrypto"
+$(package)_config_opts_darwin += -qt-freetype
+$(package)_config_opts_darwin += OPENSSL_LIBS="-lssl -lcrypto"
 
 ifneq ($(build_os),darwin)
 $(package)_config_opts_darwin += -xplatform macx-clang-linux
@@ -134,11 +134,12 @@ $(package)_config_opts_aarch64_darwin += -device-option QMAKE_APPLE_DEVICE_ARCHS
 $(package)_config_opts_linux = -qt-xcb
 $(package)_config_opts_linux += -no-xcb-xlib
 $(package)_config_opts_linux += -no-feature-xlib
+$(package)_config_opts_linux += -system-freetype
 $(package)_config_opts_linux += -fontconfig
 $(package)_config_opts_linux += -no-opengl
 $(package)_config_opts_linux += -no-feature-vulkan
 $(package)_config_opts_linux += -dbus-runtime
-$(package)_config_opts_linux += OPENSSL_LIBS="-llibssl -llibcrypto"
+$(package)_config_opts_linux += OPENSSL_LIBS="-lssl -lcrypto -lpthread"
 $(package)_config_opts_arm_linux += -platform linux-g++ -xplatform bitcoin-linux-g++
 $(package)_config_opts_i686_linux  = -xplatform linux-g++-32
 $(package)_config_opts_x86_64_linux = -xplatform linux-g++-64
@@ -156,6 +157,7 @@ $(package)_config_opts_mingw32 += "QMAKE_CXXFLAGS = '$($(package)_cflags) $($(pa
 $(package)_config_opts_mingw32 += "QMAKE_LFLAGS = '$($(package)_ldflags)'"
 $(package)_config_opts_mingw32 += -device-option CROSS_COMPILE="$(host)-"
 $(package)_config_opts_mingw32 += -pch
+$(package)_config_opts_mingw32 += -qt-freetype
 $(package)_config_opts_mingw32 += OPENSSL_LIBS="-llibssl -llibcrypto -lws2_32 -lgdi32"
 
 $(package)_config_opts_android = -xplatform android-clang
@@ -168,6 +170,7 @@ $(package)_config_opts_android += -qpa xcb
 $(package)_config_opts_android += -no-eglfs
 $(package)_config_opts_android += -no-dbus
 $(package)_config_opts_android += -opengl es2
+$(package)_config_opts_android += -qt-freetype
 $(package)_config_opts_android += -no-fontconfig
 $(package)_config_opts_android += -L $(host_prefix)/lib
 $(package)_config_opts_android += -I $(host_prefix)/include
