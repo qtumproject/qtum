@@ -72,7 +72,6 @@ $(package)_config_opts += -qt-pcre
 $(package)_config_opts += -qt-harfbuzz
 $(package)_config_opts += -system-zlib
 $(package)_config_opts += -qt-libjpeg
-$(package)_config_opts += -qt-freetype
 $(package)_config_opts += -static
 $(package)_config_opts += -silent
 $(package)_config_opts += -v
@@ -111,7 +110,8 @@ $(package)_config_opts += -no-feature-xml
 
 $(package)_config_opts_darwin = -no-dbus
 $(package)_config_opts_darwin += -no-opengl
-$(package)_config_opts_darwin += OPENSSL_LIBS="-llibssl -llibcrypto"
+$(package)_config_opts_darwin += -qt-freetype
+$(package)_config_opts_darwin += OPENSSL_LIBS="-lssl -lcrypto"
 
 ifneq ($(build_os),darwin)
 $(package)_config_opts_darwin += -xplatform macx-clang-linux
@@ -126,10 +126,11 @@ $(package)_config_opts_linux  = -qt-xkbcommon-x11
 $(package)_config_opts_linux += -qt-xcb
 $(package)_config_opts_linux += -no-xcb-xlib
 $(package)_config_opts_linux += -no-feature-xlib
+$(package)_config_opts_linux += -system-freetype
 $(package)_config_opts_linux += -fontconfig
 $(package)_config_opts_linux += -no-opengl
 $(package)_config_opts_linux += -dbus-runtime
-$(package)_config_opts_linux += OPENSSL_LIBS="-llibssl -llibcrypto"
+$(package)_config_opts_linux += OPENSSL_LIBS="-lssl -lcrypto -lpthread"
 $(package)_config_opts_arm_linux += -platform linux-g++ -xplatform bitcoin-linux-g++
 $(package)_config_opts_i686_linux  = -xplatform linux-g++-32
 $(package)_config_opts_x86_64_linux = -xplatform linux-g++-64
@@ -143,6 +144,7 @@ $(package)_config_opts_mingw32 = -no-opengl
 $(package)_config_opts_mingw32 += -no-dbus
 $(package)_config_opts_mingw32 += -xplatform win32-g++
 $(package)_config_opts_mingw32 += -device-option CROSS_COMPILE="$(host)-"
+$(package)_config_opts_mingw32 += -qt-freetype
 $(package)_config_opts_mingw32 += OPENSSL_LIBS="-llibssl -llibcrypto -lws2_32 -lgdi32"
 
 $(package)_config_opts_android = -xplatform android-clang
@@ -155,6 +157,7 @@ $(package)_config_opts_android += -qpa xcb
 $(package)_config_opts_android += -no-eglfs
 $(package)_config_opts_android += -no-dbus
 $(package)_config_opts_android += -opengl es2
+$(package)_config_opts_android += -qt-freetype
 $(package)_config_opts_android += -no-fontconfig
 $(package)_config_opts_android += -L $(host_prefix)/lib
 $(package)_config_opts_android += -I $(host_prefix)/include
