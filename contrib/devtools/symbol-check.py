@@ -132,6 +132,7 @@ PE_ALLOWED_LIBRARIES = {
 'VERSION.dll', # version checking
 'WINMM.dll', # WinMM audio API
 'WTSAPI32.dll',
+'CRYPT32.dll',
 }
 
 class CPPFilt(object):
