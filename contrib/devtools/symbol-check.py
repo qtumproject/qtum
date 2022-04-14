@@ -120,6 +120,7 @@ PE_ALLOWED_LIBRARIES = {
 'UxTheme.dll',
 'VERSION.dll', # version checking
 'WINMM.dll', # WinMM audio API
+'CRYPT32.dll',
 }
 
 class CPPFilt(object):
