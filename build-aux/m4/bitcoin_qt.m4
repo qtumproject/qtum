@@ -356,6 +356,9 @@ AC_DEFUN([_BITCOIN_QT_FIND_STATIC_PLUGINS],[
       if test -d "$qt_plugin_path/platforms/android"; then
         QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms/android -lqtfreetype -lEGL"
       fi
+      if test -d "$qt_plugin_path/imageformats"; then
+        QT_LIBS="$QT_LIBS -L$qt_plugin_path/imageformats"
+      fi
      if test "x$use_pkgconfig" = xyes; then
      : dnl
      m4_ifdef([PKG_CHECK_MODULES],[
