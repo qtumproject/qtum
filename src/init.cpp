@@ -1414,7 +1414,7 @@ bool AppInitParameterInteraction()
     if (gArgs.IsArgSet("-nftaddress")) {
         // Allow overriding nft address for testing
         if (!chainparams.MineBlocksOnDemand()) {
-            return InitError(Untranslated("nft address may only be overridden on regtest."));
+            return InitError("nft address may only be overridden on regtest.");
         }
 
         std::string nftAddress = gArgs.GetArg("-nftaddress", std::string());

@@ -80,6 +80,7 @@ bool WalletFrame::addWallet(WalletModel *walletModel)
     connect(walletView, &WalletView::incomingTokenTransaction, gui, &BitcoinGUI::incomingTokenTransaction);
     connect(walletView, &WalletView::hdEnabledStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
     connect(walletView, &WalletView::currentChanged, this, &WalletFrame::pageChanged);
+    connect(walletView, &WalletView::incomingNftTransaction, gui, &BitcoinGUI::incomingNftTransaction);
 
     return true;
 }

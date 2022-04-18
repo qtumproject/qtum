@@ -1161,6 +1161,7 @@ public:
     isminetype IsMine(const CTxDestination& dest) const;
     isminetype IsMine(const CScript& script) const;
     isminetype IsMine(const CTxIn& txin) const;
+    bool HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     /**
      * Returns amount of debit if the input matches the
      * filter, otherwise returns 0

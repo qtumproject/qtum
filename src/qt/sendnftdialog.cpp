@@ -18,7 +18,7 @@
 #include <qt/styleSheet.h>
 #include <qt/hardwaresigntx.h>
 #include <interfaces/node.h>
-#include <node/ui_interface.h>
+#include <ui_interface.h>
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
@@ -171,7 +171,7 @@ void SendNftDialog::on_confirmClicked()
 
         m_nftABI->setSender(m_selectedNft->sender);
         m_nftABI->setGasLimit(QString::number(gasLimit).toStdString());
-        m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
+        m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever).toStdString());
 
         std::string toAddress = ui->lineEditAddress->text().toStdString();
         int32_t amountToSend = ui->lineEditAmount->text().toInt();

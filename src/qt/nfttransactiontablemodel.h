@@ -103,8 +103,8 @@ private:
     QString formatTxType(const NftTransactionRecord *wtx) const;
     QString formatTxToAddress(const NftTransactionRecord *wtx, bool tooltip) const;
     QString formatTxName(const NftTransactionRecord *wtx) const;
-    QString formatTxAmount(const NftTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
-    QString formatTxAmountWithUnit(const NftTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
+    QString formatTxAmount(const NftTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::BitcoinUnits::separatorStandard) const;
+    QString formatTxAmountWithUnit(const NftTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::BitcoinUnits::separatorStandard) const;
     QString formatTooltip(const NftTransactionRecord *rec) const;
     QVariant txStatusDecoration(const NftTransactionRecord *wtx) const;
     QVariant txAddressDecoration(const NftTransactionRecord *wtx) const;

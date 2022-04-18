@@ -530,7 +530,7 @@ QVariant NftTransactionTableModel::data(const QModelIndex &index, int role) cons
         case Name:
             return formatTxName(rec);
         case Amount:
-            return formatTxAmount(rec, true, BitcoinUnits::SeparatorStyle::ALWAYS);
+            return formatTxAmount(rec, true, BitcoinUnits::separatorAlways);
         }
         break;
     case Qt::EditRole:
@@ -614,7 +614,7 @@ QVariant NftTransactionTableModel::data(const QModelIndex &index, int role) cons
                 details.append(QString::fromStdString(rec->address));
                 details.append(" ");
             }
-            details.append(formatTxAmount(rec, false, BitcoinUnits::SeparatorStyle::NEVER));
+            details.append(formatTxAmount(rec, false, BitcoinUnits::separatorNever));
             details.append(" " + name);
             return details;
         }
@@ -622,9 +622,9 @@ QVariant NftTransactionTableModel::data(const QModelIndex &index, int role) cons
         return rec->status.countsForBalance;
     case FormattedAmountRole:
         // Used for copy/export, so don't include separators
-        return formatTxAmount(rec, false, BitcoinUnits::SeparatorStyle::NEVER);
+        return formatTxAmount(rec, false, BitcoinUnits::separatorNever);
     case FormattedAmountWithUnitRole:
-        return formatTxAmountWithUnit(rec, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+        return formatTxAmountWithUnit(rec, false, BitcoinUnits::separatorAlways);
     case StatusRole:
         return rec->status.status;
     }

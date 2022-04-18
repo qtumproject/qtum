@@ -5145,7 +5145,7 @@ bool CWallet::AddNftEntry(const CNftInfo &nft, bool fFlushOnClose)
 {
     LOCK(cs_wallet);
 
-    WalletBatch batch(GetDatabase(), fFlushOnClose);
+    WalletBatch batch(*database, "r+", fFlushOnClose);
 
     uint256 hash = nft.GetHash();
 
@@ -5199,7 +5199,7 @@ bool CWallet::AddNftTxEntry(const CNftTx &nftTx, bool fFlushOnClose)
 {
     LOCK(cs_wallet);
 
-    WalletBatch batch(GetDatabase(), fFlushOnClose);
+    WalletBatch batch(*database, "r+", fFlushOnClose);
 
     uint256 hash = nftTx.GetHash();
 
@@ -5213,10 +5213,8 @@ bool CWallet::AddNftTxEntry(const CNftTx &nftTx, bool fFlushOnClose)
 
     // Write to disk
     CNftTx wnftTx = nftTx;
-    int64_t blockTime;
-    uint256 blockHash = wnftTx.blockNumber < 0 ? uint256() : chain().getBlockHash(wnftTx.blockNumber);
-    bool found = !blockHash.IsNull() && chain().findBlock(blockHash, FoundBlock().time(blockTime));
-    wnftTx.nCreateTime = found ? blockTime : chain().getAdjustedTime();
+    const CBlockIndex *pIndex = ChainActive()[wnftTx.blockNumber];
+    wnftTx.nCreateTime = pIndex ? pIndex->GetBlockTime() : chain().getAdjustedTime();
 
     if (!batch.WriteNftTx(wnftTx))
         return false;
@@ -5699,7 +5697,7 @@ bool CWallet::RemoveNftEntry(const uint256 &nftHash, bool fFlushOnClose)
 {
     LOCK(cs_wallet);
 
-    WalletBatch batch(GetDatabase(), fFlushOnClose);
+    WalletBatch batch(*database, "r+", fFlushOnClose);
 
     bool fFound = false;
 
@@ -5729,7 +5727,7 @@ bool CWallet::RemoveNftTxEntry(const uint256 &nftTxHash, bool fFlushOnClose)
 {
     LOCK(cs_wallet);
 
-    WalletBatch batch(GetDatabase(), fFlushOnClose);
+    WalletBatch batch(*database, "r+", fFlushOnClose);
 
     bool fFound = false;
 
@@ -6660,6 +6658,17 @@ void CWallet::SelectAddress(interfaces::Chain::Lock &locked_chain, std::map<uint
         }
         threads.join_all();
     }
+}
+
+bool CWallet::HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly) const
+{
+    CScript script = GetScriptForDestination(dest);
+    isminetype mine = IsMine(script);
+    if(!mine) return false;
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    bool solvable = provider ? IsSolvable(*provider, script) : false;
+    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && (fAllowWatchOnly && solvable));
+    return spendable;
 }
 
 bool CWallet::GetSenderDest(const CTransaction &tx, CTxDestination &txSenderDest, bool sign) const

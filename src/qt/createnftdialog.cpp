@@ -15,7 +15,7 @@
 #include <qt/hardwaresigntx.h>
 #include <qt/guiutil.h>
 #include <util/moneystr.h>
-#include <node/ui_interface.h>
+#include <ui_interface.h>
 
 #include <QRegularExpressionValidator>
 #include <QMessageBox>
@@ -158,7 +158,7 @@ void CreateNftDialog::on_confirmButton_clicked()
 
         m_nftABI->setSender(owner);
         m_nftABI->setGasLimit(QString::number(gasLimit).toStdString());
-        m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
+        m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever).toStdString());
 
         QString questionString;
         if (bCreateUnsigned) {
