@@ -31,6 +31,7 @@ $(package)_config_opts += -no-compile-examples
 $(package)_config_opts += -no-cups
 $(package)_config_opts += -no-egl
 $(package)_config_opts += -no-eglfs
+$(package)_config_opts += -no-freetype
 $(package)_config_opts += -no-glib
 $(package)_config_opts += -no-icu
 $(package)_config_opts += -no-iconv
@@ -110,7 +111,6 @@ $(package)_config_opts += -no-feature-xml
 
 $(package)_config_opts_darwin = -no-dbus
 $(package)_config_opts_darwin += -no-opengl
-$(package)_config_opts_darwin += -qt-freetype
 $(package)_config_opts_darwin += OPENSSL_LIBS="-lssl -lcrypto"
 
 ifneq ($(build_os),darwin)
@@ -144,8 +144,7 @@ $(package)_config_opts_mingw32 = -no-opengl
 $(package)_config_opts_mingw32 += -no-dbus
 $(package)_config_opts_mingw32 += -xplatform win32-g++
 $(package)_config_opts_mingw32 += -device-option CROSS_COMPILE="$(host)-"
-$(package)_config_opts_mingw32 += -qt-freetype
-$(package)_config_opts_mingw32 += OPENSSL_LIBS="-llibssl -llibcrypto -lws2_32 -lgdi32"
+$(package)_config_opts_mingw32 += OPENSSL_LIBS="-llibssl -llibcrypto -lws2_32 -lgdi32 -lcrypt32"
 
 $(package)_config_opts_android = -xplatform android-clang
 $(package)_config_opts_android += -android-sdk $(ANDROID_SDK)

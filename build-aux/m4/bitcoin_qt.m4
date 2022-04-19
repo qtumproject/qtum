@@ -116,9 +116,9 @@ AC_DEFUN([BITCOIN_QT_CONFIGURE],[
   if test "x$bitcoin_cv_static_qt" = xyes; then
     _BITCOIN_QT_FIND_STATIC_PLUGINS
     AC_DEFINE(QT_STATICPLUGIN, 1, [Define this symbol if qt plugins are static])
-    _BITCOIN_QT_CHECK_STATIC_PLUGINS(Q_IMPORT_PLUGIN(QGifPlugin), [-lqgif])
-    _BITCOIN_QT_CHECK_STATIC_PLUGINS(Q_IMPORT_PLUGIN(QICOPlugin), [-lqico])
-    _BITCOIN_QT_CHECK_STATIC_PLUGINS(Q_IMPORT_PLUGIN(QJpegPlugin), [-lqjpeg])
+    _BITCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QGifPlugin)], [-lqgif])
+    _BITCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QICOPlugin)], [-lqico])
+    _BITCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QJpegPlugin)], [-lqjpeg])
     if test "x$TARGET_OS" != xandroid; then
        _BITCOIN_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QMinimalIntegrationPlugin)],[-lqminimal])
        AC_DEFINE(QT_QPA_PLATFORM_MINIMAL, 1, [Define this symbol if the minimal qt platform exists])
