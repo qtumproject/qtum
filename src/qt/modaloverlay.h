@@ -46,7 +46,6 @@ Q_SIGNALS:
 protected:
     bool eventFilter(QObject * obj, QEvent * ev);
     bool event(QEvent* ev);
-    int estimateNumberHeadersLeft();
 
 private:
     Ui::ModalOverlay *ui;

@@ -8,6 +8,7 @@
 #include <qt/guiutil.h>
 #include <qt/styleSheet.h>
 #include <qt/platformstyle.h>
+#include <qt/guiutil.h>
 
 #include <chainparams.h>
 
@@ -150,7 +151,7 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
 
     // estimate the number of headers left based on TargetSpacing
     // and check if the gui is not aware of the best header (happens rarely)
-    int estimateNumHeadersLeft = estimateNumberHeadersLeft();
+    int estimateNumHeadersLeft = GUIUtil::estimateNumberHeadersLeft(bestHeaderDate.secsTo(currentDate), bestHeaderHeight);
     bool hasBestHeader = bestHeaderHeight >= count;
 
     // show remaining number of blocks
@@ -163,7 +164,7 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
 }
 
 void ModalOverlay::UpdateHeaderSyncLabel() {
-    int est_headers_left = estimateNumberHeadersLeft();
+    int est_headers_left = GUIUtil::estimateNumberHeadersLeft(bestHeaderDate.secsTo(QDateTime::currentDateTime()), bestHeaderHeight);
     ui->numberOfBlocksLeft->setText(tr("Unknown. Syncing Headers (%1, %2%)...").arg(bestHeaderHeight).arg(QString::number(100.0 / (bestHeaderHeight + est_headers_left) * bestHeaderHeight, 'f', 1)));
 }
 
@@ -203,21 +204,4 @@ void ModalOverlay::backupWalletClicked()
 {
     Q_EMIT backupWallet();
     showHide(true, true);
-}
-
-int ModalOverlay::estimateNumberHeadersLeft()
-{
-    const Consensus::Params& consensusParams = Params().GetConsensus();
-    int est_headers_left = bestHeaderDate.secsTo(QDateTime::currentDateTime()) / consensusParams.TargetSpacing(bestHeaderHeight);
-    int downscaleFactor = consensusParams.nBlocktimeDownscaleFactor;
-    if(bestHeaderHeight < consensusParams.nReduceBlocktimeHeight)
-    {
-        int diff = consensusParams.nReduceBlocktimeHeight - bestHeaderHeight;
-        if(est_headers_left > diff)
-        {
-            est_headers_left += (est_headers_left - diff) * (downscaleFactor - 1);
-        }
-    }
-
-    return est_headers_left;
 }

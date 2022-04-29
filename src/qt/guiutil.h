@@ -289,6 +289,14 @@ namespace GUIUtil
      */
     QString getHwiToolPath();
 
+    /**
+     * @brief estimateNumberHeadersLeft Get estimate number headers left
+     * @param timeSpan Time span
+     * @param bestHeaderHeight Best header height
+     * @return headers left
+     */
+    int estimateNumberHeadersLeft(qint64 timeSpan, int bestHeaderHeight);
+
 } // namespace GUIUtil
 
 #endif // BITCOIN_QT_GUIUTIL_H
