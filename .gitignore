@@ -151,3 +151,20 @@ dist/
 *.background.tiff
 
 /guix-build-*
+.cproject
+.project
+.settings/language.settings.xml
+src/qtum-cli
+src/qtum-tx
+src/qtumd
+src/qtum-wallet
+src/qtum-gui
+src/qtum-node
+src/qtum-util
+src/bench/bench_qtum
+src/qt/qtum-qt
+src/qt/test/test_qtum-qt
+src/test/buildenv.py
+src/test/test_qtum
+src/test/test_qtum_fuzzy
+Debug
