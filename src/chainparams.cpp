@@ -112,9 +112,11 @@ public:
 
         // Deployment of Taproot (BIPs 340-342)
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
+        // Min block number for activation, the number must be divisible with 2016
+        // Replace 0xffffc0 with the activation block number
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0xffffc0;
 
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000002ee39fbaf66506e5c57"); // qtum
         consensus.defaultAssumeValid = uint256S("0x8ef924fb7d2a28e0420c8731fb34301c204d15fe8d1e68461e5ebe959df011f2"); // 1405000
@@ -265,9 +267,11 @@ public:
 
         // Deployment of Taproot (BIPs 340-342)
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
+        // Min block number for activation, the number must be divisible with 2016
+        // Replace 0xffffc0 with the activation block number
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0xffffc0;
 
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000f64ad2ae9a92bd2de8"); // qtum
         consensus.defaultAssumeValid = uint256S("0xaff1f9c768e83f90d10a55306993e9042b5740251abc1afdde1429d09e95fa66"); // 1405000
@@ -546,8 +550,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0; // No activation delay
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        // Min block number for activation, the number must be divisible with 144
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
 
         consensus.nMinimumChainWork = uint256{};
@@ -713,6 +718,11 @@ public:
 
         consensus.nCheckpointSpan = consensus.nCoinbaseMaturity*2; // Increase the check point span for the reorganization tests from 500 to 1000
         consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity*2; // Increase the check point span for the reorganization tests from 500 to 1000
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0;
 
         m_assumeutxo_data = MapAssumeutxo{
             {
@@ -924,4 +934,14 @@ void CChainParams::UpdateLondonHeight(int nHeight)
 void UpdateLondonHeight(int nHeight)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdateLondonHeight(nHeight);
+}
+
+void CChainParams::UpdateTaprootHeight(int nHeight)
+{
+    consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = nHeight;
+}
+
+void UpdateTaprootHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateTaprootHeight(nHeight);
 }

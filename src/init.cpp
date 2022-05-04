@@ -559,6 +559,7 @@ void SetupServerArgs(ArgsManager& argsman)
     argsman.AddArg("-posnoretargeting", "Use given value for pos no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-muirglacierheight=<n>", "Use given block height to check contracts with EVM Muir Glacier (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-londonheight=<n>", "Use given block height to check contracts with EVM London (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-taprootheight=<n>", "Use given block height to check taproot (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions(argsman);
 
@@ -1255,6 +1256,20 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         {
             UpdateLondonHeight(londonheight);
             LogPrintf("Activate EVM London at block height %d\n.", londonheight);
+        }
+    }
+
+    if (args.IsArgSet("-taprootheight")) {
+        // Allow overriding taproot block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Taproot height may only be overridden on regtest."));
+        }
+
+        int taprootheight = args.GetArg("-taprootheight", 0);
+        if(taprootheight >= 0)
+        {
+            UpdateTaprootHeight(taprootheight);
+            LogPrintf("Activate taproot at block height %d\n.", taprootheight);
         }
     }
 

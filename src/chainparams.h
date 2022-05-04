@@ -136,6 +136,7 @@ public:
     void UpdateMuirGlacierHeight(int nHeight);
     bool HasHardwareWalletSupport() const { return fHasHardwareWalletSupport; }
     void UpdateLondonHeight(int nHeight);
+    void UpdateTaprootHeight(int nHeight);
     //! Get allowed assumeutxo configuration.
     //! @see ChainstateManager
     const MapAssumeutxo& Assumeutxo() const { return m_assumeutxo_data; }
@@ -252,5 +253,10 @@ void UpdateMuirGlacierHeight(int nHeight);
  * Allows modifying the london block height regtest parameter.
  */
 void UpdateLondonHeight(int nHeight);
+
+/**
+ * Allows modifying the taproot block height regtest parameter.
+ */
+void UpdateTaprootHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H
