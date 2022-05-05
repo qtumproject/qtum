@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.address import *
 from test_framework.qtum import *
 
@@ -22,7 +22,7 @@ class QtumDivergenceDosTest(BitcoinTestFramework):
         block.hashStateRoot = int(tip['hashStateRoot'], 16)
         block.hashUTXORoot = int(tip['hashUTXORoot'], 16)
         if txs:
-            address = self.node.gettxout(hex(txs[0].vin[0].prevout.hash)[2:].zfill(64), txs[0].vin[0].prevout.n)['scriptPubKey']['addresses'][0]
+            address = self.node.gettxout(hex(txs[0].vin[0].prevout.hash)[2:].zfill(64), txs[0].vin[0].prevout.n)['scriptPubKey']['address']
             haddress = hex_str_to_bytes(p2pkh_to_hex_hash(address))
             block.vtx[0].vout.append(CTxOut(100, CScript([OP_DUP, OP_HASH160, haddress, OP_EQUALVERIFY, OP_CHECKSIG])))
             if len(txs) > 1:

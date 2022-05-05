@@ -214,7 +214,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         initial_nValue = 50 * COIN
         tx0_outpoint = make_utxo(self.nodes[0], initial_nValue)
 
-        def branch(prevout, initial_value, max_txs, tree_width=5, fee=0.01 * COIN, _total_txs=None):
+        def branch(prevout, initial_value, max_txs, tree_width=5, fee=0.0001 * COIN, _total_txs=None):
             if _total_txs is None:
                 _total_txs = [0]
             if _total_txs[0] >= max_txs:
@@ -292,7 +292,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
 
     def test_replacement_feeperkb(self):
         """Replacement requires fee-per-KB to be higher"""
-        tx0_outpoint = make_utxo(self.nodes[0], int(10 * COIN))
+        tx0_outpoint = make_utxo(self.nodes[0], int(1.1 * COIN))
 
         tx1a = CTransaction()
         tx1a.vin = [CTxIn(tx0_outpoint, nSequence=0)]
@@ -304,7 +304,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         # rejected.
         tx1b = CTransaction()
         tx1b.vin = [CTxIn(tx0_outpoint, nSequence=0)]
-        tx1b.vout = [CTxOut(int(0.001 * COIN), CScript([b'a' * 99900]))]
+        tx1b.vout = [CTxOut(int(0.01 * COIN), CScript([b'a' * 99900]))]
         tx1b_hex = tx1b.serialize().hex()
 
         # This will raise an exception due to insufficient fee
@@ -501,7 +501,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         # correctly used by replacement logic
 
         # 1. Check that feeperkb uses modified fees
-        tx0_outpoint = make_utxo(self.nodes[0], int(10 * COIN))
+        tx0_outpoint = make_utxo(self.nodes[0], int(1.1 * COIN))
 
         tx1a = CTransaction()
         tx1a.vin = [CTxIn(tx0_outpoint, nSequence=0)]
@@ -512,14 +512,14 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         # Higher fee, but the actual fee per KB is much lower.
         tx1b = CTransaction()
         tx1b.vin = [CTxIn(tx0_outpoint, nSequence=0)]
-        tx1b.vout = [CTxOut(int(0.001 * COIN), CScript([b'a' * 74000]))]
+        tx1b.vout = [CTxOut(int(0.01 * COIN), CScript([b'a' * 74000]))]
         tx1b_hex = tx1b.serialize().hex()
 
         # Verify tx1b cannot replace tx1a.
         assert_raises_rpc_error(-26, "insufficient fee", self.nodes[0].sendrawtransaction, tx1b_hex, 0)
 
         # Use prioritisetransaction to set tx1a's fee to 0.
-        self.nodes[0].prioritisetransaction(txid=tx1a_txid, fee_delta=int(-9 * COIN))
+        self.nodes[0].prioritisetransaction(txid=tx1a_txid, fee_delta=int(-0.1 * COIN))
 
         # Now tx1b should be able to replace tx1a
         tx1b_txid = self.nodes[0].sendrawtransaction(tx1b_hex, 0)
@@ -633,7 +633,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
     def test_replacement_relay_fee(self):
         wallet = MiniWallet(self.nodes[0])
         wallet.scan_blocks(start=77, num=1)
-        tx = wallet.send_self_transfer(from_node=self.nodes[0])['tx']
+        tx = wallet.send_self_transfer(from_node=self.nodes[0], fee_rate=Decimal("0.03"))['tx']
 
         # Higher fee, higher feerate, different txid, but the replacement does not provide a relay
         # fee conforming to node's `incrementalrelayfee` policy of 1000 sat per KB.

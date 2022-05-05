@@ -1403,7 +1403,19 @@ RPCHelpMan waitforlogs()
                 {
                     {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The block number to start looking for logs."},
                     {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The block number to stop looking for logs. If null, will wait indefinitely into the future."},
-                    {"filter", RPCArg::Type::STR, RPCArg::Default{"{}"}, "\"{ addresses?: Hex160String[], topics?: Hex256String[] }\", Filter conditions for logs."},
+                    {"filter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "Filter conditions for logs.",
+                    {
+                        {"addresses", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An address or a list of addresses to only get logs from particular account(s).",
+                            {
+                                {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, ""},
+                            },
+                        },
+                        {"topics", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [null, \"0x00...\"].",
+                            {
+                                {"topic", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, ""},
+                            },
+                        },
+                    }},
                     {"minconf", RPCArg::Type::NUM, RPCArg::Default{6}, "Minimal number of confirmations before a log is returned"},
                 },
                 RPCResult{
@@ -1582,8 +1594,22 @@ RPCHelpMan searchlogs()
                 {
                     {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
                     {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the latest block (-1 may be given to mean the most recent block)."},
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An address or a list of addresses to only get logs from particular account(s)."},
-                    {"topics", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [null, \"0x00...\"]."},
+                    {"addressFilter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "Addresses filter conditions for logs.",
+                    {
+                        {"addresses", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An address or a list of addresses to only get logs from particular account(s).",
+                            {
+                                {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, ""},
+                            },
+                        },
+                    }},
+                    {"topicFilter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "Topics filter conditions for logs.",
+                    {
+                        {"topics", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [null, \"0x00...\"].",
+                            {
+                                {"topic", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, ""},
+                            },
+                        },
+                    }},
                     {"minconf", RPCArg::Type::NUM, RPCArg::Default{0}, "Minimal number of confirmations before a log is returned"},
                 },
                 RPCResult{

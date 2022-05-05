@@ -201,7 +201,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
         embedded_pubkey = eckey.get_pubkey().get_bytes().hex()
         p2sh_p2wsh_address = self.nodes[1].createmultisig(1, [embedded_pubkey], "p2sh-segwit")
         # send transaction to P2SH-P2WSH 1-of-1 multisig address
-        generatesynchronized(self.nodes[0], COINBASE_MATURITY + 1, None, self.nodes)
+        self.nodes[0].generate(COINBASE_MATURITY + 1)
         self.nodes[0].sendtoaddress(p2sh_p2wsh_address["address"], 49.999)
         self.nodes[0].generate(1)
         self.sync_all()
@@ -283,7 +283,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
         vout = find_vout_for_address(self.nodes[0], txid, address)
         self.nodes[0].generate(1)
         utxo = self.nodes[0].listunspent()[0]
-        amt = Decimal(1) + utxo["amount"] - Decimal(0.00001)
+        amt = Decimal(1) + utxo["amount"] - Decimal(0.001)
         tx = self.nodes[0].createrawtransaction(
             [{"txid": txid, "vout": vout, "sequence": 1},{"txid": utxo["txid"], "vout": utxo["vout"]}],
             [{self.nodes[0].getnewaddress(): amt}],
@@ -318,7 +318,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
         vout = find_vout_for_address(self.nodes[0], txid, address)
         self.nodes[0].generate(1)
         utxo = self.nodes[0].listunspent()[0]
-        amt = Decimal(1) + utxo["amount"] - Decimal(0.00001)
+        amt = Decimal(1) + utxo["amount"] - Decimal(0.001)
         tx = self.nodes[0].createrawtransaction(
             [{"txid": txid, "vout": vout},{"txid": utxo["txid"], "vout": utxo["vout"]}],
             [{self.nodes[0].getnewaddress(): amt}],

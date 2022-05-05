@@ -13,7 +13,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
-from test_framework.qtum import generatesynchronized
+from test_framework.qtum import generatesynchronized, convert_btc_bech32_address_to_qtum
 
 class WalletHDTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -34,12 +34,12 @@ class WalletHDTest(BitcoinTestFramework):
         change_addr = self.nodes[1].getrawchangeaddress()
         change_addrV = self.nodes[1].getaddressinfo(change_addr)
         if self.options.descriptors:
-            assert_equal(change_addrV["hdkeypath"], "m/84'/1'/0'/1/0")
+            assert_equal(change_addrV["hdkeypath"], "m/44'/88'/0'/1/0")
         else:
             assert_equal(change_addrV["hdkeypath"], "m/88'/1'/0'")  #first internal child key
 
         # Import a non-HD private key in the HD wallet
-        non_hd_add = 'bcrt1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezwjksmt'
+        non_hd_add = convert_btc_bech32_address_to_qtum('bcrt1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezwjksmt')
         non_hd_key = 'cS9umN9w6cDMuRVYdbkfE4c7YUFLJRoXMfhQ569uY4odiQbVN8Rt'
         self.nodes[1].importprivkey(non_hd_key)
 
@@ -56,7 +56,7 @@ class WalletHDTest(BitcoinTestFramework):
             hd_add = self.nodes[1].getnewaddress()
             hd_info = self.nodes[1].getaddressinfo(hd_add)
             if self.options.descriptors:
-                assert_equal(hd_info["hdkeypath"], "m/84'/1'/0'/0/" + str(i))
+                assert_equal(hd_info["hdkeypath"], "m/44'/88'/0'/0/" + str(i))
             else:
                 assert_equal(hd_info["hdkeypath"], "m/88'/0'/" + str(i) + "'")
             assert_equal(hd_info["hdmasterfingerprint"], hd_fingerprint)
@@ -69,7 +69,7 @@ class WalletHDTest(BitcoinTestFramework):
         change_addr = self.nodes[1].getrawchangeaddress()
         change_addrV = self.nodes[1].getaddressinfo(change_addr)
         if self.options.descriptors:
-            assert_equal(change_addrV["hdkeypath"], "m/84'/1'/0'/1/1")
+            assert_equal(change_addrV["hdkeypath"], "m/44'/88'/0'/1/1")
         else:
             assert_equal(change_addrV["hdkeypath"], "m/88'/1'/1'")  #second internal child key
 
@@ -94,7 +94,7 @@ class WalletHDTest(BitcoinTestFramework):
             hd_add_2 = self.nodes[1].getnewaddress()
             hd_info_2 = self.nodes[1].getaddressinfo(hd_add_2)
             if self.options.descriptors:
-                assert_equal(hd_info_2["hdkeypath"], "m/84'/1'/0'/0/" + str(i))
+                assert_equal(hd_info_2["hdkeypath"], "m/44'/88'/0'/0/" + str(i))
             else:
                 assert_equal(hd_info_2["hdkeypath"], "m/88'/0'/" + str(i) + "'")
             assert_equal(hd_info_2["hdmasterfingerprint"], hd_fingerprint)
@@ -136,7 +136,7 @@ class WalletHDTest(BitcoinTestFramework):
                 keypath = self.nodes[1].getaddressinfo(out['scriptPubKey']['address'])['hdkeypath']
 
         if self.options.descriptors:
-            assert_equal(keypath[0:14], "m/84'/1'/0'/1/")
+            assert_equal(keypath[0:15], "m/44'/88'/0'/1/")
         else:
             assert_equal(keypath[0:8], "m/88'/1'")
 

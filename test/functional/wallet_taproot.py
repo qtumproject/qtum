@@ -167,7 +167,7 @@ def compute_taproot_address(pubkey, scripts):
     tap = taproot_construct(pubkey, scripts)
     assert tap.scriptPubKey[0] == 0x51
     assert tap.scriptPubKey[1] == 0x20
-    return encode_segwit_address("bcrt", 1, tap.scriptPubKey[2:])
+    return encode_segwit_address("qcrt", 1, tap.scriptPubKey[2:])
 
 class WalletTaprootTest(BitcoinTestFramework):
     """Test generation and spending of P2TR address outputs."""
@@ -175,7 +175,7 @@ class WalletTaprootTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 3
         self.setup_clean_chain = True
-        self.extra_args = [['-keypool=100'], ['-keypool=100'], ["-vbparams=taproot:1:1"]]
+        self.extra_args = [['-keypool=100', "-addresstype=bech32"], ['-keypool=100', "-addresstype=bech32"], ["-vbparams=taproot:1:1", "-addresstype=bech32"]]
         self.supports_cli = False
 
     def skip_test_if_missing_module(self):
@@ -275,7 +275,7 @@ class WalletTaprootTest(BitcoinTestFramework):
             self.nodes[0].generatetoaddress(1, self.boring.getnewaddress())
             test_balance = int(self.rpc_online.getbalance() * 100000000)
             ret_amnt = random.randrange(100000, test_balance)
-            res = self.rpc_online.sendtoaddress(address=self.boring.getnewaddress(), amount=Decimal(ret_amnt) / 100000000, subtractfeefromamount=True)
+            res = self.rpc_online.sendtoaddress(address=self.boring.getnewaddress(), amount=Decimal(ret_amnt) / 100000000, subtractfeefromamount=True, fee_rate=Decimal("800"))
             self.nodes[0].generatetoaddress(1, self.boring.getnewaddress())
             assert(self.rpc_online.gettransaction(res)["confirmations"] > 0)
 
@@ -306,7 +306,7 @@ class WalletTaprootTest(BitcoinTestFramework):
             self.nodes[0].generatetoaddress(1, self.boring.getnewaddress())
             test_balance = int(self.psbt_online.getbalance() * 100000000)
             ret_amnt = random.randrange(100000, test_balance)
-            psbt = self.psbt_online.walletcreatefundedpsbt([], [{self.boring.getnewaddress(): Decimal(ret_amnt) / 100000000}], None, {"subtractFeeFromOutputs":[0]})['psbt']
+            psbt = self.psbt_online.walletcreatefundedpsbt([], [{self.boring.getnewaddress(): Decimal(ret_amnt) / 100000000}], None, {"feeRate": Decimal("0.03"), "subtractFeeFromOutputs":[0]})['psbt']
             res = self.psbt_offline.walletprocesspsbt(psbt)
             assert(res['complete'])
             rawtx = self.nodes[0].finalizepsbt(res['psbt'])['hex']
@@ -343,7 +343,7 @@ class WalletTaprootTest(BitcoinTestFramework):
 
         self.log.info("Mining blocks...")
         gen_addr = self.boring.getnewaddress()
-        self.nodes[0].generatetoaddress(101, gen_addr)
+        self.nodes[0].generatetoaddress(2001, gen_addr)
 
         self.do_test(
             "tr(XPRV)",

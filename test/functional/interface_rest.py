@@ -88,8 +88,7 @@ class RESTTest (BitcoinTestFramework):
 
         self.nodes[0].generate(1)
         self.sync_all()
-        for i in range(0, COINBASE_MATURITY, 100):
-            generatesynchronized(self.nodes[1], 100, not_related_address, self.nodes)
+        self.nodes[1].generatetoaddress(COINBASE_MATURITY, not_related_address)
         self.sync_all()
 
         assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)
@@ -233,9 +232,9 @@ class RESTTest (BitcoinTestFramework):
 
         # Compare with block header
         response_header = self.test_rest_request("/headers/1/{}".format(bb_hash), req_type=ReqType.BIN, ret_type=RetType.OBJ)
-        assert_equal(int(response_header.getheader('content-length')), 181)
+        assert_equal(int(response_header.getheader('content-length')), BLOCK_HEADER_SIZE)
         response_header_bytes = response_header.read()
-        assert_equal(response_bytes[:181], response_header_bytes)
+        assert_equal(response_bytes[:BLOCK_HEADER_SIZE], response_header_bytes)
 
         # Check block hex format
         response_hex = self.test_rest_request("/block/{}".format(bb_hash), req_type=ReqType.HEX, ret_type=RetType.OBJ)

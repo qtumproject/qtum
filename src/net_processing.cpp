@@ -2683,6 +2683,13 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             return;
         }
 
+        if (m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nLondonHeight && nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMLONDON) {
+            // disconnect from peers older than this proto version
+            LogPrint(BCLog::NET, "peer=%d using obsolete version after evm London hardfork %i; disconnecting\n", pfrom.GetId(), nVersion);
+            pfrom.fDisconnect = true;
+            return;
+        }
+
         if (!vRecv.empty())
             vRecv >> addrFrom >> nNonce;
         if (!vRecv.empty()) {

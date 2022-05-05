@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import generatesynchronized
 from test_framework.qtumconfig import ENABLE_REDUCED_BLOCK_TIME
 
@@ -18,7 +18,7 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
-        self.extra_args=[["-logevents"]]
+        self.extra_args=[["-logevents", '-londonheight=1000000']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()

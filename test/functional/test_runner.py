@@ -82,12 +82,6 @@ EXTENDED_SCRIPTS = [
     # Longest test should go first, to favor running tests in parallel
     'feature_pruning.py',
     'feature_dbcrash.py',
-    'feature_fee_estimation.py',
-    'feature_cltv.py',
-    'feature_bip68_sequence.py',
-    'feature_maxuploadtarget.py',
-    'p2p_dos_header_tree.py', # not relevant
-    'feature_csv_activation.py',
 ]
 
 BASE_SCRIPTS = [
@@ -99,6 +93,7 @@ BASE_SCRIPTS = [
     'wallet_backup.py --descriptors',
     # vv Tests less than 5m vv
     'mining_getblocktemplate_longpoll.py',
+    'feature_maxuploadtarget.py',
     'feature_block.py',
     'rpc_fundrawtransaction.py --legacy-wallet',
     'rpc_fundrawtransaction.py --descriptors',
@@ -129,14 +124,17 @@ BASE_SCRIPTS = [
     'wallet_listreceivedby.py --descriptors',
     'wallet_abandonconflict.py --legacy-wallet',
     'wallet_abandonconflict.py --descriptors',
+    #'feature_csv_activation.py',
     'wallet_address_types.py --legacy-wallet',
     'wallet_address_types.py --descriptors',
+    'feature_bip68_sequence.py',
     'p2p_feefilter.py',
     'feature_reindex.py',
     'feature_abortnode.py',
     # vv Tests less than 30s vv
     'wallet_keypool_topup.py --legacy-wallet',
     'wallet_keypool_topup.py --descriptors',
+    'feature_fee_estimation.py',
     'interface_zmq.py',
     'rpc_invalid_address_message.py',
     'interface_bitcoin_cli.py',
@@ -253,6 +251,8 @@ BASE_SCRIPTS = [
     'p2p_leak.py',
     'wallet_encryption.py --legacy-wallet',
     'wallet_encryption.py --descriptors',
+    'feature_dersig.py',
+    #'feature_cltv.py',
     'rpc_uptime.py',
     'wallet_resendwallettransactions.py --legacy-wallet',
     'wallet_resendwallettransactions.py --descriptors',
@@ -273,6 +273,7 @@ BASE_SCRIPTS = [
     'wallet_coinbase_category.py --descriptors',
     'feature_filelock.py',
     'feature_loadblock.py',
+    #'p2p_dos_header_tree.py',
     'p2p_add_connections.py',
     'p2p_unrequested_blocks.py',
     'p2p_blockfilters.py',
@@ -289,7 +290,7 @@ BASE_SCRIPTS = [
     'feature_logging.py',
     'feature_anchors.py',
     'feature_coinstatsindex.py',
-    'wallet_orphanedreward.py',
+    # 'wallet_orphanedreward.py', // N/A in Qtum due to rolling checkpoints 
     'p2p_node_network_limited.py',
     'p2p_permissions.py',
     'feature_blocksdir.py',
@@ -303,12 +304,11 @@ BASE_SCRIPTS = [
     'feature_help.py',
     'feature_shutdown.py',
     'p2p_ibd_txrelay.py',
-    'feature_blockfilterindex_prune.py'
-    'feature_dersig.py',
+    'feature_blockfilterindex_prune.py',
     # Don't append tests at the end to avoid merge conflicts
     # Put them in a random line within the section that fits their approximate run-time
-
-    # qtum
+	
+	# qtum
     'qtum_dgp.py',
     'qtum_pos.py',
     'qtum_opcall.py',
@@ -371,6 +371,14 @@ BASE_SCRIPTS = [
     'qtum_delegation_contract.py',
     'qtum_qrc20.py'
 ]
+# scripts irreleveant for Qtum
+DISABLED_SCRIPTS = [
+      'wallet_orphanedreward.py',
+      'feature_cltv.py',
+      'feature_csv_activation.py',
+      'p2p_dos_header_tree.py'
+]
+
 
 # Place EXTENDED_SCRIPTS first since it has the 3 longest running tests
 ALL_SCRIPTS = EXTENDED_SCRIPTS + BASE_SCRIPTS
@@ -520,7 +528,7 @@ def run_tests(*, test_list, src_dir, build_dir, tmpdir, jobs=1, enable_coverage=
     # Warn if bitcoind is already running
     try:
         # pgrep exits with code zero when one or more matching processes found
-        if subprocess.run(["pgrep", "-x", "qtumd"], stdout=subprocess.DEVNULL).returncode == 0:
+        if subprocess.run(["pgrep", "-x", "bitcoind"], stdout=subprocess.DEVNULL).returncode == 0:
             print("%sWARNING!%s There is already a bitcoind process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
     except OSError:
         # pgrep not supported
@@ -772,7 +780,7 @@ def check_script_list(*, src_dir, fail_on_warn):
     not being run by pull-tester.py."""
     script_dir = src_dir + '/test/functional/'
     python_files = set([test_file for test_file in os.listdir(script_dir) if test_file.endswith(".py")])
-    missed_tests = list(python_files - set(map(lambda x: x.split()[0], ALL_SCRIPTS + NON_SCRIPTS)))
+    missed_tests = list(python_files - set(map(lambda x: x.split()[0], ALL_SCRIPTS + NON_SCRIPTS + DISABLED_SCRIPTS)))
     if len(missed_tests) != 0:
         print("%sWARNING!%s The following scripts are not being run: %s. Check the test lists in test_runner.py." % (BOLD[1], BOLD[0], str(missed_tests)))
         if fail_on_warn:

@@ -6,6 +6,7 @@
 
 import struct
 
+from decimal import Decimal
 from test_framework.messages import (
     CBlock,
     COutPoint,
@@ -31,12 +32,12 @@ class UTXOSetHashTest(BitcoinTestFramework):
 
         # Generate 100 blocks and remove the first since we plan to spend its
         # coinbase
-        block_hashes = wallet.generate(1) + node.generate(99)
+        block_hashes = wallet.generate(1) + node.generate(1999)
         blocks = list(map(lambda block: from_hex(CBlock(), node.getblock(block, False)), block_hashes))
         blocks.pop(0)
 
         # Create a spending transaction and mine a block which includes it
-        txid = wallet.send_self_transfer(from_node=node)['txid']
+        txid = wallet.send_self_transfer(from_node=node, fee_rate=Decimal("0.03"))['txid']
         tx_block = node.generateblock(output=wallet.get_address(), transactions=[txid])
         blocks.append(from_hex(CBlock(), node.getblock(tx_block['hash'], False)))
 
@@ -69,8 +70,8 @@ class UTXOSetHashTest(BitcoinTestFramework):
         assert_equal(finalized[::-1].hex(), node_muhash)
 
         self.log.info("Test deterministic UTXO set hash results")
-        assert_equal(node.gettxoutsetinfo()['hash_serialized_2'], "5b1b44097406226c0eb8e1362cd17a1f346522cf9390a8175a57a5262cb1963f")
-        assert_equal(node.gettxoutsetinfo("muhash")['muhash'], "4b8803075d7151d06fad3e88b68ba726886794873fbfa841d12aefb2cc2b881b")
+        assert_equal(node.gettxoutsetinfo()['hash_serialized_2'], "31b16f8c93097d169f0cb6d91e7b96296eaaec441410b9b0f94c2ae129a85fe4")
+        assert_equal(node.gettxoutsetinfo("muhash")['muhash'], "65385a4f6ed2c2261a5380f4187c2278df92ac634fc6ac2c50e62821d0039ff5")
 
     def run_test(self):
         self.test_muhash_implementation()

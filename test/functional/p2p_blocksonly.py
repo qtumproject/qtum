@@ -5,7 +5,7 @@
 """Test p2p blocksonly mode & block-relay-only connections."""
 
 import time
-
+from decimal import Decimal
 from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.messages import msg_tx
 from test_framework.p2p import P2PInterface, P2PTxInvStore
@@ -100,7 +100,7 @@ class P2PBlocksOnly(BitcoinTestFramework):
         self.log.info('Check that txs from P2P are rejected and result in disconnect')
         input_txid = self.nodes[0].getblock(self.nodes[0].getblockhash(index), 2)['tx'][0]['txid']
         utxo_to_spend = self.miniwallet.get_utxo(txid=input_txid)
-        spendtx = self.miniwallet.create_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_to_spend)
+        spendtx = self.miniwallet.create_self_transfer(from_node=self.nodes[0], fee_rate=Decimal("0.03"), utxo_to_spend=utxo_to_spend)
 
         with self.nodes[0].assert_debug_log(['transaction sent in violation of protocol peer=0']):
             self.nodes[0].p2ps[0].send_message(msg_tx(spendtx['tx']))

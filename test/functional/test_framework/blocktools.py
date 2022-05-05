@@ -53,6 +53,9 @@ MAX_BLOCK_SIGOPS_WEIGHT = MAX_BLOCK_SIGOPS * WITNESS_SCALE_FACTOR
 # Genesis block time (regtest)
 TIME_GENESIS_BLOCK = 1504695029
 
+# Coinbase transaction outputs can only be spent after this number of new blocks (network rule)
+COINBASE_MATURITY = 2000
+
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"
 
