@@ -1,0 +1,3 @@
+[submodule "src/evmone"]
+	path = src/evmone
+	url = https://github.com/qtumproject/qtum-evmone
