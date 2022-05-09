@@ -103,7 +103,6 @@ $(package)_config_opts += -no-feature-sql
 $(package)_config_opts += -no-feature-sqlmodel
 $(package)_config_opts += -no-feature-statemachine
 $(package)_config_opts += -no-feature-syntaxhighlighter
-$(package)_config_opts += -no-feature-textbrowser
 $(package)_config_opts += -no-feature-textmarkdownwriter
 $(package)_config_opts += -no-feature-textodfwriter
 $(package)_config_opts += -no-feature-topleveldomain
