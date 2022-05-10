@@ -13,6 +13,7 @@ from test_framework.util import assert_equal, assert_raises_rpc_error
 class KeyPoolTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
+        self.extra_args = [['-addresstype=bech32']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -87,8 +88,8 @@ class KeyPoolTest(BitcoinTestFramework):
         nodes[0].walletlock()
         wi = nodes[0].getwalletinfo()
         if self.options.descriptors:
-            assert_equal(wi['keypoolsize_hd_internal'], 18)
-            assert_equal(wi['keypoolsize'], 18)
+            assert_equal(wi['keypoolsize_hd_internal'], 24)
+            assert_equal(wi['keypoolsize'], 24)
         else:
             assert_equal(wi['keypoolsize_hd_internal'], 6)
             assert_equal(wi['keypoolsize'], 6)
@@ -132,8 +133,8 @@ class KeyPoolTest(BitcoinTestFramework):
         nodes[0].keypoolrefill(100)
         wi = nodes[0].getwalletinfo()
         if self.options.descriptors:
-            assert_equal(wi['keypoolsize_hd_internal'], 300)
-            assert_equal(wi['keypoolsize'], 300)
+            assert_equal(wi['keypoolsize_hd_internal'], 400)
+            assert_equal(wi['keypoolsize'], 400)
         else:
             assert_equal(wi['keypoolsize_hd_internal'], 100)
             assert_equal(wi['keypoolsize'], 100)
@@ -155,36 +156,36 @@ class KeyPoolTest(BitcoinTestFramework):
         assert_equal(res[0]['success'], True)
         w1.walletpassphrase('test', 100)
 
-        res = w1.sendtoaddress(address=address, amount=0.00010000)
+        res = w1.sendtoaddress(address=address, amount=0.10000)
         nodes[0].generate(1)
         destination = addr.pop()
 
         # Using a fee rate (10 sat / byte) well above the minimum relay rate
         # creating a 5,000 sat transaction with change should not be possible
-        assert_raises_rpc_error(-4, "Transaction needs a change address, but we can't generate it.", w2.walletcreatefundedpsbt, inputs=[], outputs=[{addr.pop(): 0.00005000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.00010})
+        assert_raises_rpc_error(-4, "Transaction needs a change address, but we can't generate it.", w2.walletcreatefundedpsbt, inputs=[], outputs=[{addr.pop(): 0.05000000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.0040})
 
         # creating a 10,000 sat transaction without change, with a manual input, should still be possible
-        res = w2.walletcreatefundedpsbt(inputs=w2.listunspent(), outputs=[{destination: 0.00010000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.00010})
+        res = w2.walletcreatefundedpsbt(inputs=w2.listunspent(), outputs=[{destination: 0.10000000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.00010})
         assert_equal("psbt" in res, True)
 
         # creating a 10,000 sat transaction without change should still be possible
-        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.00010000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.00010})
+        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.10000000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.0040})
         assert_equal("psbt" in res, True)
         # should work without subtractFeeFromOutputs if the exact fee is subtracted from the amount
-        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.00008900}], options={"feeRate": 0.00010})
+        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.09900000}], options={"feeRate": 0.0040})
         assert_equal("psbt" in res, True)
 
         # dust change should be removed
-        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.00008800}], options={"feeRate": 0.00010})
+        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.09900}], options={"feeRate": 0.0040})
         assert_equal("psbt" in res, True)
 
         # create a transaction without change at the maximum fee rate, such that the output is still spendable:
-        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.00010000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.0008824})
+        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.10000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.0008824})
         assert_equal("psbt" in res, True)
         assert_equal(res["fee"], Decimal("0.00009706"))
 
         # creating a 10,000 sat transaction with a manual change address should be possible
-        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.00010000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.00010, "changeAddress": addr.pop()})
+        res = w2.walletcreatefundedpsbt(inputs=[], outputs=[{destination: 0.010000}], options={"subtractFeeFromOutputs": [0], "feeRate": 0.0040, "changeAddress": addr.pop()})
         assert_equal("psbt" in res, True)
 
 

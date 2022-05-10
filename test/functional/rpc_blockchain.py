@@ -48,7 +48,7 @@ from test_framework.util import (
     get_datadir_path,
 )
 from test_framework.wallet import MiniWallet
-
+from test_framework.qtum import convert_btc_bech32_address_to_qtum
 
 class BlockchainTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -76,7 +76,7 @@ class BlockchainTest(BitcoinTestFramework):
         for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 128 * 600, 128):
             # ten-minute steps from genesis block time
             self.nodes[0].setmocktime(t)
-            self.nodes[0].generatetoaddress(1, ADDRESS_BCRT1_P2WSH_OP_TRUE)
+            self.nodes[0].generatetoaddress(1, convert_btc_bech32_address_to_qtum(ADDRESS_BCRT1_P2WSH_OP_TRUE))
         assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 600)
 
     def _test_getblockchaininfo(self):
@@ -143,9 +143,9 @@ class BlockchainTest(BitcoinTestFramework):
                     'start_time': 0,
                     'since': 432,
                     'timeout': 0x7fffffffffffffff,  # testdummy does not have a timeout so is set to the max int64 value
-                    },
                     'min_activation_height': 0,
                 },
+                'height': 432,
                 'active': True
             },
             'taproot': {
@@ -224,7 +224,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res['transactions'], 600)
         assert_equal(res['height'], 600)
         assert_equal(res['txouts'], 600)
-        assert_equal(res['bogosize'], 45000),
+        assert_equal(res['bogosize'], 50400),
         assert_equal(res['bestblock'], node.getblockhash(600))
         size = res['disk_size']
         assert size > 6400
@@ -241,7 +241,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res2['total_amount'], Decimal('10000000'))
         assert_equal(res2['height'], 500)
         assert_equal(res2['txouts'], 500)
-        assert_equal(res2['bogosize'], 37500),
+        assert_equal(res2['bogosize'], 42000),
         assert_equal(res2['bestblock'], node.getblockhash(500))
         assert_equal(len(res2['hash_serialized_2']), 64)
 
@@ -329,12 +329,12 @@ class BlockchainTest(BitcoinTestFramework):
 
     def _test_stopatheight(self):
         assert_equal(self.nodes[0].getblockcount(), 600)
-        self.nodes[0].generatetoaddress(6, ADDRESS_BCRT1_P2WSH_OP_TRUE)
+        self.nodes[0].generatetoaddress(6, convert_btc_bech32_address_to_qtum(ADDRESS_BCRT1_P2WSH_OP_TRUE))
         assert_equal(self.nodes[0].getblockcount(), 606)
         self.log.debug('Node should not stop at this height')
         assert_raises(subprocess.TimeoutExpired, lambda: self.nodes[0].process.wait(timeout=3))
         try:
-            self.nodes[0].generatetoaddress(1, ADDRESS_BCRT1_P2WSH_OP_TRUE)
+            self.nodes[0].generatetoaddress(1, convert_btc_bech32_address_to_qtum(ADDRESS_BCRT1_P2WSH_OP_TRUE))
         except (ConnectionError, http.client.BadStatusLine):
             pass  # The node already shut down before response
         self.log.debug('Node should stop at this height...')
@@ -386,7 +386,7 @@ class BlockchainTest(BitcoinTestFramework):
         miniwallet = MiniWallet(node)
         miniwallet.scan_blocks(num=5)
 
-        fee_per_byte = Decimal('0.00000010')
+        fee_per_byte = Decimal('0.0010')
         fee_per_kb = 1000 * fee_per_byte
 
         miniwallet.send_self_transfer(fee_rate=fee_per_kb, from_node=node)

@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test wallet group functionality."""
 
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.messages import (
     tx_from_hex,

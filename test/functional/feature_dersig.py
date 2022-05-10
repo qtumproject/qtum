@@ -53,7 +53,7 @@ class BIP66Test(BitcoinTestFramework):
             '-reduceblocktimeheight=100000'
         ]]
         self.setup_clean_chain = True
-        self.rpc_timewait = 120
+        self.rpc_timeout = 120
 
     def create_tx(self, input_txid):
         utxo_to_spend = self.miniwallet.get_utxo(txid=input_txid, mark_as_spent=False)

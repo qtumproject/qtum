@@ -11,6 +11,7 @@ that spend (directly or indirectly) coinbase transactions.
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet import MiniWallet
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class MempoolCoinbaseTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -26,7 +27,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         wallet = MiniWallet(self.nodes[0])
 
         # Start with a 200 block chain
-        assert_equal(self.nodes[0].getblockcount(), 200)
+        assert_equal(self.nodes[0].getblockcount(), COINBASE_MATURITY+100)
 
         self.log.info("Add 4 coinbase utxos to the miniwallet")
         # Block 76 contains the first spendable coinbase txs.

@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test that we don't leak txs to inbound peers that we haven't yet announced to"""
 
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.messages import msg_getdata, CInv, MSG_TX
 from test_framework.p2p import p2p_lock, P2PDataStore
 from test_framework.test_framework import BitcoinTestFramework

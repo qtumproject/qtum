@@ -12,6 +12,7 @@ from test_framework.util import (
     assert_equal,
     hex_str_to_bytes
 )
+from test_framework.qtum import convert_btc_address_to_qtum
 
 
 class AddressesDeprecationTest(BitcoinTestFramework):
@@ -49,7 +50,7 @@ class AddressesDeprecationTest(BitcoinTestFramework):
 
         self.log.info("Test RPCResult scriptPubKey returns the addresses field with -deprecatedrpc=addresses")
         script_pub_key = self.nodes[1].getblock(blockhash=hash, verbose=2)['tx'][-1]['vout'][0]['scriptPubKey']
-        assert_equal(script_pub_key['addresses'], ['mvKDK6D54HU8wQumJBLHY95eq5iHFqXSBz', 'mv3rHCQSwKp2BLSuMHD8uCS32LW5xiNAA5', 'mirrsyhAQYzo5CwVhcaYJKwUJu1WJRCRJe'])
+        assert_equal(script_pub_key['addresses'], [convert_btc_address_to_qtum(x) for x in ['mvKDK6D54HU8wQumJBLHY95eq5iHFqXSBz', 'mv3rHCQSwKp2BLSuMHD8uCS32LW5xiNAA5', 'mirrsyhAQYzo5CwVhcaYJKwUJu1WJRCRJe']])
         assert_equal(script_pub_key['reqSigs'], 2)
 
 

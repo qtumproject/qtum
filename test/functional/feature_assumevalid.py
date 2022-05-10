@@ -31,7 +31,6 @@ Start three nodes:
 """
 
 from test_framework.blocktools import (
-    COINBASE_MATURITY,
     create_block,
     create_coinbase,
 )
@@ -51,7 +50,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
 from test_framework.qtumconfig import COINBASE_MATURITY
 import inspect
-
+import time
 
 class BaseNode(P2PInterface):
     def send_header_for_blocks(self, new_blocks):

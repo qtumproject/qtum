@@ -707,7 +707,7 @@ class SegWitTest(BitcoinTestFramework):
                     'allowed': True,
                     'vsize': tx3.get_vsize(),
                     'fees': {
-                        'base': Decimal('0.00001000'),
+                        'base': Decimal('0.001000'),
                     },
                 }],
             )
@@ -724,7 +724,7 @@ class SegWitTest(BitcoinTestFramework):
                     'allowed': True,
                     'vsize': tx3.get_vsize(),
                     'fees': {
-                        'base': Decimal('0.00011000'),
+                        'base': Decimal('0.011000'),
                     },
                 }],
             )
@@ -2154,13 +2154,13 @@ class SegWitTest(BitcoinTestFramework):
 
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
-        tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
+        tx.vout.append(CTxOut(self.utxo[0].nValue - 1000000, script_pubkey))
         tx.rehash()
 
         # Create a Segwit transaction
         tx2 = CTransaction()
         tx2.vin.append(CTxIn(COutPoint(tx.sha256, 0), b""))
-        tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000, script_pubkey))
+        tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000000, script_pubkey))
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [witness_program]
         tx2.rehash()

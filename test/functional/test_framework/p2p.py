@@ -82,7 +82,14 @@ logger = logging.getLogger("TestFramework.p2p")
 MIN_P2P_VERSION_SUPPORTED = 60001
 # The P2P version that this test framework implements and sends in its `version` message
 # Version 70016 supports wtxid relay
-P2P_VERSION = 70016
+from test_framework.qtumconfig import INITIAL_HASH_STATE_ROOT, INITIAL_HASH_UTXO_ROOT, ENABLE_REDUCED_BLOCK_TIME
+
+if ENABLE_REDUCED_BLOCK_TIME:
+    P2P_VERSION = 70019  # past bip-31 for ping/pong
+else:
+    P2P_VERSION = 70018  # past bip-31 for ping/pong
+
+P2P_VERSION = 70020
 # The services that this test framework offers in its `version` message
 P2P_SERVICES = NODE_NETWORK | NODE_WITNESS
 # The P2P user agent string that this test framework sends in its `version` message

@@ -11,7 +11,7 @@ from decimal import Decimal
 from itertools import product
 import time
 
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.p2p import P2PInterface
 import test_framework.messages
 from test_framework.messages import (

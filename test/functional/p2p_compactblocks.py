@@ -11,7 +11,6 @@ import random
 from decimal import Decimal
 
 from test_framework.blocktools import (
-    COINBASE_MATURITY,
     NORMAL_GBT_REQUEST_PARAMS,
     add_witness_commitment,
     create_block,
@@ -67,6 +66,7 @@ from test_framework.util import (
     softfork_active,
     satoshi_round,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 # TestP2PConn: A peer we use to send messages to bitcoind, and store responses.
 class TestP2PConn(P2PInterface):
@@ -296,7 +296,7 @@ class CompactBlocksTest(BitcoinTestFramework):
         version = test_node.cmpct_version
         node = self.nodes[0]
         # Generate a bunch of transactions.
-        node.generate(COINBASE_MATURITY + 1)
+        node.generate(1)
         num_transactions = 25
         address = node.getnewaddress()
         if use_witness_address:
@@ -304,7 +304,7 @@ class CompactBlocksTest(BitcoinTestFramework):
             # a witness address.
             address = node.getnewaddress(address_type='bech32')
             value_to_send = node.getbalance()
-            node.sendtoaddress(address, satoshi_round(value_to_send - Decimal(0.2)))
+            node.sendtoaddress(address, satoshi_round(value_to_send - Decimal(1)))
             node.generate(1)
 
         segwit_tx_generated = False

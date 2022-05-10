@@ -11,12 +11,12 @@ RPCs tested are:
 """
 from collections import defaultdict
 
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet_util import test_address
 from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
-from test_framework.qtum import convert_btc_address_to_qtum
+from test_framework.qtum import convert_btc_address_to_qtum, convert_btc_bech32_address_to_qtum
 
 
 class WalletLabelsTest(BitcoinTestFramework):
@@ -144,13 +144,13 @@ class WalletLabelsTest(BitcoinTestFramework):
             node.createwallet(wallet_name='watch_only', disable_private_keys=True)
             wallet_watch_only = node.get_wallet_rpc('watch_only')
             BECH32_VALID = {
-                '✔️_VER15_PROG40': 'bcrt10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxkg7fn',
-                '✔️_VER16_PROG03': 'bcrt1sqqqqq8uhdgr',
-                '✔️_VER16_PROB02': 'bcrt1sqqqq4wstyw',
+                '✔️_VER15_PROG40': convert_btc_bech32_address_to_qtum('bcrt10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxkg7fn'),
+                '✔️_VER16_PROG03': convert_btc_bech32_address_to_qtum('bcrt1sqqqqq8uhdgr'),
+                '✔️_VER16_PROB02': convert_btc_bech32_address_to_qtum('bcrt1sqqqq4wstyw'),
             }
             BECH32_INVALID = {
-                '❌_VER15_PROG41': 'bcrt1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
-                '❌_VER16_PROB01': 'bcrt1sqq5r4036',
+                '❌_VER15_PROG41': convert_btc_bech32_address_to_qtum('bcrt1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8'),
+                '❌_VER16_PROB01': convert_btc_bech32_address_to_qtum('bcrt1sqq5r4036'),
             }
             for l in BECH32_VALID:
                 ad = BECH32_VALID[l]

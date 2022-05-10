@@ -99,7 +99,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.setup_clean_chain: bool = False
         self.nodes: List[TestNode] = []
         self.network_thread = None
-        self.rpc_timewait = 180  # Wait for up to 60 seconds for the RPC server to respond
+        self.rpc_timeout = 360  # Wait for up to 60 seconds for the RPC server to respond
         self.supports_cli = True
         self.bind_to_localhost_only = True
         self.parse_args()
@@ -482,7 +482,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 get_datadir_path(self.options.tmpdir, i),
                 chain=self.chain,
                 rpchost=rpchost,
-                timewait=self.rpc_timewait,
+                timewait=self.rpc_timeout,
                 timeout_factor=self.options.timeout_factor,
                 bitcoind=binary[i],
                 bitcoin_cli=binary_cli[i],
@@ -723,7 +723,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                     extra_conf=["bind=127.0.0.1"],
                     extra_args=['-disablewallet'],
                     rpchost=None,
-                    timewait=self.rpc_timewait,
+                    timewait=self.rpc_timeout,
                     timeout_factor=self.options.timeout_factor,
                     bitcoind=self.options.bitcoind,
                     bitcoin_cli=self.options.bitcoincli,
@@ -751,7 +751,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             assert_equal(len(gen_addresses), 4)
             for i in range(4):
                 self.nodes[0].generatetoaddress(25, TestNode.PRIV_KEYS[i % 4].address)
-                sync_blocks(self.nodes)
+                self.sync_blocks()
 
             for i in range(4):
                 generatesynchronized(self.nodes[0], COINBASE_MATURITY // 4 if i != 3 else (COINBASE_MATURITY // 4) - 1, TestNode.PRIV_KEYS[i % 4].address, self.nodes)

@@ -21,7 +21,7 @@ needs an older patch version.
 import os
 import shutil
 
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.descriptors import descsum_create
 

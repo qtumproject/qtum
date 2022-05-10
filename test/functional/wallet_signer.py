@@ -15,6 +15,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
+from test_framework.qtum import convert_btc_bech32_address_to_qtum, convert_btc_address_to_qtum
 
 
 class WalletSignerTest(BitcoinTestFramework):
@@ -75,21 +76,21 @@ class WalletSignerTest(BitcoinTestFramework):
         assert_equal(hww.getwalletinfo()["keypoolsize"], 30)
 
         address1 = hww.getnewaddress(address_type="bech32")
-        assert_equal(address1, "bcrt1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th68x4f8g")
+        assert_equal(address1, convert_btc_bech32_address_to_qtum("bcrt1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th68x4f8g"))
         address_info = hww.getaddressinfo(address1)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/84'/1'/0'/0/0")
 
         address2 = hww.getnewaddress(address_type="p2sh-segwit")
-        assert_equal(address2, "2N2gQKzjUe47gM8p1JZxaAkTcoHPXV6YyVp")
+        assert_equal(address2, convert_btc_address_to_qtum("2N2gQKzjUe47gM8p1JZxaAkTcoHPXV6YyVp"))
         address_info = hww.getaddressinfo(address2)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/49'/1'/0'/0/0")
 
         address3 = hww.getnewaddress(address_type="legacy")
-        assert_equal(address3, "n1LKejAadN6hg2FrBXoU1KrwX4uK16mco9")
+        assert_equal(address3, convert_btc_address_to_qtum("n1LKejAadN6hg2FrBXoU1KrwX4uK16mco9"))
         address_info = hww.getaddressinfo(address3)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
@@ -134,7 +135,7 @@ class WalletSignerTest(BitcoinTestFramework):
         assert_equal(result[1], {'success': True})
         assert_equal(mock_wallet.getwalletinfo()["txcount"], 1)
         dest = self.nodes[0].getnewaddress(address_type='bech32')
-        mock_psbt = mock_wallet.walletcreatefundedpsbt([], {dest:0.5}, 0, {}, True)['psbt']
+        mock_psbt = mock_wallet.walletcreatefundedpsbt([], {dest:0.5}, 0, {'change_type': 'bech32'}, True)['psbt']
         mock_psbt_signed = mock_wallet.walletprocesspsbt(psbt=mock_psbt, sign=True, sighashtype="ALL", bip32derivs=True)
         mock_psbt_final = mock_wallet.finalizepsbt(mock_psbt_signed["psbt"])
         mock_tx = mock_psbt_final["hex"]

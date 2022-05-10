@@ -6,6 +6,7 @@
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.qtum import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 
 class OrphanedBlockRewardTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -18,7 +19,7 @@ class OrphanedBlockRewardTest(BitcoinTestFramework):
     def run_test(self):
         # Generate some blocks and obtain some coins on node 0.  We send
         # some balance to node 1, which will hold it as a single coin.
-        self.nodes[0].generate(150)
+        self.nodes[0].generate(COINBASE_MATURITY+50)
         self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 10)
         self.nodes[0].generate(1)
 
@@ -30,15 +31,15 @@ class OrphanedBlockRewardTest(BitcoinTestFramework):
 
         # Let the block reward mature and send coins including both
         # the existing balance and the block reward.
-        self.nodes[0].generate(150)
+        self.nodes[0].generate(COINBASE_MATURITY+50)
         self.sync_blocks()
-        assert_equal(self.nodes[1].getbalance(), 10 + 25)
+        assert_equal(self.nodes[1].getbalance(), 10 + INITIAL_BLOCK_REWARD)
         txid = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), 30)
 
         # Orphan the block reward and make sure that the original coins
         # from the wallet can still be spent.
         self.nodes[0].invalidateblock(blk)
-        self.nodes[0].generate(152)
+        self.nodes[0].generate(COINBASE_MATURITY+52)
         self.sync_blocks()
         # Without the following abandontransaction call, the coins are
         # not considered available yet.

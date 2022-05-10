@@ -16,7 +16,7 @@ import struct
 
 from io import BytesIO
 
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.bdb import dump_bdb_kv
 from test_framework.messages import deser_compact_size, deser_string
 from test_framework.test_framework import BitcoinTestFramework

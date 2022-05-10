@@ -77,7 +77,7 @@ def base58_to_byte(v, length):
   checksum = hexresult[-8:]
   return (version, hsh, checksum)
 
-def base58_to_byte(s):
+def base58_to_byte_btc(s):
     """Converts a base58-encoded string to its data and version.
 
     Throws if the base58 checksum is invalid."""
@@ -169,7 +169,7 @@ def check_script(script):
 class TestFrameworkScript(unittest.TestCase):
     def test_base58encodedecode(self):
         def check_base58(data, version):
-            self.assertEqual(base58_to_byte(byte_to_base58(data, version)), (data, version))
+            self.assertEqual(base58_to_byte_btc(byte_to_base58(data, version)), (data, version))
 
         check_base58(bytes.fromhex('1f8ea1702a7bd4941bca0941b852c4bbfedb2e05'), 111)
         check_base58(bytes.fromhex('3a0b05f4d7f66c3ba7009f453530296c845cc9cf'), 111)

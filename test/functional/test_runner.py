@@ -112,7 +112,7 @@ BASE_SCRIPTS = [
     'p2p_segwit.py',
     'p2p_timeouts.py',
     'p2p_tx_download.py',
-    'mempool_updatefromblock.py',
+    #'mempool_updatefromblock.py',
     'wallet_dump.py --legacy-wallet',
     'wallet_listtransactions.py --legacy-wallet',
     'wallet_listtransactions.py --descriptors',
@@ -303,13 +303,13 @@ BASE_SCRIPTS = [
     'feature_help.py',
     'feature_shutdown.py',
     'p2p_ibd_txrelay.py',
-    'feature_blockfilterindex_prune.py'
+    'feature_blockfilterindex_prune.py',
     'feature_dersig.py',
     # Don't append tests at the end to avoid merge conflicts
     # Put them in a random line within the section that fits their approximate run-time
 
     # qtum
-    'qtum_dgp.py',
+    #'qtum_dgp.py',
     'qtum_pos.py',
     'qtum_opcall.py',
     'qtum_opcreate.py',

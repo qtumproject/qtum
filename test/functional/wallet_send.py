@@ -22,8 +22,8 @@ class WalletSendTest(BitcoinTestFramework):
         self.num_nodes = 2
         # whitelist all peers to speed up tx relay / mempool sync
         self.extra_args = [
-            ["-whitelist=127.0.0.1","-walletrbf=1"],
-            ["-whitelist=127.0.0.1","-walletrbf=1"],
+            ["-whitelist=127.0.0.1","-walletrbf=1", '-addresstype=bech32'],
+            ["-whitelist=127.0.0.1","-walletrbf=1", '-addresstype=bech32'],
         ]
         getcontext().prec = 8 # Satoshi precision for Decimal
 
@@ -312,13 +312,13 @@ class WalletSendTest(BitcoinTestFramework):
         assert res["complete"]
 
         self.log.info("Test setting explicit fee rate")
-        res1 = self.test_send(from_wallet=w0, to_wallet=w1, amount=1, arg_fee_rate="1", add_to_wallet=False)
-        res2 = self.test_send(from_wallet=w0, to_wallet=w1, amount=1, fee_rate="1", add_to_wallet=False)
+        res1 = self.test_send(from_wallet=w0, to_wallet=w1, amount=1, arg_fee_rate="400", add_to_wallet=False)
+        res2 = self.test_send(from_wallet=w0, to_wallet=w1, amount=1, fee_rate="400", add_to_wallet=False)
         assert_equal(self.nodes[1].decodepsbt(res1["psbt"])["fee"], self.nodes[1].decodepsbt(res2["psbt"])["fee"])
 
-        res = self.test_send(from_wallet=w0, to_wallet=w1, amount=1, fee_rate=7, add_to_wallet=False)
+        res = self.test_send(from_wallet=w0, to_wallet=w1, amount=1, fee_rate=400, add_to_wallet=False)
         fee = self.nodes[1].decodepsbt(res["psbt"])["fee"]
-        assert_fee_amount(fee, Decimal(len(res["hex"]) / 2), Decimal("0.00007"))
+        assert_fee_amount(fee, Decimal(len(res["hex"]) / 2), Decimal("0.00400000"))
 
         # "unset" and None are treated the same for estimate_mode
         res = self.test_send(from_wallet=w0, to_wallet=w1, amount=1, fee_rate=2, estimate_mode="unset", add_to_wallet=False)

@@ -28,6 +28,7 @@ from test_framework.util import (
     assert_equal,
     assert_greater_than_or_equal,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 PEER_TIMEOUT = 3
 
@@ -164,7 +165,7 @@ class P2PLeakTest(BitcoinTestFramework):
         assert_greater_than_or_equal(time.time() + 3600, ver.nTime)
         assert_equal(ver.addrFrom.port, 0)
         assert_equal(ver.addrFrom.ip, '0.0.0.0')
-        assert_equal(ver.nStartingHeight, 201)
+        assert_equal(ver.nStartingHeight, COINBASE_MATURITY+101)
         assert_equal(ver.relay, 1)
 
         self.log.info('Check that old peers are disconnected')

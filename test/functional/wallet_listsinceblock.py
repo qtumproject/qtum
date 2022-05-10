@@ -5,7 +5,7 @@
 """Test the listsinceblock RPC."""
 
 from test_framework.address import key_to_p2wpkh
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.key import ECKey
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.messages import BIP125_SEQUENCE_NUMBER

@@ -6,7 +6,7 @@
 
 from decimal import Decimal
 
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.messages import MSG_TX, MSG_WTX, msg_feefilter
 from test_framework.p2p import P2PInterface, p2p_lock
 from test_framework.test_framework import BitcoinTestFramework
@@ -82,7 +82,9 @@ class FeeFilterTest(BitcoinTestFramework):
         miniwallet = MiniWallet(node1)
         # Add enough mature utxos to the wallet, so that all txs spend confirmed coins
         miniwallet.generate(5)
-        node1.generate(COINBASE_MATURITY)
+        for i in range(100):
+            node1.generate(COINBASE_MATURITY//100)
+            self.sync_blocks()
 
         conn = self.nodes[0].add_p2p_connection(TestP2PConn())
 

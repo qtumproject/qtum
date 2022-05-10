@@ -16,7 +16,6 @@ make assumptions about execution order.
 from decimal import Decimal
 
 from test_framework.blocktools import (
-    COINBASE_MATURITY,
     add_witness_commitment,
     create_block,
     create_coinbase,
@@ -33,6 +32,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 from test_framework.qtum import generatesynchronized
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 WALLET_PASSPHRASE = "test"
 WALLET_PASSPHRASE_TIMEOUT = 3600
@@ -118,7 +118,7 @@ class BumpFeeTest(BitcoinTestFramework):
         assert_raises_rpc_error(-8, "Insufficient total fee 0.00000141", rbf_node.bumpfee, rbfid, {"fee_rate": INSUFFICIENT})
 
         self.log.info("Test invalid fee rate settings")
-        assert_raises_rpc_error(-4, "Specified or calculated fee 0.141 is too high (cannot be higher than -maxtxfee 0.10",
+        assert_raises_rpc_error(-4, "Specified or calculated fee 14.10 is too high (cannot be higher than -maxtxfee 1.00",
             rbf_node.bumpfee, rbfid, {"fee_rate": TOO_HIGH})
         # Test fee_rate with zero values.
         msg = "Insufficient total fee 0.00"

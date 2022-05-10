@@ -12,7 +12,7 @@ definable expiry timeout via the '-mempoolexpiry=<n>' command line argument
 
 from datetime import timedelta
 
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,

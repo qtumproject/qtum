@@ -12,7 +12,6 @@ the index.
 from decimal import Decimal
 
 from test_framework.blocktools import (
-    COINBASE_MATURITY,
     create_block,
     create_coinbase,
 )
@@ -34,6 +33,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
     try_rpc,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class CoinStatsIndexTest(BitcoinTestFramework):
     def set_test_params(self):

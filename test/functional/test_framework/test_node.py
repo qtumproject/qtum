@@ -213,10 +213,10 @@ class TestNode():
         if self.enable_wallet and not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
 
-        if not ENABLE_REDUCED_BLOCK_TIME and not any(arg.startswith('-reduceblocktimeheight=') for arg in extra_args):
+        if not ENABLE_REDUCED_BLOCK_TIME and not any(arg.startswith('-reduceblocktimeheight=') for arg in extra_args) and self.chain == "regtest":
             extra_args.append('-reduceblocktimeheight=10000000')
 
-        if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=') for arg in extra_args):
+        if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=') for arg in extra_args) and self.chain == "regtest":
             extra_args.append('-offlinestakingheight=1')
 
         # Disable the spam filter as it may interfere with come tests sending lots and lots of blocks
@@ -314,6 +314,7 @@ class TestNode():
         self._raise_assertion_error("Unable to retrieve cookie credentials after {}s".format(self.rpc_timeout))
 
     def generate(self, nblocks, maxtries=1000000):
+        print(nblocks, self.get_deterministic_priv_key().address)
         self.log.debug("TestNode.generate() dispatches `generate` call to `generatetoaddress`")
         return self.generatetoaddress(nblocks=nblocks, address=self.get_deterministic_priv_key().address, maxtries=maxtries)
 

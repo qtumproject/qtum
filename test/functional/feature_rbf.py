@@ -6,7 +6,7 @@
 
 from decimal import Decimal
 
-from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.messages import (
     BIP125_SEQUENCE_NUMBER,
     COIN,
@@ -575,8 +575,9 @@ class ReplaceByFeeTest(BitcoinTestFramework):
 
     def test_no_inherited_signaling(self):
         wallet = MiniWallet(self.nodes[0])
-        wallet.scan_blocks(start=76, num=1)
+        wallet.scan_blocks(start=24, num=1)
         confirmed_utxo = wallet.get_utxo()
+        print("TXOUT", self.nodes[0].gettxout(confirmed_utxo['txid'], confirmed_utxo['vout']))
 
         # Create an explicitly opt-in parent transaction
         optin_parent_tx = wallet.send_self_transfer(

@@ -30,6 +30,7 @@ from test_framework.util import (
     hex_str_to_bytes,
     satoshi_round,
 )
+from test_framework.qtum import convert_btc_bech32_address_to_qtum
 
 
 class MiniWalletMode(Enum):
@@ -72,7 +73,7 @@ class MiniWallet:
             pub_key = self._priv_key.get_pubkey()
             self._scriptPubKey = bytes(CScript([pub_key.get_bytes(), OP_CHECKSIG]))
         elif mode == MiniWalletMode.ADDRESS_OP_TRUE:
-            self._address = ADDRESS_BCRT1_P2WSH_OP_TRUE
+            self._address = self._test_node.get_deterministic_priv_key().address #convert_btc_bech32_address_to_qtum(ADDRESS_BCRT1_P2WSH_OP_TRUE)
             self._scriptPubKey = hex_str_to_bytes(self._test_node.validateaddress(self._address)['scriptPubKey'])
 
     def scan_blocks(self, *, start=1, num):
@@ -85,7 +86,10 @@ class MiniWallet:
     def scan_tx(self, tx):
         """Scan the tx for self._scriptPubKey outputs and add them to self._utxos"""
         for out in tx['vout']:
+            print(out, self._address)
+            print(tx['hash'], out['scriptPubKey']['hex'], self._scriptPubKey.hex())
             if out['scriptPubKey']['hex'] == self._scriptPubKey.hex():
+                print('yes')
                 self._utxos.append({'txid': tx['txid'], 'vout': out['n'], 'value': out['value']})
 
     def sign_tx(self, tx, fixed_length=True):
@@ -138,7 +142,7 @@ class MiniWallet:
         self.sendrawtransaction(from_node=kwargs['from_node'], tx_hex=tx['hex'])
         return tx
 
-    def create_self_transfer(self, *, fee_rate=Decimal("0.003"), from_node, utxo_to_spend=None, mempool_valid=True, locktime=0, sequence=0):
+    def create_self_transfer(self, *, fee_rate=Decimal("0.03"), from_node, utxo_to_spend=None, mempool_valid=True, locktime=0, sequence=0):
         """Create and return a tx with the specified fee_rate. Fee may be exact or at most one satoshi higher than needed."""
         self._utxos = sorted(self._utxos, key=lambda k: k['value'])
         utxo_to_spend = utxo_to_spend or self._utxos.pop()  # Pick the largest utxo (if none provided) and hope it covers the fee
@@ -168,6 +172,7 @@ class MiniWallet:
         tx_hex = tx.serialize().hex()
 
         tx_info = from_node.testmempoolaccept([tx_hex])[0]
+        print(tx_info)
         assert_equal(mempool_valid, tx_info['allowed'])
         if mempool_valid:
             assert_equal(tx_info['vsize'], vsize)

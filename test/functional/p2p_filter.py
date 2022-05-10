@@ -28,7 +28,7 @@ from test_framework.p2p import (
 )
 from test_framework.script import MAX_SCRIPT_ELEMENT_SIZE
 from test_framework.test_framework import BitcoinTestFramework
-
+MAX_SCRIPT_ELEMENT_SIZE = 128000
 
 class P2PBloomFilter(P2PInterface):
     # This is a P2SH watch-only wallet
