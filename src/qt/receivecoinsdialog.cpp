@@ -314,3 +314,8 @@ void ReceiveCoinsDialog::copyAmount()
 {
     copyColumnToClipboard(RecentRequestsTableModel::Amount);
 }
+
+SendCoinsRecipient ReceiveCoinsDialog::getInfo() const
+{
+    return info;
+}

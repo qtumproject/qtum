@@ -10,6 +10,7 @@
 #include <qt/optionsmodel.h>
 #include <qt/qrimagewidget.h>
 #include <qt/walletmodel.h>
+#include <qt/platformstyle.h>
 
 #include <QDialog>
 #include <QString>

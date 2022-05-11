@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     //
     // All tests must use their own testing setup (if needed).
     {
-        BasicTestingSetup dummy{CBaseChainParams::REGTEST};
+        BasicTestingSetup dummy{CBaseChainParams::UNITTEST};
     }
 
     std::unique_ptr<interfaces::Init> init = interfaces::MakeGuiInit(argc, argv);
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     // Don't remove this, it's needed to access
     // QApplication:: and QCoreApplication:: in the tests
     BitcoinApplication app;
-    app.setApplicationName("Bitcoin-Qt-test");
+    app.setApplicationName("Qtum-Qt-test");
     app.createNode(*init);
 
     AppTests app_tests(app);

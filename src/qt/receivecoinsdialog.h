@@ -6,6 +6,7 @@
 #define BITCOIN_QT_RECEIVECOINSDIALOG_H
 
 #include <qt/guiutil.h>
+#include <qt/sendcoinsrecipient.h>
 
 #include <QDialog>
 #include <QHeaderView>
@@ -44,6 +45,8 @@ public:
 
     void setModel(WalletModel *model);
 
+    SendCoinsRecipient getInfo() const;
+
 public Q_SLOTS:
     void clear();
     void reject() override;
@@ -57,6 +60,7 @@ private:
     QAction* copyMessageAction;
     QAction* copyAmountAction;
     const PlatformStyle *platformStyle;
+    SendCoinsRecipient info;
 
     QModelIndex selectedRow();
     void copyColumnToClipboard(int column);
