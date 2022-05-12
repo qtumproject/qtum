@@ -209,15 +209,48 @@ RPCHelpMan getaddressdeltas()
                     }
                 }
             },
-            RPCResult{
-                RPCResult::Type::OBJ, "", "",
-                {
-                    {RPCResult::Type::NUM, "satoshis", "The difference of satoshis"},
-                    {RPCResult::Type::STR_HEX, "txid", "The related txid"},
-                    {RPCResult::Type::NUM, "index", "The related input or output index"},
-                    {RPCResult::Type::NUM, "height", "The block height"},
-                    {RPCResult::Type::STR, "address", "The qtum address"},
-                }
+            {
+                RPCResult{"if chainInfo is set to false",
+                    RPCResult::Type::ARR, "", "",
+                    {
+                        {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::NUM, "satoshis", "The difference of satoshis"},
+                            {RPCResult::Type::STR_HEX, "txid", "The related txid"},
+                            {RPCResult::Type::NUM, "index", "The related input or output index"},
+                            {RPCResult::Type::NUM, "blockindex", "The transaction index in block"},
+                            {RPCResult::Type::NUM, "height", "The block height"},
+                            {RPCResult::Type::STR, "address", "The qtum address"},
+                        }}
+                    },
+                },
+                RPCResult{"if chainInfo is set to true",
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::ARR, "deltas", "List of delta",
+                        {
+                            {RPCResult::Type::OBJ, "", "",
+                            {
+                                {RPCResult::Type::NUM, "satoshis", "The difference of satoshis"},
+                                {RPCResult::Type::STR_HEX, "txid", "The related txid"},
+                                {RPCResult::Type::NUM, "index", "The related input or output index"},
+                                {RPCResult::Type::NUM, "blockindex", "The transaction index in block"},
+                                {RPCResult::Type::NUM, "height", "The block height"},
+                                {RPCResult::Type::STR, "address", "The qtum address"},
+                            }}
+                        }},
+                        {RPCResult::Type::OBJ, "start", "Start block",
+                        {
+                            {RPCResult::Type::STR_HEX, "hash", "The block hash"},
+                            {RPCResult::Type::NUM, "height", "The block height"},
+                        }},
+                        {RPCResult::Type::OBJ, "end", "End block",
+                        {
+                            {RPCResult::Type::STR_HEX, "hash", "The block hash"},
+                            {RPCResult::Type::NUM, "height", "The block height"},
+                        }},
+                    },
+                },
             },
             RPCExamples{
                 HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
@@ -344,6 +377,7 @@ RPCHelpMan getaddressbalance()
                     {
                         {RPCResult::Type::NUM, "balance", "The current balance in satoshis"},
                         {RPCResult::Type::NUM, "received", "The total number of satoshis received (including change)"},
+                        {RPCResult::Type::NUM, "immature", "The immature balance in satoshis"},
                     }
                 },
                 RPCExamples{
@@ -410,16 +444,42 @@ RPCHelpMan getaddressutxos()
                         }
                     }
                 },
-                RPCResult{
-                    RPCResult::Type::OBJ, "", "",
-                    {
-                        {RPCResult::Type::STR, "address", "The address base58check encoded"},
-                        {RPCResult::Type::STR_HEX, "txid", "The output txid"},
-                        {RPCResult::Type::NUM, "height", "The block height"},
-                        {RPCResult::Type::NUM, "outputIndex", "The output index"},
-                        {RPCResult::Type::STR_HEX, "script", "The script hex encoded"},
-                        {RPCResult::Type::NUM, "satoshis", "The number of satoshis of the output"},
-                    }
+                {
+                    RPCResult{"if chainInfo is set to false",
+                        RPCResult::Type::ARR, "", "",
+                        {
+                            {RPCResult::Type::OBJ, "", "",
+                            {
+                                {RPCResult::Type::STR, "address", "The address base58check encoded"},
+                                {RPCResult::Type::STR_HEX, "txid", "The output txid"},
+                                {RPCResult::Type::NUM, "height", "The block height"},
+                                {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                                {RPCResult::Type::STR_HEX, "script", "The script hex encoded"},
+                                {RPCResult::Type::NUM, "satoshis", "The number of satoshis of the output"},
+                                {RPCResult::Type::BOOL, "isStake", "Is coinstake output"},
+                            }}
+                        },
+                    },
+                    RPCResult{"if chainInfo is set to true",
+                        RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::ARR, "utxos", "List of utxo",
+                            {
+                                {RPCResult::Type::OBJ, "", "",
+                                {
+                                    {RPCResult::Type::STR, "address", "The address base58check encoded"},
+                                    {RPCResult::Type::STR_HEX, "txid", "The output txid"},
+                                    {RPCResult::Type::NUM, "height", "The block height"},
+                                    {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                                    {RPCResult::Type::STR_HEX, "script", "The script hex encoded"},
+                                    {RPCResult::Type::NUM, "satoshis", "The number of satoshis of the output"},
+                                    {RPCResult::Type::BOOL, "isStake", "Is coinstake output"},
+                                }}
+                            }},
+                            {RPCResult::Type::STR_HEX, "hash", "The tip block hash"},
+                            {RPCResult::Type::NUM, "height", "The tip block height"},
+                        },
+                    },
                 },
                 RPCExamples{
                     HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
@@ -506,15 +566,18 @@ RPCHelpMan getaddressmempool()
                     }
                 },
                 RPCResult{
-                    RPCResult::Type::OBJ, "", "",
+                    RPCResult::Type::ARR, "", "",
                     {
-                        {RPCResult::Type::STR, "address", "The qtum address"},
-                        {RPCResult::Type::STR_HEX, "txid", "The related txid"},
-                        {RPCResult::Type::NUM, "index", "The related input or output index"},
-                        {RPCResult::Type::NUM, "satoshis", "The difference of satoshis"},
-                        {RPCResult::Type::NUM, "timestamp", "The time the transaction entered the mempool (seconds)"},
-                        {RPCResult::Type::STR_HEX, "prevtxid", "The previous txid (if spending)"},
-                        {RPCResult::Type::NUM, "prevout", "The previous transaction output index (if spending)"},
+                        {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR, "address", "The qtum address"},
+                            {RPCResult::Type::STR_HEX, "txid", "The related txid"},
+                            {RPCResult::Type::NUM, "index", "The related input or output index"},
+                            {RPCResult::Type::NUM, "satoshis", "The difference of satoshis"},
+                            {RPCResult::Type::NUM, "timestamp", "The time the transaction entered the mempool (seconds)"},
+                            {RPCResult::Type::STR_HEX, "prevtxid", "The previous txid (if spending)"},
+                            {RPCResult::Type::NUM, "prevout", "The previous transaction output index (if spending)"},
+                        }}
                     }
                 },
                 RPCExamples{
@@ -671,6 +734,7 @@ RPCHelpMan getspentinfo()
                     {
                         {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
                         {RPCResult::Type::NUM, "index", "The spending input index"},
+                        {RPCResult::Type::NUM, "height", "The spending block height"},
                     }
                 },
                 RPCExamples{
@@ -727,7 +791,7 @@ RPCHelpMan getaddresstxids()
                     }
                 },
                 RPCResult{
-                    RPCResult::Type::OBJ, "", "",
+                    RPCResult::Type::ARR, "", "",
                     {
                         {RPCResult::Type::STR_HEX, "transactionid", "The transaction id"},
                     }
