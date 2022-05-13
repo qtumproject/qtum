@@ -29,6 +29,7 @@ Start three nodes:
       block 200. node2 will reject block 102 since it's assumed valid, but it
       isn't buried by at least two weeks' work.
 """
+import time
 
 from test_framework.blocktools import (
     COINBASE_MATURITY,
@@ -49,7 +50,6 @@ from test_framework.p2p import P2PInterface
 from test_framework.script import (CScript, OP_TRUE)
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
-from test_framework.qtumconfig import COINBASE_MATURITY
 import inspect
 
 
@@ -65,7 +65,6 @@ class AssumeValidTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 3
         self.rpc_timeout = 120
-        self.extra_args = [['-headerspamfilter=0']]*3
 
     def setup_network(self):
         self.add_nodes(3)
@@ -84,6 +83,25 @@ class AssumeValidTest(BitcoinTestFramework):
             except IOError:
                 assert not p2p_conn.is_connected
                 break
+
+    def assert_blockchain_height(self, node, height):
+        """Wait until the blockchain is no longer advancing and verify it's reached the expected height."""
+        last_height = node.getblock(node.getbestblockhash())['height']
+        timeout = 10
+        while True:
+            if timeout < 0:
+                assert False, "blockchain too short after timeout: %d" % current_height
+
+            time.sleep(0.25)
+            current_height = node.getblock(node.getbestblockhash())['height']
+            if current_height > height:
+                assert False, "blockchain too long: %d" % current_height
+            elif current_height != last_height:
+                last_height = current_height
+                timeout = 10 # reset the timeout
+            elif current_height == height:
+                break
+            timeout = timeout - 0.25
 
     def run_test(self):
         p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
@@ -175,8 +193,7 @@ class AssumeValidTest(BitcoinTestFramework):
 
         # Send blocks to node0. Block 102 will be rejected.
         self.send_blocks_until_disconnected(p2p0)
-        self.wait_until(lambda: self.nodes[0].getblockcount() >= COINBASE_MATURITY + 1)
-        assert_equal(self.nodes[0].getblockcount(), COINBASE_MATURITY + 1)
+        self.assert_blockchain_height(self.nodes[0], COINBASE_MATURITY+1)
 
         # Send all blocks to node1. All blocks will be accepted.
         # Send only a subset to speed this up
@@ -194,8 +211,7 @@ class AssumeValidTest(BitcoinTestFramework):
         # Send blocks to node2. Block 102 will be rejected.
         p2p2 = self.nodes[2].add_p2p_connection(BaseNode())
         self.send_blocks_until_disconnected(p2p2)
-        self.wait_until(lambda: self.nodes[2].getblockcount() >= COINBASE_MATURITY + 1)
-        assert_equal(self.nodes[2].getblockcount(), COINBASE_MATURITY + 1)
+        self.assert_blockchain_height(self.nodes[2], COINBASE_MATURITY+1)
 
 
 if __name__ == '__main__':

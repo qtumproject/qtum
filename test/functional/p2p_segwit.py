@@ -22,6 +22,7 @@ from test_framework.messages import (
     CTxInWitness,
     CTxOut,
     CTxWitness,
+    MAX_BLOCK_BASE_SIZE,
     MSG_BLOCK,
     MSG_TX,
     MSG_WITNESS_FLAG,
@@ -362,7 +363,6 @@ class SegWitTest(BitcoinTestFramework):
         # Save this transaction for later
         self.utxo.append(UTXO(tx.sha256, 0, (INITIAL_BLOCK_REWARD-1) * 100000000))
         self.nodes[0].generate(1)
-        self.segwit_status = 'started' # we will advance to started immediately...
 
     @subtest  # type: ignore
     def test_unnecessary_witness_before_segwit_activation(self):
@@ -699,35 +699,13 @@ class SegWitTest(BitcoinTestFramework):
         if not self.segwit_active:
             # Just check mempool acceptance, but don't add the transaction to the mempool, since witness is disallowed
             # in blocks and the tx is impossible to mine right now.
-            assert_equal(
-                self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]),
-                [{
-                    'txid': tx3.hash,
-                    'wtxid': tx3.getwtxid(),
-                    'allowed': True,
-                    'vsize': tx3.get_vsize(),
-                    'fees': {
-                        'base': Decimal('0.00001000'),
-                    },
-                }],
-            )
+            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'wtxid': tx3.getwtxid(), 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.00100000')}}])
             # Create the same output as tx3, but by replacing tx
             tx3_out = tx3.vout[0]
             tx3 = tx
             tx3.vout = [tx3_out]
             tx3.rehash()
-            assert_equal(
-                self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]),
-                [{
-                    'txid': tx3.hash,
-                    'wtxid': tx3.getwtxid(),
-                    'allowed': True,
-                    'vsize': tx3.get_vsize(),
-                    'fees': {
-                        'base': Decimal('0.00011000'),
-                    },
-                }],
-            )
+            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'wtxid': tx3.getwtxid(), 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.01100000')}}])
         test_transaction_acceptance(self.nodes[0], self.test_node, tx3, with_witness=True, accepted=True)
 
         self.nodes[0].generate(1)
@@ -1004,7 +982,7 @@ class SegWitTest(BitcoinTestFramework):
         add_witness_commitment(block)
         block.solve()
         vsize = get_virtual_size(block)
-        assert_equal(vsize, MAX_BLOCK_BASE_SIZE + 1)
+        assert_equal(vsize, MAX_BLOCK_BASE_SIZE +1)
         # Make sure that our test case would exceed the old max-network-message
         # limit
         assert len(block.serialize()) > (2 * 1024 * 1024) // FACTOR_REDUCED_BLOCK_TIME
@@ -1018,7 +996,6 @@ class SegWitTest(BitcoinTestFramework):
         block.vtx[-1].wit.vtxinwit[update_vtixinwit_index].scriptWitness.stack[update_stack_index] = b'a'*4 if ENABLE_REDUCED_BLOCK_TIME else b'a'*8
         add_witness_commitment(block)
         block.solve()
-        print(get_virtual_size(block), MAX_BLOCK_BASE_SIZE)
         assert get_virtual_size(block) == MAX_BLOCK_BASE_SIZE
 
         test_witness_block(self.nodes[0], self.test_node, block, accepted=True)
@@ -1181,7 +1158,7 @@ class SegWitTest(BitcoinTestFramework):
 
         # This program is 19 max pushes (9937 bytes), then 64 more opcode-bytes.
         long_witness_program = CScript([b'a' * (MAX_SCRIPT_ELEMENT_SIZE-50)] + [b'a'*996] + [OP_DROP]*46 + [OP_TRUE])
-        assert(len(long_witness_program) == MAX_PROGRAM_LENGTH + 1)
+        assert len(long_witness_program) == MAX_PROGRAM_LENGTH + 1
         long_script_pubkey = script_to_p2wsh_script(long_witness_program)
 
         block = self.build_next_block()
@@ -1204,7 +1181,7 @@ class SegWitTest(BitcoinTestFramework):
 
         # Try again with one less byte in the witness program
         witness_program = CScript([b'a' * (MAX_SCRIPT_ELEMENT_SIZE-50)] + [b'a'*996] + [OP_DROP]*45 + [OP_TRUE])
-        assert(len(witness_program) == MAX_PROGRAM_LENGTH)
+        assert len(witness_program) == MAX_PROGRAM_LENGTH
         script_pubkey = script_to_p2wsh_script(witness_program)
 
         tx.vout[0] = CTxOut(tx.vout[0].nValue, script_pubkey)
@@ -1344,7 +1321,7 @@ class SegWitTest(BitcoinTestFramework):
         # Add too-large for IsStandard witness and check that it does not enter reject filter
         p2sh_program = CScript([OP_TRUE])
         witness_program2 = CScript([b'a' * 400000])
-        tx3.vout.append(CTxOut(tx2.vout[0].nValue - 100000, script_to_p2sh_script(p2sh_program)))
+        tx3.vout.append(CTxOut(tx2.vout[0].nValue - 1000, script_to_p2sh_script(p2sh_program)))
         tx3.wit.vtxinwit[0].scriptWitness.stack = [witness_program2]
         tx3.rehash()
 
@@ -1508,7 +1485,7 @@ class SegWitTest(BitcoinTestFramework):
         spend_tx.rehash()
 
         # Now test a premature spend.
-        generatesynchronized(self.nodes[0], COINBASE_MATURITY-2, None, self.nodes)
+        self.nodes[0].generate(COINBASE_MATURITY-2)
         self.sync_blocks()
         block2 = self.build_next_block()
         self.update_witness_block_with_transactions(block2, [spend_tx])
@@ -2154,13 +2131,13 @@ class SegWitTest(BitcoinTestFramework):
 
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
-        tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
+        tx.vout.append(CTxOut(self.utxo[0].nValue - 1000000, script_pubkey))
         tx.rehash()
 
         # Create a Segwit transaction
         tx2 = CTransaction()
         tx2.vin.append(CTxIn(COutPoint(tx.sha256, 0), b""))
-        tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000, script_pubkey))
+        tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000000, script_pubkey))
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [witness_program]
         tx2.rehash()

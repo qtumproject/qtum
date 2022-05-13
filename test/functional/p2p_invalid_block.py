@@ -16,13 +16,13 @@ import copy
 import time
 
 from test_framework.blocktools import create_block, create_coinbase, create_tx_with_script
-from test_framework.messages import COIN
+from test_framework.messages import COIN, MAX_MONEY
 from test_framework.p2p import P2PDataStore
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
 from test_framework.qtumconfig import *
 
-MAX_FUTURE_BLOCK_TIME = 2 * 60 * 60
+MAX_FUTURE_BLOCK_TIME = 4
 
 
 class InvalidBlockRequestTest(BitcoinTestFramework):
@@ -104,14 +104,14 @@ class InvalidBlockRequestTest(BitcoinTestFramework):
 
         block3 = create_block(tip, create_coinbase(height), block_time)
         block_time += 1
-        block3.vtx[0].vout[0].nValue = 2 * INITIAL_BLOCK_REWARD * COIN  # Too high!
+        block3.vtx[0].vout[0].nValue = MAX_MONEY  # Too high!
         block3.vtx[0].sha256 = None
         block3.vtx[0].calc_sha256()
         block3.hashMerkleRoot = block3.calc_merkle_root()
         block3.rehash()
         block3.solve()
-
-        peer.send_blocks_and_test([block3], node, success=False)
+        
+        peer.send_blocks_and_test([block3], node, success=False, reject_reason='block-reward-invalid')
 
 
         # Complete testing of CVE-2012-2459 by sending the original block.
@@ -140,17 +140,17 @@ class InvalidBlockRequestTest(BitcoinTestFramework):
         self.log.info("Test inflation by duplicating input")
         peer.send_blocks_and_test([block4], node, success=False,  reject_reason='bad-txns-inputs-duplicate')
 
-        self.log.info("Test accepting identical block after rejecting it due to a future timestamp.")
-        t = int(time.time())
-        node.setmocktime(t)
-        # Set block time +1 second past max future validity
-        block = create_block(tip, create_coinbase(height), t + MAX_FUTURE_BLOCK_TIME + 1)
-        block.hashMerkleRoot = block.calc_merkle_root()
-        block.solve()
-        # Need force_send because the block will get rejected without a getdata otherwise
-        peer.send_blocks_and_test([block], node, force_send=True, success=False, reject_reason='time-too-new')
-        node.setmocktime(t + 1)
-        peer.send_blocks_and_test([block], node, success=True)
+        # self.log.info("Test accepting identical block after rejecting it due to a future timestamp.")
+        # t = int(time.time())
+        # node.setmocktime(t)
+        # # Set block time +1 second past max future validity
+        # block = create_block(tip, create_coinbase(height), t + MAX_FUTURE_BLOCK_TIME + 1)
+        # block.hashMerkleRoot = block.calc_merkle_root()
+        # block.solve()
+        # # Need force_send because the block will get rejected without a getdata otherwise
+        # peer.send_blocks_and_test([block], node, force_send=True, success=False, reject_reason='time-too-new')
+        # node.setmocktime(t + 1)
+        # peer.send_blocks_and_test([block], node, success=True)
 
 
 if __name__ == '__main__':

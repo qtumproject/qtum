@@ -9,7 +9,6 @@ import itertools
 import json
 import os
 
-from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.authproxy import JSONRPCException
 from test_framework.descriptors import descsum_create, drop_origins
 from test_framework.key import ECPubKey, ECKey
@@ -19,14 +18,15 @@ from test_framework.util import (
     assert_equal,
 )
 from test_framework.wallet_util import bytes_to_wif
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
-from test_framework.qtum import generatesynchronized
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 class RpcCreateMultiSigTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 3
         self.supports_cli = False
-
+        self.extra_args = [['-addresstype=bech32']] * 3
+        self.requires_wallet = True
+        
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
 
@@ -47,7 +47,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         self.check_addmultisigaddress_errors()
 
         self.log.info('Generating blocks ...')
-        generatesynchronized(node0, COINBASE_MATURITY+49, None, self.nodes)
+        node0.generate(COINBASE_MATURITY+49)
         self.sync_all()
 
         self.moved = 0
@@ -77,7 +77,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         # Check all permutations of keys because order matters apparently
         for keys in itertools.permutations([pk0, pk1, pk2]):
             # Results should be the same as this legacy one
-            legacy_addr = node0.createmultisig(2, keys, 'legacy')['address']
+            legacy_addr = wmulti0.createmultisig(2, keys, 'legacy')['address']
             assert_equal(legacy_addr, wmulti0.addmultisigaddress(2, keys, '', 'legacy')['address'])
 
             # Generate addresses with the segwit types. These should all make legacy addresses
@@ -98,8 +98,10 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             sorted_key_desc = descsum_create('sh(multi(2,{}))'.format(sorted_key_str))
             assert_equal(self.nodes[0].deriveaddresses(sorted_key_desc)[0], t['address'])
 
+        node0.createwallet(wallet_name='wmulti1', disable_private_keys=False)
+        wmulti1 = node0.get_wallet_rpc('wmulti1')
         # Check that bech32m is currently not allowed
-        assert_raises_rpc_error(-5, "createmultisig cannot create bech32m multisig addresses", self.nodes[0].createmultisig, 2, self.pub, "bech32m")
+        assert_raises_rpc_error(-5, "createmultisig cannot create bech32m multisig addresses", wmulti1.createmultisig, 2, self.pub, "bech32m")
 
     def check_addmultisigaddress_errors(self):
         if self.options.descriptors:
@@ -118,7 +120,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
     def checkbalances(self):
         node0, node1, node2 = self.nodes
-        generatesynchronized(node0, COINBASE_MATURITY, None, self.nodes)
+        node0.generate(COINBASE_MATURITY)
         self.sync_all()
 
         bal0 = node0.getbalance()

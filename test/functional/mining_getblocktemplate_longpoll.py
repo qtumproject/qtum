@@ -12,7 +12,7 @@ from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import get_rpc_proxy
 from test_framework.wallet import MiniWallet
-
+from test_framework.qtum import generatesynchronized
 
 class LongpollThread(threading.Thread):
     def __init__(self, node):
@@ -31,6 +31,7 @@ class GetBlockTemplateLPTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.supports_cli = False
+        self.requires_wallet = True
 
     def run_test(self):
         self.log.info("Warning: this test will take about 70 seconds in the best case. Be patient.")
@@ -63,7 +64,8 @@ class GetBlockTemplateLPTest(BitcoinTestFramework):
         assert not thr.is_alive()
 
         # Add enough mature utxos to the wallets, so that all txs spend confirmed coins
-        self.nodes[0].generate(COINBASE_MATURITY)
+        # self.nodes[0].generate(COINBASE_MATURITY)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY,sync_with_nodes=self.nodes)
         self.sync_blocks()
 
         self.log.info("Test that introducing a new transaction into the mempool will terminate the longpoll")

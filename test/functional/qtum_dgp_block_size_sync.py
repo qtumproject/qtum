@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.address import *
 from test_framework.blocktools import *
@@ -115,7 +115,7 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
         generatesynchronized(self.node, 1000 + COINBASE_MATURITY, None, self.nodes[0:2])
         self.BLOCK_SIZE_DGP = DGPState(self.node, "0000000000000000000000000000000000000081")
         self.is_network_split = False
-        connect_nodes_bi(self.nodes, 0, 1)
+        self.connect_nodes(0, 1)
         
         # Start off by setting ourself as admin
         admin_address = self.node.getnewaddress()
@@ -137,8 +137,8 @@ class QtumDGPBlockSizeSyncTest(BitcoinTestFramework):
         # Bring the last nodes online and make sure that they sync with node 0 and 1 (A and B)
         for i in range(2, 8):
             self.start_node(i)
-            connect_nodes_bi(self.nodes, 0, i)
-            connect_nodes_bi(self.nodes, 1, i)
+            self.connect_nodes(0, i)
+            self.connect_nodes(1, i)
         self.sync_all()
 
 if __name__ == '__main__':

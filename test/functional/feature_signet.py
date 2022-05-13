@@ -8,7 +8,11 @@ from decimal import Decimal
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.blocktools import create_block, add_witness_commitment
+from test_framework.script import CScriptOp
+import time
 
+SIGNET_HEADER = b"\xec\xc7\xda\xa2"
 signet_blocks = [
     '00000020f61eee3b63a380a477a063af32b2bbc97c9ff9f01f2c4225e973988108000000f575c83235984e7dc4afc1f30944c170462e84437ab6f2d52e16878a79e4678bd1914d5fae77031eccf4070001010000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff025151feffffff0200f2052a010000001600149243f727dd5343293eb83174324019ec16c2630f0000000000000000776a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf94c4fecc7daa2490047304402205e423a8754336ca99dbe16509b877ef1bf98d008836c725005b3c787c41ebe46022047246e4467ad7cc7f1ad98662afcaf14c115e0095a227c7b05c5182591c23e7e01000120000000000000000000000000000000000000000000000000000000000000000000000000',
     '00000020533b53ded9bff4adc94101d32400a144c54edc5ed492a3b26c63b2d686000000b38fef50592017cfafbcab88eb3d9cf50b2c801711cad8299495d26df5e54812e7914d5fae77031ecfdd0b0001010000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff025251feffffff0200f2052a01000000160014fd09839740f0e0b4fc6d5e2527e4022aa9b89dfa0000000000000000776a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf94c4fecc7daa24900473044022031d64a1692cdad1fc0ced69838169fe19ae01be524d831b95fcf5ea4e6541c3c02204f9dea0801df8b4d0cd0857c62ab35c6c25cc47c930630dc7fe723531daa3e9b01000120000000000000000000000000000000000000000000000000000000000000000000000000',
@@ -28,7 +32,8 @@ class SignetBasicTest(BitcoinTestFramework):
         self.chain = "signet"
         self.num_nodes = 6
         self.setup_clean_chain = True
-        shared_args1 = ["-signetchallenge=51"]  # OP_TRUE
+        self.requires_wallet = True
+        shared_args1 = ["-signetchallenge=51", '-txindex']  # OP_TRUE
         shared_args2 = []  # default challenge
         # we use the exact same challenge except we do it as a 2-of-2, which means it should fail
         shared_args3 = ["-signetchallenge=522103ad5e0edad18cb1f0fc0d28a3d4f1f3e445640337489abb10404f2d1e086be430210359ef5021964fe22d6f8e05b2463c9540ce96883fe3b278760f048f5189f2e6c452ae"]
@@ -51,9 +56,33 @@ class SignetBasicTest(BitcoinTestFramework):
         assert_equal(mining_info['networkhashps'], Decimal('0'))
         assert_equal(mining_info['pooledtx'], 0)
 
-        self.nodes[0].generate(1)
+        self.nodes[0].generate(10)
+        #time.sleep(1)
 
         self.log.info("pregenerated signet blocks check")
+
+        block = create_block(tmpl=self.nodes[0].getblock(self.nodes[0].getbestblockhash()))
+        add_witness_commitment(block)
+        block.vtx[0].vout[-1].scriptPubKey = b''.join([block.vtx[0].vout[-1].scriptPubKey, CScriptOp.encode_op_pushdata(SIGNET_HEADER)])
+        block.vtx[0].rehash()
+        block.hashMerkleRoot = block.calc_merkle_root()
+        block.solve()
+        print(self.nodes[0].submitblock(block.serialize().hex()))
+        print(block.vtx[0].serialize().hex())
+
+        import pprint
+        pp = pprint.PrettyPrinter()
+        pp.pprint(self.nodes[0].getblock(hex(block.hashPrevBlock)[2:].zfill(64)))
+        pp.pprint(self.nodes[0].getblock(hex(block.sha256)[2:].zfill(64)))
+        pp.pprint(self.nodes[0].getblock(self.nodes[0].getbestblockhash()))
+
+        print("PREV", hex(block.hashPrevBlock)[2:].zfill(64))
+        print("PREV", hex(block.sha256)[2:].zfill(64))
+        print("BEST", self.nodes[0].getbestblockhash(), self.nodes[0].getblockcount())
+        pp.pprint(self.nodes[0].getrawtransaction(self.nodes[0].getblock(self.nodes[0].getbestblockhash())['tx'][0], True))
+        return
+
+
 
         height = 0
         for block in signet_blocks:

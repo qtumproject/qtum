@@ -751,7 +751,7 @@ class ImportMultiTest(BitcoinTestFramework):
         self.log.info("Bech32m addresses and descriptors cannot be imported")
         self.test_importmulti(
             {
-                "scriptPubKey": {"address": "bcrt1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqc8gma6"},
+                "scriptPubKey": {"address": convert_btc_bech32_address_to_qtum("bcrt1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqc8gma6")},
                 "timestamp": "now",
             },
             success=False,
@@ -862,11 +862,11 @@ class ImportMultiTest(BitcoinTestFramework):
         assert_equal(wrpc.getwalletinfo()["private_keys_enabled"], False)
         xpub = "tpubDAXcJ7s7ZwicqjprRaEWdPoHKrCS215qxGYxpusRLLmJuT69ZSicuGdSfyvyKpvUNYBW1s2U3NSrT6vrCYB9e6nZUEvrqnwXPF8ArTCRXMY"
         addresses = [
-            'qcrt1qtmp74ayg7p24uslctssvjm06q5phz4yrgnnq8p', # m/0'/0'/0
-            'qcrt1q8vprchan07gzagd5e6v9wd7azyucksq2gh4jz2', # m/0'/0'/1
-            'qcrt1qtuqdtha7zmqgcrr26n2rqxztv5y8rafj0255t3', # m/0'/0'/2
-            'qcrt1qau64272ymawq26t90md6an0ps99qkrse6gsjpz', # m/0'/0'/3
-            'qcrt1qsg97266hrh6cpmutqen8s4s962aryy77uwypuz', # m/0'/0'/4
+            convert_btc_bech32_address_to_qtum('bcrt1qtmp74ayg7p24uslctssvjm06q5phz4yrxucgnv'), # m/0'/0'/0
+            convert_btc_bech32_address_to_qtum('bcrt1q8vprchan07gzagd5e6v9wd7azyucksq2xc76k8'), # m/0'/0'/1
+            convert_btc_bech32_address_to_qtum('bcrt1qtuqdtha7zmqgcrr26n2rqxztv5y8rafjp9lulu'), # m/0'/0'/2
+            convert_btc_bech32_address_to_qtum('bcrt1qau64272ymawq26t90md6an0ps99qkrse58m640'), # m/0'/0'/3
+            convert_btc_bech32_address_to_qtum('bcrt1qsg97266hrh6cpmutqen8s4s962aryy77jp0fg0'), # m/0'/0'/4
         ]
         result = wrpc.importmulti(
             [{

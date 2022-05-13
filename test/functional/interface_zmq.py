@@ -27,6 +27,7 @@ from test_framework.util import (
 )
 from io import BytesIO
 from time import sleep
+from test_framework.qtum import convert_btc_bech32_address_to_qtum
 
 # Test may be skipped and not have zmq installed
 try:

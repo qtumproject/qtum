@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 import sys
@@ -16,14 +16,14 @@ class CallContractTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
-        self.extra_args = [['-txindex=1']]
+        self.extra_args = [['-txindex=1', '-londonheight=1000000']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
 
     # Verifies that the fallback function is correctly called
     def callcontract_fallback_function_test(self):
-        connect_nodes(self.nodes[0], 1)
+        self.connect_nodes(0, 1)
         self.node = self.nodes[0]
         """
         pragma solidity ^0.4.10;
@@ -36,7 +36,6 @@ class CallContractTest(BitcoinTestFramework):
         self.node.generate(1)
         ret = self.node.callcontract(contract_address, "00")
         assert(ret['address'] == contract_address)
-        print(ret['executionResult']['gasUsed'])
         assert(ret['executionResult']['gasUsed'] == 21037)
         assert(ret['executionResult']['excepted'] == "None")
         assert(ret['executionResult']['newAddress'] == contract_address)

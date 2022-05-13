@@ -9,7 +9,7 @@ from test_framework.blocktools import (
     create_coinbase,
     create_block,
     add_witness_commitment,
-    MAX_BLOCK_SIGOPS_WEIGHT,
+
     NORMAL_GBT_REQUEST_PARAMS,
     WITNESS_SCALE_FACTOR,
 )
@@ -28,7 +28,7 @@ from test_framework.script import (
     LEAF_VERSION_TAPSCRIPT,
     LegacySignatureHash,
     LOCKTIME_THRESHOLD,
-    MAX_SCRIPT_ELEMENT_SIZE,
+ 
     OP_0,
     OP_1,
     OP_2,
@@ -87,12 +87,16 @@ from test_framework.key import generate_privkey, compute_xonly_pubkey, sign_schn
 from test_framework.address import (
     hash160,
 )
+
 from collections import OrderedDict, namedtuple
 from io import BytesIO
 import json
 import hashlib
 import os
 import random
+
+MAX_SCRIPT_ELEMENT_SIZE = 128000
+MAX_BLOCK_SIGOPS_WEIGHT = 5000
 
 # === Framework for building spending transactions. ===
 #
@@ -596,8 +600,8 @@ SIG_POP_BYTE = {"failure": {"sign": byte_popper(default_sign)}}
 SINGLE_SIG = {"inputs": [getter("sign")]}
 SIG_ADD_ZERO = {"failure": {"sign": zero_appender(default_sign)}}
 
-DUST_LIMIT = 600
-MIN_FEE = 50000
+DUST_LIMIT = 400000
+MIN_FEE = 5000000
 
 # === Actual test cases ===
 
@@ -1210,7 +1214,7 @@ class TaprootTest(BitcoinTestFramework):
         self.num_nodes = 2
         self.setup_clean_chain = True
         # Node 0 has Taproot inactive, Node 1 active.
-        self.extra_args = [["-par=1"], ["-par=1"]]
+        self.extra_args = [["-par=1", "-taprootheight=99999"], ["-par=1"]]
         if self.options.previous_release:
             self.wallet_names = [None, self.default_wallet_name]
         else:

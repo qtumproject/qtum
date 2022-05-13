@@ -22,18 +22,18 @@ class FeatureBlockfilterindexPruneTest(BitcoinTestFramework):
 
     def run_test(self):
         self.log.info("check if we can access a blockfilter when pruning is enabled but no blocks are actually pruned")
-        self.sync_index(height=200)
+        self.sync_index(height=2100)
         assert_greater_than(len(self.nodes[0].getblockfilter(self.nodes[0].getbestblockhash())['filter']), 0)
         # Mine two batches of blocks to avoid hitting NODE_NETWORK_LIMITED_MIN_BLOCKS disconnection
         self.nodes[0].generate(250)
         self.sync_all()
         self.nodes[0].generate(250)
         self.sync_all()
-        self.sync_index(height=700)
+        self.sync_index(height=2600)
 
         self.log.info("prune some blocks")
-        pruneheight = self.nodes[0].pruneblockchain(400)
-        assert_equal(pruneheight, 248)
+        pruneheight = self.nodes[0].pruneblockchain(2400)
+        assert_equal(pruneheight, 2280)
 
         self.log.info("check if we can access the tips blockfilter when we have pruned some blocks")
         assert_greater_than(len(self.nodes[0].getblockfilter(self.nodes[0].getbestblockhash())['filter']), 0)
@@ -46,10 +46,10 @@ class FeatureBlockfilterindexPruneTest(BitcoinTestFramework):
 
         self.log.info("make sure accessing the blockfilters throws an error")
         assert_raises_rpc_error(-1, "Index is not enabled for filtertype basic", self.nodes[0].getblockfilter, self.nodes[0].getblockhash(2))
-        self.nodes[0].generate(1000)
+        self.nodes[0].generate(4000)
 
         self.log.info("prune below the blockfilterindexes best block while blockfilters are disabled")
-        pruneheight_new = self.nodes[0].pruneblockchain(1000)
+        pruneheight_new = self.nodes[0].pruneblockchain(4000)
         assert_greater_than(pruneheight_new, pruneheight)
         self.stop_node(0)
 
