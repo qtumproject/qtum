@@ -237,6 +237,18 @@ public:
         }
         return Params().GenesisBlock().GetBlockTime(); // Genesis block's time of current network
     }
+    uint256 getBlockHash(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = chainman().ActiveChain()[blockNumber];
+        return index ? index->GetBlockHash() : uint256();
+    }
+    int64_t getBlockTime(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = chainman().ActiveChain()[blockNumber];
+        return index ? index->GetBlockTime() : 0;
+    }
     double getVerificationProgress() override
     {
         const CBlockIndex* tip;
@@ -249,6 +261,7 @@ public:
     bool isInitialBlockDownload() override {
         return chainman().ActiveChainstate().IsInitialBlockDownload();
     }
+   bool isAddressTypeSet() override { return !::gArgs.GetArg("-addresstype", "").empty(); }
     bool getReindex() override { return node::fReindex; }
     bool getImporting() override { return node::fImporting; }
     void setNetworkActive(bool active) override
@@ -283,6 +296,32 @@ public:
     WalletLoader& walletLoader() override
     {
         return *Assert(m_context->wallet_loader);
+    }
+    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
+    {
+    }
+    void getSyncInfo(int& numBlocks, bool& isSyncing) override
+    {
+    }
+    bool tryGetSyncInfo(int& numBlocks, bool& isSyncing) override
+    {
+        return {};
+    }
+    int64_t getBlockSubsidy(int nHeight) override
+    {
+        return {};
+    }
+    uint64_t getNetworkStakeWeight() override
+    {
+        return {};
+    }
+    double getEstimatedAnnualROI() override
+    {
+        return {};
+    }
+    int64_t getMoneySupply() override
+    {
+        return {};
     }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
@@ -351,6 +390,7 @@ bool FillBlock(const CBlockIndex* index, const FoundBlock& block, UniqueLock<Rec
     if (block.m_time) *block.m_time = index->GetBlockTime();
     if (block.m_max_time) *block.m_max_time = index->GetBlockTimeMax();
     if (block.m_mtp_time) *block.m_mtp_time = index->GetMedianTimePast();
+    if (block.m_has_delegation) *block.m_has_delegation = index->HasProofOfDelegation();
     if (block.m_in_active_chain) *block.m_in_active_chain = active[index->nHeight] == index;
     if (block.m_next_block) FillBlock(active[index->nHeight] == index ? active[index->nHeight + 1] : nullptr, *block.m_next_block, lock, active);
     if (block.m_data) {

@@ -32,6 +32,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 using interfaces::Chain;
 using interfaces::FoundBlock;
@@ -46,6 +47,15 @@ using interfaces::WalletTx;
 using interfaces::WalletTxOut;
 using interfaces::WalletTxStatus;
 using interfaces::WalletValueMap;
+using interfaces::TokenInfo;
+using interfaces::TokenTx;
+using interfaces::ContractBookData;
+using interfaces::DelegationInfo;
+using interfaces::DelegationDetails;
+using interfaces::SuperStakerInfo;
+using interfaces::DelegationStakerInfo;
+using interfaces::SuperStakerAddressList;
+using interfaces::SignDelegation;
 
 namespace wallet {
 namespace {
@@ -412,6 +422,22 @@ public:
         LOCK(m_wallet->cs_wallet);
         return OutputGetCredit(*m_wallet, txout, filter);
     }
+    bool isUnspentAddress(const std::string &qtumAddress) override
+    {
+        return {};
+    }
+    bool isMineAddress(const std::string &strAddress) override
+    {
+        return {};
+    }
+    std::vector<std::string> availableAddresses(bool fIncludeZeroValue) EXCLUSIVE_LOCKS_REQUIRED(m_wallet->cs_wallet)
+    {
+        return {};
+    }
+    bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses, bool &includeZeroValue) override
+    {
+        return {};
+    }
     CoinsList listCoins() override
     {
         LOCK(m_wallet->cs_wallet);
@@ -472,6 +498,211 @@ public:
         RemoveWallet(m_context, m_wallet, false /* load_on_start */);
     }
     bool isLegacy() override { return m_wallet->IsLegacy(); }
+    bool addTokenEntry(const TokenInfo &token) override
+    {
+        return {};
+    }
+    bool addTokenTxEntry(const TokenTx& tokenTx, bool fFlushOnClose) override
+    {
+        return {};
+    }
+    bool existTokenEntry(const TokenInfo &token) override
+    {
+        return {};
+    }
+    bool removeTokenEntry(const std::string &sHash) override
+    {
+        return {};
+    }
+    std::vector<TokenInfo> getInvalidTokens() override
+    {
+        return {};
+    }
+    TokenTx getTokenTx(const uint256& txid) override
+    {
+        return {};
+    }
+    std::vector<TokenTx> getTokenTxs() override
+    {
+        return {};
+    }
+    TokenInfo getToken(const uint256& id) override
+    {
+        return {};
+    }
+    std::vector<TokenInfo> getTokens() override
+    {
+        return {};
+    }
+    bool tryGetTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        return {};
+    }
+    bool getTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        return {};
+    }
+    bool getTokenTxDetails(const TokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) override
+    {
+        return {};
+    }
+    bool isTokenTxMine(const TokenTx &wtx) override
+    {
+        return {};
+    }
+    ContractBookData getContractBook(const std::string& id) override
+    {
+        return {};
+    }
+    std::vector<ContractBookData> getContractBooks() override
+    {
+        return {};
+    }
+    bool existContractBook(const std::string& id) override
+    {
+        return {};
+    }
+    bool delContractBook(const std::string& id) override
+    {
+        return {};
+    }
+    bool setContractBook(const std::string& id, const std::string& name, const std::string& abi) override
+    {
+        return {};
+    }
+    uint32_t restoreDelegations() override
+    {
+        return {};
+    }
+    bool addDelegationEntry(const DelegationInfo &delegation) override
+    {
+        return {};
+    }
+    bool existDelegationEntry(const DelegationInfo &delegation) override
+    {
+        return {};
+    }
+    DelegationInfo getDelegation(const uint256& id) override
+    {
+        return {};
+    }
+    DelegationInfo getDelegationContract(const std::string &sHash, bool& validated, bool& contractRet) override
+    {
+        return {};
+    }
+    DelegationDetails getDelegationDetails(const std::string &sAddress) override
+    {
+        return {};
+    }
+    std::vector<DelegationInfo> getDelegations() override
+    {
+        return {};
+    }
+    bool removeDelegationEntry(const std::string &sHash) override
+    {
+        return {};
+    }
+    bool setDelegationRemoved(const std::string &sHash, const std::string &sTxid) override
+    {
+        return {};
+    }
+    uint32_t restoreSuperStakers() override
+    {
+        return {};
+    }
+    bool existSuperStaker(const std::string &sAddress) override
+    {
+        return {};
+    }
+    SuperStakerInfo getSuperStaker(const uint256& id) override
+    {
+        return {};
+    }
+    SuperStakerInfo getSuperStakerRecommendedConfig() override
+    {
+        return {};
+    }
+    std::vector<SuperStakerInfo> getSuperStakers() override
+    {
+        return {};
+    }
+    bool addSuperStakerEntry(const SuperStakerInfo &superStaker) override
+    {
+        return {};
+    }
+    bool removeSuperStakerEntry(const std::string &sHash) override
+    {
+        return {};
+    }
+    bool tryGetStakeWeight(uint64_t& nWeight) override
+    {
+        return {};
+    }
+    uint64_t getStakeWeight() override
+    {
+        return {};
+    }
+    int64_t getLastCoinStakeSearchInterval() override 
+    { 
+        return {};
+    }
+    bool getWalletUnlockStakingOnly() override
+    {
+        return {};
+    }
+    void setWalletUnlockStakingOnly(bool unlock) override
+    {
+    }
+    bool cleanTokenTxEntries() override
+    {
+        return {};
+    }
+    void setEnabledStaking(bool enabled) override
+    {
+    }
+    bool getEnabledStaking() override
+    {
+        return {};
+    }
+    bool getEnabledSuperStaking() override
+    {
+        return {};
+    }
+    DelegationStakerInfo getDelegationStaker(const uint160& id) override
+    {
+        return {};
+    }
+    std::vector<DelegationStakerInfo> getDelegationsStakers() override
+    {
+        return {};
+    }
+    uint64_t getSuperStakerWeight(const uint256& id) override
+    {
+        return {};
+    }
+    bool isSuperStakerStaking(const uint256& id, CAmount& delegationsWeight) override
+    {
+        return {};
+    }
+    bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake, CAmount& weight) override
+    {
+        return {};
+    }
+    bool getAddDelegationData(const std::string& psbt, std::map<int, SignDelegation>& signData, std::string& error) override
+    {
+        return {};
+    }
+    bool setAddDelegationData(std::string& psbt, const std::map<int, SignDelegation>& signData, std::string& error) override
+    {
+        return {};
+    }
+    void setStakerLedgerId(const std::string& ledgerId) override
+    {
+    }
+    std::string getStakerLedgerId() override
+    {
+        return {};
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));
@@ -495,6 +726,14 @@ public:
         return MakeHandler(m_wallet->NotifyTransactionChanged.connect(
             [fn](const uint256& txid, ChangeType status) { fn(txid, status); }));
     }
+    std::unique_ptr<Handler> handleTokenTransactionChanged(TokenTransactionChangedFn fn) override
+    {
+        return {};
+    }
+    std::unique_ptr<Handler> handleTokenChanged(TokenChangedFn fn) override
+    {
+        return {};
+    }
     std::unique_ptr<Handler> handleWatchOnlyChanged(WatchOnlyChangedFn fn) override
     {
         return MakeHandler(m_wallet->NotifyWatchonlyChanged.connect(fn));
@@ -502,6 +741,22 @@ public:
     std::unique_ptr<Handler> handleCanGetAddressesChanged(CanGetAddressesChangedFn fn) override
     {
         return MakeHandler(m_wallet->NotifyCanGetAddressesChanged.connect(fn));
+    }
+    std::unique_ptr<Handler> handleContractBookChanged(ContractBookChangedFn fn) override
+    {
+        return {};
+    }
+    std::unique_ptr<Handler> handleDelegationChanged(DelegationChangedFn fn) override
+    {
+        return {};
+    }
+    std::unique_ptr<Handler> handleSuperStakerChanged(SuperStakerChangedFn fn) override
+    {
+        return {};
+    }
+    std::unique_ptr<Handler> handleDelegationsStakerChanged(DelegationsStakerChangedFn fn) override
+    {
+        return {};
     }
     CWallet* wallet() override { return m_wallet.get(); }
 
