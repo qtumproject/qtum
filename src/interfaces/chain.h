@@ -7,6 +7,7 @@
 
 #include <primitives/transaction.h> // For CTransactionRef
 #include <util/settings.h>          // For util::SettingsValue
+#include <netbase.h>                // For ConnectionDirection
 
 #include <functional>
 #include <memory>
@@ -15,6 +16,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <map>
 
 class ArgsManager;
 class CBlock;
@@ -31,6 +33,10 @@ struct FeeCalculation;
 namespace node {
 struct NodeContext;
 } // namespace node
+class ChainstateManager;
+class CTxMemPool;
+class CBlockIndex;
+class CCoinsViewCache;
 
 namespace interfaces {
 
@@ -48,6 +54,8 @@ public:
     FoundBlock& time(int64_t& time) { m_time = &time; return *this; }
     FoundBlock& maxTime(int64_t& max_time) { m_max_time = &max_time; return *this; }
     FoundBlock& mtpTime(int64_t& mtp_time) { m_mtp_time = &mtp_time; return *this; }
+    //! Return whether block has delagation.
+    FoundBlock& hasDelegation(bool& has_delegation) { m_has_delegation = &has_delegation; return *this; }
     //! Return whether block is in the active (most-work) chain.
     FoundBlock& inActiveChain(bool& in_active_chain) { m_in_active_chain = &in_active_chain; return *this; }
     //! Return next block in the active chain if current block is in the active chain.
@@ -61,6 +69,7 @@ public:
     int64_t* m_time = nullptr;
     int64_t* m_max_time = nullptr;
     int64_t* m_mtp_time = nullptr;
+    bool* m_has_delegation = nullptr;
     bool* m_in_active_chain = nullptr;
     const FoundBlock* m_next_block = nullptr;
     CBlock* m_data = nullptr;
@@ -95,6 +104,12 @@ class Chain
 {
 public:
     virtual ~Chain() {}
+
+    //! Get chain state manager
+    virtual ChainstateManager& chainman() = 0;
+
+    //! Get mempool
+    virtual const CTxMemPool& mempool() = 0;
 
     //! Get current chain height, not including genesis block (returns 0 if
     //! chain only contains genesis block, nullopt if chain does not contain
@@ -143,6 +158,9 @@ public:
         const FoundBlock& ancestor_out={},
         const FoundBlock& block1_out={},
         const FoundBlock& block2_out={}) = 0;
+
+    //! Get map of the immature stakes.
+    virtual std::map<COutPoint, uint32_t> getImmatureStakes() = 0;
 
     //! Look up unspent output information. Returns coins in the mempool and in
     //! the current chain UTXO set. Iterates through all the keys in the map and
@@ -283,6 +301,19 @@ public:
     //! to be prepared to handle this by ignoring notifications about unknown
     //! removed transactions and already added new transactions.
     virtual void requestMempoolTransactions(Notifications& notifications) = 0;
+
+    //! Get chain tip
+    virtual CBlockIndex* getTip() const =  0;
+
+    //! Get unspent outputs associated with a transaction.
+    virtual bool getUnspentOutput(const COutPoint& output, Coin& coin) = 0;
+
+    //! Get coins tip.
+    virtual CCoinsViewCache& getCoinsTip() = 0;
+
+    //! Get number of connections.
+    virtual size_t getNodeCount(ConnectionDirection flags) = 0;
+
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for

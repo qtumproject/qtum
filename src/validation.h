@@ -348,6 +348,8 @@ public:
 /** Initializes the script-execution cache */
 void InitScriptExecutionCache();
 
+std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman);
+
 /** Functions for validating blocks and updating the block tree */
 
 /** Context-independent validity checks */

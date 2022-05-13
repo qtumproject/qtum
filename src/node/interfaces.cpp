@@ -451,10 +451,13 @@ public:
 
 class ChainImpl : public Chain
 {
-private:
-    ChainstateManager& chainman() { return *Assert(m_node.chainman); }
 public:
     explicit ChainImpl(NodeContext& node) : m_node(node) {}
+
+    ChainstateManager& chainman() override { return *Assert(m_node.chainman); }
+
+    const CTxMemPool& mempool() override { return *Assert(m_node.mempool); }
+
     std::optional<int> getHeight() override
     {
         LOCK(::cs_main);
@@ -485,6 +488,11 @@ public:
         LOCK(cs_main);
         const CChain& active = Assert(m_node.chainman)->ActiveChain();
         return active.GetLocator();
+    }
+    std::map<COutPoint, uint32_t> getImmatureStakes() override
+    {
+        LOCK(cs_main);
+        return GetImmatureStakes(chainman());
     }
     std::optional<int> findLocatorFork(const CBlockLocator& locator) override
     {
@@ -717,6 +725,26 @@ public:
         for (const CTxMemPoolEntry& entry : m_node.mempool->mapTx) {
             notifications.transactionAddedToMempool(entry.GetSharedTx(), 0 /* mempool_sequence */);
         }
+    }
+    CBlockIndex* getTip() const override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* tip = Assert(m_node.chainman)->ActiveChain().Tip();
+        return tip;
+    }
+    bool getUnspentOutput(const COutPoint& output, Coin& coin) override
+    {
+        LOCK(::cs_main);
+        return chainman().ActiveChainstate().CoinsTip().GetCoin(output, coin);
+    }
+    CCoinsViewCache& getCoinsTip() override
+    {
+        LOCK(::cs_main);
+        return chainman().ActiveChainstate().CoinsTip();
+    }
+    size_t getNodeCount(ConnectionDirection flags) override
+    {
+        return Assert(m_node.connman) ? m_node.connman->GetNodeCount(flags) : 0;
     }
     NodeContext& m_node;
 };
