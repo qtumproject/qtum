@@ -78,6 +78,7 @@ uint256 CTransaction::ComputeWitnessHash() const
     return SerializeHash(*this, SER_GETHASH, 0);
 }
 
+CTransaction::CTransaction() : vin(), vout(), nVersion(CTransaction::CURRENT_VERSION), nLockTime(0), hash{}, m_witness_hash{} {}
 CTransaction::CTransaction(const CMutableTransaction& tx) : vin(tx.vin), vout(tx.vout), nVersion(tx.nVersion), nLockTime(tx.nLockTime), hash{ComputeHash()}, m_witness_hash{ComputeWitnessHash()} {}
 CTransaction::CTransaction(CMutableTransaction&& tx) : vin(std::move(tx.vin)), vout(std::move(tx.vout)), nVersion(tx.nVersion), nLockTime(tx.nLockTime), hash{ComputeHash()}, m_witness_hash{ComputeWitnessHash()} {}
 
@@ -114,4 +115,78 @@ std::string CTransaction::ToString() const
     for (const auto& tx_out : vout)
         str += "    " + tx_out.ToString() + "\n";
     return str;
+}
+
+///////////////////////////////////////////////////////////// qtum
+bool CTransaction::HasCreateOrCall() const{
+    for(const CTxOut& v : vout){
+        if(v.scriptPubKey.HasOpCreate() || v.scriptPubKey.HasOpCall()){
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+bool CTransaction::HasOpSpend() const{
+    for(const CTxIn& i : vin){
+        if(i.scriptSig.HasOpSpend()){
+            return true;
+        }
+    }
+    return false;
+}
+/////////////////////////////////////////////////////////////
+
+bool CTransaction::HasOpCreate() const
+{
+    for(const CTxOut& v : vout){
+        if(v.scriptPubKey.HasOpCreate()){
+            return true;
+        }
+    }
+    return false;
+}
+
+template <class T>
+bool hasOpCall(const T& txTo)
+{
+    for(const CTxOut& v : txTo.vout){
+        if(v.scriptPubKey.HasOpCall()){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CTransaction::HasOpCall() const
+{
+    return hasOpCall(*this);
+}
+
+bool CMutableTransaction::HasOpCall() const
+{
+    return hasOpCall(*this);
+}
+
+template <class T>
+bool hasOpSender(const T& txTo)
+{
+    for(const CTxOut& v : txTo.vout){
+        if(v.scriptPubKey.HasOpSender()){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CTransaction::HasOpSender() const
+{
+    return hasOpSender(*this);
+}
+
+bool CMutableTransaction::HasOpSender() const
+{
+    return hasOpSender(*this);
 }
