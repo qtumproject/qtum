@@ -128,8 +128,10 @@ class QtumEVMLondonTest(BitcoinTestFramework):
         assert_approx(info['executionResult']['gasUsed'], 24819, 12)
         
         self.log.info('Call getStore()')
-        info = self.node.callcontract(self.contract_address, "c2722ecc")
-        assert_equal(info['executionResult']['gasUsed'], 26494)
+        info = self.node.sendtocontract(self.contract_address, "c2722ecc", 0, 4000000, QTUM_MIN_GAS_PRICE_STR, self.sender)
+        self.node.generate(1)
+        receipt=self.node.gettransactionreceipt(info['txid'])[0];
+        assert_equal(receipt['gasUsed'], 26494)
         
         self.log.info('Call getLoad()')
         info = self.node.callcontract(self.contract_address, "dfa2062e")
