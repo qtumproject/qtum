@@ -309,7 +309,8 @@ BASE_SCRIPTS = [
     # Put them in a random line within the section that fits their approximate run-time
 	
 	# qtum
-    'qtum_evm_london.py',
+    'qtum_evm_london_activation.py',
+    'qtum_evm_london_gas_usage.py',
     'qtum_dgp.py',
     'qtum_pos.py',
     'qtum_opcall.py',
