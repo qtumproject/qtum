@@ -80,8 +80,9 @@ TEST_FRAMEWORK_MODULES = [
 EXTENDED_SCRIPTS = [
     # These tests are not run by default.
     # Longest test should go first, to favor running tests in parallel
+    'qtum_evm_london_activation.py',
     'feature_pruning.py',
-    'feature_dbcrash.py',
+    'feature_dbcrash.py'
 ]
 
 BASE_SCRIPTS = [
@@ -309,7 +310,6 @@ BASE_SCRIPTS = [
     # Put them in a random line within the section that fits their approximate run-time
 	
 	# qtum
-    'qtum_evm_london_activation.py',
     'qtum_evm_london_gas_usage.py',
     'qtum_dgp.py',
     'qtum_pos.py',
