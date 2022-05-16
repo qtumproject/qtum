@@ -208,7 +208,7 @@ class PruneTest(BitcoinTestFramework):
 
         self.log.info("Mine 220 more large blocks so we have requisite history")
 
-        mine_large_blocks(self.nodes[0], 220)
+        mine_large_blocks(self.nodes[0], 1020)
         self.sync_blocks(self.nodes[0:3], timeout=120)
 
         usage = calc_usage(self.prunedir)
@@ -262,13 +262,13 @@ class PruneTest(BitcoinTestFramework):
         # at this point, node has 995 blocks and has not yet run in prune mode
         self.start_node(node_number)
         node = self.nodes[node_number]
-        assert_equal(node.getblockcount(), 995)
+        assert_equal(node.getblockcount(), 3540)
         assert_raises_rpc_error(-1, "not in prune mode", node.pruneblockchain, 500)
 
         # now re-start in manual pruning mode
         self.restart_node(node_number, extra_args=["-prune=1"])
         node = self.nodes[node_number]
-        assert_equal(node.getblockcount(), 995)
+        assert_equal(node.getblockcount(), 3540)
 
         def height(index):
             if use_timestamp:
