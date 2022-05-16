@@ -48,13 +48,13 @@ from test_framework.util import (
 class ChainstateWriteCrashTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 4
-        self.rpc_timeout = 480
+        self.rpc_timeout = 960
         self.supports_cli = False
 
         # Set -maxmempool=0 to turn off mempool memory sharing with dbcache
         # Set -rpcservertimeout=900 to reduce socket disconnects in this
         # long-running test
-        self.base_args = ["-limitdescendantsize=0", "-maxmempool=0", "-rpcservertimeout=900", "-dbbatchsize=200000"]
+        self.base_args = ["-limitdescendantsize=0", "-maxmempool=0", "-rpcservertimeout=1800", "-dbbatchsize=200000"]
 
         # Set different crash ratios and cache sizes.  Note that not all of
         # -dbcache goes to the in-memory coins cache.
@@ -83,7 +83,7 @@ class ChainstateWriteCrashTest(BitcoinTestFramework):
         after 60 seconds. Returns the utxo hash of the given node."""
 
         time_start = time.time()
-        while time.time() - time_start < 120:
+        while time.time() - time_start < 720:
             try:
                 # Any of these RPC calls could throw due to node crash
                 self.start_node(node_index)
@@ -150,7 +150,7 @@ class ChainstateWriteCrashTest(BitcoinTestFramework):
                 if not self.submit_block_catch_error(i, block):
                     # TODO: more carefully check that the crash is due to -dbcrashratio
                     # (change the exit code perhaps, and check that here?)
-                    self.wait_for_node_exit(i, timeout=30)
+                    self.wait_for_node_exit(i, timeout=120)
                     self.log.debug("Restarting node %d after block hash %s", i, block_hash)
                     nodei_utxo_hash = self.restart_node(i, block_hash)
                     assert nodei_utxo_hash is not None
@@ -187,7 +187,7 @@ class ChainstateWriteCrashTest(BitcoinTestFramework):
             assert_equal(nodei_utxo_hash, node3_utxo_hash)
 
     def generate_small_transactions(self, node, count, utxo_list):
-        FEE = 1000  # TODO: replace this with node relay fee based calculation
+        FEE = 400000  # TODO: replace this with node relay fee based calculation
         num_transactions = 0
         random.shuffle(utxo_list)
         while len(utxo_list) >= 2 and num_transactions < count:
