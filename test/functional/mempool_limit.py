@@ -46,8 +46,8 @@ class MempoolLimitTest(BitcoinTestFramework):
         relayfee = node.getnetworkinfo()['relayfee']
 
         self.log.info('Check that mempoolminfee is minrelaytxfee')
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(self.nodes[0].getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_equal(self.nodes[0].getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         tx_batch_size = 25
         num_of_batches = 3
@@ -80,8 +80,8 @@ class MempoolLimitTest(BitcoinTestFramework):
         assert tx_to_be_evicted_id not in node.getrawmempool()
 
         self.log.info('Check that mempoolminfee is larger than minrelaytxfee')
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_greater_than(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(self.nodes[0].getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_greater_than(self.nodes[0].getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         # Deliberately try to create a tx with a fee less than the minimum mempool fee to assert that it does not get added to the mempool
         self.log.info('Create a mempool tx that will not pass mempoolminfee')

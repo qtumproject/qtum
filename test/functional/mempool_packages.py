@@ -54,7 +54,7 @@ class MempoolPackagesTest(BitcoinTestFramework):
         assert 'ancestorsize' not in utxo[0]
         assert 'ancestorfees' not in utxo[0]
 
-        fee = Decimal("0.0001")
+        fee = Decimal("0.01")
         # MAX_ANCESTORS transactions off a confirmed tx should be fine
         chain = []
         witness_chain = []

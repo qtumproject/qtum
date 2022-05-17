@@ -11,6 +11,8 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
 )
+from test_framework.qtumconfig import *
+from test_framework.qtum import generatesynchronized
 
 # Linux allow all characters other than \x00
 # Windows disallow control characters (0-31) and /\?%:|"<>
@@ -81,6 +83,7 @@ class NotificationsTest(BitcoinTestFramework):
         blocks = self.generatetoaddress(self.nodes[1], block_count, self.nodes[1].getnewaddress() if self.is_wallet_compiled() else ADDRESS_BCRT1_UNSPENDABLE)
 
         # wait at most 10 seconds for expected number of files before reading the content
+        print(self.blocknotify_dir)
         self.wait_until(lambda: len(os.listdir(self.blocknotify_dir)) == block_count, timeout=10)
 
         # directory content should equal the generated blocks hashes
@@ -111,7 +114,7 @@ class NotificationsTest(BitcoinTestFramework):
             # triggered by node 1
             self.log.info("test -walletnotify with conflicting transactions")
             self.nodes[0].rescanblockchain()
-            self.generatetoaddress(self.nodes[0], 100, ADDRESS_BCRT1_UNSPENDABLE)
+            generatesynchronized(self.nodes[0], COINBASE_MATURITY, ADDRESS_BCRT1_UNSPENDABLE, self.nodes)
 
             # Generate transaction on node 0, sync mempools, and check for
             # notification on node 1.

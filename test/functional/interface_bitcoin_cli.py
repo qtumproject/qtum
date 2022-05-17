@@ -128,7 +128,7 @@ class TestBitcoinCli(BitcoinTestFramework):
         expected_network_info = f"in {network_info['connections_in']}, out {network_info['connections_out']}, total {network_info['connections']}"
         assert_equal(cli_get_info["Network"], expected_network_info)
         assert_equal(cli_get_info['Proxies'], network_info['networks'][0]['proxy'])
-        assert_equal(Decimal(cli_get_info['Difficulty']), blockchain_info['difficulty'])
+        assert_equal(cli_get_info['Difficulty']['proof-of-work'], blockchain_info['difficulty'])
         assert_equal(cli_get_info['Chain'], blockchain_info['chain'])
 
         self.log.info("Test -getinfo and bitcoin-cli return all proxies")

@@ -13,6 +13,8 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
+from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
 
 
 def create_transactions(node, address, amt, fees):
@@ -47,11 +49,12 @@ def create_transactions(node, address, amt, fees):
 
 class WalletTest(BitcoinTestFramework):
     def set_test_params(self):
-        self.num_nodes = 2
+        self.num_nodes = 3
         self.setup_clean_chain = True
         self.extra_args = [
-            ['-limitdescendantcount=3'],  # Limit mempool descendants as a hack to have wallet txs rejected from the mempool
-            [],
+            ['-limitdescendantcount=3', '-headerspamfilter=0'],  # Limit mempool descendants as a hack to have wallet txs rejected from the mempool
+            ['-headerspamfilter=0'],
+            ['-headerspamfilter=0']
         ]
 
     def skip_test_if_missing_module(self):
@@ -70,9 +73,17 @@ class WalletTest(BitcoinTestFramework):
             assert 'watchonly' not in self.nodes[1].getbalances()
 
         self.log.info("Mining blocks ...")
-        self.generate(self.nodes[0], 1)
-        self.generate(self.nodes[1], 1)
-        self.generatetoaddress(self.nodes[1], COINBASE_MATURITY + 1, ADDRESS_WATCHONLY)
+        blockhash = self.nodes[2].generate(1)[0]
+        self.nodes[0].submitblock(self.nodes[2].getblock(blockhash, False))
+        self.nodes[1].submitblock(self.nodes[2].getblock(blockhash, False))
+        self.sync_blocks()
+        generatesynchronized(self.nodes[2], COINBASE_MATURITY, self.nodes[2].getnewaddress(), self.nodes)
+        self.sync_blocks()
+        self.nodes[2].sendmany("", {self.nodes[0].getnewaddress(): 50, self.nodes[1].getnewaddress(): 50})
+        self.nodes[2].generatetoaddress(1, self.nodes[2].getnewaddress())
+        self.sync_all()
+        generatesynchronized(self.nodes[1], COINBASE_MATURITY+1, ADDRESS_WATCHONLY, self.nodes)
+        self.sync_blocks()
 
         if not self.options.descriptors:
             # Tests legacy watchonly behavior which is not present (and does not need to be tested) in descriptor wallets
@@ -80,7 +91,7 @@ class WalletTest(BitcoinTestFramework):
             assert_equal(self.nodes[0].getwalletinfo()['balance'], 50)
             assert_equal(self.nodes[1].getbalances()['mine']['trusted'], 50)
 
-            assert_equal(self.nodes[0].getbalances()['watchonly']['immature'], 5000)
+            assert_equal(self.nodes[0].getbalances()['watchonly']['immature'], COINBASE_MATURITY*INITIAL_BLOCK_REWARD)
             assert 'watchonly' not in self.nodes[1].getbalances()
 
             assert_equal(self.nodes[0].getbalance(), 50)
@@ -91,8 +102,8 @@ class WalletTest(BitcoinTestFramework):
         assert_equal(self.nodes[0].getbalance("*", 1), 50)
         assert_equal(self.nodes[0].getbalance(minconf=1), 50)
         if not self.options.descriptors:
-            assert_equal(self.nodes[0].getbalance(minconf=0, include_watchonly=True), 100)
-            assert_equal(self.nodes[0].getbalance("*", 1, True), 100)
+            assert_equal(self.nodes[0].getbalance(minconf=0, include_watchonly=True), INITIAL_BLOCK_REWARD + 50)
+            assert_equal(self.nodes[0].getbalance("*", 1, True), INITIAL_BLOCK_REWARD + 50)
         else:
             assert_equal(self.nodes[0].getbalance(minconf=0, include_watchonly=True), 50)
             assert_equal(self.nodes[0].getbalance("*", 1, True), 50)
@@ -259,6 +270,7 @@ class WalletTest(BitcoinTestFramework):
         self.log.info('Put txs back into mempool of node 1 (not node 0)')
         self.nodes[0].invalidateblock(block_reorg)
         self.nodes[1].invalidateblock(block_reorg)
+        self.nodes[2].invalidateblock(block_reorg)
         assert_equal(self.nodes[0].getbalance(minconf=0), 0)  # wallet txs not in the mempool are untrusted
         self.generatetoaddress(self.nodes[0], 1, ADDRESS_WATCHONLY, sync_fun=self.no_op)
         assert_equal(self.nodes[0].getbalance(minconf=0), 0)  # wallet txs not in the mempool are untrusted
@@ -266,6 +278,8 @@ class WalletTest(BitcoinTestFramework):
         # Now confirm tx_orig
         self.restart_node(1, ['-persistmempool=0'])
         self.connect_nodes(0, 1)
+        self.connect_nodes(0, 2)
+        self.connect_nodes(1, 2)
         self.sync_blocks()
         self.nodes[1].sendrawtransaction(tx_orig)
         self.generatetoaddress(self.nodes[1], 1, ADDRESS_WATCHONLY)

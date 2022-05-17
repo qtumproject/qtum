@@ -6,6 +6,7 @@
 
 Test the DERSIG soft-fork activation on regtest.
 """
+# QTUM note: this test always runs without the reduceblocktime fork activated to allow testing pre bip66
 
 from test_framework.blocktools import (
     create_block,
@@ -35,7 +36,7 @@ def unDERify(tx):
     newscript = []
     for i in scriptSig:
         if (len(newscript) == 0):
-            newscript.append(i[0:-1] + b'\0' + i[-1:])
+            newscript.append(i[0:-1] + b'\x00' + i[-1:])
         else:
             newscript.append(i)
     tx.vin[0].scriptSig = CScript(newscript)
@@ -51,9 +52,10 @@ class BIP66Test(BitcoinTestFramework):
             f'-testactivationheight=dersig@{DERSIG_HEIGHT}',
             '-whitelist=noban@127.0.0.1',
             '-par=1',  # Use only one script thread to get the exact log msg for testing
+            '-reduceblocktimeheight=100000'
         ]]
         self.setup_clean_chain = True
-        self.rpc_timeout = 240
+        self.rpc_timewait = 120
 
     def create_tx(self, input_txid):
         utxo_to_spend = self.miniwallet.get_utxo(txid=input_txid, mark_as_spent=False)
@@ -62,8 +64,8 @@ class BIP66Test(BitcoinTestFramework):
     def test_dersig_info(self, *, is_active):
         assert_equal(self.nodes[0].getdeploymentinfo()['deployments']['bip66'],
             {
-                "active": is_active,
-                "height": DERSIG_HEIGHT,
+                "active": True,
+                "height": 0,
                 "type": "buried",
             },
         )
@@ -96,11 +98,11 @@ class BIP66Test(BitcoinTestFramework):
         assert_equal(self.nodes[0].getbestblockhash(), block.hash)
 
         self.log.info("Test that blocks must now be at least version 3")
-        tip = block.sha256
-        block_time += 1
-        block = create_block(tip, create_coinbase(DERSIG_HEIGHT), block_time, version=2)
-        block.solve()
-
+        tip = int(self.nodes[0].getbestblockhash(), 16)
+        block_time = self.nodes[0].getblock(self.nodes[0].getbestblockhash())['time']+1
+        block = create_block(tip, create_coinbase(self.nodes[0].getblockcount()+1), block_time)
+        block.nVersion = 2
+//QTUM_TO_CHECK_END
         with self.nodes[0].assert_debug_log(expected_msgs=[f'{block.hash}, bad-version(0x00000002)']):
             peer.send_and_ping(msg_block(block))
             assert_equal(int(self.nodes[0].getbestblockhash(), 16), tip)

@@ -42,6 +42,8 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
+from test_framework.qtum import generatesynchronized
 
 class WalletBackupTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -147,11 +149,11 @@ class WalletBackupTest(BitcoinTestFramework):
         self.generate(self.nodes[0], 1)
         self.generate(self.nodes[1], 1)
         self.generate(self.nodes[2], 1)
-        self.generate(self.nodes[3], COINBASE_MATURITY)
+        generatesynchronized(self.nodes[3], COINBASE_MATURITY, None, self.nodes)
 
-        assert_equal(self.nodes[0].getbalance(), 50)
-        assert_equal(self.nodes[1].getbalance(), 50)
-        assert_equal(self.nodes[2].getbalance(), 50)
+        assert_equal(self.nodes[0].getbalance(), INITIAL_BLOCK_REWARD)
+        assert_equal(self.nodes[1].getbalance(), INITIAL_BLOCK_REWARD)
+        assert_equal(self.nodes[2].getbalance(), INITIAL_BLOCK_REWARD)
         assert_equal(self.nodes[3].getbalance(), 0)
 
         self.log.info("Creating transactions")
@@ -175,7 +177,7 @@ class WalletBackupTest(BitcoinTestFramework):
             self.do_one_round()
 
         # Generate 101 more blocks, so any fees paid mature
-        self.generate(self.nodes[3], COINBASE_MATURITY + 1)
+        generatesynchronized(self.nodes[3], COINBASE_MATURITY + 1, None, self.nodes)
 
         balance0 = self.nodes[0].getbalance()
         balance1 = self.nodes[1].getbalance()
@@ -185,7 +187,7 @@ class WalletBackupTest(BitcoinTestFramework):
 
         # At this point, there are 214 blocks (103 for setup, then 10 rounds, then 101.)
         # 114 are mature, so the sum of all wallets should be 114 * 50 = 5700.
-        assert_equal(total, 5700)
+        assert_equal(total, (COINBASE_MATURITY+14)*INITIAL_BLOCK_REWARD)
 
         ##
         # Test restoring spender wallets from backups

@@ -19,6 +19,8 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
+from test_framework.qtumconfig import *
+from test_framework.qtum import generatesynchronized
 
 class AbandonConflictTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -34,7 +36,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         self.nodes[0].createwallet(wallet_name="bob")
         bob = self.nodes[0].get_wallet_rpc("bob")
 
-        self.generate(self.nodes[1], COINBASE_MATURITY)
+        generatesynchronized(self.nodes[1], COINBASE_MATURITY, None, self.nodes)
         balance = alice.getbalance()
         txA = alice.sendtoaddress(alice.getnewaddress(), Decimal("10"))
         txB = alice.sendtoaddress(alice.getnewaddress(), Decimal("10"))
@@ -48,7 +50,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         assert_raises_rpc_error(-5, 'Transaction not eligible for abandonment', lambda: alice.abandontransaction(txid=txA))
 
         newbalance = alice.getbalance()
-        assert balance - newbalance < Decimal("0.001")  #no more than fees lost
+        assert balance - newbalance < Decimal("0.01")  #no more than fees lost
         balance = newbalance
 
         # Disconnect nodes so node0's transactions don't get into node1's mempool
@@ -172,7 +174,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         inputs = []
         inputs.append({"txid": txA, "vout": nA})
         outputs = {}
-        outputs[self.nodes[1].getnewaddress()] = Decimal("3.9999")
+        outputs[self.nodes[1].getnewaddress()] = Decimal("9.99")
         outputs[bob.getnewaddress()] = Decimal("5.9999")
         tx = alice.createrawtransaction(inputs, outputs)
         signed = alice.signrawtransactionwithwallet(tx)

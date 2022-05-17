@@ -19,6 +19,8 @@ from test_framework.util import (
 )
 from test_framework.wallet_util import bytes_to_wif
 
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
+from test_framework.qtum import generatesynchronized
 class RpcCreateMultiSigTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
@@ -45,7 +47,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         self.check_addmultisigaddress_errors()
 
         self.log.info('Generating blocks ...')
-        self.generate(node0, 149)
+        generatesynchronized(node0, COINBASE_MATURITY+49, None, self.nodes)
 
         self.moved = 0
         for self.nkeys in [3, 5]:
@@ -121,15 +123,15 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
     def checkbalances(self):
         node0, node1, node2 = self.nodes
-        self.generate(node0, COINBASE_MATURITY)
+        generatesynchronized(node0, COINBASE_MATURITY, None, self.nodes)
 
         bal0 = node0.getbalance()
         bal1 = node1.getbalance()
         bal2 = node2.getbalance()
 
         height = node0.getblockchaininfo()["blocks"]
-        assert 150 < height < 350
-        total = 149 * 50 + (height - 149 - 100) * 25
+        assert COINBASE_MATURITY + 50 < height < 2 * COINBASE_MATURITY + 100
+        total = (height - COINBASE_MATURITY) * INITIAL_BLOCK_REWARD
         assert bal1 == 0
         assert bal2 == self.moved
         assert bal0 + bal1 + bal2 == total
@@ -162,7 +164,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         mredeem = msig["redeemScript"]
         assert_equal(desc, msig['descriptor'])
         if self.output_type == 'bech32':
-            assert madd[0:4] == "bcrt"  # actually a bech32 address
+            assert madd[0:4] == "qcrt"  # actually a bech32 address
 
         # compare against addmultisigaddress
         msigw = wmulti.addmultisigaddress(self.nsigs, self.pub, None, self.output_type)
@@ -185,7 +187,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
         self.generate(node0, 1)
 
-        outval = value - decimal.Decimal("0.00001000")
+        outval = value - decimal.Decimal("0.01000000")
         rawtx = node2.createrawtransaction([{"txid": txid, "vout": vout}], [{self.final: outval}])
 
         prevtx_err = dict(prevtxs[0])

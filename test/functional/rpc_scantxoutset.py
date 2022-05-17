@@ -11,7 +11,8 @@ from test_framework.wallet import (
     address_to_scriptpubkey,
     getnewdestination,
 )
-
+from test_framework.qtumconfig import COINBASE_MATURITY
+from test_framework.qtum import convert_btc_address_to_qtum
 from decimal import Decimal
 
 
@@ -42,18 +43,18 @@ class ScantxoutsetTest(BitcoinTestFramework):
         self.sendtodestination(spk_BECH32, 0.004)
 
         #send to child keys of tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK
-        self.sendtodestination("mkHV1C6JLheLoUSSZYk7x3FH5tnx9bu7yc", 0.008)  # (m/0'/0'/0')
-        self.sendtodestination("mipUSRmJAj2KrjSvsPQtnP8ynUon7FhpCR", 0.016)  # (m/0'/0'/1')
-        self.sendtodestination("n37dAGe6Mq1HGM9t4b6rFEEsDGq7Fcgfqg", 0.032)  # (m/0'/0'/1500')
-        self.sendtodestination("mqS9Rpg8nNLAzxFExsgFLCnzHBsoQ3PRM6", 0.064)  # (m/0'/0'/0)
-        self.sendtodestination("mnTg5gVWr3rbhHaKjJv7EEEc76ZqHgSj4S", 0.128)  # (m/0'/0'/1)
-        self.sendtodestination("mketCd6B9U9Uee1iCsppDJJBHfvi6U6ukC", 0.256)  # (m/0'/0'/1500)
-        self.sendtodestination("mj8zFzrbBcdaWXowCQ1oPZ4qioBVzLzAp7", 0.512)  # (m/1/1/0')
-        self.sendtodestination("mfnKpKQEftniaoE1iXuMMePQU3PUpcNisA", 1.024)  # (m/1/1/1')
-        self.sendtodestination("mou6cB1kaP1nNJM1sryW6YRwnd4shTbXYQ", 2.048)  # (m/1/1/1500')
-        self.sendtodestination("mtfUoUax9L4tzXARpw1oTGxWyoogp52KhJ", 4.096)  # (m/1/1/0)
-        self.sendtodestination("mxp7w7j8S1Aq6L8StS2PqVvtt4HGxXEvdy", 8.192)  # (m/1/1/1)
-        self.sendtodestination("mpQ8rokAhp1TAtJQR6F6TaUmjAWkAWYYBq", 16.384)  # (m/1/1/1500)
+        self.sendtodestination(convert_btc_address_to_qtum("mkHV1C6JLheLoUSSZYk7x3FH5tnx9bu7yc"), 0.008)  # (m/0'/0'/0')
+        self.sendtodestination(convert_btc_address_to_qtum("mipUSRmJAj2KrjSvsPQtnP8ynUon7FhpCR"), 0.016)  # (m/0'/0'/1')
+        self.sendtodestination(convert_btc_address_to_qtum("n37dAGe6Mq1HGM9t4b6rFEEsDGq7Fcgfqg"), 0.032)  # (m/0'/0'/1500')
+        self.sendtodestination(convert_btc_address_to_qtum("mqS9Rpg8nNLAzxFExsgFLCnzHBsoQ3PRM6"), 0.064)  # (m/0'/0'/0)
+        self.sendtodestination(convert_btc_address_to_qtum("mnTg5gVWr3rbhHaKjJv7EEEc76ZqHgSj4S"), 0.128)  # (m/0'/0'/1)
+        self.sendtodestination(convert_btc_address_to_qtum("mketCd6B9U9Uee1iCsppDJJBHfvi6U6ukC"), 0.256)  # (m/0'/0'/1500)
+        self.sendtodestination(convert_btc_address_to_qtum("mj8zFzrbBcdaWXowCQ1oPZ4qioBVzLzAp7"), 0.512)  # (m/1/1/0')
+        self.sendtodestination(convert_btc_address_to_qtum("mfnKpKQEftniaoE1iXuMMePQU3PUpcNisA"), 1.024)  # (m/1/1/1')
+        self.sendtodestination(convert_btc_address_to_qtum("mou6cB1kaP1nNJM1sryW6YRwnd4shTbXYQ"), 2.048)  # (m/1/1/1500')
+        self.sendtodestination(convert_btc_address_to_qtum("mtfUoUax9L4tzXARpw1oTGxWyoogp52KhJ"), 4.096)  # (m/1/1/0)
+        self.sendtodestination(convert_btc_address_to_qtum("mxp7w7j8S1Aq6L8StS2PqVvtt4HGxXEvdy"), 8.192)  # (m/1/1/1)
+        self.sendtodestination(convert_btc_address_to_qtum("mpQ8rokAhp1TAtJQR6F6TaUmjAWkAWYYBq"), 16.384)  # (m/1/1/1500)
 
         self.generate(self.nodes[0], 1)
 
