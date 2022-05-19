@@ -1053,7 +1053,7 @@ static RPCHelpMan getstorage()
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address"); 
 
     TemporaryState ts(globalState);
-    if (request.params.size() > 1)
+    if (!request.params[1].isNull())
     {
         if (request.params[1].isNum())
         {
@@ -1075,7 +1075,7 @@ static RPCHelpMan getstorage()
     
     UniValue result(UniValue::VOBJ);
 
-    bool onlyIndex = request.params.size() > 2;
+    bool onlyIndex = !request.params[2].isNull();
     unsigned index = 0;
     if (onlyIndex)
         index = request.params[2].get_int();
@@ -1917,14 +1917,14 @@ RPCHelpMan listcontracts()
 	LOCK(cs_main);
 
 	int start=1;
-	if (request.params.size() > 0){
+	if (!request.params[0].isNull()){
 		start = request.params[0].get_int();
 		if (start<= 0)
 			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid start, min=1");
 	}
 
 	int maxDisplay=20;
-	if (request.params.size() > 1){
+	if (!request.params[1].isNull()){
 		maxDisplay = request.params[1].get_int();
 		if (maxDisplay <= 0)
 			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid maxDisplay");
@@ -3815,9 +3815,9 @@ static RPCHelpMan qrc20listtransactions()
     token.setSender(sender);
     int64_t fromBlock = 0;
     int64_t minconf = 6;
-    if(request.params.size() > 2)
+    if(!request.params[2].isNull())
         fromBlock = request.params[2].get_int64();
-    if(request.params.size() > 3)
+    if(!request.params[3].isNull())
         minconf = request.params[3].get_int64();
 
     // Get transaction events

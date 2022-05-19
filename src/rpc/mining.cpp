@@ -429,7 +429,7 @@ static RPCHelpMan getsubsidy()
     NodeContext& node = EnsureAnyNodeContext(request.context);
     ChainstateManager& chainman = EnsureChainman(node);
 
-    int nTarget = request.params.size() == 1 ? request.params[0].get_int() : chainman.ActiveChain().Height();
+    int nTarget = !request.params[0].isNull() ? request.params[0].get_int() : chainman.ActiveChain().Height();
     if (nTarget < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
     const Consensus::Params& consensusParams = Params().GetConsensus();

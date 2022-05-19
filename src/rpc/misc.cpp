@@ -637,7 +637,7 @@ RPCHelpMan getblockhashes()
                 {
                     {"high", RPCArg::Type::NUM, RPCArg::Optional::NO, "The newer block timestamp"},
                     {"low", RPCArg::Type::NUM, RPCArg::Optional::NO, "The older block timestamp"},
-                    {"options", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "An object with options",
+                    {"options", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "An object with options",
                         {
                             {"noOrphans", RPCArg::Type::BOOL, RPCArg::Default{"false"}, "Will only include blocks on the main chain"},
                             {"logicalTimes", RPCArg::Type::BOOL, RPCArg::Default{"false"}, "Will include logical timestamps with hashes"},
@@ -677,7 +677,7 @@ RPCHelpMan getblockhashes()
     bool fActiveOnly = false;
     bool fLogicalTS = false;
 
-    if (request.params.size() > 2) {
+    if (!request.params[2].isNull()) {
         if (request.params[2].isObject()) {
             UniValue noOrphans = find_value(request.params[2].get_obj(), "noOrphans");
             UniValue returnLogical = find_value(request.params[2].get_obj(), "logicalTimes");
