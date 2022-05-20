@@ -1025,7 +1025,7 @@ static RPCHelpMan getstorage()
                 "\nGet contract storage data.\n",
                 {
                     {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"blockNum", RPCArg::Type::NUM,  RPCArg::Default{-1}, "Number of block to get state from."},
+                    {"blocknum", RPCArg::Type::NUM,  RPCArg::Default{-1}, "Number of block to get state from."},
                     {"index", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Zero-based index position of the storage"},
                 },
                 RPCResult{
@@ -1053,7 +1053,7 @@ static RPCHelpMan getstorage()
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address"); 
 
     TemporaryState ts(globalState);
-    if (request.params.size() > 1)
+    if (!request.params[1].isNull())
     {
         if (request.params[1].isNum())
         {
@@ -1075,7 +1075,7 @@ static RPCHelpMan getstorage()
     
     UniValue result(UniValue::VOBJ);
 
-    bool onlyIndex = request.params.size() > 2;
+    bool onlyIndex = !request.params[2].isNull();
     unsigned index = 0;
     if (onlyIndex)
         index = request.params[2].get_int();
@@ -1312,8 +1312,8 @@ RPCHelpMan callcontract()
                 {
                     {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address, or empty address \"\""},
                     {"data", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The data hex string"},
-                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
-                    {"gasLimit", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit for executing the contract."},
+                    {"senderaddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The sender address string"},
+                    {"gaslimit", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit for executing the contract."},
                     {"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The amount in " + CURRENCY_UNIT + " to send. eg 0.1, default: 0"},
                 },
                 RPCResult{
@@ -1401,8 +1401,8 @@ RPCHelpMan waitforlogs()
                 "By calling waitforlogs repeatedly using the returned `nextBlock` number, a client can receive a stream of up-to-date log entires.\n"
                 "\nThis call is different from the similarly named `searchlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n",
                 {
-                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The block number to start looking for logs."},
-                    {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The block number to stop looking for logs. If null, will wait indefinitely into the future."},
+                    {"fromblock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The block number to start looking for logs."},
+                    {"toblock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The block number to stop looking for logs. If null, will wait indefinitely into the future."},
                     {"filter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "Filter conditions for logs.",
                     {
                         {"addresses", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An address or a list of addresses to only get logs from particular account(s).",
@@ -1592,9 +1592,9 @@ RPCHelpMan searchlogs()
     return RPCHelpMan{"searchlogs",
                 "\nSearch logs, requires -logevents to be enabled.\n",
                 {
-                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
-                    {"toBlock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the latest block (-1 may be given to mean the most recent block)."},
-                    {"addressFilter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "Addresses filter conditions for logs.",
+                    {"fromblock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
+                    {"toblock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the latest block (-1 may be given to mean the most recent block)."},
+                    {"addressfilter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "Addresses filter conditions for logs.",
                     {
                         {"addresses", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An address or a list of addresses to only get logs from particular account(s).",
                             {
@@ -1602,7 +1602,7 @@ RPCHelpMan searchlogs()
                             },
                         },
                     }},
-                    {"topicFilter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "Topics filter conditions for logs.",
+                    {"topicfilter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "Topics filter conditions for logs.",
                     {
                         {"topics", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [null, \"0x00...\"].",
                             {
@@ -1900,7 +1900,7 @@ RPCHelpMan listcontracts()
                 "\nGet the contracts list.\n",
                 {
                     {"start", RPCArg::Type::NUM, RPCArg::Default{1}, "The starting account index"},
-                    {"maxDisplay", RPCArg::Type::NUM, RPCArg::Default{20}, "Max accounts to list"},
+                    {"maxdisplay", RPCArg::Type::NUM, RPCArg::Default{20}, "Max accounts to list"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -1917,14 +1917,14 @@ RPCHelpMan listcontracts()
 	LOCK(cs_main);
 
 	int start=1;
-	if (request.params.size() > 0){
+	if (!request.params[0].isNull()){
 		start = request.params[0].get_int();
 		if (start<= 0)
 			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid start, min=1");
 	}
 
 	int maxDisplay=20;
-	if (request.params.size() > 1){
+	if (!request.params[1].isNull()){
 		maxDisplay = request.params[1].get_int();
 		if (maxDisplay <= 0)
 			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid maxDisplay");
@@ -3737,8 +3737,8 @@ static RPCHelpMan qrc20allowance()
                 "\nReturns remaining tokens allowed to spend for an address\n",
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
-                    {"addressFrom", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address of the account owning tokens"},
-                    {"addressTo", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address of the account able to transfer the tokens"},
+                    {"addressfrom", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address of the account owning tokens"},
+                    {"addressto", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address of the account able to transfer the tokens"},
                 },
                 RPCResult{
                     RPCResult::Type::STR, "allowance", "Amount of remaining tokens allowed to spent"},
@@ -3780,7 +3780,7 @@ static RPCHelpMan qrc20listtransactions()
                 {
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
-                    {"fromBlock", RPCArg::Type::NUM, RPCArg::Default{0}, "The number of the earliest block."},
+                    {"fromblock", RPCArg::Type::NUM, RPCArg::Default{0}, "The number of the earliest block."},
                     {"minconf", RPCArg::Type::NUM, RPCArg::Default{6}, "Minimal number of confirmations."},
                 },
                RPCResult{
@@ -3815,9 +3815,9 @@ static RPCHelpMan qrc20listtransactions()
     token.setSender(sender);
     int64_t fromBlock = 0;
     int64_t minconf = 6;
-    if(request.params.size() > 2)
+    if(!request.params[2].isNull())
         fromBlock = request.params[2].get_int64();
-    if(request.params.size() > 3)
+    if(!request.params[3].isNull())
         minconf = request.params[3].get_int64();
 
     // Get transaction events

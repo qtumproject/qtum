@@ -665,8 +665,8 @@ static RPCHelpMan sendtoaddress()
                                          "dirty if they have previously been used in a transaction. If true, this also activates avoidpartialspends, grouping outputs by their addresses."},
                     {"fee_rate", RPCArg::Type::AMOUNT, RPCArg::DefaultHint{"not set, fall back to wallet fee estimation"}, "Specify a fee rate in " + CURRENCY_ATOM + "/vB."},
                     {"verbose", RPCArg::Type::BOOL, RPCArg::Default{false}, "If true, return extra information about the transaction."},
-                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum address that will be used to send money from."},
-                    {"changeToSender", RPCArg::Type::BOOL, RPCArg::Default{false}, "Return the change to the sender."},
+                    {"senderaddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum address that will be used to send money from."},
+                    {"changetosender", RPCArg::Type::BOOL, RPCArg::Default{false}, "Return the change to the sender."},
                 },
                 {
                     RPCResult{"if verbose is not set or set to false",
@@ -744,7 +744,7 @@ static RPCHelpMan sendtoaddress()
 
     bool fHasSender=false;
     CTxDestination senderAddress;
-    if (request.params.size() > 11 && !request.params[11].isNull()){
+    if (!request.params[11].isNull()){
     senderAddress = DecodeDestination(request.params[11].get_str());
         if (!IsValidDestination(senderAddress))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
@@ -753,7 +753,7 @@ static RPCHelpMan sendtoaddress()
     }
 
     bool fChangeToSender=false;
-    if (request.params.size() > 12 && !request.params[12].isNull()){
+    if (!request.params[12].isNull()){
         fChangeToSender=request.params[12].get_bool();
     }
 
@@ -802,10 +802,10 @@ static RPCHelpMan splitutxosforaddress()
                     HELP_REQUIRING_PASSPHRASE,
                 {
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to split utxos."},
-                    {"minValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is smaller than value (minimum 0.1 COIN)"},
-                    {"maxValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is greater than value (minimum 0.1 COIN)"},
-                    {"maxOutputs", RPCArg::Type::NUM, RPCArg::Default{100}, "Maximum outputs to create"},
-                    {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Create partially signed transaction."},
+                    {"minvalue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is smaller than value (minimum 0.1 COIN)"},
+                    {"maxvalue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is greater than value (minimum 0.1 COIN)"},
+                    {"maxoutputs", RPCArg::Type::NUM, RPCArg::Default{100}, "Maximum outputs to create"},
+                    {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Create partially signed transaction."},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -854,14 +854,14 @@ static RPCHelpMan splitutxosforaddress()
     }
 
     // Maximum outputs
-    int maxOutputs = request.params.size() > 3 ? request.params[3].get_int() : 100;
+    int maxOutputs = !request.params[3].isNull() ? request.params[3].get_int() : 100;
     if (maxOutputs < 1) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid value for maximum outputs");
     }
 
     // Is psbt
     bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
-    if (request.params.size() > 4){
+    if (!request.params[4].isNull()){
         fPsbt=request.params[4].get_bool();
     }
 
@@ -996,12 +996,12 @@ static RPCHelpMan createcontract()
                 HELP_REQUIRING_PASSPHRASE,
                 {
                     {"bytecode", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "contract bytcode."},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice QTUM price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
-                    {"senderAddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The qtum address that will be used to create the contract."},
-                    {"broadcast", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Whether to broadcast the transaction or not, default: true."},
-                    {"changeToSender", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Return the change to the sender, default: true."},
-                    {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Create partially signed transaction."},
+                    {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "gasPrice QTUM price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"senderaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum address that will be used to create the contract."},
+                    {"broadcast", RPCArg::Type::BOOL, RPCArg::Default{true}, "Whether to broadcast the transaction or not."},
+                    {"changetosender", RPCArg::Type::BOOL, RPCArg::Default{true}, "Return the change to the sender."},
+                    {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Create partially signed transaction."},
                 },
                 {
                     RPCResult{"if broadcast is set to true",
@@ -1042,7 +1042,7 @@ static RPCHelpMan createcontract()
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
 
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_CREATE;
-    if (request.params.size() > 1){
+    if (!request.params[1].isNull()){
         nGasLimit = request.params[1].get_int64();
         if (nGasLimit > blockGasLimit)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Maximum is: "+i64tostr(blockGasLimit)+")");
@@ -1052,7 +1052,7 @@ static RPCHelpMan createcontract()
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
     }
 
-    if (request.params.size() > 2){
+    if (!request.params[2].isNull()){
         nGasPrice = AmountFromValue(request.params[2]);
         if (nGasPrice <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
@@ -1065,7 +1065,7 @@ static RPCHelpMan createcontract()
 
     bool fHasSender=false;
     CTxDestination senderAddress;
-    if (request.params.size() > 3){
+    if (!request.params[3].isNull()){
         senderAddress = DecodeDestination(request.params[3].get_str());
         if (!IsValidDestination(senderAddress))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
@@ -1076,17 +1076,17 @@ static RPCHelpMan createcontract()
     }
 
     bool fBroadcast=true;
-    if (request.params.size() > 4){
+    if (!request.params[4].isNull()){
         fBroadcast=request.params[4].get_bool();
     }
 
     bool fChangeToSender=true;
-    if (request.params.size() > 5){
+    if (!request.params[5].isNull()){
         fChangeToSender=request.params[5].get_bool();
     }
 
     bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
-    if (request.params.size() > 6){
+    if (!request.params[6].isNull()){
         fPsbt=request.params[6].get_bool();
     }
     if(fPsbt) fBroadcast=false;
@@ -1304,14 +1304,14 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
 
     CAmount nAmount = 0;
-    if (params.size() > 2){
+    if (!params[2].isNull()){
         nAmount = AmountFromValue(params[2]);
         if (nAmount < 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
     }
 
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    if (params.size() > 3){
+    if (!params[3].isNull()){
         nGasLimit = params[3].get_int64();
         if (nGasLimit > blockGasLimit)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Maximum is: "+i64tostr(blockGasLimit)+")");
@@ -1321,7 +1321,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
     }
 
-    if (params.size() > 4){
+    if (!params[4].isNull()){
         nGasPrice = AmountFromValue(params[4]);
         if (nGasPrice <= 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
@@ -1334,7 +1334,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
 
     bool fHasSender=false;
     CTxDestination senderAddress;
-    if (params.size() > 5){
+    if (!params[5].isNull()){
         senderAddress = DecodeDestination(params[5].get_str());
         if (!IsValidDestination(senderAddress))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
@@ -1345,17 +1345,17 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
     }
 
     bool fBroadcast=true;
-    if (params.size() > 6){
+    if (!params[6].isNull()){
         fBroadcast=params[6].get_bool();
     }
 
     bool fChangeToSender=true;
-    if (params.size() > 7){
+    if (!params[7].isNull()){
         fChangeToSender=params[7].get_bool();
     }
 
     bool fPsbt=wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
-    if (params.size() > 8){
+    if (!params[8].isNull()){
         fPsbt=params[8].get_bool();
     }
     if(fPsbt) fBroadcast=false;
@@ -1696,13 +1696,13 @@ static RPCHelpMan sendtocontract()
                     {
                         {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address that will receive the funds and data."},
                         {"datahex", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "data to send."},
-                        {"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The amount in " + CURRENCY_UNIT + " to send. eg 0.1, default: 0"},
-                        {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                        {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
-                        {"senderAddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The qtum address that will be used as sender."},
-                        {"broadcast", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Whether to broadcast the transaction or not, default: true."},
-                        {"changeToSender", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Return the change to the sender, default: true."},
-                        {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Create partially signed transaction."},
+                        {"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The amount in " + CURRENCY_UNIT + " to send. eg 0.1, default: 0"},
+                        {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                        {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                        {"senderaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum address that will be used as sender."},
+                        {"broadcast", RPCArg::Type::BOOL, RPCArg::Default{true}, "Whether to broadcast the transaction or not."},
+                        {"changetosender", RPCArg::Type::BOOL, RPCArg::Default{true}, "Return the change to the sender."},
+                        {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Create partially signed transaction."},
                     },
                     {
                         RPCResult{"if broadcast is set to true",
@@ -1750,8 +1750,8 @@ static RPCHelpMan removedelegationforaddress()
                     HELP_REQUIRING_PASSPHRASE,
                     {
                         {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to remove delegation, the address will be used as sender too."},
-                        {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                        {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                        {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                        {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     },
                     RPCResult{
                         RPCResult::Type::OBJ, "", "",
@@ -1780,8 +1780,8 @@ static RPCHelpMan removedelegationforaddress()
     UniValue contractaddress = HexStr(Params().GetConsensus().delegationsAddress);
     UniValue datahex = QtumDelegation::BytecodeRemove();
     UniValue amount = 0;
-    UniValue gasLimit = request.params.size() > 1 ? request.params[1] : DEFAULT_GAS_LIMIT_OP_SEND;
-    UniValue gasPrice = request.params.size() > 2 ? request.params[2] : FormatMoney(nGasPrice);
+    UniValue gasLimit = !request.params[1].isNull() ? request.params[1] : DEFAULT_GAS_LIMIT_OP_SEND;
+    UniValue gasPrice = !request.params[2].isNull() ? request.params[2] : FormatMoney(nGasPrice);
     UniValue senderaddress = request.params[0];
 
     // Add the send to contract parameters to the list
@@ -1811,8 +1811,8 @@ static RPCHelpMan setdelegateforaddress()
                         {"staker", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address for the staker."},
                         {"fee", RPCArg::Type::NUM, RPCArg::Optional::NO, "Percentage of the reward that will be paid to the staker."},
                         {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address that contain the coins that will be delegated to the staker, the address will be used as sender too."},
-                        {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
-                        {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                        {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
+                        {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     },
                     RPCResult{
                         RPCResult::Type::OBJ, "", "",
@@ -1840,8 +1840,8 @@ static RPCHelpMan setdelegateforaddress()
     UniValue params(UniValue::VARR);
     UniValue contractaddress = HexStr(Params().GetConsensus().delegationsAddress);
     UniValue amount = 0;
-    UniValue gasLimit = request.params.size() > 3 ? request.params[3] : DEFAULT_GAS_LIMIT_OP_CREATE;
-    UniValue gasPrice = request.params.size() > 4 ? request.params[4] : FormatMoney(nGasPrice);
+    UniValue gasLimit = !request.params[3].isNull() ? request.params[3] : DEFAULT_GAS_LIMIT_OP_CREATE;
+    UniValue gasPrice = !request.params[4].isNull() ? request.params[4] : FormatMoney(nGasPrice);
     UniValue senderaddress = request.params[2];
     bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
 
@@ -3625,11 +3625,11 @@ static RPCHelpMan gettransaction()
     }
 
     int waitconf = 0;
-    if(request.params.size() > 3) {
+    if(!request.params[3].isNull()) {
         waitconf = request.params[3].get_int();
     }
 
-    bool shouldWaitConf = request.params.size() > 3 && waitconf > 0;
+    bool shouldWaitConf = !request.params[3].isNull() && waitconf > 0;
 
     {
         LOCK(pwallet->cs_wallet);
@@ -3845,7 +3845,7 @@ static RPCHelpMan walletpassphrase()
                 {
                     {"passphrase", RPCArg::Type::STR, RPCArg::Optional::NO, "The wallet passphrase"},
                     {"timeout", RPCArg::Type::NUM, RPCArg::Optional::NO, "The time to keep the decryption key in seconds; capped at 100000000 (~3 years)."},
-                    {"stakingonly", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Unlock wallet for staking only"},
+                    {"stakingonly", RPCArg::Type::BOOL, RPCArg::Default{false}, "Unlock wallet for staking only"},
                 },
                 RPCResult{RPCResult::Type::NONE, "", ""},
                 RPCExamples{
@@ -3905,7 +3905,7 @@ static RPCHelpMan walletpassphrase()
         bool tmpStakingOnly = pwallet->m_wallet_unlock_staking_only;
 
         // ppcoin: if user OS account compromised prevent trivial sendmoney commands
-        if (request.params.size() > 2)
+        if (!request.params[2].isNull())
             pwallet->m_wallet_unlock_staking_only = request.params[2].get_bool();
         else
             pwallet->m_wallet_unlock_staking_only = false;
@@ -6742,9 +6742,9 @@ static RPCHelpMan qrc20approve()
                     {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
                     {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
-                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                    {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -6776,18 +6776,18 @@ static RPCHelpMan qrc20approve()
 
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    if (request.params.size() > 4){
+    if (!request.params[4].isNull()){
         nGasLimit = request.params[4].get_int64();
     }
 
     // Get gas price
-    if (request.params.size() > 5){
+    if (!request.params[5].isNull()){
         nGasPrice = AmountFromValue(request.params[5]);
     }
 
     // Get check outputs flag
     bool fCheckOutputs = true;
-    if (request.params.size() > 6){
+    if (!request.params[6].isNull()){
         fCheckOutputs = request.params[6].get_bool();
     }
 
@@ -6849,9 +6849,9 @@ static RPCHelpMan qrc20transfer()
                     {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
                     {"addressto", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to send funds to."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens to send. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
-                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                    {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -6883,18 +6883,18 @@ static RPCHelpMan qrc20transfer()
 
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    if (request.params.size() > 4){
+    if (!request.params[4].isNull()){
         nGasLimit = request.params[4].get_int64();
     }
 
     // Get gas price
-    if (request.params.size() > 5){
+    if (!request.params[5].isNull()){
         nGasPrice = AmountFromValue(request.params[5]);
     }
 
     // Get check outputs flag
     bool fCheckOutputs = true;
-    if (request.params.size() > 6){
+    if (!request.params[6].isNull()){
         fCheckOutputs = request.params[6].get_bool();
     }
 
@@ -6967,9 +6967,9 @@ static RPCHelpMan qrc20transferfrom()
                     {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
                     {"receiveraddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token receiver qtum address."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of token to send. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
-                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                    {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
                  },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -7002,18 +7002,18 @@ static RPCHelpMan qrc20transferfrom()
 
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    if (request.params.size() > 5){
+    if (!request.params[5].isNull()){
         nGasLimit = request.params[5].get_int64();
     }
 
     // Get gas price
-    if (request.params.size() > 6){
+    if (!request.params[6].isNull()){
         nGasPrice = AmountFromValue(request.params[6]);
     }
 
     // Get check outputs flag
     bool fCheckOutputs = true;
-    if (request.params.size() > 7){
+    if (!request.params[7].isNull()){
         fCheckOutputs = request.params[7].get_bool();
     }
 
@@ -7084,9 +7084,9 @@ static RPCHelpMan qrc20burn()
                     {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
                     {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens to burn. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
-                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                    {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -7117,18 +7117,18 @@ static RPCHelpMan qrc20burn()
 
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    if (request.params.size() > 3){
+    if (!request.params[3].isNull()){
         nGasLimit = request.params[3].get_int64();
     }
 
     // Get gas price
-    if (request.params.size() > 4){
+    if (!request.params[4].isNull()){
         nGasPrice = AmountFromValue(request.params[4]);
     }
 
     // Get check outputs flag
     bool fCheckOutputs = true;
-    if (request.params.size() > 5){
+    if (!request.params[5].isNull()){
         fCheckOutputs = request.params[5].get_bool();
     }
 
@@ -7200,9 +7200,9 @@ static RPCHelpMan qrc20burnfrom()
                     {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
                     {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
                     {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of token to burn. eg 0.1"},
-                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
-                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
-                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                    {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
                  },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -7234,18 +7234,18 @@ static RPCHelpMan qrc20burnfrom()
 
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
-    if (request.params.size() > 4){
+    if (!request.params[4].isNull()){
         nGasLimit = request.params[4].get_int64();
     }
 
     // Get gas price
-    if (request.params.size() > 5){
+    if (!request.params[5].isNull()){
         nGasPrice = AmountFromValue(request.params[5]);
     }
 
     // Get check outputs flag
     bool fCheckOutputs = true;
-    if (request.params.size() > 6){
+    if (!request.params[6].isNull()){
         fCheckOutputs = request.params[6].get_bool();
     }
 
