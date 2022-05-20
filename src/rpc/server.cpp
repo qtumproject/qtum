@@ -440,9 +440,10 @@ std::string JSONRPCExecBatch(const JSONRPCRequest& jreq, const UniValue& vReq)
  * Process named arguments into a vector of positional arguments, based on the
  * passed-in specification for the RPC call's arguments.
  */
-static inline JSONRPCRequest transformNamedArguments(const JSONRPCRequest& in, const std::vector<std::string>& argNames)
+static inline JSONRPCRequest& transformNamedArguments(const JSONRPCRequest& _in, const std::vector<std::string>& argNames)
 {
-    JSONRPCRequest out = in;
+    JSONRPCRequest in = _in;
+    JSONRPCRequest& out = (JSONRPCRequest&)_in;
     out.params = UniValue(UniValue::VARR);
     // Build a map of parameters, and remove ones that have been processed, so that we can throw a focused error if
     // there is an unknown one.
