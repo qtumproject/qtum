@@ -203,9 +203,9 @@ RPCHelpMan getaddressdeltas()
                                 {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
                             }
                         },
-                        {"start", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The start block height"},
-                        {"end", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "The end block height"},
-                        {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Include chain info in results, only applies if start and end specified"},
+                        {"start", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "The start block height"},
+                        {"end", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "The end block height"},
+                        {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Include chain info in results, only applies if start and end specified"},
                     }
                 }
             },
@@ -440,7 +440,7 @@ RPCHelpMan getaddressutxos()
                                     {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
                                 }
                             },
-                            {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED_NAMED_ARG, "Include chain info with results"},
+                            {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Include chain info with results"},
                         }
                     }
                 },
