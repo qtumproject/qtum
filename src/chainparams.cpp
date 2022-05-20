@@ -90,7 +90,7 @@ public:
         consensus.nOfflineStakeHeight = 680000;
         consensus.nReduceBlocktimeHeight = 845000;
         consensus.nMuirGlacierHeight = 845000;
-        consensus.nLondonHeight = 0x7fffffff;
+        consensus.nLondonHeight = 2080512;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -114,9 +114,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-        // Min block number for activation, the number must be divisible with 2016
+        // Min block number for activation, the number must be divisible by 2016
         // Replace 0xffffc0 with the activation block number
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0xffffc0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 2080512;
 
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000002ee39fbaf66506e5c57"); // qtum
         consensus.defaultAssumeValid = uint256S("0x8ef924fb7d2a28e0420c8731fb34301c204d15fe8d1e68461e5ebe959df011f2"); // 1405000
@@ -245,7 +245,7 @@ public:
         consensus.nOfflineStakeHeight = 625000;
         consensus.nReduceBlocktimeHeight = 806600;
         consensus.nMuirGlacierHeight = 806600;
-        consensus.nLondonHeight = 0x7fffffff;
+        consensus.nLondonHeight = 1967616;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -269,9 +269,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-        // Min block number for activation, the number must be divisible with 2016
+        // Min block number for activation, the number must be divisible by 2016
         // Replace 0xffffc0 with the activation block number
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0xffffc0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 1967616;
 
         consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000f64ad2ae9a92bd2de8"); // qtum
         consensus.defaultAssumeValid = uint256S("0xaff1f9c768e83f90d10a55306993e9042b5740251abc1afdde1429d09e95fa66"); // 1405000
