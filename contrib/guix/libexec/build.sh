@@ -222,7 +222,7 @@ make -C depends --jobs="$JOBS" HOST="$HOST" \
 # Source Tarball Building #
 ###########################
 
-GIT_ARCHIVE="${DIST_ARCHIVE_BASE}/${DISTNAME}.tar.gz"
+GIT_ARCHIVE="${DIST_ARCHIVE_BASE}/${DISTNAME}.tar"
 
 # Create the source tarball if not already there
 if [ ! -e "$GIT_ARCHIVE" ]; then
