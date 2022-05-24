@@ -222,12 +222,13 @@ make -C depends --jobs="$JOBS" HOST="$HOST" \
 # Source Tarball Building #
 ###########################
 
-GIT_ARCHIVE="${DIST_ARCHIVE_BASE}/${DISTNAME}.tar.gz"
+GIT_ARCHIVE="${DIST_ARCHIVE_BASE}/${DISTNAME}.tar"
 
 # Create the source tarball if not already there
 if [ ! -e "$GIT_ARCHIVE" ]; then
     mkdir -p "$(dirname "$GIT_ARCHIVE")"
     git archive --prefix="${DISTNAME}/" --output="$GIT_ARCHIVE" HEAD
+    git submodule foreach --recursive "git archive --prefix=\$DISTNAME/\$displaypath/ --output=\$sha1.tar HEAD && tar --concatenate --file="$GIT_ARCHIVE" \$sha1.tar && rm \$sha1.tar"
 fi
 
 mkdir -p "$OUTDIR"
