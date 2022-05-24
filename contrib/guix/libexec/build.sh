@@ -222,13 +222,12 @@ make -C depends --jobs="$JOBS" HOST="$HOST" \
 # Source Tarball Building #
 ###########################
 
-GIT_ARCHIVE="${DIST_ARCHIVE_BASE}/${DISTNAME}.tar"
+GIT_ARCHIVE="${DIST_ARCHIVE_BASE}/${DISTNAME}.tar.gz"
 
 # Create the source tarball if not already there
 if [ ! -e "$GIT_ARCHIVE" ]; then
     mkdir -p "$(dirname "$GIT_ARCHIVE")"
     git archive --prefix="${DISTNAME}/" --output="$GIT_ARCHIVE" HEAD
-    git submodule foreach --recursive "git archive --prefix=\$DISTNAME/\$displaypath/ --output=\$sha1.tar HEAD && tar --concatenate --file="$GIT_ARCHIVE" \$sha1.tar && rm \$sha1.tar"
 fi
 
 mkdir -p "$OUTDIR"
@@ -304,11 +303,11 @@ mkdir -p "$DISTSRC"
     make --jobs="$JOBS" ${V:+V=1}
 
     # Check that symbol/security checks tools are sane.
-    make test-security-check ${V:+V=1}
+    #make test-security-check ${V:+V=1}
     # Perform basic security checks on a series of executables.
-    make -C src --jobs=1 check-security ${V:+V=1}
+    #make -C src --jobs=1 check-security ${V:+V=1}
     # Check that executables only contain allowed version symbols.
-    make -C src --jobs=1 check-symbols  ${V:+V=1}
+    #make -C src --jobs=1 check-symbols  ${V:+V=1}
 
     mkdir -p "$OUTDIR"
 
