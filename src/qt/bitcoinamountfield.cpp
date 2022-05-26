@@ -7,6 +7,7 @@
 #include <qt/bitcoinunits.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
+#include <qt/styleSheet.h>
 #include <qt/qvaluecombobox.h>
 
 #include <QApplication>
@@ -68,7 +69,11 @@ public:
 
     void setValue(const CAmount& value)
     {
-        lineEdit()->setText(BitcoinUnits::format(currentUnit, value, false, BitcoinUnits::SeparatorStyle::ALWAYS));
+        CAmount val = qBound(m_min_amount, value, m_max_amount);
+        QString strValue = BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+        if(!notifyAlways && strValue == lineEdit()->text())
+            return;
+        lineEdit()->setText(strValue);
         Q_EMIT valueChanged();
     }
 
@@ -147,6 +152,11 @@ public:
         return cachedMinimumSizeHint;
     }
 
+    void setNotifyAlways(bool value)
+    {
+        notifyAlways = value;
+    }
+
 private:
     int currentUnit{BitcoinUnits::BTC};
     CAmount singleStep{CAmount(100000)}; // satoshis
@@ -154,6 +164,7 @@ private:
     bool m_allow_empty{true};
     CAmount m_min_amount{CAmount(0)};
     CAmount m_max_amount{BitcoinUnits::maxMoney()};
+    bool notifyAlways = true;
 
     /**
      * Parse a string into a number of base monetary units and
@@ -222,14 +233,15 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
     amount = new AmountSpinBox(this);
     amount->setLocale(QLocale::c());
     amount->installEventFilter(this);
-    amount->setMaximumWidth(240);
+    amount->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
     unit = new QValueComboBox(this);
     unit->setModel(new BitcoinUnits(this));
+    unit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    unit->setMinimumWidth(120);
     layout->addWidget(unit);
-    layout->addStretch(1);
     layout->setContentsMargins(0,0,0,0);
 
     setLayout(layout);
@@ -270,7 +282,7 @@ void BitcoinAmountField::setValid(bool valid)
     if (valid)
         amount->setStyleSheet("");
     else
-        amount->setStyleSheet(STYLE_INVALID);
+        SetObjectStyleSheet(amount, StyleSheetNames::Invalid);
 }
 
 bool BitcoinAmountField::eventFilter(QObject *object, QEvent *event)
@@ -339,4 +351,9 @@ void BitcoinAmountField::setDisplayUnit(int newUnit)
 void BitcoinAmountField::setSingleStep(const CAmount& step)
 {
     amount->setSingleStep(step);
+}
+
+void BitcoinAmountField::setNotifyAlways(bool value)
+{
+    amount->setNotifyAlways(value);
 }

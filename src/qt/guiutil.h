@@ -22,6 +22,7 @@
 #include <QProgressBar>
 #include <QString>
 #include <QTableView>
+#include <QToolButton>
 
 #include <cassert>
 #include <chrono>
@@ -96,6 +97,13 @@ namespace GUIUtil
        @see  TransactionView::copyLabel, TransactionView::copyAmount, TransactionView::copyAddress
      */
     void copyEntryData(const QAbstractItemView *view, int column, int role=Qt::EditRole);
+
+    /** Copy a field of the currently selected entry of a view to the clipboard. Does nothing if nothing
+        is selected.
+       @param[in] role    Data role to extract from the model
+       @see  QRCToken::copyTokenAddress
+     */
+    void copyEntryDataFromList(QAbstractItemView *view, int role=Qt::EditRole);
 
     /** Return a field of the currently selected entry as a QString. Does nothing if nothing
         is selected.
@@ -203,6 +211,45 @@ namespace GUIUtil
     public:
         explicit LabelOutOfFocusEventFilter(QObject* parent);
         bool eventFilter(QObject* watched, QEvent* event) override;
+    };
+
+    /**
+     * Makes a QTableView last column feel as if it was being resized from its left border.
+     * Also makes sure the column widths are never larger than the table's viewport.
+     * In Qt, all columns are resizable from the right, but it's not intuitive resizing the last column from the right.
+     * Usually our second to last columns behave as if stretched, and when on stretch mode, columns aren't resizable
+     * interactively or programmatically.
+     *
+     * This helper object takes care of this issue.
+     *
+     */
+    class TableViewLastColumnResizingFixer: public QObject
+    {
+        Q_OBJECT
+
+        public:
+            TableViewLastColumnResizingFixer(QTableView* table, int lastColMinimumWidth, int allColsMinimumWidth, QObject *parent, int columnStretch = 2);
+            void stretchColumnWidth(int column);
+
+        private:
+            QTableView* tableView;
+            int lastColumnMinimumWidth;
+            int allColumnsMinimumWidth;
+            int lastColumnIndex;
+            int columnCount;
+            int secondToLastColumnIndex;
+
+            void adjustTableColumnsWidth();
+            int getAvailableWidthForColumn(int column);
+            int getColumnsWidth();
+            void connectViewHeadersSignals();
+            void disconnectViewHeadersSignals();
+            void setViewHeaderResizeMode(int logicalIndex, QHeaderView::ResizeMode resizeMode);
+            void resizeColumn(int nColumnIndex, int width);
+
+        private Q_SLOTS:
+            void on_sectionResized(int logicalIndex, int oldSize, int newSize);
+            void on_geometriesChanged();
     };
 
     bool GetStartOnSystemStartup();
@@ -436,6 +483,25 @@ namespace GUIUtil
 #endif // Q_OS_ANDROID
         return false;
     }
+
+    void formatToolButtons(QToolButton* btn1, QToolButton* btn2 = 0, QToolButton* btn3 = 0);
+
+    QString cutString(const QString& text, int length);
+
+    /**
+     * @brief getHwiToolPath Get HWI tool path
+     * @return Path to HWI tool
+     */
+    QString getHwiToolPath();
+
+    /**
+     * @brief estimateNumberHeadersLeft Get estimate number headers left
+     * @param timeSpan Time span
+     * @param bestHeaderHeight Best header height
+     * @return headers left
+     */
+    int estimateNumberHeadersLeft(qint64 timeSpan, int bestHeaderHeight);
+
 
 } // namespace GUIUtil
 
