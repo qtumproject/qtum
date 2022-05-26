@@ -15,6 +15,9 @@
 
 #include <libff/algebra/curves/alt_bn128/alt_bn128_pp.hpp>
 
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
+
 using namespace libff;
 
 template<typename GroupT>

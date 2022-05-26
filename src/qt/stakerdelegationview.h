@@ -68,7 +68,7 @@ private:
 
     GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
 
-    virtual void resizeEvent(QResizeEvent* event);
+    void resizeEvent(QResizeEvent* event) override;
 
 private Q_SLOTS:
     void contextualMenu(const QPoint &);

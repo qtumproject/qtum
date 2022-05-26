@@ -1,9 +1,9 @@
 ---
-name: "qtum-core-win-0.20"
+name: "qtum-core-win-22"
 enable_cache: true
 distro: "ubuntu"
 suites:
-- "bionic"
+- "focal"
 architectures:
 - "amd64"
 packages:
@@ -22,30 +22,24 @@ packages:
 - "zip"
 - "ca-certificates"
 - "python3"
+- "python3-pip"
 remotes:
 - "url": "https://github.com/qtumproject/qtum.git"
   "dir": "qtum"
-- "url": "https://github.com/qtumproject/cpp-eth-qtum.git"
-  "dir": "cpp-eth-qtum"
+- "url": "https://github.com/qtumproject/qtum-evmone.git"
+  "dir": "qtum-evmone"
 files: []
 script: |
   set -e -o pipefail
 
-  #this is a hack since gitian has no natural support for submodules
-  cp -r cpp-eth-qtum/* qtum/src/cpp-ethereum
-  #make sure this file exists... 
-  cat qtum/src/cpp-ethereum/utils/libscrypt/b64.c
-
   WRAP_DIR=$HOME/wrapped
   HOSTS="x86_64-w64-mingw32"
-  CONFIGFLAGS="--enable-reduce-exports --disable-bench --disable-gui-tests"
+  CONFIGFLAGS="--enable-reduce-exports --disable-bench --disable-gui-tests --disable-fuzz-binary"
   FAKETIME_HOST_PROGS="ar ranlib nm windres strip objcopy"
   FAKETIME_PROGS="date makensis zip"
   HOST_CFLAGS="-O2 -g -fno-ident"
   HOST_CXXFLAGS="-O2 -g -fno-ident"
 
-  export QT_RCC_TEST=1
-  export QT_RCC_SOURCE_DATE_OVERRIDE=1
   export TZ="UTC"
   export BUILD_DIR="$PWD"
   mkdir -p ${WRAP_DIR}
@@ -62,7 +56,7 @@ script: |
     echo "REAL=\`which -a ${prog} | grep -v ${WRAP_DIR}/${prog} | head -1\`" >> ${WRAP_DIR}/${prog}
     echo "export LD_PRELOAD='/usr/\$LIB/faketime/libfaketime.so.1'" >> ${WRAP_DIR}/${prog}
     echo "export FAKETIME=\"$1\"" >> ${WRAP_DIR}/${prog}
-    echo "\$REAL \$@" >> $WRAP_DIR/${prog}
+    echo "exec \"\$REAL\" \"\$@\"" >> $WRAP_DIR/${prog}
     chmod +x ${WRAP_DIR}/${prog}
   done
   }
@@ -74,7 +68,7 @@ script: |
         echo "REAL=\`which -a ${i}-${prog} | grep -v ${WRAP_DIR}/${i}-${prog} | head -1\`" >> ${WRAP_DIR}/${i}-${prog}
         echo "export LD_PRELOAD='/usr/\$LIB/faketime/libfaketime.so.1'" >> ${WRAP_DIR}/${i}-${prog}
         echo "export FAKETIME=\"$1\"" >> ${WRAP_DIR}/${i}-${prog}
-        echo "\$REAL \$@" >> $WRAP_DIR/${i}-${prog}
+        echo "exec \"\$REAL\" \"\$@\"" >> $WRAP_DIR/${i}-${prog}
         chmod +x ${WRAP_DIR}/${i}-${prog}
     done
   done
@@ -83,18 +77,18 @@ script: |
   function create_per-host_compiler_wrapper {
   # -posix variant is required for c++11 threading.
   for i in $HOSTS; do
-    mkdir -p ${WRAP_DIR}/${i}
     for prog in gcc g++; do
         echo '#!/usr/bin/env bash' > ${WRAP_DIR}/${i}-${prog}
         echo "REAL=\`which -a ${i}-${prog}-posix | grep -v ${WRAP_DIR}/${i}-${prog} | head -1\`" >> ${WRAP_DIR}/${i}-${prog}
         echo "export LD_PRELOAD='/usr/\$LIB/faketime/libfaketime.so.1'" >> ${WRAP_DIR}/${i}-${prog}
         echo "export FAKETIME=\"$1\"" >> ${WRAP_DIR}/${i}-${prog}
-        echo "export COMPILER_PATH=${WRAP_DIR}/${i}" >> ${WRAP_DIR}/${i}-${prog}
-        echo "\$REAL \$@" >> $WRAP_DIR/${i}-${prog}
+        echo "exec \"\$REAL\" \"\$@\"" >> $WRAP_DIR/${i}-${prog}
         chmod +x ${WRAP_DIR}/${i}-${prog}
     done
   done
   }
+
+  pip3 install lief==0.11.5
 
   # Faketime for depends so intermediate results are comparable
   export PATH_orig=${PATH}
@@ -117,38 +111,38 @@ script: |
   create_per-host_compiler_wrapper "${REFERENCE_DATETIME}"
   export PATH=${WRAP_DIR}:${PATH}
 
-  # Create the release tarball using (arbitrarily) the first host
-  ./autogen.sh
-  CONFIG_SITE=${BASEPREFIX}/$(echo "${HOSTS}" | awk '{print $1;}')/share/config.site ./configure --prefix=/
-  make dist
-  SOURCEDIST=$(echo qtum-*.tar.gz)
-  DISTNAME=${SOURCEDIST/%.tar.gz}
+  # Define DISTNAME variable.
+  # shellcheck source=contrib/gitian-descriptors/assign_DISTNAME
+  source contrib/gitian-descriptors/assign_DISTNAME
 
-  # Workaround for tarball not building with the bare tag version (prep)
-  make -C src obj/build.h
+  GIT_ARCHIVE="${OUTDIR}/src/${DISTNAME}.tar.gz"
+
+  # Create the source tarball
+  mkdir -p "$(dirname "$GIT_ARCHIVE")"
+  git archive --prefix="${DISTNAME}/" --output="$GIT_ARCHIVE" HEAD
 
   ORIGPATH="$PATH"
-  # Extract the release tarball into a dir for each host and build
+  # Extract the git archive into a dir for each host and build
   for i in ${HOSTS}; do
     export PATH=${BASEPREFIX}/${i}/native/bin:${ORIGPATH}
     mkdir -p distsrc-${i}
     cd distsrc-${i}
     INSTALLPATH="${PWD}/installed/${DISTNAME}"
     mkdir -p ${INSTALLPATH}
-    tar --strip-components=1 -xf ../$SOURCEDIST
+    tar --strip-components=1 -xf "${GIT_ARCHIVE}"
 
-    # Workaround for tarball not building with the bare tag version
-    echo '#!/bin/true' >share/genbuild.sh
-    mkdir src/obj
-    cp ../src/obj/build.h src/obj/
+    #this is a hack since gitian has no natural support for submodules
+    cp -r ../../qtum-evmone/* ./src/evmone
+    #make sure this file exists... 
+    cat ./src/evmone/include/evmone/evmone.h 
 
+    ./autogen.sh
     CONFIG_SITE=${BASEPREFIX}/${i}/share/config.site ./configure --prefix=/ --disable-ccache --disable-maintainer-mode --disable-dependency-tracking ${CONFIGFLAGS} CFLAGS="${HOST_CFLAGS}" CXXFLAGS="${HOST_CXXFLAGS}"
     make ${MAKEOPTS}
     make ${MAKEOPTS} -C src check-security
     make ${MAKEOPTS} -C src check-symbols
-    make deploy
+    make deploy BITCOIN_WIN_INSTALLER="${OUTDIR}/${DISTNAME}-win64-setup-unsigned.exe"
     make install DESTDIR=${INSTALLPATH}
-    cp -f --target-directory="${OUTDIR}" ./qtum-*-setup-unsigned.exe
     cd installed
     mv ${DISTNAME}/bin/*.dll ${DISTNAME}/lib/
     find . -name "lib*.la" -delete
@@ -163,11 +157,8 @@ script: |
     rm -rf distsrc-${i}
   done
 
-  mkdir -p ${OUTDIR}/src
-  git archive --prefix="${DISTNAME}/" --output=${OUTDIR}/src/${DISTNAME}.tar.gz HEAD
-
   cp -rf contrib/windeploy $BUILD_DIR
   cd $BUILD_DIR/windeploy
   mkdir unsigned
-  cp $OUTDIR/qtum-*setup-unsigned.exe unsigned/
+  cp ${OUTDIR}/${DISTNAME}-win64-setup-unsigned.exe unsigned/
   find . | sort | tar --mtime="$REFERENCE_DATETIME" --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${OUTDIR}/${DISTNAME}-win-unsigned.tar.gz

@@ -74,7 +74,7 @@ public Q_SLOTS:
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 
 protected:
-    void resizeEvent(QResizeEvent * evt);
+    void resizeEvent(QResizeEvent * evt) override;
 
 private:
 

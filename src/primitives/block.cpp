@@ -32,22 +32,11 @@ public:
         vchBlockDlgt = header.GetProofOfDelegation();
     }
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(this->nVersion);
-        READWRITE(hashPrevBlock);
-        READWRITE(hashMerkleRoot);
-        READWRITE(nTime);
-        READWRITE(nBits);
-        READWRITE(nNonce);
-        READWRITE(hashStateRoot);
-        READWRITE(hashUTXORoot);
-        READWRITE(prevoutStake);
-        if(fHasProofOfDelegation)
+    SERIALIZE_METHODS(CBlockHeaderSign, obj) { 
+        READWRITE(obj.nVersion, obj.hashPrevBlock, obj.hashMerkleRoot, obj.nTime, obj.nBits, obj.nNonce, obj.hashStateRoot, obj.hashUTXORoot, obj.prevoutStake);
+        if(obj.fHasProofOfDelegation)
         {
-            READWRITE(vchBlockDlgt);
+            READWRITE(obj.vchBlockDlgt);
         }
     }
 

@@ -5,6 +5,7 @@
 
 #include <logging.h>
 #include <util/threadnames.h>
+#include <util/string.h>
 #include <util/time.h>
 
 #include <mutex>
@@ -23,8 +24,8 @@ BCLog::Logger& LogInstance()
  * access the logger. When the shutdown sequence is fully audited and tested,
  * explicit destruction of these objects can be implemented by changing this
  * from a raw pointer to a std::unique_ptr.
- * Since the destructor is never called, the logger and all its members must
- * have a trivial destructor.
+ * Since the ~Logger() destructor is never called, the Logger class and all
+ * its subclasses must have implicitly-defined destructors.
  *
  * This method of initialization was originally introduced in
  * ee3374234c60aba2cc4c5cd5cac1c0aefc2d817c.
@@ -42,7 +43,7 @@ static int FileWriteStr(const std::string &str, FILE *fp)
 
 bool BCLog::Logger::StartLogging()
 {
-    std::lock_guard<std::mutex> scoped_lock(m_cs);
+    StdLockGuard scoped_lock(m_cs);
 
     assert(m_buffering);
     assert(m_fileout == nullptr);
@@ -89,7 +90,7 @@ bool BCLog::Logger::StartLogging()
 
         m_msgs_before_open.pop_front();
     }
-    /////////////////////////////////////////////
+    //////////////////////////////////////////////
     if (m_print_to_console) fflush(stdout);
 
     return true;
@@ -97,7 +98,7 @@ bool BCLog::Logger::StartLogging()
 
 void BCLog::Logger::DisconnectTestLogger()
 {
-    std::lock_guard<std::mutex> scoped_lock(m_cs);
+    StdLockGuard scoped_lock(m_cs);
     m_buffering = true;
     if (m_fileout != nullptr) fclose(m_fileout);
     m_fileout = nullptr;
@@ -114,15 +115,7 @@ void BCLog::Logger::EnableCategory(BCLog::LogFlags flag)
 bool BCLog::Logger::EnableCategory(const std::string& str)
 {
     BCLog::LogFlags flag;
-    if (!GetLogCategory(flag, str)) {
-        if (str == "db") {
-            // DEPRECATION: Added in 0.20, should start returning an error in 0.21
-            LogPrintf("Warning: logging category 'db' is deprecated, use 'walletdb' instead\n");
-            EnableCategory(BCLog::WALLETDB);
-            return true;
-        }
-        return false;
-    }
+    if (!GetLogCategory(flag, str)) return false;
     EnableCategory(flag);
     return true;
 }
@@ -182,6 +175,8 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::QT, "qt"},
     {BCLog::LEVELDB, "leveldb"},
     {BCLog::VALIDATION, "validation"},
+    {BCLog::I2P, "i2p"},
+    {BCLog::IPC, "ipc"},
     {BCLog::COINSTAKE, "coinstake"},
     {BCLog::HTTPPOLL, "http-poll"},
     {BCLog::INDEX, "index"},
@@ -204,30 +199,15 @@ bool GetLogCategory(BCLog::LogFlags& flag, const std::string& str)
     return false;
 }
 
-std::string ListLogCategories()
+std::vector<LogCategory> BCLog::Logger::LogCategoriesList() const
 {
-    std::string ret;
-    int outcount = 0;
+    std::vector<LogCategory> ret;
     for (const CLogCategoryDesc& category_desc : LogCategories) {
         // Omit the special cases.
         if (category_desc.flag != BCLog::NONE && category_desc.flag != BCLog::ALL) {
-            if (outcount != 0) ret += ", ";
-            ret += category_desc.category;
-            outcount++;
-        }
-    }
-    return ret;
-}
-
-std::vector<CLogCategoryActive> ListActiveLogCategories()
-{
-    std::vector<CLogCategoryActive> ret;
-    for (const CLogCategoryDesc& category_desc : LogCategories) {
-        // Omit the special cases.
-        if (category_desc.flag != BCLog::NONE && category_desc.flag != BCLog::ALL) {
-            CLogCategoryActive catActive;
+            LogCategory catActive;
             catActive.category = category_desc.category;
-            catActive.active = LogAcceptCategory(category_desc.flag);
+            catActive.active = WillLogCategory(category_desc.flag);
             ret.push_back(catActive);
         }
     }
@@ -248,9 +228,9 @@ std::string BCLog::Logger::LogTimestampStr(const std::string& str)
             strStamped.pop_back();
             strStamped += strprintf(".%06dZ", nTimeMicros%1000000);
         }
-        int64_t mocktime = GetMockTime();
-        if (mocktime) {
-            strStamped += " (mocktime: " + FormatISO8601DateTime(mocktime) + ")";
+        std::chrono::seconds mocktime = GetMockTime();
+        if (mocktime > 0s) {
+            strStamped += " (mocktime: " + FormatISO8601DateTime(count_seconds(mocktime)) + ")";
         }
         strStamped += ' ' + str;
     } else
@@ -281,10 +261,19 @@ namespace BCLog {
     }
 }
 
-void BCLog::Logger::LogPrintStr(const std::string& str, bool useVMLog)
+void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& logging_function, const std::string& source_file, const int source_line, bool useVMLog)
 {
-    std::lock_guard<std::mutex> scoped_lock(m_cs);
+    StdLockGuard scoped_lock(m_cs);
     std::string str_prefixed = LogEscapeMessage(str);
+
+    if (m_log_sourcelocations && m_started_new_line) {
+        if(useVMLog) {
+            str_prefixed.insert(0, "[" + logging_function + "] ");
+        }
+        else {
+            str_prefixed.insert(0, "[" + RemovePrefix(source_file, "./") + ":" + ToString(source_line) + "] [" + logging_function + "] ");
+        }
+    }
 
     if (m_log_threadnames && m_started_new_line) {
         str_prefixed.insert(0, "[" + util::ThreadGetInternalName() + "] ");
@@ -324,9 +313,9 @@ void BCLog::Logger::LogPrintStr(const std::string& str, bool useVMLog)
         // reopen the log file, if requested
         if (m_reopen_file) {
             m_reopen_file = false;
-                fs::path file_path = m_file_path;
-                if(useVMLog)
-                    file_path = m_file_pathVM;
+            fs::path file_path = m_file_path;
+            if(useVMLog)
+                file_path = m_file_pathVM;
             FILE* new_fileout = fsbridge::fopen(file_path, "a");
             if (new_fileout) {
                 setbuf(new_fileout, nullptr); // unbuffered

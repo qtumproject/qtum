@@ -7,12 +7,13 @@
 #include <QEventLoop>
 #include <QRegularExpression>
 #include <QRegularExpressionMatchIterator>
+#include <QTimer>
 
 #define paternVersion "qtum-([0-9]+\\.)?([0-9]+\\.)?([0-9]+)-"
 
 QtumVersionChecker::QtumVersionChecker(QObject *parent) : QObject(parent)
 {
-    currentVersion = Version(CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, CLIENT_VERSION_REVISION);
+    currentVersion = Version(CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, 0);
 }
 
 QtumVersionChecker::~QtumVersionChecker()
@@ -30,25 +31,43 @@ QList<Version> QtumVersionChecker::getVersions()
 {
     QNetworkAccessManager manager;
     QNetworkReply *response = manager.get(QNetworkRequest(QUrl(QTUM_RELEASES)));
+    QTimer timer;
+    timer.setSingleShot(true);
     QEventLoop event;
+    connect(&timer, &QTimer::timeout, &event, &QEventLoop::quit);
     connect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
+    timer.start(30000); // 30 seconds
     event.exec();
-    QString html = response->readAll();
-
-    QRegularExpression regEx(paternVersion);
-    QRegularExpressionMatchIterator regExIt = regEx.globalMatch(html);
 
     QList<Version> versions;
-
-    while (regExIt.hasNext()) {
-        QRegularExpressionMatch match = regExIt.next();
-        QString versionString = match.captured().mid(5, match.captured().length() - 6); // get version string in format XX.XX.XX
-        Version version(versionString);
-        if(!versions.contains(version))
+    if(timer.isActive())
+    {
+        timer.stop();
+        if(response->error() == QNetworkReply::NoError)
         {
-            versions.append(version);
+            QString html = response->readAll();
+
+            QRegularExpression regEx(paternVersion);
+            QRegularExpressionMatchIterator regExIt = regEx.globalMatch(html);
+
+            while (regExIt.hasNext())
+            {
+                QRegularExpressionMatch match = regExIt.next();
+                QString versionString = match.captured().mid(5, match.captured().length() - 6); // get version string in format XX.XX.XX
+                Version version(versionString);
+                if(!versions.contains(version))
+                {
+                    versions.append(version);
+                }
+            }
         }
+    } else
+    {
+        // timeout
+        disconnect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
+        response->abort();
     }
+
     return versions;
 }
 

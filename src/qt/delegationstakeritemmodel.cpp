@@ -236,7 +236,7 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
         case Fee:
             return formatFee(rec);
         case Weight:
-            return formatWeight(rec, BitcoinUnits::separatorAlways);
+            return formatWeight(rec, BitcoinUnits::SeparatorStyle::ALWAYS);
         default:
             break;
         }
@@ -285,7 +285,7 @@ QVariant DelegationStakerItemModel::data(const QModelIndex &index, int role) con
         break;
     case DelegationStakerItemModel::FormattedWeightRole:
         // Used for copy/export, so don't include separators
-        return formatWeight(rec, BitcoinUnits::separatorNever);
+        return formatWeight(rec, BitcoinUnits::SeparatorStyle::NEVER);
         break;
     case DelegationStakerItemModel::FormattedFeeRole:
         return formatFee(rec);

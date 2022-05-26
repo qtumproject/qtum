@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2019 The Bitcoin Core developers
+// Copyright (c) 2016-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,6 +9,7 @@
 
 
 class CTxMemPool;
+class ChainstateManager;
 
 // Transaction compression schemes for compact block relay can be introduced by writing
 // an actual formatter here.
@@ -92,12 +93,13 @@ private:
 
     friend class PartiallyDownloadedBlock;
 
-    static const int SHORTTXIDS_LENGTH = 6;
 protected:
     std::vector<uint64_t> shorttxids;
     std::vector<PrefilledTransaction> prefilledtxn;
 
 public:
+    static constexpr int SHORTTXIDS_LENGTH = 6;
+
     CBlockHeader header;
 
     // Dummy for deserialization
@@ -125,10 +127,11 @@ class PartiallyDownloadedBlock {
 protected:
     std::vector<CTransactionRef> txn_available;
     size_t prefilled_count = 0, mempool_count = 0, extra_count = 0;
-    CTxMemPool* pool;
+    const CTxMemPool* pool;
+    const ChainstateManager* chainman;
 public:
     CBlockHeader header;
-    explicit PartiallyDownloadedBlock(CTxMemPool* poolIn) : pool(poolIn) {}
+    explicit PartiallyDownloadedBlock(CTxMemPool* poolIn, ChainstateManager* _chainman) : pool(poolIn), chainman(_chainman) {}
 
     // extra_txn is a list of extra transactions to look at, in <witness hash, reference> form
     ReadStatus InitData(const CBlockHeaderAndShortTxIDs& cmpctblock, const std::vector<std::pair<uint256, CTransactionRef>>& extra_txn);

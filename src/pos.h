@@ -34,7 +34,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
 
 // Check kernel hash target and coinstake signature
 // Sets hashProofOfStake on success return
-bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view);
+bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, CChainState& chainstate);
 
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params& consensusParams);
@@ -44,13 +44,13 @@ bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::
 bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCache& view, bool delegateOutputExist);
 
 // Recover the pubkey and check that it matches the prevoutStake's scriptPubKey.
-bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view);
+bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view, CChain& chain);
 
 // Wrapper around CheckStakeKernelHash()
 // Also checks existence of kernel input and min age
 // Convenient for searching a kernel
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view);
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache);
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, CChain& chain);
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache, CChain& chain);
 bool CheckKernelCache(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, const std::map<COutPoint, CStakeCache>& cache, uint256& hashProofOfStake);
 
 unsigned int GetStakeMaxCombineInputs();
@@ -63,14 +63,14 @@ bool IsDelegateOutputExist(int inFee);
 
 int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin, bool delegateOutputExist);
 
-bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee);
+bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, CChainState& chainstate);
 
 unsigned int GetStakeSplitOutputs();
 
 int64_t GetStakeSplitThreshold();
 
-bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams);
+bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams, CChain& chain);
 
-bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams);
+bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams, CChain& chain);
 
 #endif // QUANTUM_POS_H

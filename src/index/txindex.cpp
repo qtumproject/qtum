@@ -1,31 +1,24 @@
-// Copyright (c) 2017-2019 The Bitcoin Core developers
+// Copyright (c) 2017-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <index/disktxpos.h>
 #include <index/txindex.h>
+#include <node/blockstorage.h>
+#include <node/ui_interface.h>
 #include <shutdown.h>
-#include <ui_interface.h>
 #include <util/system.h>
 #include <util/translation.h>
 #include <validation.h>
 
-#include <boost/thread.hpp>
-
-constexpr char DB_BEST_BLOCK = 'B';
-constexpr char DB_TXINDEX = 't';
-constexpr char DB_TXINDEX_BLOCK = 'T';
+constexpr uint8_t DB_BEST_BLOCK{'B'};
+constexpr uint8_t DB_TXINDEX{'t'};
+constexpr uint8_t DB_TXINDEX_BLOCK{'T'};
 
 std::unique_ptr<TxIndex> g_txindex;
 
-/**
- * Access to the txindex database (indexes/txindex/)
- *
- * The database stores a block locator of the chain the database is synced to
- * so that the TxIndex can efficiently determine the point it last stopped at.
- * A locator is used instead of a simple hash of the chain tip because blocks
- * and block index entries may not be flushed to disk until after this database
- * is updated.
- */
+
+/** Access to the txindex database (indexes/txindex/) */
 class TxIndex::DB : public BaseIndex::DB
 {
 public:
@@ -44,7 +37,7 @@ public:
 };
 
 TxIndex::DB::DB(size_t n_cache_size, bool f_memory, bool f_wipe) :
-    BaseIndex::DB(GetDataDir() / "indexes" / "txindex", n_cache_size, f_memory, f_wipe)
+    BaseIndex::DB(gArgs.GetDataDirNet() / "indexes" / "txindex", n_cache_size, f_memory, f_wipe)
 {}
 
 bool TxIndex::DB::ReadTxPos(const uint256 &txid, CDiskTxPos& pos) const
@@ -67,8 +60,8 @@ bool TxIndex::DB::WriteTxs(const std::vector<std::pair<uint256, CDiskTxPos>>& v_
  */
 static void WriteTxIndexMigrationBatches(CDBWrapper& newdb, CDBWrapper& olddb,
                                          CDBBatch& batch_newdb, CDBBatch& batch_olddb,
-                                         const std::pair<unsigned char, uint256>& begin_key,
-                                         const std::pair<unsigned char, uint256>& end_key)
+                                         const std::pair<uint8_t, uint256>& begin_key,
+                                         const std::pair<uint8_t, uint256>& end_key)
 {
     // Sync new DB changes to disk before deleting from old DB.
     newdb.WriteBatch(batch_newdb, /*fSync=*/ true);
@@ -120,14 +113,13 @@ bool TxIndex::DB::MigrateData(CBlockTreeDB& block_tree_db, const CBlockLocator& 
     CDBBatch batch_newdb(*this);
     CDBBatch batch_olddb(block_tree_db);
 
-    std::pair<unsigned char, uint256> key;
-    std::pair<unsigned char, uint256> begin_key{DB_TXINDEX, uint256()};
-    std::pair<unsigned char, uint256> prev_key = begin_key;
+    std::pair<uint8_t, uint256> key;
+    std::pair<uint8_t, uint256> begin_key{DB_TXINDEX, uint256()};
+    std::pair<uint8_t, uint256> prev_key = begin_key;
 
     bool interrupted = false;
     std::unique_ptr<CDBIterator> cursor(block_tree_db.NewIterator());
     for (cursor->Seek(begin_key); cursor->Valid(); cursor->Next()) {
-        boost::this_thread::interruption_point();
         if (ShutdownRequested()) {
             interrupted = true;
             break;
@@ -200,7 +192,7 @@ bool TxIndex::DB::MigrateData(CBlockTreeDB& block_tree_db, const CBlockLocator& 
 }
 
 TxIndex::TxIndex(size_t n_cache_size, bool f_memory, bool f_wipe)
-    : m_db(MakeUnique<TxIndex::DB>(n_cache_size, f_memory, f_wipe))
+    : m_db(std::make_unique<TxIndex::DB>(n_cache_size, f_memory, f_wipe))
 {}
 
 TxIndex::~TxIndex() {}
@@ -212,7 +204,7 @@ bool TxIndex::Init()
     // Attempt to migrate txindex from the old database to the new one. Even if
     // chain_tip is null, the node could be reindexing and we still want to
     // delete txindex records in the old database.
-    if (!m_db->MigrateData(*pblocktree, ::ChainActive().GetLocator())) {
+    if (!m_db->MigrateData(*pblocktree, m_chainstate->m_chain.GetLocator())) {
         return false;
     }
 

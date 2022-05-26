@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2018 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -33,7 +33,7 @@ public:
     explicit CCoinControlWidgetItem(QTreeWidget *parent, int type = Type) : QTreeWidgetItem(parent, type) {}
     explicit CCoinControlWidgetItem(QTreeWidgetItem *parent, int type = Type) : QTreeWidgetItem(parent, type) {}
 
-    bool operator<(const QTreeWidgetItem &other) const;
+    bool operator<(const QTreeWidgetItem &other) const override;
 };
 
 
@@ -50,6 +50,9 @@ public:
 
     static QList<CAmount> payAmounts;
     static bool fSubtractFeeFromAmount;
+
+protected:
+    void changeEvent(QEvent* e) override;
 
 private:
     Ui::CoinControlDialog *ui;

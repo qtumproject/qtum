@@ -1,10 +1,10 @@
-// Copyright (c) 2019 The Bitcoin Core developers
+// Copyright (c) 2019-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <core_io.h>
-#include <pubkey.h>
 #include <primitives/block.h>
+#include <pubkey.h>
 #include <rpc/util.h>
 #include <test/fuzz/fuzz.h>
 #include <uint256.h>
@@ -16,11 +16,12 @@
 #include <string>
 #include <vector>
 
-void initialize() {
+void initialize_hex()
+{
     static const ECCVerifyHandle verify_handle;
 }
 
-void test_one_input(const std::vector<uint8_t>& buffer)
+FUZZ_TARGET_INIT(hex, initialize_hex)
 {
     const std::string random_hex_string(buffer.begin(), buffer.end());
     const std::vector<unsigned char> data = ParseHex(random_hex_string);

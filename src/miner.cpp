@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,6 +13,7 @@
 #include <consensus/merkle.h>
 #include <consensus/tx_verify.h>
 #include <consensus/validation.h>
+#include <deploymentstatus.h>
 #include <policy/feerate.h>
 #include <policy/policy.h>
 #include <pow.h>
@@ -22,6 +23,8 @@
 #include <util/convert.h>
 #include <util/moneystr.h>
 #include <util/system.h>
+#include <util/threadnames.h>
+#include <node/blockstorage.h>
 #include <net.h>
 #include <key_io.h>
 #include <qtum/qtumledger.h>
@@ -73,9 +76,21 @@ int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParam
 
     // Updating time can change work required on testnet:
     if (consensusParams.fPowAllowMinDifficultyBlocks)
-        pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams,pblock->IsProofOfStake());
+        pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams, pblock->IsProofOfStake());
 
     return nNewTime - nOldTime;
+}
+
+void RegenerateCommitments(CBlock& block, ChainstateManager& chainman)
+{
+    CMutableTransaction tx{*block.vtx.at(0)};
+    tx.vout.erase(tx.vout.begin() + GetWitnessCommitmentIndex(block));
+    block.vtx.at(0) = MakeTransactionRef(tx);
+
+    CBlockIndex* prev_block = WITH_LOCK(::cs_main, return chainman.m_blockman.LookupBlockIndex(block.hashPrevBlock));
+    GenerateCoinbaseCommitment(block, prev_block, Params().GetConsensus());
+
+    block.hashMerkleRoot = BlockMerkleRoot(block);
 }
 
 BlockAssembler::Options::Options() {
@@ -83,9 +98,10 @@ BlockAssembler::Options::Options() {
     nBlockMaxWeight = DEFAULT_BLOCK_MAX_WEIGHT;
 }
 
-BlockAssembler::BlockAssembler(const CTxMemPool& mempool, const CChainParams& params, const Options& options)
+BlockAssembler::BlockAssembler(CChainState& chainstate, const CTxMemPool& mempool, const CChainParams& params, const Options& options)
     : chainparams(params),
-      m_mempool(mempool)
+      m_mempool(mempool),
+      m_chainstate(chainstate)
 {
     blockMinFeeRate = options.blockMinFeeRate;
     // Limit weight to between 4K and dgpMaxBlockWeight-4K for sanity:
@@ -107,12 +123,12 @@ static BlockAssembler::Options DefaultOptions()
     return options;
 }
 
-BlockAssembler::BlockAssembler(const CTxMemPool& mempool, const CChainParams& params)
-    : BlockAssembler(mempool, params, DefaultOptions()) {}
+BlockAssembler::BlockAssembler(CChainState& chainstate, const CTxMemPool& mempool, const CChainParams& params)
+    : BlockAssembler(chainstate, mempool, params, DefaultOptions()) {}
 
 #ifdef ENABLE_WALLET
-BlockAssembler::BlockAssembler(const CTxMemPool& mempool, const CChainParams& params, CWallet *_pwallet)
-    : BlockAssembler(mempool, params)
+BlockAssembler::BlockAssembler(CChainState& chainstate, const CTxMemPool& mempool, const CChainParams& params, CWallet *_pwallet)
+    : BlockAssembler(chainstate, mempool, params)
 {
     pwallet = _pwallet;
 }
@@ -132,7 +148,7 @@ void BlockAssembler::resetBlock()
     nFees = 0;
 }
 
-void BlockAssembler::RebuildRefundTransaction(){
+void BlockAssembler::RebuildRefundTransaction(CBlock* pblock){
     int refundtx=0; //0 for coinbase in PoW
     if(pblock->IsProofOfStake()){
         refundtx=1; //1 for coinstake in PoS
@@ -150,9 +166,6 @@ void BlockAssembler::RebuildRefundTransaction(){
     pblock->vtx[refundtx] = MakeTransactionRef(std::move(contrTx));
 }
 
-Optional<int64_t> BlockAssembler::m_last_block_num_txs{nullopt};
-Optional<int64_t> BlockAssembler::m_last_block_weight{nullopt};
-
 std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bool fMineWitnessTx, bool fProofOfStake, int64_t* pTotalFees, int32_t txProofTime, int32_t nTimeLimit)
 {
     int64_t nTimeStart = GetTimeMicros();
@@ -163,7 +176,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     if(!pblocktemplate.get())
         return nullptr;
-    pblock = &pblocktemplate->block; // pointer for convenience
+    CBlock* const pblock = &pblocktemplate->block; // pointer for convenience
 
     this->nTimeLimit = nTimeLimit;
 
@@ -180,11 +193,11 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         return nullptr;
 #endif
     LOCK2(cs_main, m_mempool.cs);
-    CBlockIndex* pindexPrev = ::ChainActive().Tip();
+    CBlockIndex* pindexPrev = m_chainstate.m_chain.Tip();
     assert(pindexPrev != nullptr);
     nHeight = pindexPrev->nHeight + 1;
 
-    pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+    pblock->nVersion = g_versionbitscache.ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
     if (chainparams.MineBlocksOnDemand())
@@ -209,13 +222,12 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     // This is only needed in case the witness softfork activation is reverted
     // (which would require a very deep reorganization).
     // Note that the mempool would accept transactions with witness data before
-    // IsWitnessEnabled, but we would only ever mine blocks after IsWitnessEnabled
+    // the deployment is active, but we would only ever mine blocks after activation
     // unless there is a massive block reorganization with the witness softfork
     // not activated.
     // TODO: replace this with a call to main to assess validity of a mempool
     // transaction (which in most cases can be a no-op).
-    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus());
-
+    fIncludeWitness = DeploymentActiveAfter(pindexPrev, chainparams.GetConsensus(), Consensus::DEPLOYMENT_SEGWIT);
 
     int64_t nTime1 = GetTimeMicros();
 
@@ -258,7 +270,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     }
 
     //////////////////////////////////////////////////////// qtum
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
+    QtumDGP qtumDGP(globalState.get(), m_chainstate, fGettingValuesDGP);
     globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
     uint32_t blockSizeDGP = qtumDGP.getBlockSize(nHeight);
     minGasPrice = qtumDGP.getMinGasPrice(nHeight);
@@ -284,7 +296,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     /////////////////////////////////////////////////
     int nPackagesSelected = 0;
     int nDescendantsUpdated = 0;
-    addPackageTxs(nPackagesSelected, nDescendantsUpdated, minGasPrice);
+    addPackageTxs(nPackagesSelected, nDescendantsUpdated, minGasPrice, pblock);
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
     globalState->setRoot(oldHashStateRoot);
@@ -292,7 +304,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     //this should already be populated by AddBlock in case of contracts, but if no contracts
     //then it won't get populated
-    RebuildRefundTransaction();
+    RebuildRefundTransaction(pblock);
     ////////////////////////////////////////////////////////
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
@@ -310,7 +322,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
     BlockValidationState state;
-    if (!fProofOfStake && !TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
+    if (!fProofOfStake && !TestBlockValidity(state, chainparams, m_chainstate, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, state.ToString()));
     }
     int64_t nTime2 = GetTimeMicros();
@@ -328,7 +340,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
 
     if(!pblocktemplate.get())
         return nullptr;
-    pblock = &pblocktemplate->block; // pointer for convenience
+    CBlock* const pblock = &pblocktemplate->block; // pointer for convenience
 
     // Add dummy coinbase tx as first transaction
     pblock->vtx.emplace_back();
@@ -343,11 +355,11 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
         return nullptr;
 #endif
     LOCK2(cs_main, m_mempool.cs);
-    CBlockIndex* pindexPrev = ::ChainActive().Tip();
+    CBlockIndex* pindexPrev = m_chainstate.m_chain.Tip();
     assert(pindexPrev != nullptr);
     nHeight = pindexPrev->nHeight + 1;
 
-    pblock->nVersion = ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+    pblock->nVersion = g_versionbitscache.ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
     // -regtest only: allow overriding block.nVersion with
     // -blockversion=N to test forking scenarios
     if (chainparams.MineBlocksOnDemand())
@@ -369,7 +381,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     // -promiscuousmempoolflags is used.
     // TODO: replace this with a call to main to assess validity of a mempool
     // transaction (which in most cases can be a no-op).
-    fIncludeWitness = IsWitnessEnabled(pindexPrev, chainparams.GetConsensus()) && fMineWitnessTx;
+    fIncludeWitness = DeploymentActiveAfter(pindexPrev, chainparams.GetConsensus(), Consensus::DEPLOYMENT_SEGWIT) && fMineWitnessTx;
 
     m_last_block_num_txs = nBlockTx;
     m_last_block_weight = nBlockWeight;
@@ -413,7 +425,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
     pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
 
-    RebuildRefundTransaction();
+    RebuildRefundTransaction(pblock);
     ////////////////////////////////////////////////////////
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus(), fProofOfStake);
@@ -432,7 +444,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
     BlockValidationState state;
-    if (!fProofOfStake && !TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
+    if (!fProofOfStake && !TestBlockValidity(state, chainparams, m_chainstate, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, state.ToString()));
     }
 
@@ -466,7 +478,7 @@ bool BlockAssembler::TestPackage(uint64_t packageSize, int64_t packageSigOpsCost
 // - transaction finality (locktime)
 // - premature witness (in case segwit transactions are added to mempool before
 //   segwit activation)
-bool BlockAssembler::TestPackageTransactions(const CTxMemPool::setEntries& package)
+bool BlockAssembler::TestPackageTransactions(const CTxMemPool::setEntries& package) const
 {
     for (CTxMemPool::txiter it : package) {
         if (!IsFinalTx(it->GetTx(), nHeight, nLockTimeCutoff))
@@ -477,7 +489,7 @@ bool BlockAssembler::TestPackageTransactions(const CTxMemPool::setEntries& packa
     return true;
 }
 
-bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice) {
+bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice, CBlock* pblock) {
     if (nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit - nBytecodeTimeBuffer) {
         return false;
     }
@@ -494,7 +506,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
     uint64_t nBlockSigOpsCost = this->nBlockSigOpsCost;
 
     unsigned int contractflags = GetContractScriptFlags(nHeight, chainparams.GetConsensus());
-    QtumTxConverter convert(iter->GetTx(), NULL, &pblock->vtx, contractflags);
+    QtumTxConverter convert(iter->GetTx(), m_chainstate, &m_mempool, NULL, &pblock->vtx, contractflags);
 
     ExtractQtumTX resultConverter;
     if(!convert.extractionQtumTransactions(resultConverter)){
@@ -527,7 +539,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
         }
     }
     // We need to pass the DGP's block gas limit (not the soft limit) since it is consensus critical.
-    ByteCodeExec exec(*pblock, qtumTransactions, hardBlockGasLimit, ::ChainActive().Tip());
+    ByteCodeExec exec(*pblock, qtumTransactions, hardBlockGasLimit, m_chainstate.m_chain.Tip(), m_chainstate.m_chain);
     if(!exec.performByteCode()){
         //error, don't add contract
         globalState->setRoot(oldHashStateRoot);
@@ -616,7 +628,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
     }
     //calculate sigops from new refund/proof tx
     this->nBlockSigOpsCost -= GetLegacySigOpCount(*pblock->vtx[proofTx]);
-    RebuildRefundTransaction();
+    RebuildRefundTransaction(pblock);
     this->nBlockSigOpsCost += GetLegacySigOpCount(*pblock->vtx[proofTx]);
 
     bceResult.valueTransfers.clear();
@@ -626,7 +638,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
 
 void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
 {
-    pblock->vtx.emplace_back(iter->GetSharedTx());
+    pblocktemplate->block.vtx.emplace_back(iter->GetSharedTx());
     pblocktemplate->vTxFees.push_back(iter->GetFee());
     pblocktemplate->vTxSigOpsCost.push_back(iter->GetSigOpCost());
     nBlockWeight += iter->GetTxWeight();
@@ -706,7 +718,7 @@ void BlockAssembler::SortForBlock(const CTxMemPool::setEntries& package, std::ve
 // Each time through the loop, we compare the best transaction in
 // mapModifiedTxs with the next transaction in the mempool to decide what
 // transaction package to work on next.
-void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpdated, uint64_t minGasPrice)
+void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpdated, uint64_t minGasPrice, CBlock* pblock)
 {
     // mapModifiedTx will store sorted packages after they are modified
     // because some of their txs are already in the block
@@ -838,7 +850,7 @@ void BlockAssembler::addPackageTxs(int &nPackagesSelected, int &nDescendantsUpda
             const CTransaction& tx = sortedEntries[i]->GetTx();
             if(wasAdded) {
                 if (tx.HasCreateOrCall()) {
-                    wasAdded = AttemptToAddContractToBlock(sortedEntries[i], minGasPrice);
+                    wasAdded = AttemptToAddContractToBlock(sortedEntries[i], minGasPrice, pblock);
                     if(!wasAdded){
                         if(fUsingModified) {
                             //this only needs to be done once to mark the whole package (everything in sortedEntries) as failed
@@ -885,6 +897,19 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
 }
 
+bool CanStake()
+{
+    bool canStake = gArgs.GetBoolArg("-staking", DEFAULT_STAKE);
+
+    if(canStake)
+    {
+        // Signet is for creating PoW blocks by an authorized signer
+        canStake = !Params().GetConsensus().signet_blocks;
+    }
+
+    return canStake;
+}
+
 #ifdef ENABLE_WALLET
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -905,12 +930,11 @@ public:
             return false;
         }
 
-        const PKHash *pkhash = boost::get<PKHash>(&destination);
-        if (!pkhash) {
+        if (!std::holds_alternative<PKHash>(destination)) {
             return false;
         }
 
-        keyId = uint160(*pkhash);
+        keyId = uint160(std::get<PKHash>(destination));
 
         return true;
     }
@@ -930,11 +954,9 @@ public:
         pwallet(_pwallet),
         cacheHeight(0),
         type(StakerType::STAKER_NORMAL),
-        spk_man(0),
-        privateKeysDisabled(false)
+        fAllowWatchOnly(false)
     {
-        spk_man = _pwallet->GetLegacyScriptPubKeyMan();
-        privateKeysDisabled = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+        fAllowWatchOnly = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
 
         // Get allow list
         for (const std::string& strAddress : gArgs.GetArgs("-stakingallowlist"))
@@ -977,17 +999,9 @@ public:
         }
     }
 
-    bool Match(const DelegationEvent& event) const
+    bool Match(const DelegationEvent& event) const override
     {
-        bool mine = false;
-        if(privateKeysDisabled)
-        {
-            mine = pwallet->IsMine(PKHash(event.item.staker));
-        }
-        else
-        {
-            mine = spk_man->HaveKey(CKeyID(event.item.staker));
-        }
+        bool mine = pwallet->HasPrivateKey(PKHash(event.item.staker), fAllowWatchOnly);
         if(!mine)
             return false;
 
@@ -1032,7 +1046,7 @@ public:
         {
             // Get delegations from events
             std::vector<DelegationEvent> events;
-            qtumDelegations.FilterDelegationEvents(events, *this);
+            qtumDelegations.FilterDelegationEvents(events, *this, pwallet->chain().chainman());
             delegations_staker = qtumDelegations.DelegationsFromEvents(events);
         }
         else
@@ -1042,14 +1056,14 @@ public:
             if(cacheHeight < cpsHeight)
             {
                 std::vector<DelegationEvent> events;
-                qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight, cpsHeight);
+                qtumDelegations.FilterDelegationEvents(events, *this, pwallet->chain().chainman(), cacheHeight, cpsHeight);
                 qtumDelegations.UpdateDelegationsFromEvents(events, cacheDelegationsStaker);
                 cacheHeight = cpsHeight;
             }
 
             // Update the wallet delegations
             std::vector<DelegationEvent> events;
-            qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight + 1);
+            qtumDelegations.FilterDelegationEvents(events, *this, pwallet->chain().chainman(), cacheHeight + 1);
             delegations_staker = cacheDelegationsStaker;
             qtumDelegations.UpdateDelegationsFromEvents(events, delegations_staker);
         }
@@ -1064,8 +1078,7 @@ private:
     std::vector<uint160> allowList;
     std::vector<uint160> excludeList;
     int type;
-    LegacyScriptPubKeyMan* spk_man;
-    bool privateKeysDisabled;
+    bool fAllowWatchOnly;
 };
 
 class MyDelegations : public DelegationFilterBase
@@ -1075,24 +1088,17 @@ public:
         pwallet(_pwallet),
         cacheHeight(0),
         cacheAddressHeight(0),
-        spk_man(0),
-        privateKeysDisabled(false)
+        fAllowWatchOnly(false)
     {
-        spk_man = _pwallet->GetLegacyScriptPubKeyMan();
-        privateKeysDisabled = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+        fAllowWatchOnly = _pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     }
 
-    bool Match(const DelegationEvent& event) const
+    bool Match(const DelegationEvent& event) const override
     {
-        if(privateKeysDisabled)
-        {
-            return pwallet->IsMine(PKHash(event.item.delegate));
-        }
-
-        return spk_man->HaveKey(CKeyID(event.item.delegate));
+        return pwallet->HasPrivateKey(PKHash(event.item.delegate), fAllowWatchOnly);
     }
 
-    void Update(interfaces::Chain::Lock& locked_chain, int32_t nHeight)
+    void Update(int32_t nHeight)
     {
         if(fLogEvents)
         {
@@ -1102,7 +1108,7 @@ public:
             {
                 // Get delegations from events
                 std::vector<DelegationEvent> events;
-                qtumDelegations.FilterDelegationEvents(events, *this);
+                qtumDelegations.FilterDelegationEvents(events, *this, pwallet->chain().chainman());
                 pwallet->m_my_delegations = qtumDelegations.DelegationsFromEvents(events);
             }
             else
@@ -1112,14 +1118,14 @@ public:
                 if(cacheHeight < cpsHeight)
                 {
                     std::vector<DelegationEvent> events;
-                    qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight, cpsHeight);
+                    qtumDelegations.FilterDelegationEvents(events, *this, pwallet->chain().chainman(), cacheHeight, cpsHeight);
                     qtumDelegations.UpdateDelegationsFromEvents(events, cacheMyDelegations);
                     cacheHeight = cpsHeight;
                 }
 
                 // Update the wallet delegations
                 std::vector<DelegationEvent> events;
-                qtumDelegations.FilterDelegationEvents(events, *this, cacheHeight + 1);
+                qtumDelegations.FilterDelegationEvents(events, *this, pwallet->chain().chainman(), cacheHeight + 1);
                 pwallet->m_my_delegations = cacheMyDelegations;
                 qtumDelegations.UpdateDelegationsFromEvents(events, pwallet->m_my_delegations);
             }
@@ -1135,13 +1141,13 @@ public:
                 std::map<uint160, bool> mapAddress;
 
                 // Get all addreses with coins
-                SelectAddress(locked_chain, mapAddress, nHeight);
+                SelectAddress(mapAddress, nHeight);
 
                 // Get all addreses for delegations in the GUI
                 for(auto item : pwallet->mapDelegation)
                 {
                     uint160 address = item.second.delegateAddress;
-                    if(spk_man->HaveKey(CKeyID(address)))
+                    if(pwallet->HasPrivateKey(PKHash(address), fAllowWatchOnly))
                     {
                         if (mapAddress.find(address) == mapAddress.end())
                         {
@@ -1155,7 +1161,7 @@ public:
                 {
                     Delegation delegation;
                     uint160 address = item.first;
-                    if(qtumDelegations.GetDelegation(address, delegation) && QtumDelegation::VerifyDelegation(address, delegation))
+                    if(qtumDelegations.GetDelegation(address, delegation, pwallet->chain().chainman().ActiveChainstate()) && QtumDelegation::VerifyDelegation(address, delegation))
                     {
                         cacheMyDelegations[address] = delegation;
                     }
@@ -1168,11 +1174,11 @@ public:
         }
     }
 
-    void SelectAddress(interfaces::Chain::Lock& locked_chain, std::map<uint160, bool>& mapAddress, int32_t nHeight)
+    void SelectAddress(std::map<uint160, bool>& mapAddress, int32_t nHeight)
     {
         if(cacheAddressHeight < nHeight)
         {
-            pwallet->SelectAddress(locked_chain, mapAddress);
+            pwallet->SelectAddress(mapAddress);
             pwallet->mapAddressUnspentCache = mapAddress;
             if(pwallet->fUpdateAddressUnspentCache == false)
                 pwallet->fUpdateAddressUnspentCache = true;
@@ -1191,8 +1197,7 @@ private:
     int32_t cacheHeight;
     int32_t cacheAddressHeight;
     std::map<uint160, Delegation> cacheMyDelegations;
-    LegacyScriptPubKeyMan* spk_man;
-    bool privateKeysDisabled;
+    bool fAllowWatchOnly;
 };
 
 bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
@@ -1205,9 +1210,9 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
 
     // verify hash target and signature of coinstake tx
     {
-        auto locked_chain = wallet.chain().lock();
+        LOCK(cs_main);
         BlockValidationState state;
-        if (!CheckProofOfStake(::BlockIndex()[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, pblock->nTime, pblock->GetProofOfDelegation(), pblock->prevoutStake, proofHash, hashTarget, ::ChainstateActive().CoinsTip()))
+        if (!CheckProofOfStake(wallet.chain().chainman().BlockIndex()[pblock->hashPrevBlock], state, *pblock->vtx[1], pblock->nBits, pblock->nTime, pblock->GetProofOfDelegation(), pblock->prevoutStake, proofHash, hashTarget, wallet.chain().getCoinsTip(), wallet.chain().chainman().ActiveChainstate()))
             return error("CheckStake() : proof-of-stake checking failed %s",state.GetRejectReason());
     }
 
@@ -1218,10 +1223,11 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
 
     // Found a solution
     {
-        auto locked_chain = wallet.chain().lock();
-        if (pblock->hashPrevBlock != ::ChainActive().Tip()->GetBlockHash())
+        LOCK(cs_main);
+        if (pblock->hashPrevBlock != wallet.chain().getTip()->GetBlockHash())
             return error("CheckStake() : generated block is stale");
-
+    }
+    {
         LOCK(wallet.cs_wallet);
         for(const CTxIn& vin : pblock->vtx[1]->vin) {
             if (wallet.IsSpent(vin.prevout.hash, vin.prevout.n)) {
@@ -1232,15 +1238,15 @@ bool CheckStake(const std::shared_ptr<const CBlock> pblock, CWallet& wallet)
 
     // Process this block the same as if we had received it from another node
     bool fNewBlock = false;
-    if (!ProcessNewBlock(Params(), pblock, true, &fNewBlock))
+    if (!wallet.chain().chainman().ProcessNewBlock(Params(), pblock, true, &fNewBlock))
         return error("CheckStake() : ProcessBlock, block not accepted");
 
     return true;
 }
 
-bool SleepStaker(CWallet *pwallet, u_int64_t milliseconds)
+bool SleepStaker(CWallet *pwallet, uint64_t milliseconds)
 {
-    u_int64_t seconds = milliseconds / 1000;
+    uint64_t seconds = milliseconds / 1000;
     milliseconds %= 1000;
 
     for(unsigned int i = 0; i < seconds; i++)
@@ -1271,9 +1277,8 @@ public:
     /**
      * @brief init Initialize the miner
      * @param pwallet Wallet to use
-     * @param connman Nodes that connect
      */
-    virtual void Init(CWallet *pwallet, CConnman* connman) = 0;
+    virtual void Init(CWallet *pwallet) = 0;
 
     /**
      * @brief run Run the miner
@@ -1304,7 +1309,6 @@ class StakeMinerPriv
 {
 public:
     CWallet *pwallet = 0;
-    CConnman* connman = 0;
     bool fTryToSync = true;
     bool regtestMode = false;
     bool minDifficulty = false;
@@ -1351,9 +1355,8 @@ public:
     std::unique_ptr<CBlockTemplate> pblocktemplatefilled;
 
 public:
-    StakeMinerPriv(CWallet *_pwallet, CConnman* _connman):
+    StakeMinerPriv(CWallet *_pwallet):
         pwallet(_pwallet),
-        connman(_connman),
         consensusParams(Params().GetConsensus()),
         delegationsStaker(_pwallet),
         myDelegations(_pwallet)
@@ -1417,12 +1420,12 @@ private:
     StakeMinerPriv *d = 0;
 
 public:
-    void Init(CWallet *pwallet, CConnman* connman)
+    void Init(CWallet *pwallet) override
     {
-        d = new StakeMinerPriv(pwallet, connman);
+        d = new StakeMinerPriv(pwallet);
     }
 
-    void Run()
+    void Run() override
     {
         SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
@@ -1488,7 +1491,7 @@ protected:
         return d && d->pwallet && !d->pwallet->IsStakeClosing() && !d->fError;
     }
 
-    bool Sleep(u_int64_t milliseconds)
+    bool Sleep(uint64_t milliseconds)
     {
         return SleepStaker(d->pwallet, milliseconds);
     }
@@ -1498,8 +1501,8 @@ protected:
         if(d->pwallet->IsStakeClosing())
             return false;
 
-        auto locked_chain = d->pwallet->chain().lock();
-        CBlockIndex* tip = ::ChainActive().Tip();
+        LOCK(cs_main);
+        CBlockIndex* tip = d->pwallet->chain().getTip();
         return tip != d->pindexPrev || tip->GetBlockHash() != pblock->hashPrevBlock;
     }
 
@@ -1516,7 +1519,7 @@ protected:
         // Wait for node connections
         // Don't disable PoS mining for no connections if in regtest mode
         if(!d->minDifficulty && !d->fEmergencyStaking) {
-            while (d->connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0 || ::ChainstateActive().IsInitialBlockDownload()) {
+            while (d->pwallet->chain().getNodeCount(ConnectionDirection::Both) == 0 || d->pwallet->chain().isInitialBlockDownload()) {
                 d->pwallet->m_last_coin_stake_search_interval = 0;
                 d->fTryToSync = true;
                 if(!Sleep(1000))
@@ -1524,8 +1527,8 @@ protected:
             }
             if (d->fTryToSync) {
                 d->fTryToSync = false;
-                if (d->connman->GetNodeCount(CConnman::CONNECTIONS_ALL) < 3 ||
-                    ::ChainActive().Tip()->GetBlockTime() < GetTime() - 10 * 60) {
+                if (d->pwallet->chain().getNodeCount(ConnectionDirection::Both) < 3 ||
+                    d->pwallet->chain().getTip()->GetBlockTime() < GetTime() - 10 * 60) {
                     Sleep(60000);
                     return false;
                 }
@@ -1546,8 +1549,8 @@ protected:
             bool waitForBlockTime = false;
             {
                 if(d->pwallet->IsStakeClosing()) return false;
-                auto locked_chain = d->pwallet->chain().lock();
-                CBlockIndex* tip = ::ChainActive().Tip();
+                LOCK(cs_main);
+                CBlockIndex* tip = d->pwallet->chain().getTip();
                 if(tip && tip->IsProofOfWork() && tip->GetBlockTime() > GetTime()) {
                     waitForBlockTime = true;
                 }
@@ -1566,16 +1569,16 @@ protected:
     {
         if(d->pwallet->IsStakeClosing()) return false;
         if(d->pindexPrev == 0 || d->forceUpdate) return true;
-        auto locked_chain = d->pwallet->chain().lock();
-        return ::ChainActive().Tip() != d->pindexPrev;
+        LOCK(cs_main);
+        return d->pwallet->chain().getTip() != d->pindexPrev;
     }
 
     bool WaitBestHeader()
     {
         if(d->pwallet->IsStakeClosing()) return false;
         if(d->fEmergencyStaking || d->fAggressiveStaking) return false;
-        auto locked_chain = d->pwallet->chain().lock();
-        CBlockIndex* tip = ::ChainActive().Tip();
+        LOCK(cs_main);
+        CBlockIndex* tip = d->pwallet->chain().getTip();
         if(pindexBestHeader!= 0 &&
                 tip != 0 &&
                 tip != pindexBestHeader &&
@@ -1608,7 +1611,6 @@ protected:
     bool UpdateData()
     {
         if(d->pwallet->IsStakeClosing()) return false;
-        auto locked_chain = d->pwallet->chain().lock();
         LOCK(d->pwallet->cs_wallet);
 
         d->clearCache();
@@ -1617,21 +1619,25 @@ protected:
         if(d->privateKeysDisabled) nBalance += bal.m_watchonly_trusted;
         d->nTargetValue = nBalance - d->pwallet->m_reserve_balance;
         CAmount nValueIn = 0;
-        d->pindexPrev = ::ChainActive().Tip();
-        int32_t nHeightTip = ::ChainActive().Height();
+        int32_t nHeightTip = 0;
+        {
+            LOCK(cs_main);
+            d->pindexPrev = d->pwallet->chain().getTip();
+            nHeightTip = d->pwallet->chain().getHeight().value_or(0);
+        }
         d->nHeight = nHeightTip + 1;
         updateMinerParams(d->nHeight, d->consensusParams, d->minDifficulty);
         bool fOfflineStakeEnabled = (d->nHeight > d->nOfflineStakeHeight) && d->fDelegationsContract;
         if(fOfflineStakeEnabled)
         {
-            d->myDelegations.Update(*locked_chain, nHeightTip);
+            d->myDelegations.Update(nHeightTip);
         }
-        d->pwallet->SelectCoinsForStaking(*locked_chain, d->nTargetValue, d->setCoins, nValueIn);
+        d->pwallet->SelectCoinsForStaking(d->nTargetValue, d->setCoins, nValueIn);
         if(d->fSuperStake && fOfflineStakeEnabled)
         {
             d->delegationsStaker.Update(nHeightTip);
             std::map<uint160, CAmount> mDelegateWeight;
-            d->pwallet->SelectDelegateCoinsForStaking(*locked_chain, d->setDelegateCoins, mDelegateWeight);
+            d->pwallet->SelectDelegateCoinsForStaking(d->setDelegateCoins, mDelegateWeight);
             d->pwallet->updateDelegationsWeight(mDelegateWeight);
             d->pwallet->updateHaveCoinSuperStaker(d->setCoins);
         }
@@ -1642,7 +1648,7 @@ protected:
         {
             // Create an empty block. No need to process transactions until we know we can create a block
             d->nTotalFees = 0;
-            d->pblocktemplate = std::unique_ptr<CBlockTemplate>(BlockAssembler(mempool, Params(), d->pwallet).CreateEmptyBlock(CScript(), true, true, &d->nTotalFees));
+            d->pblocktemplate = std::unique_ptr<CBlockTemplate>(BlockAssembler(d->pwallet->chain().chainman().ActiveChainstate(), d->pwallet->chain().mempool(), Params(), d->pwallet).CreateEmptyBlock(CScript(), true, true, &d->nTotalFees));
             if (!d->pblocktemplate.get()) {
                 d->fError = true;
                 return false;
@@ -1655,6 +1661,7 @@ protected:
                 d->prevouts.push_back(COutPoint(pcoin.first->GetHash(), pcoin.second));
             }
 
+            LOCK(cs_main);
             d->pwallet->UpdateMinerStakeCache(true, d->prevouts, d->pindexPrev);
         }
 
@@ -1780,7 +1787,7 @@ protected:
 
         // Create a block that's properly populated with transactions
         d->pblocktemplatefilled = std::unique_ptr<CBlockTemplate>(
-                BlockAssembler(mempool, Params(), d->pwallet).CreateNewBlock(d->pblock->vtx[1]->vout[1].scriptPubKey, true, true, &(d->nTotalFees),
+                BlockAssembler(d->pwallet->chain().chainman().ActiveChainstate(), d->pwallet->chain().mempool(), Params(), d->pwallet).CreateNewBlock(d->pblock->vtx[1]->vout[1].scriptPubKey, true, true, &(d->nTotalFees),
                                                         blockTime, FutureDrift(GetAdjustedTime(), d->nHeight, d->consensusParams) - nStakeTimeBuffer));
         if (!d->pblocktemplatefilled.get()) {
             d->fError = true;
@@ -1882,20 +1889,19 @@ IStakeMiner *createMiner()
     return new StakeMiner();
 }
 
-void ThreadStakeMiner(CWallet *pwallet, CConnman* connman)
+void ThreadStakeMiner(CWallet *pwallet)
 {
     IStakeMiner* miner = createMiner();
-    miner->Init(pwallet, connman);
+    miner->Init(pwallet);
     miner->Run();
     delete miner;
     miner = 0;
 }
 
-void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_group*& stakeThread)
+void StakeQtums(bool fStake, CWallet *pwallet, boost::thread_group*& stakeThread)
 {
     if (stakeThread != nullptr)
     {
-        stakeThread->interrupt_all();
         stakeThread->join_all();
         delete stakeThread;
         stakeThread = nullptr;
@@ -1904,7 +1910,7 @@ void StakeQtums(bool fStake, CWallet *pwallet, CConnman* connman, boost::thread_
     if(fStake)
     {
         stakeThread = new boost::thread_group();
-        stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet, connman));
+        stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet));
     }
 }
 
@@ -1912,7 +1918,6 @@ void RefreshDelegates(CWallet *pwallet, bool refreshMyDelegates, bool refreshSta
 {
     if(pwallet && (refreshMyDelegates || refreshStakerDelegates))
     {
-        auto locked_chain = pwallet->chain().lock();
         LOCK(pwallet->cs_wallet);
 
         DelegationsStaker delegationsStaker(pwallet);
@@ -1920,13 +1925,17 @@ void RefreshDelegates(CWallet *pwallet, bool refreshMyDelegates, bool refreshSta
 
         int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
         bool fDelegationsContract = !Params().GetConsensus().delegationsAddress.IsNull();
-        int32_t nHeight = ::ChainActive().Height();
+        int32_t nHeight = 0;
+        {
+            LOCK(cs_main);
+            nHeight = pwallet->chain().getHeight().value_or(0);
+        }
         bool fOfflineStakeEnabled = ((nHeight + 1) > nOfflineStakeHeight) && fDelegationsContract;
         if(fOfflineStakeEnabled)
         {
             if(refreshMyDelegates)
             {
-                myDelegations.Update(*locked_chain, nHeight);
+                myDelegations.Update(nHeight);
             }
 
             if(refreshStakerDelegates)

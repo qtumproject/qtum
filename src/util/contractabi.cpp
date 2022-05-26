@@ -333,6 +333,7 @@ bool ParameterABI::abiInBasic(ParameterType::Type abiType, std::string value, st
         break;
     case ParameterType::abi_bool:
         value = value == "false" ? "0" : "1";
+        [[fallthrough]];
     case ParameterType::abi_int:
     case ParameterType::abi_uint:
     {
@@ -430,6 +431,7 @@ bool ParameterABI::abiIn(const std::vector<std::string> &value, std::string &dat
             switch (abiType) {
             case ParameterType::abi_bytes:
                 _value = dev::asString(dev::fromHex(_value));
+                [[fallthrough]];
             case ParameterType::abi_string:
             {
                 std::string paramData = dev::toHex(dev::eth::ABISerialiser<std::string>::serialise(_value));

@@ -238,8 +238,7 @@ SuperStakerItemModel::~SuperStakerItemModel()
 {
     unsubscribeFromCoreSignals();
 
-    t.quit();
-    t.wait();
+    join();
 
     if(priv)
     {
@@ -460,5 +459,16 @@ void SuperStakerItemModel::itemChanged(QString hash, qint64 balance, qint64 stak
             priv->cachedSuperStakerItem[i] = superStakerEntry;
             priv->updateEntry(superStakerEntry, CT_UPDATED);
         }
+    }
+}
+
+void SuperStakerItemModel::join()
+{
+    if(t.isRunning())
+    {
+        if(worker)
+            worker->disconnect(this);
+        t.quit();
+        t.wait();
     }
 }

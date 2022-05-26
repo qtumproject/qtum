@@ -18,6 +18,7 @@
 #include <qt/styleSheet.h>
 #include <qt/hardwaresigntx.h>
 #include <interfaces/node.h>
+#include <node/ui_interface.h>
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
@@ -183,11 +184,11 @@ void SendTokenPage::on_confirmClicked()
         m_tokenABI->setAddress(m_selectedToken->address);
         m_tokenABI->setSender(m_selectedToken->sender);
         m_tokenABI->setGasLimit(QString::number(gasLimit).toStdString());
-        m_tokenABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever).toStdString());
+        m_tokenABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
 
         std::string toAddress = ui->lineEditPayTo->text().toStdString();
         std::string amountToSend = ui->lineEditAmount->text().toStdString();
-        QString amountFormated = BitcoinUnits::formatToken(m_selectedToken->decimals, ui->lineEditAmount->value(), false, BitcoinUnits::separatorAlways);
+        QString amountFormated = BitcoinUnits::formatToken(m_selectedToken->decimals, ui->lineEditAmount->value(), false, BitcoinUnits::SeparatorStyle::ALWAYS);
 
         QString questionString;
         if (bCreateUnsigned) {
@@ -306,6 +307,6 @@ void SendTokenPage::setTokenData(std::string address, std::string sender, std::s
     {
         ui->lineEditAmount->setValue(value);
     }
-    ui->labelTokenBalance->setText(BitcoinUnits::formatTokenWithUnit(unit, m_selectedToken->decimals, totalSupply, false, BitcoinUnits::separatorAlways));
+    ui->labelTokenBalance->setText(BitcoinUnits::formatTokenWithUnit(unit, m_selectedToken->decimals, totalSupply, false, BitcoinUnits::SeparatorStyle::ALWAYS));
     setWindowTitle(tr("Send") + " " + unit);
 }

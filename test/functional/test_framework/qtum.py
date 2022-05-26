@@ -1,6 +1,6 @@
 from .address import *
 from .script import *
-from .mininode import *
+from .p2p import *
 from .util import *
 from .qtumconfig import *
 from .blocktools import *
@@ -13,18 +13,23 @@ import pprint
 
 pp = pprint.PrettyPrinter()
 
-def generatesynchronized(node, numblocks, address=None, sync_with_nodes=[]):
+def generatesynchronized(node, numblocks, address=None, sync_with_nodes=[], mocktime=None):
     if not address:
         address = node.getnewaddress()
-
+ 
+    startTime = time.time()
     blockhashes = []
     for i in range(0, max(numblocks//16, 0)):
         blockhashes += node.generatetoaddress(16, address)
-        sync_blocks(sync_with_nodes, wait=0.001)
+        wait_until_helper(lambda: all(n.getbestblockhash() == node.getbestblockhash() for n in sync_with_nodes))
 
+        # If more than 60 seconds elapses during the block generation, the nodes will disconnect since
+        # the inactivity check for networking mix mocked and non-mocked time.
+
+ 
     if numblocks % 16:
         blockhashes += node.generatetoaddress(numblocks % 16, address)
-        sync_blocks(sync_with_nodes, wait=0.001)
+        wait_until_helper(lambda: all(n.getbestblockhash() == node.getbestblockhash() for n in sync_with_nodes))
     return blockhashes
 
 def generateinitial(node, numblocks, address=None, sync_with_nodes=[]):
@@ -57,7 +62,7 @@ def make_vin(node, value):
     raw_tx = node.decoderawtransaction(node.gettransaction(txid_hex)['hex'])
 
     for vout_index, txout in enumerate(raw_tx['vout']):
-        if txout['scriptPubKey']['addresses'] == [addr]:
+        if txout['scriptPubKey']['address'] == addr:
             break
     else:
         assert False
@@ -92,9 +97,9 @@ def convert_btc_address_to_qtum(addr, main=False):
         return scripthash_to_p2sh(binascii.unhexlify(hsh), main)
     assert(False)
 
-def convert_btc_bech32_address_to_qtum(addr, main=False):
-    hdr, data = bech32_decode(addr)
-    return bech32_encode('qcrt', data)
+def convert_btc_bech32_address_to_qtum(addr, main=False, encoding=Encoding.BECH32):
+    encoding, hdr, data = bech32_decode(addr)
+    return bech32_encode(encoding, 'qcrt', data)
 
 
 def p2pkh_to_hex_hash(address):

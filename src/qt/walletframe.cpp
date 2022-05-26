@@ -3,22 +3,26 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qt/walletframe.h>
-#include <qt/walletmodel.h>
 
-#include <qt/bitcoingui.h>
+#include <qt/overviewpage.h>
+#include <qt/walletmodel.h>
 #include <qt/walletview.h>
 #include <qt/tabbarinfo.h>
+#include <qt/titlebar.h>
 #include <wallet/wallet.h>
 
 #include <cassert>
 
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
 
-WalletFrame::WalletFrame(const PlatformStyle *_platformStyle, BitcoinGUI *_gui) :
-    QFrame(_gui),
-    gui(_gui),
-    platformStyle(_platformStyle)
+WalletFrame::WalletFrame(const PlatformStyle* _platformStyle, QWidget* parent)
+    : QFrame(parent),
+      platformStyle(_platformStyle),
+      m_size_hint(OverviewPage{platformStyle, nullptr}.sizeHint())
 {
     // Leave HBox hook for adding a list view later
     QHBoxLayout *walletFrameLayout = new QHBoxLayout(this);
@@ -27,9 +31,21 @@ WalletFrame::WalletFrame(const PlatformStyle *_platformStyle, BitcoinGUI *_gui) 
     walletFrameLayout->setContentsMargins(0,0,0,0);
     walletFrameLayout->addWidget(walletStack);
 
-    QLabel *noWallet = new QLabel(tr("No wallet has been loaded."));
+    // hbox for no wallet
+    QGroupBox* no_wallet_group = new QGroupBox(walletStack);
+    QVBoxLayout* no_wallet_layout = new QVBoxLayout(no_wallet_group);
+
+    QLabel *noWallet = new QLabel(tr("No wallet has been loaded.\nGo to File > Open Wallet to load a wallet.\n- OR -"));
     noWallet->setAlignment(Qt::AlignCenter);
-    walletStack->addWidget(noWallet);
+    no_wallet_layout->addWidget(noWallet, 0, Qt::AlignHCenter | Qt::AlignBottom);
+
+    // A button for create wallet dialog
+    QPushButton* create_wallet_button = new QPushButton(tr("Create a new wallet"), walletStack);
+    connect(create_wallet_button, &QPushButton::clicked, this, &WalletFrame::createWalletButtonClicked);
+    no_wallet_layout->addWidget(create_wallet_button, 0, Qt::AlignHCenter | Qt::AlignTop);
+    no_wallet_group->setLayout(no_wallet_layout);
+
+    walletStack->addWidget(no_wallet_group);
 }
 
 WalletFrame::~WalletFrame()
@@ -45,13 +61,12 @@ void WalletFrame::setClientModel(ClientModel *_clientModel)
     }
 }
 
-bool WalletFrame::addWallet(WalletModel *walletModel)
+bool WalletFrame::addWallet(WalletModel* walletModel, WalletView* walletView)
 {
-    if (!gui || !clientModel || !walletModel) return false;
+    if (!clientModel || !walletModel) return false;
 
     if (mapWalletViews.count(walletModel) > 0) return false;
 
-    WalletView *walletView = new WalletView(platformStyle, this);
     walletView->setClientModel(clientModel);
     walletView->setWalletModel(walletModel);
     walletView->showOutOfSyncWarning(bOutOfSync);
@@ -66,21 +81,6 @@ bool WalletFrame::addWallet(WalletModel *walletModel)
     walletStack->addWidget(walletView);
     mapWalletViews[walletModel] = walletView;
 
-    connect(walletView, &WalletView::outOfSyncWarningClicked, this, &WalletFrame::outOfSyncWarningClicked);
-    connect(walletView, &WalletView::showMore, gui, &BitcoinGUI::gotoHistoryPage);
-    connect(walletView, &WalletView::sendCoins, gui, &BitcoinGUI::gotoSendCoinsPage);
-    connect(walletView, &WalletView::receiveCoins, gui, &BitcoinGUI::gotoReceiveCoinsPage);
-    connect(walletView, &WalletView::transactionClicked, gui, &BitcoinGUI::gotoHistoryPage);
-    connect(walletView, &WalletView::coinsSent, gui, &BitcoinGUI::gotoHistoryPage);
-    connect(walletView, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {
-        gui->message(title, message, style);
-    });
-    connect(walletView, &WalletView::encryptionStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
-    connect(walletView, &WalletView::incomingTransaction, gui, &BitcoinGUI::incomingTransaction);
-    connect(walletView, &WalletView::incomingTokenTransaction, gui, &BitcoinGUI::incomingTokenTransaction);
-    connect(walletView, &WalletView::hdEnabledStatusChanged, gui, &BitcoinGUI::updateWalletStatus);
-    connect(walletView, &WalletView::currentChanged, this, &WalletFrame::pageChanged);
-
     return true;
 }
 
@@ -88,9 +88,24 @@ void WalletFrame::setCurrentWallet(WalletModel* wallet_model)
 {
     if (mapWalletViews.count(wallet_model) == 0) return;
 
+    // Stop the effect of hidden widgets on the size hint of the shown one in QStackedWidget.
+    WalletView* view_about_to_hide = currentWalletView();
+    if (view_about_to_hide) {
+        QSizePolicy sp = view_about_to_hide->sizePolicy();
+        sp.setHorizontalPolicy(QSizePolicy::Ignored);
+        view_about_to_hide->setSizePolicy(sp);
+    }
+
     WalletView *walletView = mapWalletViews.value(wallet_model);
-    walletStack->setCurrentWidget(walletView);
     assert(walletView);
+
+    // Set or restore the default QSizePolicy which could be set to QSizePolicy::Ignored previously.
+    QSizePolicy sp = walletView->sizePolicy();
+    sp.setHorizontalPolicy(QSizePolicy::Preferred);
+    walletView->setSizePolicy(sp);
+    walletView->updateGeometry();
+
+    walletStack->setCurrentWidget(walletView);
     walletView->updateEncryptionStatus();
 }
 
@@ -219,11 +234,19 @@ void WalletFrame::gotoVerifyMessageTab(QString addr)
         walletView->gotoVerifyMessageTab(addr);
 }
 
-void WalletFrame::encryptWallet(bool status)
+void WalletFrame::gotoLoadPSBT(bool from_clipboard)
+{
+    WalletView *walletView = currentWalletView();
+    if (walletView) {
+        walletView->gotoLoadPSBT(from_clipboard);
+    }
+}
+
+void WalletFrame::encryptWallet()
 {
     WalletView *walletView = currentWalletView();
     if (walletView)
-        walletView->encryptWallet(status);
+        walletView->encryptWallet();
 }
 
 void WalletFrame::backupWallet()
@@ -292,11 +315,6 @@ WalletModel* WalletFrame::currentWalletModel() const
     return wallet_view ? wallet_view->getWalletModel() : nullptr;
 }
 
-void WalletFrame::outOfSyncWarningClicked()
-{
-    Q_EMIT requestedSyncWarningInfo();
-}
-
 void WalletFrame::pageChanged(int index)
 {
     updateTabBar(0, index);
@@ -320,13 +338,26 @@ void WalletFrame::updateTabBar(WalletView *walletView, int index)
     {
         QWidget* currentPage = walletView->widget(index);
         QObject* info = currentPage->findChild<TabBarInfo *>("");
-        gui->setTabBarInfo(info);
+        setTabBarInfo(info);
         found = true;
     }
     if(!found)
     {
-        gui->setTabBarInfo(0);
+        setTabBarInfo(0);
     }
+}
+
+void WalletFrame::setTabBarInfo(QObject *into)
+{
+    if(m_title_bar)
+    {
+        m_title_bar->setTabBarInfo(into);
+    }
+}
+
+void WalletFrame::setTitleBar(TitleBar *titleBar)
+{
+    m_title_bar = titleBar;
 }
 
 void WalletFrame::signTxHardware(const QString& tx)

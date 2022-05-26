@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019 The Bitcoin Core developers
+// Copyright (c) 2017-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,6 +14,7 @@ struct CMutableTransaction;
 class Coin;
 class COutPoint;
 class SigningProvider;
+class ChainstateManager;
 
 /**
  * Sign a transaction with the given keystore and previous transactions
@@ -25,7 +26,7 @@ class SigningProvider;
  * @param result         JSON object where signed transaction results accumulate
  */
 void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, const std::map<COutPoint, Coin>& coins, const UniValue& hashType, UniValue& result);
-void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const std::map<COutPoint, Coin>& coins, std::map<int, std::string>& input_errors, UniValue& result);
+void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const std::map<COutPoint, Coin>& coins, const std::map<int, std::string>& input_errors, UniValue& result);
 
 /**
   * Parse a prevtxs UniValue array and get the map of coins from it
@@ -37,9 +38,10 @@ void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const 
 void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keystore, std::map<COutPoint, Coin>& coins);
 
 /** Create a transaction from univalue parameters */
-CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, bool rbf);
+CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, bool rbf, ChainstateManager& chainman);
 
-UniValue SignTransactionSender(CMutableTransaction& mtx, FillableSigningProvider *keystore, const UniValue& hashType);
+void SignTransactionOutput(CMutableTransaction& mtx, FillableSigningProvider *keystore, const UniValue& hashType, UniValue& result);
+void SignTransactionOutputResultToJSON(CMutableTransaction& mtx, bool complete, std::map<int, std::string>& output_errors, UniValue& result);
 
 void CheckSenderSignatures(CMutableTransaction& mtx);
 

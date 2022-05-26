@@ -37,7 +37,7 @@ StakePage::StakePage(const PlatformStyle *_platformStyle, QWidget *parent) :
     m_expectedAnnualROI(0)
 {
     ui->setupUi(this);
-    ui->checkStake->setEnabled(gArgs.GetBoolArg("-staking", DEFAULT_STAKE));
+    ui->checkStake->setEnabled(CanStake());
     transactionView = new TransactionView(platformStyle, this, true);
     ui->frameStakeRecords->layout()->addWidget(transactionView);
 }
@@ -96,8 +96,8 @@ void StakePage::setBalance(const interfaces::WalletBalances& balances)
         balance += balances.watch_only_balance;
         stake += balances.watch_only_stake;
     }
-    ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::separatorAlways));
-    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, stake, false, BitcoinUnits::separatorAlways));
+    ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, balance, false, BitcoinUnits::SeparatorStyle::ALWAYS));
+    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, stake, false, BitcoinUnits::SeparatorStyle::ALWAYS));
 }
 
 void StakePage::on_checkStake_clicked(bool checked)
@@ -153,7 +153,7 @@ void StakePage::numBlocksChanged(int count, const QDateTime &, double, bool head
 void StakePage::updateSubsidy()
 {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
-    QString strSubsidy = BitcoinUnits::formatWithUnit(unit, m_subsidy, false, BitcoinUnits::separatorAlways) + "/Block";
+    QString strSubsidy = BitcoinUnits::formatWithUnit(unit, m_subsidy, false, BitcoinUnits::SeparatorStyle::ALWAYS) + "/Block";
     ui->labelReward->setText(strSubsidy);
 }
 

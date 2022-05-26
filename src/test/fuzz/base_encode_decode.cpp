@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Bitcoin Core developers
+// Copyright (c) 2019-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,15 +6,20 @@
 
 #include <base58.h>
 #include <psbt.h>
-#include <util/string.h>
 #include <util/strencodings.h>
+#include <util/string.h>
 
 #include <cassert>
 #include <cstdint>
 #include <string>
 #include <vector>
 
-void test_one_input(const std::vector<uint8_t>& buffer)
+void initialize_base_encode_decode()
+{
+    static const ECCVerifyHandle verify_handle;
+}
+
+FUZZ_TARGET_INIT(base_encode_decode, initialize_base_encode_decode)
 {
     const std::string random_encoded_string(buffer.begin(), buffer.end());
 

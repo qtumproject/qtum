@@ -16,6 +16,8 @@ class QtumPODTest(BitcoinTestFramework):
             ['-txindex=1', '-logevents=1'],
             ['-txindex=1', '-logevents=1', '-superstaking=1', '-staking=1']
         ]
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def run_test(self):
         mocktime = int(time.time()) - 3600

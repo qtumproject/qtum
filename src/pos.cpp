@@ -16,6 +16,7 @@
 #include <consensus/consensus.h>
 #include <util/signstr.h>
 #include <qtum/qtumdelegation.h>
+#include <script/standard.h>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kerne
 
     CDataStream ss(SER_GETHASH, 0);
     ss << kernel << pindexPrev->nStakeModifier;
-    return Hash(ss.begin(), ss.end());
+    return Hash(ss);
 }
 
 // BlackCoin kernel protocol
@@ -89,7 +90,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     CDataStream ss(SER_GETHASH, 0);
     ss << nStakeModifier;
     ss << blockFromTime << prevout.hash << prevout.n << nTimeBlock;
-    hashProofOfStake = Hash(ss.begin(), ss.end());
+    hashProofOfStake = Hash(ss);
 
     if (fPrintProofOfStake)
     {
@@ -161,7 +162,7 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
 }
 
 // Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, CChainState& chainstate)
 {
     if (!tx.IsCoinStake())
         return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
@@ -209,7 +210,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
         // Get the delegation from the contract
         uint160 address = uint160(ExtractPublicKeyHash(coinHeaderPrev.out.scriptPubKey));
         Delegation delegation;
-        if(!qtumDelegation.GetDelegation(address, delegation)) {
+        if(!qtumDelegation.GetDelegation(address, delegation, chainstate)) {
             return state.Invalid(BlockValidationResult::BLOCK_HEADER_REJECT, "stake-get-delegation-failed", strprintf("CheckProofOfStake() : Failed to get delegation from the delegation contract")); // Internal error, get delegation from the delegation contract
         }
 
@@ -267,7 +268,7 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
 }
 
 // Check whether the coinstake timestamp meets protocol
-bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params& consensusParams)
+bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params &consensusParams)
 {
     return (nTimeBlock & consensusParams.StakeTimestampMask(nHeight)) == 0;
 }
@@ -296,36 +297,36 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
 
     // If the input does not exactly match the output, it MUST be on P2PKH spent and P2PK out.
     CTxDestination inputAddress;
-    txnouttype inputTxType=TX_NONSTANDARD;
+    TxoutType inputTxType=TxoutType::NONSTANDARD;
     if(!ExtractDestination(coinIn.out.scriptPubKey, inputAddress, &inputTxType)) {
         return error("%s: Could not extract address from input", __func__);
     }
 
-    if(inputTxType != TX_PUBKEYHASH || inputAddress.type() != typeid(PKHash)) {
+    if(inputTxType != TxoutType::PUBKEYHASH || !std::holds_alternative<PKHash>(inputAddress)) {
         return error("%s: non-exact match input must be P2PKH", __func__);
     }
 
     CTxDestination outputAddress;
-    txnouttype outputTxType=TX_NONSTANDARD;
+    TxoutType outputTxType=TxoutType::NONSTANDARD;
     if(!ExtractDestination(txout.scriptPubKey, outputAddress, &outputTxType)) {
         return error("%s: Could not extract address from output", __func__);
     }
 
-    if(outputTxType != TX_PUBKEY || outputAddress.type() != typeid(PKHash)) {
+    if(outputTxType != TxoutType::PUBKEY || !std::holds_alternative<PKHash>(outputAddress)) {
         return error("%s: non-exact match output must be P2PK", __func__);
     }
 
-    if(boost::get<PKHash>(inputAddress) != boost::get<PKHash>(outputAddress)) {
+    if(std::get<PKHash>(inputAddress) != std::get<PKHash>(outputAddress)) {
         return error("%s: input P2PKH pubkey does not match output P2PK pubkey", __func__);
     }
 
     return true;
 }
 
-bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view) {
+bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view, CChain& chain) {
     Coin coinPrev;
     if(!view.GetCoin(block.prevoutStake, coinPrev)){
-        if(!GetSpentCoinFromMainChain(pindexPrev, block.prevoutStake, &coinPrev)) {
+        if(!GetSpentCoinFromMainChain(pindexPrev, block.prevoutStake, &coinPrev, chain)) {
             return error("CheckRecoveredPubKeyFromBlockSignature(): Could not find %s and it was not at the tip", block.prevoutStake.hash.GetHex());
         }
     }
@@ -348,11 +349,11 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
         {
             // Has delegation
             CTxDestination address;
-            txnouttype txType=TX_NONSTANDARD;
+            TxoutType txType=TxoutType::NONSTANDARD;
             if(pubkey.RecoverCompact(hash, vchBlockSig) &&
                     ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
-                if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
-                    if(SignStr::VerifyMessage(CKeyID(boost::get<PKHash>(address)), pubkey.GetID().GetReverseHex(), vchPoD)) {
+                if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
+                    if(SignStr::VerifyMessage(ToKeyID(std::get<PKHash>(address)), pubkey.GetID().GetReverseHex(), vchPoD)) {
                         return true;
                     }
                 }
@@ -362,11 +363,11 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
         {
             // No delegation
             CTxDestination address;
-            txnouttype txType=TX_NONSTANDARD;
+            TxoutType txType=TxoutType::NONSTANDARD;
             if(pubkey.RecoverCompact(hash, vchBlockSig) &&
                     ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
-                if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
-                    if(pubkey.GetID() == boost::get<PKHash>(address)) {
+                if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
+                    if(pubkey.GetID() == ToKeyID(std::get<PKHash>(address))) {
                         return true;
                     }
                 }
@@ -383,10 +384,10 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
                 }
 
                 CTxDestination address;
-                txnouttype txType=TX_NONSTANDARD;
+                TxoutType txType=TxoutType::NONSTANDARD;
                 if(ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
-                    if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && address.type() == typeid(PKHash)) {
-                        if(pubkey.GetID() == boost::get<PKHash>(address)) {
+                    if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
+                        if(pubkey.GetID() == ToKeyID(std::get<PKHash>(address))) {
                             return true;
                         }
                     }
@@ -398,13 +399,13 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
     return false;
 }
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view)
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, CChain& chain)
 {
     std::map<COutPoint, CStakeCache> tmp;
-    return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view, tmp);
+    return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view, tmp, chain);
 }
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache)
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache, CChain& chain)
 {
     uint256 hashProofOfStake, targetProofOfStake;
     auto it=cache.find(prevout);
@@ -412,7 +413,7 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         //not found in cache (shouldn't happen during staking, only during verification which does not use cache)
         Coin coinPrev;
         if(!view.GetCoin(prevout, coinPrev)){
-            if(!GetSpentCoinFromMainChain(pindexPrev, prevout, &coinPrev)) {
+            if(!GetSpentCoinFromMainChain(pindexPrev, prevout, &coinPrev, chain)) {
                 return error("CheckKernel(): Could not find coin and it was not at the tip");
             }
         }
@@ -438,7 +439,7 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         if(CheckStakeKernelHash(pindexPrev, nBits, stake.blockFromTime, stake.amount, prevout,
                                     nTimeBlock, hashProofOfStake, targetProofOfStake)){
             //Cache could potentially cause false positive stakes in the event of deep reorgs, so check without cache also
-            return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view);
+            return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view, chain);
         }
     }
     return false;
@@ -545,11 +546,11 @@ int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin, bool delegateOu
     return (nValueStaker * 100 + nReward - 1) / nReward;
 }
 
-bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee)
+bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, CChainState& chainstate)
 {
     Delegation delegation;
     QtumDelegation& qtumDelegation = GetQtumDelegation();
-    bool ret = qtumDelegation.GetDelegation(address, delegation);
+    bool ret = qtumDelegation.GetDelegation(address, delegation, chainstate);
     if(ret) ret &= qtumDelegation.VerifyDelegation(address, delegation);
     if(ret)
     {
@@ -558,7 +559,7 @@ bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee)
     return ret;
 }
 
-bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScriptHeight, const ScriptsElement& scriptElement)
+bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScriptHeight, const ScriptsElement& scriptElement, CChain& chain)
 {
     // Erase element from cache if not in range [nBlockHeight - nCacheScripts, nBlockHeight + nCacheScripts]
     if(nScriptHeight < (nBlockHeight - nCacheScripts) ||
@@ -566,20 +567,20 @@ bool NeedToEraseScriptFromCache(int nBlockHeight, int nCacheScripts, int nScript
         return true;
 
     // Erase element from cache if hash different
-    CBlockIndex* pblockindex = ChainActive()[nScriptHeight];
+    CBlockIndex* pblockindex = chain[nScriptHeight];
     if(pblockindex && pblockindex->GetBlockHash() != scriptElement.hash)
         return true;
 
     return false;
 }
 
-void CleanScriptCache(int nHeight, const Consensus::Params& consensusParams)
+void CleanScriptCache(int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     int nCacheScripts = consensusParams.nMPoSRewardRecipients * 1.5;
 
     // Remove the scripts from cache that are not used
     for (std::map<int, ScriptsElement>::iterator it=scriptsMap.begin(); it!=scriptsMap.end();){
-        if(NeedToEraseScriptFromCache(nHeight, nCacheScripts, it->first, it->second))
+        if(NeedToEraseScriptFromCache(nHeight, nCacheScripts, it->first, it->second, chain))
         {
             it = scriptsMap.erase(it);
         }
@@ -589,9 +590,9 @@ void CleanScriptCache(int nHeight, const Consensus::Params& consensusParams)
     }
 }
 
-bool ReadFromScriptCache(BlockScript &script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params& consensusParams)
+bool ReadFromScriptCache(BlockScript &script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
-    CleanScriptCache(nHeight, consensusParams);
+    CleanScriptCache(nHeight, consensusParams, chain);
 
     // Find the script in the cache
     std::map<int, ScriptsElement>::iterator it = scriptsMap.find(nHeight);
@@ -607,9 +608,9 @@ bool ReadFromScriptCache(BlockScript &script, CBlockIndex* pblockindex, int nHei
     return false;
 }
 
-void AddToScriptCache(BlockScript script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params& consensusParams)
+void AddToScriptCache(BlockScript script, CBlockIndex* pblockindex, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
-    CleanScriptCache(nHeight, consensusParams);
+    CleanScriptCache(nHeight, consensusParams, chain);
 
     // Add the script into the cache
     ScriptsElement listElement;
@@ -618,10 +619,10 @@ void AddToScriptCache(BlockScript script, CBlockIndex* pblockindex, int nHeight,
     scriptsMap.insert(std::pair<int, ScriptsElement>(nHeight, listElement));
 }
 
-bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const Consensus::Params& consensusParams)
+bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     // Check if the block index exist into the active chain
-    CBlockIndex* pblockindex = ChainActive()[nHeight];
+    CBlockIndex* pblockindex = chain[nHeight];
     if(!pblockindex)
     {
         LogPrint(BCLog::COINSTAKE, "Block index not found\n");
@@ -630,7 +631,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
 
     // Try find the script from the cache
     BlockScript blockScript;
-    if(ReadFromScriptCache(blockScript, pblockindex, nHeight, consensusParams))
+    if(ReadFromScriptCache(blockScript, pblockindex, nHeight, consensusParams, chain))
     {
         mposScriptList.push_back(blockScript);
         return true;
@@ -681,7 +682,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
         mposScriptList.push_back(blockScript);
 
         // Update script cache
-        AddToScriptCache(blockScript, pblockindex, nHeight, consensusParams);
+        AddToScriptCache(blockScript, pblockindex, nHeight, consensusParams, chain);
     }
     else
     {
@@ -699,7 +700,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
     return true;
 }
 
-bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight, const Consensus::Params& consensusParams)
+bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     bool ret = true;
     nHeight -= consensusParams.CoinbaseMaturity(nHeight + 1);
@@ -707,16 +708,16 @@ bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight,
     // Populate the list of scripts for the reward recipients
     for(int i = 0; (i < consensusParams.nMPoSRewardRecipients - 1) && ret; i++)
     {
-        ret &= AddMPoSScript(mposScriptList, nHeight - i, consensusParams);
+        ret &= AddMPoSScript(mposScriptList, nHeight - i, consensusParams, chain);
     }
 
     return ret;
 }
 
-bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams)
+bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     std::vector<BlockScript> mposScriptList;
-    if(!GetMPoSOutputScripts(mposScriptList, nHeight, consensusParams))
+    if(!GetMPoSOutputScripts(mposScriptList, nHeight, consensusParams, chain))
     {
         LogPrint(BCLog::COINSTAKE, "Fail to get the list of recipients\n");
         return false;
@@ -750,10 +751,10 @@ bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, i
     return true;
 }
 
-bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams)
+bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
 {
     std::vector<CTxOut> mposOutputList;
-    if(!GetMPoSOutputs(mposOutputList, nRewardPiece, nHeight, consensusParams))
+    if(!GetMPoSOutputs(mposOutputList, nRewardPiece, nHeight, consensusParams, chain))
     {
         return false;
     }

@@ -186,6 +186,7 @@ size_t MeterFilter::PutMaybeModifiable(byte *begin, size_t length, int messageEn
 	{
 		if (m_length > 0  && !m_rangesToSkip.empty() && m_rangesToSkip.front().message == m_totalMessages && m_currentMessageBytes + m_length > m_rangesToSkip.front().position)
 		{
+		    [[fallthrough]];
 			FILTER_OUTPUT_MAYBE_MODIFIABLE(1, m_begin, t = (size_t)SaturatingSubtract(m_rangesToSkip.front().position, m_currentMessageBytes), false, modifiable);
 
 			CRYPTOPP_ASSERT(t < m_length);
@@ -210,6 +211,7 @@ size_t MeterFilter::PutMaybeModifiable(byte *begin, size_t length, int messageEn
 		}
 		else
 		{
+			[[fallthrough]];
 			FILTER_OUTPUT_MAYBE_MODIFIABLE(2, m_begin, m_length, messageEnd, modifiable);
 
 			m_currentMessageBytes += m_length;
@@ -731,7 +733,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 			if (m_padding == PKCS_PADDING)
 			{
 				byte pad = space[s-1];
-				if (pad < 1 || pad > s || std::find_if(space+s-pad, space+s, std::bind2nd(std::not_equal_to<byte>(), pad)) != space+s)
+				if (pad < 1 || pad > s || FindIfNot(PtrAdd(space, s-pad), PtrAdd(space, s), pad) != PtrAdd(space, s))
 					throw InvalidCiphertext("StreamTransformationFilter: invalid PKCS #7 block padding found");
 				length = s-pad;
 			}

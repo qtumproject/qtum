@@ -13,10 +13,12 @@
 #include <QPushButton>
 
 OpenURIDialog::OpenURIDialog(QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::OpenURIDialog)
 {
     ui->setupUi(this);
+
+    GUIUtil::handleCloseWindowShortcut(this);
 
     SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Cancel), StyleSheetNames::ButtonLight);
     SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Ok), StyleSheetNames::ButtonGray);

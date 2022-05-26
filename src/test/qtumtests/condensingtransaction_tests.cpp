@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
         addresses.push_back(createQtumAddress(hashTemp, i));
         ++hashTemp;
     }
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
     std::vector<dev::u256> balances = {0,0,0};
     checkRes(result.second, addresses, balances, 0);
 
@@ -224,13 +224,13 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
     for(size_t i = 0; i < 3; i++){
         txs.push_back(createQtumTransaction(code[i + 3], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[i]));
     }
-    result = executeBC(txs);
+    result = executeBC(txs, *m_node.chainman);
     balances = {0,0,0};
     checkRes(result.second, addresses, balances, 0);
 
     txs.clear();
     txs.push_back(createQtumTransaction(code[6], 8000, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
-    result = executeBC(txs);
+    result = executeBC(txs, *m_node.chainman);
     balances = {5000,2500,500};
     checkRes(result.second, addresses, balances, 1);
     checkTx(result.second.valueTransfers[0], 1, 3, {2500,5000,500});
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
     txs.clear();
     txs.push_back(createQtumTransaction(code[7], 2000, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
     txs.push_back(createQtumTransaction(code[8], 2000, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
-    result = executeBC(txs);
+    result = executeBC(txs, *m_node.chainman);
     balances = {0,11500,500};
     checkRes(result.second, addresses, balances, 2);
     checkTx(result.second.valueTransfers[0], 2, 1, {7000});
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
     txs.clear();
     txs.push_back(createQtumTransaction(code[6], 2000, dev::u256(30000), dev::u256(1), hashTemp, addresses[1]));
     txs.push_back(createQtumTransaction(code[9], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[1]));
-    result = executeBC(txs);
+    result = executeBC(txs, *m_node.chainman);
     balances = {0,0,0};
     checkRes(result.second, addresses, balances, 2);
     checkTx(result.second.valueTransfers[0], 1, 1, {2000});
@@ -266,13 +266,13 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbreadthways_tests){
     }
     txs.push_back(createQtumTransaction(code[10], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address(), 4));
     addresses.push_back(createQtumAddress(hashTemp, 4));
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
 
     txs.clear();
     txs.push_back(createQtumTransaction(code[0], 15000, dev::u256(500000), dev::u256(1), hashTemp, addresses[3]));
     txs.push_back(createQtumTransaction(code[11], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[3]));
 
-    result = executeBC(txs);
+    result = executeBC(txs, *m_node.chainman);
     std::vector<dev::u256> balances = {5000,5000,5000,0};
     checkRes(result.second, addresses, balances, 2);
     checkTx(result.second.valueTransfers[0], 1, 1, {15000});
@@ -289,10 +289,10 @@ BOOST_AUTO_TEST_CASE(condensingtransactiondeep_tests){
         addresses.push_back(createQtumAddress(hashTemp, i));
         ++hashTemp;
     }
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
     txs.clear();
     txs.push_back(createQtumTransaction(code[11], 20000, dev::u256(500000), dev::u256(1), hashTemp, addresses[4]));
-    result = executeBC(txs);
+    result = executeBC(txs, *m_node.chainman);
     std::vector<dev::u256> balances = {1250,1250,2500,5000,10000};
     checkRes(result.second, addresses, balances, 1);
     checkTx(result.second.valueTransfers[0], 1, 5, {10000,2500,1250,1250,5000});
@@ -310,11 +310,11 @@ BOOST_AUTO_TEST_CASE(condensingtransactionsuicide_tests){
     txs.push_back(createQtumTransaction(valtype(), 13000, dev::u256(500000), dev::u256(1), hashTemp, createQtumAddress(hashTemp, 1), 1));
 
     addresses.push_back(createQtumAddress(hashTemp, 1));
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
 
     txs.clear();
     txs.push_back(createQtumTransaction(code[18], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[1]));
-    result = executeBC(txs);
+    result = executeBC(txs, *m_node.chainman);
     std::vector<dev::u256> balances = {13000,0};
     checkRes(result.second, addresses, balances, 1);
     checkTx(result.second.valueTransfers[0], 1, 1, {13000});
@@ -330,11 +330,11 @@ BOOST_AUTO_TEST_CASE(condensingtransactionpaytopubkeyhash_tests){
     txs.push_back(createQtumTransaction(valtype(), 13000, dev::u256(500000), dev::u256(1), hashTemp, createQtumAddress(hashTemp, 13), 13));
 
     addresses.push_back(createQtumAddress(hashTemp, 13));
-    auto result = executeBC(txs);
+    auto result = executeBC(txs, *m_node.chainman);
 
     txs.clear();
     txs.push_back(createQtumTransaction(code[11], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
-    result = executeBC(txs);
+    result = executeBC(txs, *m_node.chainman);
     std::vector<dev::u256> balances = {6500,6500};
     checkRes(result.second, addresses, balances, 1);
     checkTx(result.second.valueTransfers[0], 1, 2, {6500,6500});

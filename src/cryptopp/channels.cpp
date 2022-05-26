@@ -9,6 +9,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 USING_NAMESPACE(std)
+using byte = CryptoPP::byte;
 
 #if 0
 void MessageSwitch::AddDefaultRoute(BufferedTransformation &destination, const std::string &channel)

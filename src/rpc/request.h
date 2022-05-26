@@ -1,11 +1,12 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_RPC_REQUEST_H
 #define BITCOIN_RPC_REQUEST_H
 
+#include <any>
 #include <string>
 
 #include <univalue.h>
@@ -22,21 +23,48 @@ bool GetAuthCookie(std::string *cookie_out);
 /** Delete RPC authentication cookie from disk */
 void DeleteAuthCookie();
 /** Parse JSON-RPC batch reply into a vector */
-std::vector<UniValue> JSONRPCProcessBatchReply(const UniValue &in, size_t num);
+std::vector<UniValue> JSONRPCProcessBatchReply(const UniValue& in);
 
-class JSONRPCRequestBase
+class JSONRPCRequest
 {
 public:
     UniValue id;
     std::string strMethod;
     UniValue params;
-    bool fHelp;
+    enum Mode { EXECUTE, GET_HELP, GET_ARGS } mode = EXECUTE;
     std::string URI;
     std::string authUser;
     std::string peerAddr;
+    std::any context;
+    bool isLongPolling = false;
+    void *httpreq = nullptr;
 
-    JSONRPCRequestBase() : id(NullUniValue), params(NullUniValue), fHelp(false) {}
     void parse(const UniValue& valRequest);
+
+    /**
+     * Start long-polling
+     */
+    virtual void PollStart();
+
+    /**
+     * Ping long-poll connection with an empty character to make sure it's still alive.
+     */
+    virtual void PollPing();
+
+    /**
+     * Returns whether the underlying long-poll connection is still alive.
+     */
+    virtual bool PollAlive();
+
+    /**
+     * End a long poll request.
+     */
+    virtual void PollCancel();
+
+    /**
+     * Return the JSON result of a long poll request
+     */
+    virtual void PollReply(const UniValue& result);
 };
 
 #endif // BITCOIN_RPC_REQUEST_H

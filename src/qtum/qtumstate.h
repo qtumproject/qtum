@@ -13,6 +13,8 @@
 #include <libethereum/Executive.h>
 #include <libethcore/SealEngine.h>
 
+class CChain;
+
 using OnOpFunc = std::function<void(uint64_t, uint64_t, dev::eth::Instruction, dev::bigint, dev::bigint, 
     dev::bigint, dev::eth::VMFace const*, dev::eth::ExtVMFace const*)>;
 using plusAndMinus = std::pair<dev::u256, dev::u256>;
@@ -77,7 +79,7 @@ public:
 
     QtumState(dev::u256 const& _accountStartNonce, dev::OverlayDB const& _db, const std::string& _path, dev::eth::BaseState _bs = dev::eth::BaseState::PreExisting);
 
-    ResultExecute execute(dev::eth::EnvInfo const& _envInfo, dev::eth::SealEngineFace const& _sealEngine, QtumTransaction const& _t, dev::eth::Permanence _p = dev::eth::Permanence::Committed, dev::eth::OnOpFunc const& _onOp = OnOpFunc());
+    ResultExecute execute(dev::eth::EnvInfo const& _envInfo, dev::eth::SealEngineFace const& _sealEngine, QtumTransaction const& _t, CChain& _chain, dev::eth::Permanence _p = dev::eth::Permanence::Committed, dev::eth::OnOpFunc const& _onOp = OnOpFunc());
 
     void setRootUTXO(dev::h256 const& _r) { cacheUTXO.clear(); stateUTXO.setRoot(_r); }
 
@@ -116,7 +118,7 @@ public:
 
 private:
 
-    void transferBalance(dev::Address const& _from, dev::Address const& _to, dev::u256 const& _value);
+    void transferBalance(dev::Address const& _from, dev::Address const& _to, dev::u256 const& _value) override;
 
     Vin const* vin(dev::Address const& _a) const;
 
@@ -124,9 +126,9 @@ private:
 
     // void commit(CommitBehaviour _commitBehaviour);
 
-    void kill(dev::Address _addr);
+    void kill(dev::Address _addr) override;
 
-    void addBalance(dev::Address const& _id, dev::u256 const& _amount);
+    void addBalance(dev::Address const& _id, dev::u256 const& _amount) override;
 
     void deleteAccounts(std::set<dev::Address>& addrs);
 

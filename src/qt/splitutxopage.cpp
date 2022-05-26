@@ -9,6 +9,7 @@
 #include <qt/walletmodel.h>
 #include <qt/hardwaresigntx.h>
 #include <validation.h>
+#include <node/ui_interface.h>
 
 namespace SplitUTXO_NS
 {
@@ -220,8 +221,8 @@ void SplitUTXOPage::on_splitCoinsClicked()
 
         // Append params to the list
         ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, address);
-        ExecRPCCommand::appendParam(lstParams, PARAM_MIN_VALUE, BitcoinUnits::format(unit, minValue, false, BitcoinUnits::separatorNever));
-        ExecRPCCommand::appendParam(lstParams, PARAM_MAX_VALUE, BitcoinUnits::format(unit, maxValue, false, BitcoinUnits::separatorNever));
+        ExecRPCCommand::appendParam(lstParams, PARAM_MIN_VALUE, BitcoinUnits::format(unit, minValue, false, BitcoinUnits::SeparatorStyle::NEVER));
+        ExecRPCCommand::appendParam(lstParams, PARAM_MAX_VALUE, BitcoinUnits::format(unit, maxValue, false, BitcoinUnits::SeparatorStyle::NEVER));
         ExecRPCCommand::appendParam(lstParams, PARAM_MAX_OUTPUTS, QString::number(maxOutputs));
 
         QString questionString;

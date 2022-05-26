@@ -3,7 +3,7 @@ What is Qtum?
 
 Qtum is a decentralized blockchain project built on Bitcoin's UTXO model, with support for Ethereum Virtual Machine based smart contracts, and secured by a proof of stake consensus model. It achieves this through the revolutionary Account Abstraction Layer which allows the EVM to communicate with Qtum's Bitcoin-like UTXO blockchain. For more general information about Qtum as well as links to join our community, go to https://qtum.org
 
-Welcome to the Qtum Ignition Main Network. This is the main network where the tokens hold value and should be guarded very carefully. If you are testing the network, or developing unstable software on Qtum, we highly recommend using either testnet or regtest mode. 
+Welcome to the Qtum Fastlane Main Network. This is the main network where the tokens hold value and should be guarded very carefully. If you are testing the network, or developing unstable software on Qtum, we highly recommend using either testnet or regtest mode. 
 
 The major features of the Qtum network include:
 
@@ -89,7 +89,7 @@ Qtum Core uses a full node model, and thus requires downloading the entire block
 
 ### Qtum Web Wallet
 
-A browser wallet that supports the Ledger hardware wallet, offline cold wallet, and restoration from mobile wallets.
+A browser wallet that supports the Ledger hardware wallet, offline cold wallet, restoration from mobile wallets, creation of QRC20 tokens and QRC1155 NFTs.
 
 Web site https://qtumwallet.org
 
@@ -109,11 +109,9 @@ Android Download: https://play.google.com/store/apps/details?id=org.qtum.newwall
 
 iOS Download: https://github.com/qtumproject/qtum-ios (open source, deprecated)
 
-### Ledger Chrome Wallet
+### Qnekt Chrome Wallet
 
-This light wallet runs in your Chrome browser as a browser extension. This wallet requires a Ledger device to use.
-
-How to install: https://ledger.zendesk.com/hc/en-us/articles/115003776913-How-to-install-and-use-Qtum-with-Ledger
+This light wallet runs in your Chrome browser as a browser extension, based on the popular MetaMask wallet.
 
 
 ### Community Resources
@@ -127,15 +125,14 @@ Make sure to check out these resources as well for more information and to keep 
 *	/r/Qtum on Reddit https://www.reddit.com/r/Qtum/
 *	Qtum.org https://qtum.org
 *	Qtum on Facebook https://www.facebook.com/QtumOfficial/
-*	Qtum Forum https://forum.qtum.org
 
 ### Qtum Smart Contract Limitations
 
 *	EVM smart contracts cannot receive coins from or send coins to any address type other than pay-to-pubkeyhash (starts with Q) addresses. This is due to a limitation in the EVM
 *	Contracts are not allowed to create contracts with an initial endowment of coins. The contract must first be created, and then be sent coins in a separate transaction. Humans are also not allowed to create contracts with an initial endowment of coins.
 *	Although all of the infrastructure is present, Qtum Core does not currently parse Solidity event data. You must parse this yourself using either searchlogs or -record-log-opcodes features.
-*	It is not possible to send a contract coins without also executing the contract. This is also the case of Ethereum. This was promised in earlier discussions and technically does work, but due to lack of time for testing this feature was disabled. We hope to reenable this feature with release of the x86 virtual machine in 2020.
-*	In Qtum there can be multiple addresses used to create a proof-of-stake block. However, the EVM can only see the first output using the coinbase operation in Solidity (this address is also the one registered for the continuous staker rewards after 500 blocks).
+*	It is not possible to send a contract coins without also executing the contract. This is also the case of Ethereum. This was promised in earlier discussions and technically does work, but due to lack of time for testing this feature was disabled.
+*	In Qtum there can be multiple addresses used to create a proof-of-stake block. However, the EVM can only see the first output using the coinbase operation in Solidity (this address is also the one registered for the continuous staker rewards after 2000 blocks).
 
 ----------
 
@@ -272,10 +269,11 @@ submit new unit tests for old code. Unit tests can be compiled and run
 and extending unit tests can be found in [/src/test/README.md](/src/test/README.md).
 
 There are also [regression and integration tests](/test), written
-in Python, that are run automatically on the build server.
+in Python.
 These tests can be run (if the [test dependencies](/test) are installed) with: `test/functional/test_runner.py`
 
-The Travis CI system makes sure that every pull request is built for Windows, Linux, and macOS, and that unit/sanity tests are run automatically.
+The CI (Continuous Integration) systems make sure that every pull request is built for Windows, Linux, and macOS,
+and that unit/sanity tests are run automatically.
 
 ### Manual Quality Assurance (QA) Testing
 
@@ -284,3 +282,14 @@ code. This is especially important for large or high-risk changes. It is useful
 to add a test plan to the pull request description if testing the changes is
 not straightforward.
 
+Translations
+------------
+
+Changes to translations as well as new translations can be submitted to
+[Bitcoin Core's Transifex page](https://www.transifex.com/bitcoin/bitcoin/).
+
+Translations are periodically pulled from Transifex and merged into the git repository. See the
+[translation process](doc/translation_process.md) for details on how this works.
+
+**Important**: We do not accept translation changes as GitHub pull requests because the next
+pull from Transifex would automatically overwrite them again.

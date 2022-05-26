@@ -1,13 +1,26 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2019 The Bitcoin Core developers
+# Copyright (c) 2014-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test BIP68 implementation."""
 
 import time
+import random
 
-from test_framework.blocktools import create_block, create_coinbase, add_witness_commitment
-from test_framework.messages import COIN, COutPoint, CTransaction, CTxIn, CTxOut, FromHex, ToHex
+from test_framework.blocktools import (
+	COINBASE_MATURITY,
+    NORMAL_GBT_REQUEST_PARAMS,
+    add_witness_commitment,
+    create_block,
+)
+from test_framework.messages import (
+    COIN,
+    COutPoint,
+    CTransaction,
+    CTxIn,
+    CTxOut,
+    tx_from_hex,
+)
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
@@ -30,7 +43,10 @@ class BIP68Test(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.extra_args = [
-            ["-acceptnonstdtxn=1"],
+            [
+                "-acceptnonstdtxn=1",
+                "-peertimeout=9999",  # bump because mocktime might cause a disconnect otherwise
+            ],
             ["-acceptnonstdtxn=0"],
         ]
 
@@ -41,7 +57,7 @@ class BIP68Test(BitcoinTestFramework):
         self.relayfee = self.nodes[0].getnetworkinfo()["relayfee"]
 
         # Generate some coins
-        self.nodes[0].generate(110)
+        self.nodes[0].generate(COINBASE_MATURITY+10)
 
         self.log.info("Running test disable flag")
         self.test_disable_flag()
@@ -52,11 +68,11 @@ class BIP68Test(BitcoinTestFramework):
         self.log.info("Running test sequence-lock-unconfirmed-inputs")
         self.test_sequence_lock_unconfirmed_inputs()
 
-        self.log.info("Running test BIP68 not consensus before activation")
-        self.test_bip68_not_consensus()
+        #self.log.info("Running test BIP68 not consensus before activation")
+        #self.test_bip68_not_consensus()
 
-        self.log.info("Activating BIP68 (and 112/113)")
-        self.activateCSV()
+        #self.log.info("Activating BIP68 (and 112/113)")
+        #self.activateCSV()
 
         self.log.info("Verifying nVersion=2 transactions are standard.")
         self.log.info("Note that nVersion=2 transactions are always standard (independent of BIP68 activation status).")
@@ -86,7 +102,7 @@ class BIP68Test(BitcoinTestFramework):
         tx1.vin = [CTxIn(COutPoint(int(utxo["txid"], 16), utxo["vout"]), nSequence=sequence_value)]
         tx1.vout = [CTxOut(value, DUMMY_P2WPKH_SCRIPT)]
 
-        tx1_signed = self.nodes[0].signrawtransactionwithwallet(ToHex(tx1))["hex"]
+        tx1_signed = self.nodes[0].signrawtransactionwithwallet(tx1.serialize().hex())["hex"]
         tx1_id = self.nodes[0].sendrawtransaction(tx1_signed)
         tx1_id = int(tx1_id, 16)
 
@@ -99,13 +115,13 @@ class BIP68Test(BitcoinTestFramework):
         tx2.vout = [CTxOut(int(value - self.relayfee * COIN), DUMMY_P2WPKH_SCRIPT)]
         tx2.rehash()
 
-        assert_raises_rpc_error(-26, NOT_FINAL_ERROR, self.nodes[0].sendrawtransaction, ToHex(tx2))
+        assert_raises_rpc_error(-26, NOT_FINAL_ERROR, self.nodes[0].sendrawtransaction, tx2.serialize().hex())
 
         # Setting the version back down to 1 should disable the sequence lock,
         # so this should be accepted.
         tx2.nVersion = 1
 
-        self.nodes[0].sendrawtransaction(ToHex(tx2))
+        self.nodes[0].sendrawtransaction(tx2.serialize().hex())
 
     # Calculate the median time past of a prior block ("confirmations" before
     # the current tip).
@@ -122,7 +138,6 @@ class BIP68Test(BitcoinTestFramework):
         while len(addresses) < max_outputs:
             addresses.append(self.nodes[0].getnewaddress())
         while len(self.nodes[0].listunspent()) < 200:
-            import random
             random.shuffle(addresses)
             num_outputs = random.randint(1, max_outputs)
             outputs = {}
@@ -138,7 +153,7 @@ class BIP68Test(BitcoinTestFramework):
         # some of those inputs to be sequence locked (and randomly choose
         # between height/time locking). Small random chance of making the locks
         # all pass.
-        for i in range(400):
+        for _ in range(400):
             # Randomly choose up to 10 inputs
             num_inputs = random.randint(1, 10)
             random.shuffle(utxos)
@@ -190,9 +205,9 @@ class BIP68Test(BitcoinTestFramework):
                 tx.vin.append(CTxIn(COutPoint(int(utxos[j]["txid"], 16), utxos[j]["vout"]), nSequence=sequence_value))
                 value += utxos[j]["amount"]*COIN
             # Overestimate the size of the tx - signatures should be less than 120 bytes, and leave 50 for the output
-            tx_size = len(ToHex(tx))//2 + 120*num_inputs + 50
+            tx_size = len(tx.serialize().hex())//2 + 120*num_inputs + 50
             tx.vout.append(CTxOut(int(value-self.relayfee*tx_size*COIN/1000), DUMMY_P2WPKH_SCRIPT))
-            rawtx = self.nodes[0].signrawtransactionwithwallet(ToHex(tx))["hex"]
+            rawtx = self.nodes[0].signrawtransactionwithwallet(tx.serialize().hex())["hex"]
 
             if (using_sequence_locks and not should_pass):
                 # This transaction should be rejected
@@ -212,7 +227,7 @@ class BIP68Test(BitcoinTestFramework):
 
         # Create a mempool tx.
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 2)
-        tx1 = FromHex(CTransaction(), self.nodes[0].getrawtransaction(txid))
+        tx1 = tx_from_hex(self.nodes[0].getrawtransaction(txid))
         tx1.rehash()
 
         # Anyone-can-spend mempool tx.
@@ -221,8 +236,8 @@ class BIP68Test(BitcoinTestFramework):
         tx2.nVersion = 2
         tx2.vin = [CTxIn(COutPoint(tx1.sha256, 0), nSequence=0)]
         tx2.vout = [CTxOut(int(tx1.vout[0].nValue - self.relayfee*COIN), DUMMY_P2WPKH_SCRIPT)]
-        tx2_raw = self.nodes[0].signrawtransactionwithwallet(ToHex(tx2))["hex"]
-        tx2 = FromHex(tx2, tx2_raw)
+        tx2_raw = self.nodes[0].signrawtransactionwithwallet(tx2.serialize().hex())["hex"]
+        tx2 = tx_from_hex(tx2_raw)
         tx2.rehash()
 
         self.nodes[0].sendrawtransaction(tx2_raw)
@@ -243,10 +258,10 @@ class BIP68Test(BitcoinTestFramework):
 
             if (orig_tx.hash in node.getrawmempool()):
                 # sendrawtransaction should fail if the tx is in the mempool
-                assert_raises_rpc_error(-26, NOT_FINAL_ERROR, node.sendrawtransaction, ToHex(tx))
+                assert_raises_rpc_error(-26, NOT_FINAL_ERROR, node.sendrawtransaction, tx.serialize().hex())
             else:
                 # sendrawtransaction should succeed if the tx is not in the mempool
-                node.sendrawtransaction(ToHex(tx))
+                node.sendrawtransaction(tx.serialize().hex())
 
             return tx
 
@@ -257,7 +272,7 @@ class BIP68Test(BitcoinTestFramework):
         # Use prioritisetransaction to lower the effective feerate to 0
         self.nodes[0].prioritisetransaction(txid=tx2.hash, fee_delta=int(-self.relayfee*COIN))
         cur_time = int(time.time())
-        for i in range(10):
+        for _ in range(10):
             self.nodes[0].setmocktime(cur_time + 600)
             self.nodes[0].generate(1)
             cur_time += 600
@@ -272,6 +287,8 @@ class BIP68Test(BitcoinTestFramework):
 
         # Advance the time on the node so that we can test timelocks
         self.nodes[0].setmocktime(cur_time+600)
+        # Save block template now to use for the reorg later
+        tmpl = self.nodes[0].getblocktemplate(NORMAL_GBT_REQUEST_PARAMS)
         self.nodes[0].generate(1)
         assert tx2.hash not in self.nodes[0].getrawmempool()
 
@@ -294,7 +311,7 @@ class BIP68Test(BitcoinTestFramework):
         utxos = self.nodes[0].listunspent()
         tx5.vin.append(CTxIn(COutPoint(int(utxos[0]["txid"], 16), utxos[0]["vout"]), nSequence=1))
         tx5.vout[0].nValue += int(utxos[0]["amount"]*COIN)
-        raw_tx5 = self.nodes[0].signrawtransactionwithwallet(ToHex(tx5))["hex"]
+        raw_tx5 = self.nodes[0].signrawtransactionwithwallet(tx5.serialize().hex())["hex"]
 
         assert_raises_rpc_error(-26, NOT_FINAL_ERROR, self.nodes[0].sendrawtransaction, raw_tx5)
 
@@ -315,16 +332,15 @@ class BIP68Test(BitcoinTestFramework):
         # diagram above).
         # This would cause tx2 to be added back to the mempool, which in turn causes
         # tx3 to be removed.
-        tip = int(self.nodes[0].getblockhash(self.nodes[0].getblockcount()-1), 16)
-        height = self.nodes[0].getblockcount()
         for i in range(2):
-            block = create_block(tip, create_coinbase(height), cur_time)
-            block.nVersion = 3
+            block = create_block(tmpl=tmpl, ntime=cur_time)
             block.rehash()
             block.solve()
             tip = block.sha256
-            height += 1
-            self.nodes[0].submitblock(ToHex(block))
+            assert_equal(None if i == 1 else 'inconclusive', self.nodes[0].submitblock(block.serialize().hex()))
+            tmpl = self.nodes[0].getblocktemplate(NORMAL_GBT_REQUEST_PARAMS)
+            tmpl['previousblockhash'] = '%x' % tip
+            tmpl['transactions'] = []
             cur_time += 1
 
         mempool = self.nodes[0].getrawmempool()
@@ -344,7 +360,7 @@ class BIP68Test(BitcoinTestFramework):
         assert not softfork_active(self.nodes[0], 'csv')
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 2)
 
-        tx1 = FromHex(CTransaction(), self.nodes[0].getrawtransaction(txid))
+        tx1 = tx_from_hex(self.nodes[0].getrawtransaction(txid))
         tx1.rehash()
 
         # Make an anyone-can-spend transaction
@@ -354,11 +370,11 @@ class BIP68Test(BitcoinTestFramework):
         tx2.vout = [CTxOut(int(tx1.vout[0].nValue - self.relayfee*COIN), DUMMY_P2WPKH_SCRIPT)]
 
         # sign tx2
-        tx2_raw = self.nodes[0].signrawtransactionwithwallet(ToHex(tx2))["hex"]
-        tx2 = FromHex(tx2, tx2_raw)
+        tx2_raw = self.nodes[0].signrawtransactionwithwallet(tx2.serialize().hex())["hex"]
+        tx2 = tx_from_hex(tx2_raw)
         tx2.rehash()
 
-        self.nodes[0].sendrawtransaction(ToHex(tx2))
+        self.nodes[0].sendrawtransaction(tx2.serialize().hex())
 
         # Now make an invalid spend of tx2 according to BIP68
         sequence_value = 100 # 100 block relative locktime
@@ -369,19 +385,17 @@ class BIP68Test(BitcoinTestFramework):
         tx3.vout = [CTxOut(int(tx2.vout[0].nValue - self.relayfee * COIN), DUMMY_P2WPKH_SCRIPT)]
         tx3.rehash()
 
-        assert_raises_rpc_error(-26, NOT_FINAL_ERROR, self.nodes[0].sendrawtransaction, ToHex(tx3))
+        assert_raises_rpc_error(-26, NOT_FINAL_ERROR, self.nodes[0].sendrawtransaction, tx3.serialize().hex())
 
         # make a block that violates bip68; ensure that the tip updates
-        tip = int(self.nodes[0].getbestblockhash(), 16)
-        block = create_block(tip, create_coinbase(self.nodes[0].getblockcount()+1))
-        block.nVersion = 3
+        block = create_block(tmpl=self.nodes[0].getblocktemplate(NORMAL_GBT_REQUEST_PARAMS))
         block.vtx.extend([tx1, tx2, tx3])
         block.hashMerkleRoot = block.calc_merkle_root()
         block.rehash()
         add_witness_commitment(block)
         block.solve()
 
-        self.nodes[0].submitblock(block.serialize().hex())
+        assert_equal(None, self.nodes[0].submitblock(block.serialize().hex()))
         assert_equal(self.nodes[0].getbestblockhash(), block.hash)
 
     def activateCSV(self):
@@ -402,9 +416,9 @@ class BIP68Test(BitcoinTestFramework):
         outputs = { self.nodes[1].getnewaddress() : 1.0 }
         rawtx = self.nodes[1].createrawtransaction(inputs, outputs)
         rawtxfund = self.nodes[1].fundrawtransaction(rawtx)['hex']
-        tx = FromHex(CTransaction(), rawtxfund)
+        tx = tx_from_hex(rawtxfund)
         tx.nVersion = 2
-        tx_signed = self.nodes[1].signrawtransactionwithwallet(ToHex(tx))["hex"]
+        tx_signed = self.nodes[1].signrawtransactionwithwallet(tx.serialize().hex())["hex"]
         self.nodes[1].sendrawtransaction(tx_signed)
 
 if __name__ == '__main__':

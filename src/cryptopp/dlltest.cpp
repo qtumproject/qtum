@@ -8,6 +8,7 @@
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
+using byte = CryptoPP::byte;
 
 void FIPS140_SampleApplication()
 {

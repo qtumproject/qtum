@@ -1,3 +1,6 @@
+#ifndef QTUMTESTS_TEST_UTILS_H
+#define QTUMTESTS_TEST_UTILS_H
+
 #include <util/system.h>
 #include <validation.h>
 #include <util/strencodings.h>
@@ -60,11 +63,11 @@ inline QtumTransaction createQtumTransaction(valtype data, dev::u256 value, dev:
     return txEth;
 }
 
-inline std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::vector<QtumTransaction> txs){
+inline std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::vector<QtumTransaction> txs, ChainstateManager& chainman){
     CBlock block(generateBlock());
-    QtumDGP qtumDGP(globalState.get(), fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(ChainActive().Tip()->nHeight + 1);
-    ByteCodeExec exec(block, txs, blockGasLimit, ChainActive().Tip());
+    QtumDGP qtumDGP(globalState.get(), chainman.ActiveChainstate(), fGettingValuesDGP);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainman.ActiveChain().Tip()->nHeight + 1);
+    ByteCodeExec exec(block, txs, blockGasLimit, chainman.ActiveChain().Tip(), chainman.ActiveChain());
     exec.performByteCode();
     std::vector<ResultExecute> res = exec.getResult();
     ByteCodeExecResult bceExecRes;
@@ -73,3 +76,5 @@ inline std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::
     globalState->dbUtxo().commit();
     return std::make_pair(res, bceExecRes);
 }
+
+#endif // QTUMTESTS_TEST_UTILS_H

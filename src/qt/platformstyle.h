@@ -21,9 +21,9 @@ public:
     bool getImagesOnButtons() const { return imagesOnButtons; }
     bool getUseExtraSpacing() const { return useExtraSpacing; }
 
-    QColor TextColor() const { return textColor; }
-    QColor SingleColor() const { return singleColor; }
-    QColor MenuColor() const { return menuColor; }
+    QColor TextColor() const;
+    QColor SingleColor() const;
+    QColor MenuColor() const;
 
     /** Colorize an image (given filename) with the icon color */
     QImage SingleColorImage(const QString& filename) const;
@@ -65,6 +65,7 @@ public:
 
 private:
     PlatformStyle(const QString &name, bool imagesOnButtons, bool colorizeIcons, bool useExtraSpacing);
+
     QIcon MultiStatesIconV1(const QString& resourcename, StateType type = NavBar) const;
     QIcon MultiStatesIconV2(const QString& resourcename, StateType type = NavBar) const;
     QIcon MultiStatesIconV3(const QString& resourcename, StateType type = NavBar) const;
@@ -87,7 +88,6 @@ private:
     QColor multiStatesIconColor1;
     QColor multiStatesIconColor2;
     QColor multiStatesIconColor3;
-    /* ... more to come later */
 };
 
 #endif // BITCOIN_QT_PLATFORMSTYLE_H

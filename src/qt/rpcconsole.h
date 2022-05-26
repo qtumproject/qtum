@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,9 +10,10 @@
 
 #include <net.h>
 
-#include <QWidget>
+#include <QByteArray>
 #include <QCompleter>
 #include <QThread>
+#include <QWidget>
 
 class ClientModel;
 class PlatformStyle;
@@ -28,6 +29,7 @@ namespace Ui {
 }
 
 QT_BEGIN_NAMESPACE
+class QDateTime;
 class QMenu;
 class QItemSelection;
 QT_END_NAMESPACE
@@ -46,7 +48,7 @@ public:
         return RPCParseCommandLine(&node, strResult, strCommand, true, pstrFilteredOut, wallet_model);
     }
 
-    void setClientModel(ClientModel *model);
+    void setClientModel(ClientModel *model = nullptr, int bestblock_height = 0, int64_t bestblock_date = 0, double verification_progress = 0.0);
     void addWallet(WalletModel * const walletModel);
     void removeWallet(WalletModel* const walletModel);
 
@@ -71,8 +73,9 @@ public:
     QKeySequence tabShortcut(TabTypes tab_type) const;
 
 protected:
-    virtual bool eventFilter(QObject* obj, QEvent *event);
-    void keyPressEvent(QKeyEvent *);
+    virtual bool eventFilter(QObject* obj, QEvent *event) override;
+    void keyPressEvent(QKeyEvent *) override;
+    void changeEvent(QEvent* e) override;
 
 private Q_SLOTS:
     void on_lineEdit_returnPressed();
@@ -83,9 +86,9 @@ private Q_SLOTS:
     void on_sldGraphRange_valueChanged(int value);
     /** update traffic statistics */
     void updateTrafficStats(quint64 totalBytesIn, quint64 totalBytesOut);
-    void resizeEvent(QResizeEvent *event);
-    void showEvent(QShowEvent *event);
-    void hideEvent(QHideEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
     /** Show custom context menu on Peers tab */
     void showPeersTableContextMenu(const QPoint& point);
     /** Show custom context menu on Bans tab */
@@ -94,9 +97,11 @@ private Q_SLOTS:
     void showOrHideBanTableIfRequired();
     /** clear the selected node */
     void clearSelectedNode();
+    /** show detailed information on ui about selected node */
+    void updateDetailWidget();
 
 public Q_SLOTS:
-    void clear(bool clearHistory = true);
+    void clear(bool keep_prompt = false);
     void fontBigger();
     void fontSmaller();
     void setFontSize(int newSize);
@@ -115,12 +120,6 @@ public Q_SLOTS:
     void browseHistory(int offset);
     /** Scroll console view to end */
     void scrollToEnd();
-    /** Handle selection of peer in peers list */
-    void peerSelected(const QItemSelection &selected, const QItemSelection &deselected);
-    /** Handle selection caching before update */
-    void peerLayoutAboutToChange();
-    /** Handle updated peer information */
-    void peerLayoutChanged();
     /** Disconnect a selected node on the Peers tab */
     void disconnectSelectedNode();
     /** Ban a selected node on the Peers tab */
@@ -137,10 +136,13 @@ Q_SIGNALS:
     void cmdRequest(const QString &command, const WalletModel* wallet_model);
 
 private:
+    struct TranslatedStrings {
+        const QString yes{tr("Yes")}, no{tr("No")}, to{tr("To")}, from{tr("From")},
+            ban_for{tr("Ban for")}, na{tr("N/A")}, unknown{tr("Unknown")};
+    } const ts;
+
     void startExecutor();
     void setTrafficGraphRange(int mins);
-    /** show detailed information on ui about selected node */
-    void updateNodeDetail(const CNodeCombinedStats *stats);
 
     enum ColumnWidths
     {
@@ -167,9 +169,17 @@ private:
     QCompleter *autoCompleter = nullptr;
     QThread thread;
     WalletModel* m_last_wallet_model{nullptr};
+    bool m_is_executing{false};
+    QByteArray m_peer_widget_header_state;
+    QByteArray m_banlist_widget_header_state;
 
     /** Update UI with latest network info from model. */
     void updateNetworkState();
+
+    /** Helper for the output of a time duration field. Inputs are UNIX epoch times. */
+    QString TimeDurationField(uint64_t time_now, uint64_t time_at_event) const {
+        return time_at_event ? GUIUtil::formatDurationStr(time_now - time_at_event) : tr("Never");
+    }
 
 private Q_SLOTS:
     void updateAlerts(const QString& warnings);

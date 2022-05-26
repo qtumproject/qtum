@@ -12,6 +12,7 @@
 #include <qt/execrpccommand.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/hardwaresigntx.h>
+#include <node/ui_interface.h>
 
 namespace AddDelegation_NS
 {
@@ -250,7 +251,7 @@ void AddDelegationPage::on_addDelegationClicked()
         ExecRPCCommand::appendParam(lstParams, PARAM_FEE, QString::number(stakerFee));
         ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, delegateAddress);
         ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
-        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
+        ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER));
 
         QString questionString;
         if (bCreateUnsigned) {

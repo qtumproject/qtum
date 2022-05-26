@@ -72,6 +72,7 @@
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
+using byte = CryptoPP::byte;
 
 const int MAX_PHRASE_LENGTH=250;
 

@@ -100,7 +100,7 @@ private:
 
     // QWidget interface
 protected:
-    void paintEvent(QPaintEvent *);
+    void paintEvent(QPaintEvent *) override;
 };
 
 #endif // ABIFUNCTIONFIELD_H

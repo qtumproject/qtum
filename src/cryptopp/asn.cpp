@@ -12,6 +12,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 USING_NAMESPACE(std)
+using byte = CryptoPP::byte;
 
 /// DER Length
 size_t DERLengthEncode(BufferedTransformation &bt, lword length)
@@ -354,6 +355,7 @@ void EncodedObjectFilter::Put(const byte *inString, size_t length)
 				break;
 			}
 			m_state = BODY;		// fall through
+			[[fallthrough]];
 		}
 		case BODY:
 			m_lengthRemaining -= m_queue.TransferTo(CurrentTarget(), m_lengthRemaining);

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -43,7 +43,7 @@ bool CCoinControlWidgetItem::operator<(const QTreeWidgetItem &other) const {
 }
 
 CoinControlDialog::CoinControlDialog(CCoinControl& coin_control, WalletModel* _model, const PlatformStyle *_platformStyle, QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::CoinControlDialog),
     m_coin_control(coin_control),
     model(_model),
@@ -55,32 +55,16 @@ CoinControlDialog::CoinControlDialog(CCoinControl& coin_control, WalletModel* _m
     SetObjectStyleSheet(ui->pushButtonSelectAll, StyleSheetNames::ButtonDark);
     SetObjectStyleSheet(ui->treeWidget, StyleSheetNames::TreeView);
 
-    // context menu actions
-    QAction *copyAddressAction = new QAction(tr("Copy address"), this);
-    QAction *copyLabelAction = new QAction(tr("Copy label"), this);
-    QAction *copyAmountAction = new QAction(tr("Copy amount"), this);
-             copyTransactionHashAction = new QAction(tr("Copy transaction ID"), this);  // we need to enable/disable this
-             lockAction = new QAction(tr("Lock unspent"), this);                        // we need to enable/disable this
-             unlockAction = new QAction(tr("Unlock unspent"), this);                    // we need to enable/disable this
-
     // context menu
     contextMenu = new QMenu(this);
-    contextMenu->addAction(copyAddressAction);
-    contextMenu->addAction(copyLabelAction);
-    contextMenu->addAction(copyAmountAction);
-    contextMenu->addAction(copyTransactionHashAction);
+    contextMenu->addAction(tr("&Copy address"), this, &CoinControlDialog::copyAddress);
+    contextMenu->addAction(tr("Copy &label"), this, &CoinControlDialog::copyLabel);
+    contextMenu->addAction(tr("Copy &amount"), this, &CoinControlDialog::copyAmount);
+    copyTransactionHashAction = contextMenu->addAction(tr("Copy transaction &ID"), this, &CoinControlDialog::copyTransactionHash);
     contextMenu->addSeparator();
-    contextMenu->addAction(lockAction);
-    contextMenu->addAction(unlockAction);
-
-    // context menu signals
+    lockAction = contextMenu->addAction(tr("L&ock unspent"), this, &CoinControlDialog::lockCoin);
+    unlockAction = contextMenu->addAction(tr("&Unlock unspent"), this, &CoinControlDialog::unlockCoin);
     connect(ui->treeWidget, &QWidget::customContextMenuRequested, this, &CoinControlDialog::showMenu);
-    connect(copyAddressAction, &QAction::triggered, this, &CoinControlDialog::copyAddress);
-    connect(copyLabelAction, &QAction::triggered, this, &CoinControlDialog::copyLabel);
-    connect(copyAmountAction, &QAction::triggered, this, &CoinControlDialog::copyAmount);
-    connect(copyTransactionHashAction, &QAction::triggered, this, &CoinControlDialog::copyTransactionHash);
-    connect(lockAction, &QAction::triggered, this, &CoinControlDialog::lockCoin);
-    connect(unlockAction, &QAction::triggered, this, &CoinControlDialog::unlockCoin);
 
     // clipboard actions
     QAction *clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
@@ -140,6 +124,8 @@ CoinControlDialog::CoinControlDialog(CCoinControl& coin_control, WalletModel* _m
         ui->radioTreeMode->click();
     if (settings.contains("nCoinControlSortColumn") && settings.contains("nCoinControlSortOrder"))
         sortView(settings.value("nCoinControlSortColumn").toInt(), (static_cast<Qt::SortOrder>(settings.value("nCoinControlSortOrder").toInt())));
+
+    GUIUtil::handleCloseWindowShortcut(this);
 
     if(_model->getOptionsModel() && _model->getAddressTableModel())
     {
@@ -380,14 +366,6 @@ void CoinControlDialog::viewItemChanged(QTreeWidgetItem* item, int column)
         if (ui->treeWidget->isEnabled()) // do not update on every click for (un)select all
             CoinControlDialog::updateLabels(m_coin_control, model, this);
     }
-
-    // TODO: Remove this temporary qt5 fix after Qt5.3 and Qt5.4 are no longer used.
-    //       Fixed in Qt5.5 and above: https://bugreports.qt.io/browse/QTBUG-43473
-    else if (column == COLUMN_CHECKBOX && item->childCount() > 0)
-    {
-        if (item->checkState(COLUMN_CHECKBOX) == Qt::PartiallyChecked && item->child(0)->checkState(COLUMN_CHECKBOX) == Qt::PartiallyChecked)
-            item->setCheckState(COLUMN_CHECKBOX, Qt::Checked);
-    }
 }
 
 // shows count of locked unspent outputs
@@ -411,7 +389,6 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
     // nPayAmount
     CAmount nPayAmount = 0;
     bool fDust = false;
-    CMutableTransaction txDummy;
     for (const CAmount &amount : CoinControlDialog::payAmounts)
     {
         nPayAmount += amount;
@@ -420,7 +397,6 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
         {
             // Assumes a p2pkh script size
             CTxOut txout(amount, CScript() << std::vector<unsigned char>(24, 0));
-            txDummy.vout.push_back(txout);
             fDust |= IsDust(txout, model->node().getDustRelayFee());
         }
     }
@@ -468,8 +444,8 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
         else if(ExtractDestination(out.txout.scriptPubKey, address))
         {
             CPubKey pubkey;
-            PKHash *pkhash = boost::get<PKHash>(&address);
-            if (pkhash && model->wallet().getPubKey(out.txout.scriptPubKey, CKeyID(*pkhash), pubkey))
+            PKHash* pkhash = std::get_if<PKHash>(&address);
+            if (pkhash && model->wallet().getPubKey(out.txout.scriptPubKey, ToKeyID(*pkhash), pubkey))
             {
                 nBytesInputs += (pubkey.IsCompressed() ? 148 : 180);
             }
@@ -589,6 +565,15 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
     QLabel *label = dialog->findChild<QLabel *>("labelCoinControlInsuffFunds");
     if (label)
         label->setVisible(nChange < 0);
+}
+
+void CoinControlDialog::changeEvent(QEvent* e)
+{
+    if (e->type() == QEvent::PaletteChange) {
+        updateView();
+    }
+
+    QDialog::changeEvent(e);
 }
 
 void CoinControlDialog::updateView()

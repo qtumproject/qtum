@@ -168,7 +168,7 @@ QtumDelegation::~QtumDelegation()
     priv = 0;
 }
 
-bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegation) const
+bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegation, CChainState& chainstate) const
 {
     // Contract exist check
     if(!ExistDelegationContract())
@@ -189,7 +189,11 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
         return error("Failed to serialize get delegation input parameters");
 
     // Get delegation for address
-    std::vector<ResultExecute> execResults = CallContract(priv->delegationsAddress, ParseHex(inputData));
+    std::vector<ResultExecute> execResults;
+    {
+        LOCK(cs_main);
+        execResults = CallContract(priv->delegationsAddress, ParseHex(inputData), chainstate);
+    }
     if(execResults.size() < 1)
         return error("Failed to CallContract to get delegation for address");
 
@@ -252,7 +256,7 @@ bool QtumDelegation::VerifyDelegation(const uint160 &address, const Delegation &
     return SignStr::VerifyMessage(CKeyID(address), delegation.staker.GetReverseHex(), delegation.PoD);
 }
 
-bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events, const IDelegationFilter &filter, int fromBlock, int toBlock, int minconf) const
+bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events, const IDelegationFilter &filter, ChainstateManager &chainman, int fromBlock, int toBlock, int minconf) const
 {
     // Check if log events are enabled
     if(!fLogEvents)
@@ -270,11 +274,12 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
     if(!priv->m_pfRemoveDelegationEvent)
         return error("Remove delegation ABI does not exist");
 
+    LOCK(cs_main);
     int curheight = 0;
     std::set<dev::h160> addresses;
     addresses.insert(priv->delegationsAddress);
     std::vector<std::vector<uint256>> hashesToBlock;
-    curheight = pblocktree->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses);
+    curheight = pblocktree->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses, chainman);
 
     if (curheight == -1) {
         return error("Incorrect params");
@@ -345,6 +350,7 @@ void QtumDelegation::UpdateDelegationsFromEvents(const std::vector<DelegationEve
 
 bool QtumDelegation::ExistDelegationContract() const
 {
+    LOCK(cs_main);
     // Delegation contract exist check
     return globalState && globalState->addressInUse(priv->delegationsAddress);
 }

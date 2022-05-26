@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -36,22 +36,9 @@ public:
     {
         SetNull();
     }
+    virtual ~CBlockHeader(){};
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(this->nVersion);
-        READWRITE(hashPrevBlock);
-        READWRITE(hashMerkleRoot);
-        READWRITE(nTime);
-        READWRITE(nBits);
-        READWRITE(nNonce);
-        READWRITE(hashStateRoot); // qtum
-        READWRITE(hashUTXORoot); // qtum
-        READWRITE(prevoutStake);
-        READWRITE(vchBlockSigDlgt);
-    }
+    SERIALIZE_METHODS(CBlockHeader, obj) { READWRITE(obj.nVersion, obj.hashPrevBlock, obj.hashMerkleRoot, obj.nTime, obj.nBits, obj.nNonce, obj.hashStateRoot, obj.hashUTXORoot, obj.prevoutStake, obj.vchBlockSigDlgt); }
 
     void SetNull()
     {
@@ -82,7 +69,7 @@ public:
     {
         return (int64_t)nTime;
     }
-    
+
     // ppcoin: two types of block: proof-of-work or proof-of-stake
     virtual bool IsProofOfStake() const //qtum
     {
@@ -152,12 +139,10 @@ public:
         *(static_cast<CBlockHeader*>(this)) = header;
     }
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITEAS(CBlockHeader, *this);
-        READWRITE(vtx);
+    SERIALIZE_METHODS(CBlock, obj)
+    {
+        READWRITEAS(CBlockHeader, obj);
+        READWRITE(obj.vtx);
     }
 
     void SetNull()
@@ -203,14 +188,12 @@ struct CBlockLocator
 
     explicit CBlockLocator(const std::vector<uint256>& vHaveIn) : vHave(vHaveIn) {}
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
+    SERIALIZE_METHODS(CBlockLocator, obj)
+    {
         int nVersion = s.GetVersion();
         if (!(s.GetType() & SER_GETHASH))
             READWRITE(nVersion);
-        READWRITE(vHave);
+        READWRITE(obj.vHave);
     }
 
     void SetNull()

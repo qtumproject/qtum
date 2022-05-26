@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -32,7 +32,7 @@ public:
         connect(lineEdit(), &QLineEdit::textEdited, this, &AmountSpinBox::valueChanged);
     }
 
-    QValidator::State validate(QString &text, int &pos) const
+    QValidator::State validate(QString &text, int &pos) const override
     {
         if(text.isEmpty())
             return QValidator::Intermediate;
@@ -42,7 +42,7 @@ public:
         return valid ? QValidator::Intermediate : QValidator::Invalid;
     }
 
-    void fixup(QString &input) const
+    void fixup(QString &input) const override
     {
         bool valid;
         CAmount val;
@@ -57,7 +57,7 @@ public:
 
         if (valid) {
             val = qBound(m_min_amount, val, m_max_amount);
-            input = BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::separatorAlways);
+            input = BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::SeparatorStyle::ALWAYS);
             lineEdit()->setText(input);
         }
     }
@@ -70,7 +70,7 @@ public:
     void setValue(const CAmount& value)
     {
         CAmount val = qBound(m_min_amount, value, m_max_amount);
-        QString strValue = BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::separatorAlways);
+        QString strValue = BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::SeparatorStyle::ALWAYS);
         if(!notifyAlways && strValue == lineEdit()->text())
             return;
         lineEdit()->setText(strValue);
@@ -92,7 +92,7 @@ public:
         m_max_amount = value;
     }
 
-    void stepBy(int steps)
+    void stepBy(int steps) override
     {
         bool valid = false;
         CAmount val = value(&valid);
@@ -107,7 +107,7 @@ public:
         CAmount val = value(&valid);
 
         currentUnit = unit;
-        lineEdit()->setPlaceholderText(BitcoinUnits::format(currentUnit, m_min_amount, false, BitcoinUnits::separatorAlways));
+        lineEdit()->setPlaceholderText(BitcoinUnits::format(currentUnit, m_min_amount, false, BitcoinUnits::SeparatorStyle::ALWAYS));
         if(valid)
             setValue(val);
         else
@@ -119,7 +119,7 @@ public:
         singleStep = step;
     }
 
-    QSize minimumSizeHint() const
+    QSize minimumSizeHint() const override
     {
         if(cachedMinimumSizeHint.isEmpty())
         {
@@ -127,7 +127,7 @@ public:
 
             const QFontMetrics fm(fontMetrics());
             int h = lineEdit()->minimumSizeHint().height();
-            int w = GUIUtil::TextWidth(fm, BitcoinUnits::format(BitcoinUnits::BTC, BitcoinUnits::maxMoney(), false, BitcoinUnits::separatorAlways));
+            int w = GUIUtil::TextWidth(fm, BitcoinUnits::format(BitcoinUnits::BTC, BitcoinUnits::maxMoney(), false, BitcoinUnits::SeparatorStyle::ALWAYS));
             w += 2; // cursor blinking space
 
             QStyleOptionSpinBox opt;
@@ -186,7 +186,7 @@ private:
     }
 
 protected:
-    bool event(QEvent *event)
+    bool event(QEvent *event) override
     {
         if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
         {
@@ -201,7 +201,7 @@ protected:
         return QAbstractSpinBox::event(event);
     }
 
-    StepEnabled stepEnabled() const
+    StepEnabled stepEnabled() const override
     {
         if (isReadOnly()) // Disable steps when AmountSpinBox is read-only
             return StepNone;
@@ -251,7 +251,7 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
 
     // If one if the widgets changes, the combined content changes as well
     connect(amount, &AmountSpinBox::valueChanged, this, &BitcoinAmountField::valueChanged);
-    connect(unit, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &BitcoinAmountField::unitChanged);
+    connect(unit, qOverload<int>(&QComboBox::currentIndexChanged), this, &BitcoinAmountField::unitChanged);
 
     // Set default based on configuration
     unitChanged(unit->currentIndex());

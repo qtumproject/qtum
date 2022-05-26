@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -24,7 +24,7 @@ struct TxInUndoFormatter
 {
     template<typename Stream>
     void Ser(Stream &s, const Coin& txout) {
-        ::Serialize(s, VARINT((txout.nHeight << 2) + (txout.fCoinStake ? 2u : 0u) + (txout.fCoinBase ? 1u : 0u)));        
+        ::Serialize(s, VARINT((txout.nHeight << 2) + (txout.fCoinStake ? 2u : 0u) + (txout.fCoinBase ? 1u : 0u)));
         if (txout.nHeight > 0) {
             // Required to maintain compatibility with older undo format.
             ::Serialize(s, (unsigned char)0);

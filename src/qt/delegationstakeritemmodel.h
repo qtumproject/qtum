@@ -46,12 +46,12 @@ public:
     /** @name Methods overridden from QAbstractItemModel
         @{*/
     QModelIndex index(int row, int column,
-                              const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex parent(const QModelIndex &child) const;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+                              const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     /*@}*/
 
 private Q_SLOTS:
@@ -67,7 +67,7 @@ private:
     void emitDataChanged(int index);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    QString formatWeight(const DelegationStakerItemEntry *rec, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::separatorStandard) const;
+    QString formatWeight(const DelegationStakerItemEntry *rec, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
     QString formatFee(const DelegationStakerItemEntry *rec) const;
 
     QStringList columns;

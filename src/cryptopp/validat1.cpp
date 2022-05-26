@@ -66,6 +66,7 @@
 
 USING_NAMESPACE(CryptoPP)
 USING_NAMESPACE(std)
+using byte = CryptoPP::byte;
 
 bool ValidateAll(bool thorough)
 {

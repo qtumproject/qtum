@@ -5,7 +5,7 @@ Generate GPG key on your computer:
 1. ```gpg --gen-key ```(choose RSA and RSA, size 4096 byte, name and email should be the same like on Github)
 2. ```gpg --list-secret-keys --keyid-format LONG ```(We are interested in the first line after 4096R/)
 3. ```gpg --armor --export 3AA5C34371567BD2```(Enter the hash from previous command)
-Copy got gpg key into the /contrib/gitian-keys/ folder with .pgp format.
+Copy got gpg key into the /contrib/builder-keys/ folder with .pgp format.
 ### Setting up Gitian
 1. Replace .yml files in qtum/contrib/gitian-descriptors folder. Replace gitian-build.sh in qtum/contrib folder. Add windeploy/ folder into the qtum/contrib. Push these changes to remote repository https://github.com/qtumproject/qtum/. Also very important, windeploy/ folder should be The same version as you want to build. You will couldn't build win binaries without this folder in version which you want to build.
 2. gitian-build.sh script should be started from directory where qtum places(like in instruction).
@@ -84,7 +84,7 @@ Build output expected:
 
 Add other gitian builders keys to your gpg keyring
 
-    gpg --import qtum/contrib/gitian-keys/*.pgp
+    gpg --import qtum/contrib/builder-keys/*.pgp
     gpg --refresh-keys
 
 Verify the signatures

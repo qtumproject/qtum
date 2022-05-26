@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2019 The Bitcoin Core developers
+# Copyright (c) 2014-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the wallet accounts properly when there is a double-spend conflict."""
@@ -8,8 +8,6 @@ from decimal import Decimal
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
-    connect_nodes,
-    disconnect_nodes,
     find_output,
 )
 from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
@@ -17,7 +15,7 @@ from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
 
 class TxnMallTest(BitcoinTestFramework):
     def set_test_params(self):
-        self.num_nodes = 4
+        self.num_nodes = 3
         self.supports_cli = False
 
     def skip_test_if_missing_module(self):
@@ -30,8 +28,7 @@ class TxnMallTest(BitcoinTestFramework):
     def setup_network(self):
         # Start with split network:
         super().setup_network()
-        disconnect_nodes(self.nodes[1], 2)
-        disconnect_nodes(self.nodes[2], 1)
+        self.disconnect_nodes(1, 2)
 
     def run_test(self):
         # All nodes should start with 1,250 BTC:
@@ -44,9 +41,8 @@ class TxnMallTest(BitcoinTestFramework):
         for n in self.nodes:
             assert n.getblockchaininfo()["initialblockdownload"] == False
 
-        for i in range(4):
+        for i in range(3):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
-            self.nodes[i].getnewaddress("")  # bug workaround, coins generated assigned to first getnewaddress!
 
         spend_from_foo = starting_balance - INITIAL_BLOCK_REWARD*5
         spend_from_bar = INITIAL_BLOCK_REWARD*5 - 100
@@ -109,8 +105,8 @@ class TxnMallTest(BitcoinTestFramework):
         if self.options.mine_block:
             assert_equal(tx1["confirmations"], 1)
             assert_equal(tx2["confirmations"], 1)
-            # Node1's "from0" balance should be both transaction amounts:
-            assert_equal(self.nodes[1].getbalance(), starting_balance - (tx1["amount"]+tx2["amount"]))
+            # Node1's balance should be both transaction amounts:
+            assert_equal(self.nodes[1].getbalance(), starting_balance - tx1["amount"] - tx2["amount"])
         else:
             assert_equal(tx1["confirmations"], 0)
             assert_equal(tx2["confirmations"], 0)
@@ -123,7 +119,7 @@ class TxnMallTest(BitcoinTestFramework):
         self.nodes[2].generate(1)
 
         # Reconnect the split network, and sync chain:
-        connect_nodes(self.nodes[1], 2)
+        self.connect_nodes(1, 2)
         self.nodes[2].generate(1)  # Mine another block to make sure we sync
         self.sync_blocks()
         assert_equal(self.nodes[0].gettransaction(doublespend_txid)["confirmations"], 2)
