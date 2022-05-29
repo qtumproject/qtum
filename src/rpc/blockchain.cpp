@@ -1101,6 +1101,7 @@ RPCHelpMan callcontract()
                     {"senderaddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The sender address string"},
                     {"gaslimit", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "The gas limit for executing the contract."},
                     {"amount", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The amount in " + CURRENCY_UNIT + " to send. eg 0.1, default: 0"},
+                    {"blocknum", RPCArg::Type::NUM, RPCArg::Default{-1}, "Block height"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",

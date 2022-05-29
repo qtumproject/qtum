@@ -63,22 +63,12 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
 {
     LOCK(cs_main);
 
+    CChain& active_chain = chainman.ActiveChain();
     std::string strAddr = params[0].get_str();
     std::string data = params[1].get_str();
 
     if(data.size() % 2 != 0 || !CheckHex(data))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
-
-    dev::Address addrAccount;
-    if(strAddr.size() > 0)
-    {
-        if(strAddr.size() != 40 || !CheckHex(strAddr))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
-
-        addrAccount = dev::Address(strAddr);
-        if(!globalState->addressInUse(addrAccount))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
-    }
 
     dev::Address senderAddress;
     if(!params[2].isNull()){
@@ -103,8 +93,33 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
     }
 
+    TemporaryState ts(globalState);
+    int blockNum;
+    if (params.size() >= 6) {
+        if (params[5].isNum()) {
+            blockNum = params[5].get_int();
+            if ((blockNum < 0 && blockNum != -1) || blockNum > active_chain.Height())
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+            if (blockNum != -1) {
+                ts.SetRoot(uintToh256(active_chain[blockNum]->hashStateRoot), uintToh256(active_chain[blockNum]->hashUTXORoot));
+            }
+        } else {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+        }
+    } else {
+        blockNum = latestblock.height;
+    }
 
-    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), chainman.ActiveChainstate(), senderAddress, gasLimit, nAmount);
+    dev::Address addrAccount;
+    if (strAddr.size() > 0) {
+        if (strAddr.size() != 40 || !CheckHex(strAddr))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+        addrAccount = dev::Address(strAddr);
+        if (!globalState->addressInUse(addrAccount))
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    }
+
+    std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), chainman.ActiveChainstate(), blockNum, senderAddress, gasLimit, nAmount);
 
     if(fRecordLogOpcodes){
         writeVMlog(execResults, chainman.ActiveChain());
