@@ -310,6 +310,22 @@ public:
 
     ChangeLog const& changeLog() const { return m_changeLog; }
 
+    std::vector<std::pair<Address, bytes>>& createdContracts() {
+        return m_createdContracts;
+    }
+
+    std::vector<std::pair<Address, bytes>> const& createdContracts() const {
+        return m_createdContracts;
+    }
+
+    std::vector<Address>& destructedContracts() {
+        return m_destructedContracts;
+    }
+
+    std::vector<Address> const& destructedContracts() const {
+        return m_destructedContracts;
+    }
+
     virtual ~State(){}
 
 protected:
@@ -353,6 +369,8 @@ protected:
 
     friend std::ostream& operator<<(std::ostream& _out, State const& _s);
     ChangeLog m_changeLog;
+    std::vector<std::pair<dev::Address, dev::bytes>> m_createdContracts;
+    std::vector<dev::Address> m_destructedContracts;
 };
 
 std::ostream& operator<<(std::ostream& _out, State const& _s);
@@ -362,4 +380,3 @@ AddressHash commit(AccountMap const& _cache, SecureTrieDB<Address, DB>& _state);
 
 }
 }
-

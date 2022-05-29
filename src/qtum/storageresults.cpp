@@ -94,11 +94,13 @@ void StorageResults::commitResults(){
                     tris.blooms.push_back(i.second[j].bloom);
                     tris.stateRoots.push_back(i.second[j].stateRoot);
                     tris.utxoRoots.push_back(i.second[j].utxoRoot);
+                    tris.createdContracts.push_back(i.second[j].createdContracts);
+                    tris.destructedContracts.push_back(i.second[j].destructedContracts);
                 }
 
-                dev::RLPStream streamRLP(16);
+                dev::RLPStream streamRLP(18);
                 streamRLP << tris.blockHashes << tris.blockNumbers << tris.transactionHashes << tris.transactionIndexes << tris.senders;
-                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs << tris.excepted << tris.exceptedMessage << tris.outputIndexes << tris.blooms << tris.stateRoots << tris.utxoRoots;
+                streamRLP << tris.receivers << tris.cumulativeGasUsed << tris.gasUsed << tris.contractAddresses << tris.logs << tris.excepted << tris.exceptedMessage << tris.outputIndexes << tris.blooms << tris.stateRoots << tris.utxoRoots << tris.createdContracts << tris.destructedContracts;
 
                 dev::bytes data = streamRLP.out();
                 std::string stringData(data.begin(), data.end());
@@ -119,7 +121,7 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
     leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
 
 	if(!s.IsNotFound() && s.ok()){
-        
+
         TransactionReceiptInfoSerialized tris;
 
 		dev::RLP state(value);
@@ -145,6 +147,10 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
             tris.stateRoots = state[14].toVector<dev::h256>();
         if(state.itemCount() >= 16)
             tris.utxoRoots = state[15].toVector<dev::h256>();
+        if (state.itemCount() >= 17)
+            tris.createdContracts = state[16].toVector<std::vector<std::pair<dev::Address, dev::bytes>>>();
+        if (state.itemCount() >= 18)
+            tris.destructedContracts = state[17].toVector<std::vector<dev::h160>>();
 
         for(size_t j = 0; j < tris.blockHashes.size(); j++){
             TransactionReceiptInfo tri{
@@ -163,7 +169,9 @@ bool StorageResults::readResult(dev::h256 const& _key, std::vector<TransactionRe
                 state.itemCount() >= 13 ? tris.outputIndexes[j] : 0xffffffff,
                 state.itemCount() >= 14 ? tris.blooms[j] : dev::h2048(),
                 state.itemCount() >= 15 ? tris.stateRoots[j] : dev::h256(),
-                state.itemCount() >= 16 ? tris.utxoRoots[j] : dev::h256()
+                state.itemCount() >= 16 ? tris.utxoRoots[j] : dev::h256(),
+                state.itemCount() >= 17 ? tris.createdContracts[j] : std::vector<std::pair<dev::h160, dev::bytes>>(),
+                state.itemCount() >= 18 ? tris.destructedContracts[j] : std::vector<dev::h160>()
             };
             _result.push_back(tri);
         }

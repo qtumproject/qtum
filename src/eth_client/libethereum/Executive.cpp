@@ -315,6 +315,7 @@ bool Executive::go(OnOpFunc const& _onOp)
                     if (m_res)
                         m_res->codeDeposit = CodeDeposit::Success;
                     m_gas -= out.size() * m_ext->evmSchedule().createDataGas;
+                    m_s.createdContracts().push_back({m_newAddress, out.toVector()});
                 }
                 else
                 {
@@ -407,8 +408,10 @@ bool Executive::finalize()
 
     // Selfdestructs...
     if (m_ext)
-        for (auto a: m_ext->sub.selfdestructs)
+        for (auto a: m_ext->sub.selfdestructs) {
             m_s.kill(a);
+            m_s.destructedContracts().push_back(a);
+        }
 
     // Logs...
     if (m_ext)
