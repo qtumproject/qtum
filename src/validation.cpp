@@ -2197,10 +2197,20 @@ bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
 }
 
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, CChainState& chainstate, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount){
+    CBlockIndex* pblockindex = chainstate.m_blockman.m_block_index[chainstate.m_chain.Tip()->GetBlockHash()];
+    return CallContract(addrContract, opcode, chainstate, pblockindex, sender, gasLimit, nAmount);
+}
+
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, CChainState& chainstate, int blockHeight, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount) {
+    CBlockIndex* pblockindex = chainstate.m_blockman.m_block_index[chainstate.m_chain[blockHeight]->GetBlockHash()];
+    return CallContract(addrContract, opcode, chainstate, pblockindex, sender, gasLimit, nAmount);
+}
+
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, CChainState& chainstate, CBlockIndex* pblockindex, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount)
+{
     CBlock block;
     CMutableTransaction tx;
 
-    CBlockIndex* pblockindex = chainstate.m_blockman.m_block_index[chainstate.m_chain.Tip()->GetBlockHash()];
     ReadBlockFromDisk(block, pblockindex, Params().GetConsensus());
     block.nTime = GetAdjustedTime();
 
@@ -2210,7 +2220,7 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
     	block.vtx.erase(block.vtx.begin()+1,block.vtx.end());
 
     QtumDGP qtumDGP(globalState.get(), chainstate, fGettingValuesDGP);
-    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(chainstate.m_chain.Tip()->nHeight + 1);
+    uint64_t blockGasLimit = qtumDGP.getBlockGasLimit(pblockindex->nHeight + 1);
 
     if(gasLimit == 0){
         gasLimit = blockGasLimit - 1;
