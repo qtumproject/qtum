@@ -260,6 +260,7 @@ void UpdateLondonHeight(int nHeight);
  */
 void UpdateNftAddress(const uint160& address);
 
+/**
  * Allows modifying the taproot block height regtest parameter.
  */
 void UpdateTaprootHeight(int nHeight);
