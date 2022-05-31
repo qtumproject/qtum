@@ -243,6 +243,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "reservebalance", 1, "amount"},
     { "listcontracts", 0, "start" },
     { "listcontracts", 1, "maxdisplay" },
+    { "getcontractcode", 1, "blocknum" },
     { "getstorage", 2, "index" },
     { "getstorage", 1, "blocknum" },
     // Echo with conversion (For testing only)

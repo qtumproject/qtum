@@ -1019,6 +1019,60 @@ static RPCHelpMan getaccountinfo()
     };
 }
 
+static RPCHelpMan getcontractcode()
+{
+    return RPCHelpMan{"getcontractcode",
+                "\nGet contract code.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"blocknum", RPCArg::Type::NUM,  RPCArg::Default{-1}, "Number of block to get state from."},
+                },
+                RPCResult{
+                    RPCResult::Type::STR_HEX, "", "Code of the contract",
+                },
+                RPCExamples{
+                    HelpExampleCli("getcontractcode", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getcontractcode", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+
+    CChain& active_chain = chainman.ActiveChain();
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    TemporaryState ts(globalState);
+    if (!request.params[1].isNull())
+    {
+        if (request.params[1].isNum())
+        {
+            auto blockNum = request.params[1].get_int();
+            if((blockNum < 0 && blockNum != -1) || blockNum > active_chain.Height())
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+
+            if(blockNum != -1)
+                ts.SetRoot(uintToh256(active_chain[blockNum]->hashStateRoot), uintToh256(active_chain[blockNum]->hashUTXORoot));
+
+        } else {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+        }
+    }
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+
+    std::vector<uint8_t> code(globalState->code(addrAccount));
+
+    return HexStr(code);
+},
+    };
+}
+
 static RPCHelpMan getstorage()
 {
     return RPCHelpMan{"getstorage",
@@ -3967,6 +4021,7 @@ static const CRPCCommand commands[] =
     { "blockchain",         &savemempool,                        },
     { "blockchain",         &verifychain,                        },
     { "blockchain",         &getaccountinfo,                     },
+    { "blockchain",         &getcontractcode,                    },
     { "blockchain",         &getstorage,                         },
 
     { "blockchain",         &preciousblock,                      },
