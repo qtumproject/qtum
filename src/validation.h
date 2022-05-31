@@ -508,9 +508,9 @@ unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consen
 
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
 
-std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, CChainState& chainstate, int blockHeight, const dev::Address& sender = dev::Address(), uint64_t gasLimit = 0, CAmount nAmount = 0);
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, int blockHeight, const dev::Address& sender = dev::Address(), uint64_t gasLimit = 0, CAmount nAmount = 0);
 
-std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, CChainState& chainstate, CBlockIndex* pblockindex, const dev::Address& sender = dev::Address(), uint64_t gasLimit = 0, CAmount nAmount = 0);
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, CBlockIndex* pblockindex, const dev::Address& sender = dev::Address(), uint64_t gasLimit = 0, CAmount nAmount = 0);
 
 bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int nHeight);
 
