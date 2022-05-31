@@ -2850,6 +2850,13 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         return;
     }
 
+    if (pfrom.nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMLONDON && m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nLondonHeight) {
+        // disconnect from peers older than this proto version
+        LogPrint(BCLog::NET, "peer=%d using obsolete version after evm London hardfork %i; disconnecting\n", pfrom.GetId(), pfrom.nVersion);
+        pfrom.fDisconnect = true;
+        return;
+    }
+
     // At this point, the outgoing message serialization version can't change.
     const CNetMsgMaker msgMaker(pfrom.GetCommonVersion());
 

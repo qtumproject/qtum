@@ -10,7 +10,6 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 from test_framework.qtum import convert_btc_address_to_qtum
-
 class SignMessagesTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True

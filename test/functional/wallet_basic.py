@@ -16,7 +16,7 @@ from test_framework.util import (
 )
 from test_framework.wallet_util import test_address
 from test_framework.qtumconfig import *
-from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized
+from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized, convert_btc_bech32_address_to_qtum
 
 NOT_A_NUMBER_OR_STRING = "Amount is not a number or string"
 OUT_OF_RANGE = "Amount out of range"
@@ -99,8 +99,6 @@ class WalletTest(BitcoinTestFramework):
         # but invisible if you include mempool
         txout = self.nodes[0].gettxout(confirmed_txid, confirmed_index, False)
         assert_equal(txout['value'], INITIAL_BLOCK_REWARD)
-        txout = self.nodes[0].gettxout(confirmed_txid, confirmed_index)  # by default include_mempool=True
-        assert txout is None
         txout = self.nodes[0].gettxout(confirmed_txid, confirmed_index, True)
         assert txout is None
         # new utxo from mempool should be invisible if you exclude mempool
@@ -237,7 +235,7 @@ class WalletTest(BitcoinTestFramework):
         node_0_bal = self.check_fee_amount(self.nodes[0].getbalance(), node_0_bal + Decimal('10'), fee_per_byte, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
 
         self.log.info("Test sendmany with fee_rate param (explicit fee rate in sat/vB)")
-        fee_rate_sat_vb = 2
+        fee_rate_sat_vb = 400
         fee_rate_btc_kvb = fee_rate_sat_vb * 1e3 / 1e8
         explicit_fee_rate_btc_kvb = Decimal(fee_rate_btc_kvb) / 1000
 
@@ -252,7 +250,7 @@ class WalletTest(BitcoinTestFramework):
         assert_equal(self.nodes[0].getbalance(), node_0_bal)
 
         # Test passing fee_rate as an integer
-        amount = Decimal("0.0001")
+        amount = Decimal("0.01")
         txid = self.nodes[2].sendmany(amounts={address: amount}, fee_rate=fee_rate_sat_vb)
         self.nodes[2].generate(1)
         self.sync_all(self.nodes[0:3])
@@ -267,12 +265,12 @@ class WalletTest(BitcoinTestFramework):
 
         # Test setting explicit fee rate just below the minimum.
         self.log.info("Test sendmany raises 'fee rate too low' if fee_rate of 0.99999999 is passed")
-        assert_raises_rpc_error(-6, "Fee rate (0.999 sat/vB) is lower than the minimum fee rate setting (1.000 sat/vB)",
+        assert_raises_rpc_error(-6, "Fee rate (0.999 sat/vB) is lower than the minimum fee rate setting (400.000 sat/vB)",
             self.nodes[2].sendmany, amounts={address: 10}, fee_rate=0.999)
 
         self.log.info("Test sendmany raises if an invalid fee_rate is passed")
         # Test fee_rate with zero values.
-        msg = "Fee rate (0.000 sat/vB) is lower than the minimum fee rate setting (1.000 sat/vB)"
+        msg = "Fee rate (0.000 sat/vB) is lower than the minimum fee rate setting (400.000 sat/vB)"
         for zero_value in [0, 0.000, 0.00000000, "0", "0.000", "0.00000000"]:
             assert_raises_rpc_error(-6, msg, self.nodes[2].sendmany, amounts={address: 1}, fee_rate=zero_value)
         msg = "Invalid amount"
@@ -423,7 +421,7 @@ class WalletTest(BitcoinTestFramework):
             assert_raises_rpc_error(-5, "Pubkey is not a valid public key", self.nodes[0].importpubkey, "5361746f736869204e616b616d6f746f")
 
             # Bech32m addresses cannot be imported into a legacy wallet
-            assert_raises_rpc_error(-5, "Bech32m addresses cannot be imported into legacy wallets", self.nodes[0].importaddress, "bcrt1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqc8gma6")
+            assert_raises_rpc_error(-5, "Bech32m addresses cannot be imported into legacy wallets", self.nodes[0].importaddress, convert_btc_bech32_address_to_qtum("bcrt1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqc8gma6"))
 
             # Import address and private key to check correct behavior of spendable unspents
             # 1. Send some coins to generate new UTXO
@@ -437,7 +435,7 @@ class WalletTest(BitcoinTestFramework):
             assert prebalance > 2
             address = self.nodes[1].getnewaddress()
             amount = 3
-            fee_rate_sat_vb = 2
+            fee_rate_sat_vb = 400
             fee_rate_btc_kvb = fee_rate_sat_vb * 1e3 / 1e8
             # Test passing fee_rate as an integer
             txid = self.nodes[2].sendtoaddress(address=address, amount=amount, fee_rate=fee_rate_sat_vb)
@@ -450,7 +448,7 @@ class WalletTest(BitcoinTestFramework):
 
             prebalance = self.nodes[2].getbalance()
             amount = Decimal("0.001")
-            fee_rate_sat_vb = 1.23
+            fee_rate_sat_vb = 423
             fee_rate_btc_kvb = fee_rate_sat_vb * 1e3 / 1e8
             # Test passing fee_rate as a string
             txid = self.nodes[2].sendtoaddress(address=address, amount=amount, fee_rate=str(fee_rate_sat_vb))
@@ -466,12 +464,12 @@ class WalletTest(BitcoinTestFramework):
 
             # Test setting explicit fee rate just below the minimum.
             self.log.info("Test sendtoaddress raises 'fee rate too low' if fee_rate of 0.99999999 is passed")
-            assert_raises_rpc_error(-6, "Fee rate (0.999 sat/vB) is lower than the minimum fee rate setting (1.000 sat/vB)",
+            assert_raises_rpc_error(-6, "Fee rate (0.999 sat/vB) is lower than the minimum fee rate setting (400.000 sat/vB)",
                 self.nodes[2].sendtoaddress, address=address, amount=1, fee_rate=0.999)
 
             self.log.info("Test sendtoaddress raises if an invalid fee_rate is passed")
             # Test fee_rate with zero values.
-            msg = "Fee rate (0.000 sat/vB) is lower than the minimum fee rate setting (1.000 sat/vB)"
+            msg = "Fee rate (0.000 sat/vB) is lower than the minimum fee rate setting (400.000 sat/vB)"
             for zero_value in [0, 0.000, 0.00000000, "0", "0.000", "0.00000000"]:
                 assert_raises_rpc_error(-6, msg, self.nodes[2].sendtoaddress, address=address, amount=1, fee_rate=zero_value)
             msg = "Invalid amount"
@@ -678,9 +676,9 @@ class WalletTest(BitcoinTestFramework):
         self.log.info("Test send* RPCs with verbose=True")
         address = self.nodes[0].getnewaddress("test")
         txid_feeReason_one = self.nodes[2].sendtoaddress(address=address, amount=5, verbose=True)
-        assert_equal(txid_feeReason_one["fee_reason"], "Fallback fee")
+        assert_equal(txid_feeReason_one["fee_reason"], "Minimum Required Fee")
         txid_feeReason_two = self.nodes[2].sendmany(dummy='', amounts={address: 5}, verbose=True)
-        assert_equal(txid_feeReason_two["fee_reason"], "Fallback fee")
+        assert_equal(txid_feeReason_two["fee_reason"], "Minimum Required Fee")
         self.log.info("Test send* RPCs with verbose=False")
         txid_feeReason_three = self.nodes[2].sendtoaddress(address=address, amount=5, verbose=False)
         assert_equal(self.nodes[2].gettransaction(txid_feeReason_three)['txid'], txid_feeReason_three)

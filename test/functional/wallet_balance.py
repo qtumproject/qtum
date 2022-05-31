@@ -14,7 +14,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD, COINBASE_MATURITY
 
 
 def create_transactions(node, address, amt, fees):
@@ -167,13 +167,16 @@ class WalletTest(BitcoinTestFramework):
             # getbalances
             expected_balances_0 = {'mine':      {'immature':          Decimal('0E-8'),
                                                  'trusted':           Decimal('9.99'),  # change from node 0's send
-                                                 'untrusted_pending': Decimal('60.0')},
-                                   'watchonly': {'immature':          Decimal('5000'),
-                                                 'trusted':           Decimal('50.0'),
-                                                 'untrusted_pending': Decimal('0E-8')}}
+                                                 'untrusted_pending': Decimal('60.0'),
+                                                 'stake':             Decimal('0.0')},
+                                   'watchonly': {'immature':          Decimal(2000*INITIAL_BLOCK_REWARD),
+                                                 'trusted':           Decimal(INITIAL_BLOCK_REWARD),
+                                                 'untrusted_pending': Decimal('0E-8'),
+                                                 'stake':             Decimal('0.0')}}
             expected_balances_1 = {'mine':      {'immature':          Decimal('0E-8'),
                                                  'trusted':           Decimal('0E-8'),  # node 1's send had an unsafe input
-                                                 'untrusted_pending': Decimal('30.0') - fee_node_1}}  # Doesn't include output of node 0's send since it was spent
+                                                 'untrusted_pending': Decimal('30.0') - fee_node_1,
+                                                 'stake':             Decimal('0.0')}}  # Doesn't include output of node 0's send since it was spent
             if self.options.descriptors:
                 del expected_balances_0["watchonly"]
             assert_equal(self.nodes[0].getbalances(), expected_balances_0)
@@ -274,6 +277,8 @@ class WalletTest(BitcoinTestFramework):
         self.nodes[0].invalidateblock(block_reorg)
         self.nodes[1].invalidateblock(block_reorg)
         self.nodes[2].invalidateblock(block_reorg)
+        self.sync_blocks()
+        self.nodes[0].syncwithvalidationinterfacequeue()
         assert_equal(self.nodes[0].getbalance(minconf=0), 0)  # wallet txs not in the mempool are untrusted
         self.nodes[0].generatetoaddress(1, ADDRESS_WATCHONLY)
         assert_equal(self.nodes[0].getbalance(minconf=0), 0)  # wallet txs not in the mempool are untrusted

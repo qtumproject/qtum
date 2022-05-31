@@ -20,7 +20,6 @@ from test_framework.util import (
     find_vout_for_address,
 )
 from test_framework.qtumconfig import *
-from test_framework.qtum import generatesynchronized
 
 def get_unspent(listunspent, amount):
     for utx in listunspent:
@@ -66,7 +65,7 @@ class RawTransactionsTest(BitcoinTestFramework):
 
         self.nodes[2].generate(1)
         self.sync_all()
-        generatesynchronized(self.nodes[0], COINBASE_MATURITY + 21, None, self.nodes)
+        self.nodes[0].generate(COINBASE_MATURITY+121)
         self.sync_all()
 
         self.test_change_position()
@@ -541,19 +540,20 @@ class RawTransactionsTest(BitcoinTestFramework):
             self.nodes[1].walletlock()
 
         # Drain the keypool.
-        self.nodes[1].getnewaddress()
-        self.nodes[1].getrawchangeaddress()
+        self.nodes[1].getnewaddress("", "bech32")
+        self.nodes[1].getrawchangeaddress("bech32")
         inputs = []
-        outputs = {self.nodes[0].getnewaddress():1.09999500}
+        outputs = {self.nodes[0].getnewaddress("", "bech32"):1.09922}
         rawtx = self.nodes[1].createrawtransaction(inputs, outputs)
         # fund a transaction that does not require a new key for the change output
         self.nodes[1].fundrawtransaction(rawtx)
 
         # fund a transaction that requires a new key for the change output
         # creating the key must be impossible because the wallet is locked
-        outputs = {self.nodes[0].getnewaddress():1.1}
+        outputs = {self.nodes[0].getnewaddress("", "bech32"):1.1}
         rawtx = self.nodes[1].createrawtransaction(inputs, outputs)
-        assert_raises_rpc_error(-4, "Transaction needs a change address, but we can't generate it.", self.nodes[1].fundrawtransaction, rawtx)
+
+        assert_raises_rpc_error(-4, "Transaction needs a change address, but we can't generate it. Error: Keypool ran out, please call keypoolrefill first", self.nodes[1].fundrawtransaction, rawtx, {"change_type": "bech32"})
 
         # Refill the keypool.
         self.nodes[1].walletpassphrase("test", 100)
@@ -653,7 +653,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.log.info("Test fundrawtxn using only watchonly")
 
         inputs = []
-        outputs = {self.nodes[2].getnewaddress(): self.watchonly_amount / 2}
+        outputs = {self.nodes[2].getnewaddress("", "bech32"): self.watchonly_amount / 2}
         rawtx = self.nodes[3].createrawtransaction(inputs, outputs)
 
         self.nodes[3].loadwallet('wwatch')
@@ -674,7 +674,7 @@ class RawTransactionsTest(BitcoinTestFramework):
             wwatch.importmulti(desc_import)
 
         # Backward compatibility test (2nd params is includeWatching)
-        result = wwatch.fundrawtransaction(rawtx, True)
+        result = wwatch.fundrawtransaction(rawtx, {"change_type": "bech32", "includeWatching": True})
         res_dec = self.nodes[0].decoderawtransaction(result["hex"])
         assert_equal(len(res_dec["vin"]), 1)
         assert_equal(res_dec["vin"][0]["txid"], self.watchonly_txid)
@@ -728,22 +728,25 @@ class RawTransactionsTest(BitcoinTestFramework):
         result2 = node.fundrawtransaction(rawtx, {"feeRate": 2 * self.min_relay_tx_fee})
         result3 = node.fundrawtransaction(rawtx, {"fee_rate": 10 * btc_kvb_to_sat_vb * self.min_relay_tx_fee})
         result4 = node.fundrawtransaction(rawtx, {"feeRate": str(10 * self.min_relay_tx_fee)})
+        # Test that funding non-standard "zero-fee" transactions is valid.
+        result5 = self.nodes[3].fundrawtransaction(rawtx, {"fee_rate": 0})
+        result6 = self.nodes[3].fundrawtransaction(rawtx, {"feeRate": 0})
 
         result_fee_rate = result['fee'] * 1000 / count_bytes(result['hex'])
-        assert_fee_amount(result1['fee'], count_bytes(result1['hex']), 2 * result_fee_rate)
+        assert_fee_amount(result1['fee'], count_bytes(result2['hex']), 2 * result_fee_rate)
         assert_fee_amount(result2['fee'], count_bytes(result2['hex']), 2 * result_fee_rate)
         assert_fee_amount(result3['fee'], count_bytes(result3['hex']), 10 * result_fee_rate)
-        assert_fee_amount(result4['fee'], count_bytes(result4['hex']), 10 * result_fee_rate)
-
+        assert_fee_amount(result4['fee'], count_bytes(result3['hex']), 10 * result_fee_rate)
+        assert_fee_amount(result5['fee'], count_bytes(result5['hex']), 0)
         # Test that funding non-standard "zero-fee" transactions is valid.
         for param, zero_value in product(["fee_rate", "feeRate"], [0, 0.000, 0.00000000, "0", "0.000", "0.00000000"]):
             assert_equal(self.nodes[3].fundrawtransaction(rawtx, {param: zero_value})["fee"], 0)
 
         # With no arguments passed, expect fee of 141 satoshis.
-        assert_approx(node.fundrawtransaction(rawtx)["fee"], vexp=0.00000141, vspan=0.00000001)
+        assert_approx(node.fundrawtransaction(rawtx)["fee"], vexp=0.0009, vspan=0.00000001)
         # Expect fee to be 10,000x higher when an explicit fee rate 10,000x greater is specified.
         result = node.fundrawtransaction(rawtx, {"fee_rate": 10000})
-        assert_approx(result["fee"], vexp=0.0141, vspan=0.0001)
+        assert_approx(result["fee"], vexp=0.02250000, vspan=0.0001)
 
         self.log.info("Test fundrawtxn with invalid estimate_mode settings")
         for k, v in {"number": 42, "object": {"foo": "bar"}}.items():
@@ -764,7 +767,7 @@ class RawTransactionsTest(BitcoinTestFramework):
                     node.fundrawtransaction, rawtx, {"estimate_mode": mode, "conf_target": n, "add_inputs": True})
 
         self.log.info("Test invalid fee rate settings")
-        for param, value in {("fee_rate", 100000), ("feeRate", 1.000)}:
+        for param, value in {("fee_rate", 500000), ("feeRate", 5.000)}:
             assert_raises_rpc_error(-4, "Fee exceeds maximum configured by user (e.g. -maxtxfee, maxfeerate)",
                 node.fundrawtransaction, rawtx, {param: value, "add_inputs": True})
             assert_raises_rpc_error(-3, "Amount out of range",
@@ -784,7 +787,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         node.fundrawtransaction(rawtx, {"feeRate": 0.00000999, "add_inputs": True})
 
         self.log.info("- raises RPC error if both feeRate and fee_rate are passed")
-        assert_raises_rpc_error(-8, "Cannot specify both fee_rate (sat/vB) and feeRate (BTC/kvB)",
+        assert_raises_rpc_error(-8, "Cannot specify both fee_rate (sat/vB) and feeRate (QTUM/kvB)",
             node.fundrawtransaction, rawtx, {"fee_rate": 0.1, "feeRate": 0.1, "add_inputs": True})
 
         self.log.info("- raises RPC error if both feeRate and estimate_mode passed")
@@ -924,14 +927,14 @@ class RawTransactionsTest(BitcoinTestFramework):
         wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
         recipient = self.nodes[0].get_wallet_rpc("large")
         outputs = {}
-        rawtx = recipient.createrawtransaction([], {wallet.getnewaddress(): 147.99899260})
+        rawtx = recipient.createrawtransaction([], {wallet.getnewaddress(): 98.56732907})
 
         # Make 1500 0.1 BTC outputs. The amount that we target for funding is in
         # the BnB range when these outputs are used.  However if these outputs
         # are selected, the transaction will end up being too large, so it
         # shouldn't use BnB and instead fall back to Knapsack but that behavior
         # is not implemented yet. For now we just check that we get an error.
-        for _ in range(1500):
+        for _ in range(999):
             outputs[recipient.getnewaddress()] = 0.1
         wallet.sendmany("", outputs)
         self.nodes[0].generate(10)

@@ -9,6 +9,7 @@
 #include <qt/guiutil.h>
 #include <qt/styleSheet.h>
 #include <qt/platformstyle.h>
+#include <qt/guiutil.h>
 
 #include <QEasingCurve>
 #include <QPropertyAnimation>
@@ -157,7 +158,7 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
 
     // estimate the number of headers left based on TargetSpacing
     // and check if the gui is not aware of the best header (happens rarely)
-    int estimateNumHeadersLeft = bestHeaderDate.secsTo(currentDate) / Params().GetConsensus().TargetSpacing(bestHeaderHeight);
+    int estimateNumHeadersLeft = GUIUtil::estimateNumberHeadersLeft(bestHeaderDate.secsTo(currentDate), bestHeaderHeight);
     bool hasBestHeader = bestHeaderHeight >= count;
 
     // show remaining number of blocks
@@ -170,7 +171,7 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
 }
 
 void ModalOverlay::UpdateHeaderSyncLabel() {
-    int est_headers_left = bestHeaderDate.secsTo(QDateTime::currentDateTime()) / Params().GetConsensus().TargetSpacing(bestHeaderHeight);
+    int est_headers_left = GUIUtil::estimateNumberHeadersLeft(bestHeaderDate.secsTo(QDateTime::currentDateTime()), bestHeaderHeight);
     ui->numberOfBlocksLeft->setText(tr("Unknown. Syncing Headers (%1, %2%)…").arg(bestHeaderHeight).arg(QString::number(100.0 / (bestHeaderHeight + est_headers_left) * bestHeaderHeight, 'f', 1)));
 }
 

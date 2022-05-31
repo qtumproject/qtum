@@ -1166,4 +1166,21 @@ QString getHwiToolPath()
     return QString::fromStdString(gArgs.GetArg("-hwitoolpath", ""));
 }
 
+int estimateNumberHeadersLeft(qint64 timeSpan, int bestHeaderHeight)
+{
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    int est_headers_left = timeSpan / consensusParams.TargetSpacing(bestHeaderHeight);
+    int downscaleFactor = consensusParams.nBlocktimeDownscaleFactor;
+    if(bestHeaderHeight < consensusParams.nReduceBlocktimeHeight)
+    {
+        int diff = consensusParams.nReduceBlocktimeHeight - bestHeaderHeight;
+        if(est_headers_left > diff)
+        {
+            est_headers_left += (est_headers_left - diff) * (downscaleFactor - 1);
+        }
+    }
+
+    return est_headers_left;
+}
+
 } // namespace GUIUtil

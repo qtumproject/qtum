@@ -26,8 +26,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
     find_vout_for_address,
 )
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
-from test_framework.qtum import generatesynchronized
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 
 class multidict(dict):
     """Dictionary that allows duplicate keys.
@@ -74,7 +73,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.log.info('prepare some coins for multiple *rawtransaction commands')
         self.nodes[2].generate(1)
         self.sync_all()
-        generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, None, self.nodes)
+        self.nodes[0].generate(COINBASE_MATURITY + 1)
         self.sync_all()
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),1.5)
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(),1.0)
@@ -266,8 +265,7 @@ class RawTransactionsTest(BitcoinTestFramework):
             # Tests for createmultisig and addmultisigaddress
             assert_raises_rpc_error(-5, "Invalid public key", self.nodes[0].createmultisig, 1, ["01020304"])
             self.nodes[0].createmultisig(2, [addr1Obj['pubkey'], addr2Obj['pubkey']]) # createmultisig can only take public keys
-            # we still allow addresses that are in the wallet for createmultisig, which has been deprecated and then removed in bitcoin
-            assert_raises_rpc_error(-5, "no full public key for address", self.nodes[0].createmultisig, 2, [addr1Obj['pubkey'], addr1]) # addmultisigaddress can take both pubkeys and addresses so long as they are in the wallet, which is tested here.
+            assert_raises_rpc_error(-5, "Invalid public key", self.nodes[0].createmultisig, 2, [addr1Obj['pubkey'], addr1]) # addmultisigaddress can take both pubkeys and addresses so long as they are in the wallet, which is tested here.
 
             mSigObj = self.nodes[2].addmultisigaddress(2, [addr1Obj['pubkey'], addr1])['address']
 

@@ -37,13 +37,13 @@ class DumptxoutsetTest(BitcoinTestFramework):
         # Blockhash should be deterministic based on mocked time.
         assert_equal(
             out['base_hash'],
-            '5cf28d0f3d2322b7594be92408643b32d2242066bbb90a31e11f58628f5d5ec4' if ENABLE_REDUCED_BLOCK_TIME else '44c79e27878023b77b9d00cf58d5ce60edfa632e806ab86e58436ae755679b8d')
+            '5cf28d0f3d2322b7594be92408643b32d2242066bbb90a31e11f58628f5d5ec4')
 
         with open(str(expected_path), 'rb') as f:
             digest = hashlib.sha256(f.read()).hexdigest()
             # UTXO snapshot hash should be deterministic based on mocked time.
             assert_equal(
-                digest, 'ad161b54f06ccfb8ccfbcc1a339d3e01851a883f2c2118f110ba79f69c6ff328' if ENABLE_REDUCED_BLOCK_TIME else '79f2925864f6c873672b6a0cc5367361a604cd8355e64488a836d21d090eb0cd')
+                digest, '12e37167d364af7aec152785c26fef2ad17f1869ec28f63a46f535cc8d2e6621')
 
         # Specifying a path to an existing file will fail.
         assert_raises_rpc_error(

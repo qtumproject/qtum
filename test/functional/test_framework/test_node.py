@@ -66,7 +66,7 @@ class TestNode():
     To make things easier for the test writer, any unrecognised messages will
     be dispatched to the RPC connection."""
 
-    def __init__(self, i, datadir, *, chain, rpchost, timewait, timeout_factor, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None, descriptors=False, enable_wallet=False):
+    def __init__(self, i, datadir, *, chain, rpchost, timewait, timeout_factor, bitcoind, bitcoin_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None, descriptors=False):
         """
         Kwargs:
             start_perf (bool): If True, begin profiling the node with `perf` as soon as
@@ -86,7 +86,6 @@ class TestNode():
         self.coverage_dir = coverage_dir
         self.cwd = cwd
         self.descriptors = descriptors
-        self.enable_wallet = enable_wallet
         if extra_conf is not None:
             append_config(datadir, extra_conf)
         # Most callers will just need to add extra args to the standard list below.
@@ -209,16 +208,10 @@ class TestNode():
 
         # add environment variable LIBC_FATAL_STDERR_=1 so that libc errors are written to stderr and not the terminal
         subp_env = dict(os.environ, LIBC_FATAL_STDERR_="1")
-
-        if self.enable_wallet and not any(arg.startswith('-staking=') for arg in extra_args):
+        
+        if not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
-
-        if not ENABLE_REDUCED_BLOCK_TIME and not any(arg.startswith('-reduceblocktimeheight=') for arg in extra_args):
-            extra_args.append('-reduceblocktimeheight=10000000')
-
-        if self.enable_wallet and not any(arg.startswith('-offlinestakingheight=') for arg in extra_args):
-            extra_args.append('-offlinestakingheight=1')
-
+            
         # Disable the spam filter as it may interfere with come tests sending lots and lots of blocks
         if not any(arg.startswith('-headerspamfilter') for arg in extra_args):
             extra_args.append('-headerspamfilter=0')

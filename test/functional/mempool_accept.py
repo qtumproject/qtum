@@ -87,7 +87,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         )
 
         self.log.info('A transaction not in the mempool')
-        fee = Decimal('0.000007')
+        fee = Decimal('0.003')
         raw_tx_0 = node.signrawtransactionwithwallet(node.createrawtransaction(
             inputs=[{"txid": txid_in_block, "vout": 0, "sequence": BIP125_SEQUENCE_NUMBER}],  # RBF is used later
             outputs=[{node.getnewaddress(): Decimal('0.3') - fee}],
@@ -127,7 +127,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
 
         self.log.info('A transaction that replaces a mempool transaction')
         tx = tx_from_hex(raw_tx_0)
-        tx.vout[0].nValue -= 5*int(fee * COIN)  # Double the fee
+        tx.vout[0].nValue -= int(fee * COIN)  # Double the fee
         tx.vin[0].nSequence = BIP125_SEQUENCE_NUMBER + 1  # Now, opt out of RBF
         raw_tx_0 = node.signrawtransactionwithwallet(tx.serialize().hex())['hex']
         tx = tx_from_hex(raw_tx_0)
@@ -210,7 +210,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
 
         self.log.info('A really large transaction')
         tx = tx_from_hex(raw_tx_reference)
-        tx.vin = [tx.vin[0]] * 2*(MAX_BLOCK_BASE_SIZE // len(tx.vin[0].serialize()))
+        tx.vin = [tx.vin[0]] * math.ceil(MAX_BLOCK_BASE_SIZE / len(tx.vin[0].serialize()))
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bad-txns-oversize'}],
             rawtxs=[tx.serialize().hex()],
@@ -227,7 +227,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         # The following two validations prevent overflow of the output amounts (see CVE-2010-5139).
         self.log.info('A transaction with too large output value')
         tx = tx_from_hex(raw_tx_reference)
-        tx.vout[0].nValue = int(107822406.25 * COIN + 2)
+        tx.vout[0].nValue = MAX_MONEY + 1
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bad-txns-vout-toolarge'}],
             rawtxs=[tx.serialize().hex()],
@@ -236,7 +236,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         self.log.info('A transaction with too large sum of output values')
         tx = tx_from_hex(raw_tx_reference)
         tx.vout = [tx.vout[0]] * 2
-        tx.vout[0].nValue = 107822406 * COIN
+        tx.vout[0].nValue = MAX_MONEY
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bad-txns-txouttotal-toolarge'}],
             rawtxs=[tx.serialize().hex()],

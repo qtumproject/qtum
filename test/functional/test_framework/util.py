@@ -241,7 +241,7 @@ def wait_until_helper(predicate, *, attempts=float('inf'), timeout=float('inf'),
     `p2p.py` has a preset lock.
     """
     if attempts == float('inf') and timeout == float('inf'):
-        timeout = 60
+        timeout = 180
     timeout = timeout * timeout_factor
     attempt = 0
     time_end = time.time() + timeout
@@ -454,10 +454,11 @@ def find_output(node, txid, amount, *, blockhash=None):
 
 # Helper to create at least "count" utxos
 # Pass in a fee that is sufficient for relay and mining new transactions.
-def create_confirmed_utxos(fee, node, count):
+def create_confirmed_utxos(fee, node, count, sync_lambda=None):
     to_generate = int(0.5 * count) + COINBASE_MATURITY+1
     while to_generate > 0:
         node.generate(min(25, to_generate))
+        if sync_lambda: sync_lambda()
         to_generate -= 25
     utxos = node.listunspent()
     iterations = count - len(utxos)
@@ -484,6 +485,23 @@ def create_confirmed_utxos(fee, node, count):
     assert len(utxos) >= count
     return utxos
 
+def sync_blocks(rpc_connections, *, wait=1, timeout=60):
+    """
+    Wait until everybody has the same tip.
+
+    sync_blocks needs to be called with an rpc_connections set that has least
+    one node already synced to the latest, stable tip, otherwise there's a
+    chance it might return before all nodes are stably synced.
+    """
+    stop_time = time.time() + timeout
+    while time.time() <= stop_time:
+        best_hash = [x.getbestblockhash() for x in rpc_connections]
+        if best_hash.count(best_hash[0]) == len(rpc_connections):
+            return
+        # Check that each peer has at least one connection
+        assert (all([len(x.getpeerinfo()) for x in rpc_connections]))
+        time.sleep(wait)
+    raise AssertionError("Block sync timed out:{}".format("".join("\n  {!r}".format(b) for b in best_hash)))
 
 def chain_transaction(node, parent_txids, vouts, value, fee, num_outputs):
     """Build and send a transaction that spends the given inputs (specified
@@ -553,7 +571,7 @@ def create_lots_of_big_transactions(node, txouts, utxos, num, fee):
 def mine_large_block(node, utxos=None):
     # generate a 66k transaction,
     # and 14 of them is close to the 1MB block limit
-    num = 28
+    num = 14
     txouts = gen_return_txouts()
     utxos = utxos if utxos is not None else []
     if len(utxos) < num:

@@ -10,6 +10,7 @@ definable expiry timeout via the '-mempoolexpiry=<n>' command line argument
 (<n> is the timeout in hours) are tested.
 """
 
+from decimal import Decimal
 from datetime import timedelta
 
 from test_framework.blocktools import COINBASE_MATURITY
@@ -40,7 +41,7 @@ class MempoolExpiryTest(BitcoinTestFramework):
         node.generate(COINBASE_MATURITY)
 
         # Send a parent transaction that will expire.
-        parent_txid = self.wallet.send_self_transfer(from_node=node)['txid']
+        parent_txid = self.wallet.send_self_transfer(from_node=node, fee_rate=Decimal("0.03"))['txid']
         parent_utxo = self.wallet.get_utxo(txid=parent_txid)
         independent_utxo = self.wallet.get_utxo()
 
@@ -56,13 +57,13 @@ class MempoolExpiryTest(BitcoinTestFramework):
         # Let half of the timeout elapse and broadcast the child transaction spending the parent transaction.
         half_expiry_time = entry_time + int(60 * 60 * timeout/2)
         node.setmocktime(half_expiry_time)
-        child_txid = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=parent_utxo)['txid']
+        child_txid = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=parent_utxo, fee_rate=Decimal("0.03"))['txid']
         assert_equal(parent_txid, node.getmempoolentry(child_txid)['depends'][0])
         self.log.info('Broadcast child transaction after {} hours.'.format(
             timedelta(seconds=(half_expiry_time-entry_time))))
 
         # Broadcast another (independent) transaction.
-        independent_txid = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=independent_utxo)['txid']
+        independent_txid = self.wallet.send_self_transfer(from_node=node, fee_rate=Decimal("0.03"), utxo_to_spend=independent_utxo)['txid']
 
         # Let most of the timeout elapse and check that the parent tx is still
         # in the mempool.
@@ -70,7 +71,7 @@ class MempoolExpiryTest(BitcoinTestFramework):
         node.setmocktime(nearly_expiry_time)
         # Broadcast a transaction as the expiry of transactions in the mempool is only checked
         # when a new transaction is added to the mempool.
-        self.wallet.send_self_transfer(from_node=node, utxo_to_spend=trigger_utxo1)
+        self.wallet.send_self_transfer(from_node=node, utxo_to_spend=trigger_utxo1, fee_rate=Decimal("0.03"))
         self.log.info('Test parent tx not expired after {} hours.'.format(
             timedelta(seconds=(nearly_expiry_time-entry_time))))
         assert_equal(entry_time, node.getmempoolentry(parent_txid)['time'])
@@ -80,7 +81,7 @@ class MempoolExpiryTest(BitcoinTestFramework):
         expiry_time = entry_time + 60 * 60 * timeout + 5
         node.setmocktime(expiry_time)
         # Again, broadcast a transaction so the expiry of transactions in the mempool is checked.
-        self.wallet.send_self_transfer(from_node=node, utxo_to_spend=trigger_utxo2)
+        self.wallet.send_self_transfer(from_node=node, utxo_to_spend=trigger_utxo2, fee_rate=Decimal("0.03"))
         self.log.info('Test parent tx expiry after {} hours.'.format(
             timedelta(seconds=(expiry_time-entry_time))))
         assert_raises_rpc_error(-5, 'Transaction not in mempool',

@@ -17,7 +17,6 @@ from test_framework.util import (
 from test_framework.wallet_util import bytes_to_wif
 
 from decimal import Decimal
-from test_framework.qtum import generatesynchronized
 
 class ListSinceBlockTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -31,7 +30,7 @@ class ListSinceBlockTest(BitcoinTestFramework):
         # All nodes are in IBD from genesis, so they'll need the miner (node2) to be an outbound connection, or have
         # only one connection. (See fPreferredDownload in net_processing)
         self.connect_nodes(1, 2)
-        generatesynchronized(self.nodes[2], COINBASE_MATURITY+1, None, self.nodes)
+        self.nodes[2].generate(COINBASE_MATURITY + 1)
         self.sync_all()
 
         self.test_no_blockhash()
@@ -205,7 +204,7 @@ class ListSinceBlockTest(BitcoinTestFramework):
         # send from nodes[1] using utxo to nodes[0]
         change = '%.8f' % (float(utxo['amount']) - 1.03)
         recipient_dict = {
-            self.nodes[0].getnewaddress(): 1,
+            self.nodes[0].getnewaddress("", "bech32"): 1,
             self.nodes[1].getnewaddress(): change,
         }
         utxo_dicts = [{

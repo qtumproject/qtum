@@ -559,6 +559,7 @@ void SetupServerArgs(ArgsManager& argsman)
     argsman.AddArg("-posnoretargeting", "Use given value for pos no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-muirglacierheight=<n>", "Use given block height to check contracts with EVM Muir Glacier (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-londonheight=<n>", "Use given block height to check contracts with EVM London (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-taprootheight=<n>", "Use given block height to check taproot (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-nftaddress=<adr>", "Use given contract nft address for non-fungible token (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions(argsman);
@@ -1259,6 +1260,20 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         }
     }
 
+    if (args.IsArgSet("-taprootheight")) {
+        // Allow overriding taproot block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Taproot height may only be overridden on regtest."));
+        }
+
+        int taprootheight = args.GetArg("-taprootheight", 0);
+        if(taprootheight >= 0)
+        {
+            UpdateTaprootHeight(taprootheight);
+            LogPrintf("Activate taproot at block height %d\n.", taprootheight);
+        }
+    }
+
     if (args.IsArgSet("-nftaddress")) {
         // Allow overriding nft address for testing
         if (!chainparams.MineBlocksOnDemand()) {
@@ -1645,6 +1660,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
 
         do {
             const int64_t load_block_index_start_time = GetTimeMillis();
+            dev::eth::ChainParams cp(chainparams.EVMGenesisInfo());
             try {
                 LOCK(cs_main);
                 chainman.Reset();
@@ -1704,6 +1720,51 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                     break;
                 }
 
+                /////////////////////////////////////////////////////////// qtum
+                if((args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) || (!args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) ||
+                  (!args.IsArgSet("-dgpstorage") && !args.IsArgSet("-dgpevm"))){
+                    fGettingValuesDGP = true;
+                } else {
+                    fGettingValuesDGP = false;
+                }
+
+                dev::eth::NoProof::init();
+                fs::path qtumStateDir = gArgs.GetDataDirNet() / "stateQtum";
+                bool fStatus = fs::exists(qtumStateDir);
+                const std::string dirQtum(qtumStateDir.string());
+                const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+                dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+                globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+                globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+                pstorageresult.reset(new StorageResults(qtumStateDir.string()));
+                if (fReset) {
+                    pstorageresult->wipeResults();
+                }
+
+                fRecordLogOpcodes = args.IsArgSet("-record-log-opcodes");
+                fIsVMlogFile = fs::exists(gArgs.GetDataDirNet() / "vmExecLogs.json");
+
+                if (fAddressIndex != args.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
+                    strLoadError = _("You need to rebuild the database using -reindex to change -addrindex");
+                    break;
+                }
+
+                // Check for changed -logevents state
+                if (fLogEvents != args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+                    strLoadError = _("You need to rebuild the database using -reindex to enable -logevents");
+                    break;
+                }
+
+                if (!args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+                {
+                    pstorageresult->wipeResults();
+                    pblocktree->WipeHeightIndex();
+                    fLogEvents = false;
+                    pblocktree->WriteFlag("logevents", fLogEvents);
+                }
+                ///////////////////////////////////////////////////////////////
+
                 // At this point we're either in reindex or we've loaded a useful
                 // block tree into BlockIndex()!
 
@@ -1761,28 +1822,6 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
             }
 
             /////////////////////////////////////////////////////////// qtum
-            if((args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) || (!args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) ||
-              (!args.IsArgSet("-dgpstorage") && !args.IsArgSet("-dgpevm"))){
-                fGettingValuesDGP = true;
-            } else {
-                fGettingValuesDGP = false;
-            }
-
-            dev::eth::NoProof::init();
-            fs::path qtumStateDir = gArgs.GetDataDirNet() / "stateQtum";
-            bool fStatus = fs::exists(qtumStateDir);
-            const std::string dirQtum(qtumStateDir.string());
-            const dev::h256 hashDB(dev::sha3(dev::rlp("")));
-            dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
-            globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
-            dev::eth::ChainParams cp(chainparams.EVMGenesisInfo());
-            globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
-
-            pstorageresult.reset(new StorageResults(qtumStateDir.string()));
-            if (fReset) {
-                pstorageresult->wipeResults();
-            }
-
             {
                 LOCK(cs_main);
                 CChain& active_chain = chainman.ActiveChain();
@@ -1797,30 +1836,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 globalState->db().commit();
                 globalState->dbUtxo().commit();
             }
-
-            fRecordLogOpcodes = args.IsArgSet("-record-log-opcodes");
-            fIsVMlogFile = fs::exists(gArgs.GetDataDirNet() / "vmExecLogs.json");
-            ///////////////////////////////////////////////////////////
-
-            /////////////////////////////////////////////////////////////// // qtum
-            if (fAddressIndex != args.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
-                strLoadError = _("You need to rebuild the database using -reindex to change -addrindex");
-                break;
-            }
             ///////////////////////////////////////////////////////////////
-            // Check for changed -logevents state
-            if (fLogEvents != args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
-                strLoadError = _("You need to rebuild the database using -reindex to enable -logevents");
-                break;
-            }
-
-            if (!args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
-            {
-                pstorageresult->wipeResults();
-                pblocktree->WipeHeightIndex();
-                fLogEvents = false;
-                pblocktree->WriteFlag("logevents", fLogEvents);
-            }
 
             if (!fReset) {
                 LOCK(cs_main);

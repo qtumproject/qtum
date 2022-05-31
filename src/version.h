@@ -9,7 +9,7 @@
  * network protocol versioning
  */
 
-static const int PROTOCOL_VERSION = 70019;
+static const int PROTOCOL_VERSION = 70020;
 
 //! initial proto version, to be increased after version/verack negotiation
 static const int INIT_PROTO_VERSION = 209;
@@ -25,6 +25,9 @@ static const int MIN_PEER_PROTO_VERSION_AFTER_OFFLINESTAKE = 70018;
 
 //! disconnect from peers older than this proto version after reduce block time
 static const int MIN_PEER_PROTO_VERSION_AFTER_REDUCEBLOCKTIME = 70019;
+
+//! disconnect from peers older than this proto version after evm London
+static const int MIN_PEER_PROTO_VERSION_AFTER_EVMLONDON = 70020;
 
 //! BIP 0031, pong message, is enabled for all versions AFTER this one
 static const int BIP0031_VERSION = 60000;

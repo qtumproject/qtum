@@ -99,7 +99,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.setup_clean_chain: bool = False
         self.nodes: List[TestNode] = []
         self.network_thread = None
-        self.rpc_timewait = 180  # Wait for up to 60 seconds for the RPC server to respond
+        self.rpc_timeout = 360  # Wait for up to 60 seconds for the RPC server to respond
         self.supports_cli = True
         self.bind_to_localhost_only = True
         self.parse_args()
@@ -118,6 +118,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         assert self.wallet_names is None or len(self.wallet_names) <= self.num_nodes
         if self.options.timeout_factor == 0 :
             self.options.timeout_factor = 99999
+        self.options.timeout_factor = 7
         self.rpc_timeout = int(self.rpc_timeout * self.options.timeout_factor) # optionally, increase timeout by a factor
 
     def main(self):
@@ -482,7 +483,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 get_datadir_path(self.options.tmpdir, i),
                 chain=self.chain,
                 rpchost=rpchost,
-                timewait=self.rpc_timewait,
+                timewait=self.rpc_timeout,
                 timeout_factor=self.options.timeout_factor,
                 bitcoind=binary[i],
                 bitcoin_cli=binary_cli[i],
@@ -495,7 +496,6 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 start_perf=self.options.perf,
                 use_valgrind=self.options.valgrind,
                 descriptors=self.options.descriptors,
-                enable_wallet=self.is_wallet_compiled(),
             )
             self.nodes.append(test_node_i)
             if not test_node_i.version_is_at_least(170000):
@@ -723,13 +723,12 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                     extra_conf=["bind=127.0.0.1"],
                     extra_args=['-disablewallet'],
                     rpchost=None,
-                    timewait=self.rpc_timewait,
+                    timewait=self.rpc_timeout,
                     timeout_factor=self.options.timeout_factor,
                     bitcoind=self.options.bitcoind,
                     bitcoin_cli=self.options.bitcoincli,
                     coverage_dir=None,
                     cwd=self.options.tmpdir,
-                    enable_wallet=self.is_wallet_compiled(),
                     descriptors=self.options.descriptors,
                 ))
             self.start_node(CACHE_NODE_ID)
@@ -750,12 +749,12 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             gen_addresses = [k.address for k in TestNode.PRIV_KEYS][:3] + [ADDRESS_BCRT1_P2WSH_OP_TRUE]
             assert_equal(len(gen_addresses), 4)
             for i in range(4):
-                self.nodes[0].generatetoaddress(25, TestNode.PRIV_KEYS[i % 4].address)
-                sync_blocks(self.nodes)
-
+                cache_node.generatetoaddress(
+                    nblocks=25 if i != 7 else 24,
+                    address=gen_addresses[i % len(gen_addresses)],
+                )
             for i in range(4):
                 generatesynchronized(self.nodes[0], COINBASE_MATURITY // 4 if i != 3 else (COINBASE_MATURITY // 4) - 1, TestNode.PRIV_KEYS[i % 4].address, self.nodes)
-
             assert_equal(cache_node.getblockchaininfo()["blocks"], 99+COINBASE_MATURITY)
 
             # Shut it down, and clean up cache directories:
@@ -838,18 +837,6 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 raise AssertionError("Force test of previous releases but releases missing: {}".format(
                     self.options.previous_releases_path))
         return self.options.prev_releases
-
-    def skip_if_no_bitcore(self):
-        """Skip the running test if bitcoin-cli has not been compiled."""
-        if not self.is_bitcore_compiled():
-            raise SkipTest("bitcore has not been compiled.")
-
-    def is_bitcore_compiled(self):
-        """Checks whether bitcoin-cli was compiled."""
-        config = configparser.ConfigParser()
-        config.read_file(open(self.options.configfile))
-
-        return config["components"].getboolean("ENABLE_BITCORE")
 
     def skip_if_no_external_signer(self):
         """Skip the running test if external signer support has not been compiled."""

@@ -9,7 +9,6 @@ Version 2 compact blocks are post-segwit (wtxids)
 """
 import random
 from decimal import Decimal
-
 from test_framework.blocktools import (
     COINBASE_MATURITY,
     NORMAL_GBT_REQUEST_PARAMS,
@@ -65,7 +64,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
     softfork_active,
-    satoshi_round,
+	satoshi_round
 )
 
 # TestP2PConn: A peer we use to send messages to bitcoind, and store responses.
@@ -298,18 +297,11 @@ class CompactBlocksTest(BitcoinTestFramework):
         # Generate a bunch of transactions.
         node.generate(COINBASE_MATURITY + 1)
         num_transactions = 25
-        address = node.getnewaddress()
-        if use_witness_address:
-            # Want at least one segwit spend, so move all funds to
-            # a witness address.
-            address = node.getnewaddress(address_type='bech32')
-            value_to_send = node.getbalance()
-            node.sendtoaddress(address, satoshi_round(value_to_send - Decimal(0.2)))
-            node.generate(1)
+        address = node.getnewaddress(address_type='bech32')
 
         segwit_tx_generated = False
         for _ in range(num_transactions):
-            txid = node.sendtoaddress(address, 0.2)
+            txid = node.sendtoaddress(address, 0.1)
             hex_tx = node.gettransaction(txid)["hex"]
             tx = tx_from_hex(hex_tx)
             if not tx.wit.is_null():
