@@ -14,15 +14,11 @@ cd ../../
 ./autogen.sh
 cd ./depends
 make -j3
-if [ -z "$HOST" ]; then
-  if [ -d "./x86_64-pc-linux-gnu" ]; then
-    HOST=x86_64-pc-linux-gnu
-  elif [ -d "./i686-pc-linux-gnu" ]; then
-    HOST=i686-pc-linux-gnu
-  else
-    echo "Please define the HOST variable."
-    exit 1
-  fi
+HOST="$(./config.guess 2> /dev/null)"
+if [[ ! -d "./$HOST" ]]
+then
+  echo "HOST platform not built."
+  exit 1
 fi
 cd ..
 CONFIG_SITE=$PWD/depends/$HOST/share/config.site ./configure --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests --disable-fuzz-binary CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS="-static-libstdc++ -Wl,-O2"
