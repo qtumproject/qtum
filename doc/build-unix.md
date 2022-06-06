@@ -205,7 +205,7 @@ Build requirements:
 Build Qtum:
 ```
 cd qtum/contrib/script
-./build-qtum-linux.sh
+./build-qtum-linux.sh -j2
 ```
 The home folder for the installation package need to be `qtum/contrib/script`.
 After the build finish, the installation package is present into `qtum/contrib/script`.
@@ -224,7 +224,7 @@ The operating system might restart after finish with installing the build requir
 Build Qtum:
 ```
 cd qtum/contrib/script
-./build-qtum-linux.sh
+./build-qtum-linux.sh -j2
 ```
 The home folder for the installation package need to be `qtum/contrib/script`.
 After the build finish, the installation package is present into `qtum/contrib/script`.

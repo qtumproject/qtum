@@ -2,6 +2,8 @@
 
 # Build Qtum package on Linux OS, for example: qtum-22.1-x86_64-pc-linux-gnu.tar.gz
 
+BUILD_PARAM=$1
+
 if RECENT_TAG="$(git describe --exact-match HEAD 2> /dev/null)"; then
     VERSION="${RECENT_TAG#v}"
 else
@@ -13,7 +15,7 @@ SRC_DIR=$PWD
 cd ../../
 ./autogen.sh
 cd ./depends
-make
+make $BUILD_PARAM
 HOST="$(./config.guess 2> /dev/null)"
 if [[ ! -d "./$HOST" ]]
 then
@@ -23,7 +25,7 @@ fi
 cd ..
 CONFIG_SITE=$PWD/depends/$HOST/share/config.site ./configure --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests --disable-fuzz-binary CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS="-static-libstdc++ -Wl,-O2"
 make clean
-make
+make $BUILD_PARAM
 INSTALLPATH="${PWD}/installed/${HOST}"
 rm -r ${INSTALLPATH}
 make install DESTDIR=${INSTALLPATH}
