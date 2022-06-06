@@ -194,6 +194,42 @@ To build with Qt 5 (recommended) you need the following:
 
     sudo yum install qt5-qttools-devel protobuf-devel qrencode-devel
 
+### Ubuntu 16
+#### Dependency Build Instructions
+Build requirements:
+```
+./qtum/contrib/script/setup-ubuntu16.sh
+```
+
+#### Build Installation Package
+Build Qtum:
+```
+cd qtum/contrib/script
+./build-qtum-linux.sh
+```
+The home folder for the installation package need to be `qtum/contrib/script`.
+After the build finish, the installation package is present into `qtum/contrib/script`.
+Installation package example: `qtum-22.1-x86_64-pc-linux-gnu.tar.gz`
+
+### CentOS 7
+#### Dependency Build Instructions
+Build requirements:
+```
+su
+./qtum/contrib/script/setup-centos7.sh
+```
+The operating system might restart after finish with installing the build requirements.
+
+#### Build Installation Package
+Build Qtum:
+```
+cd qtum/contrib/script
+./build-qtum-linux.sh
+```
+The home folder for the installation package need to be `qtum/contrib/script`.
+After the build finish, the installation package is present into `qtum/contrib/script`.
+Installation package example: `qtum-22.1-x86_64-pc-linux-gnu.tar.gz`
+
 Notes
 -----
 The release is built with GCC and then "strip qtumd" to strip the debug

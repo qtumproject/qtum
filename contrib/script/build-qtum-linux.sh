@@ -13,7 +13,7 @@ SRC_DIR=$PWD
 cd ../../
 ./autogen.sh
 cd ./depends
-make -j3
+make
 HOST="$(./config.guess 2> /dev/null)"
 if [[ ! -d "./$HOST" ]]
 then
@@ -23,7 +23,7 @@ fi
 cd ..
 CONFIG_SITE=$PWD/depends/$HOST/share/config.site ./configure --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests --disable-fuzz-binary CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS="-static-libstdc++ -Wl,-O2"
 make clean
-make -j3
+make
 INSTALLPATH="${PWD}/installed/${HOST}"
 rm -r ${INSTALLPATH}
 make install DESTDIR=${INSTALLPATH}
