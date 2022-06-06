@@ -15,6 +15,7 @@ SRC_DIR=$PWD
 cd ../../
 ./autogen.sh
 cd ./depends
+make clean
 make $BUILD_PARAM
 HOST="$(./config.guess 2> /dev/null)"
 if [[ ! -d "./$HOST" ]]
@@ -36,6 +37,11 @@ cd ${DISTPATH}
 find . -name "lib*.la" -delete
 find . -name "lib*.a" -delete
 rm -rf ./${DISTNAME}/lib/pkgconfig
+cd ${DISTPATH}/${DISTNAME}/bin
+strip *
+cd ${DISTPATH}/${DISTNAME}/lib
+strip *
+cd ${DISTPATH}
 find ${DISTNAME} -not -name "*.dbg" | sort | tar --no-recursion --mode='u+rw,go+r-w,a+X' --owner=0 --group=0 -c -T - | gzip -9n > ${SRC_DIR}/${DISTNAME}-${HOST}.tar.gz
 cd ${SRC_DIR}
 sha256sum ${DISTNAME}-${HOST}.tar.gz > ${DISTNAME}-${HOST}.hash
