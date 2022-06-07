@@ -17,6 +17,16 @@ EXTRA_LIBRARIES =
 
 BITCOIN_INCLUDES=-I$(builddir) -I$(srcdir)/$(MINISKETCH_INCLUDE_DIR_INT) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
+BITCOIN_INCLUDES += -I$(srcdir)/libff/libff
+BITCOIN_INCLUDES += -I$(srcdir)/libff
+BITCOIN_INCLUDES += -I$(srcdir)/evmone/evmc/include
+BITCOIN_INCLUDES += -I$(srcdir)/evmone/include
+BITCOIN_INCLUDES += -I$(srcdir)/eth_client
+BITCOIN_INCLUDES += -I$(srcdir)/eth_client/utils
+BITCOIN_INCLUDES += -I$(srcdir)/eth_client/utils/ethash/include
+BITCOIN_INCLUDES += -I$(srcdir)/eth_client/utils/libscrypt
+
+
 LIBBITCOIN_NODE=libbitcoin_node.a
 LIBBITCOIN_COMMON=libbitcoin_common.a
 LIBBITCOIN_CONSENSUS=libbitcoin_consensus.a
@@ -274,6 +284,7 @@ BITCOIN_CORE_H = \
   util/ui_change_type.h \
   util/url.h \
   util/vector.h \
+  util/convert.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -484,7 +495,22 @@ crypto_libbitcoin_crypto_base_a_SOURCES = \
   crypto/sha512.cpp \
   crypto/sha512.h \
   crypto/siphash.cpp \
-  crypto/siphash.h
+  crypto/siphash.h \
+  eth_client/utils/libscrypt/b64.c \
+  eth_client/utils/libscrypt/b64.h \
+  eth_client/utils/libscrypt/crypto-mcf.c \
+  eth_client/utils/libscrypt/crypto-scrypt-saltgen.c \
+  eth_client/utils/libscrypt/crypto_scrypt-check.c \
+  eth_client/utils/libscrypt/crypto_scrypt-hash.c \
+  eth_client/utils/libscrypt/crypto_scrypt-hexconvert.c \
+  eth_client/utils/libscrypt/crypto_scrypt-hexconvert.h \
+  eth_client/utils/libscrypt/crypto_scrypt-nosse.c \
+  eth_client/utils/libscrypt/libscrypt.h \
+  eth_client/utils/libscrypt/sha256.c \
+  eth_client/utils/libscrypt/sha256.h \
+  eth_client/utils/libscrypt/slowequals.c \
+  eth_client/utils/libscrypt/slowequals.h \
+  eth_client/utils/libscrypt/sysendian.h
 
 if USE_ASM
 crypto_libbitcoin_crypto_base_a_SOURCES += crypto/sha256_sse4.cpp
@@ -587,6 +613,173 @@ libbitcoin_common_a_SOURCES = \
   script/signingprovider.cpp \
   script/standard.cpp \
   warnings.cpp \
+  libff/libff/algebra/curves/public_params.hpp \
+  libff/libff/algebra/curves/curve_utils.hpp \
+  evmone/include/evmone/evmone.h \
+  evmone/evmc/lib/instructions/instruction_metrics.c \
+  evmone/evmc/lib/instructions/instruction_names.c \
+  evmone/evmc/include/evmc/evmc.h \
+  evmone/evmc/include/evmc/evmc.hpp \
+  evmone/evmc/include/evmc/helpers.h \
+  evmone/evmc/include/evmc/instructions.h \
+  evmone/evmc/include/evmc/loader.h \
+  evmone/evmc/include/evmc/utils.h \
+  evmone/lib/evmone/analysis.cpp \
+  evmone/lib/evmone/analysis.hpp \
+  evmone/lib/evmone/baseline.cpp \
+  evmone/lib/evmone/baseline.hpp \
+  evmone/lib/evmone/baseline_instruction_table.cpp \
+  evmone/lib/evmone/baseline_instruction_table.hpp \
+  evmone/lib/evmone/execution.cpp \
+  evmone/lib/evmone/execution.hpp \
+  evmone/lib/evmone/execution_state.hpp \
+  evmone/lib/evmone/instructions_calls.cpp \
+  evmone/lib/evmone/instructions.cpp \
+  evmone/lib/evmone/instructions.hpp \
+  evmone/lib/evmone/instruction_traits.hpp \
+  evmone/lib/evmone/limits.hpp \
+  evmone/lib/evmone/opcodes_helpers.h \
+  evmone/lib/evmone/tracing.cpp \
+  evmone/lib/evmone/tracing.hpp \
+  evmone/lib/evmone/vm.cpp \
+  evmone/lib/evmone/vm.hpp \
+  eth_client/libdevcore/Address.cpp \
+  eth_client/libdevcore/Address.h \
+  eth_client/libdevcore/Assertions.h \
+  eth_client/libdevcore/Common.cpp \
+  eth_client/libdevcore/Common.h \
+  eth_client/libdevcore/CommonData.cpp \
+  eth_client/libdevcore/CommonData.h \
+  eth_client/libdevcore/CommonIO.cpp \
+  eth_client/libdevcore/CommonIO.h \
+  eth_client/libdevcore/DBFactory.cpp \
+  eth_client/libdevcore/DBFactory.h \
+  eth_client/libdevcore/Exceptions.h \
+  eth_client/libdevcore/FileSystem.cpp \
+  eth_client/libdevcore/FileSystem.h \
+  eth_client/libdevcore/FixedHash.cpp \
+  eth_client/libdevcore/FixedHash.h \
+  eth_client/libdevcore/Guards.h \
+  eth_client/libdevcore/JsonUtils.cpp \
+  eth_client/libdevcore/JsonUtils.h \
+  eth_client/libdevcore/LevelDB.cpp \
+  eth_client/libdevcore/LevelDB.h \
+  eth_client/libdevcore/Log.cpp \
+  eth_client/libdevcore/Log.h \
+  eth_client/libdevcore/OverlayDB.cpp \
+  eth_client/libdevcore/OverlayDB.h \
+  eth_client/libdevcore/RLP.cpp \
+  eth_client/libdevcore/RLP.h \
+  eth_client/libdevcore/SHA3.cpp \
+  eth_client/libdevcore/SHA3.h \
+  eth_client/libdevcore/StateCacheDB.cpp \
+  eth_client/libdevcore/StateCacheDB.h \
+  eth_client/libdevcore/TrieCommon.cpp \
+  eth_client/libdevcore/TrieCommon.h \
+  eth_client/libdevcore/TrieDB.h \
+  eth_client/libdevcore/TrieHash.cpp \
+  eth_client/libdevcore/TrieHash.h \
+  eth_client/libdevcore/UndefMacros.h \
+  eth_client/libdevcore/db.h \
+  eth_client/libdevcore/dbfwd.h \
+  eth_client/libdevcore/vector_ref.h \
+  eth_client/libdevcrypto/Blake2.cpp \
+  eth_client/libdevcrypto/Blake2.h \
+  eth_client/libdevcrypto/Common.cpp \
+  eth_client/libdevcrypto/Common.h \
+  eth_client/libdevcrypto/CryptoPP.cpp \
+  eth_client/libdevcrypto/CryptoPP.h \
+  eth_client/libdevcrypto/Exceptions.h \
+  eth_client/libdevcrypto/Hash.cpp \
+  eth_client/libdevcrypto/Hash.h \
+  eth_client/libdevcrypto/LibSnark.cpp \
+  eth_client/libdevcrypto/LibSnark.h \
+  eth_client/libethashseal/GenesisInfo.cpp \
+  eth_client/libethashseal/GenesisInfo.h \
+  eth_client/libethashseal/genesis/qtumNetwork.cpp \
+  eth_client/libethcore/ABI.h \
+  eth_client/libethcore/BlockHeader.cpp \
+  eth_client/libethcore/BlockHeader.h \
+  eth_client/libethcore/ChainOperationParams.cpp \
+  eth_client/libethcore/ChainOperationParams.h \
+  eth_client/libethcore/Common.cpp \
+  eth_client/libethcore/Common.h \
+  eth_client/libethcore/EVMSchedule.cpp \
+  eth_client/libethcore/EVMSchedule.h \
+  eth_client/libethcore/Exceptions.h \
+  eth_client/libethcore/LogEntry.cpp \
+  eth_client/libethcore/LogEntry.h \
+  eth_client/libethcore/Precompiled.cpp \
+  eth_client/libethcore/Precompiled.h \
+  eth_client/libethcore/SealEngine.cpp \
+  eth_client/libethcore/SealEngine.h \
+  eth_client/libethcore/TransactionBase.cpp \
+  eth_client/libethcore/TransactionBase.h \
+  eth_client/libethereum/Account.cpp \
+  eth_client/libethereum/Account.h \
+  eth_client/libethereum/ChainParams.cpp \
+  eth_client/libethereum/ChainParams.h \
+  eth_client/libethereum/CodeSizeCache.h \
+  eth_client/libethereum/DatabasePaths.cpp \
+  eth_client/libethereum/DatabasePaths.h \
+  eth_client/libethereum/Executive.cpp \
+  eth_client/libethereum/Executive.h \
+  eth_client/libethereum/ExtVM.cpp \
+  eth_client/libethereum/ExtVM.h \
+  eth_client/libethereum/LastBlockHashesFace.h \
+  eth_client/libethereum/SecureTrieDB.h \
+  eth_client/libethereum/State.cpp \
+  eth_client/libethereum/State.h \
+  eth_client/libethereum/Transaction.cpp \
+  eth_client/libethereum/Transaction.h \
+  eth_client/libethereum/TransactionReceipt.cpp \
+  eth_client/libethereum/TransactionReceipt.h \
+  eth_client/libethereum/ValidationSchemes.cpp \
+  eth_client/libethereum/ValidationSchemes.h \
+  eth_client/libevm/EVMC.cpp \
+  eth_client/libevm/EVMC.h \
+  eth_client/libevm/ExtVMFace.cpp \
+  eth_client/libevm/ExtVMFace.h \
+  eth_client/libevm/VMFace.h \
+  eth_client/libevm/VMFactory.cpp \
+  eth_client/libevm/VMFactory.h \
+  eth_client/utils/ethash/include/ethash/ethash.h \
+  eth_client/utils/ethash/include/ethash/ethash.hpp \
+  eth_client/utils/ethash/include/ethash/hash_types.h \
+  eth_client/utils/ethash/include/ethash/hash_types.hpp \
+  eth_client/utils/ethash/include/ethash/keccak.h \
+  eth_client/utils/ethash/include/ethash/keccak.hpp \
+  eth_client/utils/ethash/include/ethash/progpow.hpp \
+  eth_client/utils/ethash/lib/ethash/bit_manipulation.h \
+  eth_client/utils/ethash/lib/ethash/builtins.h \
+  eth_client/utils/ethash/lib/ethash/endianness.hpp \
+  eth_client/utils/ethash/lib/ethash/ethash-internal.hpp \
+  eth_client/utils/ethash/lib/ethash/ethash.cpp \
+  eth_client/utils/ethash/lib/ethash/keccak.c \
+  eth_client/utils/ethash/lib/ethash/keccakf1600.c \
+  eth_client/utils/ethash/lib/ethash/keccakf800.c \
+  eth_client/utils/ethash/lib/ethash/kiss99.hpp \
+  eth_client/utils/ethash/lib/ethash/managed.cpp \
+  eth_client/utils/ethash/lib/ethash/primes.c \
+  eth_client/utils/ethash/lib/ethash/primes.h \
+  eth_client/utils/ethash/lib/ethash/progpow.cpp \
+  eth_client/utils/ethash/lib/ethash/support/attributes.h \
+  eth_client/utils/intx/int128.hpp \
+  eth_client/utils/intx/intx.hpp \
+  eth_client/utils/json_spirit/JsonSpiritHeaders.h \
+  eth_client/utils/json_spirit/json_spirit.h \
+  eth_client/utils/json_spirit/json_spirit.vcproj \
+  eth_client/utils/json_spirit/json_spirit_error_position.h \
+  eth_client/utils/json_spirit/json_spirit_reader.cpp \
+  eth_client/utils/json_spirit/json_spirit_reader.h \
+  eth_client/utils/json_spirit/json_spirit_reader_template.h \
+  eth_client/utils/json_spirit/json_spirit_stream_reader.h \
+  eth_client/utils/json_spirit/json_spirit_utils.h \
+  eth_client/utils/json_spirit/json_spirit_value.cpp \
+  eth_client/utils/json_spirit/json_spirit_value.h \
+  eth_client/utils/json_spirit/json_spirit_writer.cpp \
+  eth_client/utils/json_spirit/json_spirit_writer.h \
+  eth_client/utils/json_spirit/json_spirit_writer_template.h \
   $(BITCOIN_CORE_H)
 
 # util: shared between all executables.
@@ -675,7 +868,7 @@ qtum_bin_ldadd = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-qtum_bin_ldadd += $(BDB_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(SQLITE_LIBS)
+qtum_bin_ldadd += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(SQLITE_LIBS)
 
 qtumd_SOURCES = $(qtum_daemon_sources) init/bitcoind.cpp
 qtumd_CPPFLAGS = $(qtum_bin_cppflags)
@@ -705,7 +898,7 @@ qtum_cli_LDADD = \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO)
 
-qtum_cli_LDADD += $(EVENT_LIBS)
+qtum_cli_LDADD += $(BOOST_LIBS) $(EVENT_LIBS)
 #
 
 # bitcoin-tx binary #
@@ -725,6 +918,8 @@ qtum_tx_LDADD = \
   $(LIBBITCOIN_CONSENSUS) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSECP256K1)
+
+qtum_tx_LDADD += $(BOOST_LIBS)
 #
 
 # bitcoin-wallet binary #
@@ -767,6 +962,8 @@ qtum_util_LDADD = \
   $(LIBBITCOIN_CONSENSUS) \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSECP256K1)
+
+qtum_util_LDADD += $(BOOST_LIBS)
 #
 
 # bitcoinconsensus library #

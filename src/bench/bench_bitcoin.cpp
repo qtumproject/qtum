@@ -9,6 +9,7 @@
 #include <fs.h>
 #include <util/strencodings.h>
 #include <util/system.h>
+#include <libethcore/SealEngine.h>
 
 #include <chrono>
 #include <cstdint>
@@ -104,6 +105,9 @@ int main(int argc, char** argv)
 
         return EXIT_SUCCESS;
     }
+
+    // Overwrite arguments for bench
+    gArgs.SoftSetBoolArg("-acceptnonstdtxn", true);
 
     benchmark::Args args;
     args.asymptote = parseAsymptote(argsman.GetArg("-asymptote", ""));

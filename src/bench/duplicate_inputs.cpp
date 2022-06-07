@@ -10,6 +10,7 @@
 #include <test/util/setup_common.h>
 #include <txmempool.h>
 #include <validation.h>
+#include <util/convert.h>
 
 
 static void DuplicateInputs(benchmark::Bench& bench)
@@ -30,6 +31,7 @@ static void DuplicateInputs(benchmark::Bench& bench)
     block.nBits = GetNextWorkRequired(pindexPrev, &block, chainparams.GetConsensus());
     block.nNonce = 0;
     auto nHeight = pindexPrev->nHeight + 1;
+    CChainState& chainstate = testing_setup->m_node.chainman->ActiveChainstate();
 
     // Make a coinbase TX
     coinbaseTx.vin.resize(1);
