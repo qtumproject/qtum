@@ -84,17 +84,17 @@ void AddTimeData(const CNetAddr& ip, int64_t nOffsetSample)
             nTimeOffset = 0;
 
             if (!g_warning_emitted) {
-                // If nobody has a time different than ours but within 5 minutes of ours, give a warning
+                // If nobody has a time different than ours but within 16 seconds of ours, give a warning
                 bool fMatch = false;
                 for (const int64_t nOffset : vSorted) {
-                    if (nOffset != 0 && nOffset > -5 * 60 && nOffset < 5 * 60) fMatch = true;
+                    if (nOffset != 0 && nOffset > -16 && nOffset < 16) fMatch = true;
                 }
 
                 if (!fMatch) {
                     g_warning_emitted = true;
                     bilingual_str strMessage = strprintf(_("Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly."), PACKAGE_NAME);
                     SetMiscWarning(strMessage);
-                    uiInterface.ThreadSafeMessageBox(strMessage, "", CClientUIInterface::MSG_WARNING);
+                    uiInterface.ThreadSafeMessageBox(strMessage, "", CClientUIInterface::ICON_WARNING);
                 }
             }
         }

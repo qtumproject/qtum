@@ -18,13 +18,13 @@ ExternalSigner::ExternalSigner(const std::string& command, const std::string cha
 
 const std::string ExternalSigner::NetworkArg() const
 {
-    return " --chain " + m_chain;
+    return NetworkArg(m_chain);
 }
 
 bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, const std::string chain)
 {
     // Call <command> enumerate
-    const UniValue result = RunCommandParseJSON(command + " enumerate");
+    const UniValue result = RunCommandParseJSON(command + NetworkArg(chain) + " enumerate");
     if (!result.isArray()) {
         throw std::runtime_error(strprintf("'%s' received invalid response, expected array of signers", command));
     }
@@ -113,4 +113,9 @@ bool ExternalSigner::SignTransaction(PartiallySignedTransaction& psbtx, std::str
     psbtx = signer_psbtx;
 
     return true;
+}
+
+std::string ExternalSigner::NetworkArg(const std::string chain)
+{
+    return " --chain " + chain;
 }
