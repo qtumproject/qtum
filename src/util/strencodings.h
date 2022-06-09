@@ -128,6 +128,9 @@ T LocaleIndependentAtoi(const std::string& str)
     return result;
 }
 
+std::string i64tostr(int64_t n);
+int64_t atoi64(const std::string& str);
+
 /**
  * Tests if the given character is a decimal digit.
  * @param[in] c     character to test
