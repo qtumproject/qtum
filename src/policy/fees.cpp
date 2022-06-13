@@ -13,7 +13,7 @@
 #include <util/serfloat.h>
 #include <util/system.h>
 
-static const char* FEE_ESTIMATES_FILENAME = "fee_estimates.dat";
+const char* FEE_ESTIMATES_FILENAME = "fee_estimates.dat";
 
 static constexpr double INF_FEERATE = 1e99;
 
@@ -586,6 +586,11 @@ bool CBlockPolicyEstimator::processBlockTx(unsigned int nBlockHeight, const CTxM
     if (!_removeTx(entry->GetTx().GetHash(), true)) {
         // This transaction wasn't being tracked for fee estimation
         return false;
+    }
+
+    if(entry->GetTx().HasCreateOrCall()){
+    	//Exclude contract transactions
+    	return false;
     }
 
     // How many blocks did it take for miners to include this transaction?
