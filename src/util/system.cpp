@@ -26,6 +26,7 @@
 #include <util/strencodings.h>
 #include <util/string.h>
 #include <util/translation.h>
+#include <iomanip>
 
 
 #if (defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__))
@@ -90,7 +91,7 @@
 // Application startup time (used for uptime calculation)
 const int64_t nStartupTime = GetTime();
 
-const char * const BITCOIN_CONF_FILENAME = "bitcoin.conf";
+const char * const BITCOIN_CONF_FILENAME = "qtum.conf";
 const char * const BITCOIN_SETTINGS_FILENAME = "settings.json";
 
 ArgsManager gArgs;
@@ -104,7 +105,7 @@ static Mutex cs_dir_locks;
  */
 static std::map<std::string, std::unique_ptr<fsbridge::FileLock>> dir_locks GUARDED_BY(cs_dir_locks);
 
-bool LockDirectory(const fs::path& directory, const std::string lockfile_name, bool probe_only)
+bool LockDirectory(const fs::path& directory, const std::string lockfile_name, bool probe_only, bool try_lock)
 {
     LOCK(cs_dir_locks);
     fs::path pathLockFile = directory / lockfile_name;
@@ -118,7 +119,7 @@ bool LockDirectory(const fs::path& directory, const std::string lockfile_name, b
     FILE* file = fsbridge::fopen(pathLockFile, "a");
     if (file) fclose(file);
     auto lock = std::make_unique<fsbridge::FileLock>(pathLockFile);
-    if (!lock->TryLock()) {
+    if (try_lock && !lock->TryLock()) {
         return error("Error while attempting to lock directory %s: %s", fs::PathToString(directory), lock->GetReason());
     }
     if (!probe_only) {
@@ -794,12 +795,12 @@ void PrintExceptionContinue(const std::exception* pex, const char* pszThread)
 
 fs::path GetDefaultDataDir()
 {
-    // Windows: C:\Users\Username\AppData\Roaming\Bitcoin
-    // macOS: ~/Library/Application Support/Bitcoin
-    // Unix-like: ~/.bitcoin
+    // Windows: C:\Users\Username\AppData\Roaming\Qtum
+    // macOS: ~/Library/Application Support/Qtum
+    // Unix-like: ~/.qtum
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Bitcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "Qtum";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -809,10 +810,10 @@ fs::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
     // macOS
-    return pathRet / "Library/Application Support/Bitcoin";
+    return pathRet / "Library/Application Support/Qtum";
 #else
     // Unix-like
-    return pathRet / ".bitcoin";
+    return pathRet / ".qtum";
 #endif
 #endif
 }
@@ -1067,6 +1068,40 @@ void ArgsManager::LogArgs() const
         LogPrintf("Setting file arg: %s = %s\n", setting.first, setting.second.write());
     }
     logArgsPrefix("Command-line arg:", "", m_settings.command_line_options);
+}
+
+std::map<std::string, std::vector<std::string>> ArgsManager::getArgsList(const std::vector<std::string>& paramListType) const
+{
+    LOCK(cs_args);
+    // Get argument list
+    std::map<std::string, bool> args;
+    for (const auto& arg : m_settings.forced_settings) {
+        args[arg.first] = true;
+    }
+    for (const auto& arg : m_settings.command_line_options) {
+        args[arg.first] = true;
+    }
+    for (const auto& arg : m_settings.ro_config) {
+        for(const auto& confArg : arg.second)
+            args[confArg.first] = true;
+    }
+
+    // Fill argument list with values
+    std::map<std::string, std::vector<std::string>> ret;
+    for (const auto& arg : args) {
+        std::string paramName = '-' + arg.first;
+        std::vector<std::string> paramValue;
+        bool isList = std::find(std::begin(paramListType), std::end(paramListType), paramName) != std::end(paramListType);
+        if(isList) {
+            paramValue = GetArgs(paramName);
+        }
+        else {
+            paramValue.push_back(GetArg(paramName, ""));
+        }
+        ret[arg.first] = paramValue;
+    }
+
+    return ret;
 }
 
 bool RenameOver(fs::path src, fs::path dest)
@@ -1349,6 +1384,14 @@ bool SetupNetworking()
 int GetNumCores()
 {
     return std::thread::hardware_concurrency();
+}
+
+bool CheckHex(const std::string& str) {
+    size_t data=0;
+    if(str.size() > 2 && (str.compare(0, 2, "0x") == 0 || str.compare(0, 2, "0X") == 0)){
+        data=2;
+    }
+    return str.size() > data && str.find_first_not_of("0123456789abcdefABCDEF", data) == std::string::npos;
 }
 
 // Obtain the application startup time (used for uptime calculation)

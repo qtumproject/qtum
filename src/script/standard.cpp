@@ -621,3 +621,8 @@ std::optional<std::vector<std::tuple<int, CScript, int>>> InferTaprootTree(const
 
     return ret;
 }
+
+bool IsValidContractSenderAddress(const CTxDestination &dest)
+{
+    return std::holds_alternative<PKHash>(dest);
+}
