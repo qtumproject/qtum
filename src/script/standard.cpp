@@ -12,6 +12,8 @@
 #include <script/script.h>
 #include <util/strencodings.h>
 
+#include <streams.h>
+
 #include <string>
 
 typedef std::vector<unsigned char> valtype;
@@ -625,4 +627,34 @@ std::optional<std::vector<std::tuple<int, CScript, int>>> InferTaprootTree(const
 bool IsValidContractSenderAddress(const CTxDestination &dest)
 {
     return std::holds_alternative<PKHash>(dest);
+}
+
+bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
+{
+    if(outputPubKey.HasOpSender())
+    {
+        try
+        {
+            // Solve the contract with or without contract consensus
+            std::vector<valtype> vSolutions;
+            if (TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, true, true) &&
+                    TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, false, true))
+                return false;
+
+            // Check the size of the returned data
+            if(vSolutions.size() < 1)
+                return false;
+
+            // Get the sender public key
+            CDataStream ss(vSolutions[0], SER_NETWORK, PROTOCOL_VERSION);
+            ss >> senderPubKey;
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    return false;
 }

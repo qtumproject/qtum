@@ -68,6 +68,10 @@ enum class TxoutType {
     WITNESS_V0_KEYHASH,
     WITNESS_V1_TAPROOT,
     WITNESS_UNKNOWN, //!< Only for Witness versions not already defined above
+    CREATE_SENDER,
+    CALL_SENDER,
+    CREATE,
+    CALL,
 };
 
 class CNoDestination {
@@ -164,6 +168,8 @@ std::string GetTxnOutputType(TxoutType t);
 
 /** Check whether a CTxDestination can be used as contract sender address. */
 bool IsValidContractSenderAddress(const CTxDestination& dest);
+
+bool GetSenderPubKey(const CScript& outputPubKey, CScript& senderPubKey);
 
 /**
  * Parse a scriptPubKey and identify script type for standard scripts. If
