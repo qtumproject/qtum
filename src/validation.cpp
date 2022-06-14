@@ -107,6 +107,11 @@ const std::vector<std::string> CHECKLEVEL_DOC {
     "each level includes the checks of the previous levels",
 };
 
+std::unique_ptr<QtumState> globalState;
+std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
+bool fRecordLogOpcodes = false;
+bool fIsVMlogFile = false;
+bool fGettingValuesDGP = false;
 std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
 
 bool CBlockIndexWorkComparator::operator()(const CBlockIndex *pa, const CBlockIndex *pb) const {
@@ -144,6 +149,8 @@ Mutex g_best_block_mutex;
 std::condition_variable g_best_block_cv;
 uint256 g_best_block;
 bool g_parallel_script_checks{false};
+bool fAddressIndex = false; // qtum
+bool fLogEvents = false;
 bool fRequireStandard = true;
 bool fCheckBlockIndex = false;
 bool fCheckpointsEnabled = DEFAULT_CHECKPOINTS_ENABLED;
@@ -173,6 +180,9 @@ CBlockIndex* CChainState::FindForkInGlobalIndex(const CBlockLocator& locator) co
     }
     return m_chain.Genesis();
 }
+
+std::unique_ptr<CBlockTreeDB> pblocktree;
+std::unique_ptr<StorageResults> pstorageresult;
 
 bool CheckInputScripts(const CTransaction& tx, TxValidationState& state,
                        const CCoinsViewCache& inputs, unsigned int flags, bool cacheSigStore,
@@ -1929,6 +1939,10 @@ static int64_t nTimeConnect = 0;
 static int64_t nTimeIndex = 0;
 static int64_t nTimeTotal = 0;
 static int64_t nBlocksTotal = 0;
+
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, CChainState& chainstate, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount){
+    return {};
+}
 
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()

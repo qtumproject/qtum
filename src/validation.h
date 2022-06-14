@@ -38,6 +38,29 @@
 #include <utility>
 #include <vector>
 
+#include <consensus/consensus.h>
+
+/////////////////////////////////////////// qtum
+#include <qtum/qtumstate.h>
+#include <qtum/qtumDGP.h>
+#include <libethereum/ChainParams.h>
+#include <libethereum/LastBlockHashesFace.h>
+#include <libethashseal/GenesisInfo.h>
+#include <script/standard.h>
+#include <qtum/storageresults.h>
+
+
+extern std::unique_ptr<QtumState> globalState;
+extern std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
+extern bool fRecordLogOpcodes;
+extern bool fIsVMlogFile;
+extern bool fGettingValuesDGP;
+
+struct EthTransactionParams;
+using valtype = std::vector<unsigned char>;
+using ExtractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
+///////////////////////////////////////////
+
 class CChainState;
 class CBlockTreeDB;
 class CChainParams;
@@ -101,6 +124,19 @@ static constexpr int DEFAULT_CHECKLEVEL{3};
 // Setting the target to >= 550 MiB will make it likely we can respect the target.
 static const uint64_t MIN_DISK_SPACE_FOR_BLOCK_FILES = 550 * 1024 * 1024;
 
+static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=2500000;
+static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=250000;
+static const CAmount DEFAULT_GAS_PRICE=0.00000040*COIN;
+static const CAmount MAX_RPC_GAS_PRICE=0.00000100*COIN;
+
+static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
+
+//! -stakingminutxovalue default
+static const CAmount DEFAULT_STAKING_MIN_UTXO_VALUE = 100 * COIN;
+
+//! -forceinitialblocksdownloadmode default
+static const bool DEFAULT_FORCE_INITIAL_BLOCKS_DOWNLOAD_MODE = false;
+
 /** Current sync state passed to tip changed callbacks. */
 enum class SynchronizationState {
     INIT_REINDEX,
@@ -117,6 +153,8 @@ extern uint256 g_best_block;
  * False indicates all script checking is done on the main threadMessageHandler thread.
  */
 extern bool g_parallel_script_checks;
+extern bool fAddressIndex;
+extern bool fLogEvents;
 extern bool fRequireStandard;
 extern bool fCheckBlockIndex;
 extern bool fCheckpointsEnabled;
@@ -389,6 +427,10 @@ public:
         int nCheckLevel,
         int nCheckDepth) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 };
+
+extern std::unique_ptr<StorageResults> pstorageresult;
+
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, CChainState& chainstate, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
 
 enum DisconnectResult
 {
@@ -1013,6 +1055,9 @@ public:
         Reset();
     }
 };
+
+/** Global variable that points to the active block tree (protected by cs_main) */
+extern std::unique_ptr<CBlockTreeDB> pblocktree;
 
 using FopenFn = std::function<FILE*(const fs::path&, const char*)>;
 
