@@ -7,6 +7,8 @@
 
 #include <string>
 #include <functional>
+#include <mutex>
+#include <condition_variable>
 
 static const int DEFAULT_HTTP_THREADS=4;
 static const int DEFAULT_HTTP_WORKQUEUE=16;
@@ -58,6 +60,14 @@ class HTTPRequest
 private:
     struct evhttp_request* req;
     bool replySent;
+    bool startedChunkTransfer;
+    bool connClosed;
+
+    std::mutex cs;
+    std::condition_variable closeCv;
+
+    void startDetectClientClose();
+    void waitClientClose();
 
 public:
     explicit HTTPRequest(struct evhttp_request* req, bool replySent = false);
@@ -70,6 +80,10 @@ public:
         HEAD,
         PUT
     };
+
+    void setConnClosed();
+    bool isConnClosed();
+    bool isChunkMode();
 
     /** Get requested URI.
      */
@@ -113,6 +127,21 @@ public:
      * main thread, do not call any other HTTPRequest methods after calling this.
      */
     void WriteReply(int nStatus, const std::string& strReply = "");
+
+    /**
+     * Start chunk transfer. Assume to be 200.
+     */
+    void Chunk(const std::string& chunk);
+
+    /**
+	 * End chunk transfer.
+	 */
+    void ChunkEnd();
+
+    /**
+     * Is reply sent?
+     */
+    bool ReplySent();
 };
 
 /** Event handler closure.
@@ -133,7 +162,7 @@ public:
      * deleteWhenTriggered deletes this event object after the event is triggered (and the handler called)
      * handler is the handler to call when the event is triggered.
      */
-    HTTPEvent(struct event_base* base, bool deleteWhenTriggered, const std::function<void()>& handler);
+    HTTPEvent(struct event_base* base, bool deleteWhenTriggered, struct evbuffer *_databuf, const std::function<void()>& handler);
     ~HTTPEvent();
 
     /** Trigger the event. If tv is 0, trigger it immediately. Otherwise trigger it after
@@ -144,6 +173,7 @@ public:
     bool deleteWhenTriggered;
     std::function<void()> handler;
 private:
+    struct evbuffer *databuf;
     struct event* ev;
 };
 
