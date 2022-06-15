@@ -977,7 +977,8 @@ qtum_wallet_LDADD = \
   $(LIBSECP256K1) \
   $(BDB_LIBS) \
   $(SQLITE_LIBS) \
-  $(BOOST_LIBS)
+  $(BOOST_LIBS) \
+  $(CRYPTO_LIBS)
 
 if TARGET_WINDOWS
 qtum_wallet_SOURCES += bitcoin-wallet-res.rc
@@ -1002,7 +1003,7 @@ qtum_util_LDADD = \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSECP256K1)
 
-qtum_util_LDADD += $(BOOST_LIBS)
+qtum_util_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
 
 # bitcoinconsensus library #
