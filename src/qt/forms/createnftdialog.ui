@@ -79,7 +79,7 @@
         </size>
        </property>
        <property name="text">
-        <string>NFT Desc</string>
+        <string>NFT Description</string>
        </property>
       </widget>
      </item>
@@ -92,7 +92,7 @@
         </size>
        </property>
        <property name="text">
-        <string>NFT Amount(MAX 10)</string>
+        <string>Number of copies</string>
        </property>
       </widget>
      </item>
