@@ -16,6 +16,7 @@
 #include <qt/guiutil.h>
 #include <util/moneystr.h>
 #include <node/ui_interface.h>
+#include <qtum/nftconfig.h>
 
 #include <QRegularExpressionValidator>
 #include <QMessageBox>
@@ -63,6 +64,13 @@ CreateNftDialog::CreateNftDialog(QWidget *parent) :
     ui->lineEditGasPrice->setSingleStep(SINGLE_STEP);
     ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
+
+    // Set uri validator
+    QRegularExpression regEx;
+    regEx.setPattern(QString::fromStdString(NftConfig::Instance().GetUriRegex()));
+    QRegularExpressionValidator *uriValidator = new QRegularExpressionValidator(ui->lineEditNftUri);
+    uriValidator->setRegularExpression(regEx);
+    ui->lineEditNftUri->setCheckValidator(uriValidator);
 }
 
 CreateNftDialog::~CreateNftDialog()
@@ -241,8 +249,9 @@ void CreateNftDialog::updateDisplayUnit()
 void CreateNftDialog::on_updateConfirmButton()
 {
     bool enabled = true;
-    QUrl url(ui->lineEditNftUri->text().trimmed());
-    if(!url.isValid())
+    QString sUrl = ui->lineEditNftUri->text().trimmed();
+    QUrl url(sUrl);
+    if(!url.isValid() || !NftConfig::Instance().IsUrlValid(sUrl.toStdString()))
     {
         enabled = false;
     }

@@ -2,6 +2,9 @@
 #define NFTCONFIG_H
 #include <uint256.h>
 
+#include <string>
+#include <vector>
+
 class NftConfig
 {
 public:
@@ -23,6 +26,19 @@ public:
      */
     void SetNftAddress(const uint160 &value);
 
+    /**
+     * @brief IsUrlValid Check if URL is valid
+     * @param sUrl String URL
+     * @return is valid
+     */
+    bool IsUrlValid(const std::string& sUrl) const;
+
+    /**
+     * @brief GetUriRegex Get uri regex
+     * @return regex
+     */
+    std::string GetUriRegex() const;
+
 protected:
     /**
      * @brief NftConfig Constructor
@@ -30,6 +46,8 @@ protected:
     NftConfig();
 
     uint160 nftAddress;
+    std::string urlRegex;
+    unsigned int nUrlMaxLength;
 };
 
 /**

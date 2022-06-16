@@ -3,7 +3,8 @@
 #include <util/system.h>
 #include <util/strencodings.h>
 
-#include <string>
+#include <iostream>
+#include <regex>
 
 NftConfig::NftConfig()
 {
@@ -20,6 +21,9 @@ NftConfig::NftConfig()
     {
         nftAddress = uint160(ParseHex("0000000000000000000000000000000000000000"));
     }
+
+    urlRegex = "(h|H)(t|T)(t|T)(p|P)(s|S)?://.*";
+    nUrlMaxLength = 2048;
 }
 
 uint160 NftConfig::GetNftAddress() const
@@ -41,4 +45,19 @@ const NftConfig &NftConfig::Instance()
 void UpdateNftAddress(const uint160& address)
 {
     const_cast<NftConfig&>(NftConfig::Instance()).SetNftAddress(address);
+}
+
+bool NftConfig::IsUrlValid(const std::string &sUrl) const
+{
+    if(sUrl.length() > nUrlMaxLength)
+    {
+        return false;
+    }
+
+    return std::regex_match (sUrl, std::regex(urlRegex));
+}
+
+std::string NftConfig::GetUriRegex() const
+{
+    return urlRegex;
 }
