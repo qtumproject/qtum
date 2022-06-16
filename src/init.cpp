@@ -72,6 +72,7 @@
 #endif
 #include <walletinitinterface.h>
 #include <key_io.h>
+#include <qtum/nftconfig.h>
 
 #include <functional>
 #include <set>
