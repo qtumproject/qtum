@@ -1,6 +1,7 @@
 #include <qt/nfturllabel.h>
 #include <qt/platformstyle.h>
 #include <qt/styleSheet.h>
+#include <qt/guiutil.h>
 #include <qtum/nftconfig.h>
 
 #include <QDesktopServices>
@@ -64,20 +65,13 @@ QString NftUrlLabel::getThumbnail() const
 
 void NftUrlLabel::setThumbnail(const QString &thumbnail)
 {
-    bool found = false;
     m_thumbnail = thumbnail;
-    if(m_thumbnail != "")
+    QPixmap pixmap;
+    if(GUIUtil::Base64ToThumbnail(m_thumbnail, pixmap))
     {
-        QByteArray buffer = QByteArray::fromBase64(m_thumbnail.toUtf8());
-        QPixmap pixmap;
-        if(pixmap.loadFromData(buffer, "PNG"))
-        {
-            setPixmap(pixmap);
-            found = true;
-        }
+        setPixmap(pixmap);
     }
-
-    if(!found)
+    else
     {
         setPixmap(m_defPixmap);
     }

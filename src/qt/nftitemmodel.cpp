@@ -205,11 +205,7 @@ private Q_SLOTS:
                     QPixmap pixmap;
                     if(GUIUtil::GetPixmapFromUrl(pixmap, url, thumbnailSize, thumbnailSize))
                     {
-                        QByteArray data;
-                        QBuffer buffer(&data);
-                        buffer.open(QIODevice::WriteOnly);
-                        pixmap.save(&buffer, "PNG");
-                        thumbnail = data.toBase64();
+                        thumbnail = GUIUtil::ThumbnailToBase64(pixmap);
                         if(!thumbnail.isEmpty())
                         {
                             thumbnailCache[url] = thumbnail;

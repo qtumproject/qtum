@@ -20,6 +20,7 @@
 #include <script/script.h>
 #include <script/standard.h>
 #include <util/system.h>
+#include <qtum/nftconfig.h>
 
 #ifdef WIN32
 #ifndef NOMINMAX
@@ -68,6 +69,7 @@
 #include <QTimer>
 #include <QByteArray>
 #include <QRegularExpression>
+#include <QBuffer>
 
 #include <cassert>
 #include <chrono>
@@ -465,41 +467,128 @@ bool HasPixmapForUrl(const QString& url)
     return matchImage.hasMatch();
 }
 
-bool GetPixmapFromUrl(QPixmap& pixmap, const QString& url, int maxWidth, int maxHeight)
+DownloadImage::DownloadImage()
+{
+    imageTooBig = false;
+    maxImageDownloadSize = NftConfig::Instance().GetMaxImageDownloadSize();
+    downloadTimeout = NftConfig::Instance().GetDownloadTimeout();
+}
+
+bool DownloadImage::GetPixmapFromUrl(QPixmap &pixmap, const QString &url, int maxWidth, int maxHeight)
 {
     bool result = false;
     QNetworkAccessManager manager;
     QNetworkReply *response = manager.get(QNetworkRequest(QUrl(url)));
     QTimer timer;
     timer.setSingleShot(true);
-    QEventLoop event;
+
     QObject::connect(&timer, &QTimer::timeout, &event, &QEventLoop::quit);
     QObject::connect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
-    timer.start(30000); // 30 seconds
+    QObject::connect(response, &QNetworkReply::downloadProgress, this, &DownloadImage::downloadProgress);
+    timer.start(downloadTimeout);
     event.exec();
 
-    if(timer.isActive())
+    if(imageTooBig)
     {
-        timer.stop();
-        if(response->error() == QNetworkReply::NoError)
+        // Null image when too big
+        if(timer.isActive())
         {
-            QByteArray downloadedData = response->readAll();
-            if (pixmap.loadFromData(downloadedData)) {
-                pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio);
-                result = !pixmap.isNull();
-            }
-            else {
-                result = false;
-            }
+            timer.stop();
         }
-    } else
-    {
-        // timeout
-        QObject::disconnect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
         response->abort();
+        result = true;
+    }
+    else
+    {
+        // Try get the image
+        if(timer.isActive())
+        {
+            timer.stop();
+            if(response->error() == QNetworkReply::NoError)
+            {
+                // The data can be compressed, check the available bytes too
+                if(response->bytesAvailable() < maxImageDownloadSize)
+                {
+                    QByteArray downloadedData = response->readAll();
+                    if(pixmap.loadFromData(downloadedData))
+                    {
+                        pixmap = pixmap.scaled(maxWidth, maxHeight, Qt::KeepAspectRatio);
+                    }
+                }
+                result = true;
+            }
+        } else
+        {
+            // timeout
+            QObject::disconnect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
+            response->abort();
+            result = false;
+        }
     }
 
     return result;
+}
+
+void DownloadImage::downloadProgress(qint64 bytesReceived, qint64 bytesTotal)
+{
+    if((bytesTotal == -1 && bytesReceived > maxImageDownloadSize) ||
+            (bytesTotal != -1 && bytesTotal > maxImageDownloadSize))
+    {
+        imageTooBig = true;
+        event.quit();
+    }
+}
+
+bool GetPixmapFromUrl(QPixmap& pixmap, const QString& url, int maxWidth, int maxHeight)
+{
+    bool ret = false;
+    try
+    {
+        ret = DownloadImage().GetPixmapFromUrl(pixmap, url, maxWidth, maxHeight);
+    }
+    catch(...)
+    {
+        ret = false;
+    }
+    return ret;
+}
+
+QString ThumbnailToBase64(const QPixmap &pixmap)
+{
+    QString strBase64;
+    try
+    {
+        QByteArray data;
+        QBuffer buffer(&data);
+        buffer.open(QIODevice::WriteOnly);
+        pixmap.save(&buffer, "PNG");
+        strBase64 = data.toBase64();
+    }
+    catch(...)
+    {}
+
+    if(strBase64.isEmpty())
+    {
+        strBase64 = "==="; //base64 empty
+    }
+    return strBase64;
+}
+
+bool Base64ToThumbnail(const QString& strBase64, QPixmap &pixmap)
+{
+    try
+    {
+        if(strBase64 != "===") //base64 empty
+        {
+            QByteArray buffer = QByteArray::fromBase64(strBase64.toUtf8());
+            if(pixmap.loadFromData(buffer, "PNG"))
+                return true;
+        }
+    }
+    catch(...)
+    {}
+
+    return false;
 }
 
 ToolTipToRichTextFilter::ToolTipToRichTextFilter(int _size_threshold, QObject *parent) :

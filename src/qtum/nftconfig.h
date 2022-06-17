@@ -39,6 +39,18 @@ public:
      */
     std::string GetUriRegex() const;
 
+    /**
+     * @brief GetMaxImageDownloadSize Get max image download size
+     * @return Max size
+     */
+    unsigned int GetMaxImageDownloadSize() const;
+
+    /**
+     * @brief GetDownloadTimeout Get download timeout
+     * @return Timeout
+     */
+    unsigned int GetDownloadTimeout() const;
+
 protected:
     /**
      * @brief NftConfig Constructor
@@ -47,7 +59,9 @@ protected:
 
     uint160 nftAddress;
     std::string urlRegex;
-    unsigned int nUrlMaxLength;
+    unsigned int urlMaxLength;
+    unsigned int maxImageDownloadSize;
+    unsigned int downloadTimeout;
 };
 
 /**

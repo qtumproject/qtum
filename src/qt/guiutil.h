@@ -24,6 +24,7 @@
 #include <QTableView>
 #include <QToolButton>
 #include <QPixmap>
+#include <QEventLoop>
 
 #include <cassert>
 #include <chrono>
@@ -190,6 +191,21 @@ namespace GUIUtil
      */
     bool GetPixmapFromUrl(QPixmap& pixmap, const QString& url, int maxWidth, int maxHeight);
 
+    /**
+     * @brief ThumbnailToBase64 Thumbnail to base64
+     * @param pixmap Thumbnail
+     * @return base64 string
+     */
+    QString ThumbnailToBase64(const QPixmap& pixmap);
+
+    /**
+     * @brief Base64ToThumbnail
+     * @param strBase64 String base64
+     * @param pixmap Thumbnail
+     * @return success of the operation
+     */
+     bool Base64ToThumbnail(const QString& strBase64, QPixmap &pixmap);
+
     /** Qt event filter that intercepts ToolTipChange events, and replaces the tooltip with a rich text
       representation if needed. This assures that Qt can word-wrap long tooltip messages.
       Tooltips longer than the provided size threshold (in characters) are wrapped.
@@ -260,6 +276,27 @@ namespace GUIUtil
         private Q_SLOTS:
             void on_sectionResized(int logicalIndex, int oldSize, int newSize);
             void on_geometriesChanged();
+    };
+
+    /**
+     * @brief The DownloadImage class Download image from URL
+     */
+    class DownloadImage: public QObject
+    {
+        Q_OBJECT
+
+    public:
+        DownloadImage();
+        bool GetPixmapFromUrl(QPixmap& pixmap, const QString& url, int maxWidth, int maxHeight);
+
+    protected:
+        QEventLoop event;
+        bool imageTooBig;
+        unsigned int maxImageDownloadSize;
+        unsigned int downloadTimeout;
+
+    protected Q_SLOTS:
+        void downloadProgress(qint64 bytesReceived, qint64 bytesTotal);
     };
 
     bool GetStartOnSystemStartup();

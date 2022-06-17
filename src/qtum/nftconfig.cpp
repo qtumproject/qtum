@@ -23,7 +23,9 @@ NftConfig::NftConfig()
     }
 
     urlRegex = "(h|H)(t|T)(t|T)(p|P)(s|S)?://.*";
-    nUrlMaxLength = 2048;
+    urlMaxLength = 2048;
+    maxImageDownloadSize = 1024 * 1024 * 20; // 20 MB
+    downloadTimeout = 30000; // 30 seconds
 }
 
 uint160 NftConfig::GetNftAddress() const
@@ -49,7 +51,7 @@ void UpdateNftAddress(const uint160& address)
 
 bool NftConfig::IsUrlValid(const std::string &sUrl) const
 {
-    if(sUrl.length() > nUrlMaxLength)
+    if(sUrl.length() > urlMaxLength)
     {
         return false;
     }
@@ -60,4 +62,14 @@ bool NftConfig::IsUrlValid(const std::string &sUrl) const
 std::string NftConfig::GetUriRegex() const
 {
     return urlRegex;
+}
+
+unsigned int NftConfig::GetMaxImageDownloadSize() const
+{
+    return maxImageDownloadSize;
+}
+
+unsigned int NftConfig::GetDownloadTimeout() const
+{
+    return downloadTimeout;
 }
