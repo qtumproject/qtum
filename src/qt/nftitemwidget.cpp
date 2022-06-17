@@ -38,7 +38,10 @@ void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, c
     QString tooltipName;
     getLabelText(nftName, textName, tooltipName);
     if(textName != ui->nftName->text())
+    {
         ui->nftName->setText(textName);
+        ui->nftUrl->setNftName(textName);
+    }
     if(tooltipName != ui->nftName->toolTip())
         ui->nftName->setToolTip(tooltipName);
 

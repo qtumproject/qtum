@@ -20,6 +20,9 @@ public:
     QString getThumbnail() const;
     void setThumbnail(const QString &thumbnail);
 
+    QString getNftName() const;
+    void setNftName(const QString &nftName);
+
 Q_SIGNALS:
     void clicked();
 
@@ -33,6 +36,7 @@ private:
     QString m_nftUrl;
     QString m_thumbnail;
     QPixmap m_defPixmap;
+    QString m_nftName;
 
 };
 
