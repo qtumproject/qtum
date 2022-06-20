@@ -24,8 +24,14 @@ NftConfig::NftConfig()
 
     urlRegex = "(h|H)(t|T)(t|T)(p|P)(s|S)?://.*";
     urlMaxLength = 2048;
-    maxImageDownloadSize = 1024 * 1024 * 20; // 20 MB
-    downloadTimeout = 30000; // 30 seconds
+    int64_t maxDownloadSize = gArgs.GetArg("-nftpreviewmaxsize", DEFAULT_NFT_PREVIEW_SIZE);
+    if(maxDownloadSize < 1 || maxDownloadSize > MAX_NFT_PREVIEW_MAX_SIZE)
+        maxDownloadSize = DEFAULT_NFT_PREVIEW_SIZE;
+    maxImageDownloadSize = 1024 * 1024 * (unsigned int)maxDownloadSize;
+    int64_t maxDownloadTimeout = gArgs.GetArg("-nftpreviewdownloadtimeout", DEFAULT_NFT_PREVIEW_DOWNLOAD_TIMEOUT);
+    if(maxDownloadTimeout < 1 || maxDownloadTimeout > MAX_NFT_PREVIEW_DOWNLOAD_TIMEOUT)
+        maxDownloadTimeout = DEFAULT_NFT_PREVIEW_DOWNLOAD_TIMEOUT;
+    downloadTimeout = 1000 * (unsigned int)maxDownloadTimeout;
 }
 
 uint160 NftConfig::GetNftAddress() const

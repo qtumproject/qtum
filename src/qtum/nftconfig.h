@@ -5,6 +5,11 @@
 #include <string>
 #include <vector>
 
+static const unsigned int DEFAULT_NFT_PREVIEW_SIZE = 20;
+static const unsigned int MAX_NFT_PREVIEW_MAX_SIZE = 256;
+static const unsigned int DEFAULT_NFT_PREVIEW_DOWNLOAD_TIMEOUT = 60;
+static const unsigned int MAX_NFT_PREVIEW_DOWNLOAD_TIMEOUT = 3600;
+
 class NftConfig
 {
 public:

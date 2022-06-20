@@ -4,6 +4,7 @@
 #include <univalue.h>
 #include <validation.h>
 #include <qtum/qtumtoken.h>
+#include <qtum/qtumnft.h>
 
 class ChainstateManager;
 
