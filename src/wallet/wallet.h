@@ -1134,6 +1134,9 @@ public:
     /* Get details nft tx entry into the wallet */
     bool GetNftTxDetails(const CNftTx &wtx, int32_t& credit, int32_t& debit, std::string& name) const;
 
+    /* Delete the stored NFT preview cache */
+    bool CleanNftPreviewCache();
+
     /* Load delegation entry into the wallet */
     bool LoadDelegation(const CDelegationInfo &delegation);
 

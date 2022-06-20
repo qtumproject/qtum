@@ -480,6 +480,7 @@ void SetupServerArgs(ArgsManager& argsman)
     argsman.AddArg("-hwitoolpath=<path>", "Specify HWI tool path", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-nftpreviewmaxsize=<n>", strprintf("NFT Preview max size in megabytes, 1 to %u, (default: %u)", MAX_NFT_PREVIEW_MAX_SIZE, DEFAULT_NFT_PREVIEW_SIZE), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-nftpreviewdownloadtimeout=<n>", strprintf("NFT Preview download timeout in seconds, 1 to %u, (default: %u)", MAX_NFT_PREVIEW_DOWNLOAD_TIMEOUT, DEFAULT_NFT_PREVIEW_DOWNLOAD_TIMEOUT), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-cleannftpreviewcache", "Clean NFTs preview cache and download the files from the URLs to extract the thumbnails.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 #ifdef USE_UPNP
 #if USE_UPNP
     argsman.AddArg("-upnp", "Use UPnP to map the listening port (default: 1 when listening and no -proxy)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);

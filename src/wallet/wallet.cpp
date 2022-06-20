@@ -3665,6 +3665,13 @@ void CWallet::postInitProcess()
     if (CanStake()) {
         StartStake();
     }
+
+    // Clean nft preview cache
+    bool fCleanNftPreviewCache = gArgs.GetBoolArg("-cleannftpreviewcache", false);
+    if(fCleanNftPreviewCache)
+    {
+        CleanNftPreviewCache();
+    }
 }
 
 bool CWallet::BackupWallet(const std::string& strDest) const
@@ -3841,7 +3848,10 @@ bool CWallet::AddNftEntry(const CNftInfo &nft, bool fFlushOnClose)
 
     NotifyNftChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
 
-    LogPrintf("AddNftEntry %s\n", wnft.GetHash().ToString());
+    if(fInsertedNew)
+    {
+        LogPrintf("AddNftEntry %s\n", wnft.GetHash().ToString());
+    }
 
     return true;
 }
@@ -3876,7 +3886,10 @@ bool CWallet::AddNftTxEntry(const CNftTx &nftTx, bool fFlushOnClose)
 
     NotifyNftTransactionChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
 
-    LogPrintf("AddNftTxEntry %s\n", wnftTx.GetHash().ToString());
+    if(fInsertedNew)
+    {
+        LogPrintf("AddNftTxEntry %s\n", wnftTx.GetHash().ToString());
+    }
 
     return true;
 }
@@ -4574,6 +4587,27 @@ bool CWallet::RemoveNftTxEntry(const uint256 &nftTxHash, bool fFlushOnClose)
     LogPrintf("RemoveNftTxEntry %s\n", nftTxHash.ToString());
 
     return true;
+}
+
+bool CWallet::CleanNftPreviewCache()
+{
+    LOCK(cs_wallet);
+    bool ret = true;
+    for(auto it = mapNft.begin(); it != mapNft.end(); it++)
+    {
+        CNftInfo info = it->second;
+        if(!info.strThumbnail.empty())
+        {
+            info.strThumbnail = "";
+            mapNft[it->first] = info;
+            ret &= AddNftEntry(info);
+        }
+    }
+    if(!ret)
+    {
+        LogPrintf("CleanNftPreviewCache error\n");
+    }
+    return ret;
 }
 
 bool CWallet::CleanTokenTxEntries(bool fFlushOnClose)

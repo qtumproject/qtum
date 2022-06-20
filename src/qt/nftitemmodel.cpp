@@ -78,7 +78,7 @@ public:
     QMap<QString, QString> thumbnailCache;
     QMap<QString, QDateTime> thumbnailTime;
     int thumbnailSize = 70; // 70 pix
-    int thumbnailRecheck = 600; // 10 min
+    int thumbnailRecheck = 1800; // 30 min
     NftTxWorker(WalletModel *_walletModel):
         walletModel(_walletModel) {}
 
