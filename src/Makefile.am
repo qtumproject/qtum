@@ -405,7 +405,6 @@ libbitcoin_server_a_SOURCES = \
   qtum/qtumstate.cpp \
   qtum/storageresults.cpp \
   qtum/qtumledger.cpp \
-  qtum/nftconfig.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
@@ -620,6 +619,7 @@ libbitcoin_common_a_SOURCES = \
   qtum/qtumtoken.cpp \
   qtum/qtumdelegation.cpp \
   qtum/qtumnft.cpp \
+  qtum/nftconfig.cpp \
   util/contractabi.cpp \
   libff/libff/algebra/curves/public_params.hpp \
   libff/libff/algebra/curves/curve_utils.hpp \

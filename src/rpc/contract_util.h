@@ -54,4 +54,31 @@ private:
     bool checkGasForCall = false;
 };
 
+/**
+ * @brief The CallNft class Read available token data
+ */
+class CallNft : public QtumNftExec, public QtumNft
+{
+public:
+    CallNft(ChainstateManager &_chainman);
+
+    bool execValid(const int& func, const bool& sendTo) override;
+
+    bool execEventsValid(const int &func, const int64_t &fromBlock) override;
+
+    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string&) override;
+
+    bool execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, std::vector<NftEvent> &result) override;
+
+    bool searchNftTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, UniValue& resultVar);
+
+    void setCheckGasForCall(bool value);
+
+protected:
+    ChainstateManager &chainman;
+
+private:
+    bool checkGasForCall = false;
+};
+
 #endif // CONTRACT_UTIL_H
