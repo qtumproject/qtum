@@ -56,6 +56,45 @@ public:
      */
     unsigned int GetDownloadTimeout() const;
 
+    /**
+     * @brief CheckCopiesRange Check copies range
+     * @param copies Number of copies
+     * @return Are number of copies in range
+     */
+    bool CheckCopiesRange(int copies) const;
+
+    /**
+     * @brief CheckNameLength Check name length
+     * @param name Name of the NFT
+     * @return Is name big
+     */
+    bool CheckNameLength(const std::string& name) const;
+
+    /**
+     * @brief CheckDescriptionLength Check description length
+     * @param desc Description of the NFT
+     * @return Is sescription big
+     */
+    bool CheckDescriptionLength(const std::string& desc) const;
+
+    /**
+     * @brief GetMaxCopies Get max number of copies
+     * @return Max copies
+     */
+    unsigned int GetMaxCopies() const;
+
+    /**
+     * @brief GetMaxNameLength Get max name length
+     * @return Max name length
+     */
+    unsigned int GetMaxNameLength() const;
+
+    /**
+     * @brief GetMaxDescriptionLength Get max description length
+     * @return Max description length
+     */
+    unsigned int GetMaxDescriptionLength() const;
+
 protected:
     /**
      * @brief NftConfig Constructor
@@ -64,9 +103,12 @@ protected:
 
     uint160 nftAddress;
     std::string urlRegex;
-    unsigned int urlMaxLength;
+    unsigned int maxUrlLength;
     unsigned int maxImageDownloadSize;
     unsigned int downloadTimeout;
+    unsigned int maxCopies;
+    unsigned int maxNameLength;
+    unsigned int maxDescriptionLength;
 };
 
 /**

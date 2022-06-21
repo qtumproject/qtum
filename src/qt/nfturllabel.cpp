@@ -53,7 +53,7 @@ void NftUrlLabel::on_clicked()
     }
     else
     {
-        QString message = tr("This NFT has an invalid URL and cannot be opened:\n%1.").arg(m_nftName);
+        QString message = tr("This NFT has an invalid URL and cannot be opened:\n%1.").arg(m_nftUrl);
         QMessageBox::warning(this, tr("Open NFT url"), message);
     }
 }

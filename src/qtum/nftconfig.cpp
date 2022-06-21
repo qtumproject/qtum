@@ -23,7 +23,7 @@ NftConfig::NftConfig()
     }
 
     urlRegex = "(h|H)(t|T)(t|T)(p|P)(s|S)?://.*";
-    urlMaxLength = 2048;
+    maxUrlLength = 2048;
     int64_t maxDownloadSize = gArgs.GetArg("-nftpreviewmaxsize", DEFAULT_NFT_PREVIEW_SIZE);
     if(maxDownloadSize < 1 || maxDownloadSize > MAX_NFT_PREVIEW_MAX_SIZE)
         maxDownloadSize = DEFAULT_NFT_PREVIEW_SIZE;
@@ -32,6 +32,9 @@ NftConfig::NftConfig()
     if(maxDownloadTimeout < 1 || maxDownloadTimeout > MAX_NFT_PREVIEW_DOWNLOAD_TIMEOUT)
         maxDownloadTimeout = DEFAULT_NFT_PREVIEW_DOWNLOAD_TIMEOUT;
     downloadTimeout = 1000 * (unsigned int)maxDownloadTimeout;
+    maxCopies = 10;
+    maxNameLength = 100;
+    maxDescriptionLength = 500;
 }
 
 uint160 NftConfig::GetNftAddress() const
@@ -57,7 +60,7 @@ void UpdateNftAddress(const uint160& address)
 
 bool NftConfig::IsUrlValid(const std::string &sUrl) const
 {
-    if(sUrl.length() > urlMaxLength)
+    if(sUrl.length() == 0 || sUrl.length() > maxUrlLength)
     {
         return false;
     }
@@ -78,4 +81,34 @@ unsigned int NftConfig::GetMaxImageDownloadSize() const
 unsigned int NftConfig::GetDownloadTimeout() const
 {
     return downloadTimeout;
+}
+
+bool NftConfig::CheckCopiesRange(int copies) const
+{
+    return copies >= 1 && copies <= (int)maxCopies;
+}
+
+bool NftConfig::CheckNameLength(const std::string &name) const
+{
+    return name.length() > 0 && name.length() <= maxNameLength;
+}
+
+bool NftConfig::CheckDescriptionLength(const std::string &desc) const
+{
+    return desc.length() > 0 && desc.length() <= maxDescriptionLength;
+}
+
+unsigned int NftConfig::GetMaxCopies() const
+{
+    return maxCopies;
+}
+
+unsigned int NftConfig::GetMaxNameLength() const
+{
+    return maxNameLength;
+}
+
+unsigned int NftConfig::GetMaxDescriptionLength() const
+{
+    return maxDescriptionLength;
 }
