@@ -1684,6 +1684,165 @@ private:
     CWallet& wallet;
 };
 
+/**
+ * @brief The SendNft class Write nft data
+ */
+class SendNft : public CallNft
+{
+public:
+    SendNft(CWallet& _wallet,
+              ChainstateManager& _chainman):
+        CallNft(_chainman),
+        wallet(_wallet)
+    {}
+
+    bool execValid(const int& func, const bool& sendTo) override
+    {
+        return sendTo ? func != -1 : CallNft::execValid(func, sendTo);
+    }
+
+    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message) override
+    {
+        if(!sendTo)
+            return CallNft::exec(sendTo, lstParams, result, message);
+
+        UniValue params(UniValue::VARR);
+
+        // Set address
+        auto it = lstParams.find(paramAddress());
+        if(it != lstParams.end())
+            params.push_back(it->second);
+        else
+            return false;
+
+        // Set data
+        it = lstParams.find(paramDatahex());
+        if(it != lstParams.end())
+            params.push_back(it->second);
+        else
+            return false;
+
+        // Set amount
+        it = lstParams.find(paramAmount());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 2)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set gas limit
+        it = lstParams.find(paramGasLimit());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 3) {
+                UniValue param(UniValue::VNUM);
+                param.setInt(atoi64(it->second));
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+
+        // Set gas price
+        it = lstParams.find(paramGasPrice());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 4)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set sender
+        it = lstParams.find(paramSender());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 5)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set broadcast
+        it = lstParams.find(paramBroadcast());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 6) {
+                bool val = it->second == "true" ? true : false;
+                UniValue param(UniValue::VBOOL);
+                param.setBool(val);
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+
+        // Set change to sender
+        it = lstParams.find(paramChangeToSender());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 7) {
+                bool val = it->second == "true" ? true : false;
+                UniValue param(UniValue::VBOOL);
+                param.setBool(val);
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+
+        // Set psbt
+        it = lstParams.find(paramPsbt());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 8) {
+                bool val = it->second == "true" ? true : false;
+                UniValue param(UniValue::VBOOL);
+                param.setBool(val);
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+
+        // Get execution result
+        UniValue response = SendToContract(wallet, params, chainman);
+        if(!response.isObject())
+            return false;
+        if(privateKeysDisabled())
+        {
+            if(!response.exists("psbt"))
+                return false;
+        }
+        else
+        {
+            if(!response.exists("txid"))
+                return false;
+        }
+        result = privateKeysDisabled() ? response["psbt"].get_str() : response["txid"].get_str();
+
+        return true;
+    }
+
+    bool privateKeysDisabled() override
+    {
+        return wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    }
+
+    bool isEventMine(const std::string& sender, const std::string& receiver) override
+    {
+        CNftTx wtx;
+        wtx.strSender = sender;
+        wtx.strReceiver = receiver;
+        return wallet.IsNftTxMine(wtx);
+    }
+
+private:
+    CWallet& wallet;
+};
+
 static RPCHelpMan sendtocontract()
 {
     uint64_t blockGasLimit = 0, minGasPrice = 0;

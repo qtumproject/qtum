@@ -47,6 +47,11 @@ bool QtumNftExec::privateKeysDisabled()
     return false;
 }
 
+bool QtumNftExec::isEventMine(const std::string &, const std::string &)
+{
+    return true;
+}
+
 QtumNftExec::~QtumNftExec()
 {}
 

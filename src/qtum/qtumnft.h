@@ -61,6 +61,7 @@ public:
     virtual bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message);
     virtual bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const int& numTopics, std::vector<NftEvent>& result);
     virtual bool privateKeysDisabled();
+    virtual bool isEventMine(const std::string& sender, const std::string& receiver);
     virtual ~QtumNftExec();
 };
 

@@ -679,6 +679,9 @@ bool CallNft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const
                 nftEvent.receiver = topicsList[3].get_str().substr(24);
                 ToQtumAddress(nftEvent.receiver, nftEvent.receiver);
             }
+            if(!isEventMine(nftEvent.sender, nftEvent.receiver))
+                continue;
+
             nftEvent.blockHash = uint256S(eventMap["blockHash"].get_str());
             nftEvent.blockNumber = eventMap["blockNumber"].get_int64();
             nftEvent.transactionHash = uint256S(eventMap["transactionHash"].get_str());
