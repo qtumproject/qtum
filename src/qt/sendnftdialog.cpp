@@ -259,7 +259,7 @@ void SendNftDialog::setNftData(std::string sender, std::string id, std::string b
 {
     // Update data with the current nft
     m_selectedNft->sender = sender;
-    m_selectedNft->id = uint256S(id);
+    m_selectedNft->id = uint256(ParseHex(id));
     m_selectedNft->balance = balance;
 
     // Convert values for different number of decimals

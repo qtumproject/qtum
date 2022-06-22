@@ -423,7 +423,7 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         return QString::number(rec->balance);
         break;
     case NftItemModel::IdRole:
-        return QString::fromStdString(rec->id.ToString());
+        return QString::fromStdString(rec->id.GetReverseHex());
         break;
     case NftItemModel::UrlRole:
         return rec->url;
