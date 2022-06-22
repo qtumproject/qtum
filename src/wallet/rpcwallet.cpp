@@ -7588,7 +7588,7 @@ static RPCHelpMan nftsend()
                 {
                     {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The nft owner qtum address."},
                     {"addressto", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to send funds to."},
-                    {"tokenid", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The token id."},
+                    {"tokenid", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The token ID."},
                     {"amount", RPCArg::Type::NUM, RPCArg::Optional::NO,  "The amount of nfts to send. eg 1"},
                     {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
                     {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
@@ -7622,10 +7622,8 @@ static RPCHelpMan nftsend()
     int32_t value = request.params[3].get_int();
     const NftConfig & nftConfig = NftConfig::Instance();
 
-    // Check token id
-    if(tokenId.size() != 64 || !CheckHex(tokenId))
-        throw JSONRPCError(RPC_MISC_ERROR, "Incorrect token id");
-    uint256 id = uint256(ParseHex(tokenId));
+    // Parse token Id
+    uint256 id = parseTokenId(tokenId);
 
     // Check amount
     if(!nftConfig.CheckCopiesRange(value))

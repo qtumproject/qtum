@@ -27,6 +27,8 @@ void parseParam(const UniValue& val, std::set<dev::h160> &h160s);
 
 void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h256s);
 
+uint256 parseTokenId(const std::string& tokenId);
+
 /**
  * @brief The CallToken class Read available token data
  */

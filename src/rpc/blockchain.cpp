@@ -3865,6 +3865,56 @@ static RPCHelpMan qrc20listtransactions()
     };
 }
 
+static RPCHelpMan nftgetinfo()
+{
+    return RPCHelpMan{"nftgetinfo",
+        "\nReturns NFT info for a token ID.\n",
+        {
+            {"tokenid", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The token ID."},
+        },
+        RPCResult{
+            RPCResult::Type::OBJ, "", "",
+            {
+                {RPCResult::Type::STR_HEX, "nftid", "Hash of the NFT data (name and url)"},
+                {RPCResult::Type::STR, "name", "NFT name"},
+                {RPCResult::Type::STR, "url", "NFT url"},
+                {RPCResult::Type::STR, "description", "NFT description"},
+                {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
+                {RPCResult::Type::NUM, "count", "The number of copies"},
+            }},
+        RPCExamples{
+            HelpExampleCli("nftgetinfo", "\"00000000000000000000000000000000000000000000000000000000000003e8\"")
+                    + HelpExampleRpc("nftgetinfo", "\"00000000000000000000000000000000000000000000000000000000000003e8\"")
+        },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    // Get parameters
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    CallNft nft(chainman);
+    std::string tokenId = request.params[0].get_str();
+
+    // Parse token Id
+    uint256 id = parseTokenId(tokenId);
+
+    // Get nft info
+    UniValue res(UniValue::VOBJ);
+    WalletNFTInfo info;
+    if(!nft.walletNFTList(info, id))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to NFT info");
+
+    // Get result
+    res.pushKV("nftid", info.NFTId.ToString());
+    res.pushKV("name", info.name);
+    res.pushKV("url", info.url);
+    res.pushKV("description", info.desc);
+    res.pushKV("blocktime", info.createAt);
+    res.pushKV("count", info.count);
+
+    return res;
+},
+    };
+}
+
 void RegisterBlockchainRPCCommands(CRPCTable &t)
 {
 // clang-format off
@@ -3907,6 +3957,8 @@ static const CRPCCommand commands[] =
     { "blockchain",         &qrc20balanceof,                     },
     { "blockchain",         &qrc20allowance,                     },
     { "blockchain",         &qrc20listtransactions,              },
+
+    { "blockchain",         &nftgetinfo,                         },
 
     { "blockchain",         &listcontracts,                      },
     { "blockchain",         &gettransactionreceipt,              },
