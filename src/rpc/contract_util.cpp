@@ -646,7 +646,7 @@ bool CallNft::exec(const bool &sendTo, const std::map<std::string, std::string> 
     return true;
 }
 
-bool CallNft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t& minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, std::vector<NftEvent> &result)
+bool CallNft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t& minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, const FunctionABI& func, std::vector<NftEvent> &result)
 {
     UniValue resultVar;
     if(!searchNftTx(fromBlock, toBlock, minconf, eventName, contractAddress, numTopics, resultVar))
@@ -668,38 +668,18 @@ bool CallNft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const
 
             // Create new event
             NftEvent nftEvent;
-            nftEvent.address = eventMap["contractAddress"].get_str();
-            if(numTopics > 2)
-            {
-                nftEvent.sender = topicsList[2].get_str().substr(24);
-                ToQtumAddress(nftEvent.sender, nftEvent.sender);
-            }
-            if(numTopics > 3)
-            {
-                nftEvent.receiver = topicsList[3].get_str().substr(24);
-                ToQtumAddress(nftEvent.receiver, nftEvent.receiver);
-            }
-            if(!isEventMine(nftEvent.sender, nftEvent.receiver))
-                continue;
-
             nftEvent.blockHash = uint256S(eventMap["blockHash"].get_str());
             nftEvent.blockNumber = eventMap["blockNumber"].get_int64();
             nftEvent.transactionHash = uint256S(eventMap["transactionHash"].get_str());
 
             // Parse data
+            std::vector<std::string> topics;
+            for(size_t i = 0; i < topicsList.size(); i++)
+            {
+                topics.push_back(topicsList[i].get_str());
+            }
             std::string data = eventLog["data"].get_str();
-            if(data.size() >= ContractABI_NS::HEX_INSTRUCTION_SIZE)
-            {
-                std::string outData = data.substr(0, ContractABI_NS::HEX_INSTRUCTION_SIZE);
-                nftEvent.id = ToUint256(outData);
-            }
-            if(data.size() >= 2 * ContractABI_NS::HEX_INSTRUCTION_SIZE)
-            {
-                std::string outData = data.substr(ContractABI_NS::HEX_INSTRUCTION_SIZE, ContractABI_NS::HEX_INSTRUCTION_SIZE);
-                nftEvent.value = ToInt32(outData);
-            }
-
-            result.push_back(nftEvent);
+            addEvent(func, topics, data, nftEvent, result);
         }
     }
 

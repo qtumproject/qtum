@@ -6,6 +6,7 @@
 #include <uint256.h>
 
 struct QtumNftData;
+class FunctionABI;
 
 struct WalletNFTInfo {
     uint256 NFTId;
@@ -59,9 +60,12 @@ public:
     virtual bool execValid(const int& func, const bool& sendTo);
     virtual bool execEventsValid(const int& func, const int64_t& fromBlock);
     virtual bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message);
-    virtual bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const int& numTopics, std::vector<NftEvent>& result);
+    virtual bool execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const int& numTopics, const FunctionABI& func, std::vector<NftEvent>& result);
     virtual bool privateKeysDisabled();
     virtual bool isEventMine(const std::string& sender, const std::string& receiver);
+    virtual bool addEvent(const FunctionABI &func, const std::vector<std::string>& topics, const std::string& data, NftEvent nftEvent, std::vector<NftEvent> &result);
+    virtual bool parseEvent(const FunctionABI &func, const std::vector<std::string>& topics, const std::string& data, NftEvent& nftEvent, std::vector<uint256>& evtIds, std::vector<int32_t>& evtValues);
+    virtual bool filterMatch(const NftEvent& nftEvent);
     virtual ~QtumNftExec();
 };
 

@@ -7,6 +7,7 @@
 #include <qtum/qtumnft.h>
 
 class ChainstateManager;
+class FunctionABI;
 
 UniValue CallToContract(const UniValue& params, ChainstateManager &chainman);
 
@@ -70,7 +71,7 @@ public:
 
     bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string&) override;
 
-    bool execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, std::vector<NftEvent> &result) override;
+    bool execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, const FunctionABI& func, std::vector<NftEvent> &result) override;
 
     bool searchNftTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, UniValue& resultVar);
 

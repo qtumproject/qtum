@@ -7,6 +7,7 @@
 #include <util/convert.h>
 #include <libethcore/ABI.h>
 #include <qtum/nftconfig.h>
+#include <logging.h>
 
 namespace QtumNft_NS
 {
@@ -37,7 +38,7 @@ bool QtumNftExec::exec(const bool &, const std::map<std::string, std::string> &,
     return false;
 }
 
-bool QtumNftExec::execEvents(const int64_t &, const int64_t &, const int64_t&, const std::string &, const std::string &, const int &, std::vector<NftEvent> &)
+bool QtumNftExec::execEvents(const int64_t &, const int64_t &, const int64_t&, const std::string &, const std::string &, const int &, const FunctionABI&, std::vector<NftEvent> &)
 {
     return false;
 }
@@ -50,6 +51,82 @@ bool QtumNftExec::privateKeysDisabled()
 bool QtumNftExec::isEventMine(const std::string &, const std::string &)
 {
     return true;
+}
+
+bool QtumNftExec::filterMatch(const NftEvent &)
+{
+    return true;
+}
+
+bool QtumNftExec::parseEvent(const FunctionABI &func, const std::vector<std::string> &topics, const std::string &data, NftEvent &nftEvent, std::vector<uint256> &evtIds, std::vector<int32_t>& evtValues)
+{
+    try
+    {
+        std::vector<std::vector<std::string>> values;
+        std::vector<ParameterABI::ErrorType> errors;
+        if(func.abiOut(topics, data, values, errors) && values.size() >= 5)
+        {
+            if(values[1].size() > 0)
+            {
+                nftEvent.sender = values[1][0];
+                if(!QtumNft::ToQtumAddress(nftEvent.sender, nftEvent.sender, false))
+                    return false;
+            }
+            if(values[2].size() > 0)
+            {
+                nftEvent.receiver = values[2][0];
+                if(!QtumNft::ToQtumAddress(nftEvent.receiver, nftEvent.receiver, false))
+                    return false;
+            }
+            if(!isEventMine(nftEvent.sender, nftEvent.receiver))
+                return true;
+
+            if(values[3].size() != 0 && values[3].size() != values[4].size())
+                return false;
+
+            for(size_t i = 0; i < values[3].size(); i++)
+            {
+                uint256 id = u256Touint(dev::u256(values[3][i]));
+                int32_t value = 0;
+                if(!ParseInt32(values[4][i], &value))
+                    return false;
+                evtIds.push_back(id);
+                evtValues.push_back(value);
+            }
+        }
+    }
+    catch(...)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool QtumNftExec::addEvent(const FunctionABI &func, const std::vector<std::string> &topics, const std::string &data, NftEvent nftEvent, std::vector<NftEvent> &result)
+{
+    std::vector<uint256> evtIds;
+    std::vector<int32_t> evtValues;
+
+    bool ret = parseEvent(func, topics, data, nftEvent, evtIds, evtValues);
+    if(ret)
+    {
+        for(size_t i = 0; i < evtIds.size(); i++)
+        {
+            nftEvent.id = evtIds[i];
+            nftEvent.value = evtValues[i];
+            if(filterMatch(nftEvent))
+            {
+                result.push_back(nftEvent);
+            }
+        }
+    }
+    else
+    {
+        LogPrintf("%s: Failed to parse NFT event. Transaction hash %s\n", __func__, nftEvent.transactionHash.ToString());
+    }
+
+    return ret;
 }
 
 QtumNftExec::~QtumNftExec()
@@ -66,7 +143,8 @@ struct QtumNftData
     int funcIsApprovedForAll;
     int funcSafeTransferFrom;
     int funcWalletNFTList;
-    int evtTransfer;
+    int evtTransferSingle;
+    int evtTransferBatch;
 
     std::string txid;
     std::string psbt;
@@ -80,7 +158,8 @@ struct QtumNftData
         funcIsApprovedForAll(-1),
         funcSafeTransferFrom(-1),
         funcWalletNFTList(-1),
-        evtTransfer(-1)
+        evtTransferSingle(-1),
+        evtTransferBatch(-1)
     {}
 };
 
@@ -167,7 +246,11 @@ QtumNft::QtumNft():
             }
             else if(func.name == "TransferSingle")
             {
-                d->evtTransfer = i;
+                d->evtTransferSingle = i;
+            }
+            else if(func.name == "TransferBatch")
+            {
+                d->evtTransferBatch = i;
             }
         }
     }
@@ -406,7 +489,9 @@ bool QtumNft::walletNFTList(WalletNFTInfo &result, const uint256 &_id, bool send
 
 bool QtumNft::transferEvents(std::vector<NftEvent> &nftEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
 {
-    return execEvents(fromBlock, toBlock, minconf, d->evtTransfer, nftEvents);
+    bool ret = execEvents(fromBlock, toBlock, minconf, d->evtTransferSingle, nftEvents);
+    ret &= execEvents(fromBlock, toBlock, minconf, d->evtTransferBatch, nftEvents);
+    return ret;
 }
 
 bool QtumNft::exec(const std::vector<std::string> &input, int func, std::vector<std::string> &output, bool sendTo)
@@ -508,7 +593,7 @@ bool QtumNft::execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, in
     std::string eventName = function.selector();
     std::string contractAddress = d->lstParams[QtumNft_NS::PARAM_ADDRESS];
     int numTopics = function.numIndexed() + 1;
-    if(!(d->nftExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, numTopics, result)))
+    if(!(d->nftExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, numTopics, function, result)))
         return false;
 
     // Parse the result events
