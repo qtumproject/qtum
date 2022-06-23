@@ -113,6 +113,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "waitforlogs", 3, "minconf"},
     { "qrc20listtransactions", 2, "fromblock"},
     { "qrc20listtransactions", 3, "minconf"},
+    { "nftlisttransactions", 2, "fromblock"},
+    { "nftlisttransactions", 3, "minconf"},
     //////////////////////////////////////////////////
     { "createmultisig", 0, "nrequired" },
     { "createmultisig", 1, "keys" },

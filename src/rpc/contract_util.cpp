@@ -271,6 +271,27 @@ void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h2
     });
 }
 
+uint256 parseTokenId(const std::string& tokenId)
+{
+    uint256 id;
+    uint64_t number = 0;
+
+    if(tokenId.size() == 64 && CheckHex(tokenId))
+    {
+        id = uint256(ParseHex(tokenId));
+    }
+    else if(ParseUInt64(tokenId, &number))
+    {
+        id = u256Touint(number);
+    }
+    else
+    {
+        throw JSONRPCError(RPC_MISC_ERROR, "Incorrect token ID");
+    }
+
+    return id;
+}
+
 class SearchLogsParams {
 public:
     size_t fromBlock;
@@ -686,6 +707,18 @@ bool CallNft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const
     return true;
 }
 
+bool CallNft::isEventMine(const std::string &sender, const std::string &receiver)
+{
+    if(!filter) return true;
+    return sender == owner || receiver == owner;
+}
+
+bool CallNft::filterMatch(const NftEvent &nftEvent)
+{
+    if(!filter) return true;
+    return nftEvent.id == id;
+}
+
 bool CallNft::searchNftTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, UniValue &resultVar)
 {
     UniValue params(UniValue::VARR);
@@ -717,23 +750,9 @@ void CallNft::setCheckGasForCall(bool value)
     checkGasForCall = value;
 }
 
-uint256 parseTokenId(const std::string& tokenId)
+void CallNft::setFilter(const uint256 &_id, const std::string &_owner)
 {
-    uint256 id;
-    uint64_t number = 0;
-
-    if(tokenId.size() == 64 && CheckHex(tokenId))
-    {
-        id = uint256(ParseHex(tokenId));
-    }
-    else if(ParseUInt64(tokenId, &number))
-    {
-        id = u256Touint(number);
-    }
-    else
-    {
-        throw JSONRPCError(RPC_MISC_ERROR, "Incorrect token ID");
-    }
-
-    return id;
+    id = _id;
+    owner = _owner;
+    filter = true;
 }

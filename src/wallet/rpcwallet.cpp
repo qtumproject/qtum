@@ -7570,7 +7570,18 @@ static RPCHelpMan nftcreate()
     }
     else
     {
-        result.pushKV("txid", nft.getTxId());
+        std::string txid = nft.getTxId();
+        result.pushKV("txid", txid);
+
+        if(!txid.empty())
+        {
+            CNftTx nftTx;
+            nftTx.strReceiver = owner;
+            nftTx.nValue = count;
+            nftTx.id = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+            nftTx.transactionHash = uint256S(txid);
+            pwallet->AddNftTxEntry(nftTx);
+        }
     }
     return result;
 },
@@ -7680,7 +7691,19 @@ static RPCHelpMan nftsend()
     }
     else
     {
-        result.pushKV("txid", nft.getTxId());
+        std::string txid = nft.getTxId();
+        result.pushKV("txid", txid);
+
+        if(!txid.empty())
+        {
+            CNftTx nftTx;
+            nftTx.strSender = owner;
+            nftTx.strReceiver = address;
+            nftTx.id = id;
+            nftTx.nValue = value;
+            nftTx.transactionHash = uint256S(txid);
+            pwallet->AddNftTxEntry(nftTx);
+        }
     }
     return result;
 },

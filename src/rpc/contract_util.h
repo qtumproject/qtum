@@ -73,15 +73,24 @@ public:
 
     bool execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, const FunctionABI& func, std::vector<NftEvent> &result) override;
 
+    bool isEventMine(const std::string& sender, const std::string& receiver) override;
+
+    bool filterMatch(const NftEvent& nftEvent) override;
+
     bool searchNftTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, UniValue& resultVar);
 
     void setCheckGasForCall(bool value);
+
+    void setFilter(const uint256& id, const std::string& owner);
 
 protected:
     ChainstateManager &chainman;
 
 private:
     bool checkGasForCall = false;
+    uint256 id;
+    std::string owner;
+    bool filter = false;
 };
 
 #endif // CONTRACT_UTIL_H
