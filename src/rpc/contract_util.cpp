@@ -739,8 +739,21 @@ void CallNft::setCheckGasForCall(bool value)
 
 uint256 parseTokenId(const std::string& tokenId)
 {
-    if(tokenId.size() != 64 || !CheckHex(tokenId))
+    uint256 id;
+    uint64_t number = 0;
+
+    if(tokenId.size() == 64 && CheckHex(tokenId))
+    {
+        id = uint256(ParseHex(tokenId));
+    }
+    else if(ParseUInt64(tokenId, &number))
+    {
+        id = u256Touint(number);
+    }
+    else
+    {
         throw JSONRPCError(RPC_MISC_ERROR, "Incorrect token ID");
-    uint256 id = uint256(ParseHex(tokenId));
+    }
+
     return id;
 }

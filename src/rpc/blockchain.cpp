@@ -3870,7 +3870,7 @@ static RPCHelpMan nftgetinfo()
     return RPCHelpMan{"nftgetinfo",
         "\nReturns NFT info for a token ID.\n",
         {
-            {"tokenid", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The token ID."},
+            {"tokenid", RPCArg::Type::STR, RPCArg::Optional::NO, "The token ID."},
         },
         RPCResult{
             RPCResult::Type::OBJ, "", "",
