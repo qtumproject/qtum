@@ -3894,6 +3894,29 @@ bool CWallet::AddNftTxEntry(const CNftTx &nftTx, bool fFlushOnClose)
     return true;
 }
 
+bool CWallet::AddNftTxEntries(const std::vector<CNftTx> &nftTxs)
+{
+    LOCK(cs_wallet);
+
+    bool ret = true;
+    for (const CNftTx& nftTx : nftTxs)
+    {
+        // Check if the nft is mine
+        if(IsNftTxMine(nftTx))
+        {
+            // Remove the unconfirmed nft tx entry
+            ret &= RemoveUnconfirmedNftTxEntry(nftTx);
+
+            // Add the new nft tx entry
+            if(!ExistNftTxEntry(nftTx))
+            {
+                ret &= AddNftTxEntry(nftTx, true);
+            }
+        }
+    }
+    return ret;
+}
+
 CKeyPool::CKeyPool()
 {
     nTime = GetTime();
@@ -4414,6 +4437,16 @@ bool CWallet::IsNftTxMine(const CNftTx &wtx) const
     return ret;
 }
 
+bool CWallet::ExistNftTxEntry(const CNftTx &wtx) const
+{
+    LOCK(cs_wallet);
+
+    uint256 hash = wtx.GetHash();
+    std::map<uint256, CNftTx>::const_iterator it = mapNftTx.find(hash);
+
+    return it != mapNftTx.end();
+}
+
 bool CWallet::IsNftMine(const CNftInfo &info) const
 {
     LOCK(cs_wallet);
@@ -4587,6 +4620,30 @@ bool CWallet::RemoveNftTxEntry(const uint256 &nftTxHash, bool fFlushOnClose)
     LogPrintf("RemoveNftTxEntry %s\n", nftTxHash.ToString());
 
     return true;
+}
+
+bool CWallet::RemoveUnconfirmedNftTxEntry(const CNftTx &nftTx)
+{
+    bool ret = true;
+    if(!nftTx.transactionHash.IsNull())
+    {
+        LOCK(cs_wallet);
+        std::vector<uint256> nftTxIds;
+        for (const auto& entry : mapNftTx)
+        {
+            if(entry.second.blockNumber == -1 &&
+                    entry.second.transactionHash == nftTx.transactionHash)
+            {
+                nftTxIds.push_back(entry.first);
+            }
+        }
+        for(const auto& entry : nftTxIds)
+        {
+            ret &= RemoveNftTxEntry(entry, false);
+        }
+    }
+
+    return ret;
 }
 
 bool CWallet::CleanNftPreviewCache()

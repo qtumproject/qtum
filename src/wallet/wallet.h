@@ -1119,14 +1119,23 @@ public:
     /* Add nft tx entry into the wallet */
     bool AddNftTxEntry(const CNftTx& nftTx, bool fFlushOnClose=true);
 
+    /* Add nft tx entries into the wallet */
+    bool AddNftTxEntries(const std::vector<CNftTx> &nftTxs);
+
     /* Remove nft tx entry from the wallet */
     bool RemoveNftTxEntry(const uint256& nftHash, bool fFlushOnClose=true);
+
+    /* Remove unconfirmed nft tx entry from the wallet */
+    bool RemoveUnconfirmedNftTxEntry(const CNftTx& nftTx);
 
     /* Check if nft transaction is mine */
     bool IsNftTxMine(const CNftTx &wtx) const;
 
     /* Check if nft is mine */
     bool IsNftMine(const CNftInfo &info) const;
+
+    /* Check if exist nft transaction */
+    bool ExistNftTxEntry(const CNftTx &wtx) const;
 
     /* Get raw nft from tx (Owner and Id for NFT)*/
     std::vector<CNftInfo> GetRawNftFromTx() const;

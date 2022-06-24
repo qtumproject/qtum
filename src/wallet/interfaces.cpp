@@ -1582,57 +1582,18 @@ public:
     }
     bool removeUnconfirmedNftTxEntry(const NftTx &nftTx) override
     {
-        bool ret = true;
-        if(!nftTx.tx_hash.IsNull())
-        {
-            LOCK(m_wallet->cs_wallet);
-            std::vector<uint256> nftTxIds;
-            for (const auto& entry : m_wallet->mapNftTx)
-            {
-                if(entry.second.blockNumber == -1 &&
-                        entry.second.transactionHash == nftTx.tx_hash)
-                {
-                    nftTxIds.push_back(entry.first);
-                }
-            }
-            for(const auto& entry : nftTxIds)
-            {
-                ret &= m_wallet->RemoveNftTxEntry(entry, false);
-            }
-        }
-
-        return ret;
+        return m_wallet->RemoveUnconfirmedNftTxEntry(MakeNftTx(nftTx));
     }
     bool existNftTxEntry(const NftTx &nftTx) override
     {
-        LOCK(m_wallet->cs_wallet);
-
-        uint256 hash = MakeNftTx(nftTx).GetHash();
-        std::map<uint256, CNftTx>::iterator it = m_wallet->mapNftTx.find(hash);
-
-        return it != m_wallet->mapNftTx.end();
+        return m_wallet->ExistNftTxEntry(MakeNftTx(nftTx));
     }
     bool addNftTxEntries(const std::vector<NftTx> &nftTxs) override
     {
-        LOCK(m_wallet->cs_wallet);
-
-        bool ret = true;
-        for (const NftTx& nftTx : nftTxs)
-        {
-            // Check if the nft is mine
-            if(isNftTxMine(nftTx))
-            {
-                // Remove the unconfirmed nft tx entry
-                ret &= removeUnconfirmedNftTxEntry(nftTx);
-
-                // Add the new nft tx entry
-                if(!existNftTxEntry(nftTx))
-                {
-                    ret &= addNftTxEntry(nftTx, true);
-                }
-            }
-        }
-        return ret;
+        std::vector<CNftTx> txs;
+        for (const NftTx& nftTx : nftTxs) 
+            txs.push_back(MakeNftTx(nftTx));
+        return m_wallet->AddNftTxEntries(txs);
     }
     bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose) override
     {
