@@ -7710,6 +7710,132 @@ static RPCHelpMan nftsend()
     };
 }
 
+static RPCHelpMan nftlist()
+{
+    return RPCHelpMan{"nftlist",
+        "\nReturns owned NFTs list.\n",
+        {},
+        RPCResult{
+            RPCResult::Type::ARR, "", "",
+            {
+                {RPCResult::Type::OBJ, "", "",
+                {
+                    {RPCResult::Type::STR_HEX, "tokenid", "The token ID"},
+                    {RPCResult::Type::STR, "owneraddress", "The nft owner qtum address."},
+                    {RPCResult::Type::STR_HEX, "nftid", "Hash of the NFT data (name and url)"},
+                    {RPCResult::Type::STR, "name", "NFT name"},
+                    {RPCResult::Type::STR, "url", "NFT url"},
+                    {RPCResult::Type::STR, "description", "NFT description"},
+                    {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
+                    {RPCResult::Type::NUM, "count", "The number of copies"},
+                }}
+            },
+        },
+        RPCExamples{
+            HelpExampleCli("nftlist", "")
+                    + HelpExampleRpc("nftlist", "")
+        },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+    ChainstateManager& chainman = pwallet->chain().chainman();
+    LOCK(pwallet->cs_wallet);
+    SendNft nftAbi(*pwallet, chainman);
+
+    // Get transaction events
+    int64_t fromBlock = pwallet->m_nft_tx_from_block;
+    int64_t toBlock = -1;
+    std::vector<NftEvent> nftEvents;
+    {
+        LOCK(cs_main);
+        CChain& active_chain = chainman.ActiveChain();
+        toBlock = active_chain.Height();
+        if(!nftAbi.transferEvents(nftEvents, pwallet->m_nft_tx_from_block, toBlock))
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transfer events");
+    }
+
+    // Update wallet nft transactions
+    std::vector<CNftTx> nftTxs;
+    for(size_t i = 0; i < nftEvents.size(); i++)
+    {
+        NftEvent event = nftEvents[i];
+        CNftTx nftTx;
+        nftTx.strSender = event.sender;
+        nftTx.strReceiver = event.receiver;
+        nftTx.id = event.id;
+        nftTx.nValue = event.value;
+        nftTx.transactionHash = event.transactionHash;
+        nftTx.blockHash = event.blockHash;
+        nftTx.blockNumber = event.blockNumber;
+        nftTxs.push_back(nftTx);
+    }
+    if(!pwallet->AddNftTxEntries(nftTxs))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to update nft transactions");
+    fromBlock = toBlock - 10;
+    if(fromBlock < 0) fromBlock = 0;
+    pwallet->m_nft_tx_from_block = fromBlock;
+
+    // Update wallet nft list
+    std::map<uint256, WalletNFTInfo> listNftInfo;
+    for(CNftInfo nft : pwallet->GetRawNftFromTx())
+    {
+        bool isOk = true;
+        WalletNFTInfo info;
+        auto search = listNftInfo.find(nft.id);
+        nftAbi.setSender(nft.strOwner);
+        if(search != listNftInfo.end())
+        {
+            info = search->second;
+        }
+        else
+        {
+            isOk &= nftAbi.walletNFTList(info, nft.id);
+            if(isOk)
+            {
+                listNftInfo[nft.id] = info;
+            }
+        }
+
+        if(!isOk) continue;
+        nft.NFTId = info.NFTId;
+        nft.strName = info.name;
+        nft.strUrl = info.url;
+        nft.strDesc = info.desc;
+        nft.nCreateTime = info.createAt;
+        int32_t count = 0;
+        isOk &= nftAbi.balanceOf(nft.id, count);
+
+        if(!isOk) continue;
+        nft.nCount = count;
+        pwallet->AddNftEntry(nft);
+    }
+
+    // Get wallet nft list
+    UniValue results(UniValue::VARR);
+    for(auto it = pwallet->mapNft.begin(); it != pwallet->mapNft.end(); it++)
+    {
+        CNftInfo info = it->second;
+        if(info.nCount > 0)
+        {
+            UniValue obj(UniValue::VOBJ);
+            obj.pushKV("tokenid", info.id.GetReverseHex());
+            obj.pushKV("owneraddress", info.strOwner);
+            obj.pushKV("nftid", info.NFTId.ToString());
+            obj.pushKV("name", info.strName);
+            obj.pushKV("url", info.strUrl);
+            obj.pushKV("description", info.strDesc);
+            obj.pushKV("blocktime", info.nCreateTime);
+            obj.pushKV("count", info.nCount);
+            results.push_back(obj);
+        }
+    }
+
+    return results;
+},
+    };
+}
+
 RPCHelpMan abortrescan();
 RPCHelpMan dumpprivkey();
 RPCHelpMan importprivkey();
@@ -7812,6 +7938,7 @@ static const CRPCCommand commands[] =
     { "wallet",             &qrc20burnfrom,                   },
     { "wallet",             &nftcreate,                       },
     { "wallet",             &nftsend,                         },
+    { "wallet",             &nftlist,                         },
 };
 // clang-format on
     return MakeSpan(commands);

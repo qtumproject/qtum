@@ -1187,6 +1187,7 @@ public:
     int m_num_threads = 1;
     mutable boost::thread_group threads;
     std::string m_ledger_id;
+    int64_t m_nft_tx_from_block = 0;
 };
 
 /**
