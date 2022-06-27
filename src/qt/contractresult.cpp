@@ -3,14 +3,34 @@
 #include <qt/guiconstants.h>
 #include <qt/contractutil.h>
 #include <qt/styleSheet.h>
+#include <qt/walletmodel.h>
+#include <qt/clientmodel.h>
+#include <qt/execrpccommand.h>
+#include <validation.h>
 
 #include <QMessageBox>
 
+static const QString PRC_COMMAND = "gettransactionreceipt";
+static const QString PARAM_TXID = "txid";
+
 ContractResult::ContractResult(QWidget *parent) :
     QStackedWidget(parent),
-    ui(new Ui::ContractResult)
+    ui(new Ui::ContractResult),
+    m_model(0),
+    m_clientModel(0),
+    m_execRPCCommand(0),
+    m_showReceipt(false)
 {
     ui->setupUi(this);
+    ui->groupBoxReceipt->setVisible(fLogEvents);
+
+    // Create new PRC command line interface
+    QStringList lstMandatory;
+    lstMandatory.append(PARAM_TXID);
+    QStringList lstOptional;
+    QMap<QString, QString> lstTranslations;
+    lstTranslations[PARAM_TXID] = ui->labelTxID->text();
+    m_execRPCCommand = new ExecRPCCommand(PRC_COMMAND, lstMandatory, lstOptional, lstTranslations, this);
 }
 
 ContractResult::~ContractResult()
@@ -244,12 +264,67 @@ void ContractResult::updateCreateSendToResult(const QVariant &result, bool creat
 
     QVariantMap variantMap = result.toMap();
 
-    txid = variantMap.value("txid").toString();
-    ui->lineEditTxID->setText(txid);
+    m_txid = variantMap.value("txid").toString();
+    m_showReceipt = true;
+    ui->lineEditTxID->setText(m_txid);
     ui->lineEditSenderAddress->setText(variantMap.value("sender").toString());
     ui->lineEditHash160->setText(variantMap.value("hash160").toString());
     if(create)
     {
         ui->lineEditContractAddress->setText(variantMap.value("address").toString());
+    }
+}
+
+void ContractResult::setClientModel(ClientModel *_clientModel)
+{
+    m_clientModel = _clientModel;
+    if(fLogEvents)
+    {
+        connect(m_clientModel, &ClientModel::tipChanged, this, &ContractResult::tipChanged);
+    }
+}
+
+void ContractResult::setModel(WalletModel *_model)
+{
+    m_model = _model;
+}
+
+void ContractResult::tipChanged()
+{
+    if(m_showReceipt && m_model)
+    {
+        uint256 txid;
+        txid.SetHex(m_txid.toStdString());
+        auto tx = m_model->wallet().getTx(txid);
+        if (tx)
+        {
+            interfaces::WalletTx wtx = m_model->wallet().getWalletTx(txid);
+            if(wtx.is_in_main_chain)
+            {
+                // Initialize variables
+                QMap<QString, QString> lstParams;
+                QVariant result;
+                QString errorMessage;
+                QString resultJson;
+
+                // Append params to the list
+                ExecRPCCommand::appendParam(lstParams, PARAM_TXID, m_txid);
+
+                // Execute RPC command line
+                if(m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
+                {
+                    ui->textEditReceipt->setText(resultJson);
+                }
+                else
+                {
+                    QMessageBox::warning(this, tr("Contract result"), errorMessage);
+                }
+                m_showReceipt = false;
+            }
+        }
+        else
+        {
+            m_showReceipt = false;
+        }
     }
 }
