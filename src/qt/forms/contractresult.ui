@@ -180,9 +180,34 @@ background: transparent;
      </widget>
     </item>
     <item>
+     <widget class="QGroupBox" name="groupBoxReceipt">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Transaction Receipt</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QTextEdit" name="textEditReceipt">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Minimum</enum>
       </property>
       <property name="sizeHint" stdset="0">
        <size>
@@ -274,8 +299,8 @@ background: transparent;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>889</width>
-            <height>73</height>
+            <width>891</width>
+            <height>68</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4"/>
@@ -389,8 +414,8 @@ background: transparent;
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>889</width>
-            <height>73</height>
+            <width>891</width>
+            <height>68</height>
            </rect>
           </property>
          </widget>

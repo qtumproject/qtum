@@ -126,27 +126,12 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
 
 void ContractResult::updateCreateResult(QVariant result)
 {
-    ui->lineEditContractAddress->setVisible(true);
-    ui->labelContractAddress->setVisible(true);
-
-    QVariantMap variantMap = result.toMap();
-
-    ui->lineEditTxID->setText(variantMap.value("txid").toString());
-    ui->lineEditSenderAddress->setText(variantMap.value("sender").toString());
-    ui->lineEditHash160->setText(variantMap.value("hash160").toString());
-    ui->lineEditContractAddress->setText(variantMap.value("address").toString());
+    updateCreateSendToResult(result, true);
 }
 
 void ContractResult::updateSendToResult(QVariant result)
 {
-    ui->lineEditContractAddress->setVisible(false);
-    ui->labelContractAddress->setVisible(false);
-
-    QVariantMap variantMap = result.toMap();
-
-    ui->lineEditTxID->setText(variantMap.value("txid").toString());
-    ui->lineEditSenderAddress->setText(variantMap.value("sender").toString());
-    ui->lineEditHash160->setText(variantMap.value("hash160").toString());
+    updateCreateSendToResult(result, false);
 }
 
 void ContractResult::updateCallResult(QVariant result, FunctionABI function, QList<QStringList> paramValues)
@@ -249,5 +234,22 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
         QString errorMessage;
         errorMessage = ContractUtil::errorMessage(function, errors, false);
         QMessageBox::warning(this, tr("Create contract"), errorMessage);
+    }
+}
+
+void ContractResult::updateCreateSendToResult(const QVariant &result, bool create)
+{
+    ui->lineEditContractAddress->setVisible(create);
+    ui->labelContractAddress->setVisible(create);
+
+    QVariantMap variantMap = result.toMap();
+
+    txid = variantMap.value("txid").toString();
+    ui->lineEditTxID->setText(txid);
+    ui->lineEditSenderAddress->setText(variantMap.value("sender").toString());
+    ui->lineEditHash160->setText(variantMap.value("hash160").toString());
+    if(create)
+    {
+        ui->lineEditContractAddress->setText(variantMap.value("address").toString());
     }
 }

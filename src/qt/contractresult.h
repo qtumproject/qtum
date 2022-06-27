@@ -29,6 +29,9 @@ private:
     void updateCreateResult(QVariant result);
     void updateSendToResult(QVariant result);
     void updateCallResult(QVariant result, FunctionABI function, QList<QStringList> paramValues);
+    void updateCreateSendToResult(const QVariant& result, bool create);
+private:
+    QString txid;
 };
 
 #endif // CONTRACTRESULT_H
