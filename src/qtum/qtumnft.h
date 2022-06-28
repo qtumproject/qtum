@@ -101,6 +101,8 @@ public:
     bool isApprovedForAll(const std::string& account, const std::string& operant, bool& success, bool sendTo = false);
     bool safeTransferFrom(const std::string& from, const std::string& to, const uint256& id, const int32_t& amount, bool sendTo = false);
     bool safeTransfer(const std::string& to, const uint256& id, const int32_t& amount, bool sendTo = false);
+    bool safeBatchTransferFrom(const std::string& from, const std::string& to, const std::vector<uint256>& ids, const std::vector<int32_t>& amounts, bool sendTo = false);
+    bool safeBatchTransfer(const std::string& to, const std::vector<uint256>& ids, const std::vector<int32_t>& amounts, bool sendTo = false);
     bool walletNFTList(WalletNFTInfo& result, const uint256& id, bool sendTo = false);
 
     // ABI Events
@@ -129,6 +131,7 @@ protected:
 
 private:
     bool exec(const std::vector<std::string>& input, int func, std::vector<std::string>& output, bool sendTo);
+    bool exec(const std::vector<std::vector<std::string>> &values, int func, std::vector<std::string> &output, bool sendTo);
     bool execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, int func, std::vector<NftEvent> &nftEvents);
 
     QtumNft(QtumNft const&);
