@@ -219,6 +219,7 @@ void SendNftDialog::on_confirmClicked()
                         {
                             std::string txid = variantMap["txid"].toString().toStdString();
                             m_nftABI->setTxId(txid);
+                            isSent = !txid.empty();
                         }
                     }
 
