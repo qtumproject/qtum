@@ -3900,7 +3900,7 @@ static RPCHelpMan nftgetinfo()
     UniValue res(UniValue::VOBJ);
     WalletNFTInfo info;
     if(!nft.walletNFTList(info, id))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail to NFT info");
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to find NFT info");
 
     // Get result
     res.pushKV("nftid", info.NFTId.ToString());
@@ -3918,7 +3918,7 @@ static RPCHelpMan nftgetinfo()
 static RPCHelpMan nftlisttransactions()
 {
     return RPCHelpMan{"nftlisttransactions",
-                "\nReturns transactions history for a specific address.\n",
+                "\nReturns transactions history for specific token id and address.\n",
                 {
                     {"tokenid", RPCArg::Type::STR, RPCArg::Optional::NO, "The token ID."},
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
