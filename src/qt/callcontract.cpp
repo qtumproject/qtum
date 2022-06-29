@@ -174,6 +174,8 @@ void CallContract::on_callContractClicked()
         if(errorMessage.isEmpty() && m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
         {
             ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+            widgetResult->setModel(m_model);
+            widgetResult->setClientModel(m_clientModel);
             widgetResult->setResultData(result, m_contractABI->functions[func], m_ABIFunctionField->getParamsValues(), ContractResult::CallResult);
             ui->stackedWidget->addWidget(widgetResult);
             int position = ui->stackedWidget->count() - 1;

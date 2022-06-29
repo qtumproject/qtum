@@ -79,7 +79,7 @@
         </size>
        </property>
        <property name="text">
-        <string>NFT Desc</string>
+        <string>NFT Description</string>
        </property>
       </widget>
      </item>
@@ -92,12 +92,12 @@
         </size>
        </property>
        <property name="text">
-        <string>NFT Amount(MAX 10)</string>
+        <string>Number of copies</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditNftName">
+      <widget class="QValidatedLineEdit" name="lineEditNftName">
        <property name="maxLength">
         <number>100</number>
        </property>
@@ -120,7 +120,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEditNftDesc">
+      <widget class="QValidatedLineEdit" name="lineEditNftDesc">
        <property name="maxLength">
         <number>500</number>
        </property>
@@ -143,7 +143,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEditNftUri">
+      <widget class="QValidatedLineEdit" name="lineEditNftUri">
        <property name="maxLength">
         <number>2048</number>
        </property>
@@ -311,6 +311,11 @@
    <extends>QLineEdit</extends>
    <header>qt/bitcoinamountfield.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qt/qvalidatedlineedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

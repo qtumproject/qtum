@@ -1119,8 +1119,14 @@ public:
     /* Add nft tx entry into the wallet */
     bool AddNftTxEntry(const CNftTx& nftTx, bool fFlushOnClose=true);
 
+    /* Add nft tx entries into the wallet */
+    bool AddNftTxEntries(const std::vector<CNftTx> &nftTxs);
+
     /* Remove nft tx entry from the wallet */
     bool RemoveNftTxEntry(const uint256& nftHash, bool fFlushOnClose=true);
+
+    /* Remove unconfirmed nft tx entry from the wallet */
+    bool RemoveUnconfirmedNftTxEntry(const CNftTx& nftTx);
 
     /* Check if nft transaction is mine */
     bool IsNftTxMine(const CNftTx &wtx) const;
@@ -1128,11 +1134,17 @@ public:
     /* Check if nft is mine */
     bool IsNftMine(const CNftInfo &info) const;
 
+    /* Check if exist nft transaction */
+    bool ExistNftTxEntry(const CNftTx &wtx) const;
+
     /* Get raw nft from tx (Owner and Id for NFT)*/
     std::vector<CNftInfo> GetRawNftFromTx() const;
 
     /* Get details nft tx entry into the wallet */
     bool GetNftTxDetails(const CNftTx &wtx, int32_t& credit, int32_t& debit, std::string& name) const;
+
+    /* Delete the stored NFT preview cache */
+    bool CleanNftPreviewCache();
 
     /* Load delegation entry into the wallet */
     bool LoadDelegation(const CDelegationInfo &delegation);
@@ -1175,6 +1187,7 @@ public:
     int m_num_threads = 1;
     mutable boost::thread_group threads;
     std::string m_ledger_id;
+    int64_t m_nft_tx_from_block = 0;
 };
 
 /**

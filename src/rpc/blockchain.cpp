@@ -3865,6 +3865,143 @@ static RPCHelpMan qrc20listtransactions()
     };
 }
 
+static RPCHelpMan nftgetinfo()
+{
+    return RPCHelpMan{"nftgetinfo",
+        "\nReturns NFT info for a token ID.\n",
+        {
+            {"tokenid", RPCArg::Type::STR, RPCArg::Optional::NO, "The token ID."},
+        },
+        RPCResult{
+            RPCResult::Type::OBJ, "", "",
+            {
+                {RPCResult::Type::STR_HEX, "nftid", "Hash of the NFT data (name and url)"},
+                {RPCResult::Type::STR, "name", "NFT name"},
+                {RPCResult::Type::STR, "url", "NFT url"},
+                {RPCResult::Type::STR, "description", "NFT description"},
+                {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
+                {RPCResult::Type::NUM, "count", "The number of copies"},
+            }},
+        RPCExamples{
+            HelpExampleCli("nftgetinfo", "\"00000000000000000000000000000000000000000000000000000000000003e8\"")
+                    + HelpExampleRpc("nftgetinfo", "\"00000000000000000000000000000000000000000000000000000000000003e8\"")
+        },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    // Get parameters
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    CallNft nft(chainman);
+    std::string tokenId = request.params[0].get_str();
+
+    // Parse token Id
+    uint256 id = parseTokenId(tokenId);
+
+    // Get nft info
+    UniValue res(UniValue::VOBJ);
+    WalletNFTInfo info;
+    if(!nft.walletNFTList(info, id))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to find NFT info");
+
+    // Get result
+    res.pushKV("nftid", info.NFTId.ToString());
+    res.pushKV("name", info.name);
+    res.pushKV("url", info.url);
+    res.pushKV("description", info.desc);
+    res.pushKV("blocktime", info.createAt);
+    res.pushKV("count", info.count);
+
+    return res;
+},
+    };
+}
+
+static RPCHelpMan nftlisttransactions()
+{
+    return RPCHelpMan{"nftlisttransactions",
+                "\nReturns transactions history for specific token id and address.\n",
+                {
+                    {"tokenid", RPCArg::Type::STR, RPCArg::Optional::NO, "The token ID."},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
+                    {"fromblock", RPCArg::Type::NUM, RPCArg::Default{0}, "The number of the earliest block."},
+                    {"minconf", RPCArg::Type::NUM, RPCArg::Default{6}, "Minimal number of confirmations."},
+                },
+               RPCResult{
+            RPCResult::Type::ARR, "", "",
+                {
+                    {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR, "receiver", "The receiver qtum address"},
+                            {RPCResult::Type::STR, "sender", "The sender qtum address"},
+                            {RPCResult::Type::NUM, "amount", "The transferred nft amount"},
+                            {RPCResult::Type::NUM, "confirmations", "The number of confirmations of the most recent transaction included"},
+                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                            {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
+                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                        }
+                    }}
+                },
+                RPCExamples{
+                    HelpExampleCli("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
+            + HelpExampleCli("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
+            + HelpExampleRpc("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
+            + HelpExampleRpc("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    // Parse token Id
+    uint256 id = parseTokenId(request.params[0].get_str());
+    std::string sender = request.params[1].get_str();
+
+    // Get parameters
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    CallNft nft(chainman);
+    nft.setFilter(id, sender);
+    int64_t fromBlock = 0;
+    int64_t minconf = 6;
+    if(!request.params[2].isNull())
+        fromBlock = request.params[2].get_int64();
+    if(!request.params[3].isNull())
+        minconf = request.params[3].get_int64();
+
+    // Get transaction events
+    LOCK(cs_main);
+    std::vector<NftEvent> result;
+    CChain& active_chain = chainman.ActiveChain();
+    int64_t toBlock = active_chain.Height();
+    if(!nft.transferEvents(result, fromBlock, toBlock, minconf))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transfer events");
+
+    // Create transaction list
+    UniValue res(UniValue::VARR);
+    for(const auto& event : result){
+        UniValue obj(UniValue::VOBJ);
+
+        obj.pushKV("receiver", event.receiver);
+        obj.pushKV("sender", event.sender);
+        int32_t value = 0;
+        int32_t v = event.value;
+        if(event.sender == event.receiver)
+            value = 0;
+        else if(event.receiver == sender)
+            value = v;
+        else
+            value = -v;
+        obj.pushKV("amount", value);
+        int confirms = toBlock - event.blockNumber + 1;
+        obj.pushKV("confirmations", confirms);
+        obj.pushKV("blockHash", event.blockHash.GetHex());
+        obj.pushKV("blockNumber", event.blockNumber);
+        obj.pushKV("blocktime", active_chain[event.blockNumber]->GetBlockTime());
+        obj.pushKV("transactionHash", event.transactionHash.GetHex());
+        res.push_back(obj);
+    }
+
+    return res;
+},
+    };
+}
+
 void RegisterBlockchainRPCCommands(CRPCTable &t)
 {
 // clang-format off
@@ -3907,6 +4044,9 @@ static const CRPCCommand commands[] =
     { "blockchain",         &qrc20balanceof,                     },
     { "blockchain",         &qrc20allowance,                     },
     { "blockchain",         &qrc20listtransactions,              },
+
+    { "blockchain",         &nftgetinfo,                         },
+    { "blockchain",         &nftlisttransactions,                },
 
     { "blockchain",         &listcontracts,                      },
     { "blockchain",         &gettransactionreceipt,              },

@@ -252,6 +252,8 @@ void CreateContract::on_createContractClicked()
                     if(isSent)
                     {
                         ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+                        widgetResult->setModel(m_model);
+                        widgetResult->setClientModel(m_clientModel);
                         widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
                         ui->stackedWidget->addWidget(widgetResult);
                         int position = ui->stackedWidget->count() - 1;

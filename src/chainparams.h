@@ -137,7 +137,6 @@ public:
     bool HasHardwareWalletSupport() const { return fHasHardwareWalletSupport; }
     void UpdateLondonHeight(int nHeight);
     void UpdateTaprootHeight(int nHeight);
-    void UpdateNftAddress(const uint160& address);
     //! Get allowed assumeutxo configuration.
     //! @see ChainstateManager
     const MapAssumeutxo& Assumeutxo() const { return m_assumeutxo_data; }
@@ -254,11 +253,6 @@ void UpdateMuirGlacierHeight(int nHeight);
  * Allows modifying the london block height regtest parameter.
  */
 void UpdateLondonHeight(int nHeight);
-
-/**
- * Allows modifying the nft address regtest parameter.
- */
-void UpdateNftAddress(const uint160& address);
 
 /**
  * Allows modifying the taproot block height regtest parameter.

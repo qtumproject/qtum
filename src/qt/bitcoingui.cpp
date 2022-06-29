@@ -361,14 +361,14 @@ void BitcoinGUI::createActions()
     delegationAction = new QAction(tr("Delegations"), this);
     superStakerAction = new QAction(tr("Super Staking"), this);
 
-    QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&QRC Tokens"), this);
-    QRCTokenAction->setStatusTip(tr("QRC Tokens (send, receive or add Tokens in list)"));
+    QRCTokenAction = new QAction(platformStyle->MultiStatesIcon(":/icons/qrctoken"), tr("&Tokens"), this);
+    QRCTokenAction->setStatusTip(tr("Tokens (send, receive or add Tokens in list)"));
     QRCTokenAction->setToolTip(QRCTokenAction->statusTip());
     QRCTokenAction->setCheckable(true);
     QRCTokenAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
     tabGroup->addAction(QRCTokenAction);
 
-    tokenAction = new QAction(tr("Tokens"), this);
+    tokenAction = new QAction(tr("QRC20"), this);
     nftAction = new QAction(tr("NFTs"), this);
 
 #ifdef ENABLE_WALLET

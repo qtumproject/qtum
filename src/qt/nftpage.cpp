@@ -42,6 +42,7 @@ NftPage::NftPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QAction *copyNameAction = new QAction(tr("Copy NFT name"), this);
     QAction *copyUrlAction = new QAction(tr("Copy NFT URL"), this);
     QAction *copyDescAction = new QAction(tr("Copy NFT description"), this);
+    QAction *copyTokenIdAction = new QAction(tr("Copy token ID"), this);
 
     m_nftList = new NftListWidget(platformStyle, this);
     m_nftList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -57,12 +58,14 @@ NftPage::NftPage(const PlatformStyle *platformStyle, QWidget *parent) :
     contextMenu->addAction(copyNameAction);
     contextMenu->addAction(copyUrlAction);
     contextMenu->addAction(copyDescAction);
+    contextMenu->addAction(copyTokenIdAction);
 
     connect(copyBalanceAction, &QAction::triggered, this, &NftPage::copyBalance);
     connect(copyNameAction, &QAction::triggered, this, &NftPage::copyName);
     connect(copyOwnerAction, &QAction::triggered, this, &NftPage::copyOwnerAddress);
     connect(copyUrlAction, &QAction::triggered, this, &NftPage::copyUrl);
     connect(copyDescAction, &QAction::triggered, this, &NftPage::copyDesc);
+    connect(copyTokenIdAction, &QAction::triggered, this, &NftPage::copyTokenId);
 
     connect(m_nftList, &NftListWidget::customContextMenuRequested, this, &NftPage::contextualMenu);
 
@@ -226,6 +229,15 @@ void NftPage::copyDesc()
     if(indexMenu.isValid())
     {
         GUIUtil::setClipboard(indexMenu.data(NftItemModel::DescRole).toString());
+        indexMenu = QModelIndex();
+    }
+}
+
+void NftPage::copyTokenId()
+{
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(NftItemModel::IdRole).toString());
         indexMenu = QModelIndex();
     }
 }

@@ -78,7 +78,7 @@ public:
     QMap<QString, QString> thumbnailCache;
     QMap<QString, QDateTime> thumbnailTime;
     int thumbnailSize = 70; // 70 pix
-    int thumbnailRecheck = 600; // 10 min
+    int thumbnailRecheck = 1800; // 30 min
     NftTxWorker(WalletModel *_walletModel):
         walletModel(_walletModel) {}
 
@@ -205,11 +205,7 @@ private Q_SLOTS:
                     QPixmap pixmap;
                     if(GUIUtil::GetPixmapFromUrl(pixmap, url, thumbnailSize, thumbnailSize))
                     {
-                        QByteArray data;
-                        QBuffer buffer(&data);
-                        buffer.open(QIODevice::WriteOnly);
-                        pixmap.save(&buffer, "PNG");
-                        thumbnail = data.toBase64();
+                        thumbnail = GUIUtil::ThumbnailToBase64(pixmap);
                         if(!thumbnail.isEmpty())
                         {
                             thumbnailCache[url] = thumbnail;
@@ -427,7 +423,7 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         return QString::number(rec->balance);
         break;
     case NftItemModel::IdRole:
-        return QString::fromStdString(rec->id.ToString());
+        return QString::fromStdString(rec->id.GetReverseHex());
         break;
     case NftItemModel::UrlRole:
         return rec->url;

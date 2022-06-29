@@ -9,6 +9,9 @@
 #include <qt/eventlog.h>
 #include <libethcore/ABI.h>
 #include <qt/walletmodel.h>
+#include <util/contractabi.h>
+#include <vector>
+#include <string>
 
 namespace Nft_NS
 {
@@ -137,7 +140,7 @@ bool Nft::exec(const bool &sendTo, const std::map<std::string, std::string> &lst
     return true;
 }
 
-bool Nft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, std::vector<NftEvent> &result)
+bool Nft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, const FunctionABI &func, std::vector<NftEvent> &result)
 {
     QVariant resultVar;
     if(!(d->eventLog->searchNftTx(d->model->node(), d->model, fromBlock, toBlock, minconf, eventName, contractAddress, resultVar)))
@@ -160,34 +163,18 @@ bool Nft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int
             // Create new event
             NftEvent nftEvent;
             nftEvent.address = variantMap.value("contractAddress").toString().toStdString();
-            if(numTopics > 2)
-            {
-                nftEvent.sender = topicsList[2].toString().toStdString().substr(24);
-                Nft::ToQtumAddress(nftEvent.sender, nftEvent.sender, false);
-            }
-            if(numTopics > 3)
-            {
-                nftEvent.receiver = topicsList[3].toString().toStdString().substr(24);
-                Nft::ToQtumAddress(nftEvent.receiver, nftEvent.receiver, false);
-            }
             nftEvent.blockHash = uint256S(variantMap.value("blockHash").toString().toStdString());
             nftEvent.blockNumber = variantMap.value("blockNumber").toLongLong();
             nftEvent.transactionHash = uint256S(variantMap.value("transactionHash").toString().toStdString());
 
             // Parse data
+            std::vector<std::string> topics;
+            for(QVariant topic : topicsList)
+            {
+                topics.push_back(topic.toString().toStdString());
+            }
             std::string data = variantLog.value("data").toString().toStdString();
-            if(data.size() >= ContractABI_NS::HEX_INSTRUCTION_SIZE)
-            {
-                std::string outData = data.substr(0, ContractABI_NS::HEX_INSTRUCTION_SIZE);
-                nftEvent.id = Nft::ToUint256(outData);
-            }
-            if(data.size() >= 2 * ContractABI_NS::HEX_INSTRUCTION_SIZE)
-            {
-                std::string outData = data.substr(ContractABI_NS::HEX_INSTRUCTION_SIZE, ContractABI_NS::HEX_INSTRUCTION_SIZE);
-                nftEvent.value = Nft::ToInt32(outData);
-            }
-
-            result.push_back(nftEvent);
+            addEvent(func, topics, data, nftEvent, result);
         }
     }
 

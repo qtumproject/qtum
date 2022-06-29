@@ -40,6 +40,7 @@
 #include <interfaces/wallet.h>
 #include <rpc/contract_util.h>
 #include <util/tokenstr.h>
+#include <qtum/nftconfig.h>
 
 #include <optional>
 #include <stdint.h>
@@ -1678,6 +1679,165 @@ public:
     bool privateKeysDisabled() override
     {
         return wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    }
+
+private:
+    CWallet& wallet;
+};
+
+/**
+ * @brief The SendNft class Write nft data
+ */
+class SendNft : public CallNft
+{
+public:
+    SendNft(CWallet& _wallet,
+              ChainstateManager& _chainman):
+        CallNft(_chainman),
+        wallet(_wallet)
+    {}
+
+    bool execValid(const int& func, const bool& sendTo) override
+    {
+        return sendTo ? func != -1 : CallNft::execValid(func, sendTo);
+    }
+
+    bool exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string& message) override
+    {
+        if(!sendTo)
+            return CallNft::exec(sendTo, lstParams, result, message);
+
+        UniValue params(UniValue::VARR);
+
+        // Set address
+        auto it = lstParams.find(paramAddress());
+        if(it != lstParams.end())
+            params.push_back(it->second);
+        else
+            return false;
+
+        // Set data
+        it = lstParams.find(paramDatahex());
+        if(it != lstParams.end())
+            params.push_back(it->second);
+        else
+            return false;
+
+        // Set amount
+        it = lstParams.find(paramAmount());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 2)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set gas limit
+        it = lstParams.find(paramGasLimit());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 3) {
+                UniValue param(UniValue::VNUM);
+                param.setInt(atoi64(it->second));
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+
+        // Set gas price
+        it = lstParams.find(paramGasPrice());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 4)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set sender
+        it = lstParams.find(paramSender());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 5)
+                params.push_back(it->second);
+            else
+                return false;
+        }
+
+        // Set broadcast
+        it = lstParams.find(paramBroadcast());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 6) {
+                bool val = it->second == "true" ? true : false;
+                UniValue param(UniValue::VBOOL);
+                param.setBool(val);
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+
+        // Set change to sender
+        it = lstParams.find(paramChangeToSender());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 7) {
+                bool val = it->second == "true" ? true : false;
+                UniValue param(UniValue::VBOOL);
+                param.setBool(val);
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+
+        // Set psbt
+        it = lstParams.find(paramPsbt());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 8) {
+                bool val = it->second == "true" ? true : false;
+                UniValue param(UniValue::VBOOL);
+                param.setBool(val);
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+
+        // Get execution result
+        UniValue response = SendToContract(wallet, params, chainman);
+        if(!response.isObject())
+            return false;
+        if(privateKeysDisabled())
+        {
+            if(!response.exists("psbt"))
+                return false;
+        }
+        else
+        {
+            if(!response.exists("txid"))
+                return false;
+        }
+        result = privateKeysDisabled() ? response["psbt"].get_str() : response["txid"].get_str();
+
+        return true;
+    }
+
+    bool privateKeysDisabled() override
+    {
+        return wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    }
+
+    bool isEventMine(const std::string& sender, const std::string& receiver) override
+    {
+        CNftTx wtx;
+        wtx.strSender = sender;
+        wtx.strReceiver = receiver;
+        return wallet.IsNftTxMine(wtx);
     }
 
 private:
@@ -7304,6 +7464,525 @@ static RPCHelpMan qrc20burnfrom()
     };
 }
 
+static RPCHelpMan nftcreate()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"nftcreate",
+                "\nCreate a NFT.\n",
+                {
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The NFT owner qtum address."},
+                    {"name", RPCArg::Type::STR, RPCArg::Optional::NO, "NFT name."},
+                    {"url", RPCArg::Type::STR, RPCArg::Optional::NO, "NFT url."},
+                    {"description", RPCArg::Type::STR, RPCArg::Optional::NO,  "NFT description."},
+                    {"copies", RPCArg::Type::NUM, RPCArg::Optional::NO,  "Number of copies, range=1-10."},
+                    {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
+                 },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5")
+            + HelpExampleCli("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5")
+            + HelpExampleRpc("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+                },
+            [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get mandatory parameters
+    std::string owner = request.params[0].get_str();
+    std::string name = request.params[1].get_str();
+    std::string url = request.params[2].get_str();
+    std::string desc = request.params[3].get_str();
+    int32_t count = request.params[4].get_int();
+    const NftConfig & nftConfig = NftConfig::Instance();
+
+    // Check name
+    if(!nftConfig.CheckNameLength(name))
+        throw JSONRPCError(RPC_MISC_ERROR, strprintf("Fail to create nft, name length should be between 1 and %d characters", nftConfig.GetMaxNameLength()));
+
+    // Check url
+    if(!nftConfig.IsUrlValid(url))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to create nft, url is not valid");
+
+    // Check description
+    if(!nftConfig.CheckDescriptionLength(desc))
+        throw JSONRPCError(RPC_MISC_ERROR, strprintf("Fail to create nft, description length should be between 1 and 500 characters", nftConfig.GetMaxDescriptionLength()));
+
+    // Check number of copies
+    if(!nftConfig.CheckCopiesRange(count))
+        throw JSONRPCError(RPC_MISC_ERROR, strprintf("Fail to create nft, number of copies must be between 1 and %d", nftConfig.GetMaxCopies()));
+
+    // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_CREATE;
+    if (!request.params[5].isNull()){
+        nGasLimit = request.params[5].get_int64();
+    }
+
+    // Get gas price
+    if (!request.params[6].isNull()){
+        nGasPrice = AmountFromValue(request.params[6]);
+    }
+
+    // Get check outputs flag
+    bool fCheckOutputs = true;
+    if (!request.params[7].isNull()){
+        fCheckOutputs = request.params[7].get_bool();
+    }
+
+    // Set nft parameters
+    SendNft nft(*pwallet, chainman);
+    nft.setSender(owner);
+    nft.setGasLimit(i64tostr(nGasLimit));
+    nft.setGasPrice(FormatMoney(nGasPrice));
+
+    // Check create nft offline
+    if(fCheckOutputs)
+    {
+        nft.setCheckGasForCall(true);
+        if(!nft.createNFT(owner, name, url, desc, count, false))
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for create nft");
+    }
+
+    // Create nft
+    if(!nft.createNFT(owner, name, url, desc, count, true))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to create nft");
+
+    UniValue result(UniValue::VOBJ);
+    if(nft.privateKeysDisabled())
+    {
+        result.pushKV("psbt", nft.getPsbt());
+    }
+    else
+    {
+        std::string txid = nft.getTxId();
+        result.pushKV("txid", txid);
+
+        if(!txid.empty())
+        {
+            CNftTx nftTx;
+            nftTx.strReceiver = owner;
+            nftTx.nValue = count;
+            nftTx.id = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+            nftTx.transactionHash = uint256S(txid);
+            pwallet->AddNftTxEntry(nftTx);
+        }
+    }
+    return result;
+},
+    };
+}
+
+static RPCHelpMan nftsend()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"nftsend",
+                "\nSend nft amount to a given address.\n",
+                {
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The nft owner qtum address."},
+                    {"addressto", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to send funds to."},
+                    {"tokenid", RPCArg::Type::STR, RPCArg::Optional::NO, "The token ID."},
+                    {"amount", RPCArg::Type::NUM, RPCArg::Optional::NO,  "The amount of nfts to send. eg 1"},
+                    {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1")
+            + HelpExampleCli("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1")
+            + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")                },
+            [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get mandatory parameters
+    std::string owner = request.params[0].get_str();
+    std::string address = request.params[1].get_str();
+    std::string tokenId = request.params[2].get_str();
+    int32_t value = request.params[3].get_int();
+    const NftConfig & nftConfig = NftConfig::Instance();
+
+    // Parse token Id
+    uint256 id = parseTokenId(tokenId);
+
+    // Check amount
+    if(!nftConfig.CheckCopiesRange(value))
+        throw JSONRPCError(RPC_MISC_ERROR, strprintf("The amount must be between 1 and %d", nftConfig.GetMaxCopies()));
+
+    // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_CREATE;
+    if (!request.params[4].isNull()){
+        nGasLimit = request.params[4].get_int64();
+    }
+
+    // Get gas price
+    if (!request.params[5].isNull()){
+        nGasPrice = AmountFromValue(request.params[5]);
+    }
+
+    // Get check outputs flag
+    bool fCheckOutputs = true;
+    if (!request.params[6].isNull()){
+        fCheckOutputs = request.params[6].get_bool();
+    }
+
+    // Set nft parameters
+    SendNft nft(*pwallet, chainman);
+    nft.setSender(owner);
+    nft.setGasLimit(i64tostr(nGasLimit));
+    nft.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get nft owner balance
+    int32_t balance;
+    if(!nft.balanceOf(id, balance))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get balance");
+
+    // Check if balance is enough to cover it
+    if(balance < value)
+        throw JSONRPCError(RPC_MISC_ERROR, "Not enough nft balance");
+
+    // Check transfer offline
+    if(fCheckOutputs)
+    {
+        nft.setCheckGasForCall(true);
+        if(!nft.safeTransfer(address, id, value))
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for transfer nft");
+    }
+
+    // Send nft
+    if(!nft.safeTransfer(address, id, value, true))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to transfer nft");
+
+    UniValue result(UniValue::VOBJ);
+    if(nft.privateKeysDisabled())
+    {
+        result.pushKV("psbt", nft.getPsbt());
+    }
+    else
+    {
+        std::string txid = nft.getTxId();
+        result.pushKV("txid", txid);
+
+        if(!txid.empty())
+        {
+            CNftTx nftTx;
+            nftTx.strSender = owner;
+            nftTx.strReceiver = address;
+            nftTx.id = id;
+            nftTx.nValue = value;
+            nftTx.transactionHash = uint256S(txid);
+            pwallet->AddNftTxEntry(nftTx);
+        }
+    }
+    return result;
+},
+    };
+}
+
+static RPCHelpMan nftsendbatch()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"nftsendbatch",
+                "\nSend nft amounts to a given addresses.\n",
+                {
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The nft owner qtum address."},
+                    {"addressto", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to send funds to."},
+                    {"amounts", RPCArg::Type::OBJ_USER_KEYS, RPCArg::Optional::NO, "The token ids and amounts",
+                        {
+                            {"tokenid", RPCArg::Type::NUM, RPCArg::Optional::NO, "The token id is the key, the numeric amount is the value"},
+                        },
+                    },
+                    {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"{\\\"00000000000000000000000000000000000000000000000000000000000001f4\\\":1, \\\"00000000000000000000000000000000000000000000000000000000000003e8\\\":2}\"")
+            + HelpExampleCli("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"{\\\"00000000000000000000000000000000000000000000000000000000000001f4\\\":1, \\\"00000000000000000000000000000000000000000000000000000000000003e8\\\":2}\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2}")
+            + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2} "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")},
+            [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get mandatory parameters
+    std::string owner = request.params[0].get_str();
+    std::string address = request.params[1].get_str();
+    const NftConfig & nftConfig = NftConfig::Instance();
+
+    // Parse ids and values
+    std::vector<uint256> ids;
+    std::vector<int32_t> values;
+    UniValue address_amounts = request.params[2];
+    for (const std::string& tokenId: address_amounts.getKeys())
+    {
+        uint256 id = parseTokenId(tokenId);
+        int32_t value = address_amounts[tokenId].get_int();
+        ids.push_back(id);
+        values.push_back(value);
+    }
+
+    // Check amount
+    for(int32_t value : values)
+    {
+        if(!nftConfig.CheckCopiesRange(value))
+            throw JSONRPCError(RPC_MISC_ERROR, strprintf("The amount must be between 1 and %d", nftConfig.GetMaxCopies()));
+    }
+
+    // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_CREATE;
+    if (!request.params[3].isNull()){
+        nGasLimit = request.params[3].get_int64();
+    }
+
+    // Get gas price
+    if (!request.params[4].isNull()){
+        nGasPrice = AmountFromValue(request.params[4]);
+    }
+
+    // Get check outputs flag
+    bool fCheckOutputs = true;
+    if (!request.params[5].isNull()){
+        fCheckOutputs = request.params[5].get_bool();
+    }
+
+    // Set nft parameters
+    SendNft nft(*pwallet, chainman);
+    nft.setSender(owner);
+    nft.setGasLimit(i64tostr(nGasLimit));
+    nft.setGasPrice(FormatMoney(nGasPrice));
+
+    // Check ids and values
+    for(size_t i = 0; i < ids.size(); i++)
+    {
+        // Get id and value
+        uint256 id = ids[i];
+        int32_t value = values[i];
+
+        // Get nft owner balance
+        int32_t balance;
+        if(!nft.balanceOf(id, balance))
+            throw JSONRPCError(RPC_MISC_ERROR, strprintf("Fail to get balance, token id %s", id.GetReverseHex()));
+
+        // Check if balance is enough to cover it
+        if(balance < value)
+            throw JSONRPCError(RPC_MISC_ERROR, strprintf("Not enough nft balance, token id %s, balance %d", id.GetReverseHex(), balance));
+    }
+
+    // Check transfer offline
+    if(fCheckOutputs)
+    {
+        nft.setCheckGasForCall(true);
+        if(!nft.safeBatchTransfer(address, ids, values))
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for transfer nft");
+    }
+
+    // Send nft
+    if(!nft.safeBatchTransfer(address, ids, values, true))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to transfer nft");
+
+    UniValue result(UniValue::VOBJ);
+    if(nft.privateKeysDisabled())
+    {
+        result.pushKV("psbt", nft.getPsbt());
+    }
+    else
+    {
+        std::string txid = nft.getTxId();
+        result.pushKV("txid", txid);
+
+        if(!txid.empty())
+        {
+            CNftTx nftTx;
+            nftTx.strSender = owner;
+            nftTx.strReceiver = address;
+            nftTx.transactionHash = uint256S(txid);
+
+            for(size_t i = 0; i < ids.size(); i++)
+            {
+                nftTx.id = ids[i];
+                nftTx.nValue = values[i];
+                pwallet->AddNftTxEntry(nftTx);
+            }
+        }
+    }
+    return result;
+},
+    };
+}
+
+static RPCHelpMan nftlist()
+{
+    return RPCHelpMan{"nftlist",
+        "\nReturns owned NFTs list.\n",
+        {},
+        RPCResult{
+            RPCResult::Type::ARR, "", "",
+            {
+                {RPCResult::Type::OBJ, "", "",
+                {
+                    {RPCResult::Type::STR_HEX, "tokenid", "The token ID"},
+                    {RPCResult::Type::STR, "owneraddress", "The nft owner qtum address."},
+                    {RPCResult::Type::STR_HEX, "nftid", "Hash of the NFT data (name and url)"},
+                    {RPCResult::Type::STR, "name", "NFT name"},
+                    {RPCResult::Type::STR, "url", "NFT url"},
+                    {RPCResult::Type::STR, "description", "NFT description"},
+                    {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
+                    {RPCResult::Type::NUM, "count", "The number of copies"},
+                }}
+            },
+        },
+        RPCExamples{
+            HelpExampleCli("nftlist", "")
+                    + HelpExampleRpc("nftlist", "")
+        },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+    ChainstateManager& chainman = pwallet->chain().chainman();
+    LOCK(pwallet->cs_wallet);
+    SendNft nftAbi(*pwallet, chainman);
+
+    // Get transaction events
+    int64_t fromBlock = pwallet->m_nft_tx_from_block;
+    int64_t toBlock = -1;
+    std::vector<NftEvent> nftEvents;
+    {
+        LOCK(cs_main);
+        CChain& active_chain = chainman.ActiveChain();
+        toBlock = active_chain.Height();
+        if(!nftAbi.transferEvents(nftEvents, pwallet->m_nft_tx_from_block, toBlock))
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transfer events");
+    }
+
+    // Update wallet nft transactions
+    std::vector<CNftTx> nftTxs;
+    for(size_t i = 0; i < nftEvents.size(); i++)
+    {
+        NftEvent event = nftEvents[i];
+        CNftTx nftTx;
+        nftTx.strSender = event.sender;
+        nftTx.strReceiver = event.receiver;
+        nftTx.id = event.id;
+        nftTx.nValue = event.value;
+        nftTx.transactionHash = event.transactionHash;
+        nftTx.blockHash = event.blockHash;
+        nftTx.blockNumber = event.blockNumber;
+        nftTxs.push_back(nftTx);
+    }
+    if(!pwallet->AddNftTxEntries(nftTxs))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to update nft transactions");
+    fromBlock = toBlock - 10;
+    if(fromBlock < 0) fromBlock = 0;
+    pwallet->m_nft_tx_from_block = fromBlock;
+
+    // Update wallet nft list
+    std::map<uint256, WalletNFTInfo> listNftInfo;
+    for(CNftInfo nft : pwallet->GetRawNftFromTx())
+    {
+        bool isOk = true;
+        WalletNFTInfo info;
+        auto search = listNftInfo.find(nft.id);
+        nftAbi.setSender(nft.strOwner);
+        if(search != listNftInfo.end())
+        {
+            info = search->second;
+        }
+        else
+        {
+            isOk &= nftAbi.walletNFTList(info, nft.id);
+            if(isOk)
+            {
+                listNftInfo[nft.id] = info;
+            }
+        }
+
+        if(!isOk) continue;
+        nft.NFTId = info.NFTId;
+        nft.strName = info.name;
+        nft.strUrl = info.url;
+        nft.strDesc = info.desc;
+        nft.nCreateTime = info.createAt;
+        int32_t count = 0;
+        isOk &= nftAbi.balanceOf(nft.id, count);
+
+        if(!isOk) continue;
+        nft.nCount = count;
+        pwallet->AddNftEntry(nft);
+    }
+
+    // Get wallet nft list
+    UniValue results(UniValue::VARR);
+    for(auto it = pwallet->mapNft.begin(); it != pwallet->mapNft.end(); it++)
+    {
+        CNftInfo info = it->second;
+        if(info.nCount > 0)
+        {
+            UniValue obj(UniValue::VOBJ);
+            obj.pushKV("tokenid", info.id.GetReverseHex());
+            obj.pushKV("owneraddress", info.strOwner);
+            obj.pushKV("nftid", info.NFTId.ToString());
+            obj.pushKV("name", info.strName);
+            obj.pushKV("url", info.strUrl);
+            obj.pushKV("description", info.strDesc);
+            obj.pushKV("blocktime", info.nCreateTime);
+            obj.pushKV("count", info.nCount);
+            results.push_back(obj);
+        }
+    }
+
+    return results;
+},
+    };
+}
+
 RPCHelpMan abortrescan();
 RPCHelpMan dumpprivkey();
 RPCHelpMan importprivkey();
@@ -7404,6 +8083,10 @@ static const CRPCCommand commands[] =
     { "wallet",             &qrc20transferfrom,               },
     { "wallet",             &qrc20burn,                       },
     { "wallet",             &qrc20burnfrom,                   },
+    { "wallet",             &nftcreate,                       },
+    { "wallet",             &nftsend,                         },
+    { "wallet",             &nftsendbatch,                    },
+    { "wallet",             &nftlist,                         },
 };
 // clang-format on
     return MakeSpan(commands);

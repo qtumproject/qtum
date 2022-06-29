@@ -49,6 +49,7 @@ public Q_SLOTS:
     void copyOwnerAddress();
     void copyUrl();
     void copyDesc();
+    void copyTokenId();
 
 private:
     bool checkLogEvents();
