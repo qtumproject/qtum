@@ -66,6 +66,7 @@ class CBlockTreeDB;
 class CChainParams;
 class CTxMemPool;
 class ChainstateManager;
+struct CDiskTxPos;
 struct ChainTxData;
 struct DisconnectedBlockTransactions;
 struct PrecomputedTransactionData;
@@ -205,6 +206,9 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex* pin
 
 /** Prune block files up to a given height */
 void PruneBlockFilesManual(CChainState& active_chainstate, int nManualPruneHeight);
+
+/** Check if the transaction is confirmed in N previous blocks */
+bool IsConfirmedInNPrevBlocks(const CDiskTxPos& txindex, const CBlockIndex* pindexFrom, int nMaxDepth, int& nActualDepth);
 
 /**
 * Validation result for a single transaction mempool acceptance.
@@ -376,11 +380,14 @@ private:
     bool cacheStore;
     ScriptError error;
     PrecomputedTransactionData *txdata;
+    int nOut;
 
 public:
-    CScriptCheck(): ptxTo(nullptr), nIn(0), nFlags(0), cacheStore(false), error(SCRIPT_ERR_UNKNOWN_ERROR) {}
+    CScriptCheck(): ptxTo(nullptr), nIn(0), nFlags(0), cacheStore(false), error(SCRIPT_ERR_UNKNOWN_ERROR), nOut(-1) {}
     CScriptCheck(const CTxOut& outIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn, PrecomputedTransactionData* txdataIn) :
-        m_tx_out(outIn), ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn) { }
+        m_tx_out(outIn), ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn), nOut(-1) { }
+    CScriptCheck(const CTransaction& txToIn, int nOutIn, unsigned int nFlagsIn, bool cacheIn, PrecomputedTransactionData* txdataIn) :
+        ptxTo(&txToIn), nIn(0), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn), nOut(nOutIn){ }
 
     bool operator()();
 
@@ -392,13 +399,30 @@ public:
         std::swap(cacheStore, check.cacheStore);
         std::swap(error, check.error);
         std::swap(txdata, check.txdata);
+        std::swap(nOut, check.nOut);
     }
 
     ScriptError GetScriptError() const { return error; }
+
+    bool checkOutput() const { return nOut > -1; }
 };
 
 /** Initializes the script-execution cache */
 void InitScriptExecutionCache();
+
+///////////////////////////////////////////////////////////////// // qtum
+bool GetAddressIndex(uint256 addressHash, int type,
+                     std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
+                     int start = 0, int end = 0);
+
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool);
+
+bool GetAddressUnspent(uint256 addressHash, int type,
+                       std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs);
+
+bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes, ChainstateManager& chainman);
+
+bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight);
 
 std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman);
 
@@ -408,6 +432,9 @@ bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensu
 
 /** Context-independent validity checks */
 bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, CChainState& chainstate, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool fCheckSig=true);
+bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKey);
+bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& address, uint8_t& fee, CCoinsViewCache& view, CChainState& chainstate);
+bool CheckCanonicalBlockSignature(const CBlockHeader* pblock);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block) */
 bool TestBlockValidity(BlockValidationState& state,
@@ -439,7 +466,127 @@ public:
 
 extern std::unique_ptr<StorageResults> pstorageresult;
 
+bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, CChain& chain);
+
+//////////////////////////////////////////////////////// qtum
+bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin);
+
+bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin, CChain& chain);
+
+unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams);
+
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, CChainState& chainstate, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
+
+bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int nHeight);
+
+bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
+
+bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);
+
+void writeVMlog(const std::vector<ResultExecute>& res, CChain& chain, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+
+std::string exceptedMessage(const dev::eth::TransactionException& excepted, const dev::bytes& output);
+
+struct EthTransactionParams{
+    VersionVM version;
+    dev::u256 gasLimit;
+    dev::u256 gasPrice;
+    valtype code;
+    dev::Address receiveAddress;
+
+    bool operator!=(EthTransactionParams etp){
+        if(this->version.toRaw() != etp.version.toRaw() || this->gasLimit != etp.gasLimit ||
+        this->gasPrice != etp.gasPrice || this->code != etp.code ||
+        this->receiveAddress != etp.receiveAddress)
+            return true;
+        return false;
+    }
+};
+
+struct ByteCodeExecResult{
+    uint64_t usedGas = 0;
+    CAmount refundSender = 0;
+    std::vector<CTxOut> refundOutputs;
+    std::vector<CTransaction> valueTransfers;
+};
+
+class QtumTxConverter{
+
+public:
+
+    QtumTxConverter(CTransaction tx, CChainState& _chainstate, const CTxMemPool* _mempool, CCoinsViewCache* v = NULL, const std::vector<CTransactionRef>* blockTxs = NULL, unsigned int flags = SCRIPT_EXEC_BYTE_CODE) : txBit(tx), view(v), blockTransactions(blockTxs), sender(false), nFlags(flags), chainstate(_chainstate), mempool(_mempool){}
+
+    bool extractionQtumTransactions(ExtractQtumTX& qtumTx);
+
+private:
+
+    bool receiveStack(const CScript& scriptPubKey);
+
+    bool parseEthTXParams(EthTransactionParams& params);
+
+    QtumTransaction createEthTX(const EthTransactionParams& etp, const uint32_t nOut);
+
+    size_t correctedStackSize(size_t size);
+
+    const CTransaction txBit;
+    const CCoinsViewCache* view;
+    std::vector<valtype> stack;
+    opcodetype opcode;
+    const std::vector<CTransactionRef> *blockTransactions;
+    bool sender;
+    dev::Address refundSender;
+    unsigned int nFlags;
+    CChainState& chainstate;
+    const CTxMemPool* mempool;
+};
+
+class LastHashes: public dev::eth::LastBlockHashesFace
+{
+public:
+    explicit LastHashes();
+
+    void set(CBlockIndex const* tip);
+
+    dev::h256s precedingHashes(dev::h256 const&) const override;
+
+    void clear() override;
+
+private:
+    dev::h256s m_lastHashes;
+};
+
+class ByteCodeExec {
+
+public:
+
+    ByteCodeExec(const CBlock& _block, std::vector<QtumTransaction> _txs, const uint64_t _blockGasLimit, CBlockIndex* _pindex, CChain& _chain) : txs(_txs), block(_block), blockGasLimit(_blockGasLimit), pindex(_pindex), chain(_chain) {}
+
+    bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
+
+    bool processingResults(ByteCodeExecResult& result);
+
+    std::vector<ResultExecute>& getResult(){ return result; }
+
+private:
+
+    dev::eth::EnvInfo BuildEVMEnvironment();
+
+    dev::Address EthAddrFromScript(const CScript& scriptIn);
+
+    std::vector<QtumTransaction> txs;
+
+    std::vector<ResultExecute> result;
+
+    const CBlock& block;
+
+    const uint64_t blockGasLimit;
+
+    CBlockIndex* pindex;
+
+    LastHashes lastHashes;
+
+    CChain& chain;
+};
 
 enum DisconnectResult
 {
@@ -716,6 +863,7 @@ public:
         EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
     bool ConnectBlock(const CBlock& block, BlockValidationState& state, CBlockIndex* pindex,
                       CCoinsViewCache& view, bool fJustCheck = false) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    bool UpdateHashProof(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex, CCoinsViewCache& view);
 
     // Apply the effects of a block disconnection on the UTXO set.
     bool DisconnectTip(BlockValidationState& state, DisconnectedBlockTransactions* disconnectpool) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_mempool->cs);
@@ -1075,6 +1223,9 @@ bool DumpMempool(const CTxMemPool& pool, FopenFn mockable_fopen_function = fsbri
 
 /** Load the mempool from disk. */
 bool LoadMempool(CTxMemPool& pool, CChainState& active_chainstate, FopenFn mockable_fopen_function = fsbridge::fopen);
+
+//! Get transaction gas fee
+CAmount GetTxGasFee(const CMutableTransaction& tx, const CTxMemPool& mempool, CChainState& active_chainstate);
 
 /**
  * Return the expected assumeutxo value for a given height, if one exists.

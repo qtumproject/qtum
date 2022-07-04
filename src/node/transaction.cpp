@@ -122,7 +122,7 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
     return TransactionError::OK;
 }
 
-CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, const Consensus::Params& consensusParams, uint256& hashBlock)
+CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, const Consensus::Params& consensusParams, uint256& hashBlock, CChainState* chainstate)
 {
     if (mempool && !block_index) {
         CTransactionRef ptx = mempool->get(hash);
@@ -148,6 +148,22 @@ CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMe
                 if (tx->GetHash() == hash) {
                     hashBlock = block_index->GetBlockHash();
                     return tx;
+                }
+            }
+        }
+    }
+    if (chainstate) { // use coin database to locate block that contains transaction, and scan it
+        CBlockIndex* pindexSlow = nullptr;
+        const Coin& coin = AccessByTxid(chainstate->CoinsTip(), hash);
+        if (!coin.IsSpent()) pindexSlow = chainstate->m_chain[coin.nHeight];
+        if (pindexSlow) {
+            CBlock block;
+            if (ReadBlockFromDisk(block, pindexSlow, consensusParams)) {
+                for (const auto& tx : block.vtx) {
+                    if (tx->GetHash() == hash) {
+                        hashBlock = pindexSlow->GetBlockHash();
+                        return tx;
+                    }
                 }
             }
         }

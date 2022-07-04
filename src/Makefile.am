@@ -211,6 +211,7 @@ BITCOIN_CORE_H = \
   policy/rbf.h \
   policy/settings.h \
   pow.h \
+  pos.h \
   protocol.h \
   psbt.h \
   random.h \
@@ -623,6 +624,7 @@ libbitcoin_common_a_SOURCES = \
   policy/policy.cpp \
   protocol.cpp \
   psbt.cpp \
+  pos.cpp \
   rpc/rawtransaction_util.cpp \
   rpc/external_signer.cpp \
   rpc/util.cpp \
