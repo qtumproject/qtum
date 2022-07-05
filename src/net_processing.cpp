@@ -37,6 +37,9 @@
 #include <util/system.h>
 #include <util/trace.h>
 #include <validation.h>
+#include <clientversion.h>
+#include <consensus/merkle.h>
+#include <shutdown.h>
 
 #include <algorithm>
 #include <atomic>
@@ -173,6 +176,13 @@ static constexpr double MAX_ADDR_RATE_PER_SECOND{0.1};
  *  is exempt from this limit). */
 static constexpr size_t MAX_ADDR_PROCESSING_TOKEN_BUCKET{MAX_ADDR_TO_SEND};
 
+struct COrphanBlock {
+    uint256 hashBlock;
+    uint256 hashPrev;
+    std::pair<COutPoint, unsigned int> stake;
+    std::vector<unsigned char> vchBlock;
+};
+
 // Internal stuff
 namespace {
 /** Blocks that are in flight, and that are in the queue to be downloaded. */
@@ -303,6 +313,7 @@ public:
     PeerManagerImpl(const CChainParams& chainparams, CConnman& connman, AddrMan& addrman,
                     BanMan* banman, ChainstateManager& chainman,
                     CTxMemPool& pool, bool ignore_incoming_txs);
+    ~PeerManagerImpl();
 
     /** Overridden from CValidationInterface. */
     void BlockConnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindexConnected) override;
@@ -329,6 +340,7 @@ public:
     void Misbehaving(const NodeId pnode, const int howmuch, const std::string& message) override;
     void ProcessMessage(CNode& pfrom, const std::string& msg_type, CDataStream& vRecv,
                         const std::chrono::microseconds time_received, const std::atomic<bool>& interruptMsgProc) override;
+    void InitCleanBlockIndex() override;
 
 private:
     void _RelayTransaction(const uint256& txid, const uint256& wtxid)
@@ -416,6 +428,26 @@ private:
 
     /** Send `feefilter` message. */
     void MaybeSendFeefilter(CNode& node, std::chrono::microseconds current_time) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+
+    /** Process net block. */
+    void PushGetBlocks(CNode* pnode, const CBlockIndex* pindexBegin, const uint256& hashEnd);
+    uint256 GetOrphanRoot(const uint256& hash) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    void PruneOrphanBlocks() EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    bool ProcessNetBlockHeaders(CNode* pfrom, const std::vector<CBlockHeader>& block, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex=nullptr);
+    bool ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom);
+
+    /** Clean block index. */
+    bool RemoveStateBlockIndex(CBlockIndex *pindex);
+    bool RemoveNetBlockIndex(CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    bool NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    bool RemoveBlockIndex(CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    void CleanBlockIndex();
+
+    std::map<uint256, COrphanBlock*> mapOrphanBlocks GUARDED_BY(cs_main);
+    std::multimap<uint256, COrphanBlock*> mapOrphanBlocksByPrev GUARDED_BY(cs_main);
+    std::set<std::pair<COutPoint, unsigned int>> setStakeSeenOrphan GUARDED_BY(cs_main);
+    size_t nOrphanBlocksSize = 0;
+    boost::thread_group threadGroup;
 
     const CChainParams& m_chainparams;
     CConnman& m_connman;
@@ -684,6 +716,93 @@ namespace {
 } // namespace
 
 namespace {
+class CNodeHeaders
+{
+public:
+    CNodeHeaders():
+        maxSize(0),
+        maxAvg(0)
+    {
+        maxSize = gArgs.GetIntArg("-headerspamfiltermaxsize", GefaultHeaderSpamFilterMaxSize());
+        maxAvg = gArgs.GetIntArg("-headerspamfiltermaxavg", DEFAULT_HEADER_SPAM_FILTER_MAX_AVG);
+    }
+
+    bool addHeaders(const CBlockIndex *pindexFirst, const CBlockIndex *pindexLast)
+    {
+        if(pindexFirst && pindexLast && maxSize && maxAvg)
+        {
+            // Get the begin block index
+            int nBegin = pindexFirst->nHeight;
+
+            // Get the end block index
+            int nEnd = pindexLast->nHeight;
+
+            for(int point = nBegin; point<= nEnd; point++)
+            {
+                addPoint(point);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool updateState(BlockValidationState& state, bool ret)
+    {
+        // No headers
+        size_t size = points.size();
+        if(size == 0)
+            return ret;
+
+        // Compute the number of the received headers
+        size_t nHeaders = 0;
+        for(auto point : points)
+        {
+            nHeaders += point.second;
+        }
+
+        // Compute the average value per height
+        double nAvgValue = (double)nHeaders / size;
+
+        // Ban the node if try to spam
+        bool banNode = (nAvgValue >= 1.5 * maxAvg && size >= maxAvg) ||
+                       (nAvgValue >= maxAvg && nHeaders >= maxSize) ||
+                       (nHeaders >= maxSize * 4.1);
+        if(banNode)
+        {
+            // Clear the points and ban the node
+            points.clear();
+            return state.Invalid(BlockValidationResult::BLOCK_HEADER_SPAM, "header-spam", "ban node for sending spam");
+        }
+
+        return ret;
+    }
+
+private:
+    void addPoint(int height)
+    {
+        // Erace the last element in the list
+        if(points.size() == maxSize)
+        {
+            points.erase(points.begin());
+        }
+
+        // Add the point to the list
+        int occurrence = 0;
+        auto mi = points.find(height);
+        if (mi != points.end())
+            occurrence = (*mi).second;
+        occurrence++;
+        points[height] = occurrence;
+    }
+
+private:
+    std::map<int,int> points;
+    size_t maxSize;
+    size_t maxAvg;
+};
+
 /**
  * Maintain validation-specific state about nodes, protected by cs_main, instead
  * by CNode's own locks. This simplifies asynchronous operation, where
@@ -787,6 +906,7 @@ struct CNodeState {
 
 /** Map maintaining per-node state. */
 static std::map<NodeId, CNodeState> mapNodeState GUARDED_BY(cs_main);
+static std::map<CService, CNodeHeaders> mapServiceHeaders GUARDED_BY(cs_main);
 
 static CNodeState *State(NodeId pnode) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
     std::map<NodeId, CNodeState>::iterator it = mapNodeState.find(pnode);
@@ -822,6 +942,26 @@ static void PushAddress(Peer& peer, const CAddress& addr, FastRandomContext& ins
             peer.m_addrs_to_send[insecure_rand.randrange(peer.m_addrs_to_send.size())] = addr;
         } else {
             peer.m_addrs_to_send.push_back(addr);
+        }
+    }
+}
+
+static CNodeHeaders &ServiceHeaders(const CService& address) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    unsigned short port =
+            gArgs.GetBoolArg("-headerspamfilterignoreport", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT) ? 0 : address.GetPort();
+    CService addr(address, port);
+    return mapServiceHeaders[addr];
+}
+
+static void CleanAddressHeaders(const CAddress& addr) EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    CSubNet subNet(addr);
+    for (std::map<CService, CNodeHeaders>::iterator it=mapServiceHeaders.begin(); it!=mapServiceHeaders.end();){
+        if(subNet.Match(it->first))
+        {
+            it = mapServiceHeaders.erase(it);
+        }
+        else{
+            it++;
         }
     }
 }
@@ -986,7 +1126,7 @@ bool PeerManagerImpl::TipMayBeStale()
 
 bool PeerManagerImpl::CanDirectFetch()
 {
-    return m_chainman.ActiveChain().Tip()->GetBlockTime() > GetAdjustedTime() - m_chainparams.GetConsensus().nPowTargetSpacing * 20;
+    return m_chainman.ActiveChain().Tip()->GetBlockTime() > GetAdjustedTime() - m_chainparams.GetConsensus().TargetSpacing(m_chainman.ActiveChain().Height()) * 20;
 }
 
 static bool PeerHasHeader(CNodeState *state, const CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
@@ -1043,7 +1183,7 @@ void PeerManagerImpl::FindNextBlocksToDownload(NodeId nodeid, unsigned int count
     // Make sure pindexBestKnownBlock is up to date, we'll need it.
     ProcessBlockAvailability(nodeid);
 
-    if (state->pindexBestKnownBlock == nullptr || state->pindexBestKnownBlock->nChainWork < m_chainman.ActiveChain().Tip()->nChainWork || state->pindexBestKnownBlock->nChainWork < nMinimumChainWork) {
+    if (state->pindexBestKnownBlock == nullptr || state->pindexBestKnownBlock->nChainWork <= m_chainman.ActiveChain().Tip()->nChainWork || state->pindexBestKnownBlock->nChainWork < nMinimumChainWork) {
         // This peer has nothing interesting.
         return;
     }
@@ -1147,6 +1287,21 @@ void PeerManagerImpl::PushNodeVersion(CNode& pnode)
     } else {
         LogPrint(BCLog::NET, "send version message: version %d, blocks=%d, txrelay=%d, peer=%d\n", PROTOCOL_VERSION, nNodeStartingHeight, tx_relay, nodeid);
     }
+}
+
+bool PeerManagerImpl::ProcessNetBlockHeaders(CNode* pfrom, const std::vector<CBlockHeader>& block, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex)
+{
+    const CBlockIndex *pindexFirst = nullptr;
+    bool ret = m_chainman.ProcessNewBlockHeaders(block, state, chainparams, ppindex, &pindexFirst);
+    if(gArgs.GetBoolArg("-headerspamfilter", DEFAULT_HEADER_SPAM_FILTER))
+    {
+        LOCK(cs_main);
+        CNodeHeaders& headers = ServiceHeaders(pfrom->GetAddrLocal());
+        const CBlockIndex *pindexLast = ppindex == nullptr ? nullptr : *ppindex;
+        headers.addHeaders(pindexFirst, pindexLast);
+        return headers.updateState(state, ret);
+    }
+    return ret;
 }
 
 void PeerManagerImpl::AddTxAnnouncement(const CNode& node, const GenTxid& gtxid, std::chrono::microseconds current_time)
@@ -1406,6 +1561,7 @@ bool PeerManagerImpl::MaybePunishNodeForBlock(NodeId nodeid, const BlockValidati
     case BlockValidationResult::BLOCK_INVALID_HEADER:
     case BlockValidationResult::BLOCK_CHECKPOINT:
     case BlockValidationResult::BLOCK_INVALID_PREV:
+    case BlockValidationResult::BLOCK_HEADER_SPAM:
         Misbehaving(nodeid, 100, message);
         return true;
     // Conflicting (but not necessarily invalid) data or different policy:
@@ -1413,8 +1569,13 @@ bool PeerManagerImpl::MaybePunishNodeForBlock(NodeId nodeid, const BlockValidati
         // TODO: Handle this much more gracefully (10 DoS points is super arbitrary)
         Misbehaving(nodeid, 10, message);
         return true;
+    case BlockValidationResult::BLOCK_HEADER_SYNC:
+    case BlockValidationResult::BLOCK_GAS_EXCEEDS_LIMIT:
+        Misbehaving(nodeid, 1, message);
+        return true;
     case BlockValidationResult::BLOCK_RECENT_CONSENSUS_CHANGE:
     case BlockValidationResult::BLOCK_TIME_FUTURE:
+    case BlockValidationResult::BLOCK_HEADER_REJECT:
         break;
     }
     if (message != "") {
@@ -1431,6 +1592,10 @@ bool PeerManagerImpl::MaybePunishNodeForTx(NodeId nodeid, const TxValidationStat
     // The node is providing invalid data:
     case TxValidationResult::TX_CONSENSUS:
         Misbehaving(nodeid, 100, message);
+        return true;
+    case TxValidationResult::TX_INVALID_SENDER_SCRIPT:
+    case TxValidationResult::TX_GAS_EXCEEDS_LIMIT:
+        Misbehaving(nodeid, 1, message);
         return true;
     // Conflicting (but not necessarily invalid) data or different policy:
     case TxValidationResult::TX_RECENT_CONSENSUS_CHANGE:
@@ -1527,6 +1692,13 @@ void PeerManagerImpl::StartScheduledTasks(CScheduler& scheduler)
     // schedule next run for 10-15 minutes in the future
     const std::chrono::milliseconds delta = 10min + GetRandMillis(5min);
     scheduler.scheduleFromNow([&] { ReattemptInitialBroadcast(scheduler); }, delta);
+}
+
+PeerManagerImpl::~PeerManagerImpl()
+{
+    // Stop clean block index thread
+    threadGroup.interrupt_all();
+    threadGroup.join_all();
 }
 
 /**
@@ -2165,7 +2337,7 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, const Peer& peer,
     }
 
     BlockValidationState state;
-    if (!m_chainman.ProcessNewBlockHeaders(headers, state, m_chainparams, &pindexLast)) {
+    if (!ProcessNetBlockHeaders(&pfrom, headers, state, m_chainparams, &pindexLast)) {
         if (state.IsInvalid()) {
             MaybePunishNodeForBlock(pfrom.GetId(), state, via_compact_block, "invalid header received");
             return;
@@ -2542,7 +2714,7 @@ void PeerManagerImpl::ProcessGetCFCheckPt(CNode& peer, CDataStream& vRecv)
 void PeerManagerImpl::ProcessBlock(CNode& node, const std::shared_ptr<const CBlock>& block, bool force_processing)
 {
     bool new_block{false};
-    m_chainman.ProcessNewBlock(m_chainparams, block, force_processing, &new_block);
+    ProcessNetBlock(block, force_processing, &new_block, &node);
     if (new_block) {
         node.m_last_block_time = GetTime<std::chrono::seconds>();
     } else {
@@ -2595,6 +2767,34 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         if (nVersion < MIN_PEER_PROTO_VERSION) {
             // disconnect from peers older than this proto version
             LogPrint(BCLog::NET, "peer=%d using obsolete version %i; disconnecting\n", pfrom.GetId(), nVersion);
+            pfrom.fDisconnect = true;
+            return;
+        }
+
+        if (m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().QIP7Height && nVersion < MIN_PEER_PROTO_VERSION_AFTER_QIP7) {
+        	// disconnect from peers older than this proto version
+        	LogPrint(BCLog::NET, "peer=%d using obsolete version after QIP7 hardfork %i; disconnecting\n", pfrom.GetId(), nVersion);
+        	pfrom.fDisconnect = true;
+        	return;
+        }
+
+        if (m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nOfflineStakeHeight && nVersion < MIN_PEER_PROTO_VERSION_AFTER_OFFLINESTAKE) {
+            // disconnect from peers older than this proto version
+            LogPrint(BCLog::NET, "peer=%d using obsolete version after offline stake hardfork %i; disconnecting\n", pfrom.GetId(), nVersion);
+            pfrom.fDisconnect = true;
+            return;
+        }
+
+        if (m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nReduceBlocktimeHeight && nVersion < MIN_PEER_PROTO_VERSION_AFTER_REDUCEBLOCKTIME) {
+            // disconnect from peers older than this proto version
+            LogPrint(BCLog::NET, "peer=%d using obsolete version after reduce block time hardfork %i; disconnecting\n", pfrom.GetId(), nVersion);
+            pfrom.fDisconnect = true;
+            return;
+        }
+
+        if (m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nLondonHeight && nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMLONDON) {
+            // disconnect from peers older than this proto version
+            LogPrint(BCLog::NET, "peer=%d using obsolete version after evm London hardfork %i; disconnecting\n", pfrom.GetId(), nVersion);
             pfrom.fDisconnect = true;
             return;
         }
@@ -3138,7 +3338,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             }
             // If pruning, don't inv blocks unless we have on disk and are likely to still have
             // for some reasonable time window (1 hour) that block relay might require.
-            const int nPrunedBlocksLikelyToHave = MIN_BLOCKS_TO_KEEP - 3600 / m_chainparams.GetConsensus().nPowTargetSpacing;
+            const int nPrunedBlocksLikelyToHave = MIN_BLOCKS_TO_KEEP - 3600 / m_chainparams.GetConsensus().TargetSpacing(pindex->nHeight);
             if (fPruneMode && (!(pindex->nStatus & BLOCK_HAVE_DATA) || pindex->nHeight <= m_chainman.ActiveChain().Tip()->nHeight - nPrunedBlocksLikelyToHave))
             {
                 LogPrint(BCLog::NET, " getblocks stopping, pruned or too old block at %d %s\n", pindex->nHeight, pindex->GetBlockHash().ToString());
@@ -3519,7 +3719,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
 
         const CBlockIndex *pindex = nullptr;
         BlockValidationState state;
-        if (!m_chainman.ProcessNewBlockHeaders({cmpctblock.header}, state, m_chainparams, &pindex)) {
+        if (!ProcessNetBlockHeaders(&pfrom, {cmpctblock.header}, state, m_chainparams, &pindex)) {
             if (state.IsInvalid()) {
                 MaybePunishNodeForBlock(pfrom.GetId(), state, /*via_compact_block*/ true, "invalid header via cmpctblock");
                 return;
@@ -4125,6 +4325,9 @@ bool PeerManagerImpl::MaybeDiscourageAndDisconnect(CNode& pnode, Peer& peer)
     LogPrint(BCLog::NET, "Disconnecting and discouraging peer %d!\n", peer.m_id);
     if (m_banman) m_banman->Discourage(pnode.addr);
     m_connman.DisconnectNode(pnode.addr);
+    LOCK(cs_main);
+    // Remove all data from the header spam filter when the address is banned
+    CleanAddressHeaders(pnode.addr);
     return true;
 }
 
@@ -4634,7 +4837,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                         // Convert HEADERS_DOWNLOAD_TIMEOUT_PER_HEADER to microseconds before scaling
                         // to maintain precision
                         std::chrono::microseconds{HEADERS_DOWNLOAD_TIMEOUT_PER_HEADER} *
-                        (GetAdjustedTime() - pindexBestHeader->GetBlockTime()) / consensusParams.nPowTargetSpacing
+                        (GetAdjustedTime() - pindexBestHeader->GetBlockTime()) / (consensusParams.TargetSpacing(pindexBestHeader->nHeight))
                     );
                 nSyncStarted++;
                 const CBlockIndex *pindexStart = pindexBestHeader;
@@ -4959,7 +5162,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
         if (state.vBlocksInFlight.size() > 0) {
             QueuedBlock &queuedBlock = state.vBlocksInFlight.front();
             int nOtherPeersWithValidatedDownloads = m_peers_downloading_from - 1;
-            if (current_time > state.m_downloading_since + std::chrono::seconds{consensusParams.nPowTargetSpacing} * (BLOCK_DOWNLOAD_TIMEOUT_BASE + BLOCK_DOWNLOAD_TIMEOUT_PER_PEER * nOtherPeersWithValidatedDownloads)) {
+            if (current_time > state.m_downloading_since + std::chrono::seconds{consensusParams.TargetSpacing(pindexBestHeader->nHeight)} * (BLOCK_DOWNLOAD_TIMEOUT_BASE + BLOCK_DOWNLOAD_TIMEOUT_PER_PEER * nOtherPeersWithValidatedDownloads)) {
                 LogPrintf("Timeout downloading block %s from peer=%d, disconnecting\n", queuedBlock.pindex->GetBlockHash().ToString(), pto->GetId());
                 pto->fDisconnect = true;
                 return true;
@@ -5058,6 +5261,325 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
         MaybeSendFeefilter(*pto, current_time);
     } // release cs_main
     return true;
+}
+
+void PeerManagerImpl::PushGetBlocks(CNode* pnode, const CBlockIndex* pindexBegin, const uint256& hashEnd)
+{
+    const CNetMsgMaker msgMaker(pnode->GetCommonVersion());
+    m_connman.PushMessage(pnode, msgMaker.Make(NetMsgType::GETBLOCKS, m_chainman.ActiveChain().GetLocator(pindexBegin), hashEnd));
+}
+
+uint256 PeerManagerImpl::GetOrphanRoot(const uint256& hash)
+{
+    AssertLockHeld(cs_main);
+    std::map<uint256, COrphanBlock*>::iterator it = mapOrphanBlocks.find(hash);
+    if (it == mapOrphanBlocks.end())
+        return hash;
+
+    // Work back to the first block in the orphan chain
+    do {
+        std::map<uint256, COrphanBlock*>::iterator it2 = mapOrphanBlocks.find(it->second->hashPrev);
+        if (it2 == mapOrphanBlocks.end())
+            return it->first;
+        it = it2;
+    } while(true);
+}
+
+// Remove a random orphan block (which does not have any dependent orphans).
+void PeerManagerImpl::PruneOrphanBlocks()
+{
+    AssertLockHeld(cs_main);
+    size_t nMaxOrphanBlocksSize = gArgs.GetIntArg("-maxorphanblocksmib", DEFAULT_MAX_ORPHAN_BLOCKS) * ((size_t) 1 << 20);
+    while (nOrphanBlocksSize > nMaxOrphanBlocksSize)
+    {
+        // Pick a random orphan block.
+        uint256 randomhash = GetRandHash();
+        std::multimap<uint256, COrphanBlock*>::iterator it = mapOrphanBlocksByPrev.lower_bound(randomhash);
+        if (it == mapOrphanBlocksByPrev.end())
+            it = mapOrphanBlocksByPrev.begin();
+
+        // As long as this block has other orphans depending on it, move to one of those successors.
+        do {
+            std::multimap<uint256, COrphanBlock*>::iterator it2 = mapOrphanBlocksByPrev.find(it->second->hashBlock);
+            if (it2 == mapOrphanBlocksByPrev.end())
+                break;
+            it = it2;
+        } while(1);
+
+        setStakeSeenOrphan.erase(it->second->stake);
+        uint256 hash = it->second->hashBlock;
+        nOrphanBlocksSize -= it->second->vchBlock.size();
+        delete it->second;
+        mapOrphanBlocksByPrev.erase(it);
+        mapOrphanBlocks.erase(hash);
+    }
+}
+
+bool PeerManagerImpl::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool fForceProcessing, bool* fNewBlock, CNode* pfrom)
+{
+    uint256 hash;
+    {
+        LOCK(cs_main);
+
+        // Check that the coinstake transaction exist in the received block
+        if(pblock->IsProofOfStake() && !(pblock->vtx.size() > 1 && pblock->vtx[1]->IsCoinStake()))
+        {
+            if (pfrom)
+                Misbehaving(pfrom->GetId(), 100, "Coinstake transaction does not exist");
+            return error("ProcessNetBlock() : coinstake transaction does not exist");
+        }
+
+        // Check for duplicate orphan block
+        // Duplicate stake allowed only when there is orphan child block
+        // if the block header is already known, allow it (to account for headers being sent before the block itself)
+        hash = pblock->GetHash();
+        if (!fReindex && !fImporting && pblock->IsProofOfStake() && setStakeSeen.count(pblock->GetProofOfStake()) && !m_chainman.BlockIndex().count(hash) && !mapOrphanBlocksByPrev.count(hash))
+            return error("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
+    }
+
+    // Process the header before processing the block
+    const CBlockIndex *pindex = nullptr;
+    BlockValidationState state;
+    if (!ProcessNetBlockHeaders(pfrom, {*pblock}, state, m_chainparams, &pindex)) {
+        if (state.IsInvalid()) {
+            MaybePunishNodeForBlock(pfrom->GetId(), state, false, strprintf("Peer %d sent us invalid header\n", pfrom->GetId()));
+            return error("ProcessNetBlock() : invalid header received");
+        }
+    }
+
+    {
+        LOCK(cs_main);
+        if (mapOrphanBlocks.count(hash))
+            return error("ProcessNetBlock() : already have block (orphan) %s", hash.ToString());
+
+        // Check for the checkpoint
+        CBlockIndex* tip = m_chainman.ActiveChain().Tip();
+        if (tip && pblock->hashPrevBlock != tip->GetBlockHash())
+        {
+            // Extra checks to prevent "fill up memory by spamming with bogus blocks"
+            const CBlockIndex* pcheckpoint = m_chainman.m_blockman.AutoSelectSyncCheckpoint(tip);
+            int64_t deltaTime = pblock->GetBlockTime() - pcheckpoint->nTime;
+            if (deltaTime < 0)
+            {
+                if (pfrom)
+                    Misbehaving(pfrom->GetId(), 1, "Block with timestamp before last checkpoint");
+
+                return error("ProcessNetBlock() : block with timestamp before last checkpoint");
+            }
+        }
+
+        // Check for the signiture encoding
+        if (!CheckCanonicalBlockSignature(pblock.get())) 
+        {
+            if (pfrom)
+                Misbehaving(pfrom->GetId(), 100, "Bad block signature encoding");
+
+            return error("ProcessNetBlock(): bad block signature encoding");
+        }
+
+        // If we don't already have its previous block, shunt it off to holding area until we get it
+        if (!m_chainman.BlockIndex().count(pblock->hashPrevBlock))
+        {
+            LogPrintf("ProcessNetBlock: ORPHAN BLOCK %lu, prev=%s\n", (unsigned long)mapOrphanBlocks.size(), pblock->hashPrevBlock.ToString());
+
+            // Accept orphans as long as there is a node to request its parents from
+            if (pfrom) {
+                // ppcoin: check proof-of-stake
+                if (pblock->IsProofOfStake())
+                {
+                    // Limited duplicity on stake: prevents block flood attack
+                    // Duplicate stake allowed only when there is orphan child block
+                    if (setStakeSeenOrphan.count(pblock->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash))
+                        return error("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for orphan block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
+                }
+                PruneOrphanBlocks();
+                COrphanBlock* pblock2 = new COrphanBlock();
+                {
+                    CDataStream ss(SER_DISK, CLIENT_VERSION);
+                    ss << *pblock;
+                    Span<const uint8_t> cs = MakeUCharSpan(ss);
+                    pblock2->vchBlock = std::vector<unsigned char>(cs.begin(), cs.end());
+                }
+                pblock2->hashBlock = hash;
+                pblock2->hashPrev = pblock->hashPrevBlock;
+                pblock2->stake = pblock->GetProofOfStake();
+                nOrphanBlocksSize += pblock2->vchBlock.size();
+                mapOrphanBlocks.insert(std::make_pair(hash, pblock2));
+                mapOrphanBlocksByPrev.insert(std::make_pair(pblock2->hashPrev, pblock2));
+                if (pblock->IsProofOfStake())
+                    setStakeSeenOrphan.insert(pblock->GetProofOfStake());
+
+                // Ask this guy to fill in what we're missing
+                PushGetBlocks(pfrom, pindexBestHeader, GetOrphanRoot(hash));
+            }
+            return true;
+        }
+    }
+
+    if(!m_chainman.ProcessNewBlock(m_chainparams, pblock, fForceProcessing, fNewBlock))
+        return error("%s: ProcessNewBlock FAILED", __func__);
+
+    std::vector<uint256> vWorkQueue;
+    vWorkQueue.push_back(pblock->GetHash());
+    for (unsigned int i = 0; i < vWorkQueue.size(); i++)
+    {
+        uint256 hashPrev = vWorkQueue[i];
+        for (std::multimap<uint256, COrphanBlock*>::iterator mi = mapOrphanBlocksByPrev.lower_bound(hashPrev);
+             mi != mapOrphanBlocksByPrev.upper_bound(hashPrev);
+             ++mi)
+        {
+            CBlock block;
+            {
+                CDataStream ss(mi->second->vchBlock, SER_DISK, CLIENT_VERSION);
+                ss >> block;
+            }
+            block.hashMerkleRoot = BlockMerkleRoot(block);
+
+            bool fNewBlockOrphan = false;
+            std::shared_ptr<const CBlock> shared_pblock = std::make_shared<const CBlock>(block);
+            if (m_chainman.ProcessNewBlock(m_chainparams, shared_pblock, fForceProcessing, &fNewBlockOrphan))
+                vWorkQueue.push_back(mi->second->hashBlock);
+
+            LOCK(cs_main);
+            mapOrphanBlocks.erase(mi->second->hashBlock);
+            setStakeSeenOrphan.erase(block.GetProofOfStake());
+            nOrphanBlocksSize -= mi->second->vchBlock.size();
+            delete mi->second;
+        }
+
+        LOCK(cs_main);
+        mapOrphanBlocksByPrev.erase(hashPrev);
+    }
+
+    return true;
+}
+
+bool PeerManagerImpl::RemoveStateBlockIndex(CBlockIndex *pindex)
+{
+    AssertLockHeld(cs_main);
+    return m_chainman.ActiveChainstate().RemoveBlockIndex(pindex);
+}
+
+bool PeerManagerImpl::RemoveNetBlockIndex(CBlockIndex *pindex)
+{
+    AssertLockHeld(cs_main);
+    // Make sure it's not listed somewhere already.
+    RemoveBlockRequest(pindex->GetBlockHash());
+
+    for (std::map<NodeId, CNodeState>::iterator it=mapNodeState.begin(); it!=mapNodeState.end(); it++)
+    {
+        CNodeState * state = &it->second;
+
+        if(state->pindexBestKnownBlock == pindex)
+            state->pindexBestKnownBlock = nullptr;
+
+        if(state->pindexLastCommonBlock == pindex)
+            state->pindexLastCommonBlock = nullptr;
+
+        if(state->pindexBestHeaderSent == pindex)
+            state->pindexBestHeaderSent = nullptr;
+
+        if(state->m_chain_sync.m_work_header == pindex)
+            state->m_chain_sync.m_work_header = nullptr;
+    }
+
+    return true;
+}
+
+bool PeerManagerImpl::NeedToEraseBlockIndex(const CBlockIndex *pindex, const CBlockIndex *pindexCheck)
+{
+    AssertLockHeld(cs_main);
+    if(!m_chainman.ActiveChain().Contains(pindex))
+    {
+        if(pindex->nHeight <= pindexCheck->nHeight) return true;
+        const CBlockIndex *pindexBlock = pindex;
+        while(pindexBlock)
+        {
+           pindexBlock = pindexBlock->pprev;
+           if(pindexBlock->nHeight == pindexCheck->nHeight) return pindexBlock != pindexCheck;
+        }
+    }
+    return false;
+}
+
+bool PeerManagerImpl::RemoveBlockIndex(CBlockIndex *pindex)
+{
+    AssertLockHeld(cs_main);
+    bool ret = RemoveStateBlockIndex(pindex);
+    ret &= RemoveNetBlockIndex(pindex);
+    return ret;
+}
+
+void PeerManagerImpl::CleanBlockIndex()
+{
+    unsigned int cleanTimeout = gArgs.GetIntArg("-cleanblockindextimeout", DEFAULT_CLEANBLOCKINDEXTIMEOUT);
+    if(cleanTimeout == 0) cleanTimeout = DEFAULT_CLEANBLOCKINDEXTIMEOUT;
+
+    while(!ShutdownRequested())
+    {
+        if(!m_chainman.ActiveChainstate().IsInitialBlockDownload())
+        {
+            // Select block indexes to delete
+            std::vector<uint256> indexNeedErase;
+            {
+                LOCK(cs_main);
+                int nHeight = m_chainman.ActiveChain().Height();
+                int checkpointSpan = Params().GetConsensus().CheckpointSpan(nHeight);
+                const CBlockIndex *pindexCheck = m_chainman.ActiveChain()[nHeight - checkpointSpan -1];
+                if(pindexCheck)
+                {
+                    for (node::BlockMap::iterator it=m_chainman.BlockIndex().begin(); it!=m_chainman.BlockIndex().end(); it++)
+                    {
+                        CBlockIndex *pindex = (*it).second;
+                        if(NeedToEraseBlockIndex(pindex, pindexCheck))
+                        {
+                            indexNeedErase.push_back(pindex->GetBlockHash());
+                        }
+                    }
+                }
+            }
+
+            // Delete selected block indexes
+            if(indexNeedErase.size() > 0)
+            {
+                SyncWithValidationInterfaceQueue();
+
+                LOCK(cs_main);
+                std::vector<uint256> indexEraseDB;
+                for(uint256 blockHash : indexNeedErase)
+                {
+                    node::BlockMap::iterator it=m_chainman.BlockIndex().find(blockHash);
+                    if(it!=m_chainman.BlockIndex().end())
+                    {
+                        CBlockIndex *pindex = (*it).second;
+                        if(RemoveBlockIndex(pindex))
+                        {
+                            delete pindex;
+                            m_chainman.BlockIndex().erase(it);
+                            indexEraseDB.push_back(blockHash);
+                        }
+                    }
+                }
+
+                if(pblocktree)
+                {
+                    if(!pblocktree->EraseBlockIndex(indexEraseDB))
+                    {
+                        LogPrintf("Fail to erase block indexes.\n");
+                    }
+                }
+            }
+        }
+
+        for(unsigned int i = 0; (i < cleanTimeout) && !ShutdownRequested(); i++)
+            UninterruptibleSleep(std::chrono::seconds{1});
+    }
+}
+
+void PeerManagerImpl::InitCleanBlockIndex()
+{
+    if(gArgs.GetBoolArg("-cleanblockindex", DEFAULT_CLEANBLOCKINDEX))
+        threadGroup.create_thread([this]{CleanBlockIndex();});
 }
 
 unsigned int GefaultHeaderSpamFilterMaxSize()
