@@ -1960,6 +1960,11 @@ bool CWallet::SignTransaction(CMutableTransaction& tx, const std::map<COutPoint,
     return false;
 }
 
+bool CWallet::SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const
+{
+    return {};
+}
+
 TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& complete, int sighash_type, bool sign, bool bip32derivs, size_t * n_signed, bool finalize) const
 {
     if (n_signed) {
@@ -2124,6 +2129,11 @@ void CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
         WalletLogPrintf("CommitTransaction(): Transaction cannot be broadcast immediately, %s\n", err_string);
         // TODO: if we expect the failure to be long term or permanent, instead delete wtx from the wallet and return failure.
     }
+}
+
+bool CWallet::CreateCoinStake(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+{
+    return {};
 }
 
 DBErrors CWallet::LoadWallet()
@@ -3497,5 +3507,10 @@ ScriptPubKeyMan* CWallet::AddWalletDescriptor(WalletDescriptor& desc, const Flat
 bool CWallet::IsStakeClosing()
 {
     return chain().shutdownRequested() || m_stop_staking_thread;
+}
+
+bool CWallet::GetHDKeyPath(const CTxDestination &dest, std::string &hdkeypath) const
+{
+    return {};
 }
 } // namespace wallet

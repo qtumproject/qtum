@@ -210,6 +210,9 @@ void PruneBlockFilesManual(CChainState& active_chainstate, int nManualPruneHeigh
 /** Check if the transaction is confirmed in N previous blocks */
 bool IsConfirmedInNPrevBlocks(const CDiskTxPos& txindex, const CBlockIndex* pindexFrom, int nMaxDepth, int& nActualDepth);
 
+/** Check if the header proof is valid */
+bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams, CChainState& chainstate);
+
 /**
 * Validation result for a single transaction mempool acceptance.
 */
