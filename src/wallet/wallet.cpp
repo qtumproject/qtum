@@ -3493,4 +3493,9 @@ ScriptPubKeyMan* CWallet::AddWalletDescriptor(WalletDescriptor& desc, const Flat
 
     return spk_man;
 }
+
+bool CWallet::IsStakeClosing()
+{
+    return chain().shutdownRequested() || m_stop_staking_thread;
+}
 } // namespace wallet
