@@ -17,6 +17,15 @@ class COutPoint;
 class SigningProvider;
 
 /**
+ * @brief The IRawContract class Parse the contract output for raw transaction
+ */
+class IRawContract
+{
+public:
+    virtual void addContract(CMutableTransaction& rawTx, const UniValue& contract) = 0;
+};
+
+/**
  * Sign a transaction with the given keystore and previous transactions
  *
  * @param  mtx           The transaction to-be-signed
@@ -38,6 +47,11 @@ void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const 
 void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keystore, std::map<COutPoint, Coin>& coins);
 
 /** Create a transaction from univalue parameters */
-CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, bool rbf);
+CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, bool rbf, IRawContract* rawContract = nullptr);
+
+void SignTransactionOutput(CMutableTransaction& mtx, FillableSigningProvider *keystore, const UniValue& hashType, UniValue& result);
+void SignTransactionOutputResultToJSON(CMutableTransaction& mtx, bool complete, std::map<int, std::string>& output_errors, UniValue& result);
+
+void CheckSenderSignatures(CMutableTransaction& mtx);
 
 #endif // BITCOIN_RPC_RAWTRANSACTION_UTIL_H
