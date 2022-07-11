@@ -8,17 +8,33 @@
 
 #include <rpc/request.h>
 #include <rpc/util.h>
+#include <uint256.h>
 
 #include <functional>
 #include <map>
 #include <stdint.h>
 #include <string>
+#include <functional>
+#include <condition_variable>
+#include <mutex>
 
 #include <univalue.h>
+#include <util/system.h>
+
+struct CUpdatedBlock
+{
+    uint256 hash;
+    int height;
+};
+
+extern Mutex cs_blockchange;
+extern std::condition_variable cond_blockchange;
+extern CUpdatedBlock latestblock GUARDED_BY(cs_blockchange);
 
 static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
 
 class CRPCCommand;
+class ChainstateManager;
 class HTTPRequest;
 
 namespace RPCServer
@@ -205,6 +221,10 @@ public:
 bool IsDeprecatedRPCEnabled(const std::string& method);
 
 extern CRPCTable tableRPC;
+
+extern double GetPoWMHashPS(ChainstateManager& chainman);
+extern double GetPoSKernelPS();
+extern double GetEstimatedAnnualROI(ChainstateManager& chainman);
 
 void StartRPC();
 void InterruptRPC();
