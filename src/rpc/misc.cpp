@@ -36,6 +36,13 @@
 #include <malloc.h>
 #endif
 
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <wallet/rpc/util.h>
+#include <wallet/rpc/addresses.h>
+using wallet::CWallet;
+#endif
+
 #include <univalue.h>
 
 using node::NodeContext;
@@ -878,6 +885,25 @@ RPCHelpMan listconf()
 },
     };
 }
+///////////////////////////////////////////////////////////////////////
+#ifdef ENABLE_WALLET
+bool getAddressToPubKey(const CWallet& wallet, std::string addr, std::string& pubkey)
+{
+    CTxDestination dest = DecodeDestination(addr);
+    // Make sure the destination is valid
+    if (!IsValidDestination(dest)) {
+        return false;
+    }
+    UniValue detail = DescribeWalletAddress(wallet, dest);
+    if(detail.exists("pubkey") && detail["pubkey"].isStr())
+    {
+        pubkey = detail["pubkey"].get_str();
+        return true;
+    }
+
+    return false;
+}
+#endif
 
 static RPCHelpMan createmultisig()
 {
@@ -886,9 +912,9 @@ static RPCHelpMan createmultisig()
                 "It returns a json object with the address and redeemScript.\n",
                 {
                     {"nrequired", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of required signatures out of the n keys."},
-                    {"keys", RPCArg::Type::ARR, RPCArg::Optional::NO, "The hex-encoded public keys.",
+                    {"keys", RPCArg::Type::ARR, RPCArg::Optional::NO, "A json array of keys which are qtum addresses or hex-encoded public keys.",
                         {
-                            {"key", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "The hex-encoded public key"},
+                            {"key", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "qtum address or hex-encoded public key"},
                         }},
                     {"address_type", RPCArg::Type::STR, RPCArg::Default{"legacy"}, "The address type to use. Options are \"legacy\", \"p2sh-segwit\", and \"bech32\"."},
                 },
@@ -906,12 +932,21 @@ static RPCHelpMan createmultisig()
                 },
                 RPCExamples{
             "\nCreate a multisig address from 2 public keys\n"
-            + HelpExampleCli("createmultisig", "2 \"[\\\"03789ed0bb717d88f7d321a368d905e7430207ebbd82bd342cf11ae157a7ace5fd\\\",\\\"03dbc6764b8884a92e871274b87583e6d5c2a58819473e17e107ef3f6aa5a61626\\\"]\"") +
+            + HelpExampleCli("createmultisig", "2 \"[\\\"QjWnDZxwLhrJDcp4Hisse8RfBo2jRDZY5Z\\\",\\\"Q6sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\"]\"") +
             "\nAs a JSON-RPC call\n"
-            + HelpExampleRpc("createmultisig", "2, [\"03789ed0bb717d88f7d321a368d905e7430207ebbd82bd342cf11ae157a7ace5fd\",\"03dbc6764b8884a92e871274b87583e6d5c2a58819473e17e107ef3f6aa5a61626\"]")
+            + HelpExampleRpc("createmultisig", "2, [\"QjWnDZxwLhrJDcp4Hisse8RfBo2jRDZY5Z\",\"Q6sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\"]")
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
+
+#ifdef ENABLE_WALLET
+    std::shared_ptr<CWallet> const pwallet = wallet::GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    LOCK(pwallet->cs_wallet);
+    std::string pubkey;
+#endif
+
     int required = request.params[0].get_int();
 
     // Get the public keys
@@ -920,6 +955,10 @@ static RPCHelpMan createmultisig()
     for (unsigned int i = 0; i < keys.size(); ++i) {
         if (IsHex(keys[i].get_str()) && (keys[i].get_str().length() == 66 || keys[i].get_str().length() == 130)) {
             pubkeys.push_back(HexToPubKey(keys[i].get_str()));
+#ifdef ENABLE_WALLET
+        } else if (getAddressToPubKey(*pwallet, keys[i].get_str(), pubkey)){
+            pubkeys.push_back(HexToPubKey(pubkey));
+#endif
         } else {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Invalid public key: %s\n.", keys[i].get_str()));
         }

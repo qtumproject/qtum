@@ -2245,6 +2245,11 @@ void CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
     }
 }
 
+uint64_t CWallet::GetStakeWeight(uint64_t* pStakerWeight, uint64_t* pDelegateWeight) const
+{
+    return {};
+}
+
 bool CWallet::GetDelegationStaker(const uint160& keyid, Delegation& delegation)
 {
     std::map<uint160, Delegation>::iterator it = m_delegations_staker.find(keyid);
