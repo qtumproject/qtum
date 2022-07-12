@@ -299,29 +299,57 @@ public:
     }
     void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
     {
+        LOCK(::cs_main);
+
+        QtumDGP qtumDGP(globalState.get(), chainman().ActiveChainstate(), fGettingValuesDGP);
+        int numBlocks = chainman().ActiveChain().Height();
+        blockGasLimit = qtumDGP.getBlockGasLimit(numBlocks);
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(numBlocks));
+        nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     }
     void getSyncInfo(int& numBlocks, bool& isSyncing) override
     {
+        LOCK(::cs_main);
+        // Get node synchronization information with minimal locks
+        numBlocks = chainman().ActiveChain().Height();
+        int64_t blockTime = chainman().ActiveChain().Tip() ? chainman().ActiveChain().Tip()->GetBlockTime() :
+                                                  Params().GenesisBlock().GetBlockTime();
+        int64_t secs = GetTime() - blockTime;
+        isSyncing = secs >= 90*60 ? true : false;
     }
     bool tryGetSyncInfo(int& numBlocks, bool& isSyncing) override
     {
-        return {};
+        TRY_LOCK(::cs_main, lockMain);
+        if (lockMain) {
+            // Get node synchronization information with minimal locks
+            numBlocks = chainman().ActiveChain().Height();
+            int64_t blockTime = chainman().ActiveChain().Tip() ? chainman().ActiveChain().Tip()->GetBlockTime() :
+                                                      Params().GenesisBlock().GetBlockTime();
+            int64_t secs = GetTime() - blockTime;
+            isSyncing = secs >= 90*60 ? true : false;
+            return true;
+        }
+
+        return false;
     }
     int64_t getBlockSubsidy(int nHeight) override
     {
-        return {};
+        const CChainParams& chainparams = Params();
+        return GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     uint64_t getNetworkStakeWeight() override
     {
-        return {};
+        LOCK(::cs_main);
+        return GetPoSKernelPS();
     }
     double getEstimatedAnnualROI() override
     {
-        return {};
+        LOCK(::cs_main);
+        return GetEstimatedAnnualROI(chainman());
     }
     int64_t getMoneySupply() override
     {
-        return {};
+        return pindexBestHeader ? pindexBestHeader->nMoneySupply : 0;
     }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
