@@ -12,6 +12,12 @@
 #include <wallet/rpc/wallet.h>
 #include <wallet/rpc/util.h>
 #include <wallet/wallet.h>
+#include <wallet/coincontrol.h>
+#include <qtum/qtumdelegation.h>
+#include <util/signstr.h>
+#include <interfaces/wallet.h>
+#include <rpc/contract_util.h>
+#include <util/tokenstr.h>
 
 #include <optional>
 
@@ -196,7 +202,7 @@ static RPCHelpMan loadwallet()
 {
     return RPCHelpMan{"loadwallet",
                 "\nLoads a wallet from a wallet file or directory."
-                "\nNote that all wallet command-line options used when starting bitcoind will be"
+                "\nNote that all wallet command-line options used when starting qtumd will be"
                 "\napplied to the new wallet.\n",
                 {
                     {"filename", RPCArg::Type::STR, RPCArg::Optional::NO, "The wallet directory or .dat file."},
