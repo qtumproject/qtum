@@ -46,13 +46,13 @@ BOOST_AUTO_TEST_CASE(findBlock)
 
     bool cur_active{false}, next_active{false};
     uint256 next_hash;
-    BOOST_CHECK_EQUAL(active.Height(), 100);
-    BOOST_CHECK(chain->findBlock(active[99]->GetBlockHash(), FoundBlock().inActiveChain(cur_active).nextBlock(FoundBlock().inActiveChain(next_active).hash(next_hash))));
+    BOOST_CHECK_EQUAL(active.Height(), 2000);
+    BOOST_CHECK(chain->findBlock(active[1999]->GetBlockHash(), FoundBlock().inActiveChain(cur_active).nextBlock(FoundBlock().inActiveChain(next_active).hash(next_hash))));
     BOOST_CHECK(cur_active);
     BOOST_CHECK(next_active);
-    BOOST_CHECK_EQUAL(next_hash, active[100]->GetBlockHash());
+    BOOST_CHECK_EQUAL(next_hash, active[2000]->GetBlockHash());
     cur_active = next_active = false;
-    BOOST_CHECK(chain->findBlock(active[100]->GetBlockHash(), FoundBlock().inActiveChain(cur_active).nextBlock(FoundBlock().inActiveChain(next_active))));
+    BOOST_CHECK(chain->findBlock(active[2000]->GetBlockHash(), FoundBlock().inActiveChain(cur_active).nextBlock(FoundBlock().inActiveChain(next_active))));
     BOOST_CHECK(cur_active);
     BOOST_CHECK(!next_active);
 

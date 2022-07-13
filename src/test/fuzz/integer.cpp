@@ -40,7 +40,7 @@
 
 void initialize_integer()
 {
-    SelectParams(CBaseChainParams::REGTEST);
+    SelectParams(CBaseChainParams::UNITTEST);
 }
 
 FUZZ_TARGET_INIT(integer, initialize_integer)

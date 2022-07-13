@@ -14,7 +14,7 @@
 void initialize_parse_univalue()
 {
     static const ECCVerifyHandle verify_handle;
-    SelectParams(CBaseChainParams::REGTEST);
+    SelectParams(CBaseChainParams::UNITTEST);
 }
 
 FUZZ_TARGET_INIT(parse_univalue, initialize_parse_univalue)
