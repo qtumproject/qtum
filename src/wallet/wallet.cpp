@@ -4299,6 +4299,20 @@ void CWallet::updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx
     }
 }
 
+void CWallet::UpdateMinerStakeCache(bool fStakeCache, const std::vector<COutPoint> &prevouts, CBlockIndex *pindexPrev )
+{
+}
+
+bool CWallet::SelectCoinsForStaking(CAmount &nTargetValue, std::set<std::pair<const CWalletTx *, unsigned int> > &setCoinsRet, CAmount &nValueRet) const
+{
+    return {};
+}
+
+bool CWallet::SelectDelegateCoinsForStaking(std::vector<COutPoint> &setDelegateCoinsRet, std::map<uint160, CAmount> &mDelegateWeight) const
+{
+    return {};
+}
+
 void CWallet::AvailableAddress(const std::vector<uint256> &maturedTx, size_t from, size_t to, std::map<uint160, bool> &mapAddress, std::map<COutPoint, CScriptCache> *insertScriptCache) const
 {
     for(size_t i = from; i < to; i++)
@@ -4333,6 +4347,10 @@ void CWallet::AvailableAddress(const std::vector<uint256> &maturedTx, size_t fro
             }
         }
     }
+}
+
+void CWallet::SelectAddress(std::map<uint160, bool> &mapAddress) const
+{
 }
 
 bool CWallet::HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly)
