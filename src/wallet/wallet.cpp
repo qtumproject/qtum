@@ -1013,6 +1013,37 @@ CWalletTx* CWallet::AddToWallet(CTransactionRef tx, const TxState& state, const 
             wtx.SetTx(tx);
             fUpdated = true;
         }
+        if(fUpdated && wtx.IsCoinStake())
+        {
+            AddToSpends(hash);
+        }
+    }
+
+    // Update unspent addresses
+    if(fUpdateAddressUnspentCache)
+    {
+        std::map<COutPoint, CScriptCache> insertScriptCache;
+        for (unsigned int i = 0; i < tx->vout.size(); i++) {
+            isminetype mine = IsMine(tx->vout[i]);
+            if (!(IsSpent(hash, i)) && mine != ISMINE_NO &&
+                !IsLockedCoin(hash, i) && (tx->vout[i].nValue > 0) &&
+                // Check if the staking coin is dust
+                tx->vout[i].nValue >= m_staker_min_utxo_size)
+            {
+                // Get the script data for the coin
+                COutPoint prevout = COutPoint(hash, i);
+                const CScriptCache& scriptCache = GetScriptCache(prevout, tx->vout[i].scriptPubKey, &insertScriptCache);
+
+                // Check that the script is not a contract script
+                if(scriptCache.contract || !scriptCache.keyIdOk)
+                    continue;
+
+                if(mapAddressUnspentCache.find(scriptCache.keyId) == mapAddressUnspentCache.end())
+                {
+                    mapAddressUnspentCache[scriptCache.keyId] = true;
+                }
+            }
+        }
     }
 
     //// debug print
@@ -1842,7 +1873,7 @@ void CWallet::ReacceptWalletTransactions()
 
         int nDepth = GetTxDepthInMainChain(wtx);
 
-        if (!wtx.IsCoinBase() && (nDepth == 0 && !wtx.isAbandoned())) {
+        if (!(wtx.IsCoinBase() || wtx.IsCoinStake()) && (nDepth == 0 && !wtx.isAbandoned())) {
             mapSorted.insert(std::make_pair(wtx.nOrderPos, &wtx));
         }
     }
@@ -1863,7 +1894,7 @@ bool CWallet::SubmitTxMemoryPoolAndRelay(CWalletTx& wtx, std::string& err_string
     if (wtx.isAbandoned()) return false;
     // Don't try to submit coinbase transactions. These would fail anyway but would
     // cause log spam.
-    if (wtx.IsCoinBase()) return false;
+    if (wtx.IsCoinBase() || wtx.IsCoinStake()) return false;
     // Don't try to submit conflicted or confirmed transactions.
     if (GetTxDepthInMainChain(wtx) != 0) return false;
 
@@ -2529,6 +2560,32 @@ std::set<CTxDestination> CWallet::GetLabelAddresses(const std::string& label) co
     return result;
 }
 
+// disable transaction (only for coinstake)
+void CWallet::DisableTransaction(const CTransaction &tx)
+{
+    if (!tx.IsCoinStake() || !IsFromMe(tx))
+        return; // only disconnecting coinstake requires marking input unspent
+
+    uint256 hash = tx.GetHash();
+    if(AbandonTransaction(hash))
+    {
+        LOCK(cs_wallet);
+        RemoveFromSpends(hash);
+        for(const CTxIn& txin : tx.vin)
+        {
+            auto it = mapWallet.find(txin.prevout.hash);
+            if (it != mapWallet.end()) {
+                CWalletTx &coin = it->second;
+                coin.MarkDirty();
+                NotifyTransactionChanged(coin.GetHash(), CT_UPDATED);
+            }
+        }
+        CWalletTx& wtx = mapWallet.at(hash);
+        wtx.MarkDirty();
+        NotifyTransactionChanged(hash, CT_DELETED);
+    }
+}
+
 bool ReserveDestination::GetReservedDestination(CTxDestination& dest, bool internal, bilingual_str& error)
 {
     m_spk_man = pwallet->GetScriptPubKeyMan(type, internal);
@@ -3080,6 +3137,27 @@ std::shared_ptr<CWallet> CWallet::Create(WalletContext& context, const std::stri
     walletInstance->m_confirm_target = args.GetIntArg("-txconfirmtarget", DEFAULT_TX_CONFIRM_TARGET);
     walletInstance->m_spend_zero_conf_change = args.GetBoolArg("-spendzeroconfchange", DEFAULT_SPEND_ZEROCONF_CHANGE);
     walletInstance->m_signal_rbf = args.GetBoolArg("-walletrbf", DEFAULT_WALLET_RBF);
+    std::optional<CAmount> reserve_balance = ParseMoney(gArgs.GetArg("-reservebalance", FormatMoney(DEFAULT_RESERVE_BALANCE)));
+    walletInstance->m_reserve_balance = reserve_balance.value_or(DEFAULT_RESERVE_BALANCE);
+    walletInstance->m_use_change_address = gArgs.GetBoolArg("-usechangeaddress", DEFAULT_USE_CHANGE_ADDRESS);
+    std::optional<CAmount> staking_min_utxo_value = ParseMoney(gArgs.GetArg("-stakingminutxovalue", FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)));
+    walletInstance->m_staking_min_utxo_value = staking_min_utxo_value.value_or(DEFAULT_STAKING_MIN_UTXO_VALUE);
+    std::optional<CAmount> min_staker_utxo_size = ParseMoney(gArgs.GetArg("-minstakerutxosize", FormatMoney(DEFAULT_STAKER_MIN_UTXO_SIZE)));
+    walletInstance->m_staker_min_utxo_size = min_staker_utxo_size.value_or(DEFAULT_STAKER_MIN_UTXO_SIZE);
+    if (gArgs.IsArgSet("-stakingminfee"))
+    {
+        int nStakingMinFee = gArgs.GetIntArg("-stakingminfee", DEFAULT_STAKING_MIN_FEE);
+        if(nStakingMinFee < 0 || nStakingMinFee > 100)
+        {
+            chain->initError(strprintf(_("Invalid percentage value for -stakingminfee=<n>: '%d' (must be between 0 and 100)"), nStakingMinFee));
+            return nullptr;
+        }
+        walletInstance->m_staking_min_fee = nStakingMinFee;
+    }
+    walletInstance->m_staker_max_utxo_script_cache = gArgs.GetIntArg("-maxstakerutxoscriptcache", DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE);
+    walletInstance->m_num_threads = gArgs.GetIntArg("-stakerthreads", GetNumCores());
+    walletInstance->m_num_threads = std::max(1, walletInstance->m_num_threads);
+    walletInstance->m_ledger_id = gArgs.GetArg("-stakerledgerid", "");
 
     walletInstance->WalletLogPrintf("Wallet completed loading in %15dms\n", GetTimeMillis() - nStart);
 
@@ -3369,7 +3447,9 @@ CKeyPool::CKeyPool(const CPubKey& vchPubKeyIn, bool internalIn)
 
 int CWallet::GetTxDepthInMainChain(const CWalletTx& wtx) const
 {
+#ifndef DEBUG_LOCKORDER
     AssertLockHeld(cs_wallet);
+#endif
     if (auto* conf = wtx.state<TxStateConfirmed>()) {
         return GetLastBlockHeight() - conf->confirmed_block_height + 1;
     } else if (auto* conf = wtx.state<TxStateConflicted>()) {
@@ -3381,17 +3461,29 @@ int CWallet::GetTxDepthInMainChain(const CWalletTx& wtx) const
 
 int CWallet::GetTxBlocksToMaturity(const CWalletTx& wtx) const
 {
-    if (!wtx.IsCoinBase())
+    if (!(wtx.IsCoinBase() || wtx.IsCoinStake()))
         return 0;
     int chain_depth = GetTxDepthInMainChain(wtx);
     assert(chain_depth >= 0); // coinbase tx should not be conflicted
-    return std::max(0, (COINBASE_MATURITY+1) - chain_depth);
+    int nHeight = GetLastBlockHeight() + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    return std::max(0, (coinbaseMaturity+1) - chain_depth);
+}
+
+bool CWallet::IsTxImmature(const CWalletTx& wtx) const
+{
+    // note GetBlocksToMaturity is 0 for non-coinbase tx
+    return GetTxBlocksToMaturity(wtx) > 0;
 }
 
 bool CWallet::IsTxImmatureCoinBase(const CWalletTx& wtx) const
 {
-    // note GetBlocksToMaturity is 0 for non-coinbase tx
-    return GetTxBlocksToMaturity(wtx) > 0;
+    return wtx.IsCoinBase() && IsTxImmature(wtx);
+}
+
+bool CWallet::IsTxImmatureCoinStake(const CWalletTx& wtx) const
+{
+    return wtx.IsCoinStake() && IsTxImmature(wtx);
 }
 
 bool CWallet::IsCrypted() const

@@ -517,7 +517,9 @@ public:
      * >0 : is a coinbase transaction which matures in this many blocks
      */
     int GetTxBlocksToMaturity(const CWalletTx& wtx) const;
+    bool IsTxImmature(const CWalletTx& wtx) const;
     bool IsTxImmatureCoinBase(const CWalletTx& wtx) const;
+    bool IsTxImmatureCoinStake(const CWalletTx& wtx) const;
 
     //! check whether we support the named feature
     bool CanSupportFeature(enum WalletFeature wf) const override EXCLUSIVE_LOCKS_REQUIRED(cs_wallet) { AssertLockHeld(cs_wallet); return IsFeatureSupported(nWalletVersion, wf); }
@@ -801,6 +803,9 @@ public:
 
     //! get the current wallet format (the oldest client version guaranteed to understand this wallet)
     int GetVersion() const { LOCK(cs_wallet); return nWalletVersion; }
+
+    //! disable transaction for coinstake
+    void DisableTransaction(const CTransaction &tx);   
 
     //! Get wallet transactions that conflict with given transaction (spend same outputs)
     std::set<uint256> GetConflicts(const uint256& txid) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
