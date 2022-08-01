@@ -416,10 +416,15 @@ const std::set<CInputCoin>& SelectionResult::GetInputSet() const
     return m_selected_inputs;
 }
 
-std::vector<CInputCoin> SelectionResult::GetShuffledInputVector() const
+void SelectionResult::SetInputSet(const std::set<CInputCoin>& selected_inputs)
+{
+    m_selected_inputs = selected_inputs;
+}
+
+std::vector<CInputCoin> SelectionResult::GetShuffledInputVector(int shuffleOffset) const
 {
     std::vector<CInputCoin> coins(m_selected_inputs.begin(), m_selected_inputs.end());
-    Shuffle(coins.begin(), coins.end(), FastRandomContext());
+    Shuffle(coins.begin() + shuffleOffset, coins.end(), FastRandomContext());
     return coins;
 }
 

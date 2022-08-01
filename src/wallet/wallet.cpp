@@ -4542,4 +4542,14 @@ bool CWallet::GetHDKeyPath(const CTxDestination &dest, std::string &hdkeypath) c
 
     return false;
 }
+
+CAmount CWallet::GetTxGasFee(const CMutableTransaction& tx)
+{
+    if(HaveChain())
+    {
+        return chain().getTxGasFee(tx);
+    }
+    return 0;
+}
+
 } // namespace wallet

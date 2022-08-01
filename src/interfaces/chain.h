@@ -317,6 +317,9 @@ public:
     //! Get number of connections.
     virtual size_t getNodeCount(ConnectionDirection flags) = 0;
 
+    //! Get transaction gas fee.
+    virtual CAmount getTxGasFee(const CMutableTransaction& tx) = 0;
+
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for

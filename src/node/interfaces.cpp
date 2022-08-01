@@ -815,6 +815,10 @@ public:
     {
         return Assert(m_node.connman) ? m_node.connman->GetNodeCount(flags) : 0;
     }
+    CAmount getTxGasFee(const CMutableTransaction& tx) override
+    {
+        return GetTxGasFee(tx, mempool(), chainman().ActiveChainstate());
+    }
     NodeContext& m_node;
 };
 } // namespace

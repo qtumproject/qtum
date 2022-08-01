@@ -231,8 +231,10 @@ public:
 
     /** Get m_selected_inputs */
     const std::set<CInputCoin>& GetInputSet() const;
+    /** Set m_selected_inputs */
+    void SetInputSet(const std::set<CInputCoin>& selected_inputs);
     /** Get the vector of CInputCoins that will be used to fill in a CTransaction's vin */
-    std::vector<CInputCoin> GetShuffledInputVector() const;
+    std::vector<CInputCoin> GetShuffledInputVector(int shuffleOffset = 0) const;
 
     bool operator<(SelectionResult other) const;
 };

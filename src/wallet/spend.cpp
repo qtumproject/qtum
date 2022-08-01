@@ -105,7 +105,7 @@ void AvailableCoins(const CWallet& wallet, std::vector<COutput>& vCoins, const C
         const uint256& wtxid = entry.first;
         const CWalletTx& wtx = entry.second;
 
-        if (wallet.IsTxImmatureCoinBase(wtx))
+        if (wallet.IsTxImmature(wtx))
             continue;
 
         int nDepth = wallet.GetTxDepthInMainChain(wtx);
@@ -637,7 +637,10 @@ static bool CreateTransactionInternal(
         bilingual_str& error,
         const CCoinControl& coin_control,
         FeeCalculation& fee_calc_out,
-        bool sign) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
+        bool sign, 
+        CAmount nGasFee = 0, 
+        bool hasSender = false, 
+        const CTxDestination& signSenderAddress = CNoDestination()) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
 {
     AssertLockHeld(wallet.cs_wallet);
 
@@ -654,6 +657,12 @@ static bool CreateTransactionInternal(
     const OutputType change_type = wallet.TransactionChangeType(coin_control.m_change_type ? *coin_control.m_change_type : wallet.m_default_change_type, vecSend);
     ReserveDestination reservedest(&wallet, change_type);
     unsigned int outputs_to_subtract_fee_from = 0; // The number of outputs which we are subtracting the fee from
+    COutPoint senderInput;
+    if(hasSender && coin_control.HasSelected()){
+    	std::vector<COutPoint> vSenderInputs;
+    	coin_control.ListSelected(vSenderInputs);
+    	senderInput=vSenderInputs[0];
+    }
     for (const auto& recipient : vecSend) {
         recipients_sum += recipient.nAmount;
 
@@ -751,7 +760,7 @@ static bool CreateTransactionInternal(
     }
 
     // Include the fees for things that aren't inputs, excluding the change output
-    const CAmount not_input_fees = coin_selection_params.m_effective_feerate.GetFee(coin_selection_params.tx_noinputs_size);
+    const CAmount not_input_fees = coin_selection_params.m_effective_feerate.GetFee(coin_selection_params.tx_noinputs_size)+nGasFee;
     CAmount selection_target = recipients_sum + not_input_fees;
 
     // Get available coins
@@ -769,6 +778,24 @@ static bool CreateTransactionInternal(
     // We will reduce the fee from this change output later, and remove the output if it is too small.
     const CAmount change_and_fee = result->GetSelectedValue() - recipients_sum;
     assert(change_and_fee >= 0);
+    std::set<CInputCoin> setCoins = result->GetInputSet();
+    std::vector<CInputCoin> vCoins;
+    if(change_and_fee > 0)
+    { 
+        // send change to existing address
+        if (!wallet.m_use_change_address &&
+                !std::holds_alternative<CNoDestination>(coin_control.destChange) &&
+                setCoins.size() > 0)
+        {
+            // setCoins will be added as inputs to the new transaction
+            // Set the first input script as change script for the new transaction
+            auto pcoin = setCoins.begin();
+            scriptChange = pcoin->txout.scriptPubKey;
+
+            change_prototype_txout = CTxOut(0, scriptChange);
+            coin_selection_params.change_output_size = GetSerializeSize(change_prototype_txout);
+        }
+    }
     CTxOut newTxOut(change_and_fee, scriptChange);
 
     if (nChangePosInOut == -1)
@@ -785,8 +812,28 @@ static bool CreateTransactionInternal(
     assert(nChangePosInOut != -1);
     auto change_position = txNew.vout.insert(txNew.vout.begin() + nChangePosInOut, newTxOut);
 
+    // Move sender input to position 0
+    std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
+    if(hasSender && coin_control.HasSelected()){
+        for (std::vector<CInputCoin>::size_type i = 0 ; i != vCoins.size(); i++){
+            if(vCoins[i].outpoint==senderInput){
+                if(i==0)break;
+                iter_swap(vCoins.begin(),vCoins.begin()+i);
+                break;
+            }
+        }
+    }
+
     // Shuffle selected coins and fill in final vin
-    std::vector<CInputCoin> selected_coins = result->GetShuffledInputVector();
+    int shuffleOffset = 0;
+    if(hasSender && coin_control.HasSelected() && vCoins.size() > 0 && vCoins[0].outpoint==senderInput){
+        shuffleOffset = 1;
+    }
+    setCoins = std::set<CInputCoin>(vCoins.begin(), vCoins.end());
+    result->SetInputSet(setCoins);
+    vCoins.clear();
+    setCoins.clear();
+    std::vector<CInputCoin> selected_coins = result->GetShuffledInputVector(shuffleOffset);
 
     // Note how the sequence number is set to non-maxint so that
     // the nLockTime set above actually works.
@@ -808,7 +855,7 @@ static bool CreateTransactionInternal(
         error = _("Missing solving data for estimating transaction size");
         return false;
     }
-    nFeeRet = coin_selection_params.m_effective_feerate.GetFee(nBytes);
+    nFeeRet = coin_selection_params.m_effective_feerate.GetFee(nBytes)+nGasFee;
 
     // Subtract fee from the change output if not subtracting it from recipient outputs
     CAmount fee_needed = nFeeRet;
@@ -829,7 +876,7 @@ static bool CreateTransactionInternal(
         // Because we have dropped this change, the tx size and required fee will be different, so let's recalculate those
         tx_sizes = CalculateMaximumSignedTxSize(CTransaction(txNew), &wallet, &coin_control);
         nBytes = tx_sizes.vsize;
-        fee_needed = coin_selection_params.m_effective_feerate.GetFee(nBytes);
+        fee_needed = coin_selection_params.m_effective_feerate.GetFee(nBytes)+nGasFee;
     }
 
     // The only time that fee_needed should be less than the amount available for fees (in change_and_fee - change_amount) is when
@@ -883,6 +930,12 @@ static bool CreateTransactionInternal(
         return false;
     }
 
+    // Signing transaction outputs
+    if(sign && txNew.HasOpSender() && !wallet.SignTransactionOutput(txNew)) {
+        error = _("Signing transaction output failed");
+        return false;
+    }
+
     if (sign && !wallet.SignTransaction(txNew)) {
         error = _("Signing transaction failed");
         return false;
@@ -899,7 +952,7 @@ static bool CreateTransactionInternal(
         return false;
     }
 
-    if (nFeeRet > wallet.m_default_max_tx_fee) {
+    if (!tx->HasCreateOrCall() && nFeeRet > wallet.m_default_max_tx_fee) {
         error = TransactionErrorString(TransactionError::MAX_FEE_EXCEEDED);
         return false;
     }
@@ -937,7 +990,10 @@ bool CreateTransaction(
         bilingual_str& error,
         const CCoinControl& coin_control,
         FeeCalculation& fee_calc_out,
-        bool sign)
+        bool sign, 
+        CAmount nGasFee, 
+        bool hasSender, 
+        const CTxDestination& signSenderAddress)
 {
     if (vecSend.empty()) {
         error = _("Transaction must have at least one recipient");
@@ -953,7 +1009,7 @@ bool CreateTransaction(
 
     int nChangePosIn = nChangePosInOut;
     Assert(!tx); // tx is an out-param. TODO change the return type from bool to tx (or nullptr)
-    bool res = CreateTransactionInternal(wallet, vecSend, tx, nFeeRet, nChangePosInOut, error, coin_control, fee_calc_out, sign);
+    bool res = CreateTransactionInternal(wallet, vecSend, tx, nFeeRet, nChangePosInOut, error, coin_control, fee_calc_out, sign, nGasFee, hasSender, signSenderAddress);
     // try with avoidpartialspends unless it's enabled already
     if (res && nFeeRet > 0 /* 0 means non-functional fee rate estimation */ && wallet.m_max_aps_fee > -1 && !coin_control.m_avoid_partial_spends) {
         CCoinControl tmp_cc = coin_control;
@@ -962,7 +1018,7 @@ bool CreateTransaction(
         CTransactionRef tx2;
         int nChangePosInOut2 = nChangePosIn;
         bilingual_str error2; // fired and forgotten; if an error occurs, we discard the results
-        if (CreateTransactionInternal(wallet, vecSend, tx2, nFeeRet2, nChangePosInOut2, error2, tmp_cc, fee_calc_out, sign)) {
+        if (CreateTransactionInternal(wallet, vecSend, tx2, nFeeRet2, nChangePosInOut2, error2, tmp_cc, fee_calc_out, sign, nGasFee, hasSender, signSenderAddress)) {
             // if fee of this alternative one is within the range of the max fee, we use this one
             const bool use_aps = nFeeRet2 <= nFeeRet + wallet.m_max_aps_fee;
             wallet.WalletLogPrintf("Fee non-grouped = %lld, grouped = %lld, using %s\n", nFeeRet, nFeeRet2, use_aps ? "grouped" : "non-grouped");
@@ -997,9 +1053,10 @@ bool FundTransaction(CWallet& wallet, CMutableTransaction& tx, CAmount& nFeeRet,
     // CreateTransaction call and LockCoin calls (when lockUnspents is true).
     LOCK(wallet.cs_wallet);
 
+    CAmount nGasFee = wallet.GetTxGasFee(tx);
     CTransactionRef tx_new;
     FeeCalculation fee_calc_out;
-    if (!CreateTransaction(wallet, vecSend, tx_new, nFeeRet, nChangePosInOut, error, coinControl, fee_calc_out, false)) {
+    if (!CreateTransaction(wallet, vecSend, tx_new, nFeeRet, nChangePosInOut, error, coinControl, fee_calc_out, false, nGasFee)) {
         return false;
     }
 
