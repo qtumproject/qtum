@@ -171,9 +171,27 @@ CAmount CachedTxGetImmatureCredit(const CWallet& wallet, const CWalletTx& wtx, b
     return 0;
 }
 
+CAmount CachedTxGetStakeCredit(const CWallet& wallet, const CWalletTx& wtx, const bool fUseCache)
+{
+    if (wallet.IsTxImmatureCoinStake(wtx) && wallet.IsTxInMainChain(wtx)) {
+        return GetCachableAmount(wallet, wtx, CWalletTx::IMMATURE_CREDIT, ISMINE_SPENDABLE, !fUseCache);
+    }
+
+    return 0;
+}
+
 CAmount CachedTxGetImmatureWatchOnlyCredit(const CWallet& wallet, const CWalletTx& wtx, const bool fUseCache)
 {
     if (wallet.IsTxImmatureCoinBase(wtx) && wallet.IsTxInMainChain(wtx)) {
+        return GetCachableAmount(wallet, wtx, CWalletTx::IMMATURE_CREDIT, ISMINE_WATCH_ONLY, !fUseCache);
+    }
+
+    return 0;
+}
+
+CAmount CachedTxGetStakeWatchOnlyCredit(const CWallet& wallet, const CWalletTx& wtx, const bool fUseCache)
+{
+    if (wallet.IsTxImmatureCoinStake(wtx) && wallet.IsTxInMainChain(wtx)) {
         return GetCachableAmount(wallet, wtx, CWalletTx::IMMATURE_CREDIT, ISMINE_WATCH_ONLY, !fUseCache);
     }
 
@@ -186,7 +204,7 @@ CAmount CachedTxGetAvailableCredit(const CWallet& wallet, const CWalletTx& wtx, 
     bool allow_cache = (filter & ISMINE_ALL) && (filter & ISMINE_ALL) != ISMINE_ALL;
 
     // Must wait until coinbase is safely deep enough in the chain before valuing it
-    if (wallet.IsTxImmatureCoinBase(wtx))
+    if (wallet.IsTxImmature(wtx))
         return 0;
 
     if (fUseCache && allow_cache && wtx.m_amounts[CWalletTx::AVAILABLE_CREDIT].m_cached[filter]) {
@@ -337,6 +355,8 @@ Balance GetBalance(const CWallet& wallet, const int min_depth, bool avoid_reuse)
             }
             ret.m_mine_immature += CachedTxGetImmatureCredit(wallet, wtx);
             ret.m_watchonly_immature += CachedTxGetImmatureWatchOnlyCredit(wallet, wtx);
+            ret.m_mine_stake += CachedTxGetStakeCredit(wallet, wtx);
+            ret.m_watchonly_stake += CachedTxGetStakeWatchOnlyCredit(wallet, wtx);
         }
     }
     return ret;
@@ -356,7 +376,7 @@ std::map<CTxDestination, CAmount> GetAddressBalances(const CWallet& wallet)
             if (!CachedTxIsTrusted(wallet, wtx, trusted_parents))
                 continue;
 
-            if (wallet.IsTxImmatureCoinBase(wtx))
+            if (wallet.IsTxImmature(wtx))
                 continue;
 
             int nDepth = wallet.GetTxDepthInMainChain(wtx);

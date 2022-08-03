@@ -29,7 +29,9 @@ CAmount CachedTxGetCredit(const CWallet& wallet, const CWalletTx& wtx, const ism
 CAmount CachedTxGetDebit(const CWallet& wallet, const CWalletTx& wtx, const isminefilter& filter);
 CAmount CachedTxGetChange(const CWallet& wallet, const CWalletTx& wtx);
 CAmount CachedTxGetImmatureCredit(const CWallet& wallet, const CWalletTx& wtx, bool fUseCache = true);
+CAmount CachedTxGetStakeCredit(const CWallet& wallet, const CWalletTx& wtx, bool fUseCache = true);
 CAmount CachedTxGetImmatureWatchOnlyCredit(const CWallet& wallet, const CWalletTx& wtx, const bool fUseCache = true);
+CAmount CachedTxGetStakeWatchOnlyCredit(const CWallet& wallet, const CWalletTx& wtx, const bool fUseCache = true);
 // TODO: Remove "NO_THREAD_SAFETY_ANALYSIS" and replace it with the correct
 // annotation "EXCLUSIVE_LOCKS_REQUIRED(pwallet->cs_wallet)". The
 // annotation "NO_THREAD_SAFETY_ANALYSIS" was temporarily added to avoid
@@ -53,9 +55,11 @@ struct Balance {
     CAmount m_mine_trusted{0};           //!< Trusted, at depth=GetBalance.min_depth or more
     CAmount m_mine_untrusted_pending{0}; //!< Untrusted, but in mempool (pending)
     CAmount m_mine_immature{0};          //!< Immature coinbases in the main chain
+    CAmount m_mine_stake{0};
     CAmount m_watchonly_trusted{0};
     CAmount m_watchonly_untrusted_pending{0};
     CAmount m_watchonly_immature{0};
+    CAmount m_watchonly_stake{0};
 };
 Balance GetBalance(const CWallet& wallet, int min_depth = 0, bool avoid_reuse = true);
 
