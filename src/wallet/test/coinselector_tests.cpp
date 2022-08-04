@@ -487,6 +487,16 @@ BOOST_AUTO_TEST_CASE(knapsack_solver_test)
         BOOST_CHECK_EQUAL(result15->GetSelectedValue(), 2 * COIN);  // we should get 2 BTC in 1 coin
         BOOST_CHECK_EQUAL(result15->GetInputSet().size(), 1U);
 
+        // empty the wallet and start again only with coins with equal or bigger time than txTime
+        coins.clear();
+        add_coin(coins, *wallet, 10, 6*24, false, 0);
+
+        // coins with equal or bigger time than txTime could not be selected
+        const auto q_result1 = KnapsackSolver(KnapsackGroupOutputs(coins, *wallet, filter_confirmed), 5 * CENT);
+        BOOST_CHECK(!q_result1);
+        const auto q_result2 = KnapsackSolver(KnapsackGroupOutputs(coins, *wallet, filter_confirmed), 195 * CENT + GetRandInt(100) + 1);
+        BOOST_CHECK(!q_result2);
+
         // empty the wallet and start again, now with fractions of a cent, to test small change avoidance
 
         coins.clear();

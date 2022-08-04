@@ -126,7 +126,7 @@ struct Params {
     int64_t nPowTargetTimespan;
     int64_t nPowTargetTimespanV2;
     int64_t nRBTPowTargetTimespan;
-    int64_t DifficultyAdjustmentInterval(int height=0) const
+    int64_t DifficultyAdjustmentInterval(int height) const
     {
         int64_t targetTimespan = TargetTimespan(height);
         int64_t targetSpacing = TargetSpacing(height);
