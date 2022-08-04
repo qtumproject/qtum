@@ -2335,11 +2335,6 @@ bool CWallet::CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned i
     return canSuperStake;
 }
 
-bool CWallet::CreateCoinStake(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
-{
-    return {};
-}
-
 DBErrors CWallet::LoadWallet()
 {
     LOCK(cs_wallet);

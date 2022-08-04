@@ -28,6 +28,7 @@
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
 #include <wallet/receive.h>
+#include <wallet/stake.h>
 #endif
 
 #include <algorithm>
@@ -1386,7 +1387,7 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, wallet::CWallet& wallet, const CA
     bool found = false;
     {
         LOCK(cs_main);
-        found = wallet.CreateCoinStake(pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, pkhash, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, !privateKeysDisabled, vchPoD, headerPrevout);
+        found = wallet::CreateCoinStake(wallet, pblock->nBits, nTotalFees, nTimeBlock, txCoinStake, pkhash, setCoins, setSelectedCoins, setDelegateCoins, selectedOnly, !privateKeysDisabled, vchPoD, headerPrevout);
     }
     if (found)
     {

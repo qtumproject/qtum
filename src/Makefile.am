@@ -321,6 +321,7 @@ BITCOIN_CORE_H = \
   wallet/walletdb.h \
   wallet/wallettool.h \
   wallet/walletutil.h \
+  wallet/stake.h \
   walletinitinterface.h \
   warnings.h \
   zmq/zmqabstractnotifier.h \
@@ -385,6 +386,7 @@ libbitcoin_node_a_SOURCES = \
   node/psbt.cpp \
   node/transaction.cpp \
   node/ui_interface.cpp \
+  wallet/stake.cpp \
   noui.cpp \
   policy/fees.cpp \
   policy/packages.cpp \

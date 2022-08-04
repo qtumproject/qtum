@@ -286,11 +286,6 @@ private:
     // Local time that the tip block was received. Used to schedule wallet rebroadcasts.
     std::atomic<int64_t> m_best_block_time {0};
 
-    std::map<COutPoint, CStakeCache> stakeCache;
-    std::map<COutPoint, CStakeCache> stakeDelegateCache;
-    bool fHasMinerStakeCache = false;
-    mutable std::map<COutPoint, CScriptCache> prevoutScriptCache;
-
     /**
      * Used to keep track of spent outpoints, and
      * detect and report conflicts (double-spends or
@@ -384,8 +379,6 @@ private:
      */
     static bool AttachChain(const std::shared_ptr<CWallet>& wallet, interfaces::Chain& chain, const bool rescan_required, bilingual_str& error, std::vector<bilingual_str>& warnings);
 
-    bool GetDelegationStaker(const uint160& keyid, Delegation& delegation);
-    const CWalletTx* GetCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const PKHash& superStaker, COutPoint& prevout, CAmount& nValueRet);
     const CScriptCache& GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey, std::map<COutPoint, CScriptCache>* insertScriptCache = nullptr) const;
 
 public:
@@ -671,11 +664,12 @@ public:
 
     uint64_t GetStakeWeight(uint64_t* pStakerWeight = nullptr, uint64_t* pDelegateWeight = nullptr) const;
     uint64_t GetSuperStakerWeight(const uint160& staker) const;
-    bool CreateCoinStake(unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout);
     bool CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const;
     void UpdateMinerStakeCache(bool fStakeCache, const std::vector<COutPoint>& prevouts, CBlockIndex* pindexPrev);
     bool GetSenderDest(const CTransaction& tx, CTxDestination& txSenderDest, bool sign=true) const;
     bool GetHDKeyPath(const CTxDestination& dest, std::string& hdkeypath) const;
+    bool GetDelegationStaker(const uint160& keyid, Delegation& delegation);
+    const CWalletTx* GetCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const PKHash& superStaker, COutPoint& prevout, CAmount& nValueRet);
 
     /** Pass this transaction to node for mempool insertion and relay to peers if flag set to true */
     bool SubmitTxMemoryPoolAndRelay(CWalletTx& wtx, std::string& err_string, bool relay) const;
@@ -1096,6 +1090,11 @@ public:
     int m_num_threads = 1;
     mutable boost::thread_group threads;
     std::string m_ledger_id;
+    boost::thread_group* stakeThread = nullptr;
+    std::map<COutPoint, CStakeCache> stakeCache;
+    std::map<COutPoint, CStakeCache> stakeDelegateCache;
+    bool fHasMinerStakeCache = false;
+    mutable std::map<COutPoint, CScriptCache> prevoutScriptCache;
 };
 
 /**
