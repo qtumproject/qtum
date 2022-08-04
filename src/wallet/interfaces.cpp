@@ -653,7 +653,22 @@ public:
     }
     bool isUnspentAddress(const std::string &qtumAddress) override
     {
-        return {};
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<COutput> vecOutputs;
+        AvailableCoins(*m_wallet, vecOutputs);
+        for (const COutput& out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            if(fValidAddress && EncodeDestination(address) == qtumAddress && out.tx->tx->vout[out.i].nValue)
+            {
+                return true;
+            }
+        }
+        return false;
     }
     bool isMineAddress(const std::string &strAddress) override
     {
@@ -668,7 +683,53 @@ public:
     }
     std::vector<std::string> availableAddresses(bool fIncludeZeroValue) EXCLUSIVE_LOCKS_REQUIRED(m_wallet->cs_wallet)
     {
-        return {};
+        std::vector<std::string> result;
+        std::vector<COutput> vecOutputs;
+        std::map<std::string, bool> mapAddress;
+
+        if(fIncludeZeroValue)
+        {
+            // Get the user created addresses in from the address book and add them if they are mine
+            for (const auto& item : m_wallet->m_address_book) {
+                if(!m_wallet->IsMine(item.first)) continue;
+                if(item.second.purpose != "receive") continue;
+                if(item.second.destdata.size() == 0) continue;
+
+                std::string strAddress = EncodeDestination(item.first);
+                if (mapAddress.find(strAddress) == mapAddress.end())
+                {
+                    mapAddress[strAddress] = true;
+                    result.push_back(strAddress);
+                }
+            }
+
+            // Get all coins including the 0 values
+            AvailableCoins(*m_wallet, vecOutputs, nullptr, 0);
+        }
+        else
+        {
+            // Get all spendable coins
+            AvailableCoins(*m_wallet, vecOutputs);
+        }
+
+        // Extract all coins addresses and add them in the list
+        for (const COutput& out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            if (!fValidAddress || !m_wallet->IsMine(address)) continue;
+
+            std::string strAddress = EncodeDestination(address);
+            if (mapAddress.find(strAddress) == mapAddress.end())
+            {
+                mapAddress[strAddress] = true;
+                result.push_back(strAddress);
+            }
+        }
+
+        return result;
     }
     bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses, bool &includeZeroValue) override
     {
@@ -1051,11 +1112,18 @@ public:
     }
     bool tryGetStakeWeight(uint64_t& nWeight) override
     {
-        return {};
+        TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+
+        nWeight = m_wallet->GetStakeWeight();
+        return true;
     }
     uint64_t getStakeWeight() override
     {
-        return {};
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->GetStakeWeight();
     }
     int64_t getLastCoinStakeSearchInterval() override 
     { 
@@ -1071,7 +1139,7 @@ public:
     }
     bool cleanTokenTxEntries() override
     {
-        return {};
+        return m_wallet->CleanTokenTxEntries();
     }
     void setEnabledStaking(bool enabled) override
     {
