@@ -1183,7 +1183,7 @@ public:
     {
         if(cacheAddressHeight < nHeight)
         {
-            pwallet->SelectAddress(mapAddress);
+            wallet::SelectAddress(*pwallet, mapAddress);
             pwallet->mapAddressUnspentCache = mapAddress;
             if(pwallet->fUpdateAddressUnspentCache == false)
                 pwallet->fUpdateAddressUnspentCache = true;
@@ -1797,12 +1797,12 @@ protected:
         {
             d->myDelegations.Update(nHeightTip);
         }
-        d->pwallet->SelectCoinsForStaking(d->nTargetValue, d->setCoins, nValueIn);
+        wallet::SelectCoinsForStaking(*d->pwallet, d->nTargetValue, d->setCoins, nValueIn);
         if(d->fSuperStake && fOfflineStakeEnabled)
         {
             d->delegationsStaker.Update(nHeightTip);
             std::map<uint160, CAmount> mDelegateWeight;
-            d->pwallet->SelectDelegateCoinsForStaking(d->setDelegateCoins, mDelegateWeight);
+            wallet::SelectDelegateCoinsForStaking(*d->pwallet, d->setDelegateCoins, mDelegateWeight);
             d->pwallet->updateDelegationsWeight(mDelegateWeight);
             d->pwallet->updateHaveCoinSuperStaker(d->setCoins);
         }
@@ -1827,7 +1827,7 @@ protected:
             }
 
             LOCK(cs_main);
-            d->pwallet->UpdateMinerStakeCache(true, d->prevouts, d->pindexPrev);
+            UpdateMinerStakeCache(*d->pwallet, true, d->prevouts, d->pindexPrev);
         }
 
         d->beginningTime = GetAdjustedTime();
