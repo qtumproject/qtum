@@ -18,6 +18,10 @@
 #include <vector>
 #include <map>
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 class ArgsManager;
 class CBlock;
 class CFeeRate;
@@ -37,6 +41,12 @@ class ChainstateManager;
 class CTxMemPool;
 class CBlockIndex;
 class CCoinsViewCache;
+
+#ifdef ENABLE_WALLET
+namespace wallet {
+class CWallet;
+} // namespace wallet
+#endif
 
 namespace interfaces {
 
@@ -320,6 +330,19 @@ public:
     //! Get transaction gas fee.
     virtual CAmount getTxGasFee(const CMutableTransaction& tx) = 0;
 
+#ifdef ENABLE_WALLET
+    //! Start staking qtums.
+    virtual void startStake(wallet::CWallet& wallet) = 0;
+
+    //! Stop staking qtums.
+    virtual void stopStake(wallet::CWallet& wallet) = 0;
+
+    //! get stake weight.
+    virtual uint64_t getStakeWeight(const wallet::CWallet& wallet, uint64_t* pStakerWeight = nullptr, uint64_t* pDelegateWeight = nullptr) = 0;
+
+    //! refresh Ddelegates.
+    virtual void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) = 0;
+#endif
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for

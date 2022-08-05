@@ -57,6 +57,11 @@
 
 #include <boost/signals2/signal.hpp>
 
+#ifdef ENABLE_WALLET
+#include <wallet/stake.h>
+#include <node/miner.h>
+#endif
+
 using interfaces::BlockTip;
 using interfaces::Chain;
 using interfaces::FoundBlock;
@@ -819,6 +824,29 @@ public:
     {
         return GetTxGasFee(tx, mempool(), chainman().ActiveChainstate());
     }
+#ifdef ENABLE_WALLET
+    void startStake(wallet::CWallet& wallet) override
+    {
+        if (node::CanStake()) 
+        {
+            StartStake(wallet);
+        }
+    }
+    void stopStake(wallet::CWallet& wallet) override
+    {
+        StopStake(wallet);
+    }
+    uint64_t getStakeWeight(const wallet::CWallet& wallet, uint64_t* pStakerWeight, uint64_t* pDelegateWeight) override
+    {
+        return GetStakeWeight(wallet, pStakerWeight, pDelegateWeight);
+    }
+    void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) override
+    {
+        RefreshDelegates(pwallet, myDelegates, stakerDelegates);
+    }
+#endif
+
+
     NodeContext& m_node;
 };
 } // namespace

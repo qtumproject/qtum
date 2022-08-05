@@ -186,6 +186,7 @@ static void ReleaseWallet(CWallet* wallet)
 {
     const std::string name = wallet->GetName();
     wallet->WalletLogPrintf("Releasing wallet\n");
+    wallet->StopStake();
     wallet->Flush();
     delete wallet;
     // Wallet is now released, notify UnloadWallet, if any.
@@ -574,6 +575,7 @@ void CWallet::Flush()
 
 void CWallet::Close()
 {
+    StopStake();
     GetDatabase().Close();
 }
 
@@ -2276,7 +2278,11 @@ void CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
 
 uint64_t CWallet::GetStakeWeight(uint64_t* pStakerWeight, uint64_t* pDelegateWeight) const
 {
-    return {};
+    if(HaveChain())
+    {
+        return chain().getStakeWeight(*this, pStakerWeight, pDelegateWeight);
+    }
+    return 0;
 }
 
 bool CWallet::GetDelegationStaker(const uint160& keyid, Delegation& delegation)
@@ -2328,6 +2334,14 @@ bool CWallet::CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned i
     }
 
     return canSuperStake;
+}
+
+void CWallet::RefreshDelegates(bool myDelegates, bool stakerDelegates)
+{
+    if(HaveChain())
+    {
+        chain().refreshDelegates(this, myDelegates, stakerDelegates);
+    }
 }
 
 DBErrors CWallet::LoadWallet()
@@ -3312,6 +3326,9 @@ void CWallet::postInitProcess()
 
     // Update wallet transactions with current mempool transactions.
     chain().requestMempoolTransactions(*this);
+
+    // Start mine proof-of-stake blocks in the background
+    StartStake();
 }
 
 bool CWallet::BackupWallet(const std::string& strDest) const
@@ -4249,8 +4266,20 @@ bool CWallet::RemoveSuperStakerEntry(const uint256& superStakerHash, bool fFlush
     return true;
 }
 
+void CWallet::StartStake()
+{
+    if(HaveChain())
+    {
+        chain().startStake(*this);
+    }
+}
+
 void CWallet::StopStake()
 {
+    if(HaveChain())
+    {
+        chain().stopStake(*this);
+    }
 }
 
 bool CWallet::IsStakeClosing()
