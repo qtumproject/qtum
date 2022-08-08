@@ -1320,6 +1320,18 @@ void CWallet::MarkConflicted(const uint256& hashBlock, int conflicting_height, c
 
 void CWallet::SyncTransaction(const CTransactionRef& ptx, const SyncTxState& state, bool update_tx, bool rescanning_old_block)
 {
+    const TxStateInactive* conf = std::get_if<TxStateInactive>(&state);
+    if (conf && conf->disabled) 
+    {
+        // wallets need to refund inputs when disconnecting coinstake
+        const CTransaction& tx = *ptx;
+        if (tx.IsCoinStake() && IsFromMe(tx))
+        {
+            DisableTransaction(tx);
+            return;
+        }
+    }
+
     if (!AddToWalletIfInvolvingMe(ptx, state, update_tx, rescanning_old_block))
         return; // Not one of ours
 
@@ -1401,7 +1413,7 @@ void CWallet::blockDisconnected(const CBlock& block, int height)
     m_last_block_processed_height = height - 1;
     m_last_block_processed = block.hashPrevBlock;
     for (const CTransactionRef& ptx : block.vtx) {
-        SyncTransaction(ptx, TxStateInactive{});
+        SyncTransaction(ptx, TxStateInactive{false, ptx->IsCoinStake()});
     }
 }
 
@@ -1440,7 +1452,6 @@ CAmount CWallet::GetDebit(const CTxIn &txin, const isminefilter& filter) const
 
 isminetype CWallet::IsMine(const CTxOut& txout) const
 {
-    AssertLockHeld(cs_wallet);
     return IsMine(txout.scriptPubKey);
 }
 
@@ -1452,7 +1463,6 @@ isminetype CWallet::IsMine(const CTxDestination& dest) const
 
 isminetype CWallet::IsMine(const CScript& script) const
 {
-    AssertLockHeld(cs_wallet);
     isminetype result = ISMINE_NO;
     for (const auto& spk_man_pair : m_spk_managers) {
         result = std::max(result, spk_man_pair.second->IsMine(script));
@@ -1944,6 +1954,12 @@ void CWallet::ResendWalletTransactions()
     // During reindex, importing and IBD, old wallet transactions become
     // unconfirmed. Don't resend them as that would spam other nodes.
     if (!chain().isReadyToBroadcast()) return;
+
+    // Clean coin stake
+    if(fCleanCoinStake)
+    {
+        CleanCoinStake();
+    }
 
     // Do this infrequently and randomly to avoid giving away
     // that these are our transactions.
@@ -4467,6 +4483,30 @@ void CWallet::updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx
         if(GetCoinSuperStaker(setCoins, PKHash(entry.second.stakerAddress), prevout, nValueRet))
         {
             m_have_coin_superstaker[entry.second.stakerAddress] = true;
+        }
+    }
+}
+
+void CWallet::CleanCoinStake()
+{
+    LOCK(cs_wallet);
+    if(fCleanCoinStake)
+    {
+        fCleanCoinStake = false;
+        // Search the coinstake transactions and abandon transactions that are not confirmed in the blocks
+        for (std::map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+        {
+            const CWalletTx* wtx = &(*it).second;
+            if (wtx && !(wtx->state<TxStateConfirmed>()))
+            {
+                // Wallets need to refund inputs when disconnecting coinstake
+                const CTransaction& tx = *(wtx->tx);
+                if (tx.IsCoinStake() && IsFromMe(tx) && !wtx->isAbandoned())
+                {
+                    WalletLogPrintf("%s: Revert coinstake tx %s\n", __func__, wtx->GetHash().ToString());
+                    DisableTransaction(tx);
+                }
+            }
         }
     }
 }

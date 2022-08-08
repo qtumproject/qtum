@@ -372,6 +372,8 @@ private:
     // ScriptPubKeyMan::GetID. In many cases it will be the hash of an internal structure
     std::map<uint256, std::unique_ptr<ScriptPubKeyMan>> m_spk_managers;
 
+    std::atomic<bool> fCleanCoinStake = true;
+
     /**
      * Catch wallet up to current chain, scanning new blocks, updating the best
      * block locator and m_last_block_processed, and registering for
@@ -1074,6 +1076,9 @@ public:
 
     /* Is staking closing */
     bool IsStakeClosing();
+
+    /* Clean coinstake transactions */
+    void CleanCoinStake();
 
     void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
     void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);

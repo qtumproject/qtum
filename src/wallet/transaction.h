@@ -48,8 +48,9 @@ struct TxStateConflicted {
 //! reason.
 struct TxStateInactive {
     bool abandoned;
+    bool disabled;
 
-    explicit TxStateInactive(bool abandoned = false) : abandoned(abandoned) {}
+    explicit TxStateInactive(bool abandoned = false, bool disabled = false) : abandoned(abandoned), disabled(disabled) {}
 };
 
 //! State of transaction loaded in an unrecognized state with unexpected hash or
