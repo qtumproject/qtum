@@ -7,6 +7,7 @@
 #include <consensus/params.h>
 #include <node/blockstorage.h>
 #include <validation.h>
+#include <chainparams.h>
 
 namespace node {
 std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
@@ -20,6 +21,7 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
                                                      int64_t nCoinCacheUsage,
                                                      bool block_tree_db_in_memory,
                                                      bool coins_db_in_memory,
+                                                     const ArgsManager& args,
                                                      std::function<bool()> shutdown_requested,
                                                      std::function<void()> coins_error_cb)
 {
@@ -28,6 +30,7 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
     };
 
     LOCK(cs_main);
+    chainman.Reset();
     chainman.InitializeChainstate(mempool);
     chainman.m_total_coinstip_cache = nCoinCacheUsage;
     chainman.m_total_coinsdb_cache = nCoinDBCache;
@@ -38,6 +41,9 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
     // new CBlockTreeDB tries to delete the existing file, which
     // fails if it's still open from the previous loop. Close it first:
     pblocktree.reset();
+    pstorageresult.reset();
+    globalState.reset();
+    globalSealEngine.reset();
     pblocktree.reset(new CBlockTreeDB(nBlockTreeDBCache, block_tree_db_in_memory, fReset));
 
     if (fReset) {
@@ -114,6 +120,67 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
         }
     }
 
+    /////////////////////////////////////////////////////////// qtum
+    if((args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) || (!args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) ||
+      (!args.IsArgSet("-dgpstorage") && !args.IsArgSet("-dgpevm"))){
+        fGettingValuesDGP = true;
+    } else {
+        fGettingValuesDGP = false;
+    }
+
+    dev::eth::NoProof::init();
+    fs::path qtumStateDir = gArgs.GetDataDirNet() / "stateQtum";
+    bool fStatus = fs::exists(qtumStateDir);
+    const std::string dirQtum = PathToString(qtumStateDir);
+    const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+    dev::eth::BaseState existsQtumstate = fStatus ? dev::eth::BaseState::PreExisting : dev::eth::BaseState::Empty;
+    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(dirQtum, hashDB, dev::WithExisting::Trust), dirQtum, existsQtumstate));
+    const CChainParams& chainparams = Params();
+    dev::eth::ChainParams cp(chainparams.EVMGenesisInfo());
+    globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+
+    pstorageresult.reset(new StorageResults(PathToString(qtumStateDir)));
+    if (fReset) {
+        pstorageresult->wipeResults();
+    }
+
+    {
+        LOCK(cs_main);
+        CChain& active_chain = chainman.ActiveChain();
+        if(active_chain.Tip() != nullptr){
+        globalState->setRoot(uintToh256(active_chain.Tip()->hashStateRoot));
+        globalState->setRootUTXO(uintToh256(active_chain.Tip()->hashUTXORoot));
+        } else {
+            globalState->setRoot(dev::sha3(dev::rlp("")));
+            globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+            globalState->populateFrom(cp.genesisState);
+        }
+        globalState->db().commit();
+        globalState->dbUtxo().commit();
+    }
+
+    fRecordLogOpcodes = args.IsArgSet("-record-log-opcodes");
+    fIsVMlogFile = fs::exists(gArgs.GetDataDirNet() / "vmExecLogs.json");
+    ///////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////// // qtum
+    if (fAddressIndex != args.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
+        return ChainstateLoadingError::ERROR_ADDRINDEX_NEEDS_REINDEX;
+    }
+    ///////////////////////////////////////////////////////////////
+    // Check for changed -logevents state
+    if (fLogEvents != args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS) && !fLogEvents) {
+        return ChainstateLoadingError::ERROR_LOGEVENTS_NEEDS_REINDEX;
+    }
+
+    if (!args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS))
+    {
+        pstorageresult->wipeResults();
+        pblocktree->WipeHeightIndex();
+        fLogEvents = false;
+        pblocktree->WriteFlag("logevents", fLogEvents);
+    }
+
     if (!fReset) {
         auto chainstates{chainman.GetAll()};
         if (std::any_of(chainstates.begin(), chainstates.end(),
@@ -138,6 +205,10 @@ std::optional<ChainstateLoadVerifyError> VerifyLoadedChainstate(ChainstateManage
     };
 
     LOCK(cs_main);
+
+    CChain& active_chain = chainman.ActiveChain();
+    QtumDGP qtumDGP(globalState.get(), chainman.ActiveChainstate(), fGettingValuesDGP);
+    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(active_chain.Height() + (active_chain.Height()+1 >= consensus_params.QIP7Height ? 0 : 1) ));
 
     for (CChainState* chainstate : chainman.GetAll()) {
         if (!is_coinsview_empty(chainstate)) {

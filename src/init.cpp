@@ -1712,6 +1712,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                                               cache_sizes.coins,
                                               /*block_tree_db_in_memory=*/false,
                                               /*coins_db_in_memory=*/false,
+                                              args,
                                               /*shutdown_requested=*/ShutdownRequested,
                                               /*coins_error_cb=*/[]() {
                                                   uiInterface.ThreadSafeMessageBox(
@@ -1752,6 +1753,12 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
             case ChainstateLoadingError::ERROR_BLOCKS_WITNESS_INSUFFICIENTLY_VALIDATED:
                 strLoadError = strprintf(_("Witness data for blocks after height %d requires validation. Please restart with -reindex."),
                                          chainparams.GetConsensus().SegwitHeight);
+                break;
+            case ChainstateLoadingError::ERROR_ADDRINDEX_NEEDS_REINDEX:
+                strLoadError = _("You need to rebuild the database using -reindex to change -addrindex");
+                break;
+            case ChainstateLoadingError::ERROR_LOGEVENTS_NEEDS_REINDEX:
+                strLoadError = _("You need to rebuild the database using -reindex to enable -logevents");
                 break;
             case ChainstateLoadingError::SHUTDOWN_PROBED:
                 break;

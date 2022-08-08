@@ -14,6 +14,7 @@ class CTxMemPool;
 namespace Consensus {
 struct Params;
 } // namespace Consensus
+class ArgsManager;
 
 namespace node {
 enum class ChainstateLoadingError {
@@ -26,6 +27,8 @@ enum class ChainstateLoadingError {
     ERROR_LOADCHAINTIP_FAILED,
     ERROR_GENERIC_BLOCKDB_OPEN_FAILED,
     ERROR_BLOCKS_WITNESS_INSUFFICIENTLY_VALIDATED,
+    ERROR_ADDRINDEX_NEEDS_REINDEX,
+    ERROR_LOGEVENTS_NEEDS_REINDEX,
     SHUTDOWN_PROBED,
 };
 
@@ -66,6 +69,7 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
                                                      int64_t nCoinCacheUsage,
                                                      bool block_tree_db_in_memory,
                                                      bool coins_db_in_memory,
+                                                     const ArgsManager& args,
                                                      std::function<bool()> shutdown_requested = nullptr,
                                                      std::function<void()> coins_error_cb = nullptr);
 

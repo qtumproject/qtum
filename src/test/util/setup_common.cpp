@@ -233,7 +233,8 @@ TestingSetup::TestingSetup(const std::string& chainName, const std::vector<const
                                            m_cache_sizes.coins_db,
                                            m_cache_sizes.coins,
                                            /*block_tree_db_in_memory=*/true,
-                                           /*coins_db_in_memory=*/true);
+                                           /*coins_db_in_memory=*/true,
+                                           m_args);
     assert(!maybe_load_error.has_value());
 
     auto maybe_verify_error = VerifyLoadedChainstate(
