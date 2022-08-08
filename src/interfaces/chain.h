@@ -47,6 +47,7 @@ namespace wallet {
 class CWallet;
 } // namespace wallet
 #endif
+struct Delegation;
 
 namespace interfaces {
 
@@ -340,9 +341,15 @@ public:
     //! get stake weight.
     virtual uint64_t getStakeWeight(const wallet::CWallet& wallet, uint64_t* pStakerWeight = nullptr, uint64_t* pDelegateWeight = nullptr) = 0;
 
-    //! refresh Ddelegates.
+    //! refresh delegates.
     virtual void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) = 0;
 #endif
+
+    //! get delegation for an address.
+    virtual bool getDelegation(const uint160& address, Delegation& delegation) = 0;
+
+    //! verify delegation for an address.
+    virtual bool verifyDelegation(const uint160& address, const Delegation& delegation) = 0;
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for

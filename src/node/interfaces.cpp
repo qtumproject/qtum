@@ -45,6 +45,7 @@
 #include <validation.h>
 #include <validationinterface.h>
 #include <warnings.h>
+#include <qtum/qtumdelegation.h>
 
 #if defined(HAVE_CONFIG_H)
 #include <config/bitcoin-config.h>
@@ -845,7 +846,15 @@ public:
         RefreshDelegates(pwallet, myDelegates, stakerDelegates);
     }
 #endif
-
+    bool getDelegation(const uint160& address, Delegation& delegation) override
+    {
+        QtumDelegation qtumDelegation;
+        return qtumDelegation.ExistDelegationContract() ? qtumDelegation.GetDelegation(address, delegation, chainman().ActiveChainstate()) : false;
+    }
+    bool verifyDelegation(const uint160& address, const Delegation& delegation) override
+    {
+        return QtumDelegation::VerifyDelegation(address, delegation);
+    }
 
     NodeContext& m_node;
 };
