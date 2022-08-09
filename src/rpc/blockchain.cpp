@@ -1580,7 +1580,7 @@ RPCHelpMan waitforlogs()
     while (curheight == 0) {
         {
             LOCK(cs_main);
-            curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf,
+            curheight = chainman.m_blockman.m_block_tree_db->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf,
                     hashesToBlock, addresses, chainman);
         }
 
@@ -1894,7 +1894,7 @@ private:
     uint160 address;
 };
 
-uint64_t getDelegateWeight(const uint160& keyid, const std::map<COutPoint, uint32_t>& immatureStakes, int height)
+uint64_t getDelegateWeight(const uint160& keyid, const std::map<COutPoint, uint32_t>& immatureStakes, int height, node::BlockManager& blockman)
 {
     // Decode address
     uint256 hashBytes;
@@ -1905,7 +1905,7 @@ uint64_t getDelegateWeight(const uint160& keyid, const std::map<COutPoint, uint3
 
     // Get address weight
     uint64_t weight = 0;
-    if (!GetAddressWeight(hashBytes, type, immatureStakes, height, weight)) {
+    if (!GetAddressWeight(hashBytes, type, immatureStakes, height, weight, blockman)) {
         return 0;
     }
 
@@ -1983,7 +1983,7 @@ RPCHelpMan getdelegationsforstaker()
         delegation.pushKV("blockHeight", (int64_t)it->second.blockHeight);
         if(fAddressIndex)
         {
-            delegation.pushKV("weight", getDelegateWeight(it->first, immatureStakes, height));
+            delegation.pushKV("weight", getDelegateWeight(it->first, immatureStakes, height, chainman.m_blockman));
         }
         delegation.pushKV("PoD", HexStr(it->second.PoD));
         result.push_back(delegation);

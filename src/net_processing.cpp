@@ -5561,9 +5561,9 @@ void PeerManagerImpl::CleanBlockIndex()
                     }
                 }
 
-                if(pblocktree)
+                if(m_chainman.m_blockman.m_block_tree_db)
                 {
-                    if(!pblocktree->EraseBlockIndex(indexEraseDB))
+                    if(!m_chainman.m_blockman.m_block_tree_db->EraseBlockIndex(indexEraseDB))
                     {
                         LogPrintf("Fail to erase block indexes.\n");
                     }

@@ -279,7 +279,7 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
     std::set<dev::h160> addresses;
     addresses.insert(priv->delegationsAddress);
     std::vector<std::vector<uint256>> hashesToBlock;
-    curheight = pblocktree->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses, chainman);
+    curheight = chainman.m_blockman.m_block_tree_db->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses, chainman);
 
     if (curheight == -1) {
         return error("Incorrect params");

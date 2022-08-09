@@ -251,7 +251,7 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
 
     if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
     {
-        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain()))
+        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(),  wallet.chain().chainman().m_blockman))
             return error("CreateCoinStake : failed to create MPoS reward outputs");
     }
 
@@ -450,7 +450,7 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
 
     if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
     {
-        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain()))
+        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(),  wallet.chain().chainman().m_blockman))
             return error("CreateCoinStake : failed to create MPoS reward outputs");
     }
 
@@ -573,7 +573,7 @@ bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<u
 
         // Get address utxos
         std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
-        if (!GetAddressUnspent(hashBytes, type, unspentOutputs)) {
+        if (!GetAddressUnspent(hashBytes, type, unspentOutputs, wallet.chain().chainman().m_blockman)) {
             throw error("No information available for address");
         }
 

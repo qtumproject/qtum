@@ -187,7 +187,6 @@ CBlockIndex* CChainState::FindForkInGlobalIndex(const CBlockLocator& locator) co
     return m_chain.Genesis();
 }
 
-std::unique_ptr<CBlockTreeDB> pblocktree;
 std::unique_ptr<StorageResults> pstorageresult;
 
 bool CheckInputScripts(const CTransaction& tx, TxValidationState& state,
@@ -2109,25 +2108,25 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
 
     if(pfClean == NULL && fLogEvents){
         pstorageresult->deleteResults(block.vtx);
-        pblocktree->EraseHeightIndex(pindex->nHeight);
+        m_blockman.m_block_tree_db->EraseHeightIndex(pindex->nHeight);
     }
 
     // The stake and delegate index is needed for MPoS, update it while MPoS is active
     const CChainParams& chainparams = Params();
     if(pindex->nHeight <= chainparams.GetConsensus().nLastMPoSBlock)
     {
-        pblocktree->EraseStakeIndex(pindex->nHeight);
+        m_blockman.m_block_tree_db->EraseStakeIndex(pindex->nHeight);
         if(pindex->IsProofOfStake() && pindex->HasProofOfDelegation())
-            pblocktree->EraseDelegateIndex(pindex->nHeight);
+            m_blockman.m_block_tree_db->EraseDelegateIndex(pindex->nHeight);
     }
 
     //////////////////////////////////////////////////// // qtum
     if (pfClean == NULL && fAddressIndex) {
-        if (!pblocktree->EraseAddressIndex(addressIndex)) {
+        if (!m_blockman.m_block_tree_db->EraseAddressIndex(addressIndex)) {
             error("Failed to delete address index");
             return DISCONNECT_FAILED;
         }
-        if (!pblocktree->UpdateAddressUnspentIndex(addressUnspentIndex)) {
+        if (!m_blockman.m_block_tree_db->UpdateAddressUnspentIndex(addressUnspentIndex)) {
             error("Failed to write address unspent index");
             return DISCONNECT_FAILED;
         }
@@ -2442,7 +2441,7 @@ bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& m
     return true;
 }
 
-bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, CChain& chain)
+bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, CChain& chain, node::BlockManager& blockman)
 {
     size_t offset = block.IsProofOfStake() ? 1 : 0;
     std::vector<CTxOut> vTempVouts=block.vtx[offset]->vout;
@@ -2509,7 +2508,7 @@ bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, 
 
         // Generate the list of mpos outputs including all of their parameters
         std::vector<CTxOut> mposOutputList;
-        if(!GetMPoSOutputs(mposOutputList, splitReward, nPrevHeight, consensusParams, chain))
+        if(!GetMPoSOutputs(mposOutputList, splitReward, nPrevHeight, consensusParams, chain, blockman))
             return error("CheckReward(): cannot create the list of MPoS outputs");
       
         for(size_t i = 0; i < mposOutputList.size(); i++){
@@ -3480,7 +3479,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
     if(nFees < gasRefunds) { //make sure it won't overflow
         return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-blk-fees-greater-gasrefund", "ConnectBlock(): Less total fees than gas refund fees");
     }
-    if(!CheckReward(block, state, pindex->nHeight, m_params.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts, nValueCoinPrev, delegateOutputExist, m_chain))
+    if(!CheckReward(block, state, pindex->nHeight, m_params.GetConsensus(), nFees, gasRefunds, nActualStakeReward, checkVouts, nValueCoinPrev, delegateOutputExist, m_chain, m_blockman))
         return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "block-reward-invalid", "ConnectBlock(): Reward check failed");
 
     if (!control.Wait()) {
@@ -3588,7 +3587,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
     {
         for (const auto& e: heightIndexes)
         {
-            if (!pblocktree->WriteHeightIndex(e.second.first, e.second.second))
+            if (!m_blockman.m_block_tree_db->WriteHeightIndex(e.second.first, e.second.second))
                 return AbortNode(state, "Failed to write height index");
         }
     }
@@ -3603,9 +3602,9 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
             if(GetBlockPublicKey(block, vchPubKey))
             {
                 pkh = uint160(ToByteVector(CPubKey(vchPubKey).GetID()));
-                pblocktree->WriteStakeIndex(pindex->nHeight, pkh);
+                m_blockman.m_block_tree_db->WriteStakeIndex(pindex->nHeight, pkh);
             }else{
-                pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
+                m_blockman.m_block_tree_db->WriteStakeIndex(pindex->nHeight, uint160());
             }
 
             if(block.HasProofOfDelegation())
@@ -3613,23 +3612,23 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
                 uint160 address;
                 uint8_t fee = 0;
                 GetBlockDelegation(block, pkh, address, fee, view, *this);
-                pblocktree->WriteDelegateIndex(pindex->nHeight, address, fee);
+                m_blockman.m_block_tree_db->WriteDelegateIndex(pindex->nHeight, address, fee);
             }
         }else{
-            pblocktree->WriteStakeIndex(pindex->nHeight, uint160());
+            m_blockman.m_block_tree_db->WriteStakeIndex(pindex->nHeight, uint160());
         }
     }
 
     ///////////////////////////////////////////////////////////// // qtum
     if (fAddressIndex) {
-        if (!pblocktree->WriteAddressIndex(addressIndex)) {
+        if (!m_blockman.m_block_tree_db->WriteAddressIndex(addressIndex)) {
             return AbortNode(state, "Failed to write address index");
         }
-        if (!pblocktree->UpdateAddressUnspentIndex(addressUnspentIndex)) {
+        if (!m_blockman.m_block_tree_db->UpdateAddressUnspentIndex(addressUnspentIndex)) {
             return AbortNode(state, "Failed to write address unspent index");
         }
 
-        if (!pblocktree->UpdateSpentIndex(spentIndex))
+        if (!m_blockman.m_block_tree_db->UpdateSpentIndex(spentIndex))
             return AbortNode(state, "Failed to write transaction index");
 
         unsigned int logicalTS = pindex->nTime;
@@ -3637,7 +3636,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
 
         // retrieve logical timestamp of the previous block
         if (pindex->pprev)
-            if (!pblocktree->ReadTimestampBlockIndex(pindex->pprev->GetBlockHash(), prevLogicalTS))
+            if (!m_blockman.m_block_tree_db->ReadTimestampBlockIndex(pindex->pprev->GetBlockHash(), prevLogicalTS))
                 LogPrintf("%s: Failed to read previous block's logical timestamp\n", __func__);
 
         if (logicalTS <= prevLogicalTS) {
@@ -3645,10 +3644,10 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
             LogPrint(BCLog::INDEX, "%s: Previous logical timestamp is newer Actual[%d] prevLogical[%d] Logical[%d]\n", __func__, pindex->nTime, prevLogicalTS, logicalTS);
         }
 
-        if (!pblocktree->WriteTimestampIndex(CTimestampIndexKey(logicalTS, pindex->GetBlockHash())))
+        if (!m_blockman.m_block_tree_db->WriteTimestampIndex(CTimestampIndexKey(logicalTS, pindex->GetBlockHash())))
             return AbortNode(state, "Failed to write timestamp index");
 
-        if (!pblocktree->WriteTimestampBlockIndex(CTimestampBlockIndexKey(pindex->GetBlockHash()), CTimestampBlockIndexValue(logicalTS)))
+        if (!m_blockman.m_block_tree_db->WriteTimestampBlockIndex(CTimestampBlockIndexKey(pindex->GetBlockHash()), CTimestampBlockIndexValue(logicalTS)))
             return AbortNode(state, "Failed to write blockhash index");
     }
     /////////////////////////////////////////////////////////////
@@ -5984,10 +5983,10 @@ bool ChainstateManager::LoadBlockIndex()
         LogPrintf("Initializing databases...\n");
         // Use the provided setting for -logevents in the new database
         fLogEvents = gArgs.GetBoolArg("-logevents", DEFAULT_LOGEVENTS);
-        pblocktree->WriteFlag("logevents", fLogEvents);
+        m_blockman.m_block_tree_db->WriteFlag("logevents", fLogEvents);
         /////////////////////////////////////////////////////////////// // qtum
         fAddressIndex = gArgs.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX);
-        pblocktree->WriteFlag("addrindex", fAddressIndex);
+        m_blockman.m_block_tree_db->WriteFlag("addrindex", fAddressIndex);
         ///////////////////////////////////////////////////////////////
     }
     return true;
@@ -7049,18 +7048,18 @@ void ChainstateManager::MaybeRebalanceCaches()
 }
 
 ////////////////////////////////////////////////////////////////////////////////// // qtum
-bool GetAddressIndex(uint256 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, int start, int end)
+bool GetAddressIndex(uint256 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, node::BlockManager& blockman, int start, int end)
 {
     if (!fAddressIndex)
         return error("address index not enabled");
 
-    if (!pblocktree->ReadAddressIndex(addressHash, type, addressIndex, start, end))
+    if (!blockman.m_block_tree_db->ReadAddressIndex(addressHash, type, addressIndex, start, end))
         return error("unable to get txids for address");
 
     return true;
 }
 
-bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool)
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool, node::BlockManager& blockman)
 {
     if (!fAddressIndex)
         return false;
@@ -7068,18 +7067,18 @@ bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPoo
     if (mempool.getSpentIndex(key, value))
         return true;
 
-    if (!pblocktree->ReadSpentIndex(key, value))
+    if (!blockman.m_block_tree_db->ReadSpentIndex(key, value))
         return false;
 
     return true;
 }
 
-bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs)
+bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs, node::BlockManager& blockman)
 {
     if (!fAddressIndex)
         return error("address index not enabled");
 
-    if (!pblocktree->ReadAddressUnspentIndex(addressHash, type, unspentOutputs))
+    if (!blockman.m_block_tree_db->ReadAddressUnspentIndex(addressHash, type, unspentOutputs))
         return error("unable to get txids for address");
 
     return true;
@@ -7090,7 +7089,7 @@ bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const 
     if (!fAddressIndex)
         return error("Timestamp index not enabled");
 
-    if (!pblocktree->ReadTimestampIndex(high, low, fActiveOnly, hashes, chainman))
+    if (!chainman.m_blockman.m_block_tree_db->ReadTimestampIndex(high, low, fActiveOnly, hashes, chainman))
         return error("Unable to get hashes for timestamps");
 
     return true;
@@ -7122,7 +7121,7 @@ CAmount GetTxGasFee(const CMutableTransaction& _tx, const CTxMemPool& mempool, C
     return nGasFee;
 }
 
-bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight)
+bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight, node::BlockManager& blockman)
 {
     nWeight = 0;
 
@@ -7131,7 +7130,7 @@ bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, u
 
     // Get address utxos
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
-    if (!GetAddressUnspent(addressHash, type, unspentOutputs)) {
+    if (!GetAddressUnspent(addressHash, type, unspentOutputs, blockman)) {
         throw error("No information available for address");
     }
 

@@ -415,17 +415,17 @@ void InitScriptExecutionCache();
 
 ///////////////////////////////////////////////////////////////// // qtum
 bool GetAddressIndex(uint256 addressHash, int type,
-                     std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
+                     std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, node::BlockManager& blockman,
                      int start = 0, int end = 0);
 
-bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool);
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool, node::BlockManager& blockman);
 
 bool GetAddressUnspent(uint256 addressHash, int type,
-                       std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs);
+                       std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs, node::BlockManager& blockman);
 
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes, ChainstateManager& chainman);
 
-bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight);
+bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight, node::BlockManager& blockman);
 
 std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman);
 /////////////////////////////////////////////////////////////////
@@ -471,7 +471,7 @@ public:
 
 extern std::unique_ptr<StorageResults> pstorageresult;
 
-bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, CChain& chain);
+bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, CChain& chain, node::BlockManager& blockman);
 
 //////////////////////////////////////////////////////// qtum
 bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin);
@@ -1219,9 +1219,6 @@ public:
         Reset();
     }
 };
-
-/** Global variable that points to the active block tree (protected by cs_main) */
-extern std::unique_ptr<CBlockTreeDB> pblocktree;
 
 using FopenFn = std::function<FILE*(const fs::path&, const char*)>;
 

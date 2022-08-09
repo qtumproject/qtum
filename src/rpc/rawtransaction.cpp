@@ -81,7 +81,7 @@ static void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& 
     }
 }
 
-void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue& entry, const CTxMemPool& mempool,
+void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue& entry, const CTxMemPool& mempool, node::BlockManager& blockman,
                       int nHeight = 0, int nConfirmations = 0, int nBlockTime = 0)
 {
 
@@ -116,7 +116,7 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
             // Add address and value info if spentindex enabled
             CSpentIndexValue spentInfo;
             CSpentIndexKey spentKey(txin.prevout.hash, txin.prevout.n);
-            if (GetSpentIndex(spentKey, spentInfo, mempool)) {
+            if (GetSpentIndex(spentKey, spentInfo, mempool, blockman)) {
                 in.pushKV("value", ValueFromAmount(spentInfo.satoshis));
                 in.pushKV("valueSat", spentInfo.satoshis);
                 if (spentInfo.addressType == 1) {
@@ -151,7 +151,7 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
         // Add spent information if spentindex is enabled
         CSpentIndexValue spentInfo;
         CSpentIndexKey spentKey(txid, i);
-        if (GetSpentIndex(spentKey, spentInfo, mempool)) {
+        if (GetSpentIndex(spentKey, spentInfo, mempool, blockman)) {
             out.pushKV("spentTxId", spentInfo.txid.GetHex());
             out.pushKV("spentIndex", (int)spentInfo.inputIndex);
             out.pushKV("spentHeight", spentInfo.blockHeight);
@@ -460,7 +460,7 @@ static RPCHelpMan getrawtransaction()
     TxToJSON(*tx, hash_block, result, chainman.ActiveChainstate());
     if(fAddressIndex) {
         result.pushKV("hex", EncodeHexTx(*tx, RPCSerializationFlags()));
-        TxToJSONExpanded(*tx, hash_block, result, mempool, nHeight, nConfirmations, nBlockTime);
+        TxToJSONExpanded(*tx, hash_block, result, mempool, chainman.m_blockman, nHeight, nConfirmations, nBlockTime);
     }
     else {
         TxToJSON(*tx, hash_block, result, chainman.ActiveChainstate());

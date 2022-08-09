@@ -415,11 +415,11 @@ bool BlockManager::LoadBlockIndexDB(ChainstateManager& chainman)
     if (fReindexing) fReindex = true;
 
     ///////////////////////////////////////////////////////////// // qtum
-    pblocktree->ReadFlag("addrindex", fAddressIndex);
+    m_block_tree_db->ReadFlag("addrindex", fAddressIndex);
     LogPrintf("LoadBlockIndexDB(): address index %s\n", fAddressIndex ? "enabled" : "disabled");
     /////////////////////////////////////////////////////////////
     // Check whether we have a transaction index
-    pblocktree->ReadFlag("logevents", fLogEvents);
+    m_block_tree_db->ReadFlag("logevents", fLogEvents);
     LogPrintf("%s: log events index %s\n", __func__, fLogEvents ? "enabled" : "disabled");
 
     return true;
