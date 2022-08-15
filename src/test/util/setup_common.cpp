@@ -268,7 +268,7 @@ TestingSetup::TestingSetup(const std::string& chainName, const std::vector<const
 }
 
 TestChain100Setup::TestChain100Setup(const std::vector<const char*>& extra_args)
-    : TestingSetup{CBaseChainParams::REGTEST, extra_args}
+    : TestingSetup{CBaseChainParams::UNITTEST, extra_args}
 {
     SetMockTime(1598887952);
     constexpr std::array<unsigned char, 32> vchKey = {
@@ -283,7 +283,7 @@ TestChain100Setup::TestChain100Setup(const std::vector<const char*>& extra_args)
         LOCK(::cs_main);
         assert(
             m_node.chainman->ActiveChain().Tip()->GetBlockHash().ToString() ==
-            "3842ee240bf237ace32ef04d6a6228fe4ce2e5bfc46650eb7b94621d204d9a4c");
+            "5ce9c22662191ba24b8d930e606446fce116a4c022e2660c846ae1a7d70708ec");
     }
 }
 
