@@ -74,6 +74,7 @@
 #include <validationinterface.h>
 #ifdef ENABLE_WALLET
 #include <wallet/wallet.h>
+#include <interfaces/wallet.h>
 #endif
 #include <walletinitinterface.h>
 #include <key_io.h>
@@ -217,6 +218,18 @@ void Shutdown(NodeContext& node)
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
     util::ThreadRename("qtum-shutoff");
+
+#ifdef ENABLE_WALLET
+    if(node.wallet_loader && node.wallet_loader->context())
+    {
+        // Force stop the stakers before any other components
+        for (const std::shared_ptr<wallet::CWallet>& pwallet : GetWallets(*node.wallet_loader->context()))
+        {
+            pwallet->StopStake();
+        }
+    }
+#endif
+
     if (node.mempool) node.mempool->AddTransactionsUpdated(1);
 
     StopHTTPRPC();
