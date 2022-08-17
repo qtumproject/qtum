@@ -228,7 +228,7 @@ void TestGUI(interfaces::Node& node)
     QCOMPARE(balanceText, balanceComparison);
 
     // Check Request Payment button
-    ReceiveRequestDialog requestDialog;
+    ReceiveRequestDialog requestDialog(platformStyle.get());
     ReceiveCoinsDialog& receiveCoinsDialog = *requestDialog.findChild<ReceiveCoinsDialog*>("ReceiveCoinsDialog");
     receiveCoinsDialog.setModel(&walletModel);
     RecentRequestsTableModel* requestTableModel = walletModel.getRecentRequestsTableModel();
