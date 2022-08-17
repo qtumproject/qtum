@@ -118,6 +118,8 @@ BasicTestingSetup::BasicTestingSetup(const std::string& chainName, const std::ve
             throw std::runtime_error{error};
         }
     }
+    m_args.SoftSetBoolArg("-staking", false);
+    gArgs.SoftSetBoolArg("-staking", false);
     SelectParams(chainName);
     SeedInsecureRand();
     if (G_TEST_LOG_FUN) LogInstance().PushBackCallback(G_TEST_LOG_FUN);
