@@ -21,6 +21,16 @@
 const std::string UNIX_EPOCH_TIME = "UNIX epoch time";
 const std::string EXAMPLE_ADDRESS[2] = {"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd", "QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX"};
 
+Mutex cs_blockchange;
+std::condition_variable cond_blockchange;
+CUpdatedBlock latestblock;
+std::atomic<bool> g_rpc_running{false};
+
+bool IsRPCRunning()
+{
+    return g_rpc_running;
+}
+
 std::string GetAllOutputTypes()
 {
     std::vector<std::string> ret;

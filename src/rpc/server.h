@@ -21,16 +21,6 @@
 #include <univalue.h>
 #include <util/system.h>
 
-struct CUpdatedBlock
-{
-    uint256 hash;
-    int height;
-};
-
-extern Mutex cs_blockchange;
-extern std::condition_variable cond_blockchange;
-extern CUpdatedBlock latestblock GUARDED_BY(cs_blockchange);
-
 static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
 
 class CRPCCommand;
@@ -78,9 +68,6 @@ public:
      */
      HTTPRequest* req();
 };
-
-/** Query whether RPC is running */
-bool IsRPCRunning();
 
 /** Throw JSONRPCError if RPC is not running */
 void RpcInterruptionPoint();

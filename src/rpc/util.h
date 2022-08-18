@@ -22,6 +22,20 @@
 #include <variant>
 #include <vector>
 
+struct CUpdatedBlock
+{
+    uint256 hash;
+    int height;
+};
+
+extern Mutex cs_blockchange;
+extern std::condition_variable cond_blockchange;
+extern CUpdatedBlock latestblock GUARDED_BY(cs_blockchange);
+extern std::atomic<bool> g_rpc_running;
+
+/** Query whether RPC is running */
+bool IsRPCRunning();
+
 /**
  * String used to describe UNIX epoch time in documentation, factored out to a
  * constant for consistency.

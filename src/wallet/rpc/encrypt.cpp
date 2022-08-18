@@ -19,6 +19,7 @@ RPCHelpMan walletpassphrase()
                 {
                     {"passphrase", RPCArg::Type::STR, RPCArg::Optional::NO, "The wallet passphrase"},
                     {"timeout", RPCArg::Type::NUM, RPCArg::Optional::NO, "The time to keep the decryption key in seconds; capped at 100000000 (~3 years)."},
+                    {"stakingonly", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Unlock wallet for staking only"},
                 },
                 RPCResult{RPCResult::Type::NONE, "", ""},
                 RPCExamples{
@@ -26,6 +27,8 @@ RPCHelpMan walletpassphrase()
             + HelpExampleCli("walletpassphrase", "\"my pass phrase\" 60") +
             "\nLock the wallet again (before 60 seconds)\n"
             + HelpExampleCli("walletlock", "") +
+            "\nUnlock the wallet for staking only, for a long time\n"
+            + HelpExampleCli("walletpassphrase","\"my pass phrase\" 99999999 true") +
             "\nAs a JSON-RPC call\n"
             + HelpExampleRpc("walletpassphrase", "\"my pass phrase\", 60")
                 },
@@ -41,6 +44,9 @@ RPCHelpMan walletpassphrase()
     LOCK(pwallet->m_unlock_mutex);
     {
         LOCK(pwallet->cs_wallet);
+
+        if (request.mode != JSONRPCRequest::EXECUTE)
+            return true;
 
         if (!pwallet->IsCrypted()) {
             throw JSONRPCError(RPC_WALLET_WRONG_ENC_STATE, "Error: running with an unencrypted wallet, but walletpassphrase was called.");
@@ -69,7 +75,17 @@ RPCHelpMan walletpassphrase()
             throw JSONRPCError(RPC_INVALID_PARAMETER, "passphrase cannot be empty");
         }
 
+        // Used to restore m_wallet_unlock_staking_only value in case of unlock failure
+        bool tmpStakingOnly = pwallet->m_wallet_unlock_staking_only;
+
+        // ppcoin: if user OS account compromised prevent trivial sendmoney commands
+        if (request.params.size() > 2)
+            pwallet->m_wallet_unlock_staking_only = request.params[2].get_bool();
+        else
+            pwallet->m_wallet_unlock_staking_only = false;
+
         if (!pwallet->Unlock(strWalletPass)) {
+            pwallet->m_wallet_unlock_staking_only = tmpStakingOnly;
             throw JSONRPCError(RPC_WALLET_PASSPHRASE_INCORRECT, "Error: The wallet passphrase entered was incorrect.");
         }
 
@@ -124,6 +140,9 @@ RPCHelpMan walletpassphrasechange()
 
     LOCK(pwallet->cs_wallet);
 
+    if (request.mode != JSONRPCRequest::EXECUTE)
+        return true;
+
     if (!pwallet->IsCrypted()) {
         throw JSONRPCError(RPC_WALLET_WRONG_ENC_STATE, "Error: running with an unencrypted wallet, but walletpassphrasechange was called.");
     }
@@ -177,6 +196,9 @@ RPCHelpMan walletlock()
 
     LOCK(pwallet->cs_wallet);
 
+    if (request.mode != JSONRPCRequest::EXECUTE)
+        return true;
+
     if (!pwallet->IsCrypted()) {
         throw JSONRPCError(RPC_WALLET_WRONG_ENC_STATE, "Error: running with an unencrypted wallet, but walletlock was called.");
     }
@@ -220,6 +242,9 @@ RPCHelpMan encryptwallet()
     if (!pwallet) return NullUniValue;
 
     LOCK(pwallet->cs_wallet);
+
+    if (request.mode != JSONRPCRequest::EXECUTE)
+        return true;
 
     if (pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS)) {
         throw JSONRPCError(RPC_WALLET_ENCRYPTION_FAILED, "Error: wallet does not contain private keys, nothing to encrypt.");

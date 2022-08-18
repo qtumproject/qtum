@@ -473,6 +473,7 @@ static RPCHelpMan getwalletinfo()
                         {RPCResult::Type::NUM, "walletversion", "the wallet version"},
                         {RPCResult::Type::STR, "format", "the database format (bdb or sqlite)"},
                         {RPCResult::Type::STR_AMOUNT, "balance", "DEPRECATED. Identical to getbalances().mine.trusted"},
+                        {RPCResult::Type::STR_AMOUNT, "stake", "DEPRECATED. Identical to getbalances().mine.stake"},
                         {RPCResult::Type::STR_AMOUNT, "unconfirmed_balance", "DEPRECATED. Identical to getbalances().mine.untrusted_pending"},
                         {RPCResult::Type::STR_AMOUNT, "immature_balance", "DEPRECATED. Identical to getbalances().mine.immature"},
                         {RPCResult::Type::NUM, "txcount", "the total number of transactions in the wallet"},
@@ -512,12 +513,25 @@ static RPCHelpMan getwalletinfo()
 
     size_t kpExternalSize = pwallet->KeypoolCountExternalKeys();
     const auto bal = GetBalance(*pwallet);
+    CAmount balance = bal.m_mine_trusted;
+    CAmount stake = bal.m_mine_stake;
+    CAmount unconfirmedBalance = bal.m_mine_untrusted_pending;
+    CAmount immatureBalance = bal.m_mine_immature;
+    bool privateKeysEnabled = !pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    if(!privateKeysEnabled)
+    {
+        balance += bal.m_watchonly_trusted;
+        stake += bal.m_watchonly_stake;
+        unconfirmedBalance += bal.m_watchonly_untrusted_pending;
+        immatureBalance += bal.m_watchonly_immature;
+    }
     obj.pushKV("walletname", pwallet->GetName());
     obj.pushKV("walletversion", pwallet->GetVersion());
     obj.pushKV("format", pwallet->GetDatabase().Format());
-    obj.pushKV("balance", ValueFromAmount(bal.m_mine_trusted));
-    obj.pushKV("unconfirmed_balance", ValueFromAmount(bal.m_mine_untrusted_pending));
-    obj.pushKV("immature_balance", ValueFromAmount(bal.m_mine_immature));
+    obj.pushKV("balance", ValueFromAmount(balance));
+    obj.pushKV("stake", ValueFromAmount(stake));
+    obj.pushKV("unconfirmed_balance", ValueFromAmount(unconfirmedBalance));
+    obj.pushKV("immature_balance", ValueFromAmount(immatureBalance));
     obj.pushKV("txcount",       (int)pwallet->mapWallet.size());
     const auto kp_oldest = pwallet->GetOldestKeyPoolTime();
     if (kp_oldest.has_value()) {
@@ -540,7 +554,7 @@ static RPCHelpMan getwalletinfo()
         obj.pushKV("unlocked_until", pwallet->nRelockTime);
     }
     obj.pushKV("paytxfee", ValueFromAmount(pwallet->m_pay_tx_fee.GetFeePerK()));
-    obj.pushKV("private_keys_enabled", !pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS));
+    obj.pushKV("private_keys_enabled", privateKeysEnabled);
     obj.pushKV("avoid_reuse", pwallet->IsWalletFlagSet(WALLET_FLAG_AVOID_REUSE));
     if (pwallet->IsScanning()) {
         UniValue scanning(UniValue::VOBJ);
@@ -1075,6 +1089,9 @@ RPCHelpMan send();
 RPCHelpMan walletprocesspsbt();
 RPCHelpMan walletcreatefundedpsbt();
 RPCHelpMan signrawtransactionwithwallet();
+RPCHelpMan sendmanywithdupes();
+RPCHelpMan splitutxosforaddress();
+RPCHelpMan signrawsendertransactionwithwallet();
 
 // signmessage
 RPCHelpMan signmessage();
@@ -1144,13 +1161,16 @@ static const CRPCCommand commands[] =
     { "wallet",             &rescanblockchain,               },
     { "wallet",             &send,                           },
     { "wallet",             &sendmany,                       },
+    { "wallet",             &sendmanywithdupes,              },
     { "wallet",             &sendtoaddress,                  },
+    { "wallet",             &splitutxosforaddress,           },
     { "wallet",             &sethdseed,                      },
     { "wallet",             &setlabel,                       },
     { "wallet",             &settxfee,                       },
     { "wallet",             &setwalletflag,                  },
     { "wallet",             &signmessage,                    },
     { "wallet",             &signrawtransactionwithwallet,   },
+    { "wallet",             &signrawsendertransactionwithwallet,   },
     { "wallet",             &unloadwallet,                   },
     { "wallet",             &upgradewallet,                  },
     { "wallet",             &walletcreatefundedpsbt,         },
