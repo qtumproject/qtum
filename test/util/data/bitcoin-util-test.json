@@ -184,7 +184,7 @@
   { "exec": "./qtum-tx",
     "args":
     ["-create",
-     "outaddr=1:13tuJJDR2RgArmgfv6JScSdreahzgc4T6o:garbage"],
+     "outaddr=1:QPVtQbW8CtYzHumhLRcvjiRV9qehuiyxVG:garbage"],
     "return_code": 1,
     "error_txt": "error: TX output missing or too many separators",
     "description": "Malformed outaddr argument (too many separators). Expected to fail."
@@ -375,7 +375,7 @@
       "set=privatekeys:[\"5HpHagT65TZzG1PH3CSu63k8DbpvD8s5ip4nEB3kEsreAnchuDf\"]",
       "set=prevtxs:[{\"txid\":\"4d49a71ec9da436f71ec4ee231d04f292a29cd316f598bb7068feccabdc59485\",\"vout\":\"0foo\",\"scriptPubKey\":\"76a91491b24bf9f5288532960ac687abb035127b1d28a588ac\"}]",
       "sign=ALL",
-      "outaddr=0.001:193P6LtvS4nCnkDvM9uXn1gsSRqh4aDAz7"],
+      "outaddr=0.001:QUeNCeBdcXf2DtJwmVE1uHUVwgnQG6z1Y9"],
     "return_code": 1,
     "error_txt": "error: prevtxs internal object typecheck fail",
     "description": "Tests the check for invalid vout index in prevtxs for sign"
@@ -423,7 +423,7 @@
       "set=privatekeys:[\"KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn\"]",
       "set=prevtxs:[{\"txid\":\"00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff\",\"vout\":0,\"amount\":\"0\", \"scriptPubKey\":\"0014751e76e8199196d454941c45d1b3a323f1433bd6\"}]",
       "sign=ALL",
-      "outaddr=0.001:193P6LtvS4nCnkDvM9uXn1gsSRqh4aDAz7"],
+      "outaddr=0.001:QUeNCeBdcXf2DtJwmVE1uHUVwgnQG6z1Y9"],
     "output_cmp": "txcreatesignsegwit1.hex",
     "description": "Creates a new transaction with a single witness input and a single output, and then signs the transaction"
   },
@@ -434,7 +434,7 @@
       "set=privatekeys:[\"KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn\"]",
       "set=prevtxs:[{\"txid\":\"00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff\",\"vout\":0,\"scriptPubKey\":\"0014751e76e8199196d454941c45d1b3a323f1433bd6\"}]",
       "sign=ALL",
-      "outaddr=0.001:193P6LtvS4nCnkDvM9uXn1gsSRqh4aDAz7"],
+      "outaddr=0.001:QUeNCeBdcXf2DtJwmVE1uHUVwgnQG6z1Y9"],
     "return_code": 1,
     "error_txt": "Missing amount for CTxOut with scriptPubKey=0014751e76e8199196d454941c45d1b3a323f1433bd6",
     "description": "Tests the check for missing input amount for witness transactions"
@@ -574,7 +574,7 @@
     "args":
     ["-create",
      "in=5897de6bd6027a475eadd57019d4e6872c396d0716c4875a5f1a6fcfdf385c1f:0: 4294967293 ",
-     "outaddr=0.18:13tuJJDR2RgArmgfv6JScSdreahzgc4T6o"],
+     "outaddr=0.18:QPVtQbW8CtYzHumhLRcvjiRV9qehuiyxVG"],
     "output_cmp": "txcreatedata_seq0.hex",
     "description": "Creates a new transaction with one input with sequence number (+whitespace) and one address output"
   },
