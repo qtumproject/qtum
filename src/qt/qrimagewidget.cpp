@@ -61,7 +61,8 @@ bool QRImageWidget::setQR(const QString& data, const QString& text)
     }
     QRcode_free(code);
 
-    const int qr_image_size = QR_IMAGE_SIZE + (text.isEmpty() ? 0 : 2 * QR_IMAGE_MARGIN);
+    const int qr_image_margin = text.isEmpty() ? 0 : QR_IMAGE_MARGIN;
+    const int qr_image_size = QR_IMAGE_SIZE + 2 * qr_image_margin;
     QImage qrAddrImage(qr_image_size, qr_image_size, QImage::Format_RGB32);
     qrAddrImage.fill(0xffffff);
     {

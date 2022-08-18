@@ -7,6 +7,7 @@
 #include <qt/receivecoinsdialog.h>
 #include <qt/forms/ui_receivecoinsdialog.h>
 
+#include <interfaces/node.h>
 #include <qt/addresstablemodel.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
@@ -14,6 +15,7 @@
 #include <qt/receiverequestdialog.h>
 #include <qt/recentrequeststablemodel.h>
 #include <qt/walletmodel.h>
+#include <qt/styleSheet.h>
 
 #include <QAction>
 #include <QCursor>
@@ -25,21 +27,21 @@
 ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::ReceiveCoinsDialog),
+    columnResizingFixer(nullptr),
     model(nullptr),
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
-
+    // Set stylesheet
+    SetObjectStyleSheet(ui->showRequestButton, StyleSheetNames::ButtonTransparentBordered);
+    SetObjectStyleSheet(ui->removeRequestButton, StyleSheetNames::ButtonTransparentBordered);
     if (!_platformStyle->getImagesOnButtons()) {
-        ui->clearButton->setIcon(QIcon());
         ui->receiveButton->setIcon(QIcon());
         ui->showRequestButton->setIcon(QIcon());
         ui->removeRequestButton->setIcon(QIcon());
     } else {
-        ui->clearButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
-        ui->receiveButton->setIcon(_platformStyle->SingleColorIcon(":/icons/receiving_addresses"));
-        ui->showRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/eye"));
-        ui->removeRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
+        ui->showRequestButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/show", PlatformStyle::PushButton));
+        ui->removeRequestButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButton));
     }
 
     // context menu
@@ -51,7 +53,6 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     copyAmountAction = contextMenu->addAction(tr("Copy &amount"), this, &ReceiveCoinsDialog::copyAmount);
     connect(ui->recentRequestsView, &QWidget::customContextMenuRequested, this, &ReceiveCoinsDialog::showMenu);
 
-    connect(ui->clearButton, &QPushButton::clicked, this, &ReceiveCoinsDialog::clear);
 
     QTableView* tableView = ui->recentRequestsView;
     tableView->verticalHeader()->hide();
@@ -59,14 +60,6 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
-    QSettings settings;
-    if (!tableView->horizontalHeader()->restoreState(settings.value("RecentRequestsViewHeaderState").toByteArray())) {
-        tableView->setColumnWidth(RecentRequestsTableModel::Date, DATE_COLUMN_WIDTH);
-        tableView->setColumnWidth(RecentRequestsTableModel::Label, LABEL_COLUMN_WIDTH);
-        tableView->setColumnWidth(RecentRequestsTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
-        tableView->horizontalHeader()->setMinimumSectionSize(MINIMUM_COLUMN_WIDTH);
-        tableView->horizontalHeader()->setStretchLastSection(true);
-    }
 }
 
 void ReceiveCoinsDialog::setModel(WalletModel *_model)
@@ -83,10 +76,21 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
         tableView->setModel(_model->getRecentRequestsTableModel());
         tableView->sortByColumn(RecentRequestsTableModel::Date, Qt::DescendingOrder);
 
+        QSettings settings;
+        if (!tableView->horizontalHeader()->restoreState(settings.value("RecentRequestsViewHeaderState").toByteArray())) {
+            tableView->setColumnWidth(RecentRequestsTableModel::Date, DATE_COLUMN_WIDTH);
+            tableView->setColumnWidth(RecentRequestsTableModel::Label, LABEL_COLUMN_WIDTH);
+            tableView->setColumnWidth(RecentRequestsTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
+            tableView->horizontalHeader()->setMinimumSectionSize(MINIMUM_COLUMN_WIDTH);
+        }
+
         connect(tableView->selectionModel(),
             &QItemSelectionModel::selectionChanged, this,
             &ReceiveCoinsDialog::recentRequestsView_selectionChanged);
 
+        // Last 2 columns are set by the columnResizingFixer, when the table geometry is ready.
+        columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
+//QTUM_TO_CHECK
         // Populate address type dropdown and select default
         auto add_address_type = [&](OutputType type, const QString& text, const QString& tooltip) {
             const auto index = ui->addressType->count();
@@ -100,7 +104,7 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
         if (model->wallet().taprootEnabled()) {
             add_address_type(OutputType::BECH32M, "Bech32m (Taproot)", "Bech32m (BIP-350) is an upgrade to Bech32, wallet support is still limited.");
         }
-
+//QTUM_TO_CHECK_END
         // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.
         ui->receiveButton->setEnabled(model->wallet().canGetAddresses());
 
@@ -129,11 +133,13 @@ void ReceiveCoinsDialog::clear()
 void ReceiveCoinsDialog::reject()
 {
     clear();
+    QDialog::reject();
 }
 
 void ReceiveCoinsDialog::accept()
 {
     clear();
+    QDialog::accept();
 }
 
 void ReceiveCoinsDialog::updateDisplayUnit()
@@ -159,16 +165,12 @@ void ReceiveCoinsDialog::on_receiveButton_clicked()
     {
     case AddressTableModel::EditStatus::OK: {
         // Success
-        SendCoinsRecipient info(address, label,
+        SendCoinsRecipient _info(address, label,
             ui->reqAmount->value(), ui->reqMessage->text());
-        ReceiveRequestDialog *dialog = new ReceiveRequestDialog(this);
-        dialog->setAttribute(Qt::WA_DeleteOnClose);
-        dialog->setModel(model);
-        dialog->setInfo(info);
-        dialog->show();
 
         /* Store request for later reference */
         model->getRecentRequestsTableModel()->addNewRequest(info);
+        info = _info;
         break;
     }
     case AddressTableModel::EditStatus::WALLET_UNLOCK_FAILURE:
@@ -188,16 +190,25 @@ void ReceiveCoinsDialog::on_receiveButton_clicked()
         assert(false);
     }
     clear();
+    accept();
 }
 
 void ReceiveCoinsDialog::on_recentRequestsView_doubleClicked(const QModelIndex &index)
 {
     const RecentRequestsTableModel *submodel = model->getRecentRequestsTableModel();
-    ReceiveRequestDialog *dialog = new ReceiveRequestDialog(this);
-    dialog->setModel(model);
-    dialog->setInfo(submodel->entry(index.row()).recipient);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->show();
+    info = submodel->entry(index.row()).recipient;
+
+    accept();
+}
+
+void ReceiveCoinsDialog::on_recentRequestsView_clicked(const QModelIndex &index)
+{
+    const RecentRequestsTableModel *submodel = model->getRecentRequestsTableModel();
+    SendCoinsRecipient info = submodel->entry(index.row()).recipient;
+
+    ui->reqLabel->setText(info.label);
+    ui->reqMessage->setText(info.message);
+    ui->reqAmount->setValue(info.amount);
 }
 
 void ReceiveCoinsDialog::recentRequestsView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
@@ -229,6 +240,14 @@ void ReceiveCoinsDialog::on_removeRequestButton_clicked()
     // correct for selection mode ContiguousSelection
     QModelIndex firstIndex = selection.at(0);
     model->getRecentRequestsTableModel()->removeRows(firstIndex.row(), selection.length(), firstIndex.parent());
+}
+
+// We override the virtual resizeEvent of the QWidget to adjust tables column
+// sizes as the tables width is proportional to the dialogs width.
+void ReceiveCoinsDialog::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    columnResizingFixer->stretchColumnWidth(RecentRequestsTableModel::Message);
 }
 
 QModelIndex ReceiveCoinsDialog::selectedRow()
@@ -318,4 +337,9 @@ void ReceiveCoinsDialog::copyAmount()
 SendCoinsRecipient ReceiveCoinsDialog::getInfo() const
 {
     return info;
+}
+
+void ReceiveCoinsDialog::on_cancelButton_clicked()
+{
+    reject();
 }

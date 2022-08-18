@@ -20,17 +20,23 @@
 #include <util/string.h>
 #include <validation.h> // For DEFAULT_SCRIPTCHECK_THREADS
 
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <wallet/walletdb.h>
+#endif
 #include <QDebug>
 #include <QLatin1Char>
 #include <QSettings>
 #include <QStringList>
+#include <util/moneystr.h>
+//using namespace wallet;
 
 const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
 static const QString GetDefaultProxyAddress();
 
 OptionsModel::OptionsModel(QObject *parent, bool resetSettings) :
-    QAbstractListModel(parent)
+    QAbstractListModel(parent), restartApp(false)
 {
     Init(resetSettings);
 }
@@ -107,7 +113,34 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("nDatabaseCache", (qint64)nDefaultDbCache);
     if (!gArgs.SoftSetArg("-dbcache", settings.value("nDatabaseCache").toString().toStdString()))
         addOverriddenOption("-dbcache");
+#ifdef ENABLE_WALLET
+    if (!settings.contains("fSuperStaking"))
+        settings.setValue("fSuperStaking", false);
+    bool fSuperStaking = settings.value("fSuperStaking").toBool();
+    if (!gArgs.SoftSetBoolArg("-superstaking", fSuperStaking))
+        addOverriddenOption("-superstaking");
+    if(fSuperStaking)
+    {
+        if (!gArgs.SoftSetBoolArg("-staking", true))
+            addOverriddenOption("-staking");
+        if (!gArgs.SoftSetBoolArg("-logevents", true))
+            addOverriddenOption("-logevents");
+        if (!gArgs.SoftSetBoolArg("-addrindex", true))
+            addOverriddenOption("-addrindex");
+    }
+#endif
 
+    if (!settings.contains("fLogEvents"))
+        settings.setValue("fLogEvents", fLogEvents);
+    if (!gArgs.SoftSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
+        addOverriddenOption("-logevents");
+
+#ifdef ENABLE_WALLET
+    if (!settings.contains("nReserveBalance"))
+        settings.setValue("nReserveBalance", (long long)wallet::DEFAULT_RESERVE_BALANCE);
+    if (!gArgs.SoftSetArg("-reservebalance", FormatMoney(settings.value("nReserveBalance").toLongLong())))
+        addOverriddenOption("-reservebalance");
+#endif
     if (!settings.contains("nThreadsScriptVerif"))
         settings.setValue("nThreadsScriptVerif", DEFAULT_SCRIPTCHECK_THREADS);
     if (!gArgs.SoftSetArg("-par", settings.value("nThreadsScriptVerif").toString().toStdString()))
@@ -129,6 +162,18 @@ void OptionsModel::Init(bool resetSettings)
     if (!gArgs.SoftSetArg("-signer", settings.value("external_signer_path").toString().toStdString())) {
         addOverriddenOption("-signer");
     }
+
+    if (!settings.contains("bZeroBalanceAddressToken"))
+        settings.setValue("bZeroBalanceAddressToken", wallet::DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
+    bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
+
+    if (!settings.contains("signPSBTWithHWITool"))
+        settings.setValue("signPSBTWithHWITool", wallet::DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
+    if (!gArgs.SoftSetBoolArg("-signpsbtwithhwitool", settings.value("signPSBTWithHWITool").toBool()))
+        addOverriddenOption("-signpsbtwithhwitool");
+    if (!settings.contains("fCheckForUpdates"))
+        settings.setValue("fCheckForUpdates", DEFAULT_CHECK_FOR_UPDATES);
+    fCheckForUpdates = settings.value("fCheckForUpdates").toBool();
 
     if (!settings.contains("SubFeeFromAmount")) {
         settings.setValue("SubFeeFromAmount", false);
@@ -164,6 +209,23 @@ void OptionsModel::Init(bool resetSettings)
         addOverriddenOption("-server");
     }
 
+#ifdef ENABLE_WALLET
+    if (!settings.contains("fUseChangeAddress"))
+    {
+        // Set the default value
+        bool useChangeAddress = wallet::DEFAULT_USE_CHANGE_ADDRESS;
+
+        // Get the old parameter value if exist
+        if(settings.contains("fNotUseChangeAddress"))
+            useChangeAddress = !settings.value("fNotUseChangeAddress").toBool();
+
+        // Set the parameter value
+        settings.setValue("fUseChangeAddress", useChangeAddress);
+    }
+    if (!gArgs.SoftSetBoolArg("-usechangeaddress", settings.value("fUseChangeAddress").toBool()))
+        addOverriddenOption("-usechangeaddress");
+#endif
+
     if (!settings.contains("fUseProxy"))
         settings.setValue("fUseProxy", false);
     if (!settings.contains("addrProxy"))
@@ -197,6 +259,26 @@ void OptionsModel::Init(bool resetSettings)
     }
     m_use_embedded_monospaced_font = settings.value("UseEmbeddedMonospacedFont").toBool();
     Q_EMIT useEmbeddedMonospacedFontChanged(m_use_embedded_monospaced_font);
+
+    if (!settings.contains("Theme"))
+        settings.setValue("Theme", "");
+
+    theme = settings.value("Theme").toString();
+
+#ifdef ENABLE_WALLET
+    if (!settings.contains("HWIToolPath"))
+        settings.setValue("HWIToolPath", "");
+
+    if (!gArgs.SoftSetArg("-hwitoolpath", settings.value("HWIToolPath").toString().toStdString()))
+        addOverriddenOption("-hwitoolpath");
+
+    if (!settings.contains("StakeLedgerId"))
+        settings.setValue("StakeLedgerId", "");
+
+    if (!gArgs.SoftSetArg("-stakerledgerid", settings.value("StakeLedgerId").toString().toStdString()))
+        addOverriddenOption("-stakerledgerid");
+#endif
+
 }
 
 /** Helper function to copy contents from one QSettings to another.
@@ -357,6 +439,12 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("external_signer_path");
         case SubFeeFromAmount:
             return m_sub_fee_from_amount;
+        case ZeroBalanceAddressToken:
+            return settings.value("bZeroBalanceAddressToken");
+        case ReserveBalance:
+            return settings.value("nReserveBalance");
+        case SignPSBTWithHWITool:
+            return settings.value("signPSBTWithHWITool");
 #endif
         case DisplayUnit:
             return nDisplayUnit;
@@ -376,12 +464,32 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nPruneSize");
         case DatabaseCache:
             return settings.value("nDatabaseCache");
+        case LogEvents:
+            return settings.value("fLogEvents");
+#ifdef ENABLE_WALLET
+        case SuperStaking:
+            return settings.value("fSuperStaking");
+#endif
         case ThreadsScriptVerif:
             return settings.value("nThreadsScriptVerif");
         case Listen:
             return settings.value("fListen");
         case Server:
             return settings.value("server");
+#ifdef ENABLE_WALLET
+        case UseChangeAddress:
+            return settings.value("fUseChangeAddress");
+#endif
+        case CheckForUpdates:
+            return settings.value("fCheckForUpdates");
+        case Theme:
+            return settings.value("Theme");
+#ifdef ENABLE_WALLET
+        case HWIToolPath:
+            return settings.value("HWIToolPath");
+        case StakeLedgerId:
+            return settings.value("StakeLedgerId");
+#endif
         default:
             return QVariant();
         }
@@ -490,6 +598,17 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             m_sub_fee_from_amount = value.toBool();
             settings.setValue("SubFeeFromAmount", m_sub_fee_from_amount);
             break;
+        case ZeroBalanceAddressToken:
+            bZeroBalanceAddressToken = value.toBool();
+            settings.setValue("bZeroBalanceAddressToken", bZeroBalanceAddressToken);
+            Q_EMIT zeroBalanceAddressTokenChanged(bZeroBalanceAddressToken);
+            break;
+        case SignPSBTWithHWITool:
+            if (settings.value("signPSBTWithHWITool") != value) {
+                settings.setValue("signPSBTWithHWITool", value);
+                setRestartRequired(true);
+            }
+            break;
 #endif
         case DisplayUnit:
             setDisplayUnit(value);
@@ -539,6 +658,26 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+        case LogEvents:
+            if (settings.value("fLogEvents") != value) {
+                settings.setValue("fLogEvents", value);
+                setRestartRequired(true);
+            }
+            break;
+#ifdef ENABLE_WALLET
+        case SuperStaking:
+            if (settings.value("fSuperStaking") != value) {
+                settings.setValue("fSuperStaking", value);
+                setRestartRequired(true);
+            }
+            break;
+        case ReserveBalance:
+            if (settings.value("nReserveBalance") != value) {
+                settings.setValue("nReserveBalance", value);
+                setRestartRequired(true);
+            }
+            break;
+#endif
         case ThreadsScriptVerif:
             if (settings.value("nThreadsScriptVerif") != value) {
                 settings.setValue("nThreadsScriptVerif", value);
@@ -557,6 +696,43 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+#ifdef ENABLE_WALLET
+        case UseChangeAddress:
+            if (settings.value("fUseChangeAddress") != value) {
+                settings.setValue("fUseChangeAddress", value);
+                // Set fNotUseChangeAddress for backward compatibility reason
+                settings.setValue("fNotUseChangeAddress", !value.toBool());
+                setRestartRequired(true);
+            }
+            break;
+#endif
+        case CheckForUpdates:
+            if (settings.value("fCheckForUpdates") != value) {
+                settings.setValue("fCheckForUpdates", value);
+                fCheckForUpdates = value.toBool();
+            }
+            break;
+        case Theme:
+            if (settings.value("Theme") != value) {
+                settings.setValue("Theme", value);
+                setRestartRequired(true);
+            }
+            break;
+#ifdef ENABLE_WALLET
+        case HWIToolPath:
+            if (settings.value("HWIToolPath") != value) {
+                settings.setValue("HWIToolPath", value);
+                setRestartRequired(true);
+            }
+            break;
+        case StakeLedgerId:
+            if (settings.value("StakeLedgerId") != value) {
+                settings.setValue("StakeLedgerId", value);
+                setRestartRequired(true);
+            }
+            break;
+#endif
+//QTUM_INSERT_END
         default:
             break;
         }
@@ -620,4 +796,14 @@ void OptionsModel::checkAndMigrate()
     if (settings.contains("addrSeparateProxyTor") && settings.value("addrSeparateProxyTor").toString().endsWith("%2")) {
         settings.setValue("addrSeparateProxyTor", GetDefaultProxyAddress());
     }
+}
+
+bool OptionsModel::getRestartApp() const
+{
+    return restartApp;
+}
+
+void OptionsModel::setRestartApp(bool value)
+{
+    restartApp = value;
 }
