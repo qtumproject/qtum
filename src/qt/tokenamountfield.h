@@ -1,7 +1,6 @@
 #ifndef TOKENAMOUNTFIELD_H
 #define TOKENAMOUNTFIELD_H
 
-#include <amount.h>
 #include <QWidget>
 
 #include <boost/multiprecision/cpp_int.hpp>

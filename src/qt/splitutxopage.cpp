@@ -240,7 +240,7 @@ void SplitUTXOPage::on_splitCoinsClicked()
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm splitting coins for address proposal.") : tr("Confirm splitting coins for address.");
         const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
-        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, true, bCreateUnsigned, this);
 
         confirmationDialog.exec();
 

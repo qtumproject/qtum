@@ -67,8 +67,9 @@ private:
     std::unique_ptr<wallet::CCoinControl> m_coin_control;
     std::unique_ptr<WalletModelTransaction> m_current_transaction;
     bool fNewRecipientAllowed;
-    bool fFeeMinimized;
     const PlatformStyle *platformStyle;
+    int64_t targetSpacing;
+    bool bCreateUnsigned = false;
 
     // Copy PSBT to clipboard and offer to save it.
     void presentPSBT(PartiallySignedTransaction& psbt);
@@ -90,6 +91,8 @@ private:
     bool signWithExternalSigner(PartiallySignedTransaction& psbt, CMutableTransaction& mtx, bool& complete);
     void updateFeeMinimizedLabel();
     void updateCoinControlState();
+    // Update the target selector item text
+    QString targetSelectorItemText(const int n);
 
 private Q_SLOTS:
     void sendButtonClicked(bool checked);

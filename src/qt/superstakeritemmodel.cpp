@@ -29,7 +29,7 @@ public:
         hash = superStakerInfo.hash;
         stakerName = QString::fromStdString(superStakerInfo.staker_name);
         stakerAddress = QString::fromStdString(superStakerInfo.staker_address);
-        minFee = superStakerInfo.custom_config ? superStakerInfo.min_fee : DEFAULT_STAKING_MIN_FEE;
+        minFee = superStakerInfo.custom_config ? superStakerInfo.min_fee : wallet::DEFAULT_STAKING_MIN_FEE;
         staking = false;
         balance = 0;
         stake = 0;
