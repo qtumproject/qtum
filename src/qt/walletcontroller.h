@@ -58,6 +58,8 @@ public:
     //! is loaded.
     std::map<std::string, bool> listWalletDir() const;
 
+    void getRestoreData(QString& restorePath, QString& restoreParam, QString& restoreName) const;
+
     void closeWallet(WalletModel* wallet_model, QWidget* parent = nullptr);
     void closeAllWallets(QWidget* parent = nullptr);
 
@@ -121,10 +123,12 @@ Q_SIGNALS:
 
 private:
     void askPassphrase();
+    void askDevice();
     void createWallet();
     void finish();
 
     SecureString m_passphrase;
+    QString m_fingerprint;
     CreateWalletDialog* m_create_wallet_dialog{nullptr};
     AskPassphraseDialog* m_passphrase_dialog{nullptr};
 };
