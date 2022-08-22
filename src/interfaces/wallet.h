@@ -829,6 +829,7 @@ struct SignDelegation
 // Wallet nft information.
 struct NftInfo
 {
+    std::string contract_address;
     std::string owner;
     uint256 id;
     uint256 NFTId;
@@ -839,11 +840,13 @@ struct NftInfo
     int32_t count = 0;
     uint256 hash;
     std::string thumbnail;
+    bool show_thumbnail = true;
 };
 
 // Wallet nft transaction
 struct NftTx
 {
+    std::string contract_address;
     std::string sender;
     std::string receiver;
     uint256 id;

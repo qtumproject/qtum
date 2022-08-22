@@ -214,6 +214,7 @@ ContractBookData MakeContractBook(const std::string& id, const CContractBookData
 CNftInfo MakeNftInfo(const NftInfo& nft)
 {
     CNftInfo result;
+    result.strContractAddress = nft.contract_address;
     result.strOwner = nft.owner;
     result.id = nft.id;
     result.NFTId = nft.NFTId;
@@ -223,6 +224,7 @@ CNftInfo MakeNftInfo(const NftInfo& nft)
     result.nCreateTime = nft.create_time;
     result.nCount = nft.count;
     result.strThumbnail = nft.thumbnail;
+    result.showThumbnail = nft.show_thumbnail;
     return result;
 }
 
@@ -230,6 +232,7 @@ CNftInfo MakeNftInfo(const NftInfo& nft)
 NftInfo MakeWalletNftInfo(const CNftInfo& nft)
 {
     NftInfo result;
+    result.contract_address = nft.strContractAddress;
     result.owner = nft.strOwner;
     result.id = nft.id;
     result.NFTId = nft.NFTId;
@@ -240,6 +243,7 @@ NftInfo MakeWalletNftInfo(const CNftInfo& nft)
     result.count = nft.nCount;
     result.hash = nft.GetHash();
     result.thumbnail = nft.strThumbnail;
+    result.show_thumbnail = nft.showThumbnail;
     return result;
 }
 
@@ -247,6 +251,7 @@ NftInfo MakeWalletNftInfo(const CNftInfo& nft)
 CNftTx MakeNftTx(const NftTx& nftTx)
 {
     CNftTx result;
+    result.strContractAddress = nftTx.contract_address;
     result.strSender = nftTx.sender;
     result.strReceiver = nftTx.receiver;
     result.id = nftTx.id;
@@ -262,6 +267,7 @@ CNftTx MakeNftTx(const NftTx& nftTx)
 NftTx MakeWalletNftTx(const CNftTx& nftTx)
 {
     NftTx result;
+    result.contract_address = nftTx.strContractAddress;
     result.sender = nftTx.strSender;
     result.receiver = nftTx.strReceiver;
     result.id = nftTx.id;

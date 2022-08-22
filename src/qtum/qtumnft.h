@@ -78,6 +78,7 @@ public:
     void setQtumNftExec(QtumNftExec* nftExec);
 
     // Set command data
+    void setAddress(const std::string &address);
     void setDataHex(const std::string &datahex);
     void setAmount(const std::string &amount);
     void setGasLimit(const std::string &gaslimit);
@@ -125,9 +126,6 @@ public:
     static const char* paramBroadcast();
     static const char* paramChangeToSender();
     static const char* paramPsbt();
-
-protected:
-    void setAddress(const std::string &address);
 
 private:
     bool exec(const std::vector<std::string>& input, int func, std::vector<std::string>& output, bool sendTo);

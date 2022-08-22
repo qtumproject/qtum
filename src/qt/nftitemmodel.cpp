@@ -135,6 +135,7 @@ private Q_SLOTS:
             {
                 NftEvent event = nftEvents[i];
                 interfaces::NftTx nftTx;
+                nftTx.contract_address = event.address;
                 nftTx.sender = event.sender;
                 nftTx.receiver = event.receiver;
                 nftTx.id = event.id;

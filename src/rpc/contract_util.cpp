@@ -689,6 +689,7 @@ bool CallNft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const
 
             // Create new event
             NftEvent nftEvent;
+            nftEvent.address = eventMap["contractAddress"].get_str();
             nftEvent.blockHash = uint256S(eventMap["blockHash"].get_str());
             nftEvent.blockNumber = eventMap["blockNumber"].get_int64();
             nftEvent.transactionHash = uint256S(eventMap["transactionHash"].get_str());

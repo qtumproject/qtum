@@ -1442,6 +1442,7 @@ class CNftInfo
 public:
     static const int CURRENT_VERSION=1;
     int nVersion;
+    std::string strContractAddress;
     std::string strOwner;
     uint256 id;
     uint256 NFTId;
@@ -1451,6 +1452,7 @@ public:
     int64_t nCreateTime;
     int32_t nCount;
     std::string strThumbnail;
+    bool showThumbnail;
 
     CNftInfo()
     {
@@ -1460,9 +1462,9 @@ public:
     SERIALIZE_METHODS(CNftInfo, obj) {
         if (!(s.GetType() & SER_GETHASH))
         {
-            READWRITE(obj.nVersion, obj.nCreateTime, obj.nCount, obj.strThumbnail);
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.nCount, obj.strThumbnail, obj.showThumbnail);
         }
-        READWRITE(obj.strOwner, obj.id, obj.NFTId, obj.strName, obj.strUrl, obj.strDesc);
+        READWRITE(obj.strContractAddress, obj.strOwner, obj.id, obj.NFTId, obj.strName, obj.strUrl, obj.strDesc);
     }
 
     void SetNull()
@@ -1477,6 +1479,7 @@ public:
         nCreateTime = 0;
         nCount = 0;
         strThumbnail = "";
+        showThumbnail = true;
     }
 
     uint256 GetHash() const;
@@ -1487,6 +1490,7 @@ class CNftTx
 public:
     static const int CURRENT_VERSION=1;
     int nVersion;
+    std::string strContractAddress;
     std::string strSender;
     std::string strReceiver;
     uint256 id;
@@ -1508,7 +1512,7 @@ public:
         {
             READWRITE(obj.nVersion, obj.nCreateTime, obj.blockHash, obj.blockNumber);
         }
-        READWRITE(obj.strSender, obj.strReceiver, obj.id, obj.nValue, obj.transactionHash);
+        READWRITE(obj.strContractAddress, obj.strSender, obj.strReceiver, obj.id, obj.nValue, obj.transactionHash);
     }
 
     void SetNull()

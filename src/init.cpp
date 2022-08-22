@@ -564,7 +564,7 @@ void SetupServerArgs(ArgsManager& argsman)
     argsman.AddArg("-muirglacierheight=<n>", "Use given block height to check contracts with EVM Muir Glacier (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-londonheight=<n>", "Use given block height to check contracts with EVM London (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-taprootheight=<n>", "Use given block height to check taproot (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
-    argsman.AddArg("-nftaddress=<adr>", "Use given contract nft address for non-fungible token (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-nftaddress=<adr>", "Use given NFT contract address for default contract address of non-fungible token", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions(argsman);
 
@@ -1279,11 +1279,6 @@ bool AppInitParameterInteraction(const ArgsManager& args)
     }
 
     if (args.IsArgSet("-nftaddress")) {
-        // Allow overriding nft address for testing
-        if (!chainparams.MineBlocksOnDemand()) {
-            return InitError(Untranslated("nft address may only be overridden on regtest."));
-        }
-
         std::string nftAddress = args.GetArg("-nftaddress", std::string());
         if(IsHex(nftAddress))
         {
