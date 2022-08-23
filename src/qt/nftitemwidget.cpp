@@ -27,8 +27,9 @@ NftItemWidget::NftItemWidget(const PlatformStyle *platformStyle, QWidget *parent
     else
     {
         ui->buttonSend->setIcon(m_platfromStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
-        ui->toolShow->setIcon(platformStyle->MultiStatesIcon(":/icons/show", ":/icons/hide"));
+        ui->toolShow->setIcon(platformStyle->MultiStatesIcon(":/icons/hide", ":/icons/show"));
         ui->toolShow->setCheckable(true);
+        ui->toolShow->setChecked(true);
     }
 }
 
@@ -37,7 +38,7 @@ NftItemWidget::~NftItemWidget()
     delete ui;
 }
 
-void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, const QString &nftOwner, const QString& nftDesc, const QString& nftUrl, const QString& thumbnail)
+void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, const QString &nftOwner, const QString& nftDesc, const QString& nftUrl, const QString& thumbnail, bool showThumbnail)
 {
     QString textName;
     QString tooltipName;
@@ -70,6 +71,9 @@ void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, c
     if(thumbnail != ui->nftUrl->getThumbnail())
         ui->nftUrl->setThumbnail(thumbnail);
 
+    if(showThumbnail != ui->nftUrl->getShowThumbnail())
+        ui->nftUrl->setShowThumbnail(showThumbnail);
+    ui->toolShow->setChecked(showThumbnail);
 }
 
 void NftItemWidget::setPosition(int position)
@@ -85,6 +89,13 @@ void NftItemWidget::on_buttonCreate_clicked()
 void NftItemWidget::on_buttonSend_clicked()
 {
     Q_EMIT clicked(m_position, Buttons::Send);
+}
+
+void NftItemWidget::on_toolShow_clicked()
+{
+    Q_EMIT clicked(m_position, Buttons::ShowThumbnail);
+    bool showThumbnail = ui->toolShow->isChecked();
+    ui->nftUrl->setShowThumbnail(showThumbnail);
 }
 
 int NftItemWidget::position() const

@@ -43,6 +43,7 @@ public Q_SLOTS:
     void on_rowsInserted(QModelIndex index, int first, int last);
     void on_sendNft(const QModelIndex& index);
     void on_createNft();
+    void on_showThumbnailNft(const QModelIndex& index);
     void contextualMenu(const QPoint &);
     void copyBalance();
     void copyName();

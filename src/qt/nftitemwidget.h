@@ -22,13 +22,14 @@ public:
 
     enum Buttons{
         Create = 0,
-        Send = 1
+        Send = 1,
+        ShowThumbnail = 2
     };
 
     explicit NftItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~NftItemWidget();
 
-    void setData(const QString& nftName, const QString& nftBalance, const QString& nftOwner, const QString& nftDesc, const QString& nftUrl, const QString& thumbnail);
+    void setData(const QString& nftName, const QString& nftBalance, const QString& nftOwner, const QString& nftDesc, const QString& nftUrl, const QString& thumbnail, bool showThumbnail);
 
     void setPosition(int position);
 
@@ -41,6 +42,8 @@ private Q_SLOTS:
     void on_buttonCreate_clicked();
 
     void on_buttonSend_clicked();
+
+    void on_toolShow_clicked();
 
 private:
     void updateLogo();

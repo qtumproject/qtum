@@ -497,6 +497,9 @@ public:
     //! Try to get updated name for a particular nft, if possible without blocking.
     virtual bool tryGetNftName(const uint256& id, std::string& name) = 0;
 
+    //! Update nft entry data
+    virtual bool updateNftEntryData(NftInfo &nft) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;

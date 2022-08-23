@@ -35,6 +35,7 @@ public:
         id = nftInfo.id;
         NFTId = nftInfo.NFTId;
         thumbnail = QString::fromStdString(nftInfo.thumbnail);
+        showThumbnail = nftInfo.show_thumbnail;
     }
 
     NftItemEntry( const NftItemEntry &obj)
@@ -49,6 +50,7 @@ public:
         id = obj.id;
         NFTId = obj.NFTId;
         thumbnail = obj.thumbnail;
+        showThumbnail = obj.showThumbnail;
     }
 
     ~NftItemEntry()
@@ -60,10 +62,11 @@ public:
     QString owner;
     QString url;
     QString desc;
-    int32_t balance;
+    int32_t balance = 0;
     uint256 id;
     uint256 NFTId;
     QString thumbnail;
+    bool showThumbnail = true;
 };
 
 class NftTxWorker : public QObject
@@ -181,6 +184,7 @@ private Q_SLOTS:
 
             if(!isOk) continue;
             nft.count = count;
+            walletModel->wallet().updateNftEntryData(nft);
             walletModel->wallet().addNftEntry(nft);
         }
     }
@@ -437,6 +441,9 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         break;
     case NftItemModel::ThumbnailRole:
         return rec->thumbnail;
+        break;
+    case NftItemModel::ShowThumbnailRole:
+        return rec->showThumbnail;
         break;
     default:
         break;

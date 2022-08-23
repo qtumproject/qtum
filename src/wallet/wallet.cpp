@@ -4485,6 +4485,7 @@ std::vector<CNftInfo> CWallet::GetRawNftFromTx() const
             CNftInfo info;
             info.id = wtx.id;
             info.strOwner = wtx.strReceiver;
+            info.strContractAddress = wtx.strContractAddress;
             nftList.push_back(info);
         }
     }

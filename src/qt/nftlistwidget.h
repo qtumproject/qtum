@@ -33,6 +33,7 @@ Q_SIGNALS:
     void sendNft(const QModelIndex& index);
     void createNft();
     void clicked(const QModelIndex& index);
+    void showThumbnailNft(const QModelIndex& index);
 
 public Q_SLOTS:
     void on_rowsInserted(const QModelIndex& parent, int start, int end);

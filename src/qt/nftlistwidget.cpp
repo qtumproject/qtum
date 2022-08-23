@@ -132,9 +132,10 @@ void NftListWidget::updateRow(const QModelIndex &index, int position)
         QString desc = m_nftModel->data(index, NftItemModel::DescRole).toString();
         QString url = m_nftModel->data(index, NftItemModel::UrlRole).toString();
         QString thumbnail = m_nftModel->data(index, NftItemModel::ThumbnailRole).toString();
+        bool showThumbnail = m_nftModel->data(index, NftItemModel::ShowThumbnailRole).toBool();
         NftItemWidget* item = m_rows[position];
         item->setPosition(position);
-        item->setData(name, balance, owner, desc, url, thumbnail);
+        item->setData(name, balance, owner, desc, url, thumbnail, showThumbnail);
 
     }
 }
@@ -168,6 +169,10 @@ void NftListWidget::on_clicked(int position, int button)
     else if(button == NftItemWidget::Send)
     {
         Q_EMIT sendNft(index);
+    }
+    else if(button == NftItemWidget::ShowThumbnail)
+    {
+        Q_EMIT showThumbnailNft(index);
     }
 }
 

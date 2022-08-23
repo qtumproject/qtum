@@ -51,6 +51,7 @@ NftPage::NftPage(const PlatformStyle *platformStyle, QWidget *parent) :
     ui->scrollArea->setWidgetResizable(true);
     connect(m_nftList, &NftListWidget::sendNft, this, &NftPage::on_sendNft);
     connect(m_nftList, &NftListWidget::createNft, this, &NftPage::on_createNft);
+    connect(m_nftList, &NftListWidget::showThumbnailNft, this, &NftPage::on_showThumbnailNft);
 
     contextMenu = new QMenu(m_nftList);
     contextMenu->addAction(copyOwnerAction);
@@ -260,4 +261,20 @@ bool NftPage::checkLogEvents()
         QMessageBox::information(this, tr("Log events"), tr("Enable log events from the option menu in order to receive NFT transactions."));
     }
     return fLogEvents;
+}
+
+void NftPage::on_showThumbnailNft(const QModelIndex &index)
+{
+    if(m_nftList->nftModel() && index.isValid() && m_model)
+    {
+        QString hash = m_nftList->nftModel()->data(index, NftItemModel::HashRole).toString();
+        uint256 updated;
+        updated.SetHex(hash.toStdString());
+        interfaces::NftInfo nft = m_model->wallet().getNft(updated);
+        if(nft.hash == updated)
+        {
+            nft.show_thumbnail = !nft.show_thumbnail;
+            m_model->wallet().addNftEntry(nft);
+        }
+    }
 }

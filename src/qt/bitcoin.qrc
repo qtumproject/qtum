@@ -75,6 +75,8 @@
         <file alias="ledger_on">res/icons/ledger_on.png</file>
         <file alias="ledger_off">res/icons/ledger_off.png</file>
         <file alias="hide">res/icons/hide.png</file>
+        <file alias="play">res/icons/play.png</file>
+        <file alias="hidden">res/icons/hidden.png</file>
     </qresource>
     <qresource prefix="/animation">
         <file alias="spinner-000">res/animation/spinner-000.png</file>
