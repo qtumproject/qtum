@@ -429,3 +429,29 @@ QIcon PlatformStyle::MenuColorIconV2(const QString &filename) const
     icon.addPixmap(pix2, QIcon::Disabled, QIcon::On);
     return icon;
 }
+
+QIcon PlatformStyle::MultiStatesIcon(const QString &resource1name, const QString &resource2name) const
+{
+    QIcon icon;
+    QColor color = multiStatesIconColor1;
+    QImage img1(resource1name);
+    QImage img2(resource2name);
+    QPixmap pix1 = MakeSingleColorPixmap(img1, color, 1);
+    QPixmap pix2 = MakeSingleColorPixmap(img2, color, 1);
+    icon.addPixmap(pix1, QIcon::Normal, QIcon::On);
+    icon.addPixmap(pix2, QIcon::Normal, QIcon::Off);
+    if(version > 1)
+    {
+        QColor colorAlt = multiStatesIconColor3;
+        QPixmap pix3 = MakeSingleColorPixmap(img1, colorAlt, 1);
+        QPixmap pix4 = MakeSingleColorPixmap(img2, colorAlt, 1);
+        icon.addPixmap(pix3, QIcon::Selected, QIcon::On);
+        icon.addPixmap(pix4, QIcon::Selected, QIcon::Off);
+    }
+    else
+    {
+        icon.addPixmap(pix1, QIcon::Selected, QIcon::On);
+        icon.addPixmap(pix2, QIcon::Selected, QIcon::Off);
+    }
+    return icon;
+}

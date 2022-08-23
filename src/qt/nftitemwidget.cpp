@@ -19,11 +19,16 @@ NftItemWidget::NftItemWidget(const PlatformStyle *platformStyle, QWidget *parent
 {
     ui->setupUi(this);
     ui->stackedWidget->setCurrentIndex(type);
-    ui->buttonSend->setIcon(m_platfromStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
-    ui->buttonCreate->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
     if(m_type == New)
     {
+        ui->buttonCreate->setIcon(platformStyle->MultiStatesIcon(":/icons/plus_full", PlatformStyle::PushButtonIcon));
         updateLogo();
+    }
+    else
+    {
+        ui->buttonSend->setIcon(m_platfromStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
+        ui->toolShow->setIcon(platformStyle->MultiStatesIcon(":/icons/show", ":/icons/hide"));
+        ui->toolShow->setCheckable(true);
     }
 }
 

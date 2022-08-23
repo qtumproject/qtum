@@ -30,9 +30,17 @@ void QtumPushButton::updateIcon(QStyleOptionButton &pushbutton)
         if(!m_iconCached)
         {
             QIcon icon = pushbutton.icon;
-            QPixmap pixmap = icon.pixmap(pushbutton.iconSize, QIcon::Selected, QIcon::On);
-            m_downIcon = QIcon(pixmap);
-            m_iconCached = true;
+            if(isCheckable())
+            {
+                QPixmap pixmap = icon.pixmap(pushbutton.iconSize, QIcon::Selected, isChecked() ? QIcon::On : QIcon::Off);
+                m_downIcon = QIcon(pixmap);
+            }
+            else
+            {
+                QPixmap pixmap = icon.pixmap(pushbutton.iconSize, QIcon::Selected, QIcon::On);
+                m_downIcon = QIcon(pixmap);
+                m_iconCached = true;
+            }
         }
         if(!m_downIcon.isNull())
             pushbutton.icon = m_downIcon;

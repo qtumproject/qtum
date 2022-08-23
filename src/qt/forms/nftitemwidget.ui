@@ -66,7 +66,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -90,11 +90,8 @@
               <height>70</height>
              </size>
             </property>
-            <property name="text">
+            <property name="text" stdset="0">
              <string/>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
@@ -172,6 +169,13 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QtumPushButton" name="toolShow">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QtumPushButton" name="buttonSend">
