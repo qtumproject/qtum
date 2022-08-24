@@ -1111,7 +1111,7 @@ public:
     bool CleanTokenTxEntries(bool fFlushOnClose=true);
 
     /* Add nft entry into the wallet */
-    bool AddNftEntry(const CNftInfo& nft, bool fFlushOnClose=true);
+    bool AddNftEntry(const CNftInfo& nft, bool fFlushOnClose=true, bool fCopyUserData = false);
 
     /* Remove nft entry from the wallet */
     bool RemoveNftEntry(const uint256& nftHash, bool fFlushOnClose=true);

@@ -3799,7 +3799,7 @@ bool CWallet::AddTokenTxEntry(const CTokenTx &tokenTx, bool fFlushOnClose)
     return true;
 }
 
-bool CWallet::AddNftEntry(const CNftInfo &nft, bool fFlushOnClose)
+bool CWallet::AddNftEntry(const CNftInfo &nft, bool fFlushOnClose, bool fCopyUserData)
 {
     LOCK(cs_wallet);
 
@@ -3823,6 +3823,15 @@ bool CWallet::AddNftEntry(const CNftInfo &nft, bool fFlushOnClose)
     }
     else
     {
+        // Copy the user specific data from an existing nft
+        if(fCopyUserData)
+        {
+            wnft.nCreateTime = it->second.nCreateTime;
+            wnft.strThumbnail = it->second.strThumbnail;
+            wnft.showThumbnail = it->second.showThumbnail;
+        }
+
+        // Update nft data
         if(!wnft.nCreateTime)
         {
             wnft.nCreateTime = it->second.nCreateTime;

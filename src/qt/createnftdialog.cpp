@@ -52,6 +52,7 @@ CreateNftDialog::CreateNftDialog(QWidget *parent) :
     connect(ui->lineEditNftName, &QLineEdit::textChanged, this, &CreateNftDialog::on_updateConfirmButton);
     connect(ui->lineEditNftDesc, &QLineEdit::textChanged, this, &CreateNftDialog::on_updateConfirmButton);
     connect(ui->lineEditSenderAddress, &QComboBox::currentTextChanged, this, &CreateNftDialog::on_updateConfirmButton);
+    connect(ui->lineEditContractAddress, &QValidatedLineEdit::textChanged, this, &CreateNftDialog::on_updateConfirmButton);
 
     ui->lineEditSenderAddress->setAddressColumn(AddressTableModel::Address);
     ui->lineEditSenderAddress->setTypeRole(AddressTableModel::TypeRole);
@@ -64,6 +65,8 @@ CreateNftDialog::CreateNftDialog(QWidget *parent) :
     ui->lineEditGasPrice->setSingleStep(SINGLE_STEP);
     ui->lineEditGasLimit->setMaximum(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
+    m_contractAddress = QString::fromStdString(m_nftABI->getAddress());
+    ui->lineEditContractAddress->setText(m_contractAddress);
 
     // Set uri validator
     QRegularExpression regEx;
@@ -71,6 +74,12 @@ CreateNftDialog::CreateNftDialog(QWidget *parent) :
     QRegularExpressionValidator *uriValidator = new QRegularExpressionValidator(ui->lineEditNftUri);
     uriValidator->setRegularExpression(regEx);
     ui->lineEditNftUri->setCheckValidator(uriValidator);
+
+    // Set contract address validator
+    regEx.setPattern(paternAddress);
+    QRegularExpressionValidator *addressValidatr = new QRegularExpressionValidator(ui->lineEditContractAddress);
+    addressValidatr->setRegularExpression(regEx);
+    ui->lineEditContractAddress->setCheckValidator(addressValidatr);
 }
 
 CreateNftDialog::~CreateNftDialog()
@@ -101,6 +110,7 @@ void CreateNftDialog::clearAll()
     ui->lineEditSenderAddress->setCurrentIndex(-1);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
+    ui->lineEditContractAddress->setText(m_contractAddress);
 }
 
 void CreateNftDialog::setModel(WalletModel *_model)
@@ -163,10 +173,12 @@ void CreateNftDialog::on_confirmButton_clicked()
         std::string desc = ui->lineEditNftDesc->text().trimmed().toStdString();
         int32_t count = ui->spinBoxNftAmount->value();
         QString countFormated = QString::number(count);
+        std::string contractAddress = ui->lineEditContractAddress->text().trimmed().toStdString();
 
         m_nftABI->setSender(owner);
         m_nftABI->setGasLimit(QString::number(gasLimit).toStdString());
         m_nftABI->setGasPrice(BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::SeparatorStyle::NEVER).toStdString());
+        m_nftABI->setAddress(contractAddress);
 
         QString questionString;
         if (bCreateUnsigned) {
@@ -221,6 +233,7 @@ void CreateNftDialog::on_confirmButton_clicked()
                         nftTx.value = count;
                         nftTx.id = uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
                         nftTx.tx_hash = uint256S(m_nftABI->getTxId());
+                        nftTx.contract_address = contractAddress;
                         m_model->wallet().addNftTxEntry(nftTx);
                     }
                 }
@@ -252,22 +265,28 @@ void CreateNftDialog::on_updateConfirmButton()
     bool enabled = true;
     QString sUrl = ui->lineEditNftUri->text().trimmed();
     QUrl url(sUrl);
+    ui->lineEditContractAddress->checkValidity();
     if(!url.isValid() || !NftConfig::Instance().IsUrlValid(sUrl.toStdString()))
     {
         enabled = false;
     }
-    if(ui->lineEditNftName->text().trimmed().isEmpty())
+    else if(ui->lineEditNftName->text().trimmed().isEmpty())
     {
         enabled = false;
     }
-    if(ui->lineEditNftDesc->text().trimmed().isEmpty())
+    else if(ui->lineEditNftDesc->text().trimmed().isEmpty())
     {
         enabled = false;
     }
-    if(!ui->lineEditSenderAddress->isValidAddress())
+    else if(!ui->lineEditSenderAddress->isValidAddress())
     {
         enabled = false;
     }
+    else if(!ui->lineEditContractAddress->isValid())
+    {
+        enabled = false;
+    }
+
     ui->confirmButton->setEnabled(enabled);
 }
 

@@ -1537,11 +1537,11 @@ public:
         LOCK(m_wallet->cs_wallet);
         return m_wallet->m_ledger_id;
     }
-    bool addNftEntry(const NftInfo &nft) override
+    bool addNftEntry(const NftInfo &nft, bool fCopyUserData) override
     {
         CNftInfo info = MakeNftInfo(nft);
         return m_wallet->IsNftMine(info) &&
-                m_wallet->AddNftEntry(info, true);
+                m_wallet->AddNftEntry(info, true, fCopyUserData);
     }
     bool existNftEntry(const NftInfo &nft) override
     {
@@ -1666,22 +1666,6 @@ public:
             }
         }
         return name != "";
-    }
-    bool updateNftEntryData(NftInfo &nft) override
-    {
-        LOCK(m_wallet->cs_wallet);
-
-        uint256 hash = MakeNftInfo(nft).GetHash();
-        std::map<uint256, CNftInfo>::iterator it = m_wallet->mapNft.find(hash);
-
-        bool ret = it != m_wallet->mapNft.end();
-        if(ret)
-        {
-            nft.create_time = it->second.nCreateTime;
-            nft.thumbnail = it->second.strThumbnail;
-            nft.show_thumbnail = it->second.showThumbnail;
-        }
-        return ret;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {

@@ -7937,6 +7937,7 @@ static RPCHelpMan nftlist()
     {
         NftEvent event = nftEvents[i];
         CNftTx nftTx;
+        nftTx.strContractAddress = event.address;
         nftTx.strSender = event.sender;
         nftTx.strReceiver = event.receiver;
         nftTx.id = event.id;
@@ -7960,6 +7961,7 @@ static RPCHelpMan nftlist()
         WalletNFTInfo info;
         auto search = listNftInfo.find(nft.id);
         nftAbi.setSender(nft.strOwner);
+        nftAbi.setAddress(nft.strContractAddress);
         if(search != listNftInfo.end())
         {
             info = search->second;
@@ -7984,7 +7986,7 @@ static RPCHelpMan nftlist()
 
         if(!isOk) continue;
         nft.nCount = count;
-        pwallet->AddNftEntry(nft);
+        pwallet->AddNftEntry(nft, true, true);
     }
 
     // Get wallet nft list

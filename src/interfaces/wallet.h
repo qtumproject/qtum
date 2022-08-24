@@ -447,7 +447,7 @@ public:
     virtual std::string getStakerLedgerId() = 0;
 
     //! Add wallet nft entry.
-    virtual bool addNftEntry(const NftInfo &nft) = 0;
+    virtual bool addNftEntry(const NftInfo &nft, bool fCopyUserData = false) = 0;
 
     //! Check if exist wallet nft entry.
     virtual bool existNftEntry(const NftInfo &nft) = 0;
@@ -496,9 +496,6 @@ public:
 
     //! Try to get updated name for a particular nft, if possible without blocking.
     virtual bool tryGetNftName(const uint256& id, std::string& name) = 0;
-
-    //! Update nft entry data
-    virtual bool updateNftEntryData(NftInfo &nft) = 0;
 
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;

@@ -128,6 +128,8 @@ QString NftTransactionDesc::toHTML(interfaces::Wallet &wallet, interfaces::NftTx
 
     strHTML += NftTransactionFormater::ItemNameColor(tr("Transaction ID")) + NftTransactionFormater::TxIdLink(rec->getTxID()) + "<br>";
 
+    strHTML += NftTransactionFormater::ItemNameColor(tr("Token Address")) + QString::fromStdString(wtx.contract_address) + "<br>";
+
     strHTML += NftTransactionFormater::ItemNameColor(tr("From")) + QString::fromStdString(wtx.sender) + "<br>";
 
     strHTML += NftTransactionFormater::ItemNameColor(tr("To")) + QString::fromStdString(wtx.receiver) + "<br>";

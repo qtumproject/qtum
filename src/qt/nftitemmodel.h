@@ -37,6 +37,7 @@ public:
         NftIdRole = Qt::UserRole + 8,
         ThumbnailRole = Qt::UserRole + 9,
         ShowThumbnailRole = Qt::UserRole + 10,
+        AddressRole = Qt::UserRole + 11,
     };
 
     NftItemModel(WalletModel *parent = 0);

@@ -36,6 +36,7 @@ public:
         NFTId = nftInfo.NFTId;
         thumbnail = QString::fromStdString(nftInfo.thumbnail);
         showThumbnail = nftInfo.show_thumbnail;
+        contractAddress = QString::fromStdString(nftInfo.contract_address);
     }
 
     NftItemEntry( const NftItemEntry &obj)
@@ -51,6 +52,7 @@ public:
         NFTId = obj.NFTId;
         thumbnail = obj.thumbnail;
         showThumbnail = obj.showThumbnail;
+        contractAddress = obj.contractAddress;
     }
 
     ~NftItemEntry()
@@ -67,6 +69,7 @@ public:
     uint256 NFTId;
     QString thumbnail;
     bool showThumbnail = true;
+    QString contractAddress;
 };
 
 class NftTxWorker : public QObject
@@ -160,6 +163,7 @@ private Q_SLOTS:
             WalletNFTInfo info;
             auto search = listNftInfo.find(nft.id);
             nftAbi.setSender(nft.owner);
+            nftAbi.setAddress(nft.contract_address);
             if(search != listNftInfo.end())
             {
                 info = search->second;
@@ -184,8 +188,7 @@ private Q_SLOTS:
 
             if(!isOk) continue;
             nft.count = count;
-            walletModel->wallet().updateNftEntryData(nft);
-            walletModel->wallet().addNftEntry(nft);
+            walletModel->wallet().addNftEntry(nft, true);
         }
     }
 
@@ -444,6 +447,9 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         break;
     case NftItemModel::ShowThumbnailRole:
         return rec->showThumbnail;
+        break;
+    case NftItemModel::AddressRole:
+        return rec->contractAddress;
         break;
     default:
         break;

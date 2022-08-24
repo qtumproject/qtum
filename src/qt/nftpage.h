@@ -51,6 +51,7 @@ public Q_SLOTS:
     void copyUrl();
     void copyDesc();
     void copyTokenId();
+    void copyTokenAddress();
 
 private:
     bool checkLogEvents();

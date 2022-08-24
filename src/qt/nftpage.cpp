@@ -43,6 +43,7 @@ NftPage::NftPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QAction *copyUrlAction = new QAction(tr("Copy NFT URL"), this);
     QAction *copyDescAction = new QAction(tr("Copy NFT description"), this);
     QAction *copyTokenIdAction = new QAction(tr("Copy token ID"), this);
+    QAction *copyTokenAddressAction = new QAction(tr("Copy contract address"), this);
 
     m_nftList = new NftListWidget(platformStyle, this);
     m_nftList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -60,6 +61,7 @@ NftPage::NftPage(const PlatformStyle *platformStyle, QWidget *parent) :
     contextMenu->addAction(copyUrlAction);
     contextMenu->addAction(copyDescAction);
     contextMenu->addAction(copyTokenIdAction);
+    contextMenu->addAction(copyTokenAddressAction);
 
     connect(copyBalanceAction, &QAction::triggered, this, &NftPage::copyBalance);
     connect(copyNameAction, &QAction::triggered, this, &NftPage::copyName);
@@ -67,6 +69,7 @@ NftPage::NftPage(const PlatformStyle *platformStyle, QWidget *parent) :
     connect(copyUrlAction, &QAction::triggered, this, &NftPage::copyUrl);
     connect(copyDescAction, &QAction::triggered, this, &NftPage::copyDesc);
     connect(copyTokenIdAction, &QAction::triggered, this, &NftPage::copyTokenId);
+    connect(copyTokenAddressAction, &QAction::triggered, this, &NftPage::copyTokenAddress);
 
     connect(m_nftList, &NftListWidget::customContextMenuRequested, this, &NftPage::contextualMenu);
 
@@ -128,10 +131,11 @@ void NftPage::on_currentNftChanged(QModelIndex index)
         if(index.isValid())
         {
             m_selectedNftHash = m_nftList->nftModel()->data(index, NftItemModel::HashRole).toString();
+            std::string address = m_nftList->nftModel()->data(index, NftItemModel::AddressRole).toString().toStdString();
             std::string owner = m_nftList->nftModel()->data(index, NftItemModel::OwnerRole).toString().toStdString();
             std::string id = m_nftList->nftModel()->data(index, NftItemModel::IdRole).toString().toStdString();
             std::string balance = m_nftList->nftModel()->data(index, NftItemModel::BalanceRole).toString().toStdString();
-            m_sendNftDialog->setNftData(owner, id, balance);
+            m_sendNftDialog->setNftData(address, owner, id, balance);
 
             if(!m_sendNftDialog->isEnabled())
                 m_sendNftDialog->setEnabled(true);
@@ -239,6 +243,15 @@ void NftPage::copyTokenId()
     if(indexMenu.isValid())
     {
         GUIUtil::setClipboard(indexMenu.data(NftItemModel::IdRole).toString());
+        indexMenu = QModelIndex();
+    }
+}
+
+void NftPage::copyTokenAddress()
+{
+    if(indexMenu.isValid())
+    {
+        GUIUtil::setClipboard(indexMenu.data(NftItemModel::AddressRole).toString());
         indexMenu = QModelIndex();
     }
 }

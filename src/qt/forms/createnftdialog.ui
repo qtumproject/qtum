@@ -71,7 +71,7 @@
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="labelNftSymbol">
+      <widget class="QLabel" name="labelNftDescription">
        <property name="minimumSize">
         <size>
          <width>120</width>
@@ -84,7 +84,7 @@
       </widget>
      </item>
      <item row="3" column="0">
-      <widget class="QLabel" name="labelDecimals">
+      <widget class="QLabel" name="labelCopies">
        <property name="minimumSize">
         <size>
          <width>120</width>
@@ -107,7 +107,7 @@
       </widget>
      </item>
      <item row="0" column="0">
-      <widget class="QLabel" name="labelContractAddress">
+      <widget class="QLabel" name="labelNftUrl">
        <property name="minimumSize">
         <size>
          <width>120</width>
@@ -221,6 +221,16 @@
         <number>10</number>
        </property>
       </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="labelContractAddress">
+       <property name="text">
+        <string>Contract Address</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QValidatedLineEdit" name="lineEditContractAddress"/>
      </item>
     </layout>
    </item>
