@@ -90,6 +90,7 @@ public:
     std::string getTxId();
     std::string getPsbt();
     std::string getErrorMessage();
+    std::string getAddress();
 
     // Set transaction data
     void setTxId(const std::string& txid);

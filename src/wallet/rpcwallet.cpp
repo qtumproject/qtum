@@ -7481,6 +7481,7 @@ static RPCHelpMan nftcreate()
                     {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
                     {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The nft contract address that contain the nfts."},
                  },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -7492,8 +7493,10 @@ static RPCHelpMan nftcreate()
                 RPCExamples{
                     HelpExampleCli("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5")
             + HelpExampleCli("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleCli("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
             + HelpExampleRpc("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5")
             + HelpExampleRpc("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
                 },
             [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
 {
@@ -7551,6 +7554,12 @@ static RPCHelpMan nftcreate()
     nft.setGasLimit(i64tostr(nGasLimit));
     nft.setGasPrice(FormatMoney(nGasPrice));
 
+    // Get nft contract address
+    if (!request.params[8].isNull()){
+        std::string contractaddress = request.params[8].get_str();
+        nft.setAddress(contractaddress);
+    }
+
     // Check create nft offline
     if(fCheckOutputs)
     {
@@ -7604,6 +7613,7 @@ static RPCHelpMan nftsend()
                     {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
                     {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The nft contract address that contain the nfts."},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -7615,8 +7625,11 @@ static RPCHelpMan nftsend()
                 RPCExamples{
                     HelpExampleCli("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1")
             + HelpExampleCli("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleCli("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
             + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1")
-            + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")                },
+            + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
+                },
             [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
 {
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
@@ -7662,6 +7675,12 @@ static RPCHelpMan nftsend()
     nft.setSender(owner);
     nft.setGasLimit(i64tostr(nGasLimit));
     nft.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get nft contract address
+    if (!request.params[7].isNull()){
+        std::string contractaddress = request.params[7].get_str();
+        nft.setAddress(contractaddress);
+    }
 
     // Get nft owner balance
     int32_t balance;
@@ -7729,6 +7748,7 @@ static RPCHelpMan nftsendbatch()
                     {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
                     {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The nft contract address that contain the nfts."},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -7740,8 +7760,11 @@ static RPCHelpMan nftsendbatch()
                 RPCExamples{
                     HelpExampleCli("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"{\\\"00000000000000000000000000000000000000000000000000000000000001f4\\\":1, \\\"00000000000000000000000000000000000000000000000000000000000003e8\\\":2}\"")
             + HelpExampleCli("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"{\\\"00000000000000000000000000000000000000000000000000000000000001f4\\\":1, \\\"00000000000000000000000000000000000000000000000000000000000003e8\\\":2}\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleCli("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"{\\\"00000000000000000000000000000000000000000000000000000000000001f4\\\":1, \\\"00000000000000000000000000000000000000000000000000000000000003e8\\\":2}\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
             + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2}")
-            + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2} "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")},
+            + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2} "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2} "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
+                },
             [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
 {
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
@@ -7797,6 +7820,12 @@ static RPCHelpMan nftsendbatch()
     nft.setSender(owner);
     nft.setGasLimit(i64tostr(nGasLimit));
     nft.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get nft contract address
+    if (!request.params[6].isNull()){
+        std::string contractaddress = request.params[6].get_str();
+        nft.setAddress(contractaddress);
+    }
 
     // Check ids and values
     for(size_t i = 0; i < ids.size(); i++)

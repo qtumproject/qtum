@@ -311,7 +311,14 @@ void QtumNft::clear()
 
     d->lstParams[QtumNft_NS::PARAM_BROADCAST] = "true";
     d->lstParams[QtumNft_NS::PARAM_CHANGE_TO_SENDER] = "true";
-    d->lstParams[QtumNft_NS::PARAM_ADDRESS] = NftConfig::Instance().GetNftAddress().GetReverseHex();
+    if(!NftConfig::Instance().GetNftAddress().IsNull())
+    {
+        d->lstParams[QtumNft_NS::PARAM_ADDRESS] = NftConfig::Instance().GetNftAddress().GetReverseHex();
+    }
+    else
+    {
+        d->lstParams[QtumNft_NS::PARAM_ADDRESS] = "";
+    }
 }
 
 std::string QtumNft::getTxId()
@@ -697,6 +704,11 @@ bool QtumNft::execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, in
 std::string QtumNft::getErrorMessage()
 {
     return d->errorMessage;
+}
+
+std::string QtumNft::getAddress()
+{
+    return d->lstParams[QtumNft_NS::PARAM_ADDRESS];
 }
 
 void QtumNft::setQtumNftExec(QtumNftExec *nftExec)

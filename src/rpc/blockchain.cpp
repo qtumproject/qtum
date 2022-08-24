@@ -3871,6 +3871,7 @@ static RPCHelpMan nftgetinfo()
         "\nReturns NFT info for a token ID.\n",
         {
             {"tokenid", RPCArg::Type::STR, RPCArg::Optional::NO, "The token ID."},
+            {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The nft contract address that contain the nfts."},
         },
         RPCResult{
             RPCResult::Type::OBJ, "", "",
@@ -3881,10 +3882,13 @@ static RPCHelpMan nftgetinfo()
                 {RPCResult::Type::STR, "description", "NFT description"},
                 {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
                 {RPCResult::Type::NUM, "count", "The number of copies"},
+                {RPCResult::Type::STR_HEX, "contractaddress", "The contract address"},
             }},
         RPCExamples{
             HelpExampleCli("nftgetinfo", "\"00000000000000000000000000000000000000000000000000000000000003e8\"")
+                    + HelpExampleCli("nftgetinfo", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
                     + HelpExampleRpc("nftgetinfo", "\"00000000000000000000000000000000000000000000000000000000000003e8\"")
+                    + HelpExampleRpc("nftgetinfo", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
         },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
@@ -3895,6 +3899,12 @@ static RPCHelpMan nftgetinfo()
 
     // Parse token Id
     uint256 id = parseTokenId(tokenId);
+
+    // Get nft contract address
+    if (!request.params[1].isNull()){
+        std::string contractaddress = request.params[1].get_str();
+        nft.setAddress(contractaddress);
+    }
 
     // Get nft info
     UniValue res(UniValue::VOBJ);
@@ -3909,6 +3919,7 @@ static RPCHelpMan nftgetinfo()
     res.pushKV("description", info.desc);
     res.pushKV("blocktime", info.createAt);
     res.pushKV("count", info.count);
+    res.pushKV("contractaddress", nft.getAddress());
 
     return res;
 },
@@ -3924,6 +3935,7 @@ static RPCHelpMan nftlisttransactions()
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to get history for."},
                     {"fromblock", RPCArg::Type::NUM, RPCArg::Default{0}, "The number of the earliest block."},
                     {"minconf", RPCArg::Type::NUM, RPCArg::Default{6}, "Minimal number of confirmations."},
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The nft contract address that contain the nfts."},
                 },
                RPCResult{
             RPCResult::Type::ARR, "", "",
@@ -3938,14 +3950,17 @@ static RPCHelpMan nftlisttransactions()
                             {RPCResult::Type::NUM, "blockNumber", "The block number"},
                             {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
                             {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                            {RPCResult::Type::STR_HEX, "contractaddress", "The contract address"},
                         }
                     }}
                 },
                 RPCExamples{
                     HelpExampleCli("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
             + HelpExampleCli("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
+            + HelpExampleCli("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6 \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
             + HelpExampleRpc("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
             + HelpExampleRpc("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6")
+            + HelpExampleRpc("nftlisttransactions", "\"00000000000000000000000000000000000000000000000000000000000003e8\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 0 6 \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
@@ -3963,6 +3978,12 @@ static RPCHelpMan nftlisttransactions()
         fromBlock = request.params[2].get_int64();
     if(!request.params[3].isNull())
         minconf = request.params[3].get_int64();
+
+    // Get nft contract address
+    if (!request.params[4].isNull()){
+        std::string contractaddress = request.params[4].get_str();
+        nft.setAddress(contractaddress);
+    }
 
     // Get transaction events
     LOCK(cs_main);
@@ -3994,6 +4015,7 @@ static RPCHelpMan nftlisttransactions()
         obj.pushKV("blockNumber", event.blockNumber);
         obj.pushKV("blocktime", active_chain[event.blockNumber]->GetBlockTime());
         obj.pushKV("transactionHash", event.transactionHash.GetHex());
+        obj.pushKV("contractaddress", event.address);
         res.push_back(obj);
     }
 
