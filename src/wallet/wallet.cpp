@@ -38,6 +38,7 @@
 #include <miner.h>
 #include <node/blockstorage.h>
 #include <qtum/qtumledger.h>
+#include <qtum/nftconfig.h>
 
 #include <univalue.h>
 
@@ -3672,6 +3673,13 @@ void CWallet::postInitProcess()
     {
         CleanNftPreviewCache();
     }
+
+    // Add nft contract address
+    if(!NftConfig::Instance().GetNftAddress().IsNull())
+    {
+        std::string strContractAddress = NftConfig::Instance().GetNftAddress().GetReverseHex();
+        AddNftContractAddress(strContractAddress);
+    }
 }
 
 bool CWallet::BackupWallet(const std::string& strDest) const
@@ -3707,6 +3715,8 @@ bool CWallet::LoadNftTx(const CNftTx &nftTx)
 {
     uint256 hash = nftTx.GetHash();
     mapNftTx[hash] = nftTx;
+
+    AddNftContractAddress(nftTx.strContractAddress);
 
     return true;
 }
@@ -3892,6 +3902,8 @@ bool CWallet::AddNftTxEntry(const CNftTx &nftTx, bool fFlushOnClose)
         return false;
 
     mapNftTx[hash] = wnftTx;
+
+    AddNftContractAddress(wnftTx.strContractAddress);
 
     NotifyNftTransactionChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
 
@@ -4485,7 +4497,7 @@ std::vector<CNftInfo> CWallet::GetRawNftFromTx() const
         bool found = false;
         for(const CNftInfo& info : nftList)
         {
-            if(info.id == wtx.id && info.strOwner == wtx.strReceiver)
+            if(info.id == wtx.id && info.strOwner == wtx.strReceiver && info.strContractAddress == wtx.strContractAddress)
                 found = true;
         }
 
@@ -5675,3 +5687,23 @@ bool CWallet::GetHDKeyPath(const CTxDestination &dest, std::string &hdkeypath) c
     return false;
 }
 
+
+void CWallet::AddNftContractAddress(const std::string &contractAddress)
+{
+    AssertLockHeld(cs_wallet);
+    auto it = m_nft_contract_addresses.find(contractAddress);
+    if(it == m_nft_contract_addresses.end())
+    {
+        m_nft_contract_addresses[contractAddress] = 0;
+    }
+}
+
+void CWallet::SetNftTxFromBlock(const std::string &contractAddress, const int64_t &fromBlock)
+{
+    AssertLockHeld(cs_wallet);
+    auto it = m_nft_contract_addresses.find(contractAddress);
+    if(it != m_nft_contract_addresses.end() && it->second < fromBlock)
+    {
+        m_nft_contract_addresses[contractAddress] = 0;
+    }
+}

@@ -1650,7 +1650,7 @@ public:
         }
         return NftTxStatus(*m_wallet, txid, block_number, in_mempool, num_blocks);
     }
-    bool tryGetNftName(const uint256& id, std::string& name) override
+    bool tryGetNftName(const uint256& id, const std::string& contract_address, std::string& name) override
     {
         TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
         if (!locked_wallet) {
@@ -1659,13 +1659,23 @@ public:
         for(auto it = m_wallet->mapNft.begin(); it != m_wallet->mapNft.end(); it++)
         {
             CNftInfo info = it->second;
-            if(id == info.id)
+            if(id == info.id && contract_address == info.strContractAddress)
             {
                 name = info.strName;
                 break;
             }
         }
         return name != "";
+    }
+    void setNftTxFromBlock(const std::string& contractAddress, const int64_t& fromBlock) override
+    {
+        LOCK(m_wallet->cs_wallet);
+        m_wallet->SetNftTxFromBlock(contractAddress, fromBlock);
+    }
+    std::map<std::string, int64_t> getNftContractAddresses() override
+    {
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->m_nft_contract_addresses;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {

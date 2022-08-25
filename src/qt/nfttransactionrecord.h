@@ -83,6 +83,7 @@ public:
     qint32 credit;
     std::string name;
     uint256 id;
+    std::string contract_address;
     /**@}*/
 
     /** Return the unique identifier for this transaction (part) */

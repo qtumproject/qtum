@@ -7904,6 +7904,7 @@ static RPCHelpMan nftlist()
                     {RPCResult::Type::STR, "description", "NFT description"},
                     {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
                     {RPCResult::Type::NUM, "count", "The number of copies"},
+                    {RPCResult::Type::NUM, "contractaddress", "The contract address"},
                 }}
             },
         },
@@ -7920,45 +7921,56 @@ static RPCHelpMan nftlist()
     SendNft nftAbi(*pwallet, chainman);
 
     // Get transaction events
-    int64_t fromBlock = pwallet->m_nft_tx_from_block;
-    int64_t toBlock = -1;
-    std::vector<NftEvent> nftEvents;
+    std::map<std::string, int64_t> mapContractAddresses = pwallet->m_nft_contract_addresses;
+    for(std::map<std::string, int64_t>::iterator it = mapContractAddresses.begin(); it != mapContractAddresses.end(); it++)
     {
-        LOCK(cs_main);
-        CChain& active_chain = chainman.ActiveChain();
-        toBlock = active_chain.Height();
-        if(!nftAbi.transferEvents(nftEvents, pwallet->m_nft_tx_from_block, toBlock))
-            throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transfer events");
-    }
+        // Get transfers events
+        std::string contractAddress = it->first;
+        int64_t fromBlock = it->second;
+        int64_t toBlock = -1;
 
-    // Update wallet nft transactions
-    std::vector<CNftTx> nftTxs;
-    for(size_t i = 0; i < nftEvents.size(); i++)
-    {
-        NftEvent event = nftEvents[i];
-        CNftTx nftTx;
-        nftTx.strContractAddress = event.address;
-        nftTx.strSender = event.sender;
-        nftTx.strReceiver = event.receiver;
-        nftTx.id = event.id;
-        nftTx.nValue = event.value;
-        nftTx.transactionHash = event.transactionHash;
-        nftTx.blockHash = event.blockHash;
-        nftTx.blockNumber = event.blockNumber;
-        nftTxs.push_back(nftTx);
+        nftAbi.setAddress(contractAddress);
+        std::vector<NftEvent> nftEvents;
+        {
+            LOCK(cs_main);
+            CChain& active_chain = chainman.ActiveChain();
+            toBlock = active_chain.Height();
+            if(!nftAbi.transferEvents(nftEvents, fromBlock, toBlock))
+                throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transfer events");
+        }
+
+        // Update wallet nft transactions
+        std::vector<CNftTx> nftTxs;
+        for(size_t i = 0; i < nftEvents.size(); i++)
+        {
+            NftEvent event = nftEvents[i];
+            CNftTx nftTx;
+            nftTx.strContractAddress = event.address;
+            nftTx.strSender = event.sender;
+            nftTx.strReceiver = event.receiver;
+            nftTx.id = event.id;
+            nftTx.nValue = event.value;
+            nftTx.transactionHash = event.transactionHash;
+            nftTx.blockHash = event.blockHash;
+            nftTx.blockNumber = event.blockNumber;
+            nftTxs.push_back(nftTx);
+        }
+        if(!pwallet->AddNftTxEntries(nftTxs))
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail to update nft transactions");
+
+        // Update tx from block
+        fromBlock = toBlock - 10;
+        if(fromBlock < 0) fromBlock = 0;
+        pwallet->SetNftTxFromBlock(contractAddress, fromBlock);
     }
-    if(!pwallet->AddNftTxEntries(nftTxs))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail to update nft transactions");
-    fromBlock = toBlock - 10;
-    if(fromBlock < 0) fromBlock = 0;
-    pwallet->m_nft_tx_from_block = fromBlock;
 
     // Update wallet nft list
-    std::map<uint256, WalletNFTInfo> listNftInfo;
+    std::map<std::string, std::map<uint256, WalletNFTInfo>> contractNftInfo;
     for(CNftInfo nft : pwallet->GetRawNftFromTx())
     {
         bool isOk = true;
         WalletNFTInfo info;
+        std::map<uint256, WalletNFTInfo>& listNftInfo = contractNftInfo[nft.strContractAddress];
         auto search = listNftInfo.find(nft.id);
         nftAbi.setSender(nft.strOwner);
         nftAbi.setAddress(nft.strContractAddress);
@@ -8005,6 +8017,7 @@ static RPCHelpMan nftlist()
             obj.pushKV("description", info.strDesc);
             obj.pushKV("blocktime", info.nCreateTime);
             obj.pushKV("count", info.nCount);
+            obj.pushKV("contractaddress", info.strContractAddress);
             results.push_back(obj);
         }
     }

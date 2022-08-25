@@ -1176,6 +1176,12 @@ public:
     /* Clean coinstake transactions */
     void CleanCoinStake();
 
+    /* Add nft contract address */
+    void AddNftContractAddress(const std::string& contractAddress);
+
+    /* Set nft tx from block */
+    void SetNftTxFromBlock(const std::string& contractAddress, const int64_t& fromBlock);
+
     void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
     void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);
     void updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
@@ -1187,7 +1193,7 @@ public:
     int m_num_threads = 1;
     mutable boost::thread_group threads;
     std::string m_ledger_id;
-    int64_t m_nft_tx_from_block = 0;
+    std::map<std::string, int64_t> m_nft_contract_addresses;
 };
 
 /**
