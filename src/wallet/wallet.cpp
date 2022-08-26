@@ -4522,7 +4522,7 @@ bool CWallet::GetNftTxDetails(const CNftTx &wtx, int32_t &credit, int32_t &debit
     for(auto it = mapNft.begin(); it != mapNft.end(); it++)
     {
         CNftInfo info = it->second;
-        if(wtx.id == info.id)
+        if(wtx.id == info.id && wtx.strContractAddress == info.strContractAddress)
         {
             name = info.strName;
             break;
