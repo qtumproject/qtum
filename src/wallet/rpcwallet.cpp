@@ -7558,6 +7558,8 @@ static RPCHelpMan nftcreate()
     if (!request.params[8].isNull()){
         std::string contractaddress = request.params[8].get_str();
         nft.setAddress(contractaddress);
+        if(!nft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
     }
 
     // Check create nft offline
@@ -7680,6 +7682,8 @@ static RPCHelpMan nftsend()
     if (!request.params[7].isNull()){
         std::string contractaddress = request.params[7].get_str();
         nft.setAddress(contractaddress);
+        if(!nft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
     }
 
     // Get nft owner balance
@@ -7825,6 +7829,8 @@ static RPCHelpMan nftsendbatch()
     if (!request.params[6].isNull()){
         std::string contractaddress = request.params[6].get_str();
         nft.setAddress(contractaddress);
+        if(!nft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
     }
 
     // Check ids and values
@@ -7930,6 +7936,9 @@ static RPCHelpMan nftlist()
         int64_t toBlock = -1;
 
         nftAbi.setAddress(contractAddress);
+        if(!nftAbi.supportsInterface())
+            continue;
+
         std::vector<NftEvent> nftEvents;
         {
             LOCK(cs_main);

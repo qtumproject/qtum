@@ -135,7 +135,7 @@ QtumNftExec::~QtumNftExec()
 struct QtumNftData
 {
     std::map<std::string, std::string> lstParams;
-    std::string address;
+    std::map<std::string, bool> addressCache;
     QtumNftExec* nftExec;
     ContractABI* ABI;
     int funcBalanceOf;
@@ -144,6 +144,7 @@ struct QtumNftData
     int funcSafeTransferFrom;
     int funcSafeBatchTransferFrom;
     int funcWalletNFTList;
+    int funcSupportsInterface;
     int evtTransferSingle;
     int evtTransferBatch;
 
@@ -250,6 +251,10 @@ QtumNft::QtumNft():
             {
                 d->funcWalletNFTList = i;
             }
+            else if(func.name == "supportsInterface")
+            {
+                d->funcSupportsInterface = i;
+            }
             else if(func.name == "TransferSingle")
             {
                 d->evtTransferSingle = i;
@@ -338,6 +343,9 @@ void QtumNft::setTxId(const std::string& txid)
 
 bool QtumNft::balanceOf(const std::string &_account, const uint256& _id, int32_t &result, bool sendTo)
 {
+    if(!supportsInterface())
+        return false;
+
     std::string account = _account;
     if(!ToHash160(account, account))
     {
@@ -372,6 +380,9 @@ bool QtumNft::balanceOf(const uint256& id, int32_t &result, bool sendTo)
 
 bool QtumNft::createNFT(const std::string &_owner, const std::string &name, const std::string &url, const std::string &desc, const int32_t &_count, bool sendTo)
 {
+    if(!supportsInterface())
+        return false;
+
     std::string owner = _owner;
     if(!ToHash160(owner, owner))
     {
@@ -401,6 +412,9 @@ bool QtumNft::createNFT(const std::string &name, const std::string &url, const s
 
 bool QtumNft::isApprovedForAll(const std::string &_account, const std::string &_operant, bool& success, bool sendTo)
 {
+    if(!supportsInterface())
+        return false;
+
     std::string account = _account;
     if(!ToHash160(account, account))
     {
@@ -434,6 +448,9 @@ bool QtumNft::isApprovedForAll(const std::string &_account, const std::string &_
 
 bool QtumNft::safeTransferFrom(const std::string &_from, const std::string &_to, const uint256 &_id, const int32_t &_amount, bool sendTo)
 {
+    if(!supportsInterface())
+        return false;
+
     std::string from = _from;
     if(!ToHash160(from, from))
     {
@@ -470,6 +487,9 @@ bool QtumNft::safeTransfer(const std::string &to, const uint256 &id, const int32
 
 bool QtumNft::safeBatchTransferFrom(const std::string &_from, const std::string &_to, const std::vector<uint256> &ids, const std::vector<int32_t> &amounts, bool sendTo)
 {
+    if(!supportsInterface())
+        return false;
+
     // Check ids and amounts size
     if(ids.size() != amounts.size())
     {
@@ -548,6 +568,9 @@ bool QtumNft::safeBatchTransfer(const std::string &to, const std::vector<uint256
 
 bool QtumNft::walletNFTList(WalletNFTInfo &result, const uint256 &_id, bool sendTo)
 {
+    if(!supportsInterface())
+        return false;
+
     std::string id = uintTou256(_id).str();
 
     std::vector<std::string> input;
@@ -578,8 +601,42 @@ bool QtumNft::walletNFTList(WalletNFTInfo &result, const uint256 &_id, bool send
     return true;
 }
 
+bool QtumNft::supportsInterface(std::string interfaceId)
+{
+    // Check the cached result
+    std::string address = getAddress();
+    if(!address.empty() && d->addressCache.find(address) != d->addressCache.end())
+        return true;
+
+    // Check if the NFT interface is supported
+    std::vector<std::string> input;
+    input.push_back(interfaceId);
+    std::vector<std::string> output;
+
+    if(!exec(input, d->funcSupportsInterface, output, false))
+        return false;
+
+    if(output.size() == 0)
+        return false;
+
+    bool ret = output[0] == "true";
+    if(ret)
+    {
+        // Cache the result
+        d->addressCache[address] = true;
+    }
+    else if(!ret && d->errorMessage.empty())
+    {
+        d->errorMessage = "Not a NFT contract address";
+    }
+    return ret;
+}
+
 bool QtumNft::transferEvents(std::vector<NftEvent> &nftEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
 {
+    if(!supportsInterface())
+        return false;
+
     bool ret = execEvents(fromBlock, toBlock, minconf, d->evtTransferSingle, nftEvents);
     ret &= execEvents(fromBlock, toBlock, minconf, d->evtTransferBatch, nftEvents);
     return ret;
@@ -689,6 +746,7 @@ bool QtumNft::execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, in
     std::string eventName = function.selector();
     std::string contractAddress = d->lstParams[QtumNft_NS::PARAM_ADDRESS];
     int numTopics = function.numIndexed() + 1;
+    d->errorMessage.clear();
     if(!(d->nftExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, numTopics, function, result)))
         return false;
 

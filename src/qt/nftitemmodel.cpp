@@ -141,6 +141,8 @@ private Q_SLOTS:
                 std::vector<NftEvent> nftEvents;
                 std::vector<interfaces::NftTx> nftTxs;
                 nftAbi.setAddress(contractAddress);
+                if(!nftAbi.supportsInterface())
+                    continue;
                 nftAbi.transferEvents(nftEvents, fromBlock, toBlock);
                 for(size_t i = 0; i < nftEvents.size(); i++)
                 {

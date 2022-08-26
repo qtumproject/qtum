@@ -106,6 +106,7 @@ public:
     bool safeBatchTransferFrom(const std::string& from, const std::string& to, const std::vector<uint256>& ids, const std::vector<int32_t>& amounts, bool sendTo = false);
     bool safeBatchTransfer(const std::string& to, const std::vector<uint256>& ids, const std::vector<int32_t>& amounts, bool sendTo = false);
     bool walletNFTList(WalletNFTInfo& result, const uint256& id, bool sendTo = false);
+    bool supportsInterface(std::string interfaceId = "d9b67a26");
 
     // ABI Events
     bool transferEvents(std::vector<NftEvent>& nftEvents, int64_t fromBlock = 0, int64_t toBlock = -1, int64_t minconf = 0);

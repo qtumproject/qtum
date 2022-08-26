@@ -3904,6 +3904,8 @@ static RPCHelpMan nftgetinfo()
     if (!request.params[1].isNull()){
         std::string contractaddress = request.params[1].get_str();
         nft.setAddress(contractaddress);
+        if(!nft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
     }
 
     // Get nft info
@@ -3983,6 +3985,8 @@ static RPCHelpMan nftlisttransactions()
     if (!request.params[4].isNull()){
         std::string contractaddress = request.params[4].get_str();
         nft.setAddress(contractaddress);
+        if(!nft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
     }
 
     // Get transaction events
