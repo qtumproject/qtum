@@ -8036,6 +8036,63 @@ static RPCHelpMan nftlist()
     };
 }
 
+static RPCHelpMan nftimport()
+{
+    return RPCHelpMan{"nftimport",
+                "\nImport nfts from qtum address or contract address.\n",
+                {
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address or contract address."},
+                },
+                RPCResult{RPCResult::Type::NONE, "", ""},
+                RPCExamples{
+                    HelpExampleCli("nftimport", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
+            + HelpExampleCli("nftimport", "\"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
+            + HelpExampleRpc("nftimport", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
+            + HelpExampleRpc("nftimport", "\"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(pwallet->cs_wallet);
+
+    std::string strAddress = request.params[0].get_str();
+    if(strAddress.size() == 40 && CheckHex(strAddress))
+    {
+        CallNft callNft(chainman);
+        callNft.setAddress(strAddress);
+        if(!callNft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
+
+        CNftImport nft;
+        nft.strAddress = strAddress;
+        nft.isContract = true;
+        pwallet->AddNftImportEntry(nft);
+    }
+    else
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if (!IsValidDestination(dest)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
+        }
+
+        if(!pwallet->IsMine(dest))
+        {
+            CNftImport nft;
+            nft.strAddress = strAddress;
+            nft.isContract = false;
+            pwallet->AddNftImportEntry(nft);
+        }
+
+        pwallet->RefreshNftTxFromBlock();
+    }
+
+    return NullUniValue;
+},
+    };
+}
+
 RPCHelpMan abortrescan();
 RPCHelpMan dumpprivkey();
 RPCHelpMan importprivkey();
@@ -8140,6 +8197,7 @@ static const CRPCCommand commands[] =
     { "wallet",             &nftsend,                         },
     { "wallet",             &nftsendbatch,                    },
     { "wallet",             &nftlist,                         },
+    { "wallet",             &nftimport,                       },
 };
 // clang-format on
     return MakeSpan(commands);

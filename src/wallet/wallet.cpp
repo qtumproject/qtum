@@ -3721,6 +3721,23 @@ bool CWallet::LoadNftTx(const CNftTx &nftTx)
     return true;
 }
 
+bool CWallet::LoadNftImport(const CNftImport &nft)
+{
+    uint256 hash = nft.GetHash();
+    mapNftImport[hash] = nft;
+
+    if(nft.isContract)
+    {
+        AddNftContractAddress(nft.strAddress);
+    }
+    else
+    {
+        AddNftWatchAddress(nft.strAddress);
+    }
+
+    return true;
+}
+
 bool CWallet::AddTokenEntry(const CTokenInfo &token, bool fFlushOnClose)
 {
     LOCK(cs_wallet);
@@ -3936,6 +3953,68 @@ bool CWallet::AddNftTxEntries(const std::vector<CNftTx> &nftTxs)
         }
     }
     return ret;
+}
+
+bool CWallet::AddNftImportEntry(const CNftImport &nft, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    uint256 hash = nft.GetHash();
+
+    bool fFound = false;
+
+    std::map<uint256, CNftImport>::iterator it = mapNftImport.find(hash);
+    if(it!=mapNftImport.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        if (!batch.WriteNftImport(nft))
+            return false;
+
+        mapNftImport[hash] = nft;
+
+        if(nft.isContract)
+        {
+            AddNftContractAddress(nft.strAddress);
+        }
+        else
+        {
+            AddNftWatchAddress(nft.strAddress);
+        }
+    }
+
+    return true;
+}
+
+bool CWallet::RemoveNftImportEntry(const uint256 &nftHash, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    bool fFound = false;
+
+    std::map<uint256, CNftImport>::iterator it = mapNftImport.find(nftHash);
+    if(it!=mapNftImport.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        // Remove from disk
+        if (!batch.EraseNftImport(nftHash))
+            return false;
+
+        mapNftImport.erase(it);
+    }
+
+    return true;
 }
 
 CKeyPool::CKeyPool()
@@ -4390,6 +4469,11 @@ uint256 CNftTx::GetHash() const
     return SerializeHash(*this, SER_GETHASH, 0);
 }
 
+uint256 CNftImport::GetHash() const
+{
+    return SerializeHash(*this, SER_GETHASH, 0);
+}
+
 bool CWallet::GetTokenTxDetails(const CTokenTx &wtx, uint256 &credit, uint256 &debit, std::string &tokenSymbol, uint8_t &decimals) const
 {
     LOCK(cs_wallet);
@@ -4442,7 +4526,7 @@ bool CWallet::IsTokenTxMine(const CTokenTx &wtx) const
     return ret;
 }
 
-bool CWallet::IsNftTxMine(const CNftTx &wtx) const
+bool CWallet::IsNftTxMine(const CNftTx &wtx, bool* watchNft) const
 {
     LOCK(cs_wallet);
     bool ret = false;
@@ -4453,6 +4537,19 @@ bool CWallet::IsNftTxMine(const CNftTx &wtx) const
         HasPrivateKey(receiver, fAllowWatchOnly))
     {
         ret = true;
+    }
+    else if (IsMine(sender) || IsMine(receiver))
+    {
+        ret = true;
+        if(watchNft)
+            *watchNft = true;
+    }
+    else if(m_nft_watch_addresses.find(wtx.strSender) != m_nft_watch_addresses.end() ||
+            m_nft_watch_addresses.find(wtx.strReceiver) != m_nft_watch_addresses.end())
+    {
+        ret = true;
+        if(watchNft)
+            *watchNft = true;
     }
 
     return ret;
@@ -5698,6 +5795,16 @@ void CWallet::AddNftContractAddress(const std::string &contractAddress)
     }
 }
 
+void CWallet::AddNftWatchAddress(const std::string &watchAddress)
+{
+    AssertLockHeld(cs_wallet);
+    auto it = m_nft_watch_addresses.find(watchAddress);
+    if(it == m_nft_watch_addresses.end())
+    {
+        m_nft_watch_addresses[watchAddress] = true;
+    }
+}
+
 void CWallet::SetNftTxFromBlock(const std::string &contractAddress, const int64_t &fromBlock)
 {
     AssertLockHeld(cs_wallet);
@@ -5705,5 +5812,15 @@ void CWallet::SetNftTxFromBlock(const std::string &contractAddress, const int64_
     if(it != m_nft_contract_addresses.end() && it->second < fromBlock)
     {
         m_nft_contract_addresses[contractAddress] = 0;
+    }
+}
+
+
+void CWallet::RefreshNftTxFromBlock()
+{
+    AssertLockHeld(cs_wallet);
+    for (std::map<std::string, int64_t>::iterator it = m_nft_contract_addresses.begin(); it != m_nft_contract_addresses.end(); it++)
+    {
+         it->second = 0;
     }
 }

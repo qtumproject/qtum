@@ -42,6 +42,7 @@ class CDelegationInfo;
 class CSuperStakerInfo;
 class CNftInfo;
 class CNftTx;
+class CNftImport;
 class uint160;
 class uint256;
 
@@ -250,6 +251,9 @@ public:
 
     bool WriteNftTx(const CNftTx& wNftTx);
     bool EraseNftTx(uint256 hash);
+
+    bool WriteNftImport(const CNftImport& wnft);
+    bool EraseNftImport(uint256 hash);
 
     bool WriteKeyMetadata(const CKeyMetadata& meta, const CPubKey& pubkey, const bool overwrite);
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);
