@@ -8054,7 +8054,7 @@ static RPCHelpMan nftimport()
 {
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
-    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    ChainstateManager& chainman = pwallet->chain().chainman();
     LOCK(pwallet->cs_wallet);
 
     std::string strAddress = request.params[0].get_str();

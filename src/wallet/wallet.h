@@ -1139,10 +1139,10 @@ public:
     bool RemoveUnconfirmedNftTxEntry(const CNftTx& nftTx);
 
     /* Check if nft transaction is mine */
-    bool IsNftTxMine(const CNftTx &wtx, bool* watchNft = nullptr) const;
+    bool IsNftTxMine(const CNftTx &wtx) const;
 
     /* Check if nft is mine */
-    bool IsNftMine(const CNftInfo &info) const;
+    bool IsNftMine(const CNftInfo &info, bool* watchNft = nullptr) const;
 
     /* Check if exist nft transaction */
     bool ExistNftTxEntry(const CNftTx &wtx) const;
@@ -1197,6 +1197,9 @@ public:
 
     /* Refresh nft tx from block */
     void RefreshNftTxFromBlock();
+
+    /* Is nft address mine */
+    bool IsNftAddressMine(const std::string& strAddress, bool fAllowWatchOnly, bool* watchNft = nullptr) const;
 
     void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
     void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);

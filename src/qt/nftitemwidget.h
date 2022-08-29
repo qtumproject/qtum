@@ -29,7 +29,7 @@ public:
     explicit NftItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
     ~NftItemWidget();
 
-    void setData(const QString& nftName, const QString& nftBalance, const QString& nftOwner, const QString& nftDesc, const QString& nftUrl, const QString& thumbnail, bool showThumbnail);
+    void setData(const QString& nftName, const QString& nftBalance, const QString& nftOwner, const QString& nftDesc, const QString& nftUrl, const QString& thumbnail, bool showThumbnail, bool watch);
 
     void setPosition(int position);
 

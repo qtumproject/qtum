@@ -847,6 +847,7 @@ struct NftInfo
     uint256 hash;
     std::string thumbnail;
     bool show_thumbnail = true;
+    bool watch_nft = false;
 };
 
 // Wallet nft transaction

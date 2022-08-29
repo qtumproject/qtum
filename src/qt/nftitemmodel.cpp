@@ -37,6 +37,7 @@ public:
         thumbnail = QString::fromStdString(nftInfo.thumbnail);
         showThumbnail = nftInfo.show_thumbnail;
         contractAddress = QString::fromStdString(nftInfo.contract_address);
+        watchNft = nftInfo.watch_nft;
     }
 
     NftItemEntry( const NftItemEntry &obj)
@@ -53,6 +54,7 @@ public:
         thumbnail = obj.thumbnail;
         showThumbnail = obj.showThumbnail;
         contractAddress = obj.contractAddress;
+        watchNft = obj.watchNft;
     }
 
     ~NftItemEntry()
@@ -70,6 +72,7 @@ public:
     QString thumbnail;
     bool showThumbnail = true;
     QString contractAddress;
+    bool watchNft = false;
 };
 
 class NftTxWorker : public QObject
@@ -460,6 +463,9 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         break;
     case NftItemModel::AddressRole:
         return rec->contractAddress;
+        break;
+    case NftItemModel::WatchRole:
+        return rec->watchNft;
         break;
     default:
         break;

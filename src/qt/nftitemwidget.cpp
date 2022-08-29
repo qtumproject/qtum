@@ -38,7 +38,7 @@ NftItemWidget::~NftItemWidget()
     delete ui;
 }
 
-void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, const QString &nftOwner, const QString& nftDesc, const QString& nftUrl, const QString& thumbnail, bool showThumbnail)
+void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, const QString &nftOwner, const QString& nftDesc, const QString& nftUrl, const QString& thumbnail, bool showThumbnail, bool watch)
 {
     QString textName;
     QString tooltipName;
@@ -74,6 +74,8 @@ void NftItemWidget::setData(const QString &nftName, const QString &nftBalance, c
     if(showThumbnail != ui->nftUrl->getShowThumbnail())
         ui->nftUrl->setShowThumbnail(showThumbnail);
     ui->toolShow->setChecked(showThumbnail);
+
+    ui->buttonSend->setEnabled(!watch);
 }
 
 void NftItemWidget::setPosition(int position)

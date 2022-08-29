@@ -229,7 +229,7 @@ CNftInfo MakeNftInfo(const NftInfo& nft)
 }
 
 //! Construct wallet nft info.
-NftInfo MakeWalletNftInfo(const CNftInfo& nft)
+NftInfo MakeWalletNftInfo(const CNftInfo& nft, const CWallet* pwallet = nullptr)
 {
     NftInfo result;
     result.contract_address = nft.strContractAddress;
@@ -244,6 +244,8 @@ NftInfo MakeWalletNftInfo(const CNftInfo& nft)
     result.hash = nft.GetHash();
     result.thumbnail = nft.strThumbnail;
     result.show_thumbnail = nft.showThumbnail;
+    if(pwallet)
+        pwallet->IsNftMine(nft, &result.watch_nft);
     return result;
 }
 
@@ -1562,7 +1564,7 @@ public:
 
         auto mi = m_wallet->mapNft.find(id);
         if (mi != m_wallet->mapNft.end()) {
-            return MakeWalletNftInfo(mi->second);
+            return MakeWalletNftInfo(mi->second, wallet());
         }
         return {};
     }
@@ -1573,7 +1575,7 @@ public:
         std::vector<NftInfo> result;
         result.reserve(m_wallet->mapNft.size());
         for (const auto& entry : m_wallet->mapNft) {
-            result.emplace_back(MakeWalletNftInfo(entry.second));
+            result.emplace_back(MakeWalletNftInfo(entry.second, wallet()));
         }
         return result;
     }
