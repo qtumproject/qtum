@@ -7896,7 +7896,9 @@ static RPCHelpMan nftlist()
 {
     return RPCHelpMan{"nftlist",
         "\nReturns owned NFTs list.\n",
-        {},
+        {
+            {"rescan", RPCArg::Type::BOOL, RPCArg::Default{false}, "Rescan for NFT transactions"},
+        },
         RPCResult{
             RPCResult::Type::ARR, "", "",
             {
@@ -7910,13 +7912,15 @@ static RPCHelpMan nftlist()
                     {RPCResult::Type::STR, "description", "NFT description"},
                     {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
                     {RPCResult::Type::NUM, "count", "The number of copies"},
-                    {RPCResult::Type::NUM, "contractaddress", "The contract address"},
+                    {RPCResult::Type::STR, "contractaddress", "The contract address"},
                 }}
             },
         },
         RPCExamples{
             HelpExampleCli("nftlist", "")
+                    + HelpExampleCli("nftlist", "true")
                     + HelpExampleRpc("nftlist", "")
+                    + HelpExampleRpc("nftlist", "true")
         },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
@@ -7924,6 +7928,17 @@ static RPCHelpMan nftlist()
     if (!pwallet) return NullUniValue;
     ChainstateManager& chainman = pwallet->chain().chainman();
     LOCK(pwallet->cs_wallet);
+
+    // Get rescan
+    bool rescan = false;
+    if (!request.params[0].isNull()){
+        rescan = request.params[0].get_bool();
+    }
+    if(rescan)
+    {
+        pwallet->RefreshNftTxFromBlock();
+    }
+
     SendNft nftAbi(*pwallet, chainman);
 
     // Get transaction events
@@ -8093,6 +8108,41 @@ static RPCHelpMan nftimport()
     };
 }
 
+static RPCHelpMan nftlistcontract()
+{
+    return RPCHelpMan{"nftlistcontract",
+        "\nReturns NFT contract addresses that the wallet scan for NFTs.\n",
+        {},
+        RPCResult{
+            RPCResult::Type::ARR, "", "",
+            {
+                {RPCResult::Type::STR, "contractaddress", "The contract address"}
+            },
+        },
+        RPCExamples{
+            HelpExampleCli("nftlistcontract", "")
+                    + HelpExampleRpc("nftlistcontract", "")
+        },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+    LOCK(pwallet->cs_wallet);
+
+    // Get wallet nft contract addresses list
+    UniValue results(UniValue::VARR);
+    std::map<std::string, int64_t> mapContractAddresses = pwallet->m_nft_contract_addresses;
+    for(std::map<std::string, int64_t>::iterator it = mapContractAddresses.begin(); it != mapContractAddresses.end(); it++)
+    {
+        std::string contractAddress = it->first;
+        results.push_back(contractAddress);
+    }
+
+    return results;
+},
+    };
+}
+
 RPCHelpMan abortrescan();
 RPCHelpMan dumpprivkey();
 RPCHelpMan importprivkey();
@@ -8198,6 +8248,7 @@ static const CRPCCommand commands[] =
     { "wallet",             &nftsendbatch,                    },
     { "wallet",             &nftlist,                         },
     { "wallet",             &nftimport,                       },
+    { "wallet",             &nftlistcontract,                 },
 };
 // clang-format on
     return MakeSpan(commands);
