@@ -8116,7 +8116,11 @@ static RPCHelpMan nftlistcontract()
         RPCResult{
             RPCResult::Type::ARR, "", "",
             {
-                {RPCResult::Type::STR, "contractaddress", "The contract address"}
+                {RPCResult::Type::OBJ, "", "",
+                {
+                    {RPCResult::Type::STR, "contractaddress", "The NFT contract address"},
+                    {RPCResult::Type::BOOL, "support", "Support NFT contract interface"},
+                }}
             },
         },
         RPCExamples{
@@ -8127,15 +8131,31 @@ static RPCHelpMan nftlistcontract()
 {
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
+    ChainstateManager& chainman = pwallet->chain().chainman();
     LOCK(pwallet->cs_wallet);
 
     // Get wallet nft contract addresses list
+    CallNft nft(chainman);
     UniValue results(UniValue::VARR);
     std::map<std::string, int64_t> mapContractAddresses = pwallet->m_nft_contract_addresses;
     for(std::map<std::string, int64_t>::iterator it = mapContractAddresses.begin(); it != mapContractAddresses.end(); it++)
     {
         std::string contractAddress = it->first;
-        results.push_back(contractAddress);
+        nft.setAddress(contractAddress);
+        bool fSupport = false;
+        UniValue obj(UniValue::VOBJ);
+        try
+        {
+            if(nft.supportsInterface())
+            {
+                fSupport = true;
+            }
+        }
+        catch(...)
+        {}
+        obj.pushKV("contractaddress", contractAddress);
+        obj.pushKV("support", fSupport);
+        results.push_back(obj);
     }
 
     return results;
