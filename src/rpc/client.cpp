@@ -250,6 +250,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "nftsendbatch", 3, "gaslimit" },
     { "nftsendbatch", 4, "gasprice" },
     { "nftsendbatch", 5, "checkoutputs" },
+    { "nftlist", 0, "rescan" },
     { "callcontract", 3, "gaslimit" },
     { "callcontract", 4, "amount" },
     { "reservebalance", 0, "reserve"},

@@ -231,7 +231,7 @@ public:
                 rec->updateStatus(blockNumber, numBlocks);
             }
             std::string name;
-            if(rec->nameUpdateNeeded() && wallet.tryGetNftName(rec->id, name)) {
+            if(rec->nameUpdateNeeded() && wallet.tryGetNftName(rec->id, rec->contract_address, name)) {
                 rec->name = name;
             }
             return rec;

@@ -30,6 +30,7 @@ QList<NftTransactionRecord> NftTransactionRecord::decomposeTransaction(interface
         rec.txid = wtx.tx_hash;
         rec.name = name;
         rec.id = wtx.id;
+        rec.contract_address = wtx.contract_address;
         qint32 net = rec.credit + rec.debit;
 
         // Determine type

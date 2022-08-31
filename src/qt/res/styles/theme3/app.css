@@ -1221,3 +1221,26 @@ Delegate and Staker Page Widget CSS
 #vLineAssets{
     border-left: 1px solid #e4ebf5;
 }
+/*--------------------------------------------
+Show/hide button for Nft Item Widget CSS
+--------------------------------------------*/
+#toolShow {
+    background: transparent;
+    border: 1px solid #d5dde9;
+    border-radius: 6px;
+    min-width: 0em;
+    padding: 6px;
+    margin: 0px;
+}
+#toolShow:hover{
+    padding-top: 1px; 
+    padding-bottom: 1px; 
+    border: 1px solid #cbd5e1;
+}
+#toolShow:pressed {
+    background: #1498df;
+}
+#toolShow::disabled {
+    background: rgba(255, 255, 255, 60%);
+    border: 1px solid rgba(209, 219, 231, 40%);
+}

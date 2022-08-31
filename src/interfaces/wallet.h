@@ -447,7 +447,7 @@ public:
     virtual std::string getStakerLedgerId() = 0;
 
     //! Add wallet nft entry.
-    virtual bool addNftEntry(const NftInfo &nft) = 0;
+    virtual bool addNftEntry(const NftInfo &nft, bool fCopyUserData = false) = 0;
 
     //! Check if exist wallet nft entry.
     virtual bool existNftEntry(const NftInfo &nft) = 0;
@@ -495,7 +495,13 @@ public:
     virtual bool tryGetNftTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) = 0;
 
     //! Try to get updated name for a particular nft, if possible without blocking.
-    virtual bool tryGetNftName(const uint256& id, std::string& name) = 0;
+    virtual bool tryGetNftName(const uint256& id, const std::string& contract_address, std::string& name) = 0;
+
+    //! Set nft transaction from block.
+    virtual void setNftTxFromBlock(const std::string& contractAddress, const int64_t& fromBlock) = 0;
+
+    //! Set nft contract addresses.
+    virtual std::map<std::string, int64_t> getNftContractAddresses() = 0;
 
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
@@ -829,6 +835,7 @@ struct SignDelegation
 // Wallet nft information.
 struct NftInfo
 {
+    std::string contract_address;
     std::string owner;
     uint256 id;
     uint256 NFTId;
@@ -839,11 +846,14 @@ struct NftInfo
     int32_t count = 0;
     uint256 hash;
     std::string thumbnail;
+    bool show_thumbnail = true;
+    bool watch_nft = false;
 };
 
 // Wallet nft transaction
 struct NftTx
 {
+    std::string contract_address;
     std::string sender;
     std::string receiver;
     uint256 id;

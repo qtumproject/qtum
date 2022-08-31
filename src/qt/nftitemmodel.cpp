@@ -35,6 +35,9 @@ public:
         id = nftInfo.id;
         NFTId = nftInfo.NFTId;
         thumbnail = QString::fromStdString(nftInfo.thumbnail);
+        showThumbnail = nftInfo.show_thumbnail;
+        contractAddress = QString::fromStdString(nftInfo.contract_address);
+        watchNft = nftInfo.watch_nft;
     }
 
     NftItemEntry( const NftItemEntry &obj)
@@ -49,6 +52,9 @@ public:
         id = obj.id;
         NFTId = obj.NFTId;
         thumbnail = obj.thumbnail;
+        showThumbnail = obj.showThumbnail;
+        contractAddress = obj.contractAddress;
+        watchNft = obj.watchNft;
     }
 
     ~NftItemEntry()
@@ -60,10 +66,13 @@ public:
     QString owner;
     QString url;
     QString desc;
-    int32_t balance;
+    int32_t balance = 0;
     uint256 id;
     uint256 NFTId;
     QString thumbnail;
+    bool showThumbnail = true;
+    QString contractAddress;
+    bool watchNft = false;
 };
 
 class NftTxWorker : public QObject
@@ -72,8 +81,6 @@ class NftTxWorker : public QObject
 public:
     WalletModel *walletModel;
     Nft nftAbi;
-    int64_t fromBlock = 0;
-    int64_t toBlock = -1;
     bool initThumbnail = true;
     QMap<QString, QString> thumbnailCache;
     QMap<QString, QDateTime> thumbnailTime;
@@ -124,38 +131,52 @@ private Q_SLOTS:
             return;
 
         // Get current height and block hash
-        toBlock = walletModel->node().getNumBlocks();
-        if(fromBlock < toBlock)
+        int64_t toBlock = walletModel->node().getNumBlocks();
+        std::map<std::string, int64_t> mapContractAddresses = walletModel->wallet().getNftContractAddresses();
+        for(std::map<std::string, int64_t>::iterator it = mapContractAddresses.begin(); it != mapContractAddresses.end(); it++)
         {
-            // List the events and update the nft tx
-            std::vector<NftEvent> nftEvents;
-            std::vector<interfaces::NftTx> nftTxs;
-            nftAbi.transferEvents(nftEvents, fromBlock, toBlock);
-            for(size_t i = 0; i < nftEvents.size(); i++)
+            // Get transfers events
+            std::string contractAddress = it->first;
+            int64_t fromBlock = it->second;
+            if(fromBlock < toBlock)
             {
-                NftEvent event = nftEvents[i];
-                interfaces::NftTx nftTx;
-                nftTx.sender = event.sender;
-                nftTx.receiver = event.receiver;
-                nftTx.id = event.id;
-                nftTx.value = event.value;
-                nftTx.tx_hash = event.transactionHash;
-                nftTx.block_hash = event.blockHash;
-                nftTx.block_number = event.blockNumber;
-                nftTxs.push_back(nftTx);
+                // List the events and update the nft tx
+                std::vector<NftEvent> nftEvents;
+                std::vector<interfaces::NftTx> nftTxs;
+                nftAbi.setAddress(contractAddress);
+                if(!nftAbi.supportsInterface())
+                    continue;
+                nftAbi.transferEvents(nftEvents, fromBlock, toBlock);
+                for(size_t i = 0; i < nftEvents.size(); i++)
+                {
+                    NftEvent event = nftEvents[i];
+                    interfaces::NftTx nftTx;
+                    nftTx.contract_address = event.address;
+                    nftTx.sender = event.sender;
+                    nftTx.receiver = event.receiver;
+                    nftTx.id = event.id;
+                    nftTx.value = event.value;
+                    nftTx.tx_hash = event.transactionHash;
+                    nftTx.block_hash = event.blockHash;
+                    nftTx.block_number = event.blockNumber;
+                    nftTxs.push_back(nftTx);
+                }
+                walletModel->wallet().addNftTxEntries(nftTxs);
+                fromBlock = toBlock - 10;
+                if(fromBlock < 0) fromBlock = 0;
+                walletModel->wallet().setNftTxFromBlock(contractAddress, fromBlock);
             }
-            walletModel->wallet().addNftTxEntries(nftTxs);
-            fromBlock = toBlock - 10;
-            if(fromBlock < 0) fromBlock = 0;
         }
 
-        std::map<uint256, WalletNFTInfo> listNftInfo;
+        std::map<std::string, std::map<uint256, WalletNFTInfo>> contractNftInfo;
         for(interfaces::NftInfo nft : walletModel->wallet().getRawNftFromTx())
         {
             bool isOk = true;
             WalletNFTInfo info;
+            std::map<uint256, WalletNFTInfo>& listNftInfo = contractNftInfo[nft.contract_address];
             auto search = listNftInfo.find(nft.id);
             nftAbi.setSender(nft.owner);
+            nftAbi.setAddress(nft.contract_address);
             if(search != listNftInfo.end())
             {
                 info = search->second;
@@ -180,7 +201,7 @@ private Q_SLOTS:
 
             if(!isOk) continue;
             nft.count = count;
-            walletModel->wallet().addNftEntry(nft);
+            walletModel->wallet().addNftEntry(nft, true);
         }
     }
 
@@ -436,6 +457,15 @@ QVariant NftItemModel::data(const QModelIndex &index, int role) const
         break;
     case NftItemModel::ThumbnailRole:
         return rec->thumbnail;
+        break;
+    case NftItemModel::ShowThumbnailRole:
+        return rec->showThumbnail;
+        break;
+    case NftItemModel::AddressRole:
+        return rec->contractAddress;
+        break;
+    case NftItemModel::WatchRole:
+        return rec->watchNft;
         break;
     default:
         break;

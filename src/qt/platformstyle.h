@@ -49,6 +49,8 @@ public:
     /** Get multi-states icon*/
     QIcon MultiStatesIcon(const QString& resourcename, StateType type = NavBar) const;
 
+    QIcon MultiStatesIcon(const QString& resource1name, const QString& resource2name) const;
+
     enum TableColorType{
         Normal = 0,
         Input,

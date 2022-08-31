@@ -214,6 +214,7 @@ ContractBookData MakeContractBook(const std::string& id, const CContractBookData
 CNftInfo MakeNftInfo(const NftInfo& nft)
 {
     CNftInfo result;
+    result.strContractAddress = nft.contract_address;
     result.strOwner = nft.owner;
     result.id = nft.id;
     result.NFTId = nft.NFTId;
@@ -223,13 +224,15 @@ CNftInfo MakeNftInfo(const NftInfo& nft)
     result.nCreateTime = nft.create_time;
     result.nCount = nft.count;
     result.strThumbnail = nft.thumbnail;
+    result.showThumbnail = nft.show_thumbnail;
     return result;
 }
 
 //! Construct wallet nft info.
-NftInfo MakeWalletNftInfo(const CNftInfo& nft)
+NftInfo MakeWalletNftInfo(const CNftInfo& nft, const CWallet* pwallet = nullptr)
 {
     NftInfo result;
+    result.contract_address = nft.strContractAddress;
     result.owner = nft.strOwner;
     result.id = nft.id;
     result.NFTId = nft.NFTId;
@@ -240,6 +243,9 @@ NftInfo MakeWalletNftInfo(const CNftInfo& nft)
     result.count = nft.nCount;
     result.hash = nft.GetHash();
     result.thumbnail = nft.strThumbnail;
+    result.show_thumbnail = nft.showThumbnail;
+    if(pwallet)
+        pwallet->IsNftMine(nft, &result.watch_nft);
     return result;
 }
 
@@ -247,6 +253,7 @@ NftInfo MakeWalletNftInfo(const CNftInfo& nft)
 CNftTx MakeNftTx(const NftTx& nftTx)
 {
     CNftTx result;
+    result.strContractAddress = nftTx.contract_address;
     result.strSender = nftTx.sender;
     result.strReceiver = nftTx.receiver;
     result.id = nftTx.id;
@@ -262,6 +269,7 @@ CNftTx MakeNftTx(const NftTx& nftTx)
 NftTx MakeWalletNftTx(const CNftTx& nftTx)
 {
     NftTx result;
+    result.contract_address = nftTx.strContractAddress;
     result.sender = nftTx.strSender;
     result.receiver = nftTx.strReceiver;
     result.id = nftTx.id;
@@ -1531,11 +1539,11 @@ public:
         LOCK(m_wallet->cs_wallet);
         return m_wallet->m_ledger_id;
     }
-    bool addNftEntry(const NftInfo &nft) override
+    bool addNftEntry(const NftInfo &nft, bool fCopyUserData) override
     {
         CNftInfo info = MakeNftInfo(nft);
         return m_wallet->IsNftMine(info) &&
-                m_wallet->AddNftEntry(info, true);
+                m_wallet->AddNftEntry(info, true, fCopyUserData);
     }
     bool existNftEntry(const NftInfo &nft) override
     {
@@ -1556,7 +1564,7 @@ public:
 
         auto mi = m_wallet->mapNft.find(id);
         if (mi != m_wallet->mapNft.end()) {
-            return MakeWalletNftInfo(mi->second);
+            return MakeWalletNftInfo(mi->second, wallet());
         }
         return {};
     }
@@ -1567,7 +1575,7 @@ public:
         std::vector<NftInfo> result;
         result.reserve(m_wallet->mapNft.size());
         for (const auto& entry : m_wallet->mapNft) {
-            result.emplace_back(MakeWalletNftInfo(entry.second));
+            result.emplace_back(MakeWalletNftInfo(entry.second, wallet()));
         }
         return result;
     }
@@ -1644,7 +1652,7 @@ public:
         }
         return NftTxStatus(*m_wallet, txid, block_number, in_mempool, num_blocks);
     }
-    bool tryGetNftName(const uint256& id, std::string& name) override
+    bool tryGetNftName(const uint256& id, const std::string& contract_address, std::string& name) override
     {
         TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
         if (!locked_wallet) {
@@ -1653,13 +1661,23 @@ public:
         for(auto it = m_wallet->mapNft.begin(); it != m_wallet->mapNft.end(); it++)
         {
             CNftInfo info = it->second;
-            if(id == info.id)
+            if(id == info.id && contract_address == info.strContractAddress)
             {
                 name = info.strName;
                 break;
             }
         }
         return name != "";
+    }
+    void setNftTxFromBlock(const std::string& contractAddress, const int64_t& fromBlock) override
+    {
+        LOCK(m_wallet->cs_wallet);
+        m_wallet->SetNftTxFromBlock(contractAddress, fromBlock);
+    }
+    std::map<std::string, int64_t> getNftContractAddresses() override
+    {
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->m_nft_contract_addresses;
     }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {

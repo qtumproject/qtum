@@ -174,6 +174,13 @@
              </spacer>
             </item>
             <item>
+             <widget class="QtumPushButton" name="toolShow">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QtumPushButton" name="buttonSend">
               <property name="text">
                <string>Send</string>

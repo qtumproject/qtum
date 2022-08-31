@@ -39,6 +39,7 @@ private:
     WalletModel* m_model;
     ClientModel* m_clientModel;
     bool bCreateUnsigned = false;
+    QString m_contractAddress;
 };
 
 #endif // CREATENFTDIALOG_H

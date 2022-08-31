@@ -7481,6 +7481,7 @@ static RPCHelpMan nftcreate()
                     {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
                     {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The nft contract address that contain the nfts."},
                  },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -7492,8 +7493,10 @@ static RPCHelpMan nftcreate()
                 RPCExamples{
                     HelpExampleCli("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5")
             + HelpExampleCli("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleCli("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
             + HelpExampleRpc("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5")
             + HelpExampleRpc("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("nftcreate", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"NFT name\" \"https://example/nft.png\" \"NFT description\" 5 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
                 },
             [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
 {
@@ -7551,6 +7554,14 @@ static RPCHelpMan nftcreate()
     nft.setGasLimit(i64tostr(nGasLimit));
     nft.setGasPrice(FormatMoney(nGasPrice));
 
+    // Get nft contract address
+    if (!request.params[8].isNull()){
+        std::string contractaddress = request.params[8].get_str();
+        nft.setAddress(contractaddress);
+        if(!nft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
+    }
+
     // Check create nft offline
     if(fCheckOutputs)
     {
@@ -7604,6 +7615,7 @@ static RPCHelpMan nftsend()
                     {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
                     {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The nft contract address that contain the nfts."},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -7615,8 +7627,11 @@ static RPCHelpMan nftsend()
                 RPCExamples{
                     HelpExampleCli("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1")
             + HelpExampleCli("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleCli("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
             + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1")
-            + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")                },
+            + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("nftsend", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"00000000000000000000000000000000000000000000000000000000000003e8\" 1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
+                },
             [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
 {
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
@@ -7662,6 +7677,14 @@ static RPCHelpMan nftsend()
     nft.setSender(owner);
     nft.setGasLimit(i64tostr(nGasLimit));
     nft.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get nft contract address
+    if (!request.params[7].isNull()){
+        std::string contractaddress = request.params[7].get_str();
+        nft.setAddress(contractaddress);
+        if(!nft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
+    }
 
     // Get nft owner balance
     int32_t balance;
@@ -7729,6 +7752,7 @@ static RPCHelpMan nftsendbatch()
                     {"gaslimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
                     {"gasprice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
                     {"checkoutputs", RPCArg::Type::BOOL, RPCArg::Default{true}, "Check outputs before send"},
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED_NAMED_ARG, "The nft contract address that contain the nfts."},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -7740,8 +7764,11 @@ static RPCHelpMan nftsendbatch()
                 RPCExamples{
                     HelpExampleCli("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"{\\\"00000000000000000000000000000000000000000000000000000000000001f4\\\":1, \\\"00000000000000000000000000000000000000000000000000000000000003e8\\\":2}\"")
             + HelpExampleCli("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"{\\\"00000000000000000000000000000000000000000000000000000000000001f4\\\":1, \\\"00000000000000000000000000000000000000000000000000000000000003e8\\\":2}\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleCli("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"{\\\"00000000000000000000000000000000000000000000000000000000000001f4\\\":1, \\\"00000000000000000000000000000000000000000000000000000000000003e8\\\":2}\" "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
             + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2}")
-            + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2} "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")},
+            + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2} "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("nftsendbatch", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" {\"00000000000000000000000000000000000000000000000000000000000001f4\":1, \"00000000000000000000000000000000000000000000000000000000000003e8\":2} "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+" "+FormatMoney(minGasPrice)+" true \"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
+                },
             [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
 {
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
@@ -7797,6 +7824,14 @@ static RPCHelpMan nftsendbatch()
     nft.setSender(owner);
     nft.setGasLimit(i64tostr(nGasLimit));
     nft.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get nft contract address
+    if (!request.params[6].isNull()){
+        std::string contractaddress = request.params[6].get_str();
+        nft.setAddress(contractaddress);
+        if(!nft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
+    }
 
     // Check ids and values
     for(size_t i = 0; i < ids.size(); i++)
@@ -7861,7 +7896,9 @@ static RPCHelpMan nftlist()
 {
     return RPCHelpMan{"nftlist",
         "\nReturns owned NFTs list.\n",
-        {},
+        {
+            {"rescan", RPCArg::Type::BOOL, RPCArg::Default{false}, "Rescan for NFT transactions"},
+        },
         RPCResult{
             RPCResult::Type::ARR, "", "",
             {
@@ -7875,12 +7912,15 @@ static RPCHelpMan nftlist()
                     {RPCResult::Type::STR, "description", "NFT description"},
                     {RPCResult::Type::NUM_TIME, "blocktime", "The block time expressed in " + UNIX_EPOCH_TIME + "."},
                     {RPCResult::Type::NUM, "count", "The number of copies"},
+                    {RPCResult::Type::STR, "contractaddress", "The contract address"},
                 }}
             },
         },
         RPCExamples{
             HelpExampleCli("nftlist", "")
+                    + HelpExampleCli("nftlist", "true")
                     + HelpExampleRpc("nftlist", "")
+                    + HelpExampleRpc("nftlist", "true")
         },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
@@ -7888,49 +7928,76 @@ static RPCHelpMan nftlist()
     if (!pwallet) return NullUniValue;
     ChainstateManager& chainman = pwallet->chain().chainman();
     LOCK(pwallet->cs_wallet);
+
+    // Get rescan
+    bool rescan = false;
+    if (!request.params[0].isNull()){
+        rescan = request.params[0].get_bool();
+    }
+    if(rescan)
+    {
+        pwallet->RefreshNftTxFromBlock();
+    }
+
     SendNft nftAbi(*pwallet, chainman);
 
     // Get transaction events
-    int64_t fromBlock = pwallet->m_nft_tx_from_block;
-    int64_t toBlock = -1;
-    std::vector<NftEvent> nftEvents;
+    std::map<std::string, int64_t> mapContractAddresses = pwallet->m_nft_contract_addresses;
+    for(std::map<std::string, int64_t>::iterator it = mapContractAddresses.begin(); it != mapContractAddresses.end(); it++)
     {
-        LOCK(cs_main);
-        CChain& active_chain = chainman.ActiveChain();
-        toBlock = active_chain.Height();
-        if(!nftAbi.transferEvents(nftEvents, pwallet->m_nft_tx_from_block, toBlock))
-            throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transfer events");
-    }
+        // Get transfers events
+        std::string contractAddress = it->first;
+        int64_t fromBlock = it->second;
+        int64_t toBlock = -1;
 
-    // Update wallet nft transactions
-    std::vector<CNftTx> nftTxs;
-    for(size_t i = 0; i < nftEvents.size(); i++)
-    {
-        NftEvent event = nftEvents[i];
-        CNftTx nftTx;
-        nftTx.strSender = event.sender;
-        nftTx.strReceiver = event.receiver;
-        nftTx.id = event.id;
-        nftTx.nValue = event.value;
-        nftTx.transactionHash = event.transactionHash;
-        nftTx.blockHash = event.blockHash;
-        nftTx.blockNumber = event.blockNumber;
-        nftTxs.push_back(nftTx);
+        nftAbi.setAddress(contractAddress);
+        if(!nftAbi.supportsInterface())
+            continue;
+
+        std::vector<NftEvent> nftEvents;
+        {
+            LOCK(cs_main);
+            CChain& active_chain = chainman.ActiveChain();
+            toBlock = active_chain.Height();
+            if(!nftAbi.transferEvents(nftEvents, fromBlock, toBlock))
+                throw JSONRPCError(RPC_MISC_ERROR, "Fail to get transfer events");
+        }
+
+        // Update wallet nft transactions
+        std::vector<CNftTx> nftTxs;
+        for(size_t i = 0; i < nftEvents.size(); i++)
+        {
+            NftEvent event = nftEvents[i];
+            CNftTx nftTx;
+            nftTx.strContractAddress = event.address;
+            nftTx.strSender = event.sender;
+            nftTx.strReceiver = event.receiver;
+            nftTx.id = event.id;
+            nftTx.nValue = event.value;
+            nftTx.transactionHash = event.transactionHash;
+            nftTx.blockHash = event.blockHash;
+            nftTx.blockNumber = event.blockNumber;
+            nftTxs.push_back(nftTx);
+        }
+        if(!pwallet->AddNftTxEntries(nftTxs))
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail to update nft transactions");
+
+        // Update tx from block
+        fromBlock = toBlock - 10;
+        if(fromBlock < 0) fromBlock = 0;
+        pwallet->SetNftTxFromBlock(contractAddress, fromBlock);
     }
-    if(!pwallet->AddNftTxEntries(nftTxs))
-        throw JSONRPCError(RPC_MISC_ERROR, "Fail to update nft transactions");
-    fromBlock = toBlock - 10;
-    if(fromBlock < 0) fromBlock = 0;
-    pwallet->m_nft_tx_from_block = fromBlock;
 
     // Update wallet nft list
-    std::map<uint256, WalletNFTInfo> listNftInfo;
+    std::map<std::string, std::map<uint256, WalletNFTInfo>> contractNftInfo;
     for(CNftInfo nft : pwallet->GetRawNftFromTx())
     {
         bool isOk = true;
         WalletNFTInfo info;
+        std::map<uint256, WalletNFTInfo>& listNftInfo = contractNftInfo[nft.strContractAddress];
         auto search = listNftInfo.find(nft.id);
         nftAbi.setSender(nft.strOwner);
+        nftAbi.setAddress(nft.strContractAddress);
         if(search != listNftInfo.end())
         {
             info = search->second;
@@ -7955,7 +8022,7 @@ static RPCHelpMan nftlist()
 
         if(!isOk) continue;
         nft.nCount = count;
-        pwallet->AddNftEntry(nft);
+        pwallet->AddNftEntry(nft, true, true);
     }
 
     // Get wallet nft list
@@ -7974,8 +8041,121 @@ static RPCHelpMan nftlist()
             obj.pushKV("description", info.strDesc);
             obj.pushKV("blocktime", info.nCreateTime);
             obj.pushKV("count", info.nCount);
+            obj.pushKV("contractaddress", info.strContractAddress);
             results.push_back(obj);
         }
+    }
+
+    return results;
+},
+    };
+}
+
+static RPCHelpMan nftimport()
+{
+    return RPCHelpMan{"nftimport",
+                "\nImport nfts from qtum address or contract address.\n",
+                {
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address or contract address."},
+                },
+                RPCResult{RPCResult::Type::NONE, "", ""},
+                RPCExamples{
+                    HelpExampleCli("nftimport", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
+            + HelpExampleCli("nftimport", "\"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
+            + HelpExampleRpc("nftimport", "\"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\"")
+            + HelpExampleRpc("nftimport", "\"2c4bfcb0bb978fc583d6170c291d416a4b16267f\"")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+    ChainstateManager& chainman = pwallet->chain().chainman();
+    LOCK(pwallet->cs_wallet);
+
+    std::string strAddress = request.params[0].get_str();
+    if(strAddress.size() == 40 && CheckHex(strAddress))
+    {
+        CallNft callNft(chainman);
+        callNft.setAddress(strAddress);
+        if(!callNft.supportsInterface())
+            throw JSONRPCError(RPC_MISC_ERROR, "Not a NFT contract address");
+
+        CNftImport nft;
+        nft.strAddress = strAddress;
+        nft.isContract = true;
+        pwallet->AddNftImportEntry(nft);
+    }
+    else
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if (!IsValidDestination(dest)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
+        }
+
+        if(!pwallet->IsMine(dest))
+        {
+            CNftImport nft;
+            nft.strAddress = strAddress;
+            nft.isContract = false;
+            pwallet->AddNftImportEntry(nft);
+        }
+
+        pwallet->RefreshNftTxFromBlock();
+    }
+
+    return NullUniValue;
+},
+    };
+}
+
+static RPCHelpMan nftlistcontract()
+{
+    return RPCHelpMan{"nftlistcontract",
+        "\nReturns NFT contract addresses that the wallet scan for NFTs.\n",
+        {},
+        RPCResult{
+            RPCResult::Type::ARR, "", "",
+            {
+                {RPCResult::Type::OBJ, "", "",
+                {
+                    {RPCResult::Type::STR, "contractaddress", "The NFT contract address"},
+                    {RPCResult::Type::BOOL, "support", "Support NFT contract interface"},
+                }}
+            },
+        },
+        RPCExamples{
+            HelpExampleCli("nftlistcontract", "")
+                    + HelpExampleRpc("nftlistcontract", "")
+        },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+    ChainstateManager& chainman = pwallet->chain().chainman();
+    LOCK(pwallet->cs_wallet);
+
+    // Get wallet nft contract addresses list
+    CallNft nft(chainman);
+    UniValue results(UniValue::VARR);
+    std::map<std::string, int64_t> mapContractAddresses = pwallet->m_nft_contract_addresses;
+    for(std::map<std::string, int64_t>::iterator it = mapContractAddresses.begin(); it != mapContractAddresses.end(); it++)
+    {
+        std::string contractAddress = it->first;
+        nft.setAddress(contractAddress);
+        bool fSupport = false;
+        UniValue obj(UniValue::VOBJ);
+        try
+        {
+            if(nft.supportsInterface())
+            {
+                fSupport = true;
+            }
+        }
+        catch(...)
+        {}
+        obj.pushKV("contractaddress", contractAddress);
+        obj.pushKV("support", fSupport);
+        results.push_back(obj);
     }
 
     return results;
@@ -8087,6 +8267,8 @@ static const CRPCCommand commands[] =
     { "wallet",             &nftsend,                         },
     { "wallet",             &nftsendbatch,                    },
     { "wallet",             &nftlist,                         },
+    { "wallet",             &nftimport,                       },
+    { "wallet",             &nftlistcontract,                 },
 };
 // clang-format on
     return MakeSpan(commands);

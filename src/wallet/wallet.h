@@ -476,6 +476,8 @@ public:
 
     std::map<uint256, CNftTx> mapNftTx;
 
+    std::map<uint256, CNftImport> mapNftImport;
+
     bool fUpdatedSuperStaker = false;
 
     std::map<COutPoint, CStakeCache> minerStakeCache;
@@ -595,6 +597,8 @@ public:
     bool LoadNft(const CNftInfo &nft);
 
     bool LoadNftTx(const CNftTx &nftTx);
+
+    bool LoadNftImport(const CNftImport &nft);
 
     //! Adds a contract data tuple to the store, without saving it to disk
     bool LoadContractData(const std::string &address, const std::string &key, const std::string &value);
@@ -1111,7 +1115,7 @@ public:
     bool CleanTokenTxEntries(bool fFlushOnClose=true);
 
     /* Add nft entry into the wallet */
-    bool AddNftEntry(const CNftInfo& nft, bool fFlushOnClose=true);
+    bool AddNftEntry(const CNftInfo& nft, bool fFlushOnClose=true, bool fCopyUserData = false);
 
     /* Remove nft entry from the wallet */
     bool RemoveNftEntry(const uint256& nftHash, bool fFlushOnClose=true);
@@ -1125,6 +1129,12 @@ public:
     /* Remove nft tx entry from the wallet */
     bool RemoveNftTxEntry(const uint256& nftHash, bool fFlushOnClose=true);
 
+    /* Add nft import entry into the wallet */
+    bool AddNftImportEntry(const CNftImport& nft, bool fFlushOnClose=true);
+
+    /* Remove nft import entry from the wallet */
+    bool RemoveNftImportEntry(const uint256& nftHash, bool fFlushOnClose=true);
+
     /* Remove unconfirmed nft tx entry from the wallet */
     bool RemoveUnconfirmedNftTxEntry(const CNftTx& nftTx);
 
@@ -1132,7 +1142,7 @@ public:
     bool IsNftTxMine(const CNftTx &wtx) const;
 
     /* Check if nft is mine */
-    bool IsNftMine(const CNftInfo &info) const;
+    bool IsNftMine(const CNftInfo &info, bool* watchNft = nullptr) const;
 
     /* Check if exist nft transaction */
     bool ExistNftTxEntry(const CNftTx &wtx) const;
@@ -1176,6 +1186,21 @@ public:
     /* Clean coinstake transactions */
     void CleanCoinStake();
 
+    /* Add nft contract address */
+    void AddNftContractAddress(const std::string& contractAddress);
+
+    /* Add nft watch address */
+    void AddNftWatchAddress(const std::string& watchAddress);
+
+    /* Set nft tx from block */
+    void SetNftTxFromBlock(const std::string& contractAddress, const int64_t& fromBlock);
+
+    /* Refresh nft tx from block */
+    void RefreshNftTxFromBlock();
+
+    /* Is nft address mine */
+    bool IsNftAddressMine(const std::string& strAddress, bool fAllowWatchOnly, bool* watchNft = nullptr) const;
+
     void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
     void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);
     void updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
@@ -1187,7 +1212,8 @@ public:
     int m_num_threads = 1;
     mutable boost::thread_group threads;
     std::string m_ledger_id;
-    int64_t m_nft_tx_from_block = 0;
+    std::map<std::string, int64_t> m_nft_contract_addresses;
+    std::map<std::string, bool> m_nft_watch_addresses;
 };
 
 /**
@@ -1442,6 +1468,7 @@ class CNftInfo
 public:
     static const int CURRENT_VERSION=1;
     int nVersion;
+    std::string strContractAddress;
     std::string strOwner;
     uint256 id;
     uint256 NFTId;
@@ -1451,6 +1478,7 @@ public:
     int64_t nCreateTime;
     int32_t nCount;
     std::string strThumbnail;
+    bool showThumbnail;
 
     CNftInfo()
     {
@@ -1460,14 +1488,15 @@ public:
     SERIALIZE_METHODS(CNftInfo, obj) {
         if (!(s.GetType() & SER_GETHASH))
         {
-            READWRITE(obj.nVersion, obj.nCreateTime, obj.nCount, obj.strThumbnail);
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.nCount, obj.strThumbnail, obj.showThumbnail);
         }
-        READWRITE(obj.strOwner, obj.id, obj.NFTId, obj.strName, obj.strUrl, obj.strDesc);
+        READWRITE(obj.strContractAddress, obj.strOwner, obj.id, obj.NFTId, obj.strName, obj.strUrl, obj.strDesc);
     }
 
     void SetNull()
     {
         nVersion = CNftInfo::CURRENT_VERSION;
+        strContractAddress = "";
         strOwner = "";
         id.SetNull();
         NFTId.SetNull();
@@ -1477,6 +1506,7 @@ public:
         nCreateTime = 0;
         nCount = 0;
         strThumbnail = "";
+        showThumbnail = true;
     }
 
     uint256 GetHash() const;
@@ -1487,6 +1517,7 @@ class CNftTx
 public:
     static const int CURRENT_VERSION=1;
     int nVersion;
+    std::string strContractAddress;
     std::string strSender;
     std::string strReceiver;
     uint256 id;
@@ -1508,13 +1539,14 @@ public:
         {
             READWRITE(obj.nVersion, obj.nCreateTime, obj.blockHash, obj.blockNumber);
         }
-        READWRITE(obj.strSender, obj.strReceiver, obj.id, obj.nValue, obj.transactionHash);
+        READWRITE(obj.strContractAddress, obj.strSender, obj.strReceiver, obj.id, obj.nValue, obj.transactionHash);
     }
 
     void SetNull()
     {
         nVersion = CNftTx::CURRENT_VERSION;
         nCreateTime = 0;
+        strContractAddress = "";
         strSender = "";
         strReceiver = "";
         id.SetNull();
@@ -1522,6 +1554,37 @@ public:
         transactionHash.SetNull();
         blockHash.SetNull();
         blockNumber = -1;
+    }
+
+    uint256 GetHash() const;
+};
+
+class CNftImport
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strAddress;
+    bool isContract;
+
+    CNftImport()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CNftImport, obj) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(obj.nVersion);
+        }
+        READWRITE(obj.strAddress, obj.isContract);
+    }
+
+    void SetNull()
+    {
+        nVersion = CNftImport::CURRENT_VERSION;
+        strAddress = "";
+        isContract = false;
     }
 
     uint256 GetHash() const;
