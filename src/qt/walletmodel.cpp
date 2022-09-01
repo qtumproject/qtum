@@ -42,11 +42,10 @@
 #include <QSet>
 #include <QTimer>
 #include <QFile>
-#include <qt/walletmodel.moc>
 
-//using wallet::CCoinControl;
-//using wallet::CRecipient;
-//using wallet::DEFAULT_DISABLE_WALLET;
+using wallet::CCoinControl;
+using wallet::CRecipient;
+using wallet::DEFAULT_DISABLE_WALLET;
 
 static int pollSyncSkip = 30;
 
@@ -72,6 +71,7 @@ private Q_SLOTS:
     }
 };
 
+#include <qt/walletmodel.moc>
 
 WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel& client_model, const PlatformStyle *platformStyle, QObject *parent) :
     QObject(parent),
@@ -273,12 +273,12 @@ bool WalletModel::validateAddress(const QString &address)
     return IsValidDestinationString(address.toStdString());
 }
 
-WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransaction &transaction, const wallet::CCoinControl& coinControl)
+WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransaction &transaction, const CCoinControl& coinControl)
 {
     CAmount total = 0;
     bool fSubtractFeeFromAmount = false;
     QList<SendCoinsRecipient> recipients = transaction.getRecipients();
-    std::vector<wallet::CRecipient> vecSend;
+    std::vector<CRecipient> vecSend;
 
     if(recipients.empty())
     {
@@ -306,7 +306,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
             ++nAddresses;
 
             CScript scriptPubKey = GetScriptForDestination(DecodeDestination(rcp.address.toStdString()));
-            wallet::CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
+            CRecipient recipient = {scriptPubKey, rcp.amount, rcp.fSubtractFeeFromAmount};
             vecSend.push_back(recipient);
 
             total += rcp.amount;
@@ -503,7 +503,7 @@ bool WalletModel::restoreWallet(const QString &filename, const QString &param)
     if(QFile::exists(filename))
     {
         fs::path pathWalletBak = gArgs.GetDataDirNet() / strprintf("wallet.%d.bak", GetTime());
-        std::string walletBak = pathWalletBak.string();
+        std::string walletBak = fs::PathToString(pathWalletBak);
         if(m_wallet->backupWallet(walletBak))
         {
             restorePath = filename;
@@ -677,7 +677,7 @@ void WalletModel::UnlockContext::CopyFrom(UnlockContext&& rhs)
 
 bool WalletModel::bumpFee(uint256 hash, uint256& new_hash)
 {
-    wallet::CCoinControl coin_control;
+    CCoinControl coin_control;
     coin_control.m_signal_bip125_rbf = true;
     std::vector<bilingual_str> errors;
     CAmount old_fee;
@@ -777,7 +777,7 @@ bool WalletModel::displayAddress(std::string sAddress)
 
 bool WalletModel::isWalletEnabled()
 {
-   return !gArgs.GetBoolArg("-disablewallet", wallet::DEFAULT_DISABLE_WALLET);
+   return !gArgs.GetBoolArg("-disablewallet", DEFAULT_DISABLE_WALLET);
 }
 
 QString WalletModel::getWalletName() const
@@ -1027,7 +1027,7 @@ QList<HWDevice> WalletModel::getDevices()
 void WalletModel::checkHardwareDevice()
 {
     int64_t time = GetTimeMillis();
-    if(time > (DEVICE_UPDATE_DELAY + deviceTime))
+    if(time > (count_milliseconds(DEVICE_UPDATE_DELAY) + deviceTime))
     {
         QList<HWDevice> tmpDevices;
 

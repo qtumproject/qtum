@@ -197,3 +197,9 @@ bool CreateWalletDialog::isExternalSignerChecked() const
 {
     return ui->external_signer_checkbox->isChecked();
 }
+
+bool CreateWalletDialog::isHardwareWalletChecked() const
+{
+    return ui->hardware_wallet_checkbox->isChecked();
+}
+

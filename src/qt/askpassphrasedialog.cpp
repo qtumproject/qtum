@@ -14,7 +14,7 @@
 #include <qt/walletmodel.h>
 #include <qt/styleSheet.h>
 #include <wallet/wallet.h>
-#include <miner.h>
+#include <node/miner.h>
 
 #include <support/allocators/secure.h>
 
@@ -175,7 +175,7 @@ void AskPassphraseDialog::accept()
                 if(UnlockStaking == mode)
                 {
                     // Start the staking if enabled on the machine
-                    bool staking = CanStake();
+                    bool staking = node::CanStake();
                     model->wallet().setEnabledStaking(staking);
                 }
                 QDialog::accept(); // Success

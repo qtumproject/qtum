@@ -789,3 +789,18 @@ void TransactionTableModel::unsubscribeFromCoreSignals()
     m_handler_transaction_changed->disconnect();
     m_handler_show_progress->disconnect();
 }
+
+void TransactionTableModel::modelDataChanged(const TransactionTableModel::ColumnIndex &column)
+{
+    QPointer<TransactionTableModel> model = this;
+    int from = 0;
+    int to = 0;
+    while(model && to != priv->size() && !(walletModel->node().shutdownRequested()))
+    {
+        to += dataChangedChunk;
+        if(to > priv->size()) to = priv->size();
+        Q_EMIT dataChanged(index(from, column), index(to-1, column));
+        from = to;
+        if(qApp) qApp->processEvents();
+    }
+}

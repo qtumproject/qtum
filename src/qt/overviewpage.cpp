@@ -251,9 +251,8 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setMinimumHeight(NUM_ITEMS * (TX_SIZE + 2));
     ui->listTransactions->setMinimumWidth(590);
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
-    ui->listTransactions->setSelectionBehavior(QAbstractItemView::SelectRows); //QTUM_INSERT_LINE
+    ui->listTransactions->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    connect(ui->listTransactions, &TransactionOverviewWidget::clicked, this, &OverviewPage::handleTransactionClicked);
     connect(ui->listTransactions, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showDetails()));
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
@@ -484,4 +483,32 @@ void OverviewPage::setMonospacedFont(bool use_embedded_font)
     ui->labelWatchImmature->setFont(f);
     ui->labelWatchStake->setFont(f);
     ui->labelWatchTotal->setFont(f);
+}
+
+void OverviewPage::on_showMoreButton_clicked()
+{
+    Q_EMIT showMoreClicked();
+}
+
+void OverviewPage::showDetails()
+{
+    if(!ui->listTransactions->selectionModel())
+        return;
+    QModelIndexList selection = ui->listTransactions->selectionModel()->selectedRows();
+    if(!selection.isEmpty())
+    {
+        TransactionDescDialog *dlg = new TransactionDescDialog(selection.at(0));
+        dlg->setAttribute(Qt::WA_DeleteOnClose);
+        dlg->show();
+    }
+}
+
+void OverviewPage::on_buttonSend_clicked()
+{
+    Q_EMIT sendCoinsClicked();
+}
+
+void OverviewPage::on_buttonReceive_clicked()
+{
+    Q_EMIT receiveCoinsClicked();
 }

@@ -42,7 +42,6 @@ class WalletWorker;
 class TokenItemModel;
 class SuperStakerItemModel;
 class DelegationStakerItemModel;
-class CCoinControl;
 class CKeyID;
 class COutPoint;
 class CPubKey;

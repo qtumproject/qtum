@@ -230,8 +230,9 @@ void RemoveDelegationPage::on_removeDelegationClicked()
                               .arg(ui->lineEditAddress->text()));
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm remove delegation proposal.") : tr("Confirm remove delegation.");
-        const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
-        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
+        const bool enable_send{bCreateUnsigned};
+        const bool always_show_unsigned{m_model->getOptionsModel()->getEnablePSBTControls()};
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, enable_send, always_show_unsigned, this);
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();

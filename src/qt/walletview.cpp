@@ -82,14 +82,21 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     usedReceivingAddressesPage->setModel(walletModel->getAddressTableModel());
 
     createContractPage = new CreateContract(platformStyle);
+    createContractPage->setModel(walletModel);
     sendToContractPage = new SendToContract(platformStyle);
+    sendToContractPage->setModel(walletModel);
     callContractPage = new CallContract(platformStyle);
+    callContractPage->setModel(walletModel);
 
     QRCTokenPage = new QRCToken(platformStyle);
+    QRCTokenPage->setModel(walletModel);
 
     stakePage = new StakePage(platformStyle);
+    stakePage->setWalletModel(walletModel);
     delegationPage = new DelegationPage(platformStyle);
+    delegationPage->setModel(walletModel);
     superStakerPage = new SuperStakerPage(platformStyle);
+    superStakerPage->setModel(walletModel);
 
     addWidget(overviewPage);
     addWidget(transactionsPage);
@@ -149,8 +156,13 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     // Balloon pop-up for new transaction
     connect(walletModel->getTransactionTableModel(), &TransactionTableModel::rowsInserted, this, &WalletView::processNewTransaction);
 
+    // Balloon pop-up for new token transaction
+    connect(walletModel->getTokenTransactionTableModel(), &TokenTransactionTableModel::rowsInserted, this, &WalletView::processNewTokenTransaction);
+
     // Ask for passphrase if needed
-    connect(walletModel, &WalletModel::requireUnlock, this, &WalletView::unlockWallet);
+    connect(walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
+    connect(stakePage, SIGNAL(requireUnlock(bool)), this, SLOT(unlockWallet(bool)));
+    connect(walletModel, &WalletModel::encryptionStatusChanged, stakePage, &StakePage::updateEncryptionStatus);
 
     // Show progress dialog
     connect(walletModel, &WalletModel::showProgress, this, &WalletView::showProgress);
@@ -174,55 +186,6 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     delegationPage->setClientModel(_clientModel);
     superStakerPage->setClientModel(_clientModel);
     if (walletModel) walletModel->setClientModel(_clientModel);
-}
-
-void WalletView::setWalletModel(WalletModel *_walletModel)
-{
-    this->walletModel = _walletModel;
-
-    // Put transaction list in tabs
-    transactionView->setModel(_walletModel);
-    overviewPage->setWalletModel(_walletModel);
-    receiveCoinsPage->setModel(_walletModel);
-    sendCoinsPage->setModel(_walletModel);
-    createContractPage->setModel(_walletModel);
-    sendToContractPage->setModel(_walletModel);
-    callContractPage->setModel(_walletModel);
-    QRCTokenPage->setModel(_walletModel);
-    stakePage->setWalletModel(_walletModel);
-    delegationPage->setModel(_walletModel);
-    superStakerPage->setModel(_walletModel);
-    usedReceivingAddressesPage->setModel(_walletModel ? _walletModel->getAddressTableModel() : nullptr);
-    usedSendingAddressesPage->setModel(_walletModel ? _walletModel->getAddressTableModel() : nullptr);
-
-    if (_walletModel)
-    {
-        // Receive and pass through messages from wallet model
-        connect(_walletModel, &WalletModel::message, this, &WalletView::message);
-
-        // Handle changes in encryption status
-        connect(_walletModel, &WalletModel::encryptionStatusChanged, this, &WalletView::encryptionStatusChanged);
-        updateEncryptionStatus();
-
-        // update HD status
-        Q_EMIT hdEnabledStatusChanged();
-
-        // Balloon pop-up for new transaction
-        connect(_walletModel->getTransactionTableModel(), &TransactionTableModel::rowsInserted, this, &WalletView::processNewTransaction);
-
-        // Balloon pop-up for new token transaction
-        connect(_walletModel->getTokenTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
-                this, SLOT(processNewTokenTransaction(QModelIndex,int,int)));
-
-        // Ask for passphrase if needed
-        connect(_walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet())); //QTUM_LINE
-
-        connect(stakePage, SIGNAL(requireUnlock(bool)), this, SLOT(unlockWallet(bool)));
-        connect(_walletModel, &WalletModel::encryptionStatusChanged, stakePage, &StakePage::updateEncryptionStatus);
-
-        // Show progress dialog
-        connect(_walletModel, &WalletModel::showProgress, this, &WalletView::showProgress);
-    }
 }
 
 void WalletView::processNewTransaction(const QModelIndex& parent, int start, int /*end*/)
@@ -487,4 +450,13 @@ void WalletView::showProgress(const QString &title, int nProgress)
             progressDialog->setValue(nProgress);
         }
     }
+}
+
+void WalletView::signTxHardware(const QString &tx)
+{
+    if(!walletModel)
+        return;
+    HardwareSignTxDialog dlg(tx, this);
+    dlg.setModel(walletModel);
+    dlg.exec();
 }

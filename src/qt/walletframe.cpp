@@ -352,3 +352,55 @@ WalletModel* WalletFrame::currentWalletModel() const
     WalletView* wallet_view = currentWalletView();
     return wallet_view ? wallet_view->getWalletModel() : nullptr;
 }
+
+void WalletFrame::pageChanged(int index)
+{
+    updateTabBar(0, index);
+}
+
+void WalletFrame::updateTabBar(WalletView *walletView, int index)
+{
+    // update default parameters
+    if(walletView == 0)
+    {
+        walletView = currentWalletView();
+    }
+    if(walletView && index == -1)
+    {
+        index = walletView->currentIndex();
+    }
+
+    // update the tab bar into the title bar
+    bool found = false;
+    if(walletView && walletView->count() > index)
+    {
+        QWidget* currentPage = walletView->widget(index);
+        QObject* info = currentPage->findChild<TabBarInfo *>("");
+        setTabBarInfo(info);
+        found = true;
+    }
+    if(!found)
+    {
+        setTabBarInfo(0);
+    }
+}
+
+void WalletFrame::setTabBarInfo(QObject *into)
+{
+    if(m_title_bar)
+    {
+        m_title_bar->setTabBarInfo(into);
+    }
+}
+
+void WalletFrame::setTitleBar(TitleBar *titleBar)
+{
+    m_title_bar = titleBar;
+}
+
+void WalletFrame::signTxHardware(const QString& tx)
+{
+    WalletView *walletView = currentWalletView();
+    if (walletView)
+        walletView->signTxHardware(tx);
+}
