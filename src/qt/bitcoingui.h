@@ -284,7 +284,7 @@ private:
        @param[in] status            current encryption status
        @see WalletModel::EncryptionStatus
     */
-    void setEncryptionStatus(WalletModel *walletModel); //QTUM_LINE
+    void setEncryptionStatus(WalletModel *walletModel);
 
     /** Set the hd-enabled status as shown in the UI.
      @param[in] hdEnabled         current hd enabled status

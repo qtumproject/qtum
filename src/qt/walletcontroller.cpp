@@ -31,7 +31,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QWindow>
-#include <QFile> 
+#include <QFile>
 
 using wallet::WALLET_FLAG_BLANK_WALLET;
 using wallet::WALLET_FLAG_DESCRIPTORS;

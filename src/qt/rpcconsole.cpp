@@ -65,7 +65,7 @@ const char fontSizeSettingsKey[] = "consoleFontSize";
 const struct {
     const char *url;
     const char *source;
-    PlatformStyle::TableColorType type; //QTUM_INSERT_LINE
+    PlatformStyle::TableColorType type;
 } ICON_MAPPING[] = {
     {"cmd-request", ":/icons/tx_input", PlatformStyle::Input},
     {"cmd-reply", ":/icons/tx_output", PlatformStyle::Output},

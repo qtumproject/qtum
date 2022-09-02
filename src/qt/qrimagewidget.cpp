@@ -67,7 +67,7 @@ bool QRImageWidget::setQR(const QString& data, const QString& text)
     qrAddrImage.fill(0xffffff);
     {
         QPainter painter(&qrAddrImage);
-        painter.drawImage(QR_IMAGE_MARGIN, 0, qrImage.scaled(QR_IMAGE_SIZE, QR_IMAGE_SIZE));
+        painter.drawImage(qr_image_margin, 0, qrImage.scaled(QR_IMAGE_SIZE, QR_IMAGE_SIZE));
 
         if (!text.isEmpty()) {
             QRect paddedRect = qrAddrImage.rect();

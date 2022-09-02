@@ -77,7 +77,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     ui->proxyIpTor->setEnabled(false);
     ui->proxyIpTorLabel->setEnabled(false);
     ui->proxyPortTor->setEnabled(false);
-    ui->proxyPortTorLabel->setEnabled(false); //QTUM_INSERT_LINE
+    ui->proxyPortTorLabel->setEnabled(false);
     ui->proxyPortTor->setValidator(new QIntValidator(1, 65535, this));
 
     ui->reserveBalance->setNotifyAlways(false);
@@ -101,7 +101,6 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     /* hide launch at startup option on macOS */
     ui->bitcoinAtStartup->setVisible(false);
     ui->tabMain->layout()->removeWidget(ui->bitcoinAtStartup);
-    ui->verticalLayout_Main->removeItem(ui->horizontalSpacer_0_Main);
 #endif
 
     /* remove Wallet tab and 3rd party-URL textbox in case of -disablewallet */
@@ -412,7 +411,7 @@ void OptionsDialog::on_cancelButton_clicked()
 {
     reject();
 }
-//QTUM_INSERT
+
 void OptionsDialog::on_toolHWIPath_clicked()
 {
     QString filename = GUIUtil::getOpenFileName(this,

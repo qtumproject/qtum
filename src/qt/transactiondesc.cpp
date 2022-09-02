@@ -23,7 +23,7 @@
 #include <validation.h>
 #include <wallet/ismine.h>
 #include <consensus/params.h>
-#include <qt/guiconstants.h> //QTUM_INSERT_LINE
+#include <qt/guiconstants.h>
 
 #include <stdint.h>
 #include <string>
@@ -170,7 +170,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
     //
     // From
     //
-    if (wtx.is_coinbase || wtx.is_coinstake) //QTUM_LINE
+    if (wtx.is_coinbase || wtx.is_coinstake)
     {
         strHTML += TransactionFormater::ItemNameColor(tr("Source")) + tr("Generated") + "<br>";
     }
@@ -342,7 +342,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
     if (wtx.value_map.count("message") && !wtx.value_map["message"].empty())
         strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Message"), false) + "<br>" + GUIUtil::HtmlEscape(wtx.value_map["message"], true) + "<br>";
     if (wtx.value_map.count("comment") && !wtx.value_map["comment"].empty())
-        strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Comment"), false) + "<br>" + GUIUtil::HtmlEscape(wtx.value_map["comment"], true) + "<br>"; 
+        strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Comment"), false) + "<br>" + GUIUtil::HtmlEscape(wtx.value_map["comment"], true) + "<br>";
 
     strHTML += TransactionFormater::ItemNameColor(tr("Transaction ID")) + TransactionFormater::TxIdLink(rec->getTxHash()) + "<br>";
     strHTML += TransactionFormater::ItemNameColor(tr("Transaction total size")) + QString::number(wtx.tx->GetTotalSize()) + " bytes<br>";
@@ -352,7 +352,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
     // Message from normal bitcoin:URI (bitcoin:123...?message=example)
     for (const std::pair<std::string, std::string>& r : orderForm) {
         if (r.first == "Message")
-            strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Message")) + "<br>" + GUIUtil::HtmlEscape(r.second, true) + "<br>"; //QTUM_LINE
+            strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Message")) + "<br>" + GUIUtil::HtmlEscape(r.second, true) + "<br>";
 
         //
         // PaymentRequest info:
@@ -366,7 +366,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                 merchant += tr(" (Certificate was not verified)");
             }
             if (!merchant.isNull()) {
-                strHTML += TransactionFormater::ItemNameColor(tr("Merchant")) + GUIUtil::HtmlEscape(merchant) + "<br>"; //QTUM_LINE
+                strHTML += TransactionFormater::ItemNameColor(tr("Merchant")) + GUIUtil::HtmlEscape(merchant) + "<br>";
             }
         }
     }

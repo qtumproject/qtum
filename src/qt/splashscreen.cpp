@@ -179,7 +179,7 @@ void SplashScreen::finish()
 
 static void InitMessage(SplashScreen *splash, const std::string &message)
 {
-    QColor foreground_color = GetStringStyleValue("splashscreen/foreground-color_statusbar", "#ffffff"); //QTUM_INSERT_LINE
+    QColor foreground_color = GetStringStyleValue("splashscreen/foreground-color_statusbar", "#ffffff");
     bool invoked = QMetaObject::invokeMethod(splash, "showMessage",
         Qt::QueuedConnection,
         Q_ARG(QString, QString::fromStdString(message)),

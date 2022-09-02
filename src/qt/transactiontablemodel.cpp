@@ -227,7 +227,7 @@ public:
         if (idx >= 0 && idx < cachedWallet.size()) {
             TransactionRecord *rec = &cachedWallet[idx];
 
-            if(!isDataLoading) 
+            if(!isDataLoading)
             {
                 // If a status update is needed (blocks came in since last check),
                 // try to update the status of this transaction from the wallet.
@@ -422,7 +422,7 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
     switch(wtx->type)
     {
     case TransactionRecord::Generated:
-        return platformStyle->TableColorIcon(":/icons/tx_mined", PlatformStyle::Input); 
+        return platformStyle->TableColorIcon(":/icons/tx_mined", PlatformStyle::Input);
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::RecvFromOther:
         return platformStyle->TableColorIcon(":/icons/receive_from", PlatformStyle::Input);
@@ -479,10 +479,10 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
         {
         QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(wtx->address));
         if(label.isEmpty())
-            return COLOR_BAREADDRESS;
+            return color_bareaddress;
         } break;
     case TransactionRecord::SendToSelf:
-        return COLOR_BAREADDRESS;
+        return color_bareaddress;
     default:
         break;
     }
@@ -614,16 +614,16 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
         // Use the "danger" color for abandoned transactions
         if(rec->status.status == TransactionStatus::Abandoned)
         {
-            return COLOR_TX_STATUS_DANGER;
+            return color_tx_status_danger;
         }
         // Non-confirmed (but not immature) as transactions are grey
         if(!rec->status.countsForBalance && rec->status.status != TransactionStatus::Immature)
         {
-            return COLOR_UNCONFIRMED;
+            return color_unconfirmed;
         }
         if(index.column() == Amount && (rec->credit+rec->debit) < 0)
         {
-            return COLOR_NEGATIVE;
+            return color_negative;
         }
         if(index.column() == ToAddress)
         {

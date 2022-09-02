@@ -12,7 +12,6 @@
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
-#include <qt/receiverequestdialog.h>
 #include <qt/recentrequeststablemodel.h>
 #include <qt/walletmodel.h>
 #include <qt/styleSheet.h>
@@ -36,7 +35,6 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     SetObjectStyleSheet(ui->showRequestButton, StyleSheetNames::ButtonTransparentBordered);
     SetObjectStyleSheet(ui->removeRequestButton, StyleSheetNames::ButtonTransparentBordered);
     if (!_platformStyle->getImagesOnButtons()) {
-        ui->receiveButton->setIcon(QIcon());
         ui->showRequestButton->setIcon(QIcon());
         ui->removeRequestButton->setIcon(QIcon());
     } else {
@@ -169,7 +167,7 @@ void ReceiveCoinsDialog::on_receiveButton_clicked()
             ui->reqAmount->value(), ui->reqMessage->text());
 
         /* Store request for later reference */
-        model->getRecentRequestsTableModel()->addNewRequest(info);
+        model->getRecentRequestsTableModel()->addNewRequest(_info);
         info = _info;
         break;
     }

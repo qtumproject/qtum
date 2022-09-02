@@ -43,7 +43,7 @@
 #include <QSettings>
 #include <QTextDocument>
 #include <QTimer>
-//using wallet::CCoinControl;
+using wallet::CCoinControl;
 using wallet::DEFAULT_PAY_TX_FEE;
 
 static constexpr std::array confTargets{2, 4, 6, 12, 24, 48, 144, 504, 1008};
@@ -70,7 +70,7 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     ui(new Ui::SendCoinsDialog),
     clientModel(nullptr),
     model(nullptr),
-    m_coin_control(new wallet::CCoinControl),
+    m_coin_control(new CCoinControl),
     fNewRecipientAllowed(true),
     platformStyle(_platformStyle),
     targetSpacing(0)
@@ -84,8 +84,6 @@ SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *p
     SetObjectStyleSheet(ui->pushButtonCoinControl, StyleSheetNames::ButtonDark);
     if (!_platformStyle->getImagesOnButtons()) {
         ui->addButton->setIcon(QIcon());
-        ui->clearButton->setIcon(QIcon());
-        ui->sendButton->setIcon(QIcon());
     } else {
         ui->addButton->setIcon(_platformStyle->MultiStatesIcon(":/icons/add_recipient", PlatformStyle::PushButton));
     }
@@ -927,7 +925,7 @@ void SendCoinsDialog::coinControlFeatureChanged(bool checked)
     ui->coinControlWidget->setVisible(checked);
 
     if (!checked && model) { // coin control features disabled
-        m_coin_control = std::make_unique<wallet::CCoinControl>();
+        m_coin_control = std::make_unique<CCoinControl>();
     }
 
     coinControlUpdateLabels();

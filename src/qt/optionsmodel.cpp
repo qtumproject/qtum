@@ -171,6 +171,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("signPSBTWithHWITool", wallet::DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
     if (!gArgs.SoftSetBoolArg("-signpsbtwithhwitool", settings.value("signPSBTWithHWITool").toBool()))
         addOverriddenOption("-signpsbtwithhwitool");
+
     if (!settings.contains("fCheckForUpdates"))
         settings.setValue("fCheckForUpdates", DEFAULT_CHECK_FOR_UPDATES);
     fCheckForUpdates = settings.value("fCheckForUpdates").toBool();
