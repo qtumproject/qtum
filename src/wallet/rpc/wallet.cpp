@@ -13,11 +13,7 @@
 #include <wallet/rpc/util.h>
 #include <wallet/wallet.h>
 #include <wallet/coincontrol.h>
-#include <qtum/qtumdelegation.h>
-#include <util/signstr.h>
 #include <interfaces/wallet.h>
-#include <rpc/contract_util.h>
-#include <util/tokenstr.h>
 #include <util/moneystr.h>
 
 #include <optional>
@@ -1106,6 +1102,12 @@ RPCHelpMan abandontransaction();
 RPCHelpMan rescanblockchain();
 RPCHelpMan abortrescan();
 
+#ifdef QTUM_NODE
+// node specific
+RPCHelpMan createcontract();
+RPCHelpMan sendtocontract();
+#endif // QTUM_NODE
+
 Span<const CRPCCommand> GetWalletRPCCommands()
 {
 // clang-format off
@@ -1186,6 +1188,10 @@ static const CRPCCommand commands[] =
     { "wallet",             &listsuperstakercustomvalues,           },
     { "wallet",             &listsuperstakervaluesforaddress,       },
     { "wallet",             &removesuperstakervaluesforaddress,     },
+#ifdef QTUM_NODE
+    { "wallet",             &createcontract,                 },
+    { "wallet",             &sendtocontract,                 },
+#endif // QTUM_NODE
 };
 // clang-format on
     return commands;

@@ -1504,55 +1504,6 @@ RPCHelpMan walletcreatefundedpsbt()
     };
 }
 
-bool SetDefaultPayForContractAddress(const CWallet& wallet, CCoinControl & coinControl)
-{
-    // Set default coin to pay for the contract
-    // Select any valid unspent output that can be used to pay for the contract
-    std::vector<COutput> vecOutputs;
-    coinControl.fAllowOtherInputs=true;
-    coinControl.m_include_unsafe_inputs = true;
-
-    AvailableCoins(wallet, vecOutputs, &coinControl);
-
-    for (const COutput& out : vecOutputs) {
-        CTxDestination destAdress;
-        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-        bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress)
-                && IsValidContractSenderAddress(destAdress);
-
-        if (!fValidAddress)
-            continue;
-
-        coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
-        break;
-    }
-
-    return coinControl.HasSelected();
-}
-
-bool SetDefaultSignSenderAddress(const CWallet& wallet, CTxDestination& destAdress, CCoinControl & coinControl)
-{
-    // Set default sender address if none provided
-    // Select any valid unspent output that can be used for contract sender address
-    std::vector<COutput> vecOutputs;
-    coinControl.fAllowOtherInputs=true;
-    coinControl.m_include_unsafe_inputs = true;
-
-    AvailableCoins(wallet, vecOutputs, &coinControl);
-
-    for (const COutput& out : vecOutputs) {
-        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-        bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress)
-                && IsValidContractSenderAddress(destAdress);
-
-        if (!fValidAddress)
-            continue;
-        break;
-    }
-
-    return !std::holds_alternative<CNoDestination>(destAdress);
-}
-
 void SplitRemainder(std::vector<CRecipient>& vecSend, CAmount& remainder, CAmount maxValue)
 {
     if(remainder > 0)
