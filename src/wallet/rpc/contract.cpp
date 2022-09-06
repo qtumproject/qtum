@@ -865,4 +865,752 @@ RPCHelpMan sendtocontract()
     };
 }
 
+RPCHelpMan removedelegationforaddress()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"removedelegationforaddress",
+                    "\nRemove delegation for address." +
+                    HELP_REQUIRING_PASSPHRASE,
+                    {
+                        {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to remove delegation, the address will be used as sender too."},
+                        {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                        {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    },
+                    RPCResult{
+                        RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                            {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                            {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
+                            {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"}
+                        }
+                    },
+                    RPCExamples{
+                    HelpExampleCli("removedelegationforaddress", " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 6000000 "+FormatMoney(minGasPrice))
+                    },
+            [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get send to contract parameters for removing delegation for address
+    UniValue params(UniValue::VARR);
+    UniValue contractaddress = HexStr(Params().GetConsensus().delegationsAddress);
+    UniValue datahex = QtumDelegation::BytecodeRemove();
+    UniValue amount = 0;
+    UniValue gasLimit = request.params.size() > 1 ? request.params[1] : DEFAULT_GAS_LIMIT_OP_SEND;
+    UniValue gasPrice = request.params.size() > 2 ? request.params[2] : FormatMoney(nGasPrice);
+    UniValue senderaddress = request.params[0];
+
+    // Add the send to contract parameters to the list
+    params.push_back(contractaddress);
+    params.push_back(datahex);
+    params.push_back(amount);
+    params.push_back(gasLimit);
+    params.push_back(gasPrice);
+    params.push_back(senderaddress);
+
+    // Send to contract
+    return SendToContract(*pwallet, params, chainman);
+},
+    };
+}
+
+RPCHelpMan setdelegateforaddress()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"setdelegateforaddress",
+                    "\nSet delegate for address." +
+                    HELP_REQUIRING_PASSPHRASE,
+                    {
+                        {"staker", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address for the staker."},
+                        {"fee", RPCArg::Type::NUM, RPCArg::Optional::NO, "Percentage of the reward that will be paid to the staker."},
+                        {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address that contain the coins that will be delegated to the staker, the address will be used as sender too."},
+                        {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasLimit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE)+", max: "+i64tostr(blockGasLimit)},
+                        {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "gasPrice Qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    },
+                    RPCResult{
+                        RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                            {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                            {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
+                            {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"}
+                        }
+                    },
+                    RPCExamples{
+                    HelpExampleCli("setdelegateforaddress", " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 10 \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" 6000000 "+FormatMoney(minGasPrice))
+                    },
+        [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get send to contract parameters for add delegation for address
+    UniValue params(UniValue::VARR);
+    UniValue contractaddress = HexStr(Params().GetConsensus().delegationsAddress);
+    UniValue amount = 0;
+    UniValue gasLimit = request.params.size() > 3 ? request.params[3] : DEFAULT_GAS_LIMIT_OP_CREATE;
+    UniValue gasPrice = request.params.size() > 4 ? request.params[4] : FormatMoney(nGasPrice);
+    UniValue senderaddress = request.params[2];
+    bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+
+    // Parse the staker address
+    CTxDestination destStaker = DecodeDestination(request.params[0].get_str());
+    if (!std::holds_alternative<PKHash>(destStaker)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid contract address for staker. Only P2PK and P2PKH allowed");
+    }
+    PKHash pkhStaker = std::get<PKHash>(destStaker);
+
+    // Parse the staker fee
+    int fee = request.params[1].get_int();
+    if(fee < 0 || fee > 100)
+        throw JSONRPCError(RPC_PARSE_ERROR, "The staker fee need to be between 0 and 100");
+
+    // Parse the sender address
+    CTxDestination destSender = DecodeDestination(senderaddress.get_str());
+    if (!std::holds_alternative<PKHash>(destSender)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid contract sender address. Only P2PK and P2PKH allowed");
+    }
+    PKHash pkhSender = std::get<PKHash>(destSender);
+
+    // Get the private key for the sender address
+    if (!pwallet->HasPrivateKey(destSender, fPsbt)) {
+        throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
+    }
+
+    // Sign the  staker address
+    std::vector<unsigned char> PoD;
+    std::string hexStaker =  ToKeyID(pkhStaker).GetReverseHex();
+    if(fPsbt)
+    {
+        PoD.insert(PoD.end(), hexStaker.begin(), hexStaker.end());
+        PoD.resize(CPubKey::COMPACT_SIGNATURE_SIZE, 0);
+    }
+    else
+    {
+        std::string str_sig;
+        SigningResult res = pwallet->SignMessage(hexStaker, pkhSender, str_sig);
+        if(res == SigningResult::PRIVATE_KEY_NOT_AVAILABLE)
+        {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Private key not available for the sender address");
+        }
+        if(res == SigningResult::SIGNING_FAILED)
+        {
+            throw JSONRPCError(RPC_WALLET_ERROR, "Fail to sign the staker address");
+        }
+        PoD = DecodeBase64(str_sig.c_str());
+    }
+
+    // Serialize the data
+    std::string datahex;
+    std::string errorMessage;
+    if(!QtumDelegation::BytecodeAdd(hexStaker, fee, PoD, datahex, errorMessage))
+        throw JSONRPCError(RPC_TYPE_ERROR, errorMessage);
+
+    // Add the send to contract parameters to the list
+    params.push_back(contractaddress);
+    params.push_back(datahex);
+    params.push_back(amount);
+    params.push_back(gasLimit);
+    params.push_back(gasPrice);
+    params.push_back(senderaddress);
+
+    // Send to contract
+    return SendToContract(*pwallet, params, chainman);
+},
+    };
+}
+
+RPCHelpMan qrc20approve()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"qrc20approve",
+                "\nOwner approves an address to spend some amount of tokens.\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
+                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
+                    {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens. eg 0.1"},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleRpc("qrc20approve", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+                },
+            [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get mandatory parameters
+    std::string contract = request.params[0].get_str();
+    std::string owner = request.params[1].get_str();
+    std::string spender = request.params[2].get_str();
+    std::string tokenAmount = request.params[3].get_str();
+
+    // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    if (request.params.size() > 4){
+        nGasLimit = request.params[4].get_int64();
+    }
+
+    // Get gas price
+    if (request.params.size() > 5){
+        nGasPrice = AmountFromValue(request.params[5]);
+    }
+
+    // Get check outputs flag
+    bool fCheckOutputs = true;
+    if (request.params.size() > 6){
+        fCheckOutputs = request.params[6].get_bool();
+    }
+
+    // Set token parameters
+    SendToken token(*pwallet, chainman);
+    token.setAddress(contract);
+    token.setSender(owner);
+    token.setGasLimit(i64tostr(nGasLimit));
+    token.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get decimals
+    uint32_t decimals;
+    if(!token.decimals(decimals))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+
+    // Get token amount to approve
+    dev::s256 nTokenAmount;
+    if(!ParseToken(decimals, tokenAmount, nTokenAmount))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
+
+    // Check approve offline
+    std::string value = nTokenAmount.str();
+    bool success = false;
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.approve(spender, value, success) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for approve token amount for spending");
+    }
+
+    // Approve value to spend
+    if(!token.approve(spender, value, success, true))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to approve token amount for spending");
+
+    UniValue result(UniValue::VOBJ);
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
+    return result;
+},
+    };
+}
+
+RPCHelpMan qrc20transfer()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"qrc20transfer",
+                "\nSend token amount to a given address.\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
+                    {"addressto", RPCArg::Type::STR, RPCArg::Optional::NO,  "The qtum address to send funds to."},
+                    {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens to send. eg 0.1"},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleRpc("qrc20transfer", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+                },
+            [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get mandatory parameters
+    std::string contract = request.params[0].get_str();
+    std::string owner = request.params[1].get_str();
+    std::string address = request.params[2].get_str();
+    std::string tokenAmount = request.params[3].get_str();
+
+    // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    if (request.params.size() > 4){
+        nGasLimit = request.params[4].get_int64();
+    }
+
+    // Get gas price
+    if (request.params.size() > 5){
+        nGasPrice = AmountFromValue(request.params[5]);
+    }
+
+    // Get check outputs flag
+    bool fCheckOutputs = true;
+    if (request.params.size() > 6){
+        fCheckOutputs = request.params[6].get_bool();
+    }
+
+    // Set token parameters
+    SendToken token(*pwallet, chainman);
+    token.setAddress(contract);
+    token.setSender(owner);
+    token.setGasLimit(i64tostr(nGasLimit));
+    token.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get decimals
+    uint32_t decimals;
+    if(!token.decimals(decimals))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+
+    // Get token amount
+    dev::s256 nTokenAmount;
+    if(!ParseToken(decimals, tokenAmount, nTokenAmount))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
+
+    // Get token owner balance
+    std::string strBalance;
+    if(!token.balanceOf(strBalance))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get balance");
+
+    // Check if balance is enough to cover it
+    dev::s256 balance(strBalance);
+    if(balance < nTokenAmount)
+        throw JSONRPCError(RPC_MISC_ERROR, "Not enough token balance");
+
+    // Check transfer offline
+    std::string value = nTokenAmount.str();
+    bool success = false;
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.transfer(address, value, success) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for transfer token");
+    }
+
+    // Send token
+    if(!token.transfer(address, value, success, true))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to transfer token");
+
+    UniValue result(UniValue::VOBJ);
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
+    return result;
+},
+    };
+}
+
+RPCHelpMan qrc20transferfrom()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"qrc20transferfrom",
+                "\nSend token amount from selected address to a given address.\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
+                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
+                    {"receiveraddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token receiver qtum address."},
+                    {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of token to send. eg 0.1"},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                 },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1")
+            + HelpExampleCli("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1")
+            + HelpExampleRpc("qrc20transferfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QhZThdumK8EFRX8MziWzvjCdiQWRt7Mxdz\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+                },
+            [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get mandatory parameters
+    std::string contract = request.params[0].get_str();
+    std::string owner = request.params[1].get_str();
+    std::string spender = request.params[2].get_str();
+    std::string receiver = request.params[3].get_str();
+    std::string tokenAmount = request.params[4].get_str();
+
+    // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    if (request.params.size() > 5){
+        nGasLimit = request.params[5].get_int64();
+    }
+
+    // Get gas price
+    if (request.params.size() > 6){
+        nGasPrice = AmountFromValue(request.params[6]);
+    }
+
+    // Get check outputs flag
+    bool fCheckOutputs = true;
+    if (request.params.size() > 7){
+        fCheckOutputs = request.params[7].get_bool();
+    }
+
+    // Set token parameters
+    SendToken token(*pwallet, chainman);
+    token.setAddress(contract);
+    token.setSender(spender);
+    token.setGasLimit(i64tostr(nGasLimit));
+    token.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get decimals
+    uint32_t decimals;
+    if(!token.decimals(decimals))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+
+    // Get token amount to spend
+    dev::s256 nTokenAmount;
+    if(!ParseToken(decimals, tokenAmount, nTokenAmount))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
+
+    // Get token spender allowance
+    std::string strAllowance;
+    if(!token.allowance(owner, spender, strAllowance))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get allowance");
+
+    // Check if allowance is enough to cover it
+    dev::s256 allowance(strAllowance);
+    if(allowance < nTokenAmount)
+        throw JSONRPCError(RPC_MISC_ERROR, "Not enough token allowance");
+
+    // Check transfer from offline
+    std::string value = nTokenAmount.str();
+    bool success = false;
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.transferFrom(owner, receiver, value, success) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for spend token amount from address");
+    }
+
+    // Transfer allowed token amount
+    if(!token.transferFrom(owner, receiver, value, success, true))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to spend token amount from address");
+
+    UniValue result(UniValue::VOBJ);
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
+    return result;
+},
+    };
+}
+
+RPCHelpMan qrc20burn()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"qrc20burn",
+                "\nBurns token amount from owner address.\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
+                    {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of tokens to burn. eg 0.1"},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleRpc("qrc20burn", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+                },
+            [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get mandatory parameters
+    std::string contract = request.params[0].get_str();
+    std::string owner = request.params[1].get_str();
+    std::string tokenAmount = request.params[2].get_str();
+
+    // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    if (request.params.size() > 3){
+        nGasLimit = request.params[3].get_int64();
+    }
+
+    // Get gas price
+    if (request.params.size() > 4){
+        nGasPrice = AmountFromValue(request.params[4]);
+    }
+
+    // Get check outputs flag
+    bool fCheckOutputs = true;
+    if (request.params.size() > 5){
+        fCheckOutputs = request.params[5].get_bool();
+    }
+
+    // Set token parameters
+    SendToken token(*pwallet, chainman);
+    token.setAddress(contract);
+    token.setSender(owner);
+    token.setGasLimit(i64tostr(nGasLimit));
+    token.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get decimals
+    uint32_t decimals;
+    if(!token.decimals(decimals))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+
+    // Get token amount to burn
+    dev::s256 nTokenAmount;
+    if(!ParseToken(decimals, tokenAmount, nTokenAmount))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
+
+    // Get token owner balance
+    std::string strBalance;
+    if(!token.balanceOf(strBalance))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get balance");
+
+    // Check if balance is enough to cover it
+    dev::s256 balance(strBalance);
+    if(balance < nTokenAmount)
+        throw JSONRPCError(RPC_MISC_ERROR, "Not enough token balance");
+
+    // Check burn offline
+    std::string value = nTokenAmount.str();
+    bool success = false;
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.burn(value, success) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for burn token amount");
+    }
+
+    // Burn token amount
+    if(!token.burn(value, success, true))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to burn token amount");
+
+    UniValue result(UniValue::VOBJ);
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
+    return result;
+},
+    };
+}
+
+RPCHelpMan qrc20burnfrom()
+{
+    uint64_t blockGasLimit = 0, minGasPrice = 0;
+    CAmount nGasPrice = 0;
+    getDgpData(blockGasLimit, minGasPrice, nGasPrice);
+
+    return RPCHelpMan{"qrc20burnfrom",
+                "\nBurns token amount from a given address.\n",
+                {
+                    {"contractaddress", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address."},
+                    {"owneraddress", RPCArg::Type::STR, RPCArg::Optional::NO, "The token owner qtum address."},
+                    {"spenderaddress", RPCArg::Type::STR, RPCArg::Optional::NO,  "The token spender qtum address."},
+                    {"amount", RPCArg::Type::STR, RPCArg::Optional::NO,  "The amount of token to burn. eg 0.1"},
+                    {"gasLimit", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The gas limit, default: "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+", max: "+i64tostr(blockGasLimit)},
+                    {"gasPrice", RPCArg::Type::AMOUNT, RPCArg::Optional::OMITTED, "The qtum price per gas unit, default: "+FormatMoney(nGasPrice)+", min:"+FormatMoney(minGasPrice)},
+                    {"checkOutputs", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Check outputs before send, default: true"},
+                 },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "psbt", "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleCli("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+            + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+            + HelpExampleRpc("qrc20burnfrom", "\"eb23c0b3e6042821da281a2e2364feb22dd543e3\" \"QX1GkJdye9WoUnrE2v6ZQhQ72EUVDtGXQX\" \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 "+i64tostr(DEFAULT_GAS_LIMIT_OP_SEND)+" "+FormatMoney(minGasPrice)+" true")
+                },
+            [&,nGasPrice](const RPCHelpMan& self, const JSONRPCRequest& request) mutable -> UniValue
+{
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!pwallet) return NullUniValue;
+
+    ChainstateManager& chainman = pwallet->chain().chainman();
+
+    LOCK(pwallet->cs_wallet);
+
+    // Get mandatory parameters
+    std::string contract = request.params[0].get_str();
+    std::string owner = request.params[1].get_str();
+    std::string spender = request.params[2].get_str();
+    std::string tokenAmount = request.params[3].get_str();
+
+    // Get gas limit
+    uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
+    if (request.params.size() > 4){
+        nGasLimit = request.params[4].get_int64();
+    }
+
+    // Get gas price
+    if (request.params.size() > 5){
+        nGasPrice = AmountFromValue(request.params[5]);
+    }
+
+    // Get check outputs flag
+    bool fCheckOutputs = true;
+    if (request.params.size() > 6){
+        fCheckOutputs = request.params[6].get_bool();
+    }
+
+    // Set token parameters
+    SendToken token(*pwallet, chainman);
+    token.setAddress(contract);
+    token.setSender(spender);
+    token.setGasLimit(i64tostr(nGasLimit));
+    token.setGasPrice(FormatMoney(nGasPrice));
+
+    // Get decimals
+    uint32_t decimals;
+    if(!token.decimals(decimals))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get decimals");
+
+    // Get token amount to burn
+    dev::s256 nTokenAmount;
+    if(!ParseToken(decimals, tokenAmount, nTokenAmount))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get token amount");
+
+    // Get token spender allowance
+    std::string strAllowance;
+    if(!token.allowance(owner, spender, strAllowance))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to get allowance");
+
+    // Check if allowance is enough to cover it
+    dev::s256 allowance(strAllowance);
+    if(allowance < nTokenAmount)
+        throw JSONRPCError(RPC_MISC_ERROR, "Not enough token allowance");
+
+    // Check burn from offline
+    std::string value = nTokenAmount.str();
+    bool success = false;
+    if(fCheckOutputs)
+    {
+        token.setCheckGasForCall(true);
+        if(!token.burnFrom(owner, value, success, false) || !success)
+            throw JSONRPCError(RPC_MISC_ERROR, "Fail offline check for burn token amount from address");
+    }
+
+    // Burn token amount
+    if(!token.burnFrom(owner, value, success, true))
+        throw JSONRPCError(RPC_MISC_ERROR, "Fail to burn token amount from address");
+
+    UniValue result(UniValue::VOBJ);
+    if(token.privateKeysDisabled())
+    {
+        result.pushKV("psbt", token.getPsbt());
+    }
+    else
+    {
+        result.pushKV("txid", token.getTxId());
+    }
+    return result;
+},
+    };
+}
+
 } // namespace wallet
