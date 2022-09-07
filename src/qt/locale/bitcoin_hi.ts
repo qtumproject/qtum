@@ -43,11 +43,11 @@
         <translation type="unfinished">के साथ सिक्के प्राप्त करने के लिए पता चुनें</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">भुगतान भेजने के लिए ये आपके बिटकॉइन पते हैं। सिक्के भेजने से पहले हमेशा राशि और प्राप्त करने वाले पते की जांच करें।</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">भुगतान प्राप्त करने के लिए ये आपके बिटकॉइन पते हैं। नए पते बनाने के लिए प्राप्त टैब में 'नया प्राप्तकर्ता पता बनाएं' बटन का उपयोग करें। हस्ताक्षर केवल 'विरासत' प्रकार के पते के साथ ही संभव है।</translation>
     </message>
@@ -136,7 +136,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
