@@ -488,7 +488,7 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
     assert(m_current_transaction);
 
     const QString confirmation = bCreateUnsigned ? tr("Confirm transaction proposal") : tr("Confirm send coins");
-    const bool enable_send{bCreateUnsigned};
+    const bool enable_send{!bCreateUnsigned};
     const bool always_show_unsigned{model->getOptionsModel()->getEnablePSBTControls()};
     auto confirmationDialog = new SendConfirmationDialog(confirmation, question_string, informative_text, detailed_text, SEND_CONFIRM_DELAY, enable_send, always_show_unsigned, this);
     confirmationDialog->setAttribute(Qt::WA_DeleteOnClose);

@@ -256,7 +256,7 @@ void SendToContract::on_sendToContractClicked()
                               .arg(ui->lineEditContractAddress->text()));
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm sending to contract proposal.") : tr("Confirm sending to contract.");
-        const bool enable_send{bCreateUnsigned};
+        const bool enable_send{!bCreateUnsigned};
         const bool always_show_unsigned{m_model->getOptionsModel()->getEnablePSBTControls()};
         SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, enable_send, always_show_unsigned, this);
         confirmationDialog.exec();

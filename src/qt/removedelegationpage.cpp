@@ -230,7 +230,7 @@ void RemoveDelegationPage::on_removeDelegationClicked()
                               .arg(ui->lineEditAddress->text()));
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm remove delegation proposal.") : tr("Confirm remove delegation.");
-        const bool enable_send{bCreateUnsigned};
+        const bool enable_send{!bCreateUnsigned};
         const bool always_show_unsigned{m_model->getOptionsModel()->getEnablePSBTControls()};
         SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, enable_send, always_show_unsigned, this);
         confirmationDialog.exec();

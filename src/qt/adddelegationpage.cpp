@@ -269,7 +269,7 @@ void AddDelegationPage::on_addDelegationClicked()
         }
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm address delegation proposal.") : tr("Confirm address delegation to staker.");
-        const bool enable_send{bCreateUnsigned};
+        const bool enable_send{!bCreateUnsigned};
         const bool always_show_unsigned{m_model->getOptionsModel()->getEnablePSBTControls()};
         SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, enable_send, always_show_unsigned, this);
 
