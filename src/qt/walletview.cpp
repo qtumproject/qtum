@@ -73,7 +73,10 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     transactionsPage->setLayout(vbox);
 
     receiveCoinsPage = new ReceiveRequestDialog(platformStyle, overviewPage);
+    receiveCoinsPage->setModel(walletModel);
+
     sendCoinsPage = new SendCoinsDialog(platformStyle, overviewPage);
+    sendCoinsPage->setModel(walletModel);
 
     usedSendingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::SendingTab, this);
     usedSendingAddressesPage->setModel(walletModel->getAddressTableModel());
