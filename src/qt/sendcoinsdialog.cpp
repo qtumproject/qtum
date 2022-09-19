@@ -558,6 +558,28 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
                 send_failure = true;
             }
         }
+
+        // Sign psbt with hwi tool
+        if(model->getSignPsbtWithHwiTool())
+        {
+            // Serialize the PSBT
+            CMutableTransaction mtx = CMutableTransaction{*(m_current_transaction->getWtx())};
+            PartiallySignedTransaction psbtx(mtx);
+            CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+            ssTx << psbtx;
+            QString psbt = EncodeBase64(ssTx.str()).c_str();
+
+            // Sign tx with hardware
+            QVariantMap variantMap;
+            if(!HardwareSignTx::process(this, model, psbt, variantMap))
+                send_failure = true;
+            else
+            {
+                std::string txid = variantMap["txid"].toString().toStdString();
+                Q_EMIT coinsSent(uint256S(txid));
+                accept();
+            }
+        }
     }
     if (!send_failure) {
         accept();
