@@ -334,7 +334,6 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
         }
         formatted.append(recipientElement);
     }
-//QTUM_TO_CHECK
     /*: Message displayed when attempting to create a transaction. Cautionary text to prompt the user to verify
         that the displayed transaction details represent the transaction the user intends to create. */
     question_string.append(tr("Do you want to create this transaction?"));
@@ -353,7 +352,6 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
         /*: Text to prompt a user to review the details of the transaction they are attempting to send. */
         question_string.append(tr("Please, review your transaction."));
     }
-//QTUM_TO_CHECK_END
     question_string.append("</span>%1");
 
     if(txFee > 0)

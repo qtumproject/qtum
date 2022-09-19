@@ -733,7 +733,6 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             }
             break;
 #endif
-//QTUM_INSERT_END
         default:
             break;
         }

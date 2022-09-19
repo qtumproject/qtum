@@ -438,7 +438,6 @@ void OptionsDialog::on_toolStakeLedgerId_clicked()
     ui->txtStakeLedgerId->setText(fingerprint);
 #endif
 }
-//QTUM_INSERT_END
 void OptionsDialog::on_showTrayIcon_stateChanged(int state)
 {
     if (state == Qt::Checked) {

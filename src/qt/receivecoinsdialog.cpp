@@ -88,7 +88,6 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
 
         // Last 2 columns are set by the columnResizingFixer, when the table geometry is ready.
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
-//QTUM_TO_CHECK
         // Populate address type dropdown and select default
         auto add_address_type = [&](OutputType type, const QString& text, const QString& tooltip) {
             const auto index = ui->addressType->count();
@@ -102,7 +101,6 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
         if (model->wallet().taprootEnabled()) {
             add_address_type(OutputType::BECH32M, "Bech32m (Taproot)", "Bech32m (BIP-350) is an upgrade to Bech32, wallet support is still limited.");
         }
-//QTUM_TO_CHECK_END
         // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.
         ui->receiveButton->setEnabled(model->wallet().canGetAddresses());
 

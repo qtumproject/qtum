@@ -464,7 +464,6 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
 
         if(success) {
            Q_EMIT windowShown(window);
-//QTUM_INSERT_END
     } else {
         Q_EMIT splashFinished(); // Make sure splash screen doesn't stick around during shutdown
         requestShutdown();
