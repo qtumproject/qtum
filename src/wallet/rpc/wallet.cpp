@@ -1102,19 +1102,6 @@ RPCHelpMan abandontransaction();
 RPCHelpMan rescanblockchain();
 RPCHelpMan abortrescan();
 
-#ifdef QTUM_NODE
-// node specific
-RPCHelpMan createcontract();
-RPCHelpMan sendtocontract();
-RPCHelpMan removedelegationforaddress();
-RPCHelpMan setdelegateforaddress();
-RPCHelpMan qrc20approve();
-RPCHelpMan qrc20transfer();
-RPCHelpMan qrc20transferfrom();
-RPCHelpMan qrc20burn();
-RPCHelpMan qrc20burnfrom();
-#endif // QTUM_NODE
-
 Span<const CRPCCommand> GetWalletRPCCommands()
 {
 // clang-format off
@@ -1195,17 +1182,6 @@ static const CRPCCommand commands[] =
     { "wallet",             &listsuperstakercustomvalues,           },
     { "wallet",             &listsuperstakervaluesforaddress,       },
     { "wallet",             &removesuperstakervaluesforaddress,     },
-#ifdef QTUM_NODE
-    { "wallet",             &createcontract,                 },
-    { "wallet",             &sendtocontract,                 },
-    { "wallet",             &removedelegationforaddress,     },
-    { "wallet",             &setdelegateforaddress,          },
-    { "wallet",             &qrc20approve,                    },
-    { "wallet",             &qrc20transfer,                   },
-    { "wallet",             &qrc20transferfrom,               },
-    { "wallet",             &qrc20burn,                       },
-    { "wallet",             &qrc20burnfrom,                   },
-#endif // QTUM_NODE
 };
 // clang-format on
     return commands;

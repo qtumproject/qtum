@@ -61,6 +61,7 @@
 #ifdef ENABLE_WALLET
 #include <wallet/stake.h>
 #include <node/miner.h>
+#include <wallet/rpc/contract.h>
 #endif
 
 using interfaces::BlockTip;
@@ -844,6 +845,10 @@ public:
     void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) override
     {
         RefreshDelegates(pwallet, myDelegates, stakerDelegates);
+    }
+    Span<const CRPCCommand> getContractRPCCommands() override
+    {
+        return wallet::GetContractRPCCommands();
     }
 #endif
     bool getDelegation(const uint160& address, Delegation& delegation) override

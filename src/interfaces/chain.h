@@ -343,6 +343,9 @@ public:
 
     //! refresh delegates.
     virtual void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) = 0;
+
+    //! get contract RPC commands.
+    virtual Span<const CRPCCommand> getContractRPCCommands() = 0;
 #endif
 
     //! get delegation for an address.

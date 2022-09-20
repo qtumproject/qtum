@@ -14,6 +14,7 @@
 #include <wallet/receive.h>
 #include <qtum/qtumdelegation.h>
 #include <validation.h>
+#include <wallet/rpc/contract.h>
 
 #include <univalue.h>
 
@@ -1611,6 +1612,26 @@ RPCHelpMan qrc20burnfrom()
     return result;
 },
     };
+}
+
+Span<const CRPCCommand> GetContractRPCCommands()
+{
+// clang-format off
+static const CRPCCommand commands[] =
+{ //  category              actor (function)
+  //  ------------------    ------------------------
+    { "wallet",             &createcontract,                 },
+    { "wallet",             &sendtocontract,                 },
+    { "wallet",             &removedelegationforaddress,     },
+    { "wallet",             &setdelegateforaddress,          },
+    { "wallet",             &qrc20approve,                    },
+    { "wallet",             &qrc20transfer,                   },
+    { "wallet",             &qrc20transferfrom,               },
+    { "wallet",             &qrc20burn,                       },
+    { "wallet",             &qrc20burnfrom,                   },
+};
+// clang-format on
+    return commands;
 }
 
 } // namespace wallet

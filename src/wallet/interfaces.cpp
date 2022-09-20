@@ -1543,13 +1543,18 @@ public:
     //! ChainClient methods
     void registerRpcs() override
     {
-        for (const CRPCCommand& command : GetWalletRPCCommands()) {
-            m_rpc_commands.emplace_back(command.category, command.name, [this, &command](const JSONRPCRequest& request, UniValue& result, bool last_handler) {
-                JSONRPCRequest wallet_request = request;
-                wallet_request.context = &m_context;
-                return command.actor(wallet_request, result, last_handler);
-            }, command.argNames, command.unique_id);
-            m_rpc_handlers.emplace_back(m_context.chain->handleRpc(m_rpc_commands.back()));
+        std::vector<Span<const CRPCCommand>> commands;
+        commands.push_back(GetWalletRPCCommands());
+        commands.push_back(m_context.chain->getContractRPCCommands());
+        for(size_t i = 0; i < commands.size(); i++) {
+            for (const CRPCCommand& command : commands[i]) {
+                m_rpc_commands.emplace_back(command.category, command.name, [this, &command](const JSONRPCRequest& request, UniValue& result, bool last_handler) {
+                    JSONRPCRequest wallet_request = request;
+                    wallet_request.context = &m_context;
+                    return command.actor(wallet_request, result, last_handler);
+                }, command.argNames, command.unique_id);
+                m_rpc_handlers.emplace_back(m_context.chain->handleRpc(m_rpc_commands.back()));
+            }
         }
     }
     bool verify() override { return VerifyWallets(m_context); }
