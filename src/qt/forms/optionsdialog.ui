@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>832</width>
-    <height>622</height>
+    <height>646</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -440,16 +440,6 @@
            <widget class="QCheckBox" name="signPSBTHWITool">
             <property name="text">
              <string>Sign PSBT with HWI tool</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="m_enable_psbt_controls">
-            <property name="toolTip">
-             <string extracomment="Tooltip text for options window setting that enables PSBT controls.">Whether to show PSBT controls.</string>
-            </property>
-            <property name="text">
-             <string extracomment="An options window setting to enable PSBT controls.">Enable &amp;PSBT controls</string>
             </property>
            </widget>
           </item>
