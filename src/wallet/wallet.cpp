@@ -1952,15 +1952,15 @@ std::set<uint256> CWallet::GetTxConflicts(const CWalletTx& wtx) const
 // privacy.
 void CWallet::ResendWalletTransactions()
 {
-    // During reindex, importing and IBD, old wallet transactions become
-    // unconfirmed. Don't resend them as that would spam other nodes.
-    if (!chain().isReadyToBroadcast()) return;
-
     // Clean coin stake
-    if(fCleanCoinStake)
+    if(fCleanCoinStake && !chain().getReindex() && !chain().getImporting())
     {
         CleanCoinStake();
     }
+
+    // During reindex, importing and IBD, old wallet transactions become
+    // unconfirmed. Don't resend them as that would spam other nodes.
+    if (!chain().isReadyToBroadcast()) return;
 
     // Do this infrequently and randomly to avoid giving away
     // that these are our transactions.
@@ -3490,7 +3490,6 @@ int CWallet::GetTxBlocksToMaturity(const CWalletTx& wtx) const
     if (!(wtx.IsCoinBase() || wtx.IsCoinStake()))
         return 0;
     int chain_depth = GetTxDepthInMainChain(wtx);
-    assert(chain_depth >= 0); // coinbase tx should not be conflicted
     int nHeight = GetLastBlockHeight() + 1;
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     return std::max(0, (coinbaseMaturity+1) - chain_depth);

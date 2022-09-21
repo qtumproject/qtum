@@ -1727,6 +1727,9 @@ protected:
             }
         }
 
+        if(d->pwallet->fCleanCoinStake)
+            return false;
+
         return true;
     }
 
