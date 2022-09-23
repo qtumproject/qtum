@@ -2,7 +2,7 @@
 #include <test/util/setup_common.h>
 #include <consensus/merkle.h>
 #include <chainparams.h>
-#include <miner.h>
+#include <node/miner.h>
 #include <validation.h>
 #include <util/convert.h>
 

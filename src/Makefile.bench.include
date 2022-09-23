@@ -51,7 +51,7 @@ nodist_bench_bench_qtum_SOURCES = $(GENERATED_BENCH_FILES)
 bench_bench_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS) -I$(builddir)/bench/
 bench_bench_qtum_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 bench_bench_qtum_LDADD = \
-  $(LIBBITCOIN_SERVER) \
+  $(LIBBITCOIN_NODE) \
   $(LIBBITCOIN_WALLET) \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
@@ -85,12 +85,12 @@ CLEANFILES += $(CLEAN_BITCOIN_BENCH)
 
 bench/data.cpp: bench/data/blockbench.raw.h
 
-bitcoin_bench: $(BENCH_BINARY)
+qtum_bench: $(BENCH_BINARY)
 
 bench: $(BENCH_BINARY) FORCE
 	$(BENCH_BINARY)
 
-bitcoin_bench_clean : FORCE
+qtum_bench_clean : FORCE
 	rm -f $(CLEAN_BITCOIN_BENCH) $(bench_bench_qtum_OBJECTS) $(BENCH_BINARY)
 
 %.raw.h: %.raw

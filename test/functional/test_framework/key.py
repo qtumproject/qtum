@@ -8,6 +8,7 @@ keys, and is trivially vulnerable to side channel attacks. Do not use for
 anything but tests."""
 import csv
 import hashlib
+import hmac
 import os
 import random
 import unittest
@@ -326,6 +327,16 @@ def generate_privkey():
     """Generate a valid random 32-byte private key."""
     return random.randrange(1, SECP256K1_ORDER).to_bytes(32, 'big')
 
+def rfc6979_nonce(key):
+    """Compute signing nonce using RFC6979."""
+    v = bytes([1] * 32)
+    k = bytes([0] * 32)
+    k = hmac.new(k, v + b"\x00" + key, 'sha256').digest()
+    v = hmac.new(k, v, 'sha256').digest()
+    k = hmac.new(k, v + b"\x01" + key, 'sha256').digest()
+    v = hmac.new(k, v, 'sha256').digest()
+    return hmac.new(k, v, 'sha256').digest()
+
 class ECKey():
     """A secp256k1 private key"""
 
@@ -375,8 +386,11 @@ class ECKey():
         ECDSA signer algorithm."""
         assert(self.valid)
         z = int.from_bytes(msg, 'big')
-        # Note: no RFC6979, but a simple random nonce (some tests rely on distinct transactions for the same operation)
-        k = random.randrange(1, SECP256K1_ORDER)
+        # Note: no RFC6979 by default, but a simple random nonce (some tests rely on distinct transactions for the same operation)
+        if rfc6979:
+            k = int.from_bytes(rfc6979_nonce(self.secret.to_bytes(32, 'big') + msg), 'big')
+        else:
+            k = random.randrange(1, SECP256K1_ORDER)
         R = SECP256K1.affine(SECP256K1.mul([(SECP256K1_G, k)]))
         r = R[0] % SECP256K1_ORDER
         s = (modinv(k, SECP256K1_ORDER) * (z + self.secret * r)) % SECP256K1_ORDER
@@ -390,7 +404,7 @@ class ECKey():
         rb = r.to_bytes((r.bit_length() + 8) // 8, 'big')
         sb = s.to_bytes((s.bit_length() + 8) // 8, 'big')
         if der_sig:
-            return b'\x30' + bytes([4 + len(rb) + len(sb), 2, len(rb)]) + rb + bytes([2, len(sb)]) + sb
+        return b'\x30' + bytes([4 + len(rb) + len(sb), 2, len(rb)]) + rb + bytes([2, len(sb)]) + sb
         else:
             v = R[1] & 1
             v ^= high

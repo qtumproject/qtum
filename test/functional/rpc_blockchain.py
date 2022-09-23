@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2020 The Bitcoin Core developers
+# Copyright (c) 2014-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test RPCs related to blockchainstate.
 
 Test the following RPCs:
     - getblockchaininfo
-    - gettxoutsetinfo
-    - getdifficulty
-    - getbestblockhash
-    - getblockhash
-    - getblockheader
+    - getdeploymentinfo
     - getchaintxstats
+    - gettxoutsetinfo
+    - getblockheader
+    - getdifficulty
     - getnetworkhashps
+    - waitforblockheight
+    - getblock
+    - getblockhash
+    - getbestblockhash
     - verifychain
 
 Tests correspond to code in rpc/blockchain.cpp.
@@ -23,12 +26,11 @@ import http.client
 import os
 import subprocess
 import time
-
-from test_framework.address import ADDRESS_BCRT1_P2WSH_OP_TRUE
 from test_framework.blocktools import (
+    MAX_FUTURE_BLOCK_TIME,
+    TIME_GENESIS_BLOCK,
     create_block,
     create_coinbase,
-    TIME_GENESIS_BLOCK,
 )
 from test_framework.messages import (
     CBlockHeader,
@@ -50,6 +52,13 @@ from test_framework.util import (
 from test_framework.wallet import MiniWallet
 
 
+HEIGHT = 200  # blocks mined
+TIME_RANGE_STEP = 600  # ten-minute steps
+TIME_RANGE_MTP = TIME_GENESIS_BLOCK + (HEIGHT - 6) * TIME_RANGE_STEP
+TIME_RANGE_TIP = TIME_GENESIS_BLOCK + (HEIGHT - 1) * TIME_RANGE_STEP
+TIME_RANGE_END = TIME_GENESIS_BLOCK + HEIGHT * TIME_RANGE_STEP
+
+
 class BlockchainTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
@@ -57,8 +66,17 @@ class BlockchainTest(BitcoinTestFramework):
         self.supports_cli = False
 
     def run_test(self):
+        self.wallet = MiniWallet(self.nodes[0])
         self.mine_chain()
-        self.restart_node(0, extra_args=['-stopatheight=607', '-prune=1'])  # Set extra args with pruning after rescan is complete
+        self._test_max_future_block_time()
+        self.restart_node(
+            0,
+            extra_args=[
+                "-stopatheight=607",
+                "-checkblocks=-1",  # Check all blocks
+                "-prune=1",  # Set pruning after rescan is complete
+            ],
+        )
 
         self._test_getblockchaininfo()
         self._test_getchaintxstats()
@@ -69,15 +87,28 @@ class BlockchainTest(BitcoinTestFramework):
         self._test_stopatheight()
         self._test_waitforblockheight()
         self._test_getblock()
+        self._test_getdeploymentinfo()
         assert self.nodes[0].verifychain(4, 0)
 
     def mine_chain(self):
-        self.log.info('Create some old blocks')
+        self.log.info(f"Generate {HEIGHT} blocks after the genesis block in ten-minute steps")
         for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 128 * 600, 128):
-            # ten-minute steps from genesis block time
             self.nodes[0].setmocktime(t)
-            self.nodes[0].generatetoaddress(1, ADDRESS_BCRT1_P2WSH_OP_TRUE)
+            self.generate(self.wallet, 1)
         assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 600)
+
+    def _test_max_future_block_time(self):
+        self.stop_node(0)
+        self.log.info("A block tip of more than MAX_FUTURE_BLOCK_TIME in the future raises an error")
+        self.nodes[0].assert_start_raises_init_error(
+            extra_args=[f"-mocktime={TIME_RANGE_TIP - MAX_FUTURE_BLOCK_TIME - 1}"],
+            expected_msg=": The block database contains a block which appears to be from the future."
+            " This may be due to your computer's date and time being set incorrectly."
+            f" Only rebuild the block database if you are sure that your computer's date and time are correct.{os.linesep}"
+            "Please restart with -reindex or -reindex-chainstate to recover.",
+        )
+        self.log.info("A block tip of MAX_FUTURE_BLOCK_TIME in the future is fine")
+        self.start_node(0, extra_args=[f"-mocktime={TIME_RANGE_TIP - MAX_FUTURE_BLOCK_TIME}"])
 
     def _test_getblockchaininfo(self):
         self.log.info("Test getblockchaininfo")
@@ -94,11 +125,14 @@ class BlockchainTest(BitcoinTestFramework):
             'moneysupply',
             'pruned',
             'size_on_disk',
-            'softforks',
+            'time',
             'verificationprogress',
             'warnings',
         ]
         res = self.nodes[0].getblockchaininfo()
+
+        assert_equal(res['time'], TIME_RANGE_END - TIME_RANGE_STEP)
+        assert_equal(res['mediantime'], TIME_RANGE_MTP)
 
         # result should have these additional pruning keys if manual pruning is enabled
         assert_equal(sorted(res.keys()), sorted(['pruneheight', 'automatic_pruning'] + keys))
@@ -118,7 +152,24 @@ class BlockchainTest(BitcoinTestFramework):
         # should have exact keys
         assert_equal(sorted(res.keys()), keys)
 
-        self.restart_node(0, ['-stopatheight=607', '-prune=550'])
+        self.stop_node(0)
+        self.nodes[0].assert_start_raises_init_error(
+            extra_args=['-testactivationheight=name@2'],
+            expected_msg='Error: Invalid name (name@2) for -testactivationheight=name@height.',
+        )
+        self.nodes[0].assert_start_raises_init_error(
+            extra_args=['-testactivationheight=bip34@-2'],
+            expected_msg='Error: Invalid height value (bip34@-2) for -testactivationheight=name@height.',
+        )
+        self.nodes[0].assert_start_raises_init_error(
+            extra_args=['-testactivationheight='],
+            expected_msg='Error: Invalid format () for -testactivationheight=name@height.',
+        )
+        self.start_node(0, extra_args=[
+            '-stopatheight=607',
+            '-prune=550',
+        ])
+
         res = self.nodes[0].getblockchaininfo()
         # result should have these additional pruning keys if prune=550
         assert_equal(sorted(res.keys()), sorted(['pruneheight', 'automatic_pruning', 'prune_target_size'] + keys))
@@ -130,37 +181,80 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res['prune_target_size'], 576716800)
         assert_greater_than(res['size_on_disk'], 0)
 
-        assert_equal(res['softforks'], {
-            'bip34': {'type': 'buried', 'active': True, 'height': 0},
-            'bip66': {'type': 'buried', 'active': True, 'height': 0},
-            'bip65': {'type': 'buried', 'active': True, 'height': 0},
-            'csv': {'type': 'buried', 'active': True, 'height': 432},
-            'segwit': {'type': 'buried', 'active': True, 'height': 0},
+    def check_signalling_deploymentinfo_result(self, gdi_result, height, blockhash, status_next):
+        assert height >= 144 and height <= 287
+
+        assert_equal(gdi_result, {
+          "hash": blockhash,
+          "height": height,
+          "deployments": {
+            'bip34': {'type': 'buried', 'active': True, 'height': 2},
+            'bip66': {'type': 'buried', 'active': True, 'height': 3},
+            'bip65': {'type': 'buried', 'active': True, 'height': 4},
+            'csv': {'type': 'buried', 'active': True, 'height': 5},
+            'segwit': {'type': 'buried', 'active': True, 'height': 6},
             'testdummy': {
                 'type': 'bip9',
                 'bip9': {
-                    'status': 'active',
+                    'bit': 28,
                     'start_time': 0,
                     'since': 432,
                     'timeout': 0x7fffffffffffffff,  # testdummy does not have a timeout so is set to the max int64 value
-                    },
                     'min_activation_height': 0,
+                    'status': 'started',
+                    'status_next': status_next,
+                    'since': 144,
+                    'statistics': {
+                        'period': 144,
+                        'threshold': 108,
+                        'elapsed': height - 143,
+                        'count': height - 143,
+                        'possible': True,
+                    },
+                    'signalling': '#'*(height-143),
                 },
                 'active': True
             },
             'taproot': {
                 'type': 'bip9',
                 'bip9': {
-                    'status': 'active',
                     'start_time': -1,
                     'timeout': 9223372036854775807,
-                    'since': 0,
                     'min_activation_height': 0,
+                    'status': 'active',
+                    'status_next': 'active',
+                    'since': 0,
                 },
                 'height': 0,
                 'active': True
             }
+          }
         })
+
+    def _test_getdeploymentinfo(self):
+        # Note: continues past -stopatheight height, so must be invoked
+        # after _test_stopatheight
+
+        self.log.info("Test getdeploymentinfo")
+        self.stop_node(0)
+        self.start_node(0, extra_args=[
+            '-testactivationheight=bip34@2',
+            '-testactivationheight=dersig@3',
+            '-testactivationheight=cltv@4',
+            '-testactivationheight=csv@5',
+            '-testactivationheight=segwit@6',
+        ])
+
+        gbci207 = self.nodes[0].getblockchaininfo()
+        self.check_signalling_deploymentinfo_result(self.nodes[0].getdeploymentinfo(), gbci207["blocks"], gbci207["bestblockhash"], "started")
+
+        # block just prior to lock in
+        self.generate(self.wallet, 287 - gbci207["blocks"])
+        gbci287 = self.nodes[0].getblockchaininfo()
+        self.check_signalling_deploymentinfo_result(self.nodes[0].getdeploymentinfo(), gbci287["blocks"], gbci287["bestblockhash"], "locked_in")
+
+        # calling with an explicit hash works
+        self.check_signalling_deploymentinfo_result(self.nodes[0].getdeploymentinfo(gbci207["bestblockhash"]), gbci207["blocks"], gbci207["bestblockhash"], "started")
 
     def _test_getchaintxstats(self):
         self.log.info("Test getchaintxstats")
@@ -232,7 +326,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(len(res['bestblock']), 64)
         assert_equal(len(res['hash_serialized_2']), 64)
 
-        self.log.info("Test that gettxoutsetinfo() works for blockchain with just the genesis block")
+        self.log.info("Test gettxoutsetinfo works for blockchain with just the genesis block")
         b1hash = node.getblockhash(501)
         node.invalidateblock(b1hash)
 
@@ -245,7 +339,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res2['bestblock'], node.getblockhash(500))
         assert_equal(len(res2['hash_serialized_2']), 64)
 
-        self.log.info("Test that gettxoutsetinfo() returns the same result after invalidate/reconsider block")
+        self.log.info("Test gettxoutsetinfo returns the same result after invalidate/reconsider block")
         node.reconsiderblock(b1hash)
 
         res3 = node.gettxoutsetinfo()
@@ -254,7 +348,7 @@ class BlockchainTest(BitcoinTestFramework):
         del res['disk_size'], res3['disk_size']
         assert_equal(res, res3)
 
-        self.log.info("Test hash_type option for gettxoutsetinfo()")
+        self.log.info("Test gettxoutsetinfo hash_type option")
         # Adding hash_type 'hash_serialized_2', which is the default, should
         # not change the result.
         res4 = node.gettxoutsetinfo(hash_type='hash_serialized_2')
@@ -275,9 +369,10 @@ class BlockchainTest(BitcoinTestFramework):
             assert 'muhash' not in r
 
         # Unknown hash_type raises an error
-        assert_raises_rpc_error(-8, "foohash is not a valid hash_type", node.gettxoutsetinfo, "foohash")
+        assert_raises_rpc_error(-8, "'foo hash' is not a valid hash_type", node.gettxoutsetinfo, "foo hash")
 
     def _test_getblockheader(self):
+        self.log.info("Test getblockheader")
         node = self.nodes[0]
 
         assert_raises_rpc_error(-8, "hash must be of length 64 (not 8, for 'nonsense')", node.getblockheader, "nonsense")
@@ -299,7 +394,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_is_hash_string(header['merkleroot'])
         assert_is_hash_string(header['bits'], length=None)
         assert isinstance(header['time'], int)
-        assert isinstance(header['mediantime'], int)
+        assert_equal(header['mediantime'], TIME_RANGE_MTP)
         assert isinstance(header['nonce'], int)
         assert isinstance(header['version'], int)
         assert isinstance(int(header['versionHex'], 16), int)
@@ -317,24 +412,27 @@ class BlockchainTest(BitcoinTestFramework):
         assert 'nextblockhash' not in node.getblockheader(node.getbestblockhash())
 
     def _test_getdifficulty(self):
+        self.log.info("Test getdifficulty")
         difficulty = self.nodes[0].getdifficulty()
         # 1 hash in 2 should be valid, so difficulty should be 1/2**31
         # binary => decimal => binary math is why we do this check
         assert abs(difficulty['proof-of-work'] * 2**31 - 1) < 0.0001
 
     def _test_getnetworkhashps(self):
+        self.log.info("Test getnetworkhashps")
         hashes_per_second = self.nodes[0].getnetworkhashps()
         # This should be 2 hashes every 10 minutes or 1/300
         assert abs(hashes_per_second * 300 - 1) < 10
 
     def _test_stopatheight(self):
+        self.log.info("Test stopping at height")
         assert_equal(self.nodes[0].getblockcount(), 600)
-        self.nodes[0].generatetoaddress(6, ADDRESS_BCRT1_P2WSH_OP_TRUE)
+        self.generate(self.wallet, 6)
         assert_equal(self.nodes[0].getblockcount(), 606)
         self.log.debug('Node should not stop at this height')
         assert_raises(subprocess.TimeoutExpired, lambda: self.nodes[0].process.wait(timeout=3))
         try:
-            self.nodes[0].generatetoaddress(1, ADDRESS_BCRT1_P2WSH_OP_TRUE)
+            self.generatetoaddress(self.nodes[0], 1, self.wallet.get_address(), sync_fun=self.no_op)
         except (ConnectionError, http.client.BadStatusLine):
             pass  # The node already shut down before response
         self.log.debug('Node should stop at this height...')
@@ -382,30 +480,64 @@ class BlockchainTest(BitcoinTestFramework):
 
     def _test_getblock(self):
         node = self.nodes[0]
-
-        miniwallet = MiniWallet(node)
-        miniwallet.scan_blocks(num=5)
-
         fee_per_byte = Decimal('0.00000010')
         fee_per_kb = 1000 * fee_per_byte
 
-        miniwallet.send_self_transfer(fee_rate=fee_per_kb, from_node=node)
-        blockhash = node.generate(1)[0]
+        self.wallet.send_self_transfer(fee_rate=fee_per_kb, from_node=node)
+        blockhash = self.generate(node, 1)[0]
+
+        def assert_fee_not_in_block(verbosity):
+            block = node.getblock(blockhash, verbosity)
+            assert 'fee' not in block['tx'][1]
+
+        def assert_fee_in_block(verbosity):
+            block = node.getblock(blockhash, verbosity)
+            tx = block['tx'][1]
+            assert 'fee' in tx
+            assert_equal(tx['fee'], tx['vsize'] * fee_per_byte)
+
+        def assert_vin_contains_prevout(verbosity):
+            block = node.getblock(blockhash, verbosity)
+            tx = block["tx"][1]
+            total_vin = Decimal("0.00000000")
+            total_vout = Decimal("0.00000000")
+            for vin in tx["vin"]:
+                assert "prevout" in vin
+                assert_equal(set(vin["prevout"].keys()), set(("value", "height", "generated", "scriptPubKey")))
+                assert_equal(vin["prevout"]["generated"], True)
+                total_vin += vin["prevout"]["value"]
+            for vout in tx["vout"]:
+                total_vout += vout["value"]
+            assert_equal(total_vin, total_vout + tx["fee"])
+
+        def assert_vin_does_not_contain_prevout(verbosity):
+            block = node.getblock(blockhash, verbosity)
+            tx = block["tx"][1]
+            if isinstance(tx, str):
+                # In verbosity level 1, only the transaction hashes are written
+                pass
+            else:
+                for vin in tx["vin"]:
+                    assert "prevout" not in vin
 
         self.log.info("Test that getblock with verbosity 1 doesn't include fee")
-        block = node.getblock(blockhash, 1)
-        assert 'fee' not in block['tx'][1]
+        assert_fee_not_in_block(1)
 
-        self.log.info('Test that getblock with verbosity 2 includes expected fee')
-        block = node.getblock(blockhash, 2)
-        tx = block['tx'][1]
-        assert 'fee' in tx
-        assert_equal(tx['fee'], tx['vsize'] * fee_per_byte)
+        self.log.info('Test that getblock with verbosity 2 and 3 includes expected fee')
+        assert_fee_in_block(2)
+        assert_fee_in_block(3)
 
-        self.log.info("Test that getblock with verbosity 2 still works with pruned Undo data")
+        self.log.info("Test that getblock with verbosity 1 and 2 does not include prevout")
+        assert_vin_does_not_contain_prevout(1)
+        assert_vin_does_not_contain_prevout(2)
+
+        self.log.info("Test that getblock with verbosity 3 includes prevout")
+        assert_vin_contains_prevout(3)
+
+        self.log.info("Test that getblock with verbosity 2 and 3 still works with pruned Undo data")
         datadir = get_datadir_path(self.options.tmpdir, 0)
 
-        self.log.info("Test that getblock with invalid verbosity type returns proper error message")
+        self.log.info("Test getblock with invalid verbosity type returns proper error message")
         assert_raises_rpc_error(-1, "JSON value is not an integer as expected", node.getblock, blockhash, "2")
 
         def move_block_file(old, new):
@@ -416,8 +548,10 @@ class BlockchainTest(BitcoinTestFramework):
         # Move instead of deleting so we can restore chain state afterwards
         move_block_file('rev00000.dat', 'rev_wrong')
 
-        block = node.getblock(blockhash, 2)
-        assert 'fee' not in block['tx'][1]
+        assert_fee_not_in_block(2)
+        assert_fee_not_in_block(3)
+        assert_vin_does_not_contain_prevout(2)
+        assert_vin_does_not_contain_prevout(3)
 
         # Restore chain state
         move_block_file('rev_wrong', 'rev00000.dat')

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -24,12 +24,12 @@
 #include <wallet/wallet.h>
 #include <wallet/walletdb.h>
 #endif
-
 #include <QDebug>
 #include <QLatin1Char>
 #include <QSettings>
 #include <QStringList>
 #include <util/moneystr.h>
+//using namespace wallet;
 
 const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
@@ -89,6 +89,11 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fCoinControlFeatures", false);
     fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
 
+    if (!settings.contains("enable_psbt_controls")) {
+        settings.setValue("enable_psbt_controls", false);
+    }
+    m_enable_psbt_controls = settings.value("enable_psbt_controls", false).toBool();
+
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
     //
@@ -108,7 +113,6 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("nDatabaseCache", (qint64)nDefaultDbCache);
     if (!gArgs.SoftSetArg("-dbcache", settings.value("nDatabaseCache").toString().toStdString()))
         addOverriddenOption("-dbcache");
-
 #ifdef ENABLE_WALLET
     if (!settings.contains("fSuperStaking"))
         settings.setValue("fSuperStaking", false);
@@ -133,11 +137,10 @@ void OptionsModel::Init(bool resetSettings)
 
 #ifdef ENABLE_WALLET
     if (!settings.contains("nReserveBalance"))
-        settings.setValue("nReserveBalance", (long long)DEFAULT_RESERVE_BALANCE);
+        settings.setValue("nReserveBalance", (long long)wallet::DEFAULT_RESERVE_BALANCE);
     if (!gArgs.SoftSetArg("-reservebalance", FormatMoney(settings.value("nReserveBalance").toLongLong())))
         addOverriddenOption("-reservebalance");
 #endif
-
     if (!settings.contains("nThreadsScriptVerif"))
         settings.setValue("nThreadsScriptVerif", DEFAULT_SCRIPTCHECK_THREADS);
     if (!gArgs.SoftSetArg("-par", settings.value("nThreadsScriptVerif").toString().toStdString()))
@@ -161,13 +164,18 @@ void OptionsModel::Init(bool resetSettings)
     }
 
     if (!settings.contains("bZeroBalanceAddressToken"))
-        settings.setValue("bZeroBalanceAddressToken", DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
+        settings.setValue("bZeroBalanceAddressToken", wallet::DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
     bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
 
     if (!settings.contains("signPSBTWithHWITool"))
-        settings.setValue("signPSBTWithHWITool", DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
+        settings.setValue("signPSBTWithHWITool", wallet::DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
     if (!gArgs.SoftSetBoolArg("-signpsbtwithhwitool", settings.value("signPSBTWithHWITool").toBool()))
         addOverriddenOption("-signpsbtwithhwitool");
+
+    if (!settings.contains("SubFeeFromAmount")) {
+        settings.setValue("SubFeeFromAmount", false);
+    }
+    m_sub_fee_from_amount = settings.value("SubFeeFromAmount", false).toBool();
 #endif
 
     if (!settings.contains("fCheckForUpdates"))
@@ -189,14 +197,24 @@ void OptionsModel::Init(bool resetSettings)
 
     if (!settings.contains("fListen"))
         settings.setValue("fListen", DEFAULT_LISTEN);
-    if (!gArgs.SoftSetBoolArg("-listen", settings.value("fListen").toBool()))
+    if (!gArgs.SoftSetBoolArg("-listen", settings.value("fListen").toBool())) {
         addOverriddenOption("-listen");
+    } else if (!settings.value("fListen").toBool()) {
+        gArgs.SoftSetBoolArg("-listenonion", false);
+    }
+
+    if (!settings.contains("server")) {
+        settings.setValue("server", false);
+    }
+    if (!gArgs.SoftSetBoolArg("-server", settings.value("server").toBool())) {
+        addOverriddenOption("-server");
+    }
 
 #ifdef ENABLE_WALLET
     if (!settings.contains("fUseChangeAddress"))
     {
         // Set the default value
-        bool useChangeAddress = DEFAULT_USE_CHANGE_ADDRESS;
+        bool useChangeAddress = wallet::DEFAULT_USE_CHANGE_ADDRESS;
 
         // Get the old parameter value if exist
         if(settings.contains("fNotUseChangeAddress"))
@@ -261,6 +279,7 @@ void OptionsModel::Init(bool resetSettings)
     if (!gArgs.SoftSetArg("-stakerledgerid", settings.value("StakeLedgerId").toString().toStdString()))
         addOverriddenOption("-stakerledgerid");
 #endif
+
 }
 
 /** Helper function to copy contents from one QSettings to another.
@@ -276,8 +295,8 @@ static void CopySettings(QSettings& dst, const QSettings& src)
 /** Back up a QSettings to an ini-formatted file. */
 static void BackupSettings(const fs::path& filename, const QSettings& src)
 {
-    qInfo() << "Backing up GUI settings to" << GUIUtil::boostPathToQString(filename);
-    QSettings dst(GUIUtil::boostPathToQString(filename), QSettings::IniFormat);
+    qInfo() << "Backing up GUI settings to" << GUIUtil::PathToQString(filename);
+    QSettings dst(GUIUtil::PathToQString(filename), QSettings::IniFormat);
     dst.clear();
     CopySettings(dst, src);
 }
@@ -419,6 +438,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("bSpendZeroConfChange");
         case ExternalSignerPath:
             return settings.value("external_signer_path");
+        case SubFeeFromAmount:
+            return m_sub_fee_from_amount;
         case ZeroBalanceAddressToken:
             return settings.value("bZeroBalanceAddressToken");
         case ReserveBalance:
@@ -436,6 +457,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return m_use_embedded_monospaced_font;
         case CoinControlFeatures:
             return fCoinControlFeatures;
+        case EnablePSBTControls:
+            return settings.value("enable_psbt_controls");
         case Prune:
             return settings.value("bPrune");
         case PruneSize:
@@ -452,6 +475,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return settings.value("nThreadsScriptVerif");
         case Listen:
             return settings.value("fListen");
+        case Server:
+            return settings.value("server");
 #ifdef ENABLE_WALLET
         case UseChangeAddress:
             return settings.value("fUseChangeAddress");
@@ -570,6 +595,10 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
+        case SubFeeFromAmount:
+            m_sub_fee_from_amount = value.toBool();
+            settings.setValue("SubFeeFromAmount", m_sub_fee_from_amount);
+            break;
         case ZeroBalanceAddressToken:
             bZeroBalanceAddressToken = value.toBool();
             settings.setValue("bZeroBalanceAddressToken", bZeroBalanceAddressToken);
@@ -581,7 +610,6 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
                 setRestartRequired(true);
             }
             break;
-
 #endif
         case DisplayUnit:
             setDisplayUnit(value);
@@ -608,6 +636,10 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             fCoinControlFeatures = value.toBool();
             settings.setValue("fCoinControlFeatures", fCoinControlFeatures);
             Q_EMIT coinControlFeaturesChanged(fCoinControlFeatures);
+            break;
+        case EnablePSBTControls:
+            m_enable_psbt_controls = value.toBool();
+            settings.setValue("enable_psbt_controls", m_enable_psbt_controls);
             break;
         case Prune:
             if (settings.value("bPrune") != value) {
@@ -656,6 +688,12 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
         case Listen:
             if (settings.value("fListen") != value) {
                 settings.setValue("fListen", value);
+                setRestartRequired(true);
+            }
+            break;
+        case Server:
+            if (settings.value("server") != value) {
+                settings.setValue("server", value);
                 setRestartRequired(true);
             }
             break;

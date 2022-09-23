@@ -142,7 +142,7 @@ void HardwareSignTxDialog::on_sendButton_clicked()
 {
     // Send transaction
     QString questionString = tr("Are you sure you want to broadcast the transaction? <br />");
-    SendConfirmationDialog confirmationDialog(tr("Confirm broadcast transaction."), questionString, "", "", SEND_CONFIRM_DELAY, tr("Broadcast"), this);
+    SendConfirmationDialog confirmationDialog(tr("Confirm broadcast transaction."), questionString, "", "", SEND_CONFIRM_DELAY, true, false, this);
     confirmationDialog.exec();
     QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
     if(retval == QMessageBox::Yes)

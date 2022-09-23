@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019-2020 The Bitcoin Core developers
+# Copyright (c) 2019-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the generation of UTXO snapshots using `dumptxoutset`.
@@ -23,7 +23,7 @@ class DumptxoutsetTest(BitcoinTestFramework):
         node = self.nodes[0]
         mocktime = node.getblockheader(node.getblockhash(0))['time'] + 1
         node.setmocktime(mocktime)
-        node.generate(COINBASE_MATURITY)
+        self.generate(node, COINBASE_MATURITY)
 
         FILENAME = 'txoutset.dat'
         out = node.dumptxoutset(FILENAME)
@@ -44,6 +44,10 @@ class DumptxoutsetTest(BitcoinTestFramework):
             # UTXO snapshot hash should be deterministic based on mocked time.
             assert_equal(
                 digest, 'ad161b54f06ccfb8ccfbcc1a339d3e01851a883f2c2118f110ba79f69c6ff328' if ENABLE_REDUCED_BLOCK_TIME else '79f2925864f6c873672b6a0cc5367361a604cd8355e64488a836d21d090eb0cd')
+
+        assert_equal(
+            out['txoutset_hash'], 'd4b614f476b99a6e569973bf1c0120d88b1a168076f8ce25691fb41dd1cef149')
+        assert_equal(out['nchaintx'], 101)
 
         # Specifying a path to an existing file will fail.
         assert_raises_rpc_error(

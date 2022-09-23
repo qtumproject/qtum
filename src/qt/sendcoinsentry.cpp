@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -32,6 +32,7 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
     ui->deleteButton->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
     ui->deleteButton_is->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButtonIcon));
     ui->deleteButton_s->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButtonIcon));
+
     setCurrentWidget(ui->SendCoins);
 
     if (platformStyle->getUseExtraSpacing())
@@ -99,7 +100,9 @@ void SendCoinsEntry::clear()
     ui->payTo->clear();
     ui->addAsLabel->clear();
     ui->payAmount->clear();
-    ui->checkboxSubtractFeeFromAmount->setCheckState(Qt::Unchecked);
+    if (model && model->getOptionsModel()) {
+        ui->checkboxSubtractFeeFromAmount->setChecked(model->getOptionsModel()->getSubFeeFromAmount());
+    }
     ui->messageTextLabel->clear();
     ui->messageTextLabel->hide();
     ui->messageLabel->hide();

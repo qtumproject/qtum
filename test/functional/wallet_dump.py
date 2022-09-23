@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2020 The Bitcoin Core developers
+# Copyright (c) 2016-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the dumpwallet RPC."""
@@ -134,7 +134,7 @@ class WalletDumpTest(BitcoinTestFramework):
         self.log.info('Mine a block one second before the wallet is dumped')
         dump_time = int(time.time())
         self.nodes[0].setmocktime(dump_time - 1)
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.nodes[0].setmocktime(dump_time)
         dump_time_str = '# * Created on {}Z'.format(
             datetime.datetime.fromtimestamp(
@@ -211,7 +211,6 @@ class WalletDumpTest(BitcoinTestFramework):
 
         # Overwriting should fail
         assert_raises_rpc_error(-8, "already exists", lambda: self.nodes[0].dumpwallet(wallet_enc_dump))
-
         # Make sure that dumpwallet doesn't have a lock order issue when there is an unconfirmed tx and it is reloaded
         # See https://github.com/bitcoin/bitcoin/issues/22489
         self.nodes[0].createwallet("w3")

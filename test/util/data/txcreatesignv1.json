@@ -23,6 +23,7 @@
             "n": 0,
             "scriptPubKey": {
                 "asm": "OP_DUP OP_HASH160 5834479edbbe0539b31ffd3a8f8ebadc2165ed01 OP_EQUALVERIFY OP_CHECKSIG",
+                "desc": "addr(QUeNCeBdcXf2DtJwmVE1uHUVwgnQG6z1Y9)#36tc7sxc",
                 "hex": "76a9145834479edbbe0539b31ffd3a8f8ebadc2165ed0188ac",
                 "address": "QUeNCeBdcXf2DtJwmVE1uHUVwgnQG6z1Y9",
                 "type": "pubkeyhash"

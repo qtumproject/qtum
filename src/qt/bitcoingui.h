@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,7 +12,7 @@
 #include <qt/guiutil.h>
 #include <qt/optionsdialog.h>
 
-#include <amount.h>
+#include <consensus/amount.h>
 
 #include <QLabel>
 #include <QMainWindow>
@@ -150,7 +150,6 @@ private:
     QAction* historyAction = nullptr;
     QAction* quitAction = nullptr;
     QAction* sendCoinsAction = nullptr;
-    QAction* sendCoinsMenuAction = nullptr;
     QAction* usedSendingAddressesAction = nullptr;
     QAction* usedReceivingAddressesAction = nullptr;
     QAction* signMessageAction = nullptr;
@@ -159,9 +158,7 @@ private:
     QAction* m_load_psbt_clipboard_action = nullptr;
     QAction* aboutAction = nullptr;
     QAction* receiveCoinsAction = nullptr;
-    QAction* receiveCoinsMenuAction = nullptr;
     QAction* optionsAction = nullptr;
-    QAction* toggleHideAction = nullptr;
     QAction* encryptWalletAction = nullptr;
     QAction* backupWalletAction = nullptr;
     QAction* changePassphraseAction = nullptr;
@@ -250,6 +247,7 @@ private:
     void addDockWindows(Qt::DockWidgetArea area, QWidget* widget);
 
 Q_SIGNALS:
+    void quitRequested();
     /** Signal raised when a URI was entered or dragged to the GUI */
     void receivedURI(const QString &uri);
     /** Signal raised when RPC console shown */
@@ -302,6 +300,7 @@ public Q_SLOTS:
 
     /** Show incoming transaction notification for new token transactions. */
     void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& walletName, const QString& title);
+
 #endif // ENABLE_WALLET
 
 private:
@@ -333,7 +332,6 @@ public Q_SLOTS:
     void gotoDelegationPage();
     /** Switch to super staker page */
     void gotoSuperStakerPage();
-
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
@@ -356,25 +354,20 @@ public Q_SLOTS:
     void showDebugWindowActivateConsole();
     /** Show help message dialog */
     void showHelpMessageClicked();
-#ifndef Q_OS_MAC
-    /** Handle tray icon clicked */
-    void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
-#else
-    /** Handle macOS Dock icon clicked */
-    void macosDockIconActivated();
-#endif
 
     /** Show window if hidden, unminimize when minimized, rise when obscured or show if hidden and fToggleHidden is true */
     void showNormalIfMinimized() { showNormalIfMinimized(false); }
     void showNormalIfMinimized(bool fToggleHidden);
     /** Simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
+
 #ifdef ENABLE_WALLET
     /** Update ledger icon **/
     void updateLedgerIcon();
     /** Update staking icon **/
     void updateStakingIcon();
 #endif // ENABLE_WALLET
+
 
     /** called by a timer to check if ShutdownRequested() has been set **/
     void detectShutdown();
@@ -405,10 +398,12 @@ private:
     OptionsModel *optionsModel;
     QMenu* menu;
     const PlatformStyle* m_platform_style;
+
     int menuMargin;
     int iconHeight;
     int iconWidth;
     QString iconPath;
+
 
     /** Shows context menu with Display Unit options by the mouse coordinates */
     void onDisplayUnitsClicked(const QPoint& point);

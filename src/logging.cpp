@@ -1,13 +1,16 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <fs.h>
 #include <logging.h>
 #include <util/threadnames.h>
 #include <util/string.h>
 #include <util/time.h>
 
+#include <algorithm>
+#include <array>
 #include <mutex>
 
 const char * const DEFAULT_DEBUGLOGFILE = "debug.log";
@@ -66,16 +69,8 @@ bool BCLog::Logger::StartLogging()
         FileWriteStr("\n\n\n\n\n", m_fileout);
     }
 
-    if (m_fileout) {
-        m_buffering = false;
-    }
-
-    ///////////////////////////////////////////// // qtum
-    if (m_fileoutVM) {
-        m_buffering = false;
-    }
-
     // dump buffered messages from before we opened the log
+    m_buffering = false;
     while (!m_msgs_before_open.empty()) {
         LogMsg logmsg= m_msgs_before_open.front();
 
@@ -90,7 +85,6 @@ bool BCLog::Logger::StartLogging()
 
         m_msgs_before_open.pop_front();
     }
-    //////////////////////////////////////////////
     if (m_print_to_console) fflush(stdout);
 
     return true;
@@ -143,8 +137,7 @@ bool BCLog::Logger::DefaultShrinkDebugFile() const
     return m_categories == BCLog::NONE;
 }
 
-struct CLogCategoryDesc
-{
+struct CLogCategoryDesc {
     BCLog::LogFlags flag;
     std::string category;
 };
@@ -177,6 +170,11 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::VALIDATION, "validation"},
     {BCLog::I2P, "i2p"},
     {BCLog::IPC, "ipc"},
+#ifdef DEBUG_LOCKCONTENTION
+    {BCLog::LOCK, "lock"},
+#endif
+    {BCLog::UTIL, "util"},
+    {BCLog::BLOCKSTORE, "blockstorage"},
     {BCLog::COINSTAKE, "coinstake"},
     {BCLog::HTTPPOLL, "http-poll"},
     {BCLog::INDEX, "index"},
@@ -201,15 +199,18 @@ bool GetLogCategory(BCLog::LogFlags& flag, const std::string& str)
 
 std::vector<LogCategory> BCLog::Logger::LogCategoriesList() const
 {
+    // Sort log categories by alphabetical order.
+    std::array<CLogCategoryDesc, std::size(LogCategories)> categories;
+    std::copy(std::begin(LogCategories), std::end(LogCategories), categories.begin());
+    std::sort(categories.begin(), categories.end(), [](auto a, auto b) { return a.category < b.category; });
+
     std::vector<LogCategory> ret;
-    for (const CLogCategoryDesc& category_desc : LogCategories) {
-        // Omit the special cases.
-        if (category_desc.flag != BCLog::NONE && category_desc.flag != BCLog::ALL) {
-            LogCategory catActive;
-            catActive.category = category_desc.category;
-            catActive.active = WillLogCategory(category_desc.flag);
-            ret.push_back(catActive);
-        }
+    for (const CLogCategoryDesc& category_desc : categories) {
+        if (category_desc.flag == BCLog::NONE || category_desc.flag == BCLog::ALL) continue;
+        LogCategory catActive;
+        catActive.category = category_desc.category;
+        catActive.active = WillLogCategory(category_desc.flag);
+        ret.push_back(catActive);
     }
     return ret;
 }
@@ -259,7 +260,7 @@ namespace BCLog {
         }
         return ret;
     }
-}
+} // namespace BCLog
 
 void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& logging_function, const std::string& source_file, const int source_line, bool useVMLog)
 {

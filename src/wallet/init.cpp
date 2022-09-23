@@ -1,10 +1,11 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <init.h>
 #include <interfaces/chain.h>
+#include <interfaces/init.h>
 #include <interfaces/wallet.h>
 #include <net.h>
 #include <node/context.h>
@@ -21,8 +22,11 @@
 #include <wallet/coincontrol.h>
 #include <wallet/wallet.h>
 #include <walletinitinterface.h>
-#include <miner.h>
+#include <node/miner.h>
 
+using node::NodeContext;
+
+namespace wallet {
 class WalletInit : public WalletInitInterface
 {
 public:
@@ -39,13 +43,15 @@ public:
     void Construct(NodeContext& node) const override;
 };
 
-const WalletInitInterface& g_wallet_init_interface = WalletInit();
-
 void WalletInit::AddWalletOptions(ArgsManager& argsman) const
 {
-    argsman.AddArg("-addresstype", strprintf("What type of addresses to use (\"legacy\", \"p2sh-segwit\", or \"bech32\", default: \"%s\")", FormatOutputType(DEFAULT_ADDRESS_TYPE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-addresstype", strprintf("What type of addresses to use (\"legacy\", \"p2sh-segwit\", \"bech32\", or \"bech32m\", default: \"%s\")", FormatOutputType(DEFAULT_ADDRESS_TYPE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-avoidpartialspends", strprintf("Group outputs by address, selecting many (possibly all) or none, instead of selecting on a per-output basis. Privacy is improved as addresses are mostly swept with fewer transactions and outputs are aggregated in clean change addresses. It may result in higher fees due to less optimal coin selection caused by this added limitation and possibly a larger-than-necessary number of inputs being used. Always enabled for wallets with \"avoid_reuse\" enabled, otherwise default: %u.", DEFAULT_AVOIDPARTIALSPENDS), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-changetype", "What type of change to use (\"legacy\", \"p2sh-segwit\", or \"bech32\"). Default is same as -addresstype, except when -addresstype=p2sh-segwit a native segwit output is used when sending to a native segwit address)", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-changetype",
+                   "What type of change to use (\"legacy\", \"p2sh-segwit\", \"bech32\", or \"bech32m\"). Default is \"legacy\" when "
+                   "-addresstype=legacy, else it is an implementation detail.",
+                   ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-consolidatefeerate=<amt>", strprintf("The maximum feerate (in %s/kvB) at which transaction building may use more inputs than strictly necessary so that the wallet's UTXO pool can be reduced (default: %s).", CURRENCY_UNIT, FormatMoney(DEFAULT_CONSOLIDATE_FEERATE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-disablewallet", "Do not load the wallet and disable wallet RPC calls", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-discardfee=<amt>", strprintf("The fee rate (in %s/kvB) that indicates your tolerance for discarding change by adding it to the fee (default: %s). "
                                                                 "Note: An output is discarded if it is dust at this rate, but we will always discard up to the dust relay fee and a discard fee above that is limited by the fee estimate for the longest target",
@@ -61,7 +67,6 @@ void WalletInit::AddWalletOptions(ArgsManager& argsman) const
                                                             CURRENCY_UNIT, FormatMoney(DEFAULT_TRANSACTION_MINFEE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-paytxfee=<amt>", strprintf("Fee rate (in %s/kvB) to add to transactions you send (default: %s)",
                                                             CURRENCY_UNIT, FormatMoney(CFeeRate{DEFAULT_PAY_TX_FEE}.GetFeePerK())), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-rescan", "Rescan the block chain for missing wallet transactions on startup", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
 #ifdef ENABLE_EXTERNAL_SIGNER
     argsman.AddArg("-signer=<cmd>", "External signing tool, see doc/external-signer.md", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
 #endif
@@ -84,7 +89,7 @@ void WalletInit::AddWalletOptions(ArgsManager& argsman) const
 #endif
 
 #ifdef USE_SQLITE
-    argsman.AddArg("-unsafesqlitesync", "Set SQLite synchronous=OFF to disable waiting for the database to sync to disk. This is unsafe and can cause data loss and corruption. This option is only used by tests to improve their performance (default: false)", ArgsManager::ALLOW_BOOL | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
+    argsman.AddArg("-unsafesqlitesync", "Set SQLite synchronous=OFF to disable waiting for the database to sync to disk. This is unsafe and can cause data loss and corruption. This option is only used by tests to improve their performance (default: false)", ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
 #else
     argsman.AddHiddenArgs({"-unsafesqlitesync"});
 #endif
@@ -96,15 +101,15 @@ void WalletInit::AddWalletOptions(ArgsManager& argsman) const
     argsman.AddArg("-staking=<true/false>", "Enables or disables staking (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-stakecache=<true/false>", "Enables or disables the staking cache; significantly improves staking performance, but can use a lot of memory (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-rpcmaxgasprice", strprintf("The max value (in satoshis) for gas price allowed through RPC (default: %u)", MAX_RPC_GAS_PRICE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-reservebalance", strprintf("Reserved balance not used for staking (default: %u)", DEFAULT_RESERVE_BALANCE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-usechangeaddress", strprintf("Use change address (default: %u)", DEFAULT_USE_CHANGE_ADDRESS), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-reservebalance", strprintf("Reserved balance not used for staking (default: %u)", wallet::DEFAULT_RESERVE_BALANCE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-usechangeaddress", strprintf("Use change address (default: %u)", wallet::DEFAULT_USE_CHANGE_ADDRESS), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-stakingminutxovalue=<amt>", strprintf("The min value of utxo (in %s) selected for super staking (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-stakingminfee=<n>", strprintf("The min fee (in percentage) to accept when super staking (default: %u)", DEFAULT_STAKING_MIN_FEE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-superstaking=<true/false>", strprintf("Enables or disables super staking (default: %u)", DEFAULT_SUPER_STAKE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-minstakerutxosize=<amt>", strprintf("The min value of utxo (in %s) selected for staking (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_STAKER_MIN_UTXO_SIZE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-maxstakerutxoscriptcache=<n>", strprintf("Set max staker utxo script cache for staking (default: %d)", DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-stakingminfee=<n>", strprintf("The min fee (in percentage) to accept when super staking (default: %u)", wallet::DEFAULT_STAKING_MIN_FEE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-superstaking=<true/false>", strprintf("Enables or disables super staking (default: %u)", node::DEFAULT_SUPER_STAKE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-minstakerutxosize=<amt>", strprintf("The min value of utxo (in %s) selected for staking (default: %s)", CURRENCY_UNIT, FormatMoney(wallet::DEFAULT_STAKER_MIN_UTXO_SIZE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-maxstakerutxoscriptcache=<n>", strprintf("Set max staker utxo script cache for staking (default: %d)", wallet::DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-stakerthreads=<n>", strprintf("Set the number of threads the staker use for processing (default is the number of cores to your machine: %d)", GetNumCores()), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-maxstakerwaitforbestheader=<n>", strprintf("Set max staker wait for best header in milliseconds (default: %d)", DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-maxstakerwaitforbestheader=<n>", strprintf("Set max staker wait for best header in milliseconds (default: %d)", node::DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-signpsbtwithhwitool", strprintf("Sign PSBT with HWI tool"), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-stakerledgerid=<path>", strprintf("Set the ledger fingerprint to use for staking"), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
 }
@@ -145,7 +150,10 @@ void WalletInit::Construct(NodeContext& node) const
         LogPrintf("Wallet disabled!\n");
         return;
     }
-    auto wallet_client = interfaces::MakeWalletClient(*node.chain, args);
-    node.wallet_client = wallet_client.get();
-    node.chain_clients.emplace_back(std::move(wallet_client));
+    auto wallet_loader = node.init->makeWalletLoader(*node.chain);
+    node.wallet_loader = wallet_loader.get();
+    node.chain_clients.emplace_back(std::move(wallet_loader));
 }
+} // namespace wallet
+
+const WalletInitInterface& g_wallet_init_interface = wallet::WalletInit();

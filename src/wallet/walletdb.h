@@ -1,12 +1,11 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_WALLET_WALLETDB_H
 #define BITCOIN_WALLET_WALLETDB_H
 
-#include <amount.h>
 #include <script/sign.h>
 #include <wallet/db.h>
 #include <wallet/walletutil.h>
@@ -15,6 +14,22 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+
+class CScript;
+class uint160;
+class uint256;
+struct CBlockLocator;
+
+namespace wallet {
+class CKeyPool;
+class CMasterKey;
+class CWallet;
+class CWalletTx;
+struct WalletContext;
+class CTokenInfo;
+class CTokenTx;
+class CDelegationInfo;
+class CSuperStakerInfo;
 
 /**
  * Overview of wallet database classes:
@@ -30,19 +45,6 @@
 
 static const bool DEFAULT_FLUSHWALLET = true;
 
-struct CBlockLocator;
-class CKeyPool;
-class CMasterKey;
-class CScript;
-class CWallet;
-class CWalletTx;
-class CTokenInfo;
-class CTokenTx;
-class CDelegationInfo;
-class CSuperStakerInfo;
-class uint160;
-class uint256;
-
 /** Error statuses for the wallet database */
 enum class DBErrors
 {
@@ -50,8 +52,10 @@ enum class DBErrors
     CORRUPT,
     NONCRITICAL_ERROR,
     TOO_NEW,
+    EXTERNAL_SIGNER_SUPPORT_REQUIRED,
     LOAD_FAIL,
-    NEED_REWRITE
+    NEED_REWRITE,
+    NEED_RESCAN
 };
 
 namespace DBKeys {
@@ -68,6 +72,7 @@ extern const std::string FLAGS;
 extern const std::string HDCHAIN;
 extern const std::string KEY;
 extern const std::string KEYMETA;
+extern const std::string LOCKED_UTXO;
 extern const std::string MASTER_KEY;
 extern const std::string MINVERSION;
 extern const std::string NAME;
@@ -97,6 +102,8 @@ public:
     uint32_t nExternalChainCounter;
     uint32_t nInternalChainCounter;
     CKeyID seed_id; //!< seed hash160
+    int64_t m_next_external_index{0}; // Next index in the keypool to be used. Memory only.
+    int64_t m_next_internal_index{0}; // Next index in the keypool to be used. Memory only.
 
     static const int VERSION_HD_BASE        = 1;
     static const int VERSION_HD_CHAIN_SPLIT = 2;
@@ -270,6 +277,9 @@ public:
     bool WriteDescriptorLastHardenedCache(const CExtPubKey& xpub, const uint256& desc_id, uint32_t key_exp_index);
     bool WriteDescriptorCacheItems(const uint256& desc_id, const DescriptorCache& cache);
 
+    bool WriteLockedUTXO(const COutPoint& output);
+    bool EraseLockedUTXO(const COutPoint& output);
+
     /// Write destination data key,value tuple to database
     bool WriteDestData(const std::string &address, const std::string &key, const std::string &value);
     /// Erase destination data tuple from wallet database
@@ -305,7 +315,7 @@ private:
 };
 
 //! Compacts BDB state so that wallet.dat is self-contained (if there are changes)
-void MaybeCompactWalletDB();
+void MaybeCompactWalletDB(WalletContext& context);
 
 //! Callback for filtering key types to deserialize in ReadKeyValue
 using KeyFilterFn = std::function<bool(const std::string&)>;
@@ -318,5 +328,6 @@ std::unique_ptr<WalletDatabase> CreateDummyWalletDatabase();
 
 /** Return object for accessing temporary in-memory database. */
 std::unique_ptr<WalletDatabase> CreateMockWalletDatabase();
+} // namespace wallet
 
 #endif // BITCOIN_WALLET_WALLETDB_H

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2020 The Bitcoin Core developers
+# Copyright (c) 2015-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test p2p permission message.
@@ -23,6 +23,7 @@ from test_framework.util import (
     assert_equal,
     p2p_port,
 )
+
 from test_framework.qtum import convert_btc_bech32_address_to_qtum, generatesynchronized
 from test_framework.qtumconfig import COINBASE_MATURITY
 
@@ -95,7 +96,6 @@ class P2PPermissionsTests(BitcoinTestFramework):
 
     def check_tx_relay(self):
         block_op_true = self.nodes[0].getblock(generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, convert_btc_bech32_address_to_qtum(ADDRESS_BCRT1_P2WSH_OP_TRUE), self.nodes)[0])
-        self.sync_all()
 
         self.log.debug("Create a connection from a forcerelay peer that rebroadcasts raw txs")
         # A test framework p2p connection is needed to send the raw transaction directly. If a full node was used, it could only
@@ -131,7 +131,7 @@ class P2PPermissionsTests(BitcoinTestFramework):
         tx.vout[0].nValue += 1
         txid = tx.rehash()
         # Send the transaction twice. The first time, it'll be rejected by ATMP because it conflicts
-        # with a mempool transaction. The second time, it'll be in the recentRejects filter.
+        # with a mempool transaction. The second time, it'll be in the m_recent_rejects filter.
         p2p_rebroadcast_wallet.send_txs_and_test(
             [tx],
             self.nodes[1],

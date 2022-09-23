@@ -1,10 +1,11 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <txdb.h>
 
+#include <chain.h>
 #include <node/ui_interface.h>
 #include <pow.h>
 #include <random.h>
@@ -42,6 +43,28 @@ static constexpr uint8_t DB_TIMESTAMPINDEX{'S'};
 static constexpr uint8_t DB_BLOCKHASHINDEX{'z'};
 static constexpr uint8_t DB_SPENTINDEX{'p'};
 //////////////////////////////////////////
+
+// Keys used in previous version that might still be found in the DB:
+static constexpr uint8_t DB_TXINDEX_BLOCK{'T'};
+//               uint8_t DB_TXINDEX{'t'}
+
+std::optional<bilingual_str> CheckLegacyTxindex(CBlockTreeDB& block_tree_db)
+{
+    CBlockLocator ignored{};
+    if (block_tree_db.Read(DB_TXINDEX_BLOCK, ignored)) {
+        return _("The -txindex upgrade started by a previous version cannot be completed. Restart with the previous version or run a full -reindex.");
+    }
+    bool txindex_legacy_flag{false};
+    block_tree_db.ReadFlag("txindex", txindex_legacy_flag);
+    if (txindex_legacy_flag) {
+        // Disable legacy txindex and warn once about occupied disk space
+        if (!block_tree_db.WriteFlag("txindex", false)) {
+            return Untranslated("Failed to write block index db flag 'txindex'='0'");
+        }
+        return _("The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.");
+    }
+    return std::nullopt;
+}
 
 namespace {
 
@@ -120,8 +143,8 @@ bool CCoinsViewDB::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) {
     CDBBatch batch(*m_db);
     size_t count = 0;
     size_t changed = 0;
-    size_t batch_size = (size_t)gArgs.GetArg("-dbbatchsize", nDefaultDbBatchSize);
-    int crash_simulate = gArgs.GetArg("-dbcrashratio", 0);
+    size_t batch_size = (size_t)gArgs.GetIntArg("-dbbatchsize", nDefaultDbBatchSize);
+    int crash_simulate = gArgs.GetIntArg("-dbcrashratio", 0);
     assert(!hashBlock.IsNull());
 
     uint256 old_tip = GetBestBlock();
@@ -330,7 +353,7 @@ int CBlockTreeDB::ReadHeightIndex(int low, int high, int minconf,
 
     for (size_t count = 0; pcursor->Valid(); pcursor->Next()) {
 
-        std::pair<char, CHeightTxIndexKey> key;
+        std::pair<uint8_t, CHeightTxIndexKey> key;
         if (!pcursor->GetKey(key) || key.first != DB_HEIGHTINDEX) {
             break;
         }
@@ -377,7 +400,7 @@ bool CBlockTreeDB::EraseHeightIndex(const unsigned int &height) {
     pcursor->Seek(std::make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(height)));
 
     while (pcursor->Valid()) {
-        std::pair<char, CHeightTxIndexKey> key;
+        std::pair<uint8_t, CHeightTxIndexKey> key;
         if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height == height) {
             batch.Erase(key);
             pcursor->Next();
@@ -397,7 +420,7 @@ bool CBlockTreeDB::WipeHeightIndex() {
     pcursor->Seek(DB_HEIGHTINDEX);
 
     while (pcursor->Valid()) {
-        std::pair<char, CHeightTxIndexKey> key;
+        std::pair<uint8_t, CHeightTxIndexKey> key;
         if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX) {
             batch.Erase(key);
             pcursor->Next();
@@ -422,7 +445,7 @@ bool CBlockTreeDB::ReadStakeIndex(unsigned int height, uint160& address){
     pcursor->Seek(std::make_pair(DB_STAKEINDEX, height));
 
     while (pcursor->Valid()) {
-        std::pair<char, CHeightTxIndexKey> key;
+        std::pair<uint8_t, CHeightTxIndexKey> key;
         pcursor->GetKey(key); //note: it's apparently ok if this returns an error https://github.com/bitcoin/bitcoin/issues/7890
         if (key.first == DB_STAKEINDEX) {
             pcursor->GetValue(address);
@@ -439,7 +462,7 @@ bool CBlockTreeDB::ReadStakeIndex(unsigned int high, unsigned int low, std::vect
     pcursor->Seek(std::make_pair(DB_STAKEINDEX, low));
 
     while (pcursor->Valid()) {
-        std::pair<char, CHeightTxIndexKey> key;
+        std::pair<uint8_t, CHeightTxIndexKey> key;
         pcursor->GetKey(key); //note: it's apparently ok if this returns an error https://github.com/bitcoin/bitcoin/issues/7890
         if (key.first == DB_STAKEINDEX && key.second.height < high) {
             uint160 value;
@@ -462,7 +485,7 @@ bool CBlockTreeDB::EraseStakeIndex(unsigned int height) {
     pcursor->Seek(std::make_pair(DB_STAKEINDEX, height));
 
     while (pcursor->Valid()) {
-        std::pair<char, CHeightTxIndexKey> key;
+        std::pair<uint8_t, CHeightTxIndexKey> key;
         if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height == height) {
             batch.Erase(key);
             pcursor->Next();
@@ -487,7 +510,7 @@ bool CBlockTreeDB::ReadDelegateIndex(unsigned int height, uint160& address, uint
 
     DelegateEntry info;
     while (pcursor->Valid()) {
-        std::pair<char, CHeightTxIndexKey> key;
+        std::pair<uint8_t, CHeightTxIndexKey> key;
         pcursor->GetKey(key);
         if (key.first == DB_DELEGATEINDEX) {
             pcursor->GetValue(info);
@@ -509,7 +532,7 @@ bool CBlockTreeDB::EraseDelegateIndex(unsigned int height) {
     pcursor->Seek(std::make_pair(DB_DELEGATEINDEX, height));
 
     while (pcursor->Valid()) {
-        std::pair<char, CHeightTxIndexKey> key;
+        std::pair<uint8_t, CHeightTxIndexKey> key;
         if (pcursor->GetKey(key) && key.first == DB_HEIGHTINDEX && key.second.height == height) {
             batch.Erase(key);
             pcursor->Next();
@@ -548,7 +571,7 @@ bool CBlockTreeDB::ReadAddressIndex(uint256 addressHash, int type,
     }
 
     while (pcursor->Valid()) {
-        std::pair<char,CAddressIndexKey> key;
+        std::pair<uint8_t,CAddressIndexKey> key;
         if (pcursor->GetKey(key) && key.first == DB_ADDRESSINDEX && key.second.hashBytes == addressHash) {
             if (end > 0 && key.second.blockHeight > end) {
                 break;
@@ -587,7 +610,7 @@ bool CBlockTreeDB::ReadAddressUnspentIndex(uint256 addressHash, int type,
     pcursor->Seek(std::make_pair(DB_ADDRESSUNSPENTINDEX, CAddressIndexIteratorKey(type, addressHash)));
 
     while (pcursor->Valid()) {
-        std::pair<char,CAddressUnspentKey> key;
+        std::pair<uint8_t,CAddressUnspentKey> key;
         if (pcursor->GetKey(key) && key.first == DB_ADDRESSUNSPENTINDEX && key.second.hashBytes == addressHash) {
             CAddressUnspentValue nValue;
             if (pcursor->GetValue(nValue)) {
@@ -617,7 +640,7 @@ bool CBlockTreeDB::ReadTimestampIndex(const unsigned int &high, const unsigned i
     pcursor->Seek(std::make_pair(DB_TIMESTAMPINDEX, CTimestampIndexIteratorKey(low)));
 
     while (pcursor->Valid()) {
-        std::pair<char, CTimestampIndexKey> key;
+        std::pair<uint8_t, CTimestampIndexKey> key;
         if (pcursor->GetKey(key) && key.first == DB_TIMESTAMPINDEX && key.second.timestamp < high) {
             if (fActiveOnly) {
                 if (blockOnchainActive(key.second.blockHash, chainman)) {
@@ -670,7 +693,7 @@ bool CBlockTreeDB::UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, 
 
 bool CBlockTreeDB::blockOnchainActive(const uint256 &hash, ChainstateManager &chainman) {
     LOCK(cs_main);
-    BlockMap::iterator mi = chainman.BlockIndex().find(hash);
+    node::BlockMap::iterator mi = chainman.BlockIndex().find(hash);
     if (mi == chainman.BlockIndex().end())
         return false;
 
@@ -681,8 +704,8 @@ bool CBlockTreeDB::blockOnchainActive(const uint256 &hash, ChainstateManager &ch
 
 bool CBlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, std::function<CBlockIndex*(const uint256&)> insertBlockIndex)
 {
+    AssertLockHeld(::cs_main);
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
-
     pcursor->Seek(std::make_pair(DB_BLOCK_INDEX, uint256()));
 
     // Load m_block_index
@@ -713,8 +736,9 @@ bool CBlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, 
                 pindexNew->prevoutStake   = diskindex.prevoutStake;
                 pindexNew->vchBlockSigDlgt    = diskindex.vchBlockSigDlgt; // qtum
 
-                if (!CheckIndexProof(*pindexNew, Params().GetConsensus()))
+                if (!CheckIndexProof(*pindexNew, consensusParams)) {
                     return error("%s: CheckIndexProof failed: %s", __func__, pindexNew->ToString());
+                }
 
                 // NovaCoin: build setStakeSeen
                 if (pindexNew->IsProofOfStake())

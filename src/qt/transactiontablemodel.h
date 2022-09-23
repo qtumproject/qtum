@@ -92,12 +92,14 @@ private:
     TransactionTablePriv *priv;
     bool fProcessingQueuedTransactions;
     const PlatformStyle *platformStyle;
+
     QColor color_unconfirmed;
     QColor color_negative;
     QColor color_bareaddress;
     QColor color_tx_status_openuntildate;
     QColor color_tx_status_danger;
     QColor color_black;
+
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();

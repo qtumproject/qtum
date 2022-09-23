@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2020 The Bitcoin Core developers
+# Copyright (c) 2017-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test loadblock option
@@ -29,7 +29,7 @@ class LoadblockTest(BitcoinTestFramework):
 
     def run_test(self):
         self.nodes[1].setnetworkactive(state=False)
-        self.nodes[0].generate(COINBASE_MATURITY)
+        self.generate(self.nodes[0], COINBASE_MATURITY, sync_fun=self.no_op)
 
         # Parsing the url of our node to get settings for config file
         data_dir = self.nodes[0].datadir
@@ -45,17 +45,17 @@ class LoadblockTest(BitcoinTestFramework):
 
         self.log.info("Create linearization config file")
         with open(cfg_file, "a", encoding="utf-8") as cfg:
-            cfg.write("datadir={}\n".format(data_dir))
-            cfg.write("rpcuser={}\n".format(node_url.username))
-            cfg.write("rpcpassword={}\n".format(node_url.password))
-            cfg.write("port={}\n".format(node_url.port))
-            cfg.write("host={}\n".format(node_url.hostname))
-            cfg.write("output_file={}\n".format(bootstrap_file))
+            cfg.write(f"datadir={data_dir}\n")
+            cfg.write(f"rpcuser={node_url.username}\n")
+            cfg.write(f"rpcpassword={node_url.password}\n")
+            cfg.write(f"port={node_url.port}\n")
+            cfg.write(f"host={node_url.hostname}\n")
+            cfg.write(f"output_file={bootstrap_file}\n")
             cfg.write("max_height="+str(COINBASE_MATURITY)+"\n")
             cfg.write("netmagic=fdddc6e1\n")
-            cfg.write("input={}\n".format(blocks_dir))
-            cfg.write("genesis={}\n".format(genesis_block))
-            cfg.write("hashlist={}\n".format(hash_list.name))
+            cfg.write(f"input={blocks_dir}\n")
+            cfg.write(f"genesis={genesis_block}\n")
+            cfg.write(f"hashlist={hash_list.name}\n")
 
         base_dir = self.config["environment"]["SRCDIR"]
         linearize_dir = os.path.join(base_dir, "contrib", "linearize")
@@ -72,7 +72,7 @@ class LoadblockTest(BitcoinTestFramework):
                        check=True)
 
         self.log.info("Restart second, unsynced node with bootstrap file")
-        self.restart_node(1, extra_args=["-loadblock=" + bootstrap_file])
+        self.restart_node(1, extra_args=[f"-loadblock={bootstrap_file}"])
         assert_equal(self.nodes[1].getblockcount(), COINBASE_MATURITY)  # start_node is blocking on all block files being imported
 
         assert_equal(self.nodes[1].getblockchaininfo()['blocks'], COINBASE_MATURITY)

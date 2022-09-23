@@ -4,8 +4,6 @@
 
 This guide describes how to build qtumd, command-line utilities, and GUI on macOS
 
-**Note:** The following is for Intel Macs only!
-
 ## Dependencies
 
 The following dependencies are **required**:
@@ -35,7 +33,6 @@ The following dependencies are **optional** packages required for deploying:
 
 Library                                             | Purpose          | Description
 ----------------------------------------------------|------------------|----------------------
-[librsvg](https://formulae.brew.sh/formula/librsvg) | Deploy Dependency| Library to render SVG files
 [ds_store](https://pypi.org/project/ds-store/)      | Deploy Dependency| Examine and modify .DS_Store files
 [mac_alias](https://pypi.org/project/mac-alias/)    | Deploy Dependency| Generate/Read binary alias and bookmark records
 
@@ -217,10 +214,6 @@ You can deploy a `.dmg` containing the Qtum Core application using `make deploy`
 This command depends on a couple of python packages, so it is required that you have `python` installed.
 
 Ensuring that `python` is installed, you can install the deploy dependencies by running the following commands in your terminal:
-
-``` bash
-brew install librsvg
-```
 
 ``` bash
 pip3 install ds_store mac_alias
