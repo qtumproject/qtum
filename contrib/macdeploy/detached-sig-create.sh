@@ -7,7 +7,7 @@ export LC_ALL=C
 set -e
 
 ROOTDIR=dist
-BUNDLE="${ROOTDIR}/Bitcoin-Qt.app"
+BUNDLE="${ROOTDIR}/Qtum-Qt.app"
 BINARY="${BUNDLE}/Contents/MacOS/Qtum-Qt"
 SIGNAPPLE=signapple
 TEMPDIR=sign.temp
