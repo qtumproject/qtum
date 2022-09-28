@@ -40,12 +40,6 @@
 #include <warnings.h>
 
 #include <util/time.h>
-#ifdef ENABLE_WALLET
-#include <wallet/wallet.h>
-#include <wallet/walletdb.h>
-#include <wallet/rpc/util.h>
-using wallet::CWallet;
-#endif
 #include <memory>
 #include <stdint.h>
 
@@ -99,6 +93,11 @@ static UniValue GetNetworkHashPS(int lookup, int height, const CChain& active_ch
     return workDiff.getdouble() / timeDiff;
 }
 
+UniValue GetReqNetworkHashPS(const JSONRPCRequest& request, ChainstateManager& chainman)
+{
+    return GetNetworkHashPS(!request.params[0].isNull() ? request.params[0].get_int() : 120, !request.params[1].isNull() ? request.params[1].get_int() : -1, chainman.ActiveChain());
+}
+
 static RPCHelpMan getnetworkhashps()
 {
     return RPCHelpMan{"getnetworkhashps",
@@ -119,7 +118,7 @@ static RPCHelpMan getnetworkhashps()
 {
     ChainstateManager& chainman = EnsureAnyChainman(request.context);
     LOCK(cs_main);
-    return GetNetworkHashPS(!request.params[0].isNull() ? request.params[0].get_int() : 120, !request.params[1].isNull() ? request.params[1].get_int() : -1, chainman.ActiveChain());
+    return GetReqNetworkHashPS(request, chainman);
 },
     };
 }
@@ -442,159 +441,6 @@ static RPCHelpMan getsubsidy()
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
     const Consensus::Params& consensusParams = Params().GetConsensus();
     return (uint64_t)GetBlockSubsidy(nTarget, consensusParams);
-},
-    };
-}
-
-static RPCHelpMan getmininginfo()
-{
-    return RPCHelpMan{"getmininginfo",
-                "\nReturns a json object containing mining-related information.",
-                {},
-                RPCResult{
-                    RPCResult::Type::OBJ, "", "",
-                    {
-                        {RPCResult::Type::NUM, "blocks", "The current block"},
-                        {RPCResult::Type::NUM, "currentblockweight", /*optional=*/true, "The block weight of the last assembled block (only present if a block was ever assembled)"},
-                        {RPCResult::Type::NUM, "currentblocktx", /*optional=*/true, "The number of block transactions of the last assembled block (only present if a block was ever assembled)"},
-                        {RPCResult::Type::NUM, "difficulty", "The current difficulty"},
-                        {RPCResult::Type::NUM, "networkhashps", "The network hashes per second"},
-                        {RPCResult::Type::NUM, "pooledtx", "The size of the mempool"},
-                        {RPCResult::Type::STR, "chain", "current network name (main, test, signet, regtest)"},
-                        {RPCResult::Type::STR, "warnings", "any network and blockchain warnings"},
-                    }},
-                RPCExamples{
-                    HelpExampleCli("getmininginfo", "")
-            + HelpExampleRpc("getmininginfo", "")
-                },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
-{
-    NodeContext& node = EnsureAnyNodeContext(request.context);
-    const CTxMemPool& mempool = EnsureMemPool(node);
-    ChainstateManager& chainman = EnsureChainman(node);
-
-    uint64_t nWeight = 0;
-    uint64_t lastCoinStakeSearchInterval = 0;
-#ifdef ENABLE_WALLET
-    std::shared_ptr<CWallet> const wallet = wallet::GetWalletForJSONRPCRequest(request);
-    CWallet* const pwallet = wallet.get();
-    if (pwallet)
-    {
-        LOCK(pwallet->cs_wallet);
-        nWeight = pwallet->GetStakeWeight();
-        lastCoinStakeSearchInterval = pwallet->m_last_coin_stake_search_interval;
-    }
-#endif
-
-    LOCK(cs_main);
-    const CChain& active_chain = chainman.ActiveChain();
-
-    UniValue obj(UniValue::VOBJ);
-    UniValue diff(UniValue::VOBJ);
-    UniValue weight(UniValue::VOBJ);
-
-    obj.pushKV("blocks",           active_chain.Height());
-    if (BlockAssembler::m_last_block_weight) obj.pushKV("currentblockweight", *BlockAssembler::m_last_block_weight);
-    if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
-
-    diff.pushKV("proof-of-work",   GetDifficulty(GetLastBlockIndex(pindexBestHeader, false)));
-    diff.pushKV("proof-of-stake",  GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
-    diff.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
-    obj.pushKV("difficulty",       diff);
-
-    const Consensus::Params& consensusParams = Params().GetConsensus();
-    obj.pushKV("blockvalue",    (uint64_t)GetBlockSubsidy(active_chain.Height(), consensusParams));
-
-    obj.pushKV("netmhashps",       GetPoWMHashPS(chainman));
-    obj.pushKV("netstakeweight",   GetPoSKernelPS());
-    obj.pushKV("errors",           GetWarnings("statusbar").original);
-    obj.pushKV("networkhashps",    getnetworkhashps().HandleRequest(request));
-    obj.pushKV("pooledtx",         (uint64_t)mempool.size());
-
-    weight.pushKV("minimum",       (uint64_t)nWeight);
-    weight.pushKV("maximum",       (uint64_t)0);
-    weight.pushKV("combined",      (uint64_t)nWeight);
-    obj.pushKV("stakeweight",      weight);
-
-    obj.pushKV("chain",            Params().NetworkIDString());
-    obj.pushKV("warnings",         GetWarnings(false).original);
-    return obj;
-},
-    };
-}
-
-static RPCHelpMan getstakinginfo()
-{
-    return RPCHelpMan{"getstakinginfo",
-                "\nReturns an object containing staking-related information.",
-                {},
-                RPCResult{
-                    RPCResult::Type::OBJ, "", "",
-                    {
-                        {RPCResult::Type::BOOL, "enabled", "'true' if staking is enabled"},
-                        {RPCResult::Type::BOOL, "staking", "'true' if wallet is currently staking"},
-                        {RPCResult::Type::STR, "errors", "error messages"},
-                        {RPCResult::Type::NUM, "pooledtx", "The size of the mempool"},
-                        {RPCResult::Type::NUM, "difficulty", "The current difficulty"},
-                        {RPCResult::Type::NUM, "search-interval", "The staker search interval"},
-                        {RPCResult::Type::NUM, "weight", "The staker weight"},
-                        {RPCResult::Type::NUM, "netstakeweight", "Network stake weight"},
-                        {RPCResult::Type::NUM, "expectedtime", "Expected time to earn reward"},
-                    }
-                },
-                RPCExamples{
-                    HelpExampleCli("getstakinginfo", "")
-            + HelpExampleRpc("getstakinginfo", "")
-                },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
-{
-
-    NodeContext& node = EnsureAnyNodeContext(request.context);
-
-    uint64_t nWeight = 0;
-    uint64_t nStakerWeight = 0;
-    uint64_t nDelegateWeight = 0;
-    uint64_t lastCoinStakeSearchInterval = 0;
-#ifdef ENABLE_WALLET
-    std::shared_ptr<CWallet> const wallet = wallet::GetWalletForJSONRPCRequest(request);
-    CWallet* const pwallet = wallet.get();
-
-    if (pwallet)
-    {
-        LOCK(pwallet->cs_wallet);
-        nWeight = pwallet->GetStakeWeight(&nStakerWeight, &nDelegateWeight);
-        lastCoinStakeSearchInterval = pwallet->m_enabled_staking ? pwallet->m_last_coin_stake_search_interval : 0;
-    }
-#endif
-
-    LOCK(cs_main);
-    const CTxMemPool& mempool = EnsureMemPool(node);
-
-    uint64_t nNetworkWeight = GetPoSKernelPS();
-    bool staking = lastCoinStakeSearchInterval && nWeight;
-    const Consensus::Params& consensusParams = Params().GetConsensus();
-    int64_t nTargetSpacing = consensusParams.TargetSpacing(pindexBestHeader->nHeight);
-    uint64_t nExpectedTime = staking ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
-
-    UniValue obj(UniValue::VOBJ);
-
-    obj.pushKV("enabled", gArgs.GetBoolArg("-staking", true));
-    obj.pushKV("staking", staking);
-    obj.pushKV("errors", GetWarnings("statusbar").original);
-
-    if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
-    obj.pushKV("pooledtx", (uint64_t)mempool.size());
-
-    obj.pushKV("difficulty", GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
-    obj.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
-
-    obj.pushKV("weight", (uint64_t)nStakerWeight);
-    obj.pushKV("delegateweight", (uint64_t)nDelegateWeight);
-    obj.pushKV("netstakeweight", (uint64_t)nNetworkWeight);
-
-    obj.pushKV("expectedtime", nExpectedTime);
-
-    return obj;
 },
     };
 }
@@ -1416,14 +1262,12 @@ static const CRPCCommand commands[] =
 { //  category               actor (function)
   //  ---------------------  -----------------------
     { "mining",              &getnetworkhashps,        },
-    { "mining",              &getmininginfo,           },
     { "mining",              &prioritisetransaction,   },
     { "mining",              &getblocktemplate,        },
     { "mining",              &submitblock,             },
     { "mining",              &submitheader,            },
 
     { "mining",              &getsubsidy,              },
-    { "mining",              &getstakinginfo,          },
 
     { "hidden",              &generatetoaddress,       },
     { "hidden",              &generatetodescriptor,    },

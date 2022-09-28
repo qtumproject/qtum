@@ -352,6 +352,9 @@ public:
 
     //! get contract RPC commands.
     virtual Span<const CRPCCommand> getContractRPCCommands() = 0;
+
+    //! get mining RPC commands.
+    virtual Span<const CRPCCommand> getMiningRPCCommands() = 0;
 #endif
 
     //! get delegation for an address.

@@ -62,6 +62,7 @@
 #include <wallet/stake.h>
 #include <node/miner.h>
 #include <wallet/rpc/contract.h>
+#include <wallet/rpc/mining.h>
 #endif
 
 using interfaces::BlockTip;
@@ -851,6 +852,10 @@ public:
     Span<const CRPCCommand> getContractRPCCommands() override
     {
         return wallet::GetContractRPCCommands();
+    }
+    Span<const CRPCCommand> getMiningRPCCommands() override
+    {
+        return wallet::GetMiningRPCCommands();
     }
 #endif
     bool getDelegation(const uint160& address, Delegation& delegation) override

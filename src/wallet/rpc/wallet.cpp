@@ -1042,6 +1042,7 @@ RPCHelpMan listlabels();
 #ifdef ENABLE_EXTERNAL_SIGNER
 RPCHelpMan walletdisplayaddress();
 #endif // ENABLE_EXTERNAL_SIGNER
+RPCHelpMan createmultisig();
 
 // backup
 RPCHelpMan dumpprivkey();
@@ -1182,6 +1183,7 @@ static const CRPCCommand commands[] =
     { "wallet",             &listsuperstakercustomvalues,           },
     { "wallet",             &listsuperstakervaluesforaddress,       },
     { "wallet",             &removesuperstakervaluesforaddress,     },
+    { "util",               &createmultisig,                 },
 };
 // clang-format on
     return commands;

@@ -312,6 +312,8 @@ BITCOIN_CORE_H = \
   wallet/rpc/util.h \
   wallet/rpc/wallet.h \
   wallet/rpc/addresses.h \
+  wallet/rpc/contract.h \
+  wallet/rpc/mining.h \
   wallet/salvage.h \
   wallet/scriptpubkeyman.h \
   wallet/spend.h \
@@ -403,6 +405,7 @@ libbitcoin_node_a_SOURCES = \
   rpc/server.cpp \
   rpc/server_util.cpp \
   wallet/rpc/contract.cpp \
+  wallet/rpc/mining.cpp \
   script/sigcache.cpp \
   shutdown.cpp \
   signet.cpp \
