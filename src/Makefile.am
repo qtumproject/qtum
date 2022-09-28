@@ -389,7 +389,6 @@ libbitcoin_node_a_SOURCES = \
   node/psbt.cpp \
   node/transaction.cpp \
   node/ui_interface.cpp \
-  wallet/stake.cpp \
   noui.cpp \
   policy/fees.cpp \
   policy/packages.cpp \
@@ -404,8 +403,6 @@ libbitcoin_node_a_SOURCES = \
   rpc/rawtransaction.cpp \
   rpc/server.cpp \
   rpc/server_util.cpp \
-  wallet/rpc/contract.cpp \
-  wallet/rpc/mining.cpp \
   script/sigcache.cpp \
   shutdown.cpp \
   signet.cpp \
@@ -424,7 +421,10 @@ libbitcoin_node_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
-libbitcoin_node_a_SOURCES += wallet/init.cpp
+libbitcoin_node_a_SOURCES += wallet/init.cpp \
+  wallet/stake.cpp \
+  wallet/rpc/contract.cpp \
+  wallet/rpc/mining.cpp
 endif
 if !ENABLE_WALLET
 libbitcoin_node_a_SOURCES += dummywallet.cpp
