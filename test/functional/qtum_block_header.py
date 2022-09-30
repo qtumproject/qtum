@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.blocktools import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.address import *
 from test_framework.qtum import *
 import time
@@ -33,7 +33,7 @@ class QtumBlockHeaderTest(BitcoinTestFramework):
 
     def run_test(self):
         self.nodes[0].add_p2p_connection(P2PDataStore())
-        self.nodes[0].p2p.wait_for_getheaders(timeout=5)
+        self.nodes[0].p2ps[0].wait_for_getheaders(timeout=5)
 
         node = self.nodes[0]
         #mocktime = 1490247077
@@ -163,13 +163,13 @@ class QtumBlockHeaderTest(BitcoinTestFramework):
         method reconnects the p2p and restarts the network thread."""
         self.nodes[0].disconnect_p2ps()
         self.nodes[0].add_p2p_connection(P2PDataStore())
-        self.nodes[0].p2p.wait_for_getheaders(timeout=5)
+        self.nodes[0].p2ps[0].wait_for_getheaders(timeout=5)
 
     def sync_all_blocks(self, blocks, success=True, reject_code=None, reject_reason=None, force_send=False, reconnect=False, timeout=5):
         """Sends blocks to test node. Syncs and verifies that tip has advanced to most recent block.
 
         Call with success = False if the tip shouldn't advance to the most recent block."""
-        self.nodes[0].p2p.send_blocks_and_test(blocks, self.nodes[0], success=success, reject_reason=reject_reason, force_send=force_send, timeout=timeout, expect_disconnect=reconnect)
+        self.nodes[0].p2ps[0].send_blocks_and_test(blocks, self.nodes[0], success=success, reject_reason=reject_reason, force_send=force_send, timeout=timeout, expect_disconnect=reconnect)
 
         if reconnect:
             self.reconnect_p2p()

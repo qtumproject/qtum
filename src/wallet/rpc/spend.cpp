@@ -151,8 +151,8 @@ RPCHelpMan sendtoaddress()
                                          "dirty if they have previously been used in a transaction. If true, this also activates avoidpartialspends, grouping outputs by their addresses."},
                     {"fee_rate", RPCArg::Type::AMOUNT, RPCArg::DefaultHint{"not set, fall back to wallet fee estimation"}, "Specify a fee rate in " + CURRENCY_ATOM + "/vB."},
                     {"verbose", RPCArg::Type::BOOL, RPCArg::Default{false}, "If true, return extra information about the transaction."},
-                    {"senderAddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum address that will be used to send money from."},
-                    {"changeToSender", RPCArg::Type::BOOL, RPCArg::Default{false}, "Return the change to the sender."},
+                    {"senderaddress", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "The qtum address that will be used to send money from."},
+                    {"changetosender", RPCArg::Type::BOOL, RPCArg::Default{false}, "Return the change to the sender."},
 
                 },
                 {
@@ -232,7 +232,7 @@ RPCHelpMan sendtoaddress()
 
     bool fHasSender=false;
     CTxDestination senderAddress;
-    if (request.params.size() > 11 && !request.params[11].isNull()){
+    if (!request.params[11].isNull()){
     senderAddress = DecodeDestination(request.params[11].get_str());
         if (!IsValidDestination(senderAddress))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
@@ -241,7 +241,7 @@ RPCHelpMan sendtoaddress()
     }
 
     bool fChangeToSender=false;
-    if (request.params.size() > 12 && !request.params[12].isNull()){
+    if (!request.params[12].isNull()){
         fChangeToSender=request.params[12].get_bool();
     }
 
@@ -1658,9 +1658,9 @@ RPCHelpMan splitutxosforaddress()
                     HELP_REQUIRING_PASSPHRASE,
                 {
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address to split utxos."},
-                    {"minValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is smaller than value (minimum 0.1 COIN)"},
-                    {"maxValue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is greater than value (minimum 0.1 COIN)"},
-                    {"maxOutputs", RPCArg::Type::NUM, RPCArg::Default{100}, "Maximum outputs to create"},
+                    {"minvalue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is smaller than value (minimum 0.1 COIN)"},
+                    {"maxvalue", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "Select utxo which value is greater than value (minimum 0.1 COIN)"},
+                    {"maxoutputs", RPCArg::Type::NUM, RPCArg::Default{100}, "Maximum outputs to create"},
                     {"psbt", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Create partially signed transaction."},
                 },
                 RPCResult{
@@ -1710,14 +1710,14 @@ RPCHelpMan splitutxosforaddress()
     }
 
     // Maximum outputs
-    int maxOutputs = request.params.size() > 3 ? request.params[3].get_int() : 100;
+    int maxOutputs = !request.params[3].isNull() ? request.params[3].get_int() : 100;
     if (maxOutputs < 1) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid value for maximum outputs");
     }
 
     // Is psbt
     bool fPsbt=pwallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
-    if (request.params.size() > 4){
+    if (!request.params[4].isNull()){
         fPsbt=request.params[4].get_bool();
     }
 

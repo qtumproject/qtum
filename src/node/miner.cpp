@@ -2070,7 +2070,6 @@ void StakeQtums(bool fStake, wallet::CWallet *pwallet, boost::thread_group*& sta
 {
     if (stakeThread != nullptr)
     {
-        stakeThread->interrupt_all();
         stakeThread->join_all();
         delete stakeThread;
         stakeThread = nullptr;

@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 import sys
@@ -95,11 +95,26 @@ class QtumBlockIndexCleanupTest(BitcoinTestFramework):
         self.node = self.nodes[0]
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
         self.node.importprivkey(privkey)
+        mocktime = int(time.time())-100000
         for n in self.nodes:
-            n.setmocktime(int(time.time())-100000)
+            n.setmocktime(mocktime)
         
-        generatesynchronized(self.node, 4*COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
-        
+        generatesynchronized(self.node, COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes, mocktime)
+        self.disconnect_nodes(0, 1)
+        self.connect_nodes(0, 1)
+
+        generatesynchronized(self.node, COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes, mocktime)
+        self.disconnect_nodes(0, 1)
+        self.connect_nodes(0, 1)
+
+        generatesynchronized(self.node, COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes, mocktime)
+        self.disconnect_nodes(0, 1)
+        self.connect_nodes(0, 1)
+
+        generatesynchronized(self.node, COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes, mocktime)
+        self.disconnect_nodes(0, 1)
+        self.connect_nodes(0, 1)
+
         for n in self.nodes:
             n.setmocktime(0)
         self.sync_all()

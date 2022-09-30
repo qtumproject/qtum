@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.messages import *
 from test_framework.qtum import *
 import time
@@ -80,7 +80,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.node.setmocktime(int(time.time())-10000)
         generatesynchronized(self.node, 100+COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
         self.sync_all()
-        disconnect_nodes(self.node, 1)
+        self.disconnect_nodes(0, 1)
     
         self.node.setmocktime(0)
         self.staking_prevouts = collect_prevouts(self.node)
@@ -125,7 +125,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         print(self.alt_node.submitblock(bytes_to_hex_str(block.serialize())))
         print(self.alt_node.submitblock(bytes_to_hex_str(child_block.serialize())))
         self.node.setmocktime(child_block.nTime-16)
-        connect_nodes(self.node, 1)
+        self.connect_nodes(0, 1)
         time.sleep(1)
         self.node.setmocktime(0)
         self.alt_node.generate(1)

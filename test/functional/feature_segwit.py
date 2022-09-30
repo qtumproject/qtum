@@ -5,6 +5,7 @@
 """Test the SegWit changeover logic."""
 
 from decimal import Decimal
+from io import BytesIO
 import time
 
 from test_framework.address import (
@@ -17,8 +18,8 @@ from test_framework.address import (
 from test_framework.blocktools import (
     send_to_witness,
     witness_script,
-    create_block,
-    create_coinbase,
+	create_block, 
+	create_coinbase
 )
 from test_framework.messages import (
     COIN,
@@ -223,9 +224,7 @@ class SegWitTest(BitcoinTestFramework):
         self.log.info("Verify unsigned p2sh witness txs without a redeem script are invalid")
         self.fail_accept(self.nodes[2], "mandatory-script-verify-flag-failed (Operation not valid with the current stack size)", p2sh_ids[NODE_2][P2WPKH][1], sign=False)
         self.fail_accept(self.nodes[2], "mandatory-script-verify-flag-failed (Operation not valid with the current stack size)", p2sh_ids[NODE_2][P2WSH][1], sign=False)
-        self.sync_blocks()
         self.generate(self.nodes[2], 4)  # blocks 428-431
-        self.sync_blocks()
 
         self.log.info("Verify previous witness txs skipped for mining can now be mined")
         assert_equal(len(self.nodes[2].getrawmempool()), 4)
@@ -395,7 +394,7 @@ class SegWitTest(BitcoinTestFramework):
             uncompressed_solvable_address.append(self.nodes[0].addmultisigaddress(2, [compressed_spendable_address[0], uncompressed_solvable_address[0]])['address'])
             compressed_solvable_address.append(self.nodes[0].addmultisigaddress(2, [compressed_spendable_address[0], compressed_solvable_address[0]])['address'])
             compressed_solvable_address.append(self.nodes[0].addmultisigaddress(2, [compressed_solvable_address[0], compressed_solvable_address[1]])['address'])
-        unknown_address = [convert_btc_address_to_qtum("mtKKyoHabkk6e4ppT7NaM7THqPUt7AzPrT"), convert_btc_address_to_qtum("2NDP3jLWAFT8NDAiUa9qiE6oBt2awmMq7Dx")]
+            unknown_address = [convert_btc_address_to_qtum("mtKKyoHabkk6e4ppT7NaM7THqPUt7AzPrT"), convert_btc_address_to_qtum("2NDP3jLWAFT8NDAiUa9qiE6oBt2awmMq7Dx")]
 
             # Test multisig_without_privkey
             # We have 2 public keys without private keys, use addmultisigaddress to add to wallet.
@@ -685,8 +684,10 @@ class SegWitTest(BitcoinTestFramework):
     def create_and_mine_tx_from_txids(self, txids, success=True):
         tx = CTransaction()
         for i in txids:
+            txtmp = CTransaction()
             txraw = self.nodes[0].getrawtransaction(i, 0, txs_mined[i])
-            txtmp = tx_from_hex(txraw)
+            f = BytesIO(hex_str_to_bytes(txraw))
+            txtmp.deserialize(f)
             for j in range(len(txtmp.vout)):
                 tx.vin.append(CTxIn(COutPoint(int('0x' + i, 0), j)))
         tx.vout.append(CTxOut(0, CScript([OP_TRUE])))

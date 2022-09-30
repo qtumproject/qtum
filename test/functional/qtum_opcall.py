@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 import sys
@@ -38,7 +38,7 @@ class OpCallTest(BitcoinTestFramework):
             self.node.sendrawtransaction(tx)
 
         self.node.generate(1)
-        sync_blocks(self.nodes)
+        self.sync_blocks()
         for i in range(2):
             # 61bc221a counter()
             out = int(self.nodes[i].callcontract(self.contract_address, "61bc221a")['executionResult']['output'], 16)
@@ -64,7 +64,7 @@ class OpCallTest(BitcoinTestFramework):
             i += 1
         
         self.node.generate(1)
-        sync_blocks(self.nodes)
+        self.sync_blocks()
         for i in range(2):
             # 61bc221a counter()
             out = int(self.nodes[i].callcontract(self.contract_address, "61bc221a")['executionResult']['output'], 16)
@@ -91,7 +91,7 @@ class OpCallTest(BitcoinTestFramework):
         self.contract_address = contract_data['address']
         block_height = self.node.getblockcount()
         self.node.generate(1)
-        sync_blocks(self.nodes)
+        self.sync_blocks()
         for i in range(2):
             assert(self.nodes[i].getblockcount() == block_height+1)
             assert(len(self.nodes[i].listcontracts()) == 1+NUM_DEFAULT_DGP_CONTRACTS)
@@ -182,7 +182,7 @@ class OpCallTest(BitcoinTestFramework):
 
     def run_test(self):
         self.node = self.nodes[0]
-        connect_nodes(self.nodes[0], 1)
+        self.connect_nodes(0, 1)
 
         generatesynchronized(self.nodes[0], 200+COINBASE_MATURITY, None, self.nodes)
         self.node.sendmany("", {self.node.getnewaddress(): 1000000*QTUM_MIN_GAS_PRICE / Decimal('100000000') for i in range(200)})

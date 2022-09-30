@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 
 from test_framework.qtum import generatesynchronized
 import sys
@@ -20,7 +20,7 @@ class QtumCallContractStateNotRevertedTest(BitcoinTestFramework):
         self.skip_if_no_wallet()
 
     def run_test(self):
-        connect_nodes_bi(self.nodes, 0, 1)
+        self.connect_nodes(0, 1)
         generatesynchronized(self.nodes[0], COINBASE_MATURITY+100, None, self.nodes)
         self.sync_all()
         generatesynchronized(self.nodes[1], COINBASE_MATURITY+100, None, self.nodes)

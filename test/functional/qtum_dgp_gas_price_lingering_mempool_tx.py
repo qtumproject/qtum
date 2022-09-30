@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.address import *
 from test_framework.blocktools import *
@@ -45,7 +45,7 @@ class QtumDGPGasPriceLingeringMempoolTxTest(BitcoinTestFramework):
     def run_test(self):
         self.node = self.nodes[0]
         self.GAS_PRICE_DGP = DGPState(self.node, "0000000000000000000000000000000000000082")
-        connect_nodes_bi(self.nodes, 0, 1)
+        self.connect_nodes(0, 1)
         self.nodes[1].generate(1)
         self.sync_all()
         generatesynchronized(self.node, 1000 + COINBASE_MATURITY, None, self.nodes)
@@ -70,9 +70,9 @@ class QtumDGPGasPriceLingeringMempoolTxTest(BitcoinTestFramework):
         self.node.generate(2) # Activate the proposal
 
         # Reconnect and sync the blocks of the nodes
-        connect_nodes_bi(self.nodes, 0, 1)
+        self.connect_nodes(0, 1)
         self.is_network_split = False
-        sync_blocks(self.nodes)
+        self.sync_blocks()
 
         # Make sure that the nodes have the same tip
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())

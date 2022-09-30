@@ -794,11 +794,11 @@ RPCHelpMan gettransaction()
     }
 
     int waitconf = 0;
-    if(request.params.size() > 3) {
+    if(!request.params[3].isNull()) {
         waitconf = request.params[3].get_int();
     }
 
-    bool shouldWaitConf = request.params.size() > 3 && waitconf > 0;
+    bool shouldWaitConf = !request.params[3].isNull() && waitconf > 0;
 
     {
         LOCK(pwallet->cs_wallet);

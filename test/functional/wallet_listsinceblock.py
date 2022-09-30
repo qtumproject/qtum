@@ -209,7 +209,7 @@ class ListSinceBlockTest(BitcoinTestFramework):
         # send from nodes[1] using utxo to nodes[0]
         change = '%.8f' % (float(utxo['amount']) - 1.03)
         recipient_dict = {
-            self.nodes[0].getnewaddress(): 1,
+            self.nodes[0].getnewaddress("", "bech32"): 1,
             self.nodes[1].getnewaddress(): change,
         }
         utxo_dicts = [{

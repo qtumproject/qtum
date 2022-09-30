@@ -6,8 +6,7 @@
 
 Test the DERSIG soft-fork activation on regtest.
 """
-# QTUM note: this test always runs without the reduceblocktime fork activated to allow testing pre bip66
-
+from decimal import Decimal
 from test_framework.blocktools import (
     create_block,
     create_coinbase,
@@ -36,13 +35,13 @@ def unDERify(tx):
     newscript = []
     for i in scriptSig:
         if (len(newscript) == 0):
-            newscript.append(i[0:-1] + b'\x00' + i[-1:])
+            newscript.append(i[0:-1] + b'\0' + i[-1:])
         else:
             newscript.append(i)
     tx.vin[0].scriptSig = CScript(newscript)
 
 
-DERSIG_HEIGHT = 102
+DERSIG_HEIGHT = 2002
 
 
 class BIP66Test(BitcoinTestFramework):
@@ -52,20 +51,19 @@ class BIP66Test(BitcoinTestFramework):
             f'-testactivationheight=dersig@{DERSIG_HEIGHT}',
             '-whitelist=noban@127.0.0.1',
             '-par=1',  # Use only one script thread to get the exact log msg for testing
-            '-reduceblocktimeheight=100000'
         ]]
         self.setup_clean_chain = True
-        self.rpc_timewait = 120
+        self.rpc_timeout = 240
 
     def create_tx(self, input_txid):
         utxo_to_spend = self.miniwallet.get_utxo(txid=input_txid, mark_as_spent=False)
-        return self.miniwallet.create_self_transfer(utxo_to_spend=utxo_to_spend)['tx']
+        return self.miniwallet.create_self_transfer(fee_rate=Decimal("0.01"), utxo_to_spend=utxo_to_spend)['tx']
 
     def test_dersig_info(self, *, is_active):
         assert_equal(self.nodes[0].getdeploymentinfo()['deployments']['bip66'],
             {
-                "active": True,
-                "height": 0,
+                "active": is_active,
+                "height": DERSIG_HEIGHT,
                 "type": "buried",
             },
         )

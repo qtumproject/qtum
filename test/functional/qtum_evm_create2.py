@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 import sys
@@ -18,7 +18,7 @@ class QtumEVMCreate2Test(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
-        self.extra_args = [['-logevents', '-minmempoolgaslimit=21000', '-constantinopleheight=%d' % (204 + COINBASE_MATURITY), '-muirglacierheight=100000']]
+        self.extra_args = [['-logevents', '-minmempoolgaslimit=21000', '-constantinopleheight=%d' % (204 + COINBASE_MATURITY), '-muirglacierheight=100000', '-londonheight=1000000']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -55,7 +55,7 @@ class QtumEVMCreate2Test(BitcoinTestFramework):
 
         input_tx = node.decoderawtransaction(node.gettransaction(call_tx['vin'][0]['txid'])['hex'])
         sender_utxo = input_tx['vout'][call_tx['vin'][0]['vout']]
-        sender_address = sender_utxo['scriptPubKey']['addresses'][0]
+        sender_address = sender_utxo['scriptPubKey']['address']
 
         for op_call_vout_index in range(len(call_tx['vout'])):
             if call_tx['vout'][op_call_vout_index]['scriptPubKey']['type'] == 'call_sender':

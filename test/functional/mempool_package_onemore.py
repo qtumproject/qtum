@@ -23,7 +23,7 @@ MAX_DESCENDANTS = 25
 class MempoolPackagesTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
-        self.extra_args = [["-maxorphantx=1000", "-minrelaytxfee=0.0000001"]]
+        self.extra_args = [["-maxorphantx=1000"]]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -36,7 +36,7 @@ class MempoolPackagesTest(BitcoinTestFramework):
         vout = utxo[0]['vout']
         value = utxo[0]['amount']
 
-        fee = Decimal("0.0002")
+        fee = Decimal("0.09")
         # MAX_ANCESTORS transactions off a confirmed tx should be fine
         chain = []
         for _ in range(4):

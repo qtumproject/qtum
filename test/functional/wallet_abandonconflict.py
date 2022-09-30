@@ -19,8 +19,6 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
-from test_framework.qtumconfig import *
-from test_framework.qtum import generatesynchronized
 
 class AbandonConflictTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -36,7 +34,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         self.nodes[0].createwallet(wallet_name="bob")
         bob = self.nodes[0].get_wallet_rpc("bob")
 
-        generatesynchronized(self.nodes[1], COINBASE_MATURITY, None, self.nodes)
+        self.nodes[1].generate(COINBASE_MATURITY)
         balance = alice.getbalance()
         txA = alice.sendtoaddress(alice.getnewaddress(), Decimal("10"))
         txB = alice.sendtoaddress(alice.getnewaddress(), Decimal("10"))

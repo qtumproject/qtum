@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 import sys
@@ -40,7 +40,7 @@ class OpCreateTest(BitcoinTestFramework):
         #node.createcontract("60606040523415600b57fe5b5b60398060196000396000f30060606040525b600b5b5b565b0000a165627a7a72305820e3bed070fd3a81dd00e02efd22d18a3b47b70860155d6063e47e1e2674fc5acb0029");
         node.sendrawtransaction(tx)
         node.generate(1)
-        sync_blocks(self.nodes)
+        self.sync_blocks()
         # for i in range(2):
         #     assert(len(self.nodes[i].listcontracts()) == 1)
 
@@ -71,7 +71,7 @@ class OpCreateTest(BitcoinTestFramework):
         node.createcontract("606060405234610000575b61034a806100196000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633f811b80146100495780636b8ff5741461006a575b610000565b3461000057610068600480803560001916906020019091905050610087565b005b3461000057610085600480803590602001909190505061015b565b005b60008160405160e18061023e833901808260001916600019168152602001915050604051809103906000f08015610000579050600180548060010182818154818355818115116101035781836000526020600020918201910161010291905b808211156100fe5760008160009055506001016100e6565b5090565b5b505050916000526020600020900160005b83909190916101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550505b5050565b6000600182815481101561000057906000526020600020900160005b9054906101000a900473ffffffffffffffffffffffffffffffffffffffff1690508073ffffffffffffffffffffffffffffffffffffffff16638052474d6000604051602001526040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401809050602060405180830381600087803b156100005760325a03f1156100005750505060405180519050600083815481101561000057906000526020600020900160005b5081600019169055505b50505600606060405234610000576040516020806100e1833981016040528080519060200190919050505b80600081600019169055505b505b609f806100426000396000f30060606040523615603d576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638052474d146045575b60435b5b565b005b34600057604f606d565b60405180826000191660001916815260200191505060405180910390f35b600054815600a165627a7a723058209bd85f2ac8e941766991a59f8a0183902c8168f671bfdb430ad9eab85fd697b70029a165627a7a72305820ed128e4929006fce038bc859dd8837890e7ee8d296cd3ed30b66603a8423397e0029", 1000000)
         block_height = node.getblockcount()
         node.generate(1)
-        sync_blocks(self.nodes)
+        self.sync_blocks()
         for i in range(2):
             assert(self.nodes[i].getblockcount() == block_height+1)
             assert(len(self.nodes[i].listcontracts()) == 2+NUM_DEFAULT_DGP_CONTRACTS)
@@ -92,7 +92,7 @@ class OpCreateTest(BitcoinTestFramework):
 
         block_height = node.getblockcount()
         node.generate(1)
-        sync_blocks(self.nodes)
+        self.sync_blocks()
         for i in range(2):
             assert(self.nodes[i].getblockcount() == block_height+1)
             assert(len(self.nodes[i].listcontracts(1, 10000)) == 2+num_new_contracts+NUM_DEFAULT_DGP_CONTRACTS)
@@ -162,7 +162,7 @@ class OpCreateTest(BitcoinTestFramework):
 
 
     def run_test(self):
-        connect_nodes(self.nodes[0], 1)
+        self.connect_nodes(0, 1)
         generatesynchronized(self.nodes[0], COINBASE_MATURITY+40, None, self.nodes)
         self.vins = [make_vin(self.nodes[0], 10*COIN) for _ in range(10)]
         self.basic_contract_is_created_raw_tx_test()

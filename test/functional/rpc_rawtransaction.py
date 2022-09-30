@@ -26,8 +26,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
     find_vout_for_address,
 )
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
-from test_framework.qtum import generatesynchronized
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 
 TXID = "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000"
 
@@ -78,7 +77,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.generate(self.nodes[2], 1)
         self.generate(self.nodes[0], COINBASE_MATURITY + 1)
         for amount in [1.5, 1.0, 5.0]:
-        generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, None, self.nodes)
+        self.nodes[0].generate(COINBASE_MATURITY + 1)
         self.sync_all()
         self.generate(self.nodes[0], 5)
 

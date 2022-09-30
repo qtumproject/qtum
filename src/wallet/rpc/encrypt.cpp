@@ -19,7 +19,7 @@ RPCHelpMan walletpassphrase()
                 {
                     {"passphrase", RPCArg::Type::STR, RPCArg::Optional::NO, "The wallet passphrase"},
                     {"timeout", RPCArg::Type::NUM, RPCArg::Optional::NO, "The time to keep the decryption key in seconds; capped at 100000000 (~3 years)."},
-                    {"stakingonly", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Unlock wallet for staking only"},
+                    {"stakingonly", RPCArg::Type::BOOL, RPCArg::Default{false}, "Unlock wallet for staking only"},
                 },
                 RPCResult{RPCResult::Type::NONE, "", ""},
                 RPCExamples{
@@ -79,7 +79,7 @@ RPCHelpMan walletpassphrase()
         bool tmpStakingOnly = pwallet->m_wallet_unlock_staking_only;
 
         // ppcoin: if user OS account compromised prevent trivial sendmoney commands
-        if (request.params.size() > 2)
+        if (!request.params[2].isNull())
             pwallet->m_wallet_unlock_staking_only = request.params[2].get_bool();
         else
             pwallet->m_wallet_unlock_staking_only = false;

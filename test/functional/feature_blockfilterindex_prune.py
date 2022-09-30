@@ -22,16 +22,16 @@ class FeatureBlockfilterindexPruneTest(BitcoinTestFramework):
 
     def run_test(self):
         self.log.info("check if we can access a blockfilter when pruning is enabled but no blocks are actually pruned")
-        self.sync_index(height=200)
+        self.sync_index(height=2100)
         assert_greater_than(len(self.nodes[0].getblockfilter(self.nodes[0].getbestblockhash())['filter']), 0)
         self.generate(self.nodes[0], 500)
-        self.sync_index(height=700)
+        self.sync_index(height=2600)
 
         self.log.info("prune some blocks")
-        pruneheight = self.nodes[0].pruneblockchain(400)
+        pruneheight = self.nodes[0].pruneblockchain(2400)
         # the prune heights used here and below are magic numbers that are determined by the
         # thresholds at which block files wrap, so they depend on disk serialization and default block file size.
-        assert_equal(pruneheight, 248)
+        assert_equal(pruneheight, 2280)
 
         self.log.info("check if we can access the tips blockfilter when we have pruned some blocks")
         assert_greater_than(len(self.nodes[0].getblockfilter(self.nodes[0].getbestblockhash())['filter']), 0)

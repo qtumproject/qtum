@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.address import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
@@ -146,7 +146,7 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
 
     def run_test(self):
         self.node = self.nodes[0]
-        connect_nodes_bi(self.nodes, 0, 1)
+        self.connect_nodes(0, 1)
         address = self.node.getnewaddress()
         generatesynchronized(self.node, 10 + COINBASE_MATURITY, address, self.nodes)
 

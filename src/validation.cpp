@@ -1997,7 +1997,6 @@ int ApplyTxInUndo(Coin&& undo, CCoinsViewCache& view, const COutPoint& out)
 DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockIndex* pindex, CCoinsViewCache& view, bool* pfClean)
 {
     AssertLockHeld(::cs_main);
-    assert(pindex->GetBlockHash() == view.GetBestBlock());
     if (pfClean)
         *pfClean = false;
     bool fClean = true;

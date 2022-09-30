@@ -65,7 +65,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
     softfork_active,
-    satoshi_round,
+	satoshi_round
 from test_framework.wallet import MiniWallet
 
 

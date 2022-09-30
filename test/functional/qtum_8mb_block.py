@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.blocktools import *
 from test_framework.qtum import *
 
@@ -19,7 +19,7 @@ class Qtum8MBBlock(BitcoinTestFramework):
 
     def run_test(self):
         self.node = self.nodes[0]
-        connect_nodes_bi(self.nodes, 0, 1)
+        self.connect_nodes(0, 1)
         # Make sure that segwit is activated
         generatesynchronized(self.node, COINBASE_MATURITY, None, self.nodes)
         self.node.generate(10)

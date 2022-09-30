@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.address import *
 from test_framework.qtum import *
 import sys
@@ -65,7 +65,7 @@ class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
     def run_test(self):
         for i in range(len(self.nodes)):
             for j in range(i+1, len(self.nodes)):
-                connect_nodes_bi(self.nodes, i, j)
+                self.connect_nodes(i, j)
         for node in self.nodes:
             node.generate(10)
             self.sync_all()

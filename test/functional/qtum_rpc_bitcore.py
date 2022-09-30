@@ -9,7 +9,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.blocktools import *
 from test_framework.messages import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.script import *
 from test_framework.qtum import *
 
@@ -22,7 +22,7 @@ class QtumBitcoreTest(BitcoinTestFramework):
         self.setup_clean_chain = True
 
     def skip_test_if_missing_module(self):
-        self.skip_if_no_bitcore()
+        #self.skip_if_no_bitcore()
         self.skip_if_no_wallet()
 
     def unknown_segwit_address_test(self):
@@ -52,7 +52,7 @@ class QtumBitcoreTest(BitcoinTestFramework):
         node = self.nodes[0]
         t = int(time.time())-10000
         node.setmocktime(t)
-        node.generate(990)
+        node.generate(3990)
         for i in range(10):
             node.setmocktime(t+9900+i)
             node.generate(1)
@@ -72,8 +72,7 @@ class QtumBitcoreTest(BitcoinTestFramework):
 
         # check dgp info
         ret = node.getdgpinfo()
-        assert_equal(ret, {'blockgaslimit': 40000000, 'maxblocksize': 2000000, 'mingasprice': 40})
-
+        assert_equal(ret, {'blockgaslimit': 40000000, 'maxblocksize': 500000, 'mingasprice': 40})
         ret = node.getaddresstxids({'addresses': [confirmed_address]})
         assert_equal(set(ret), set(expected_address_txids))
 
@@ -89,16 +88,16 @@ class QtumBitcoreTest(BitcoinTestFramework):
         assert_equal(ret[0]['txid'], mempool_txid)
         assert_equal(len(ret), 1)
 
-        new_block = node.getblock(node.getblockhash(994))
-        old_block = node.getblock(node.getblockhash(991))
+        new_block = node.getblock(node.getblockhash(3994))
+        old_block = node.getblock(node.getblockhash(3991))
         ret = node.getblockhashes(new_block['time'], old_block['time'])
-        assert_equal(set(ret), set(node.getblockhash(991+i) for i in range(3)))
+        assert_equal(set(ret), set(node.getblockhash(3991+i) for i in range(3)))
         time.sleep(1)
 
         txinfo = node.decoderawtransaction(node.gettransaction(expected_address_txids[0])['hex'])
         spent_prevout = txinfo['vin'][0]
         ret = node.getspentinfo({"txid": spent_prevout['txid'], "index": spent_prevout['vout']})
-        assert_equal(ret, {"txid": expected_address_txids[0], "index": 0, "height": 1002})
+        assert_equal(ret, {"txid": expected_address_txids[0], "index": 0, "height": 4002})
         self.sync_all()
 
 

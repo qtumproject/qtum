@@ -68,7 +68,7 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
     }
 
     dev::Address senderAddress;
-    if(params.size() >= 3){
+    if(!params[2].isNull()){
         CTxDestination qtumSenderAddress = DecodeDestination(params[2].get_str());
         if (IsValidDestination(qtumSenderAddress)) {
             PKHash keyid = std::get<PKHash>(qtumSenderAddress);
@@ -79,12 +79,12 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
 
     }
     uint64_t gasLimit=0;
-    if(params.size() >= 4){
+    if(!params[3].isNull()){
         gasLimit = params[3].get_int64();
     }
 
     CAmount nAmount = 0;
-    if (params.size() >= 5){
+    if (!params[4].isNull()){
         nAmount = AmountFromValue(params[4]);
         if (nAmount < 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");

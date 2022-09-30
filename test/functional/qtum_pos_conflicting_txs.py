@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.blocktools import *
 from test_framework.qtum import *
 
@@ -28,7 +28,7 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
     def run_test(self):
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
         self.nodes[0].importprivkey(privkey)
-        disconnect_nodes(self.nodes[0], 1)
+        self.disconnect_nodes(0, 1)
         for n in self.nodes: n.setmocktime(int(time.time())-10000)
         # First generate some blocks so we have 20 valid staking txs for the node we run the test on (node#0)
         # We also mature three coinbases for the node that will orphan node#0s blocks
@@ -70,17 +70,17 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
         print("blkcnt", self.nodes[0].getblockcount())
 
         # Allow node#1 to stake two blocks, which will orphan any (potentially) staked block in node#0
-        wait_until(lambda: self.nodes[1].getblockcount() >= COINBASE_MATURITY+25)
+        self.wait_until(lambda: self.nodes[1].getblockcount() >= COINBASE_MATURITY+25)
         self.nodes[0].setmocktime(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['time'])
 
         # Connect the nodes
         print(self.nodes[0].getpeerinfo())
-        connect_nodes_bi(self.nodes, 0, 1)
+        self.connect_nodes(0, 1)
 
         # Sync the nodes
         timeout = time.time() + 10
 
-        wait_until(lambda: self.nodes[0].getbestblockhash() == self.nodes[1].getbestblockhash())
+        self.wait_until(lambda: self.nodes[0].getbestblockhash() == self.nodes[1].getbestblockhash())
 
         print('node#0 %d; blockcount=%d' % (0, self.nodes[0].getblockcount()))
         print('node#1 %d; blockcount=%d' % (0, self.nodes[1].getblockcount()))
@@ -89,7 +89,7 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
         assert_equal(self.nodes[0].getblockcount(), best_chain_height)
 
         # Allow one more block to be staked, which will include the txs in the mempool
-        wait_until(lambda: self.nodes[1].getblockcount() < best_chain_height+1)
+        self.wait_until(lambda: self.nodes[1].getblockcount() < best_chain_height+1)
 
         print('node#0 %d; blockcount=%d' % (0, self.nodes[0].getblockcount()))
         print('node#1 %d; blockcount=%d' % (0, self.nodes[1].getblockcount()))

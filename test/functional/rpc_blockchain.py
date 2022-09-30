@@ -25,7 +25,6 @@ from decimal import Decimal
 import http.client
 import os
 import subprocess
-import time
 from test_framework.blocktools import (
     MAX_FUTURE_BLOCK_TIME,
     TIME_GENESIS_BLOCK,
@@ -72,7 +71,7 @@ class BlockchainTest(BitcoinTestFramework):
         self.restart_node(
             0,
             extra_args=[
-                "-stopatheight=607",
+                "-stopatheight=2107",
                 "-checkblocks=-1",  # Check all blocks
                 "-prune=1",  # Set pruning after rescan is complete
             ],
@@ -92,10 +91,10 @@ class BlockchainTest(BitcoinTestFramework):
 
     def mine_chain(self):
         self.log.info(f"Generate {HEIGHT} blocks after the genesis block in ten-minute steps")
-        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 128 * 600, 128):
+        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 32 * 2100, 32):
             self.nodes[0].setmocktime(t)
             self.generate(self.wallet, 1)
-        assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 600)
+        assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 2100)
 
     def _test_max_future_block_time(self):
         self.stop_node(0)
@@ -147,7 +146,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert res['pruned']
         assert not res['automatic_pruning']
 
-        self.restart_node(0, ['-stopatheight=607'])
+        self.restart_node(0, ['-stopatheight=2107'])
         res = self.nodes[0].getblockchaininfo()
         # should have exact keys
         assert_equal(sorted(res.keys()), keys)
@@ -166,7 +165,7 @@ class BlockchainTest(BitcoinTestFramework):
             expected_msg='Error: Invalid format () for -testactivationheight=name@height.',
         )
         self.start_node(0, extra_args=[
-            '-stopatheight=607',
+            '-stopatheight=2107',
             '-prune=550',
         ])
 
@@ -210,9 +209,9 @@ class BlockchainTest(BitcoinTestFramework):
                         'elapsed': height - 143,
                         'count': height - 143,
                         'possible': True,
-                    },
                     'signalling': '#'*(height-143),
                 },
+                'height': 432, 
                 'active': True
             },
             'taproot': {
@@ -272,33 +271,33 @@ class BlockchainTest(BitcoinTestFramework):
         assert_raises_rpc_error(-8, "blockhash must be of length 64 (not 1, for '0')", self.nodes[0].getchaintxstats, blockhash='0')
         assert_raises_rpc_error(-8, "blockhash must be hexadecimal string (not 'ZZZ0000000000000000000000000000000000000000000000000000000000000')", self.nodes[0].getchaintxstats, blockhash='ZZZ0000000000000000000000000000000000000000000000000000000000000')
         assert_raises_rpc_error(-5, "Block not found", self.nodes[0].getchaintxstats, blockhash='0000000000000000000000000000000000000000000000000000000000000000')
-        blockhash = self.nodes[0].getblockhash(600)
+        blockhash = self.nodes[0].getblockhash(2100)
         self.nodes[0].invalidateblock(blockhash)
         assert_raises_rpc_error(-8, "Block is not in main chain", self.nodes[0].getchaintxstats, blockhash=blockhash)
         self.nodes[0].reconsiderblock(blockhash)
 
         chaintxstats = self.nodes[0].getchaintxstats(nblocks=1)
         # 200 txs plus genesis tx
-        assert_equal(chaintxstats['txcount'], 601)
+        assert_equal(chaintxstats['txcount'], 2101)
         # tx rate should be 1 per 10 minutes, or 1/600
         # we have to round because of binary math
-        assert_equal(round(chaintxstats['txrate'] * 64 * 2, 10), Decimal(1))
+        assert_equal(round(chaintxstats['txrate'] * 16 * 2, 10), Decimal(1))
 
         b1_hash = self.nodes[0].getblockhash(1)
         b1 = self.nodes[0].getblock(b1_hash)
-        b200_hash = self.nodes[0].getblockhash(600)
+        b200_hash = self.nodes[0].getblockhash(2100)
         b200 = self.nodes[0].getblock(b200_hash)
         time_diff = b200['mediantime'] - b1['mediantime']
 
         chaintxstats = self.nodes[0].getchaintxstats()
         assert_equal(chaintxstats['time'], b200['time'])
-        assert_equal(chaintxstats['txcount'], 601)
+        assert_equal(chaintxstats['txcount'], 2101)
         assert_equal(chaintxstats['window_final_block_hash'], b200_hash)
-        assert_equal(chaintxstats['window_final_block_height'], 600)
-        assert_equal(chaintxstats['window_block_count'], 599)
-        assert_equal(chaintxstats['window_tx_count'], 599)
+        assert_equal(chaintxstats['window_final_block_height'], 2100)
+        assert_equal(chaintxstats['window_block_count'], 2099)
+        assert_equal(chaintxstats['window_tx_count'], 2099)
         assert_equal(chaintxstats['window_interval'], time_diff)
-        assert_equal(round(chaintxstats['txrate'] * time_diff, 10), Decimal(599))
+        assert_equal(round(chaintxstats['txrate'] * time_diff, 10), Decimal(2099))
 
         chaintxstats = self.nodes[0].getchaintxstats(blockhash=b1_hash)
         assert_equal(chaintxstats['time'], b1['time'])
@@ -314,29 +313,29 @@ class BlockchainTest(BitcoinTestFramework):
         node = self.nodes[0]
         res = node.gettxoutsetinfo()
 
-        assert_equal(res['total_amount'], Decimal('12000000.00000000'))
-        assert_equal(res['transactions'], 600)
-        assert_equal(res['height'], 600)
-        assert_equal(res['txouts'], 600)
-        assert_equal(res['bogosize'], 45000),
-        assert_equal(res['bestblock'], node.getblockhash(600))
+        assert_equal(res['total_amount'], Decimal('42000000.00000000'))
+        assert_equal(res['transactions'], 2100)
+        assert_equal(res['height'], 2100)
+        assert_equal(res['txouts'], 2100)
+        assert_equal(res['bogosize'], 176400),
+        assert_equal(res['bestblock'], node.getblockhash(2100))
         size = res['disk_size']
         assert size > 6400
-        assert size < 64000
+        assert size < 176400
         assert_equal(len(res['bestblock']), 64)
         assert_equal(len(res['hash_serialized_2']), 64)
 
         self.log.info("Test gettxoutsetinfo works for blockchain with just the genesis block")
-        b1hash = node.getblockhash(501)
+        b1hash = node.getblockhash(2001)
         node.invalidateblock(b1hash)
 
         res2 = node.gettxoutsetinfo()
-        assert_equal(res2['transactions'], 500)
-        assert_equal(res2['total_amount'], Decimal('10000000'))
-        assert_equal(res2['height'], 500)
-        assert_equal(res2['txouts'], 500)
-        assert_equal(res2['bogosize'], 37500),
-        assert_equal(res2['bestblock'], node.getblockhash(500))
+        assert_equal(res2['transactions'], 2000)
+        assert_equal(res2['total_amount'], Decimal('40000000'))
+        assert_equal(res2['height'], 2000)
+        assert_equal(res2['txouts'], 2000)
+        assert_equal(res2['bogosize'], 168000),
+        assert_equal(res2['bestblock'], node.getblockhash(2000))
         assert_equal(len(res2['hash_serialized_2']), 64)
 
         self.log.info("Test gettxoutsetinfo returns the same result after invalidate/reconsider block")
@@ -380,11 +379,11 @@ class BlockchainTest(BitcoinTestFramework):
         assert_raises_rpc_error(-5, "Block not found", node.getblockheader, "0cf7bb8b1697ea987f3b223ba7819250cae33efacb068d23dc24859824a77844")
 
         besthash = node.getbestblockhash()
-        secondbesthash = node.getblockhash(599)
+        secondbesthash = node.getblockhash(2099)
         header = node.getblockheader(blockhash=besthash)
 
         assert_equal(header['hash'], besthash)
-        assert_equal(header['height'], 600)
+        assert_equal(header['height'], 2100)
         assert_equal(header['confirmations'], 1)
         assert_equal(header['previousblockhash'], secondbesthash)
         assert_is_hex_string(header['chainwork'])
@@ -422,13 +421,13 @@ class BlockchainTest(BitcoinTestFramework):
         self.log.info("Test getnetworkhashps")
         hashes_per_second = self.nodes[0].getnetworkhashps()
         # This should be 2 hashes every 10 minutes or 1/300
-        assert abs(hashes_per_second * 300 - 1) < 10
+        assert abs(hashes_per_second * 300 - 1) < 20
 
     def _test_stopatheight(self):
         self.log.info("Test stopping at height")
-        assert_equal(self.nodes[0].getblockcount(), 600)
+        assert_equal(self.nodes[0].getblockcount(), 2100)
         self.generate(self.wallet, 6)
-        assert_equal(self.nodes[0].getblockcount(), 606)
+        assert_equal(self.nodes[0].getblockcount(), 2106)
         self.log.debug('Node should not stop at this height')
         assert_raises(subprocess.TimeoutExpired, lambda: self.nodes[0].process.wait(timeout=3))
         try:
@@ -438,7 +437,7 @@ class BlockchainTest(BitcoinTestFramework):
         self.log.debug('Node should stop at this height...')
         self.nodes[0].wait_until_stopped()
         self.start_node(0)
-        assert_equal(self.nodes[0].getblockcount(), 607)
+        assert_equal(self.nodes[0].getblockcount(), 2107)
 
     def _test_waitforblockheight(self):
         self.log.info("Test waitforblockheight")
@@ -454,7 +453,7 @@ class BlockchainTest(BitcoinTestFramework):
         # (Previously this was broken based on setting
         # `rpc/blockchain.cpp:latestblock` incorrectly.)
         #
-        b20hash = node.getblockhash(200)
+        b20hash = node.getblockhash(2100)
         b20 = node.getblock(b20hash)
 
         def solve_and_send_block(prevhash, height, time):
@@ -463,8 +462,8 @@ class BlockchainTest(BitcoinTestFramework):
             peer.send_and_ping(msg_block(b))
             return b
 
-        b21f = solve_and_send_block(int(b20hash, 16), 201, b20['time'] + 1)
-        b22f = solve_and_send_block(b21f.sha256, 202, b21f.nTime + 1)
+        b21f = solve_and_send_block(int(b20hash, 16), 2101, b20['time'] + 1)
+        b22f = solve_and_send_block(b21f.sha256, 2102, b21f.nTime + 1)
 
         node.invalidateblock(b22f.hash)
 
@@ -480,7 +479,7 @@ class BlockchainTest(BitcoinTestFramework):
 
     def _test_getblock(self):
         node = self.nodes[0]
-        fee_per_byte = Decimal('0.00000010')
+        fee_per_byte = Decimal('0.00001')
         fee_per_kb = 1000 * fee_per_byte
 
         self.wallet.send_self_transfer(fee_rate=fee_per_kb, from_node=node)

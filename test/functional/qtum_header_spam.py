@@ -6,7 +6,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.messages import *
 from test_framework.qtum import *
 import sys
@@ -192,11 +192,11 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
 
     
     def can_sync_after_offline_period_test(self):
-        connect_nodes(self.node, 1)
-        sync_blocks(self.nodes)
+        self.connect_nodes(0, 1)
+        self.sync_blocks()
         assert_equal(self.node.getblockchaininfo()['initialblockdownload'], False)
         assert_equal(self.nodes[1].getblockchaininfo()['initialblockdownload'], False)
-        disconnect_nodes(self.node, 1)
+        self.disconnect_nodes(0, 1)
         block_time = int(time.time() - 10*24*60*60) & 0xfffffff0
         for i in range(COINBASE_MATURITY+2):
             block, block_sig_key = create_unsigned_pos_block(self.node, self.staking_prevouts, block_time)
@@ -207,8 +207,8 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
 
             if i % 100 == 0:
                 self.staking_prevouts = collect_prevouts(self.node)
-        connect_nodes(self.node, 1)
-        sync_blocks(self.nodes)
+        self.connect_nodes(0, 1)
+        self.sync_blocks()
 
     def reorg_requires_more_chainwork_test(self):
         old_size = get_dir_size(self.node.datadir+'/regtest/blocks/')
@@ -288,7 +288,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.staking_prevouts = collect_prevouts(self.node)
         generatesynchronized(self.node, COINBASE_MATURITY, None, self.nodes)
         self.sync_blocks()
-        disconnect_nodes(self.node, 1)
+        self.disconnect_nodes(0, 1)
         self.node.setmocktime(0)
         self.start_p2p_connection()
         
@@ -316,7 +316,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             self.dos_protection_triggered_via_spam_on_variable_height_test()
 
         self.spam_same_stake_block_test()
-        connect_nodes(self.node, 1)
+        self.connect_nodes(0, 1)
         self.sync_blocks()
 
         # None of the spam should have been relayed to our other node

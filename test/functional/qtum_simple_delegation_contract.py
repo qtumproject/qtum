@@ -3,7 +3,7 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.messages import *
 from test_framework.script import *
-from test_framework.mininode import *
+from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 from test_framework.util import *
@@ -13,6 +13,9 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 2
         self.extra_args = [['-txindex=1', '-logevents=1'], ['-txindex=1', '-logevents=1', '-superstaking=1', '-staking=1']]
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def run_test(self):
         for n in self.nodes: n.setmocktime(int(time.time()) - 1000000)

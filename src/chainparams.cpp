@@ -90,7 +90,7 @@ public:
         consensus.nOfflineStakeHeight = 680000;
         consensus.nReduceBlocktimeHeight = 845000;
         consensus.nMuirGlacierHeight = 845000;
-        consensus.nLondonHeight = 0x7fffffff;
+        consensus.nLondonHeight = 2080512;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -114,12 +114,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-        // Min block number for activation, the number must be divisible with 2016
+        // Min block number for activation, the number must be divisible by 2016
         // Replace 0xffffc0 with the activation block number
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0xffffc0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 2080512;
 
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000002ee39fbaf66506e5c57"); // qtum
-        consensus.defaultAssumeValid = uint256S("0x8ef924fb7d2a28e0420c8731fb34301c204d15fe8d1e68461e5ebe959df011f2"); // 1405000
+        consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000000000037e70dfa7662e619017"); // 1883974
+        consensus.defaultAssumeValid = uint256S("0xefe5b66cd0963b19ed64850884f039ff4d98c49cd63b9ec763d5c336619d5a6d"); // 1883974
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -132,7 +132,7 @@ public:
         pchMessageStart[3] = 0xd3;
         nDefaultPort = 3888;
         nPruneAfterHeight = 100000;
-        m_assumed_blockchain_size = 14;
+        m_assumed_blockchain_size = 16;
         m_assumed_chain_state_size = 1;
 
         genesis = CreateGenesisBlock(1504695029, 8026361, 0x1f00ffff, 1, 50 * COIN);
@@ -181,6 +181,7 @@ public:
                 { 708000, uint256S("23c66194def65cfea20d32a71f23807a93a0b207b3d7251246e2c351204fe9d3")},
                 { 888000, uint256S("02caf7a26b995e5054462715a4d31e1a7ff220c53fead7c06de720ac54510433")},
                 { 1405000, uint256S("8ef924fb7d2a28e0420c8731fb34301c204d15fe8d1e68461e5ebe959df011f2")},
+				{ 1883974, uint256S("efe5b66cd0963b19ed64850884f039ff4d98c49cd63b9ec763d5c336619d5a6d")},
             }
         };
 
@@ -189,11 +190,11 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 87ee4ec601b335d411e01378936e21044b1a47a3d989feaaaed0e8eaa2929e4b (height 1407838)
-            1637774408, // * UNIX timestamp of last known number of transactions
-            6434923, // * total number of transactions between genesis and that timestamp
+            // Data as of block 2250aa6ed692895f7d3a7840e37bdc383584f18e0c7a9e7982521f9b47d6fd6c (height 1885982)
+        	1653074852, // * UNIX timestamp of last known number of transactions
+			7579431, // * total number of transactions between genesis and that timestamp
             //   (the tx=... number in the SetBestChain debug.log lines)
-            0.0842613440826197 // * estimated number of transactions per second after that timestamp
+            0.07127920937539545 // * estimated number of transactions per second after that timestamp
         };
 
         consensus.nBlocktimeDownscaleFactor = 4;
@@ -245,7 +246,7 @@ public:
         consensus.nOfflineStakeHeight = 625000;
         consensus.nReduceBlocktimeHeight = 806600;
         consensus.nMuirGlacierHeight = 806600;
-        consensus.nLondonHeight = 0x7fffffff;
+        consensus.nLondonHeight = 1967616;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -269,12 +270,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-        // Min block number for activation, the number must be divisible with 2016
+        // Min block number for activation, the number must be divisible by 2016
         // Replace 0xffffc0 with the activation block number
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0xffffc0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 1967616;
 
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000f64ad2ae9a92bd2de8"); // qtum
-        consensus.defaultAssumeValid = uint256S("0xaff1f9c768e83f90d10a55306993e9042b5740251abc1afdde1429d09e95fa66"); // 1405000
+        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000001568777684de8c59f80"); // 1930000
+        consensus.defaultAssumeValid = uint256S("0xf4836510a70e25d5c70554abbbcb346abd66af540f616d806fb1c20335c1e874"); // 1930000
 
         pchMessageStart[0] = 0x0d;
         pchMessageStart[1] = 0x22;
@@ -324,6 +325,7 @@ public:
                 {690000, uint256S("89b010b5333fa9d22c7fcf157c7eeaee1ccfe80c435390243b3d782a1fc1eff7")},
                 {944000, uint256S("6bb6312088d81ca5484460b3466c66c01ff7d1cd4ef91e1dc9555a15b51d025d")},
                 {1405000, uint256S("aff1f9c768e83f90d10a55306993e9042b5740251abc1afdde1429d09e95fa66")},
+				{1930000, uint256S("f4836510a70e25d5c70554abbbcb346abd66af540f616d806fb1c20335c1e874")},
             }
         };
 
@@ -332,10 +334,10 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block eac806357d6afadecc7fcbc79256e51b170187bbe4497c5192b023bd0b422a48 (height 1457136)
-            1637778400,
-            3068076,
-            0.06376731417354913
+            // Data as of block f948d21fffc54b511638b4c2c73dfa8f1c50661fbf3187a553bf939c361116ea (height 1935143)
+        	1653075072,
+			4040228,
+			0.06307789999321026
         };
 
         consensus.nBlocktimeDownscaleFactor = 4;
