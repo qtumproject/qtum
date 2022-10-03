@@ -143,6 +143,8 @@ MACHO_ALLOWED_LIBRARIES = {
 'Metal', # 3D graphics
 'Security', # access control and authentication
 'QuartzCore', # animation
+'SystemConfiguration', # allow applications to access a device’s network configuration settings.
+'GSS', # conduct secure, authenticated network transactions.
 }
 
 PE_ALLOWED_LIBRARIES = {
