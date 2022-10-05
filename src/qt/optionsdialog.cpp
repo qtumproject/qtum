@@ -397,10 +397,8 @@ void OptionsDialog::on_okButton_clicked()
                  QMessageBox::Cancel);
         if(retval == QMessageBox::Yes)
         {
-
-            qApp->processEvents();
             model->setRestartApp(true);
-            QApplication::quit();
+            qApp->closeAllWindows();
         }
     }
 
