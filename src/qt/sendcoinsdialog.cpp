@@ -31,6 +31,7 @@
 #include <wallet/coincontrol.h>
 #include <wallet/fees.h>
 #include <wallet/wallet.h>
+#include <core_io.h>
 
 #include <array>
 #include <chrono>
@@ -516,8 +517,8 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
         presentPSBT(psbtx);
     } else {
         // "Send" clicked
-        assert(!model->wallet().privateKeysDisabled() || model->wallet().hasExternalSigner());
-        bool broadcast = true;
+        assert(!model->wallet().privateKeysDisabled() || model->wallet().hasExternalSigner() || model->getSignPsbtWithHwiTool());
+        bool broadcast = !model->wallet().privateKeysDisabled();
         if (model->wallet().hasExternalSigner()) {
             CMutableTransaction mtx = CMutableTransaction{*(m_current_transaction->getWtx())};
             PartiallySignedTransaction psbtx(mtx);
@@ -542,6 +543,44 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
                 }
             }
         }
+        // Sign psbt with hwi tool
+        else if(model->getSignPsbtWithHwiTool())
+        {
+            // Create psbt
+            CMutableTransaction mtx = CMutableTransaction{*(m_current_transaction->getWtx())};
+            PartiallySignedTransaction psbtx(mtx);
+            bool complete = false;
+
+            // Fill without signing
+            TransactionError err = model->wallet().fillPSBT(SIGHASH_ALL, /*sign=*/false, /*bip32derivs=*/true, /*n_signed=*/nullptr, psbtx, complete);
+            assert(!complete);
+            assert(err == TransactionError::OK);
+
+            // Serialize the PSBT
+            CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+            ssTx << psbtx;
+            QString psbt = EncodeBase64(ssTx.str()).c_str();
+
+            // Sign tx with hardware
+            QVariantMap variantMap;
+            send_failure = !HardwareSignTx::process(this, model, psbt, variantMap, false);
+
+            // Don't broadcast when user rejects it on the device or there's a failure:
+            CMutableTransaction tmpMtx;
+            if(!send_failure) {
+                std::string hexTx = variantMap["hextx"].toString().toStdString();
+                complete = DecodeHexTx(tmpMtx, hexTx);
+            }
+            broadcast = complete && !send_failure;
+            if (!send_failure) {
+                if (complete) {
+                    const CTransactionRef tx = MakeTransactionRef(tmpMtx);
+                    m_current_transaction->setWtx(tx);
+                } else {
+                    presentPSBT(psbtx);
+                }
+            }
+        }
 
         // Broadcast the transaction, unless an external signer was used and it
         // failed, or more signatures are needed.
@@ -556,28 +595,6 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
                 accept();
             } else {
                 send_failure = true;
-            }
-        }
-
-        // Sign psbt with hwi tool
-        if(model->getSignPsbtWithHwiTool())
-        {
-            // Serialize the PSBT
-            CMutableTransaction mtx = CMutableTransaction{*(m_current_transaction->getWtx())};
-            PartiallySignedTransaction psbtx(mtx);
-            CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
-            ssTx << psbtx;
-            QString psbt = EncodeBase64(ssTx.str()).c_str();
-
-            // Sign tx with hardware
-            QVariantMap variantMap;
-            if(!HardwareSignTx::process(this, model, psbt, variantMap))
-                send_failure = true;
-            else
-            {
-                std::string txid = variantMap["txid"].toString().toStdString();
-                Q_EMIT coinsSent(uint256S(txid));
-                accept();
             }
         }
     }
