@@ -414,8 +414,8 @@ void SendCoinsDialog::presentPSBT(PartiallySignedTransaction& psbtx)
     QMessageBox msgBox;
     msgBox.setText("Unsigned Transaction");
     msgBox.setInformativeText("The PSBT has been copied to the clipboard. You can also save it.");
-    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard);
-    msgBox.setDefaultButton(QMessageBox::Discard);
+    msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
     switch (msgBox.exec()) {
     case QMessageBox::Save: {
         QString selectedFilter;
@@ -444,7 +444,7 @@ void SendCoinsDialog::presentPSBT(PartiallySignedTransaction& psbtx)
         Q_EMIT message(tr("PSBT saved"), "PSBT saved to disk", CClientUIInterface::MSG_INFORMATION);
         break;
     }
-    case QMessageBox::Discard:
+    case QMessageBox::Cancel:
         break;
     default:
         assert(false);
