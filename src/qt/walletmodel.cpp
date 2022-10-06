@@ -182,10 +182,10 @@ void WalletModel::pollBalanceChanged()
         m_cached_last_update_tip = block_hash;
 
         bool balanceChanged = checkBalanceChanged(new_balances);
-        if(transactionTableModel)
+        if(m_client_model && transactionTableModel)
             transactionTableModel->updateConfirmations();
 
-        if(tokenTransactionTableModel)
+        if(m_client_model && tokenTransactionTableModel)
             tokenTransactionTableModel->updateConfirmations();
 
         if(cachedBlockHashChanged)
@@ -227,7 +227,7 @@ bool WalletModel::checkBalanceChanged(const interfaces::WalletBalances& new_bala
 
 void WalletModel::checkTokenBalanceChanged()
 {
-    if(tokenItemModel)
+    if(m_client_model && tokenItemModel)
     {
         tokenItemModel->checkTokenBalanceChanged();
     }
@@ -235,7 +235,7 @@ void WalletModel::checkTokenBalanceChanged()
 
 void WalletModel::checkDelegationChanged()
 {
-    if(delegationItemModel)
+    if(m_client_model && delegationItemModel)
     {
         delegationItemModel->checkDelegationChanged();
     }
@@ -243,7 +243,7 @@ void WalletModel::checkDelegationChanged()
 
 void WalletModel::checkSuperStakerChanged()
 {
-    if(superStakerItemModel)
+    if(m_client_model && superStakerItemModel)
     {
         superStakerItemModel->checkSuperStakerChanged();
     }
