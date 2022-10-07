@@ -95,6 +95,8 @@ void HardwareSignTxDialog::txChanged()
                 QJsonObject vout = vouts.at(i).toObject();
                 QJsonObject scriptPubKey = vout.value("scriptPubKey").toObject();
                 QJsonArray addresses = scriptPubKey.value("addresses").toArray();
+                QString address = scriptPubKey.value("address").toString();
+                addresses.push_back(address);
                 bool sendToFound = false;
                 for(int j = 0; j < addresses.count(); j++)
                 {
@@ -187,3 +189,4 @@ bool HardwareSignTxDialog::importAddressesData(bool &rescan, bool &importPKH, bo
 
     return ret;
 }
+
