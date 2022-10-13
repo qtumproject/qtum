@@ -1939,8 +1939,7 @@ RPCHelpMan signrawsendertransactionwithwallet()
                     HELP_REQUIRING_PASSPHRASE,
                 {
                     {"hexstring", RPCArg::Type::STR, RPCArg::Optional::NO, "The transaction hex string"},
-                    {"sighashtype", RPCArg::Type::STR, RPCArg::Default{"DEFAULT"}, "The signature hash type. Must be one of\n"
-            "       \"DEFAULT\"\n"
+                    {"sighashtype", RPCArg::Type::STR, RPCArg::Default{"ALL"}, "The signature hash type. Must be one of\n"
             "       \"ALL\"\n"
             "       \"NONE\"\n"
             "       \"SINGLE\"\n"
@@ -1984,7 +1983,11 @@ RPCHelpMan signrawsendertransactionwithwallet()
     LOCK(pwallet->cs_wallet);
     EnsureWalletIsUnlocked(*pwallet);
 
-    int nHashType = ParseSighashString(request.params[1]);
+    UniValue sigHashType = "ALL";
+    if (!request.params[1].isNull()) {
+        sigHashType = request.params[1];
+    }
+    int nHashType = ParseSighashString(sigHashType);
 
     // Script verification errors
     std::map<int, std::string> output_errors;

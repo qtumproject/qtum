@@ -1229,8 +1229,7 @@ static RPCHelpMan signrawsendertransactionwithkey()
                             {"privatekey", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, "private key in base58-encoding"},
                         },
                         },
-                    {"sighashtype", RPCArg::Type::STR, RPCArg::Default{"DEFAULT"}, "The signature hash type. Must be one of:\n"
-            "       \"DEFAULT\"\n"
+                    {"sighashtype", RPCArg::Type::STR, RPCArg::Default{"ALL"}, "The signature hash type. Must be one of:\n"
             "       \"ALL\"\n"
             "       \"NONE\"\n"
             "       \"SINGLE\"\n"
@@ -1281,7 +1280,11 @@ static RPCHelpMan signrawsendertransactionwithkey()
     }
 
     UniValue result(UniValue::VOBJ);
-    SignTransactionOutput(mtx, &keystore, request.params[2], result);
+    UniValue sigHashType = "ALL";
+    if (!request.params[2].isNull()) {
+        sigHashType = request.params[2];
+    }
+    SignTransactionOutput(mtx, &keystore, sigHashType, result);
     return result;
 },
     };
