@@ -744,6 +744,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>부분적으로 서명된 QTUM 트랜잭션 불러오기</translation>
     </message>
     <message>
+        <source>Load PSBT from &amp;clipboard…</source>
+        <translation>클립보드에서 PSBT 불러오기(&amp;C)</translation>
+    </message>
+    <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation>클립보드로부터 부분적으로 서명된 QTUM 트랜잭션 불러오기</translation>
     </message>
@@ -2024,6 +2028,10 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation>Tor onion 서비스를 통해 피어에 도달하려면 별도의 SOCKS &amp; 5 프록시를 사용하십시오.</translation>
+    </message>
+    <message>
+        <source>&amp;Third-party transaction URLs</source>
+        <translation>서드파티 거래 URL</translation>
     </message>
     <message>
         <source>Monospaced font in the Overview tab:</source>
