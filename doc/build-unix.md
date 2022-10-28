@@ -221,6 +221,11 @@ The home folder for the installation package need to be `qtum/contrib/script`.
 After the build finish, the installation package is present into `qtum/contrib/script`.
 Installation package example: `qtum-22.1-x86_64-pc-linux-gnu.tar.gz`
 
+`qtum-qt` require `libxcb-xinerama0` to be installed on Ubuntu 16:
+```
+sudo apt-get install libxcb-xinerama0 -y
+```
+
 ### CentOS 7
 #### Dependency Build Instructions
 Build requirements:
