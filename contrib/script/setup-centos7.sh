@@ -4,6 +4,7 @@
 yum -y install centos-release-scl
 yum -y install devtoolset-8-gcc devtoolset-8-gcc-c++
 yum -y install autoconf automake binutils bison ca-certificates curl faketime git libtool patch pkgconfig python3 python3-pip cmake curl-devel gmp-devel libmicrohttpd-devel miniupnpc-devel
+yum -y install http://repo.okay.com.mx/centos/7/x86_64/release/automake-1.14-1.el7.x86_64.rpm
 
 DEVTOOLSET="source scl_source enable devtoolset-8"
 FILENAME="/etc/profile"
