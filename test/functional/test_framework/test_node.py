@@ -310,15 +310,15 @@ class TestNode():
         self.log.debug("TestNode.generate() dispatches `generate` call to `generatetoaddress`")
         return self.generatetoaddress(nblocks=nblocks, address=self.get_deterministic_priv_key().address, maxtries=maxtries, **kwargs)
 
-    def generateblock(self, *args, invalid_call, **kwargs):
+    def generateblock(self, *args, invalid_call=False, **kwargs):
         assert not invalid_call
         return self.__getattr__('generateblock')(*args, **kwargs)
 
-    def generatetoaddress(self, *args, invalid_call, **kwargs):
+    def generatetoaddress(self, *args, invalid_call=False, **kwargs):
         assert not invalid_call
         return self.__getattr__('generatetoaddress')(*args, **kwargs)
 
-    def generatetodescriptor(self, *args, invalid_call, **kwargs):
+    def generatetodescriptor(self, *args, invalid_call=False, **kwargs):
         assert not invalid_call
         return self.__getattr__('generatetodescriptor')(*args, **kwargs)
 
