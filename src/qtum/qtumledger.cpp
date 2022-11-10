@@ -113,6 +113,13 @@ public:
         clean();
         m_program = prog;
         m_arguments = arg;
+
+        std::string strCommand = m_program;
+        for(std::string argument : m_arguments)
+        {
+            strCommand += " " + argument;
+        }
+        LogPrintf("QtumLedger(): start command\n%s\n", strCommand);
     }
 
     // Start and wait for it to finish
