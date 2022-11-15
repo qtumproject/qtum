@@ -119,7 +119,7 @@ class SignRawTransactionsTest(BitcoinTestFramework):
              'scriptPubKey': 'badbadbadbad'}
         ]
 
-        outputs = {convert_btc_address_to_qtum('mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB'):
+        outputs = {convert_btc_address_to_qtum('mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB'): 0.1}
 
         rawTx = self.nodes[0].createrawtransaction(inputs, outputs)
 
