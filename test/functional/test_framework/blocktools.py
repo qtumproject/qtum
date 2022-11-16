@@ -131,7 +131,6 @@ def create_coinbase(height, pubkey=None, extra_output_script=None, fees=0, nValu
     coinbase = CTransaction()
     coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), script_BIP34_coinbase_height(height), SEQUENCE_FINAL))
     coinbaseoutput = CTxOut()
-    coinbaseoutput.nValue = nValue * COIN
     if nValue:
         coinbaseoutput.nValue = nValue
     elif height > 5000:
