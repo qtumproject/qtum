@@ -37,8 +37,9 @@ if ENABLE_REDUCED_BLOCK_TIME:
     MY_VERSION = 70019  # past bip-31 for ping/pong
 else:
     MY_VERSION = 70018  # past bip-31 for ping/pong
+
 MAX_LOCATOR_SZ = 101
-MAX_BLOCK_WEIGHT = 4000000
+MAX_BLOCK_WEIGHT = 2000000
 MAX_BLOOM_FILTER_SIZE = 36000
 MAX_BLOOM_HASH_FUNCS = 50
 
@@ -778,6 +779,7 @@ class CBlock(CBlockHeader):
             tx.calc_sha256()
             hashes.append(ser_uint256(tx.sha256))
         return self.get_merkle_root(hashes)
+
     def calc_witness_merkle_root(self, is_pos=False):
         # For witness root purposes, the hash of the
         # coinbase, with witness, is defined to be 0...0
@@ -813,6 +815,13 @@ class CBlock(CBlockHeader):
             self.nNonce += 1
             self.rehash()
 
+    # Calculate the block weight using witness and non-witness
+    # serialization size (does NOT use sigops).
+    def get_weight(self):
+        with_witness_size = len(self.serialize(with_witness=True))
+        without_witness_size = len(self.serialize(with_witness=False))
+        return (WITNESS_SCALE_FACTOR - 1) * without_witness_size + with_witness_size
+
     def sign_block(self, key, low_s=True, pod=None, der_sig=False):
         data = b""
         data += struct.pack("<i", self.nVersion)
@@ -828,6 +837,7 @@ class CBlock(CBlockHeader):
             data += struct.pack("<b", len(pod)) + pod
         sha256NoSig = hash256(data)
         self.vchBlockSig = key.sign_ecdsa(sha256NoSig, low_s=low_s, der_sig=der_sig)
+
     def __repr__(self):
         return "CBlock(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x vtx=%s)" \
             % (self.nVersion, self.hashPrevBlock, self.hashMerkleRoot,
