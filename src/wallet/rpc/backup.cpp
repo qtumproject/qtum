@@ -1584,6 +1584,48 @@ static UniValue ProcessDescriptorImport(CWallet& wallet, const UniValue& data, c
     return result;
 }
 
+static UniValue ProcessDescriptorData(CWallet& wallet, UniValue data, const int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
+{
+    // Insert descriptor
+    UniValue result = ProcessDescriptorImport(wallet, data, timestamp);
+
+    // Insert pk or pkh descriptor if needed
+    if(result["success"].get_bool())
+    {
+        // Check if is pk or pkh descriptor
+        std::string descriptor = data["desc"].get_str();
+        std::string tmpDesc;
+        bool isPkh = false;
+        if(descriptor.rfind("pkh(", 0) == 0)
+        {
+            tmpDesc = "pk";
+            isPkh = true;
+        }
+        else if(descriptor.rfind("pk(", 0) == 0)
+        {
+            tmpDesc = "pkh";
+            isPkh = false;
+        }
+        else
+        {
+            return result;
+        }
+
+        // Compute second descriptor
+        size_t checksize = GetDescriptorChecksum(descriptor).size() + 1;
+        size_t pos = isPkh ? 3 : 2;
+        size_t len = descriptor.size() - checksize - pos;
+        tmpDesc = tmpDesc + descriptor.substr(pos, len);
+        tmpDesc = tmpDesc + "#" + GetDescriptorChecksum(tmpDesc);
+
+        // Insert second descriptor
+        data.pushKV("desc", tmpDesc);
+        result = ProcessDescriptorImport(wallet, data, timestamp);
+    }
+
+    return result;
+}
+
 RPCHelpMan importdescriptors()
 {
     return RPCHelpMan{"importdescriptors",
@@ -1673,7 +1715,7 @@ RPCHelpMan importdescriptors()
         for (const UniValue& request : requests.getValues()) {
             // This throws an error if "timestamp" doesn't exist
             const int64_t timestamp = std::max(GetImportTimestamp(request, now), minimum_timestamp);
-            const UniValue result = ProcessDescriptorImport(*pwallet, request, timestamp);
+            const UniValue result = ProcessDescriptorData(*pwallet, request, timestamp);
             response.push_back(result);
 
             if (lowest_timestamp > timestamp ) {
