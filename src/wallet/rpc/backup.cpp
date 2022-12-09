@@ -1458,6 +1458,13 @@ static UniValue ProcessDescriptorImport(CWallet& wallet, const UniValue& data, c
         const bool active = data.exists("active") ? data["active"].get_bool() : false;
         const bool internal = data.exists("internal") ? data["internal"].get_bool() : false;
         const std::string& label = data.exists("label") ? data["label"].get_str() : "";
+        const bool importForStaking = data.exists("importforstaking") ? data["importforstaking"].get_bool() : false;
+
+        // Check import for staking param
+        if(importForStaking && !(descriptor.rfind("pkh(", 0) == 0 || descriptor.rfind("pk(", 0) == 0))
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "importforstaking can only be used for pkh or pk descriptors.");
+        }
 
         // Parse descriptor string
         FlatSigningProvider keys;
@@ -1590,7 +1597,8 @@ static UniValue ProcessDescriptorData(CWallet& wallet, UniValue data, const int6
     UniValue result = ProcessDescriptorImport(wallet, data, timestamp);
 
     // Insert pk or pkh descriptor if needed
-    if(result["success"].get_bool())
+    const bool importForStaking = data.exists("importforstaking") ? data["importforstaking"].get_bool() : false;
+    if(result["success"].get_bool() && importForStaking)
     {
         // Check if is pk or pkh descriptor
         std::string descriptor = data["desc"].get_str();
@@ -1650,6 +1658,7 @@ RPCHelpMan importdescriptors()
                                     },
                                     {"internal", RPCArg::Type::BOOL, RPCArg::Default{false}, "Whether matching outputs should be treated as not incoming payments (e.g. change)"},
                                     {"label", RPCArg::Type::STR, RPCArg::Default{""}, "Label to assign to the address, only allowed with internal=false. Disabled for ranged descriptors"},
+                                    {"importforstaking", RPCArg::Type::BOOL, RPCArg::Default{false}, "Import corresponding pk or pkh descriptor as both are needed for staking, only apply for pk or pkh descriptors."},
                                 },
                             },
                         },
