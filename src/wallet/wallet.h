@@ -660,6 +660,8 @@ public:
     bool GetDelegationStaker(const uint160& keyid, Delegation& delegation);
     const CWalletTx* GetCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const PKHash& superStaker, COutPoint& prevout, CAmount& nValueRet);
     const CScriptCache& GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey, std::map<COutPoint, CScriptCache>* insertScriptCache = nullptr) const;
+    bool HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* insertAddressStake = nullptr) const;
+    void RefreshAddressStakeCache();
     bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
     void GetStakerAddressBalance(const PKHash& staker, CAmount& balance, CAmount& stake, CAmount& weight) const;
     void RefreshDelegates(bool myDelegates, bool stakerDelegates);
@@ -1094,6 +1096,7 @@ public:
     std::map<COutPoint, CStakeCache> stakeDelegateCache;
     bool fHasMinerStakeCache = false;
     mutable std::map<COutPoint, CScriptCache> prevoutScriptCache;
+    mutable std::map<uint160, bool> addressStakeCache;
     std::atomic<bool> fCleanCoinStake = true;
 };
 

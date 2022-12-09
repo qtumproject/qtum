@@ -490,7 +490,7 @@ bool CreateCoinStake(CWallet& wallet, unsigned int nBits, const CAmount& nTotalF
     return false;
 }
 
-void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<uint256>& maturedTx, size_t from, size_t to, const std::map<COutPoint, uint32_t>& immatureStakes, std::vector<std::pair<const CWalletTx *, unsigned int> >& vCoins, std::map<COutPoint, CScriptCache>* insertScriptCache)
+void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<uint256>& maturedTx, size_t from, size_t to, const std::map<COutPoint, uint32_t>& immatureStakes, std::vector<std::pair<const CWalletTx *, unsigned int> >& vCoins, std::map<COutPoint, CScriptCache>* insertScriptCache, bool isDescriptorWallet, std::map<uint160, bool>* insertAddressStake)
 {
     for(size_t i = from; i < to; i++)
     {
@@ -515,6 +515,10 @@ void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<uint256>&
 
                 // Check that the address is not delegated to other staker
                 if(wallet.m_my_delegations.find(scriptCache.keyId) != wallet.m_my_delegations.end())
+                    continue;
+
+                // Check that both pkh and pk descriptors are present
+                if(isDescriptorWallet && !wallet.HasAddressStakeScripts(scriptCache.keyId, insertAddressStake))
                     continue;
 
                 // Check prevout maturity
@@ -644,6 +648,7 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
     std::vector<std::pair<const CWalletTx *, unsigned int> > vCoins;
     vCoins.clear();
 
+    bool isDescriptorWallet = wallet.IsWalletFlagSet(WALLET_FLAG_DESCRIPTORS);
     int nHeight = wallet.GetLastBlockHeight() + 1;
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     std::map<COutPoint, uint32_t> immatureStakes = wallet.chain().getImmatureStakes();
@@ -677,7 +682,7 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
     int numThreads = std::min(wallet.m_num_threads, (int)listSize);
     if(numThreads < 2)
     {
-        AvailableCoinsForStaking(wallet, maturedTx, 0, listSize, immatureStakes, vCoins, nullptr);
+        AvailableCoinsForStaking(wallet, maturedTx, 0, listSize, immatureStakes, vCoins, nullptr, isDescriptorWallet, nullptr);
     }
     else
     {
@@ -686,10 +691,11 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
         {
             size_t from = i * chunk;
             size_t to = i == (numThreads -1) ? listSize : from + chunk;
-            wallet.threads.create_thread([&wallet, from, to, &maturedTx, &immatureStakes, &vCoins]{
+            wallet.threads.create_thread([&wallet, from, to, &maturedTx, &immatureStakes, &vCoins, isDescriptorWallet]{
                 std::vector<std::pair<const CWalletTx *, unsigned int> > tmpCoins;
                 std::map<COutPoint, CScriptCache> tmpInsertScriptCache;
-                AvailableCoinsForStaking(wallet, maturedTx, from, to, immatureStakes, tmpCoins, &tmpInsertScriptCache);
+                std::map<uint160, bool> tmpInsertAddressStake;
+                AvailableCoinsForStaking(wallet, maturedTx, from, to, immatureStakes, tmpCoins, &tmpInsertScriptCache, isDescriptorWallet, &tmpInsertAddressStake);
 
                 LOCK(wallet.cs_worker);
                 vCoins.insert(vCoins.end(), tmpCoins.begin(), tmpCoins.end());
@@ -698,6 +704,20 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
                     wallet.prevoutScriptCache.clear();
                 }
                 wallet.prevoutScriptCache.insert(tmpInsertScriptCache.begin(), tmpInsertScriptCache.end());
+
+                // Insert the stake address cache and print warnings
+                for(std::map<uint160, bool>::iterator it = tmpInsertAddressStake.begin(); it != tmpInsertAddressStake.end(); ++it)
+                {
+                    if(wallet.addressStakeCache.find(it->first) == wallet.addressStakeCache.end())
+                    {
+                        if(!it->second)
+                        {
+                            std::string strAddress = EncodeDestination(PKHash(it->first));
+                            wallet.WalletLogPrintf("Both pkh and pk descriptors are needed for %s address to do staking\n", strAddress);
+                        }
+                        wallet.addressStakeCache[it->first] = it->second;
+                    }
+                }
             });
         }
         wallet.threads.join_all();

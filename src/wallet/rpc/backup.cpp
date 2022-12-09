@@ -1461,7 +1461,8 @@ static UniValue ProcessDescriptorImport(CWallet& wallet, const UniValue& data, c
         const bool importForStaking = data.exists("importforstaking") ? data["importforstaking"].get_bool() : false;
 
         // Check import for staking param
-        if(importForStaking && !(descriptor.rfind("pkh(", 0) == 0 || descriptor.rfind("pk(", 0) == 0))
+        bool isLegacy = (descriptor.rfind("pkh(", 0) == 0 || descriptor.rfind("pk(", 0) == 0);
+        if(importForStaking && !isLegacy)
         {
             throw JSONRPCError(RPC_INVALID_PARAMETER, "importforstaking can only be used for pkh or pk descriptors.");
         }
@@ -1582,6 +1583,12 @@ static UniValue ProcessDescriptorImport(CWallet& wallet, const UniValue& data, c
             }
         }
 
+        // Refresh address stake cache
+        if(isLegacy)
+        {
+            wallet.RefreshAddressStakeCache();
+        }
+
         result.pushKV("success", UniValue(true));
     } catch (const UniValue& e) {
         result.pushKV("success", UniValue(false));
@@ -1684,7 +1691,8 @@ RPCHelpMan importdescriptors()
                 RPCExamples{
                     HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"internal\": true }, "
                                           "{ \"desc\": \"<my desccriptor 2>\", \"label\": \"example 2\", \"timestamp\": 1455191480 }]'") +
-                    HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"active\": true, \"range\": [0,100], \"label\": \"<my bech32 wallet>\" }]'")
+                    HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"active\": true, \"range\": [0,100], \"label\": \"<my bech32 wallet>\" }]'") +
+                    HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"importforstaking\":true}]'")
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& main_request) -> UniValue
 {
