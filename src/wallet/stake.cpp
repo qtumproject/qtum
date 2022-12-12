@@ -712,6 +712,7 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
                     {
                         if(!it->second)
                         {
+                            // Log warning that descriptor is missing
                             std::string strAddress = EncodeDestination(PKHash(it->first));
                             wallet.WalletLogPrintf("Both pkh and pk descriptors are needed for %s address to do staking\n", strAddress);
                         }

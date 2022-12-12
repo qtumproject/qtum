@@ -2067,6 +2067,13 @@ bool CWallet::HasAddressStakeScripts(const uint160& keyId, std::map<uint160, boo
             }
         }
         insertAddressStake[keyId] = canAddressStake;
+
+        if(!_insertAddressStake && !canAddressStake)
+        {
+            // Log warning that descriptor is missing
+            std::string strAddress = EncodeDestination(PKHash(keyId));
+            WalletLogPrintf("Both pkh and pk descriptors are needed for %s address to do staking\n", strAddress);
+        }
     }
 
     return it->second;
