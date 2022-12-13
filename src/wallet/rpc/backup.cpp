@@ -1458,6 +1458,14 @@ static UniValue ProcessDescriptorImport(CWallet& wallet, const UniValue& data, c
         const bool active = data.exists("active") ? data["active"].get_bool() : false;
         const bool internal = data.exists("internal") ? data["internal"].get_bool() : false;
         const std::string& label = data.exists("label") ? data["label"].get_str() : "";
+        const bool importForStaking = data.exists("importforstaking") ? data["importforstaking"].get_bool() : false;
+
+        // Check import for staking param
+        bool isLegacy = (descriptor.rfind("pkh(", 0) == 0 || descriptor.rfind("pk(", 0) == 0);
+        if(importForStaking && !isLegacy)
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "importforstaking can only be used for pkh or pk descriptors.");
+        }
 
         // Parse descriptor string
         FlatSigningProvider keys;
@@ -1575,12 +1583,61 @@ static UniValue ProcessDescriptorImport(CWallet& wallet, const UniValue& data, c
             }
         }
 
+        // Refresh address stake cache
+        if(isLegacy)
+        {
+            wallet.RefreshAddressStakeCache();
+        }
+
         result.pushKV("success", UniValue(true));
     } catch (const UniValue& e) {
         result.pushKV("success", UniValue(false));
         result.pushKV("error", e);
     }
     if (warnings.size()) result.pushKV("warnings", warnings);
+    return result;
+}
+
+static UniValue ProcessDescriptorData(CWallet& wallet, UniValue data, const int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
+{
+    // Insert descriptor
+    UniValue result = ProcessDescriptorImport(wallet, data, timestamp);
+
+    // Insert pk or pkh descriptor if needed
+    const bool importForStaking = data.exists("importforstaking") ? data["importforstaking"].get_bool() : false;
+    if(result["success"].get_bool() && importForStaking)
+    {
+        // Check if is pk or pkh descriptor
+        std::string descriptor = data["desc"].get_str();
+        std::string tmpDesc;
+        bool isPkh = false;
+        if(descriptor.rfind("pkh(", 0) == 0)
+        {
+            tmpDesc = "pk";
+            isPkh = true;
+        }
+        else if(descriptor.rfind("pk(", 0) == 0)
+        {
+            tmpDesc = "pkh";
+            isPkh = false;
+        }
+        else
+        {
+            return result;
+        }
+
+        // Compute second descriptor
+        size_t checksize = GetDescriptorChecksum(descriptor).size() + 1;
+        size_t pos = isPkh ? 3 : 2;
+        size_t len = descriptor.size() - checksize - pos;
+        tmpDesc = tmpDesc + descriptor.substr(pos, len);
+        tmpDesc = tmpDesc + "#" + GetDescriptorChecksum(tmpDesc);
+
+        // Insert second descriptor
+        data.pushKV("desc", tmpDesc);
+        result = ProcessDescriptorImport(wallet, data, timestamp);
+    }
+
     return result;
 }
 
@@ -1608,6 +1665,7 @@ RPCHelpMan importdescriptors()
                                     },
                                     {"internal", RPCArg::Type::BOOL, RPCArg::Default{false}, "Whether matching outputs should be treated as not incoming payments (e.g. change)"},
                                     {"label", RPCArg::Type::STR, RPCArg::Default{""}, "Label to assign to the address, only allowed with internal=false. Disabled for ranged descriptors"},
+                                    {"importforstaking", RPCArg::Type::BOOL, RPCArg::Default{false}, "Import corresponding pk or pkh descriptor as both are needed for staking, only apply for pk or pkh descriptors."},
                                 },
                             },
                         },
@@ -1633,7 +1691,8 @@ RPCHelpMan importdescriptors()
                 RPCExamples{
                     HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"internal\": true }, "
                                           "{ \"desc\": \"<my desccriptor 2>\", \"label\": \"example 2\", \"timestamp\": 1455191480 }]'") +
-                    HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"active\": true, \"range\": [0,100], \"label\": \"<my bech32 wallet>\" }]'")
+                    HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"active\": true, \"range\": [0,100], \"label\": \"<my bech32 wallet>\" }]'") +
+                    HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"importforstaking\":true}]'")
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& main_request) -> UniValue
 {
@@ -1673,7 +1732,7 @@ RPCHelpMan importdescriptors()
         for (const UniValue& request : requests.getValues()) {
             // This throws an error if "timestamp" doesn't exist
             const int64_t timestamp = std::max(GetImportTimestamp(request, now), minimum_timestamp);
-            const UniValue result = ProcessDescriptorImport(*pwallet, request, timestamp);
+            const UniValue result = ProcessDescriptorData(*pwallet, request, timestamp);
             response.push_back(result);
 
             if (lowest_timestamp > timestamp ) {

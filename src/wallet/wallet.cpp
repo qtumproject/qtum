@@ -2037,6 +2037,58 @@ const CScriptCache& CWallet::GetScriptCache(const COutPoint& prevout, const CScr
     return it->second;
 }
 
+bool CWallet::HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* _insertAddressStake) const
+{
+    auto it = addressStakeCache.find(keyId);
+    bool hasAddressInCache = it != addressStakeCache.end();
+    if(hasAddressInCache && _insertAddressStake)
+    {
+        it = _insertAddressStake->find(keyId);
+        hasAddressInCache = it != _insertAddressStake->end();
+    }
+
+    if(!hasAddressInCache)
+    {
+        std::map<uint160, bool>& insertAddressStake = _insertAddressStake == nullptr ? addressStakeCache : *_insertAddressStake;
+        PKHash pkhash(keyId);
+        CScript scriptPubKeyHash = GetScriptForDestination(pkhash);
+        bool canAddressStake = false;
+        if(IsMine(scriptPubKeyHash))
+        {
+            CPubKey pubKeyStake;
+            if (GetPubKey(pkhash, pubKeyStake))
+            {
+                CScript scriptPubKey;
+                scriptPubKey << pubKeyStake.getvch() << OP_CHECKSIG;
+                if(IsMine(scriptPubKey))
+                {
+                    canAddressStake = true;
+                }
+            }
+        }
+        insertAddressStake[keyId] = canAddressStake;
+
+        if(!_insertAddressStake && !canAddressStake)
+        {
+            // Log warning that descriptor is missing
+            std::string strAddress = EncodeDestination(PKHash(keyId));
+            WalletLogPrintf("Both pkh and pk descriptors are needed for %s address to do staking\n", strAddress);
+        }
+    }
+
+    return it->second;
+}
+
+void CWallet::RefreshAddressStakeCache()
+{
+    std::map<uint160, bool> tmpAddressStakeCache = addressStakeCache;
+    addressStakeCache.clear();
+    for(std::map<uint160, bool>::iterator it = tmpAddressStakeCache.begin(); it != tmpAddressStakeCache.end(); ++it)
+    {
+        HasAddressStakeScripts(it->first);
+    }
+}
+
 bool CWallet::SignTransaction(CMutableTransaction& tx) const
 {
     AssertLockHeld(cs_wallet);
