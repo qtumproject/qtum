@@ -1,12 +1,12 @@
 UNIX BUILD NOTES
 ====================
-Some notes on how to build Bitcoin Core in Unix.
+Some notes on how to build Qtum Core in Unix.
 
 (For BSD specific instructions, see `build-*bsd.md` in this directory.)
 
 Note
 ---------------------
-Always use absolute paths to configure and compile Bitcoin Core and the dependencies.
+Always use absolute paths to configure and compile Qtum Core and the dependencies.
 For example, when specifying the path of the dependency:
 
     ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
@@ -24,7 +24,7 @@ make # use "-j N" for N parallel jobs
 make install # optional
 ```
 
-This will build bitcoin-qt as well, if the dependencies are met.
+This will build qtum-qt as well, if the dependencies are met.
 
 See [dependencies.md](dependencies.md) for a complete overview.
 
@@ -32,7 +32,7 @@ Memory Requirements
 --------------------
 
 C++ compilers are memory-hungry. It is recommended to have at least 1.5 GB of
-memory available when compiling Bitcoin Core. On systems with less, gcc can be
+memory available when compiling Qtum Core. On systems with less, gcc can be
 tuned to conserve memory with additional CXXFLAGS:
 
 
@@ -55,7 +55,7 @@ Finally, clang (often less resource hungry) can be used instead of gcc, which is
 
 Build requirements:
 
-    sudo apt-get install build-essential libtool autotools-dev automake pkg-config bsdmainutils python3
+    sudo apt-get install build-essential libtool autotools-dev automake pkg-config bsdmainutils python3 libgmp3-dev
 
 Now, you can either build from self-compiled [depends](/depends/README.md) or install the required dependencies:
 
@@ -70,7 +70,7 @@ but these will install Berkeley DB 5.1 or later. This will break binary wallet c
 executables, which are based on BerkeleyDB 4.8. If you do not care about wallet compatibility, pass
 `--with-incompatible-bdb` to configure. Otherwise, you can build Berkeley DB [yourself](#berkeley-db).
 
-To build Bitcoin Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
+To build Qtum Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
 Optional port mapping libraries (see: `--with-miniupnpc`, `--enable-upnp-default`, and `--with-natpmp`, `--enable-natpmp-default`):
 
@@ -86,7 +86,7 @@ User-Space, Statically Defined Tracing (USDT) dependencies:
 
 GUI dependencies:
 
-If you want to build bitcoin-qt, make sure that the required packages for Qt development
+If you want to build qtum-qt, make sure that the required packages for Qt development
 are installed. Qt 5 is necessary to build the GUI.
 To build without GUI pass `--without-gui`.
 
@@ -102,7 +102,7 @@ libqrencode (optional) can be installed with:
 
     sudo apt-get install libqrencode-dev
 
-Once these are installed, they will be found by configure and a bitcoin-qt executable will be
+Once these are installed, they will be found by configure and a qtum-qt executable will be
 built by default.
 
 
@@ -112,7 +112,7 @@ built by default.
 
 Build requirements:
 
-    sudo dnf install gcc-c++ libtool make autoconf automake python3
+    sudo dnf install gcc-c++ libtool make autoconf automake python3 gmp-devel
 
 Now, you can either build from self-compiled [depends](/depends/README.md) or install the required dependencies:
 
@@ -131,7 +131,7 @@ Berkeley DB 5.3 or later. This will break binary wallet compatibility with the d
 are based on Berkeley DB 4.8. If you do not care about wallet compatibility,
 pass `--with-incompatible-bdb` to configure. Otherwise, you can build Berkeley DB [yourself](#berkeley-db).
 
-To build Bitcoin Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
+To build Qtum Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
 Optional port mapping libraries (see: `--with-miniupnpc`, `--enable-upnp-default`, and `--with-natpmp`, `--enable-natpmp-default`):
 
@@ -147,7 +147,7 @@ User-Space, Statically Defined Tracing (USDT) dependencies:
 
 GUI dependencies:
 
-If you want to build bitcoin-qt, make sure that the required packages for Qt development
+If you want to build qtum-qt, make sure that the required packages for Qt development
 are installed. Qt 5 is necessary to build the GUI.
 To build without GUI pass `--without-gui`.
 
@@ -163,12 +163,67 @@ libqrencode (optional) can be installed with:
 
     sudo dnf install qrencode-devel
 
-Once these are installed, they will be found by configure and a bitcoin-qt executable will be
+Once these are installed, they will be found by configure and a qtum-qt executable will be
 built by default.
+
+Dependency Build Instructions: CentOS
+-------------------------------------
+
+You need to build boost manually, and if it's not in standard library paths, you need to add `/path/to/boost/lib` into `LD_LIBRARY_PATH` env when building Qtum.
+
+Build requirements:
+
+    sudo yum install epel-release
+    sudo yum install gcc-c++ libtool libdb4-cxx-devel openssl-devel libevent-devel gmp-devel
+    
+To build with Qt 5 (recommended) you need the following:
+
+    sudo yum install qt5-qttools-devel protobuf-devel qrencode-devel
+
+### Ubuntu 16
+#### Dependency Build Instructions
+Build requirements:
+```
+./qtum/contrib/script/setup-ubuntu16.sh
+```
+
+#### Build Installation Package
+Build Qtum:
+```
+cd qtum/contrib/script
+./build-qtum-linux.sh -j2
+```
+The home folder for the installation package need to be `qtum/contrib/script`.
+After the build finish, the installation package is present into `qtum/contrib/script`.
+Installation package example: `qtum-22.1-x86_64-pc-linux-gnu.tar.gz`
+
+`qtum-qt` require `libxcb-xinerama0` to be installed on Ubuntu 16:
+```
+sudo apt-get install libxcb-xinerama0 -y
+```
+
+### CentOS 7
+#### Dependency Build Instructions
+Build requirements:
+```
+su
+./qtum/contrib/script/setup-centos7.sh
+```
+The operating system might restart after finish with installing the build requirements.
+
+#### Build Installation Package
+Build Qtum:
+```
+cd qtum/contrib/script
+./build-qtum-linux.sh -j2
+```
+The home folder for the installation package need to be `qtum/contrib/script`.
+After the build finish, the installation package is present into `qtum/contrib/script`.
+Installation package example: `qtum-22.1-x86_64-pc-linux-gnu.tar.gz`
 
 Notes
 -----
-The release is built with GCC and then "strip bitcoind" to strip the debug
+The release is built with GCC and then "strip qtumd" to strip the debug
 symbols, which reduces the executable size by about 90%.
 
 miniupnpc
@@ -207,13 +262,13 @@ like so:
 
 from the root of the repository.
 
-Otherwise, you can build Bitcoin Core from self-compiled [depends](/depends/README.md).
+Otherwise, you can build Qtum Core from self-compiled [depends](/depends/README.md).
 
 **Note**: You only need Berkeley DB if the legacy wallet is enabled (see [*Disable-wallet mode*](#disable-wallet-mode)).
 
 Security
 --------
-To help make your Bitcoin Core installation more secure by making certain attacks impossible to
+To help make your Qtum Core installation more secure by making certain attacks impossible to
 exploit even if a vulnerability is found, binaries are hardened by default.
 This can be disabled with:
 
@@ -235,7 +290,7 @@ Hardening enables the following features:
 
     To test that you have built PIE executable, install scanelf, part of paxutils, and use:
 
-        scanelf -e ./bitcoin
+        scanelf -e ./qtum
 
     The output should contain:
 
@@ -243,13 +298,13 @@ Hardening enables the following features:
     ET_DYN
 
 * _Non-executable Stack_: If the stack is executable then trivial stack-based buffer overflow exploits are possible if
-    vulnerable buffers are found. By default, Bitcoin Core should be built with a non-executable stack,
+    vulnerable buffers are found. By default, Qtum Core should be built with a non-executable stack,
     but if one of the libraries it uses asks for an executable stack or someone makes a mistake
     and uses a compiler extension which requires an executable stack, it will silently build an
     executable without the non-executable stack protection.
 
     To verify that the stack is non-executable after compiling use:
-    `scanelf -e ./bitcoin`
+    `scanelf -e ./qtum`
 
     The output should contain:
     STK/REL/PTL
@@ -259,7 +314,7 @@ Hardening enables the following features:
 
 Disable-wallet mode
 --------------------
-When the intention is to only run a P2P node, without a wallet, Bitcoin Core can
+When the intention is to only run a P2P node, without a wallet, Qtum Core can
 be compiled in disable-wallet mode with:
 
     ./configure --disable-wallet
@@ -279,12 +334,12 @@ Setup and Build Example: Arch Linux
 -----------------------------------
 This example lists the steps necessary to setup and build a command line only distribution of the latest changes on Arch Linux:
 
-    pacman --sync --needed autoconf automake boost gcc git libevent libtool make pkgconf python sqlite
-    git clone https://github.com/bitcoin/bitcoin.git
-    cd bitcoin/
+    pacman --sync --needed autoconf automake boost gcc git libevent libtool make pkgconf python sqlite gmp
+    git clone https://github.com/qtumproject/qtum --recursive
+    cd qtum/
     ./autogen.sh
     ./configure
     make check
-    ./src/bitcoind
+    ./src/qtumd
 
 If you intend to work with legacy Berkeley DB wallets, see [Berkeley DB](#berkeley-db) section.
