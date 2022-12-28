@@ -11,6 +11,7 @@
 #include <validationinterface.h>
 #include <wallet/receive.h>
 #include <wallet/wallet.h>
+#include <chainparams.h>
 
 #include <optional>
 
@@ -37,7 +38,8 @@ static void WalletBalance(benchmark::Bench& bench, const bool set_dirty, const b
 
     const std::optional<std::string> address_mine{add_mine ? std::optional<std::string>{getnewaddress(wallet)} : std::nullopt};
 
-    for (int i = 0; i < 100; ++i) {
+    int blockCount = Params().GetConsensus().CoinbaseMaturity(0) + 100;
+    for (int i = 0; i < blockCount; ++i) {
         generatetoaddress(test_setup->m_node, address_mine.value_or(ADDRESS_WATCHONLY));
         generatetoaddress(test_setup->m_node, ADDRESS_WATCHONLY);
     }
