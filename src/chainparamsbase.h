@@ -23,6 +23,7 @@ public:
     static const std::string TESTNET;
     static const std::string SIGNET;
     static const std::string REGTEST;
+    static const std::string UNITTEST;
     ///@}
 
     const std::string& DataDir() const { return strDataDir; }
