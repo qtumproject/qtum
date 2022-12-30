@@ -101,6 +101,8 @@ public:
      */
     int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Params& params) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
+    void Erase(CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
+
     void Clear() EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 };
 
