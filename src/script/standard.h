@@ -162,6 +162,8 @@ constexpr bool IsPushdataOp(opcodetype opcode)
 /** Check whether a CTxDestination can be used as contract sender address. */
 bool IsValidContractSenderAddress(const CTxDestination& dest);
 
+bool GetSenderPubKey(const CScript& outputPubKey, CScript& senderPubKey);
+
 /**
  * Parse a scriptPubKey and identify script type for standard scripts. If
  * successful, returns script type and parsed pubkeys or hashes, depending on
@@ -172,7 +174,7 @@ bool IsValidContractSenderAddress(const CTxDestination& dest);
  * @param[out]  vSolutionsRet  Vector of parsed pubkeys and hashes
  * @return                     The script type. TxoutType::NONSTANDARD represents a failed solve.
  */
-TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet);
+TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus=false, bool allowEmptySenderSig=false);
 
 /**
  * Parse a standard scriptPubKey for the destination address. Assigns result to

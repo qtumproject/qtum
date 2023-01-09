@@ -13,6 +13,7 @@
 #include <util/strencodings.h>
 
 #include <string>
+#include <streams.h>
 
 typedef std::vector<unsigned char> valtype;
 
@@ -165,7 +166,7 @@ std::optional<std::pair<int, std::vector<Span<const unsigned char>>>> MatchMulti
     return std::pair{*threshold, std::move(keyspans)};
 }
 
-TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet)
+TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus, bool allowEmptySenderSig)
 {
     vSolutionsRet.clear();
 
@@ -661,3 +662,34 @@ bool IsValidContractSenderAddress(const CTxDestination &dest)
 {
     return std::holds_alternative<PKHash>(dest);
 }
+
+bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
+{
+    if(outputPubKey.HasOpSender())
+    {
+        try
+        {
+            // Solve the contract with or without contract consensus
+            std::vector<valtype> vSolutions;
+            if (TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, true, true) &&
+                    TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, false, true))
+                return false;
+
+            // Check the size of the returned data
+            if(vSolutions.size() < 1)
+                return false;
+
+            // Get the sender public key
+            CDataStream ss(vSolutions[0], SER_NETWORK, PROTOCOL_VERSION);
+            ss >> senderPubKey;
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    return false;
+}
+
