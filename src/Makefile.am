@@ -302,6 +302,7 @@ BITCOIN_CORE_H = \
   util/ui_change_type.h \
   util/url.h \
   util/vector.h \
+  util/signstr.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
