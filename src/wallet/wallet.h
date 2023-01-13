@@ -27,6 +27,7 @@
 #include <wallet/transaction.h>
 #include <wallet/walletdb.h>
 #include <wallet/walletutil.h>
+#include <validation.h>
 
 #include <algorithm>
 #include <atomic>
@@ -470,7 +471,9 @@ public:
      * >0 : is a coinbase transaction which matures in this many blocks
      */
     int GetTxBlocksToMaturity(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    bool IsTxImmature(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool IsTxImmatureCoinBase(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    bool IsTxImmatureCoinStake(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 
     //! check whether we support the named feature
     bool CanSupportFeature(enum WalletFeature wf) const override EXCLUSIVE_LOCKS_REQUIRED(cs_wallet) { AssertLockHeld(cs_wallet); return IsFeatureSupported(nWalletVersion, wf); }
@@ -623,6 +626,9 @@ public:
      */
     void CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm);
 
+    bool HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* insertAddressStake = nullptr) const;
+    void RefreshAddressStakeCache();
+
     /** Pass this transaction to node for mempool insertion and relay to peers if flag set to true */
     bool SubmitTxMemoryPoolAndRelay(CWalletTx& wtx, std::string& err_string, bool relay) const
         EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
@@ -677,6 +683,20 @@ public:
     std::optional<OutputType> m_default_change_type{};
     /** Absolute maximum transaction fee (in satoshis) used by default for the wallet */
     CAmount m_default_max_tx_fee{DEFAULT_TRANSACTION_MAXFEE};
+    // optional setting to unlock wallet for staking only
+    // serves to disable the trivial sendmoney when OS account compromised
+    // provides no real security
+    std::atomic<bool> m_wallet_unlock_staking_only{false};
+    bool m_use_change_address{DEFAULT_USE_CHANGE_ADDRESS};
+    CAmount m_reserve_balance{DEFAULT_RESERVE_BALANCE};
+    int64_t m_last_coin_stake_search_time{0};
+    int64_t m_last_coin_stake_search_interval{0};
+    std::atomic<bool> m_enabled_staking{false};
+    CAmount m_staking_min_utxo_value{DEFAULT_STAKING_MIN_UTXO_VALUE};
+    CAmount m_staker_min_utxo_size{DEFAULT_STAKER_MIN_UTXO_SIZE};
+    int32_t m_staker_max_utxo_script_cache{DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE};
+    uint8_t m_staking_min_fee{DEFAULT_STAKING_MIN_FEE};
+    std::atomic<bool> m_stop_staking_thread{false};
 
     size_t KeypoolCountExternalKeys() const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool TopUpKeyPool(unsigned int kpSize = 0);
@@ -719,6 +739,7 @@ public:
 
     isminetype IsMine(const CTxDestination& dest) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     isminetype IsMine(const CScript& script) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    bool GetPubKey(const PKHash& pkhash, CPubKey& pubkey) const;
     /**
      * Returns amount of debit if the input matches the
      * filter, otherwise returns 0
@@ -981,6 +1002,9 @@ public:
 
     /* Load super staker entry into the wallet */
     bool LoadSuperStaker(const CSuperStakerInfo &superStaker);
+
+    mutable std::map<uint160, bool> addressStakeCache;
+    std::atomic<bool> fCleanCoinStake = true;
 };
 
 /**
