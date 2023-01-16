@@ -663,6 +663,46 @@ bool IsValidContractSenderAddress(const CTxDestination &dest)
     return std::holds_alternative<PKHash>(dest);
 }
 
+bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScript *senderSig)
+{
+    if(outputPubKey.HasOpSender())
+    {
+        try
+        {
+            // Solve the contract with or without contract consensus
+            std::vector<valtype> vSolutions;
+            if (TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, true) &&
+                    TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, false))
+                return false;
+
+            // Check the size of the returned data
+            if(vSolutions.size() < 2)
+                return false;
+
+            // Get the sender public key
+            if(senderPubKey)
+            {
+                CDataStream ss(vSolutions[0], SER_NETWORK, PROTOCOL_VERSION);
+                ss >> *senderPubKey;
+            }
+
+            // Get the sender signature
+            if(senderSig)
+            {
+                CDataStream ss(vSolutions[1], SER_NETWORK, PROTOCOL_VERSION);
+                ss >> *senderSig;
+            }
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    return false;
+}
+
 bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
 {
     if(outputPubKey.HasOpSender())

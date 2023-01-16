@@ -151,6 +151,17 @@ struct WitnessUnknown
  *  A CTxDestination is the internal data type encoded in a bitcoin address
  */
 using CTxDestination = std::variant<CNoDestination, PKHash, ScriptHash, WitnessV0ScriptHash, WitnessV0KeyHash, WitnessV1Taproot, WitnessUnknown>;
+inline bool operator!=(const CTxDestination& lhs, const CTxDestination& rhs){ return !(lhs == rhs); }
+
+enum addresstype
+{
+    PUBKEYHASH = 1,
+    SCRIPTHASH = 2,
+    WITNESSSCRIPTHASH = 3,
+    WITNESSPUBKEYHASH = 4,
+    WITNESSTAPROOT = 5,
+    NONSTANDARD = 6
+};
 
 /** Check whether a CTxDestination is a CNoDestination. */
 bool IsValidDestination(const CTxDestination& dest);
@@ -165,6 +176,9 @@ constexpr bool IsPushdataOp(opcodetype opcode)
 
 /** Check whether a CTxDestination can be used as contract sender address. */
 bool IsValidContractSenderAddress(const CTxDestination& dest);
+
+/** Parse a output public key for the sender public key and sender signature. */
+bool ExtractSenderData(const CScript& outputPubKey, CScript* senderPubKey, CScript* senderSig);
 
 bool GetSenderPubKey(const CScript& outputPubKey, CScript& senderPubKey);
 
