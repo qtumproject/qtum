@@ -192,6 +192,7 @@ static void ReleaseWallet(CWallet* wallet)
 {
     const std::string name = wallet->GetName();
     wallet->WalletLogPrintf("Releasing wallet\n");
+    wallet->StopStake();
     wallet->Flush();
     delete wallet;
     // Wallet is now released, notify UnloadWallet, if any.
@@ -217,6 +218,7 @@ void UnloadWallet(std::shared_ptr<CWallet>&& wallet)
     // The wallet can be in use so it's not possible to explicitly unload here.
     // Notify the unload intent so that all remaining shared pointers are
     // released.
+    wallet->StopStake();
     wallet->NotifyUnload();
 
     // Time to ditch our shared_ptr and wait for ReleaseWallet call.
@@ -604,6 +606,7 @@ void CWallet::Flush()
 
 void CWallet::Close()
 {
+    StopStake();
     GetDatabase().Close();
 }
 
@@ -4328,6 +4331,10 @@ bool CWallet::LoadSuperStaker(const CSuperStakerInfo &superStaker)
     mapSuperStaker[hash] = superStaker;
 
     return true;
+}
+
+void CWallet::StopStake()
+{
 }
 
 bool CWallet::GetPubKey(const PKHash& pkhash, CPubKey& pubkey) const

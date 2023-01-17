@@ -402,6 +402,9 @@ public:
 
     ~CWallet()
     {
+        // Stop stake
+        StopStake();
+
         // Should not have slots connected at this point.
         assert(NotifyUnload.empty());
     }
@@ -1011,6 +1014,9 @@ public:
 
     mutable std::map<uint160, bool> addressStakeCache;
     std::atomic<bool> fCleanCoinStake = true;
+
+    /* Stop staking qtums */
+    void StopStake();
 };
 
 /**
