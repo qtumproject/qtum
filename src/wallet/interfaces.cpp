@@ -27,11 +27,14 @@
 #include <wallet/rpc/wallet.h>
 #include <wallet/spend.h>
 #include <wallet/wallet.h>
+#include <key_io.h>
+#include <node/miner.h>
 
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 using interfaces::Chain;
 using interfaces::FoundBlock;
@@ -46,6 +49,15 @@ using interfaces::WalletTx;
 using interfaces::WalletTxOut;
 using interfaces::WalletTxStatus;
 using interfaces::WalletValueMap;
+using interfaces::TokenInfo;
+using interfaces::TokenTx;
+using interfaces::ContractBookData;
+using interfaces::DelegationInfo;
+using interfaces::DelegationDetails;
+using interfaces::SuperStakerInfo;
+using interfaces::DelegationStakerInfo;
+using interfaces::SuperStakerAddressList;
+using interfaces::SignDelegation;
 
 namespace wallet {
 // All members of the classes in this namespace are intentionally public, as the
@@ -77,6 +89,21 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     result.time = wtx.GetTxTime();
     result.value_map = wtx.mapValue;
     result.is_coinbase = wtx.IsCoinBase();
+    result.is_coinstake = wtx.IsCoinStake();
+    result.is_in_main_chain = wallet.IsTxInMainChain(wtx);
+    result.has_create_or_call = wtx.tx->HasCreateOrCall();
+    if(result.has_create_or_call)
+    {
+        CTxDestination tx_sender_address;
+        if(wtx.tx && wtx.tx->vin.size() > 0 && wallet.mapWallet.find(wtx.tx->vin[0].prevout.hash) != wallet.mapWallet.end() &&
+                ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address)) {
+            result.tx_sender_key = wallet.GetKeyForDestination(tx_sender_address);
+        }
+
+        for(CTxDestination address : result.txout_address) {
+            result.txout_keys.emplace_back(wallet.GetKeyForDestination(address));
+        }
+    }
     return result;
 }
 
@@ -99,6 +126,7 @@ WalletTxStatus MakeWalletTxStatus(const CWallet& wallet, const CWalletTx& wtx)
     result.is_abandoned = wtx.isAbandoned();
     result.is_coinbase = wtx.IsCoinBase();
     result.is_in_main_chain = wallet.IsTxInMainChain(wtx);
+    result.is_coinstake = wtx.IsCoinStake();
     return result;
 }
 
@@ -125,6 +153,194 @@ WalletTxOut MakeWalletTxOut(const CWallet& wallet,
     result.depth_in_main_chain = output.depth;
     result.is_spent = wallet.IsSpent(output.outpoint);
     return result;
+}
+
+//! Construct token info.
+CTokenInfo MakeTokenInfo(const TokenInfo& token)
+{
+    CTokenInfo result;
+    result.strContractAddress = token.contract_address;
+    result.strTokenName = token.token_name;
+    result.strTokenSymbol = token.token_symbol;
+    result.nDecimals = token.decimals;
+    result.strSenderAddress = token.sender_address;
+    result.nCreateTime = token.time;
+    result.blockHash = token.block_hash;
+    result.blockNumber = token.block_number;
+    return result;
+}
+
+//! Construct wallet token info.
+TokenInfo MakeWalletTokenInfo(const CTokenInfo& token)
+{
+    TokenInfo result;
+    result.contract_address = token.strContractAddress;
+    result.token_name = token.strTokenName;
+    result.token_symbol = token.strTokenSymbol;
+    result.decimals = token.nDecimals;
+    result.sender_address = token.strSenderAddress;
+    result.time = token.nCreateTime;
+    result.block_hash = token.blockHash;
+    result.block_number = token.blockNumber;
+    result.hash = token.GetHash();
+    return result;
+}
+
+//! Construct token transaction.
+CTokenTx MakeTokenTx(const TokenTx& tokenTx)
+{
+    CTokenTx result;
+    result.strContractAddress = tokenTx.contract_address;
+    result.strSenderAddress = tokenTx.sender_address;
+    result.strReceiverAddress = tokenTx.receiver_address;
+    result.nValue = tokenTx.value;
+    result.transactionHash = tokenTx.tx_hash;
+    result.nCreateTime = tokenTx.time;
+    result.blockHash = tokenTx.block_hash;
+    result.blockNumber = tokenTx.block_number;
+    result.strLabel = tokenTx.label;
+    return result;
+}
+
+//! Construct wallet token transaction.
+TokenTx MakeWalletTokenTx(const CTokenTx& tokenTx)
+{
+    TokenTx result;
+    result.contract_address = tokenTx.strContractAddress;
+    result.sender_address = tokenTx.strSenderAddress;
+    result.receiver_address = tokenTx.strReceiverAddress;
+    result.value = tokenTx.nValue;
+    result.tx_hash = tokenTx.transactionHash;
+    result.time = tokenTx.nCreateTime;
+    result.block_hash = tokenTx.blockHash;
+    result.block_number = tokenTx.blockNumber;
+    result.label = tokenTx.strLabel;
+    result.hash = tokenTx.GetHash();
+    return result;
+}
+
+ContractBookData MakeContractBook(const std::string& id, const CContractBookData& data)
+{
+    ContractBookData result;
+    result.address = id;
+    result.name = data.name;
+    result.abi = data.abi;
+    return result;
+}
+
+uint160 StringToKeyId(const std::string& strAddress)
+{
+    CTxDestination dest = DecodeDestination(strAddress);
+    if(std::holds_alternative<PKHash>(dest))
+    {
+        PKHash keyID = std::get<PKHash>(dest);
+        return uint160(keyID);
+    }
+    return uint160();
+}
+
+std::string KeyIdToString(const uint160& keyID)
+{
+    return EncodeDestination(PKHash(keyID));
+}
+
+std::vector<uint160> StringToKeyIdList(const std::vector<std::string>& listAddress)
+{
+    std::vector<uint160> ret;
+    for(auto address : listAddress)
+    {
+        ret.push_back(StringToKeyId(address));
+    }
+    return ret;
+}
+
+std::vector<std::string> KeyIdToStringList(const std::vector<uint160>& listKeyID)
+{
+    std::vector<std::string> ret;
+    for(auto keyId : listKeyID)
+    {
+        ret.push_back(KeyIdToString(keyId));
+    }
+    return ret;
+}
+
+//! Construct delegation info.
+CDelegationInfo MakeDelegationInfo(const DelegationInfo& delegation)
+{
+    CDelegationInfo result;
+    result.delegateAddress = StringToKeyId(delegation.delegate_address);
+    result.stakerAddress = StringToKeyId(delegation.staker_address);
+    result.strStakerName = delegation.staker_name;
+    result.nFee = delegation.fee;
+    result.nCreateTime = delegation.time;
+    result.blockNumber = delegation.block_number;
+    result.createTxHash = delegation.create_tx_hash;
+    result.removeTxHash = delegation.remove_tx_hash;
+    return result;
+}
+
+//! Construct wallet delegation info.
+DelegationInfo MakeWalletDelegationInfo(const CDelegationInfo& delegation)
+{
+    DelegationInfo result;
+    result.delegate_address = KeyIdToString(delegation.delegateAddress);
+    result.staker_address = KeyIdToString(delegation.stakerAddress);
+    result.staker_name = delegation.strStakerName;
+    result.fee = delegation.nFee;
+    result.time = delegation.nCreateTime;
+    result.block_number = delegation.blockNumber;
+    result.time = delegation.nCreateTime;
+    result.create_tx_hash = delegation.createTxHash;
+    result.remove_tx_hash = delegation.removeTxHash;
+    result.hash = delegation.GetHash();
+    return result;
+}
+
+//! Construct super staker info.
+CSuperStakerInfo MakeSuperStakerInfo(const SuperStakerInfo& superStaker)
+{
+    CSuperStakerInfo result;
+    result.stakerAddress = StringToKeyId(superStaker.staker_address);
+    result.strStakerName = superStaker.staker_name;
+    result.nMinFee = superStaker.min_fee;
+    result.nCreateTime = superStaker.time;
+    result.fCustomConfig = superStaker.custom_config;
+    result.nMinDelegateUtxo = superStaker.min_delegate_utxo;
+    result.delegateAddressList = StringToKeyIdList(superStaker.delegate_address_list);
+    result.nDelegateAddressType = superStaker.delegate_address_type;
+    return result;
+}
+
+//! Construct wallet super staker info.
+SuperStakerInfo MakeWalletSuperStakerInfo(const CSuperStakerInfo& superStaker)
+{
+    SuperStakerInfo result;
+    result.staker_address = KeyIdToString(superStaker.stakerAddress);
+    result.staker_name = superStaker.strStakerName;
+    result.min_fee = superStaker.nMinFee;
+    result.time = superStaker.nCreateTime;
+    result.custom_config = superStaker.fCustomConfig;
+    result.min_delegate_utxo = superStaker.nMinDelegateUtxo;
+    result.delegate_address_list = KeyIdToStringList(superStaker.delegateAddressList);
+    result.delegate_address_type = superStaker.nDelegateAddressType;
+    result.hash = superStaker.GetHash();
+    return result;
+}
+
+bool TokenTxStatus(CWallet& wallet, const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
+{
+    auto mi = wallet.mapTokenTx.find(txid);
+    if (mi == wallet.mapTokenTx.end()) {
+        return false;
+    }
+    block_number = mi->second.blockNumber;
+    auto it = wallet.mapWallet.find(mi->second.transactionHash); 
+    if(it != wallet.mapWallet.end())
+    {
+        in_mempool = it->second.InMempool();
+    }
+    num_blocks = wallet.GetLastBlockHeight();
+    return true;
 }
 
 class WalletImpl : public Wallet
@@ -381,11 +597,13 @@ public:
         result.balance = bal.m_mine_trusted;
         result.unconfirmed_balance = bal.m_mine_untrusted_pending;
         result.immature_balance = bal.m_mine_immature;
+        result.stake = bal.m_mine_stake;
         result.have_watch_only = haveWatchOnly();
         if (result.have_watch_only) {
             result.watch_only_balance = bal.m_watchonly_trusted;
             result.unconfirmed_watch_only_balance = bal.m_watchonly_untrusted_pending;
             result.immature_watch_only_balance = bal.m_watchonly_immature;
+            result.watch_only_stake = bal.m_watchonly_stake;
         }
         return result;
     }
@@ -423,6 +641,39 @@ public:
     {
         LOCK(m_wallet->cs_wallet);
         return OutputGetCredit(*m_wallet, txout, filter);
+    }
+    bool isUnspentAddress(const std::string &qtumAddress) override
+    {
+        return {};
+    }
+    bool isMineAddress(const std::string &strAddress) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        CTxDestination address = DecodeDestination(strAddress);
+        if(!IsValidDestination(address) || !m_wallet->IsMine(address))
+        {
+            return false;
+        }
+        return true;
+    }
+    std::vector<std::string> availableAddresses(bool fIncludeZeroValue) EXCLUSIVE_LOCKS_REQUIRED(m_wallet->cs_wallet)
+    {
+        return {};
+    }
+    bool tryGetAvailableAddresses(std::vector<std::string> &spendableAddresses, std::vector<std::string> &allAddresses, bool &includeZeroValue) override
+    {
+        TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+
+        spendableAddresses = availableAddresses(false);
+        allAddresses = availableAddresses(true);
+        int num_blocks = m_wallet->GetLastBlockHeight();
+        includeZeroValue = num_blocks >= Params().GetConsensus().QIP5Height;
+
+        return true;
     }
     CoinsList listCoins() override
     {
@@ -484,6 +735,283 @@ public:
         RemoveWallet(m_context, m_wallet, false /* load_on_start */);
     }
     bool isLegacy() override { return m_wallet->IsLegacy(); }
+    bool addTokenEntry(const TokenInfo &token) override
+    {
+        return {};
+    }
+    bool addTokenTxEntry(const TokenTx& tokenTx, bool fFlushOnClose) override
+    {
+        return {};
+    }
+    bool existTokenEntry(const TokenInfo &token) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        uint256 hash = MakeTokenInfo(token).GetHash();
+        std::map<uint256, CTokenInfo>::iterator it = m_wallet->mapToken.find(hash);
+
+        return it != m_wallet->mapToken.end();
+    }
+    bool removeTokenEntry(const std::string &sHash) override
+    {
+        return {};
+    }
+    std::vector<TokenInfo> getInvalidTokens() override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<TokenInfo> listInvalid;
+        for(auto& info : m_wallet->mapToken)
+        {
+            std::string strAddress = info.second.strSenderAddress;
+            CTxDestination address = DecodeDestination(strAddress);
+            if(!m_wallet->IsMine(address))
+            {
+                listInvalid.push_back(MakeWalletTokenInfo(info.second));
+            }
+        }
+
+        return listInvalid;
+    }
+    TokenTx getTokenTx(const uint256& txid) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapTokenTx.find(txid);
+        if (mi != m_wallet->mapTokenTx.end()) {
+            return MakeWalletTokenTx(mi->second);
+        }
+        return {};
+    }
+    std::vector<TokenTx> getTokenTxs() override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<TokenTx> result;
+        result.reserve(m_wallet->mapTokenTx.size());
+        for (const auto& entry : m_wallet->mapTokenTx) {
+            result.emplace_back(MakeWalletTokenTx(entry.second));
+        }
+        return result;
+    }
+    TokenInfo getToken(const uint256& id) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapToken.find(id);
+        if (mi != m_wallet->mapToken.end()) {
+            return MakeWalletTokenInfo(mi->second);
+        }
+        return {};
+    }
+    std::vector<TokenInfo> getTokens() override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<TokenInfo> result;
+        result.reserve(m_wallet->mapToken.size());
+        for (const auto& entry : m_wallet->mapToken) {
+            result.emplace_back(MakeWalletTokenInfo(entry.second));
+        }
+        return result;
+    }
+    bool tryGetTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
+        if (!locked_wallet) {
+            return false;
+        }
+        return TokenTxStatus(*m_wallet, txid, block_number, in_mempool, num_blocks);
+    }
+    bool getTokenTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        return TokenTxStatus(*m_wallet, txid, block_number, in_mempool, num_blocks);
+    }
+    bool getTokenTxDetails(const TokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) override
+    {
+        return {};
+    }
+    bool isTokenTxMine(const TokenTx &wtx) override
+    {
+        return {};
+    }
+    ContractBookData getContractBook(const std::string& id) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapContractBook.find(id);
+        if (mi != m_wallet->mapContractBook.end()) {
+            return MakeContractBook(id, mi->second);
+        }
+        return {};
+    }
+    std::vector<ContractBookData> getContractBooks() override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        std::vector<ContractBookData> result;
+        result.reserve(m_wallet->mapContractBook.size());
+        for (const auto& entry : m_wallet->mapContractBook) {
+            result.emplace_back(MakeContractBook(entry.first, entry.second));
+        }
+        return result;
+    }
+    bool existContractBook(const std::string& id) override
+    {
+        LOCK(m_wallet->cs_wallet);
+
+        auto mi = m_wallet->mapContractBook.find(id);
+        return mi != m_wallet->mapContractBook.end();
+    }
+    bool delContractBook(const std::string& id) override
+    {
+        return {};
+    }
+    bool setContractBook(const std::string& id, const std::string& name, const std::string& abi) override
+    {
+        return {};
+    }
+    uint32_t restoreDelegations() override
+    {
+        return {};
+    }
+    bool addDelegationEntry(const DelegationInfo &delegation) override
+    {
+        return {};
+    }
+    bool existDelegationEntry(const DelegationInfo &delegation) override
+    {
+        return {};
+    }
+    DelegationInfo getDelegation(const uint256& id) override
+    {
+        return {};
+    }
+    DelegationInfo getDelegationContract(const std::string &sHash, bool& validated, bool& contractRet) override
+    {
+        return {};
+    }
+    DelegationDetails getDelegationDetails(const std::string &sAddress) override
+    {
+        return {};
+    }
+    std::vector<DelegationInfo> getDelegations() override
+    {
+        return {};
+    }
+    bool removeDelegationEntry(const std::string &sHash) override
+    {
+        return {};
+    }
+    bool setDelegationRemoved(const std::string &sHash, const std::string &sTxid) override
+    {
+        return {};
+    }
+    uint32_t restoreSuperStakers() override
+    {
+        return {};
+    }
+    bool existSuperStaker(const std::string &sAddress) override
+    {
+        return {};
+    }
+    SuperStakerInfo getSuperStaker(const uint256& id) override
+    {
+        return {};
+    }
+    SuperStakerInfo getSuperStakerRecommendedConfig() override
+    {
+        return {};
+    }
+    std::vector<SuperStakerInfo> getSuperStakers() override
+    {
+        return {};
+    }
+    bool addSuperStakerEntry(const SuperStakerInfo &superStaker) override
+    {
+        return {};
+    }
+    bool removeSuperStakerEntry(const std::string &sHash) override
+    {
+        return {};
+    }
+    bool tryGetStakeWeight(uint64_t& nWeight) override
+    {
+        return {};
+    }
+    uint64_t getStakeWeight() override
+    {
+        return {};
+    }
+    int64_t getLastCoinStakeSearchInterval() override 
+    { 
+        return m_wallet->m_last_coin_stake_search_interval;
+    }
+    bool getWalletUnlockStakingOnly() override
+    {
+        return m_wallet->m_wallet_unlock_staking_only;
+    }
+    void setWalletUnlockStakingOnly(bool unlock) override
+    {
+        m_wallet->m_wallet_unlock_staking_only = unlock;
+    }
+    bool cleanTokenTxEntries() override
+    {
+        return {};
+    }
+    void setEnabledStaking(bool enabled) override
+    {
+        m_wallet->m_enabled_staking = enabled;
+    }
+    bool getEnabledStaking() override
+    {
+        return m_wallet->m_enabled_staking;
+    }
+    bool getEnabledSuperStaking() override
+    {
+        bool fSuperStake = gArgs.GetBoolArg("-superstaking", node::DEFAULT_SUPER_STAKE);
+        return fSuperStake;
+    }
+    DelegationStakerInfo getDelegationStaker(const uint160& id) override
+    {
+        return {};
+    }
+    std::vector<DelegationStakerInfo> getDelegationsStakers() override
+    {
+        return {};
+    }
+    uint64_t getSuperStakerWeight(const uint256& id) override
+    {
+        return {};
+    }
+    bool isSuperStakerStaking(const uint256& id, CAmount& delegationsWeight) override
+    {
+        return {};
+    }
+    bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake, CAmount& weight) override
+    {
+        return {};
+    }
+    bool getAddDelegationData(const std::string& psbt, std::map<int, SignDelegation>& signData, std::string& error) override
+    {
+        return {};
+    }
+    bool setAddDelegationData(std::string& psbt, const std::map<int, SignDelegation>& signData, std::string& error) override
+    {
+        return {};
+    }
+    void setStakerLedgerId(const std::string& ledgerId) override
+    {
+        LOCK(m_wallet->cs_wallet);
+        m_wallet->m_ledger_id = ledgerId;
+    }
+    std::string getStakerLedgerId() override
+    {
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->m_ledger_id;
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
         return MakeHandler(m_wallet->NotifyUnload.connect(fn));
@@ -507,6 +1035,16 @@ public:
         return MakeHandler(m_wallet->NotifyTransactionChanged.connect(
             [fn](const uint256& txid, ChangeType status) { fn(txid, status); }));
     }
+    std::unique_ptr<Handler> handleTokenTransactionChanged(TokenTransactionChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyTokenTransactionChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
+    }
+    std::unique_ptr<Handler> handleTokenChanged(TokenChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyTokenChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
+    }
     std::unique_ptr<Handler> handleWatchOnlyChanged(WatchOnlyChangedFn fn) override
     {
         return MakeHandler(m_wallet->NotifyWatchonlyChanged.connect(fn));
@@ -514,6 +1052,27 @@ public:
     std::unique_ptr<Handler> handleCanGetAddressesChanged(CanGetAddressesChangedFn fn) override
     {
         return MakeHandler(m_wallet->NotifyCanGetAddressesChanged.connect(fn));
+    }
+    std::unique_ptr<Handler> handleContractBookChanged(ContractBookChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyContractBookChanged.connect(
+            [fn](CWallet*, const std::string& address, const std::string& label,
+                const std::string& abi, ChangeType status) { fn(address, label, abi, status); }));
+    }
+    std::unique_ptr<Handler> handleDelegationChanged(DelegationChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyDelegationChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
+    }
+    std::unique_ptr<Handler> handleSuperStakerChanged(SuperStakerChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifySuperStakerChanged.connect(
+            [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
+    }
+    std::unique_ptr<Handler> handleDelegationsStakerChanged(DelegationsStakerChangedFn fn) override
+    {
+        return MakeHandler(m_wallet->NotifyDelegationsStakerChanged.connect(
+            [fn](CWallet*, const uint160& id, ChangeType status) { fn(id, status); }));
     }
     CWallet* wallet() override { return m_wallet.get(); }
 

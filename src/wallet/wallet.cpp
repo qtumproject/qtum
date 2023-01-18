@@ -4333,8 +4333,33 @@ bool CWallet::LoadSuperStaker(const CSuperStakerInfo &superStaker)
     return true;
 }
 
+void CWallet::StartStake()
+{
+    if(HaveChain())
+    {
+        chain().startStake(*this);
+    }
+}
+
 void CWallet::StopStake()
 {
+    if(HaveChain())
+    {
+        chain().stopStake(*this);
+    }
+}
+
+bool CWallet::IsStakeClosing()
+{
+    return chain().shutdownRequested() || m_stop_staking_thread;
+}
+
+CKeyID CWallet::GetKeyForDestination(const CTxDestination& dest)
+{
+    CScript script = GetScriptForDestination(dest);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    if(!provider) provider = std::make_unique<FlatSigningProvider>();
+    return ::GetKeyForDestination(*provider, dest);
 }
 
 bool CWallet::GetPubKey(const PKHash& pkhash, CPubKey& pubkey) const
@@ -4349,8 +4374,79 @@ bool CWallet::GetPubKey(const PKHash& pkhash, CPubKey& pubkey) const
     return false;
 }
 
+bool CWallet::GetKeyOrigin(const PKHash& pkhash, KeyOriginInfo& info) const
+{
+    CScript script = GetScriptForDestination(pkhash);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    if(provider)
+    {
+        return provider->GetKeyOrigin(ToKeyID(pkhash), info);
+    }
+
+    return false;
+}
+
+bool CWallet::GetSenderDest(const CTransaction &tx, CTxDestination &txSenderDest, bool sign) const
+{
+    // Initialize variables
+    CScript senderPubKey;
+
+    // Get sender destination
+    if(tx.HasOpSender())
+    {
+        // Get destination from the outputs
+        for(CTxOut out : tx.vout)
+        {
+            if(out.scriptPubKey.HasOpSender())
+            {
+                if(sign)
+                {
+                    ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
+                }
+                else
+                {
+                    GetSenderPubKey(out.scriptPubKey, senderPubKey);
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        // Get destination from the inputs
+        if(tx.vin.size() > 0 && mapWallet.find(tx.vin[0].prevout.hash) != mapWallet.end())
+        {
+            senderPubKey = mapWallet.at(tx.vin[0].prevout.hash).tx->vout[tx.vin[0].prevout.n].scriptPubKey;
+        }
+    }
+
+    // Extract destination from script
+    return ExtractDestination(senderPubKey, txSenderDest);
+}
+
+bool CWallet::GetHDKeyPath(const CTxDestination &dest, std::string &hdkeypath) const
+{
+    CScript scriptPubKey = GetScriptForDestination(dest);
+    for (const auto& spk_man : GetScriptPubKeyMans(scriptPubKey)) {
+        if (spk_man) {
+            if (const std::unique_ptr<CKeyMetadata> meta = spk_man->GetMetadata(dest)) {
+                if (meta->has_key_origin) {
+                    hdkeypath = WriteHDKeypath(meta->key_origin.path);
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 CAmount CWallet::GetTxGasFee(const CMutableTransaction& tx)
 {
+    if(HaveChain())
+    {
+        return chain().getTxGasFee(tx);
+    }
     return 0;
 }
 } // namespace wallet
