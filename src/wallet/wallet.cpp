@@ -1067,21 +1067,22 @@ bool CWallet::LoadToWallet(const uint256& hash, const UpdateWalletTxFn& fill_wtx
     // don't bother to update txn.
     if (HaveChain()) {
         bool active;
-        auto lookup_block = [&](const uint256& hash, int& height, TxState& state) {
+        auto lookup_block = [&](const uint256& hash, int& height, bool has_delegation, TxState& state) {
             // If tx block (or conflicting block) was reorged out of chain
             // while the wallet was shutdown, change tx status to UNCONFIRMED
             // and reset block height, hash, and index. ABANDONED tx don't have
             // associated blocks and don't need to be updated. The case where a
             // transaction was reorged out while online and then reconfirmed
             // while offline is covered by the rescan logic.
-            if (!chain().findBlock(hash, FoundBlock().inActiveChain(active).height(height)) || !active) {
+            if (!chain().findBlock(hash, FoundBlock().inActiveChain(active).height(height).hasDelegation(has_delegation)) || !active) {
                 state = TxStateInactive{};
             }
         };
         if (auto* conf = wtx.state<TxStateConfirmed>()) {
-            lookup_block(conf->confirmed_block_hash, conf->confirmed_block_height, wtx.m_state);
+            lookup_block(conf->confirmed_block_hash, conf->confirmed_block_height, conf->has_delegation, wtx.m_state);
         } else if (auto* conf = wtx.state<TxStateConflicted>()) {
-            lookup_block(conf->conflicting_block_hash, conf->conflicting_block_height, wtx.m_state);
+            bool has_delegation = false;
+            lookup_block(conf->conflicting_block_hash, conf->conflicting_block_height, has_delegation, wtx.m_state);
         }
     }
     if (/* insertion took place */ ins.second) {
@@ -1372,7 +1373,7 @@ void CWallet::blockDisconnected(const interfaces::BlockInfo& block)
     m_last_block_processed_height = block.height - 1;
     m_last_block_processed = *Assert(block.prev_hash);
     for (const CTransactionRef& ptx : Assert(block.data)->vtx) {
-        SyncTransaction(ptx, TxStateInactive{});
+        SyncTransaction(ptx, TxStateInactive{false, ptx->IsCoinStake()});
     }
 }
 
@@ -1879,7 +1880,7 @@ bool CWallet::SubmitTxMemoryPoolAndRelay(CWalletTx& wtx, std::string& err_string
     if (wtx.isAbandoned()) return false;
     // Don't try to submit coinbase transactions. These would fail anyway but would
     // cause log spam.
-    if (wtx.IsCoinBase()) return false;
+    if (wtx.IsCoinBase() || wtx.IsCoinStake()) return false;
     // Don't try to submit conflicted or confirmed transactions.
     if (GetTxDepthInMainChain(wtx) != 0) return false;
 
@@ -2696,7 +2697,7 @@ void CWallet::GetKeyBirthTimes(std::map<CKeyID, int64_t>& mapKeyBirth) const {
     std::map<CKeyID, const TxStateConfirmed*> mapKeyFirstBlock;
     TxStateConfirmed max_confirm{uint256{}, /*height=*/-1, /*index=*/-1, /*delegation=*/false};
     max_confirm.confirmed_block_height = GetLastBlockHeight() > 144 ? GetLastBlockHeight() - 144 : 0; // the tip can be reorganized; use a 144-block safety margin
-    CHECK_NONFATAL(chain().findAncestorByHeight(GetLastBlockHash(), max_confirm.confirmed_block_height, FoundBlock().hash(max_confirm.confirmed_block_hash)));
+    CHECK_NONFATAL(chain().findAncestorByHeight(GetLastBlockHash(), max_confirm.confirmed_block_height, FoundBlock().hash(max_confirm.confirmed_block_hash).hasDelegation(max_confirm.has_delegation)));
 
     {
         LegacyScriptPubKeyMan* spk_man = GetLegacyScriptPubKeyMan();
@@ -3325,6 +3326,9 @@ void CWallet::postInitProcess()
 
     // Update wallet transactions with current mempool transactions.
     WITH_LOCK(cs_wallet, chain().requestMempoolTransactions(*this));
+
+    // Start mine proof-of-stake blocks in the background
+    StartStake();
 }
 
 bool CWallet::BackupWallet(const std::string& strDest) const
@@ -3365,7 +3369,9 @@ CKeyPool::CKeyPool(const CPubKey& vchPubKeyIn, bool internalIn)
 
 int CWallet::GetTxDepthInMainChain(const CWalletTx& wtx) const
 {
+#ifndef DEBUG_LOCKORDER
     AssertLockHeld(cs_wallet);
+#endif
     if (auto* conf = wtx.state<TxStateConfirmed>()) {
         return GetLastBlockHeight() - conf->confirmed_block_height + 1;
     } else if (auto* conf = wtx.state<TxStateConflicted>()) {
@@ -3379,12 +3385,13 @@ int CWallet::GetTxBlocksToMaturity(const CWalletTx& wtx) const
 {
     AssertLockHeld(cs_wallet);
 
-    if (!wtx.IsCoinBase()) {
+    if (!(wtx.IsCoinBase() || wtx.IsCoinStake())) {
         return 0;
     }
     int chain_depth = GetTxDepthInMainChain(wtx);
-    assert(chain_depth >= 0); // coinbase tx should not be conflicted
-    return std::max(0, (COINBASE_MATURITY+1) - chain_depth);
+    int nHeight = GetLastBlockHeight() + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    return std::max(0, (coinbaseMaturity+1) - chain_depth);
 }
 
 bool CWallet::IsTxImmature(const CWalletTx& wtx) const
@@ -4299,6 +4306,41 @@ uint256 CSuperStakerInfo::GetHash() const
 {
     return SerializeHash(*this, SER_GETHASH, 0);
 }
+
+bool CWallet::SetContractBook(const std::string &strAddress, const std::string &strName, const std::string &strAbi)
+{
+    bool fUpdated = false;
+    {
+        LOCK(cs_wallet); // mapContractBook
+        auto mi = mapContractBook.find(strAddress);
+        fUpdated = mi != mapContractBook.end();
+        mapContractBook[strAddress].name = strName;
+        mapContractBook[strAddress].abi = strAbi;
+    }
+
+    NotifyContractBookChanged(this, strAddress, strName, strAbi, (fUpdated ? CT_UPDATED : CT_NEW) );
+
+    WalletBatch batch(GetDatabase(), true);
+    bool ret = batch.WriteContractData(strAddress, "name", strName);
+    ret &= batch.WriteContractData(strAddress, "abi", strAbi);
+    return ret;
+}
+
+bool CWallet::DelContractBook(const std::string &strAddress)
+{
+    {
+        LOCK(cs_wallet); // mapContractBook
+        mapContractBook.erase(strAddress);
+    }
+
+    NotifyContractBookChanged(this, strAddress, "", "", CT_DELETED);
+
+    WalletBatch batch(GetDatabase(), true);
+    bool ret = batch.EraseContractData(strAddress, "name");
+    ret &= batch.EraseContractData(strAddress, "abi");
+    return ret;
+}
+
 bool CWallet::LoadContractData(const std::string &address, const std::string &key, const std::string &value)
 {
     bool ret = true;
@@ -4325,10 +4367,158 @@ bool CWallet::LoadDelegation(const CDelegationInfo &delegation)
     return true;
 }
 
+bool CWallet::AddDelegationEntry(const CDelegationInfo& delegation, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    uint256 hash = delegation.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CDelegationInfo>::iterator it = mapDelegation.find(hash);
+    if(it!=mapDelegation.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CDelegationInfo wdelegation = delegation;
+    if(!fInsertedNew)
+    {
+        wdelegation.nCreateTime = chain().getAdjustedTime();
+    }
+    else
+    {
+        wdelegation.nCreateTime = it->second.nCreateTime;
+    }
+
+    if (!batch.WriteDelegation(wdelegation))
+        return false;
+
+    mapDelegation[hash] = wdelegation;
+
+    NotifyDelegationChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    if(fInsertedNew)
+    {
+        LogPrintf("AddDelegationEntry %s\n", wdelegation.GetHash().ToString());
+    }
+
+    return true;
+}
+
+bool CWallet::RemoveDelegationEntry(const uint256& delegationHash, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    bool fFound = false;
+
+    std::map<uint256, CDelegationInfo>::iterator it = mapDelegation.find(delegationHash);
+    if(it!=mapDelegation.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        // Remove from disk
+        if (!batch.EraseDelegation(delegationHash))
+            return false;
+
+        mapDelegation.erase(it);
+
+        NotifyDelegationChanged(this, delegationHash, CT_DELETED);
+    }
+
+    LogPrintf("RemoveDelegationEntry %s\n", delegationHash.ToString());
+
+    return true;
+}
+
 bool CWallet::LoadSuperStaker(const CSuperStakerInfo &superStaker)
 {
     uint256 hash = superStaker.GetHash();
     mapSuperStaker[hash] = superStaker;
+
+    return true;
+}
+
+bool CWallet::AddSuperStakerEntry(const CSuperStakerInfo& superStaker, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    uint256 hash = superStaker.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CSuperStakerInfo>::iterator it = mapSuperStaker.find(hash);
+    if(it!=mapSuperStaker.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CSuperStakerInfo wsuperStaker = superStaker;
+    if(!fInsertedNew)
+    {
+        wsuperStaker.nCreateTime = chain().getAdjustedTime();
+    }
+    else
+    {
+        wsuperStaker.nCreateTime = it->second.nCreateTime;
+    }
+
+    if (!batch.WriteSuperStaker(wsuperStaker))
+        return false;
+
+    mapSuperStaker[hash] = wsuperStaker;
+
+    NotifySuperStakerChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    if(fInsertedNew)
+    {
+        LogPrintf("AddSuperStakerEntry %s\n", wsuperStaker.GetHash().ToString());
+    }
+    else
+    {
+        fUpdatedSuperStaker = true;
+    }
+
+    return true;
+}
+
+bool CWallet::RemoveSuperStakerEntry(const uint256& superStakerHash, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    bool fFound = false;
+
+    std::map<uint256, CSuperStakerInfo>::iterator it = mapSuperStaker.find(superStakerHash);
+    if(it!=mapSuperStaker.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        // Remove from disk
+        if (!batch.EraseSuperStaker(superStakerHash))
+            return false;
+
+        mapSuperStaker.erase(it);
+
+        NotifySuperStakerChanged(this, superStakerHash, CT_DELETED);
+    }
+
+    LogPrintf("RemoveSuperStakerEntry %s\n", superStakerHash.ToString());
 
     return true;
 }
