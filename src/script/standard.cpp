@@ -14,8 +14,7 @@
 
 #include <string>
 #include <streams.h>
-
-typedef std::vector<unsigned char> valtype;
+#include <variant>
 
 CScriptID::CScriptID(const CScript& in) : BaseHash(Hash160(in)) {}
 CScriptID::CScriptID(const ScriptHash& in) : BaseHash(static_cast<uint160>(in)) {}
@@ -57,6 +56,10 @@ std::string GetTxnOutputType(TxoutType t)
     case TxoutType::WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
     case TxoutType::WITNESS_V1_TAPROOT: return "witness_v1_taproot";
     case TxoutType::WITNESS_UNKNOWN: return "witness_unknown";
+    case TxoutType::CREATE_SENDER: return "create_sender";
+    case TxoutType::CALL_SENDER: return "call_sender";
+    case TxoutType::CREATE: return "create";
+    case TxoutType::CALL: return "call";
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -235,10 +238,14 @@ TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned c
     return TxoutType::NONSTANDARD;
 }
 
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType *typeRet)
 {
     std::vector<valtype> vSolutions;
     TxoutType whichType = Solver(scriptPubKey, vSolutions);
+
+    if(typeRet){
+        *typeRet = whichType;
+    }
 
     switch (whichType) {
     case TxoutType::PUBKEY: {
@@ -286,6 +293,10 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
     case TxoutType::MULTISIG:
     case TxoutType::NULL_DATA:
     case TxoutType::NONSTANDARD:
+    case TxoutType::CREATE_SENDER:
+    case TxoutType::CALL_SENDER:
+    case TxoutType::CREATE:
+    case TxoutType::CALL:
         return false;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
@@ -733,3 +744,86 @@ bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
     return false;
 }
 
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK)
+{
+    if(OK) *OK = false;
+    CTxDestination address;
+    TxoutType txType=TxoutType::NONSTANDARD;
+    if(ExtractDestination(scriptPubKey, address, &txType)){
+        if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
+            if(OK) *OK = true;
+            return std::get<PKHash>(address);
+        }
+    }
+
+    return PKHash();
+}
+
+valtype DataVisitor::operator()(const CNoDestination& noDest) const { return valtype(); }
+valtype DataVisitor::operator()(const PKHash& keyID) const { return valtype(keyID.begin(), keyID.end()); }
+valtype DataVisitor::operator()(const ScriptHash& scriptID) const { return valtype(scriptID.begin(), scriptID.end()); }
+valtype DataVisitor::operator()(const WitnessV0ScriptHash& witnessScriptHash) const { return valtype(witnessScriptHash.begin(), witnessScriptHash.end()); }
+valtype DataVisitor::operator()(const WitnessV0KeyHash& witnessKeyHash) const { return valtype(witnessKeyHash.begin(), witnessKeyHash.end()); }
+valtype DataVisitor::operator()(const WitnessV1Taproot& witnessTaproot) const { return valtype(witnessTaproot.begin(), witnessTaproot.end()); }
+valtype DataVisitor::operator()(const WitnessUnknown&) const { return valtype(); }
+
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet)
+{
+    std::vector<valtype> vSolutions;
+    TxoutType whichType = Solver(scriptPubKey, vSolutions);
+
+    if(typeRet){
+        *typeRet = whichType;
+    }
+
+
+    if (whichType == TxoutType::PUBKEY)
+    {
+        CPubKey pubKey(vSolutions[0]);
+        if (!pubKey.IsValid())
+            return false;
+
+        addressRet = PKHash(pubKey);
+        return true;
+    }
+    else if (whichType == TxoutType::PUBKEYHASH)
+    {
+        addressRet = PKHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if (whichType == TxoutType::SCRIPTHASH)
+    {
+        addressRet = ScriptHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::CALL){
+        addressRet = PKHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::WITNESS_V0_KEYHASH)
+    {
+        addressRet = WitnessV0KeyHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::WITNESS_V0_SCRIPTHASH)
+    {
+        addressRet = WitnessV0ScriptHash(uint256(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::WITNESS_V1_TAPROOT)
+    {
+        WitnessV1Taproot tap;
+        std::copy(vSolutions[0].begin(), vSolutions[0].end(), tap.begin());
+        addressRet = tap;
+        return true;
+    }
+    else if (whichType == TxoutType::WITNESS_UNKNOWN) {
+        WitnessUnknown unk;
+        unk.version = vSolutions[0][0];
+        std::copy(vSolutions[1].begin(), vSolutions[1].end(), unk.program);
+        unk.length = vSolutions[1].size();
+        addressRet = unk;
+        return true;
+    }
+    return false;
+}

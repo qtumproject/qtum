@@ -18,9 +18,18 @@
 
 static const bool DEFAULT_ACCEPT_DATACARRIER = true;
 
+//contract executions with less gas than this are not standard
+//Make sure is always equal or greater than MINIMUM_GAS_LIMIT (which we can't reference here due to insane header dependency chains)
+static const uint64_t STANDARD_MINIMUM_GAS_LIMIT = 10000;
+//contract executions with a price cheaper than this (in satoshis) are not standard
+//TODO this needs to be controlled by DGP and needs to be propogated from consensus parameters
+static const uint64_t STANDARD_MINIMUM_GAS_PRICE = 1;
+
 class CKeyID;
 class CScript;
 struct ScriptHash;
+
+typedef std::vector<unsigned char> valtype;
 
 /** A reference to a CScript: the Hash160 of its serialization (see script.h) */
 class CScriptID : public BaseHash<uint160>
@@ -182,6 +191,8 @@ bool ExtractSenderData(const CScript& outputPubKey, CScript* senderPubKey, CScri
 
 bool GetSenderPubKey(const CScript& outputPubKey, CScript& senderPubKey);
 
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK = nullptr);
+
 /**
  * Parse a scriptPubKey and identify script type for standard scripts. If
  * successful, returns script type and parsed pubkeys or hashes, depending on
@@ -199,7 +210,7 @@ TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned c
  * the addressRet parameter and returns true if successful. Currently only works for P2PK,
  * P2PKH, P2SH, P2WPKH, and P2WSH scripts.
  */
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet);
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL);
 
 /**
  * Generate a Bitcoin scriptPubKey for the given CTxDestination. Returns a P2PKH
@@ -349,5 +360,18 @@ public:
  * returned, corresponding to a depth-first traversal of the script tree.
  */
 std::optional<std::vector<std::tuple<int, CScript, int>>> InferTaprootTree(const TaprootSpendData& spenddata, const XOnlyPubKey& output);
+
+struct DataVisitor
+{
+    valtype operator()(const CNoDestination& noDest) const;
+    valtype operator()(const PKHash& keyID) const;
+    valtype operator()(const ScriptHash& scriptID) const;
+    valtype operator()(const WitnessV0ScriptHash& witnessScriptHash) const;
+    valtype operator()(const WitnessV0KeyHash& witnessKeyHash) const;
+    valtype operator()(const WitnessV1Taproot& witnessTaproot) const;
+    valtype operator()(const WitnessUnknown& witnessUnknown) const;
+};
+
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL);
 
 #endif // BITCOIN_SCRIPT_STANDARD_H
