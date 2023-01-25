@@ -15,13 +15,7 @@
 #include <chainparams.h>
 #include <script/sign.h>
 #include <consensus/consensus.h>
-
-struct CStakeCache{
-    CStakeCache(uint32_t blockFromTime_, CAmount amount_) : blockFromTime(blockFromTime_), amount(amount_){
-    }
-    uint32_t blockFromTime;
-    CAmount amount;
-};
+#include <qtum/posutils.h>
 
 void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevout, CBlockIndex* pindexPrev, CCoinsViewCache& view);
 

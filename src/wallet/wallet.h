@@ -28,6 +28,8 @@
 #include <wallet/walletdb.h>
 #include <wallet/walletutil.h>
 #include <validation.h>
+#include <consensus/params.h>
+#include <qtum/posutils.h>
 
 #include <algorithm>
 #include <atomic>
@@ -457,6 +459,8 @@ public:
 
     bool fUpdatedSuperStaker = false;
 
+    std::map<COutPoint, CStakeCache> minerStakeCache;
+
     std::map<uint160, bool> mapAddressUnspentCache;
 
     bool fUpdateAddressUnspentCache = false;
@@ -650,11 +654,15 @@ public:
     void CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm);
 
     uint64_t GetStakeWeight(uint64_t* pStakerWeight = nullptr, uint64_t* pDelegateWeight = nullptr) const;
+    uint64_t GetSuperStakerWeight(const uint160& staker) const;
     bool CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const;
     bool GetSenderDest(const CTransaction& tx, CTxDestination& txSenderDest, bool sign=true) const;
     bool GetHDKeyPath(const CTxDestination& dest, std::string& hdkeypath) const;
+    bool GetDelegationStaker(const uint160& keyid, Delegation& delegation);
+    const CWalletTx* GetCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const PKHash& superStaker, COutPoint& prevout, CAmount& nValueRet);
     bool HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* insertAddressStake = nullptr) const;
     void RefreshAddressStakeCache();
+    bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
     void RefreshDelegates(bool myDelegates, bool stakerDelegates);
 
     /** Pass this transaction to node for mempool insertion and relay to peers if flag set to true */
@@ -1105,7 +1113,19 @@ public:
     /* Is staking closing */
     bool IsStakeClosing();
 
+    void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
+    void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);
+    void updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
+
+    std::map<uint160, Delegation> m_delegations_staker;
+    std::map<uint160, CAmount> m_delegations_weight;
+    std::map<uint160, Delegation> m_my_delegations;
+    std::map<uint160, bool> m_have_coin_superstaker;
+    int m_num_threads = 1;
     std::string m_ledger_id;
+    std::map<COutPoint, CStakeCache> stakeCache;
+    std::map<COutPoint, CStakeCache> stakeDelegateCache;
+    bool fHasMinerStakeCache = false;
     mutable std::map<COutPoint, CScriptCache> prevoutScriptCache;
     mutable std::map<uint160, bool> addressStakeCache;
     std::atomic<bool> fCleanCoinStake = true;
