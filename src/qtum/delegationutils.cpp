@@ -61,9 +61,12 @@ bool SetSignedStaker(std::vector<unsigned char> &data, const std::string &base64
     if(!IsAddBytecode(data))
         return false;
 
-    bool invalid = false;
-    std::string strPoD = DecodeBase64(base64PoD, &invalid);
-    if(invalid || strPoD.size() < CPubKey::COMPACT_SIGNATURE_SIZE)
+    std::vector<unsigned char> strPoD;
+    if(auto decodePoD = DecodeBase64(base64PoD))
+    {
+        strPoD = *decodePoD;
+    }
+    if(strPoD.size() < CPubKey::COMPACT_SIGNATURE_SIZE)
         return false;
 
     size_t offset = nPoDStartPosition + 1;

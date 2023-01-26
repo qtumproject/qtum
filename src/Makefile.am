@@ -338,7 +338,8 @@ BITCOIN_CORE_H = \
   zmq/zmqpublishnotifier.h \
   zmq/zmqrpc.h \
   zmq/zmqutil.h \
-  qtum/posutils.h
+  qtum/posutils.h \
+  qtum/delegationutils.h
 
 
 obj/build.h: FORCE
@@ -656,6 +657,7 @@ libbitcoin_common_a_SOURCES = \
   script/signingprovider.cpp \
   script/standard.cpp \
   warnings.cpp \
+  qtum/delegationutils.cpp \
   $(BITCOIN_CORE_H)
 
 # util: shared between all executables.

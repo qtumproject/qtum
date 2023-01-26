@@ -686,6 +686,23 @@ void CWallet::AddToSpends(const COutPoint& outpoint, const uint256& wtxid, Walle
     SyncMetaData(range);
 }
 
+void CWallet::RemoveFromSpends(const COutPoint& outpoint, const uint256& wtxid)
+{
+    std::pair<TxSpends::iterator, TxSpends::iterator> range;
+    range = mapTxSpends.equal_range(outpoint);
+    TxSpends::iterator it = range.first;
+    for(; it != range.second; ++ it)
+    {
+        if(it->second == wtxid)
+        {
+            mapTxSpends.erase(it);
+            break;
+        }
+    }
+    range = mapTxSpends.equal_range(outpoint);
+    if(range.first != range.second)
+        SyncMetaData(range);
+}
 
 void CWallet::AddToSpends(const CWalletTx& wtx, WalletBatch* batch)
 {
@@ -694,6 +711,15 @@ void CWallet::AddToSpends(const CWalletTx& wtx, WalletBatch* batch)
 
     for (const CTxIn& txin : wtx.tx->vin)
         AddToSpends(txin.prevout, wtx.GetHash(), batch);
+}
+
+void CWallet::RemoveFromSpends(const CWalletTx& wtx)
+{
+    if (wtx.IsCoinBase()) // Coinbases don't spend anything!
+        return;
+
+    for(const CTxIn& txin : wtx.tx->vin)
+        RemoveFromSpends(txin.prevout, wtx.GetHash());
 }
 
 bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
@@ -1009,6 +1035,37 @@ CWalletTx* CWallet::AddToWallet(CTransactionRef tx, const TxState& state, const 
             wtx.SetTx(tx);
             fUpdated = true;
         }
+        if(fUpdated && wtx.IsCoinStake())
+        {
+            AddToSpends(wtx);
+        }
+    }
+
+    // Update unspent addresses
+    if(fUpdateAddressUnspentCache)
+    {
+        std::map<COutPoint, CScriptCache> insertScriptCache;
+        for (unsigned int i = 0; i < tx->vout.size(); i++) {
+            isminetype mine = IsMine(tx->vout[i]);
+            COutPoint prevout = COutPoint(hash, i);
+            if (!(IsSpent(prevout)) && mine != ISMINE_NO &&
+                !IsLockedCoin(prevout) && (tx->vout[i].nValue > 0) &&
+                // Check if the staking coin is dust
+                tx->vout[i].nValue >= m_staker_min_utxo_size)
+            {
+                // Get the script data for the coin
+                const CScriptCache& scriptCache = GetScriptCache(prevout, tx->vout[i].scriptPubKey, &insertScriptCache);
+
+                // Check that the script is not a contract script
+                if(scriptCache.contract || !scriptCache.keyIdOk)
+                    continue;
+
+                if(mapAddressUnspentCache.find(scriptCache.keyId) == mapAddressUnspentCache.end())
+                {
+                    mapAddressUnspentCache[scriptCache.keyId] = true;
+                }
+            }
+        }
     }
 
     //// debug print
@@ -1291,6 +1348,18 @@ void CWallet::MarkConflicted(const uint256& hashBlock, int conflicting_height, c
 
 void CWallet::SyncTransaction(const CTransactionRef& ptx, const SyncTxState& state, bool update_tx, bool rescanning_old_block)
 {
+    const TxStateInactive* conf = std::get_if<TxStateInactive>(&state);
+    if (conf && conf->disabled) 
+    {
+        // wallets need to refund inputs when disconnecting coinstake
+        const CTransaction& tx = *ptx;
+        if (tx.IsCoinStake() && IsFromMe(tx))
+        {
+            DisableTransaction(tx);
+            return;
+        }
+    }
+
     if (!AddToWalletIfInvolvingMe(ptx, state, update_tx, rescanning_old_block))
         return; // Not one of ours
 
@@ -2005,6 +2074,44 @@ void MaybeResendWalletTxs(WalletContext& context)
  * @{
  */
 
+const CScriptCache& CWallet::GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey, std::map<COutPoint, CScriptCache>* _insertScriptCache) const
+{
+    auto it = prevoutScriptCache.find(prevout);
+    if(it == prevoutScriptCache.end())
+    {
+        std::map<COutPoint, CScriptCache>& insertScriptCache = _insertScriptCache == nullptr ? prevoutScriptCache : *_insertScriptCache;
+        if((int32_t)insertScriptCache.size() > m_staker_max_utxo_script_cache)
+        {
+            insertScriptCache.clear();
+        }
+
+        // The script check for utxo is expensive operations, so cache the data for further use
+        CScriptCache scriptCache;
+        scriptCache.contract = scriptPubKey.HasOpCall() || scriptPubKey.HasOpCreate();
+        if(!scriptCache.contract)
+        {
+            scriptCache.keyId = ToKeyID(ExtractPublicKeyHash(scriptPubKey, &(scriptCache.keyIdOk)));
+            if(scriptCache.keyIdOk)
+            {
+                std::unique_ptr<SigningProvider> provider = GetSolvingProvider(scriptPubKey);
+                if(provider)
+                {
+                    auto inferred = InferDescriptor(scriptPubKey, *provider);
+                    scriptCache.solvable = inferred ? inferred->IsSolvable() : false;
+                }
+                else
+                {
+                    scriptCache.solvable = false;
+                }
+            }
+        }
+        insertScriptCache[prevout] = scriptCache;
+        return insertScriptCache[prevout];
+    }
+
+    return it->second;
+}
+
 bool CWallet::HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* _insertAddressStake) const
 {
     auto it = addressStakeCache.find(keyId);
@@ -2653,6 +2760,32 @@ std::set<std::string> CWallet::ListAddrBookLabels(const std::string& purpose) co
         }
     });
     return label_set;
+}
+
+// disable transaction (only for coinstake)
+void CWallet::DisableTransaction(const CTransaction &tx)
+{
+    if (!tx.IsCoinStake() || !IsFromMe(tx))
+        return; // only disconnecting coinstake requires marking input unspent
+
+    uint256 hash = tx.GetHash();
+    if(AbandonTransaction(hash))
+    {
+        LOCK(cs_wallet);
+        CWalletTx& wtx = mapWallet.at(hash);
+        RemoveFromSpends(wtx);
+        for(const CTxIn& txin : tx.vin)
+        {
+            auto it = mapWallet.find(txin.prevout.hash);
+            if (it != mapWallet.end()) {
+                CWalletTx &coin = it->second;
+                coin.MarkDirty();
+                NotifyTransactionChanged(coin.GetHash(), CT_UPDATED);
+            }
+        }
+        wtx.MarkDirty();
+        NotifyTransactionChanged(hash, CT_DELETED);
+    }
 }
 
 util::Result<CTxDestination> ReserveDestination::GetReservedDestination(bool internal)
@@ -4573,6 +4706,11 @@ bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
     return true;
 }
 
+bool CWallet::CleanTokenTxEntries(bool fFlushOnClose)
+{
+    return {};
+}
+
 bool CWallet::SetContractBook(const std::string &strAddress, const std::string &strName, const std::string &strAbi)
 {
     bool fUpdated = false;
@@ -4921,6 +5059,64 @@ bool CWallet::GetSuperStaker(CSuperStakerInfo &info, const uint160 &stakerAddres
     return false;
 }
 
+void CWallet::GetStakerAddressBalance(const PKHash &staker, CAmount &balance, CAmount &stake, CAmount& weight) const
+{
+    AssertLockHeld(cs_wallet);
+
+    balance = 0;
+    stake = 0;
+    weight = 0;
+    int nHeight = GetLastBlockHeight() + 1;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    std::map<COutPoint, uint32_t> immatureStakes = chain().getImmatureStakes();
+    for (auto& entry : mapWallet)
+    {
+        const uint256& wtxid = entry.first;
+        const CWalletTx* pcoin = &entry.second;
+        int nDepth = GetTxDepthInMainChain(*pcoin);
+
+        if (nDepth < 1)
+            continue;
+
+        bool fHasProofOfDelegation = false;
+        if (auto* conf = pcoin->state<TxStateConfirmed>()) {
+            fHasProofOfDelegation = conf->has_delegation;
+        }
+
+        bool isImature = GetTxBlocksToMaturity(*pcoin) == 0;
+        for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++)
+        {
+            bool OK = false;
+            PKHash keyId = ExtractPublicKeyHash(pcoin->tx->vout[i].scriptPubKey, &OK);
+            if(OK && keyId == staker)
+            {
+                COutPoint prevout = COutPoint(wtxid, i);
+                isminetype mine = IsMine(pcoin->tx->vout[i]);
+                  if (!(IsSpent(prevout)) && mine != ISMINE_NO &&
+                    !IsLockedCoin(prevout) && (pcoin->tx->vout[i].nValue > 0))
+                {
+                      CAmount nValue = pcoin->tx->vout[i].nValue;
+                      if(isImature)
+                      {
+                          balance += nValue;
+                          if(nDepth >= coinbaseMaturity && nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
+                          {
+                              if(immatureStakes.find(prevout) == immatureStakes.end())
+                              {
+                                  weight += nValue;
+                              }
+                          }
+                      }
+                      else if(pcoin->IsCoinStake() && fHasProofOfDelegation)
+                      {
+                          stake += nValue;
+                      }
+                }
+            }
+        }
+    }
+}
+
 void CWallet::updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx *, unsigned int> > &setCoins)
 {
     LOCK(cs_wallet);
@@ -4934,6 +5130,46 @@ void CWallet::updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx
             m_have_coin_superstaker[entry.second.stakerAddress] = true;
         }
     }
+}
+
+void CWallet::CleanCoinStake()
+{
+    LOCK(cs_wallet);
+    if(fCleanCoinStake)
+    {
+        fCleanCoinStake = false;
+        // Search the coinstake transactions and abandon transactions that are not confirmed in the blocks
+        for (auto& entry : mapWallet)
+        {
+            const CWalletTx* wtx = &entry.second;
+            if (wtx && !(wtx->state<TxStateConfirmed>()))
+            {
+                // Wallets need to refund inputs when disconnecting coinstake
+                const CTransaction& tx = *(wtx->tx);
+                if (tx.IsCoinStake() && IsFromMe(tx) && !wtx->isAbandoned())
+                {
+                    WalletLogPrintf("%s: Revert coinstake tx %s\n", __func__, wtx->GetHash().ToString());
+                    DisableTransaction(tx);
+                }
+            }
+        }
+    }
+}
+
+bool CWallet::HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly)
+{
+    CScript script = GetScriptForDestination(dest);
+    isminetype mine = IsMine(script);
+    if(!mine) return false;
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    bool solvable = false;
+    if(provider)
+    {
+        auto inferred = InferDescriptor(script, *provider);
+        solvable = inferred ? inferred->IsSolvable() : false;
+    }
+    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && (fAllowWatchOnly && solvable));
+    return spendable;
 }
 
 CKeyID CWallet::GetKeyForDestination(const CTxDestination& dest)
