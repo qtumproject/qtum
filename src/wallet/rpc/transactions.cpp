@@ -773,14 +773,68 @@ RPCHelpMan gettransaction()
     }
 
     bool verbose = request.params[2].isNull() ? false : request.params[2].get_bool();
+    {
+        LOCK(pwallet->cs_wallet);
+        auto it = pwallet->mapWallet.find(hash);
+        if (it == pwallet->mapWallet.end()) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
+        }
+    }
+
+    int waitconf = 0;
+    if(!request.params[3].isNull()) {
+        waitconf = request.params[3].getInt<int>();
+    }
+
+    bool shouldWaitConf = !request.params[3].isNull() && waitconf > 0;
+
+    {
+        LOCK(pwallet->cs_wallet);
+        auto it = pwallet->mapWallet.find(hash);
+        if (it == pwallet->mapWallet.end()) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
+        }
+    }
+
+    const CWalletTx* _wtx = nullptr;
+
+    // avoid long-poll if API caller does not specify waitconf
+    if (!shouldWaitConf) {
+        {
+            LOCK(pwallet->cs_wallet);
+            _wtx = &pwallet->mapWallet.at(hash);
+        }
+
+    } else {
+        if(!request.httpreq)
+            throw JSONRPCError(RPC_INTERNAL_ERROR, "No HTTP connection. Waitconf is available from qtum-cli, not qtum-qt");
+
+        request.PollStart();
+        while (true) {
+            {
+                LOCK(pwallet->cs_wallet);
+                _wtx = &pwallet->mapWallet.at(hash);
+
+                if (pwallet->GetTxDepthInMainChain(*_wtx) >= waitconf) {
+                    break;
+                }
+            }
+
+            request.PollPing();
+
+            std::unique_lock<std::mutex> lock(cs_blockchange);
+            cond_blockchange.wait_for(lock, std::chrono::milliseconds(300));
+
+            if (!request.PollAlive() || !IsRPCRunning()) {
+                return NullUniValue;
+            }
+        }
+    }
+
+    LOCK(pwallet->cs_wallet);
+    const CWalletTx& wtx = *_wtx;
 
     UniValue entry(UniValue::VOBJ);
-    auto it = pwallet->mapWallet.find(hash);
-    if (it == pwallet->mapWallet.end()) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
-    }
-    const CWalletTx& wtx = it->second;
-
     CAmount nCredit = CachedTxGetCredit(*pwallet, wtx, filter);
     CAmount nDebit = CachedTxGetDebit(*pwallet, wtx, filter);
     CAmount nNet = nCredit - nDebit;

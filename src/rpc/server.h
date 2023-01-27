@@ -26,9 +26,6 @@ namespace RPCServer
     void OnStopped(std::function<void ()> slot);
 }
 
-/** Query whether RPC is running */
-bool IsRPCRunning();
-
 /** Throw JSONRPCError if RPC is not running */
 void RpcInterruptionPoint();
 
