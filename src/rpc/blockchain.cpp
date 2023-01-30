@@ -26,6 +26,7 @@
 #include <node/blockstorage.h>
 #include <node/context.h>
 #include <node/utxo_snapshot.h>
+#include <key_io.h>
 #include <primitives/transaction.h>
 #include <rpc/server.h>
 #include <rpc/server_util.h>
@@ -45,6 +46,7 @@
 #include <validationinterface.h>
 #include <versionbits.h>
 #include <warnings.h>
+#include <pow.h>
 
 #include <stdint.h>
 
@@ -83,6 +85,105 @@ double GetDifficulty(const CBlockIndex* blockindex)
     }
 
     return dDiff;
+}
+
+double GetPoWMHashPS(ChainstateManager& chainman)
+{
+    if (chainman.m_best_header && chainman.m_best_header->nHeight >= Params().GetConsensus().nLastPOWBlock)
+        return 0;
+
+    int nPoWInterval = 72;
+    int64_t nTargetSpacingWorkMin = 30, nTargetSpacingWork = 30;
+
+    CChain& active_chain = chainman.ActiveChain();
+    CBlockIndex* pindexGenesisBlock = active_chain.Genesis();
+    CBlockIndex* pindex = pindexGenesisBlock;
+    CBlockIndex* pindexPrevWork = pindexGenesisBlock;
+
+    while (pindex)
+    {
+        if (pindex->IsProofOfWork())
+        {
+            int64_t nActualSpacingWork = pindex->GetBlockTime() - pindexPrevWork->GetBlockTime();
+            nTargetSpacingWork = ((nPoWInterval - 1) * nTargetSpacingWork + nActualSpacingWork + nActualSpacingWork) / (nPoWInterval + 1);
+            nTargetSpacingWork = std::max(nTargetSpacingWork, nTargetSpacingWorkMin);
+            pindexPrevWork = pindex;
+        }
+
+        pindex = pindex->pnext;
+    }
+
+    return GetDifficulty(active_chain.Tip()) * 4294.967296 / nTargetSpacingWork;
+}
+
+double GetPoSKernelPS(ChainstateManager& chainman)
+{
+    int nPoSInterval = 72;
+    double dStakeKernelsTriedAvg = 0;
+    int nStakesHandled = 0, nStakesTime = 0;
+
+    CBlockIndex* pindex = chainman.m_best_header;
+    CBlockIndex* pindexPrevStake = NULL;
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    bool dynamicStakeSpacing = true;
+    uint32_t stakeTimestampMask=consensusParams.StakeTimestampMask(0);
+    if(pindex)
+    {
+        dynamicStakeSpacing = pindex->nHeight < consensusParams.QIP9Height;
+        stakeTimestampMask=consensusParams.StakeTimestampMask(pindex->nHeight);
+    }
+
+    while (pindex && nStakesHandled < nPoSInterval)
+    {
+        if (pindex->IsProofOfStake())
+        {
+            if (pindexPrevStake)
+            {
+                dStakeKernelsTriedAvg += GetDifficulty(pindexPrevStake) * 4294967296.0;
+                if(dynamicStakeSpacing)
+                    nStakesTime += pindexPrevStake->nTime - pindex->nTime;
+                nStakesHandled++;
+            }
+            pindexPrevStake = pindex;
+        }
+
+        pindex = pindex->pprev;
+    }
+
+    if(!dynamicStakeSpacing)
+    {
+        // Using a fixed denominator reduces the variation spikes
+        nStakesTime = consensusParams.TargetSpacing(chainman.m_best_header->nHeight) * nStakesHandled;
+    }
+
+    double result = 0;
+
+    if (nStakesTime)
+        result = dStakeKernelsTriedAvg / nStakesTime;
+    
+    result *= stakeTimestampMask + 1;
+
+    return result;
+}
+
+double GetEstimatedAnnualROI(ChainstateManager& chainman)
+{
+    double result = 0;
+    double networkWeight = GetPoSKernelPS(chainman);
+    CChain& active_chain = chainman.ActiveChain();
+    CBlockIndex* pindex = chainman.m_best_header == 0 ? active_chain.Tip() : chainman.m_best_header;
+    int nHeight = pindex ? pindex->nHeight : 0;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    double subsidy = GetBlockSubsidy(nHeight, consensusParams);
+    int nBlocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(nHeight);
+    if(networkWeight > 0)
+    {
+        // Formula: 100 * 675 blocks/day * 365 days * subsidy) / Network Weight
+        result = nBlocktimeDownscaleFactor * 24637500 * subsidy / networkWeight;
+    }
+
+    return result;
 }
 
 static int ComputeNextBlockAndDepth(const CBlockIndex* tip, const CBlockIndex* blockindex, const CBlockIndex*& next)
@@ -144,11 +245,34 @@ UniValue blockheaderToJSON(const CBlockIndex* tip, const CBlockIndex* blockindex
     result.pushKV("difficulty", GetDifficulty(blockindex));
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
     result.pushKV("nTx", (uint64_t)blockindex->nTx);
+    result.pushKV("hashStateRoot", blockindex->hashStateRoot.GetHex()); // qtum
+    result.pushKV("hashUTXORoot", blockindex->hashUTXORoot.GetHex()); // qtum
+
+    if(blockindex->IsProofOfStake()){
+        result.pushKV("prevoutStakeHash", blockindex->prevoutStake.hash.GetHex()); // qtum
+        result.pushKV("prevoutStakeVoutN", (int64_t)blockindex->prevoutStake.n); // qtum
+    }
 
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
     if (pnext)
         result.pushKV("nextblockhash", pnext->GetBlockHash().GetHex());
+	
+    result.pushKV("flags", strprintf("%s", blockindex->IsProofOfStake()? "proof-of-stake" : "proof-of-work"));
+    result.pushKV("proofhash", blockindex->hashProof.GetHex());
+    result.pushKV("modifier", blockindex->nStakeModifier.GetHex());
+
+    if (blockindex->IsProofOfStake())
+    {
+        std::vector<unsigned char> vchBlockSig = blockindex->GetBlockSignature();
+        result.pushKV("signature", HexStr(vchBlockSig));
+        if(blockindex->HasProofOfDelegation())
+        {
+            std::vector<unsigned char> vchPoD = blockindex->GetProofOfDelegation();
+            result.pushKV("proofOfDelegation", HexStr(vchPoD));
+        }
+    }
+
     return result;
 }
 
@@ -187,6 +311,26 @@ UniValue blockToJSON(BlockManager& blockman, const CBlock& block, const CBlockIn
     result.pushKV("tx", txs);
 
     return result;
+}
+
+static RPCHelpMan getestimatedannualroi()
+{
+    return RPCHelpMan{"getestimatedannualroi",
+                "\nReturns the estimated annual roi.\n",
+                {},
+                RPCResult{
+                    RPCResult::Type::NUM, "", "The current estimated annual roi"},
+                RPCExamples{
+                    HelpExampleCli("getestimatedannualroi", "")
+            + HelpExampleRpc("getestimatedannualroi", "")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+    return GetEstimatedAnnualROI(chainman);
+},
+    };
 }
 
 static RPCHelpMan getblockcount()
@@ -395,10 +539,16 @@ static RPCHelpMan syncwithvalidationinterfacequeue()
 static RPCHelpMan getdifficulty()
 {
     return RPCHelpMan{"getdifficulty",
-                "\nReturns the proof-of-work difficulty as a multiple of the minimum difficulty.\n",
+                "\nReturns the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
+                "\nReturns the proof-of-stake difficulty as a multiple of the minimum difficulty.\n",
                 {},
                 RPCResult{
-                    RPCResult::Type::NUM, "", "the proof-of-work difficulty as a multiple of the minimum difficulty."},
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::NUM, "proof-of-work", "the proof-of-work difficulty as a multiple of the minimum difficulty."},
+                        {RPCResult::Type::NUM, "proof-of-stake", "the proof-of-stake difficulty as a multiple of the minimum difficulty."},
+                    }
+                },
                 RPCExamples{
                     HelpExampleCli("getdifficulty", "")
             + HelpExampleRpc("getdifficulty", "")
@@ -407,7 +557,11 @@ static RPCHelpMan getdifficulty()
 {
     ChainstateManager& chainman = EnsureAnyChainman(request.context);
     LOCK(cs_main);
-    return GetDifficulty(chainman.ActiveChain().Tip());
+    UniValue obj(UniValue::VOBJ);
+    const CBlockIndex* tip = chainman.ActiveChain().Tip();
+    obj.pushKV("proof-of-work",        GetDifficulty(GetLastBlockIndex(tip, false)));
+    obj.pushKV("proof-of-stake",       GetDifficulty(GetLastBlockIndex(tip, true)));
+    return obj;
 },
     };
 }
@@ -1010,7 +1164,7 @@ static RPCHelpMan gettxout()
                     {RPCResult::Type::STR, "desc", "Inferred descriptor for the output"},
                     {RPCResult::Type::STR_HEX, "hex", "The raw public key script bytes, hex-encoded"},
                     {RPCResult::Type::STR, "type", "The type, eg pubkeyhash"},
-                    {RPCResult::Type::STR, "address", /*optional=*/true, "The Bitcoin address (only if a well-defined address exists)"},
+                    {RPCResult::Type::STR, "address", /*optional=*/true, "The Qtum address (only if a well-defined address exists)"},
                 }},
                 {RPCResult::Type::BOOL, "coinbase", "Coinbase or not"},
             }},
@@ -1066,6 +1220,7 @@ static RPCHelpMan gettxout()
     ScriptToUniv(coin.out.scriptPubKey, /*out=*/o, /*include_hex=*/true, /*include_address=*/true);
     ret.pushKV("scriptPubKey", o);
     ret.pushKV("coinbase", (bool)coin.fCoinBase);
+    ret.pushKV("coinstake", (bool)coin.fCoinStake);
 
     return ret;
 },
@@ -1233,6 +1388,7 @@ RPCHelpMan getblockchaininfo()
     obj.pushKV("headers", chainman.m_best_header ? chainman.m_best_header->nHeight : -1);
     obj.pushKV("bestblockhash", tip.GetBlockHash().GetHex());
     obj.pushKV("difficulty", GetDifficulty(&tip));
+    obj.pushKV("moneysupply", chainman.m_best_header->nMoneySupply / COIN);
     obj.pushKV("time", tip.GetBlockTime());
     obj.pushKV("mediantime", tip.GetMedianTimePast());
     obj.pushKV("verificationprogress", GuessVerificationProgress(chainman.GetParams().TxData(), &tip));
@@ -1602,7 +1758,6 @@ static RPCHelpMan getchaintxstats()
 {
     ChainstateManager& chainman = EnsureAnyChainman(request.context);
     const CBlockIndex* pindex;
-    int blockcount = 30 * 24 * 60 * 60 / chainman.GetParams().GetConsensus().nPowTargetSpacing; // By default: 1 month
 
     if (request.params[1].isNull()) {
         LOCK(cs_main);
@@ -1618,6 +1773,8 @@ static RPCHelpMan getchaintxstats()
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Block is not in main chain");
         }
     }
+
+    int blockcount = 30 * 24 * 60 * 60 / chainman.GetParams().GetConsensus().TargetSpacing(pindex->nHeight); // By default: 1 month
 
     CHECK_NONFATAL(pindex != nullptr);
 
@@ -1808,7 +1965,7 @@ static RPCHelpMan getblockstats()
     CAmount totalfee = 0;
     int64_t inputs = 0;
     int64_t maxtxsize = 0;
-    int64_t mintxsize = MAX_BLOCK_SERIALIZED_SIZE;
+    int64_t mintxsize = dgpMaxBlockSerSize;
     int64_t outputs = 0;
     int64_t swtotal_size = 0;
     int64_t swtotal_weight = 0;
@@ -1832,7 +1989,7 @@ static RPCHelpMan getblockstats()
             }
         }
 
-        if (tx->IsCoinBase()) {
+        if (tx->IsCoinBase() || tx->IsCoinStake()) {
             continue;
         }
 
@@ -1916,7 +2073,7 @@ static RPCHelpMan getblockstats()
     ret_all.pushKV("mediantxsize", CalculateTruncatedMedian(txsize_array));
     ret_all.pushKV("minfee", (minfee == MAX_MONEY) ? 0 : minfee);
     ret_all.pushKV("minfeerate", (minfeerate == MAX_MONEY) ? 0 : minfeerate);
-    ret_all.pushKV("mintxsize", mintxsize == MAX_BLOCK_SERIALIZED_SIZE ? 0 : mintxsize);
+    ret_all.pushKV("mintxsize", mintxsize == dgpMaxBlockSerSize ? 0 : mintxsize);
     ret_all.pushKV("outs", outputs);
     ret_all.pushKV("subsidy", GetBlockSubsidy(pindex.nHeight, chainman.GetParams().GetConsensus()));
     ret_all.pushKV("swtotal_size", swtotal_size);
