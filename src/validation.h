@@ -59,11 +59,18 @@ namespace Consensus {
 struct Params;
 } // namespace Consensus
 
+/** Minimum gas limit that is allowed in a transaction within a block - prevent various types of tx and mempool spam **/
+static const uint64_t MINIMUM_GAS_LIMIT = 10000;
+
+static const uint64_t MEMPOOL_MIN_GAS_LIMIT = 22000;
+
+static const uint64_t ADD_DELEGATION_MIN_GAS_LIMIT = 2200000;
+
 /** Maximum number of dedicated script-checking threads allowed */
 static const int MAX_SCRIPTCHECK_THREADS = 15;
 /** -par default (number of script-checking threads, 0 = auto) */
 static const int DEFAULT_SCRIPTCHECK_THREADS = 0;
-static const int64_t DEFAULT_MAX_TIP_AGE = 24 * 60 * 60;
+static const int64_t DEFAULT_MAX_TIP_AGE = 12 * 60 * 60; //Changed to 12 hours so that isInitialBlockDownload() is more accurate
 static const bool DEFAULT_CHECKPOINTS_ENABLED = true;
 static const bool DEFAULT_TXINDEX = false;
 static constexpr bool DEFAULT_COINSTATSINDEX{false};
@@ -115,6 +122,8 @@ extern uint256 g_best_block;
  * False indicates all script checking is done on the main threadMessageHandler thread.
  */
 extern bool g_parallel_script_checks;
+extern bool fAddressIndex;
+extern bool fLogEvents;
 extern bool fCheckBlockIndex;
 extern bool fCheckpointsEnabled;
 /** If the tip is older than this (in seconds), the node is considered to be in initial block download. */
