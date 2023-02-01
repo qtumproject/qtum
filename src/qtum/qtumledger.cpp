@@ -73,7 +73,7 @@ int json_get_key_int(const UniValue& jsondata, std::string key)
             v = data;
     }
 
-    return v.get_int();
+    return v.getInt<int>();
 }
 
 // Append data to vector
@@ -484,9 +484,11 @@ bool QtumLedger::endSignBlockHeader(const std::string &, const std::string &, co
     UniValue jsonDocument = json_read_doc(d->strStdout);
     UniValue data = json_get_object(jsonDocument);
     std::string headerSigned = json_get_key_string(data, "signature");
+    vchSig.clear();
     if(!headerSigned.empty())
     {
-        vchSig = DecodeBase64(headerSigned.c_str());
+        auto sig = DecodeBase64(headerSigned.c_str());
+        if(sig) vchSig = *sig;
         return vchSig.size() == CPubKey::COMPACT_SIGNATURE_SIZE;
     }
 
