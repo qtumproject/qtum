@@ -3828,6 +3828,11 @@ bool CWalletTx::IsImmatureCoinStake() const
     return IsCoinStake() && IsImmature();
 }
 
+bool CWallet::HasPrivateKeys() const
+{
+    return !IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+}
+
 bool CWallet::IsCrypted() const
 {
     return HasEncryptionKeys();

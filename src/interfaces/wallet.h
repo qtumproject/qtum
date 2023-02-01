@@ -66,6 +66,9 @@ public:
     //! Encrypt wallet.
     virtual bool encryptWallet(const SecureString& wallet_passphrase) = 0;
 
+    //! Return whether wallet has private keys.
+    virtual bool hasPrivateKeys() = 0;
+
     //! Return whether wallet is encrypted.
     virtual bool isCrypted() = 0;
 

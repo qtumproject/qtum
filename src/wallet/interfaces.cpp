@@ -352,6 +352,7 @@ public:
     {
         return m_wallet->EncryptWallet(wallet_passphrase);
     }
+    bool hasPrivateKeys() override { return m_wallet->HasPrivateKeys(); }
     bool isCrypted() override { return m_wallet->IsCrypted(); }
     bool lock() override { return m_wallet->Lock(); }
     bool unlock(const SecureString& wallet_passphrase) override { return m_wallet->Unlock(wallet_passphrase); }
