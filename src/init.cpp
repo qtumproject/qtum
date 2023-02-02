@@ -69,6 +69,7 @@
 #include <txorphanage.h>
 #include <util/asmap.h>
 #include <util/check.h>
+#include <util/convert.h>
 #include <util/moneystr.h>
 #include <util/strencodings.h>
 #include <util/string.h>
@@ -319,6 +320,9 @@ void Shutdown(NodeContext& node)
                 chainstate->ResetCoinsViews();
             }
         }
+        pstorageresult.reset();
+        globalState.reset();
+        globalSealEngine.reset();
     }
     for (const auto& client : node.chain_clients) {
         client->stop();

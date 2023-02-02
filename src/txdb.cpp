@@ -339,6 +339,61 @@ bool CBlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const 
     return WriteBatch(batch);
 }
 
+int CBlockTreeDB::ReadHeightIndex(int low, int high, int minconf,
+        std::vector<std::vector<uint256>> &blocksOfHashes,
+        std::set<dev::h160> const &addresses, ChainstateManager &chainman) {
+
+    if ((high < low && high > -1) || (high == 0 && low == 0) || (high < -1 || low < 0)) {
+       return -1;
+    }
+
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
+
+    pcursor->Seek(std::make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(low)));
+
+    int curheight = 0;
+
+    for (size_t count = 0; pcursor->Valid(); pcursor->Next()) {
+
+        std::pair<uint8_t, CHeightTxIndexKey> key;
+        if (!pcursor->GetKey(key) || key.first != DB_HEIGHTINDEX) {
+            break;
+        }
+
+        int nextHeight = key.second.height;
+
+        if (high > -1 && nextHeight > high) {
+            break;
+        }
+
+        if (minconf > 0) {
+            int conf = chainman.ActiveChain().Height() - nextHeight;
+            if (conf < minconf) {
+                break;
+            }
+        }
+
+        curheight = nextHeight;
+
+        auto address = key.second.address;
+        if (!addresses.empty() && addresses.find(address) == addresses.end()) {
+            continue;
+        }
+
+        std::vector<uint256> hashesTx;
+
+        if (!pcursor->GetValue(hashesTx)) {
+            break;
+        }
+
+        count += hashesTx.size();
+
+        blocksOfHashes.push_back(hashesTx);
+    }
+
+    return curheight;
+}
+
 bool CBlockTreeDB::EraseHeightIndex(const unsigned int &height) {
 
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
@@ -683,10 +738,13 @@ bool CBlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, 
                 pindexNew->prevoutStake   = diskindex.prevoutStake;
                 pindexNew->vchBlockSigDlgt    = diskindex.vchBlockSigDlgt; // qtum
 
-                if (!CheckProofOfWork(pindexNew->GetBlockHash(), pindexNew->nBits, consensusParams)) {
-                    return error("%s: CheckProofOfWork failed: %s", __func__, pindexNew->ToString());
+                if (!CheckIndexProof(*pindexNew, consensusParams)) {
+                    return error("%s: CheckIndexProof failed: %s", __func__, pindexNew->ToString());
                 }
 
+                // NovaCoin: build setStakeSeen
+                if (pindexNew->IsProofOfStake())
+                    setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nTime));
                 pcursor->Next();
             } else {
                 return error("%s: failed to read value", __func__);

@@ -43,6 +43,28 @@
 #include <utility>
 #include <vector>
 
+#include <consensus/consensus.h>
+
+/////////////////////////////////////////// qtum
+#include <qtum/qtumstate.h>
+#include <libethereum/ChainParams.h>
+#include <libethereum/LastBlockHashesFace.h>
+#include <libethashseal/GenesisInfo.h>
+#include <script/standard.h>
+#include <qtum/storageresults.h>
+
+
+extern std::unique_ptr<QtumState> globalState;
+extern std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
+extern bool fRecordLogOpcodes;
+extern bool fIsVMlogFile;
+extern bool fGettingValuesDGP;
+
+struct EthTransactionParams;
+using valtype = std::vector<unsigned char>;
+using ExtractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
+///////////////////////////////////////////
+
 class Chainstate;
 class CBlockTreeDB;
 class CTxMemPool;
@@ -137,6 +159,11 @@ extern arith_uint256 nMinimumChainWork;
 
 /** Documentation for argument 'checklevel'. */
 extern const std::vector<std::string> CHECKLEVEL_DOC;
+
+/** The set of all seen COutPoint entries for proof of stake. */
+extern std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
+
+int64_t FutureDrift(uint32_t nTime, int nHeight, const Consensus::Params& consensusParams);
 
 /** Run instances of script checking worker threads */
 void StartScriptCheckWorkerThreads(int threads_num);
@@ -349,6 +376,8 @@ public:
 /** Initializes the script-execution cache */
 [[nodiscard]] bool InitScriptExecutionCache(size_t max_size_bytes);
 
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
+
 /** Functions for validating blocks and updating the block tree */
 
 /** Context-independent validity checks */
@@ -382,6 +411,8 @@ public:
         int nCheckLevel,
         int nCheckDepth) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 };
+
+extern std::unique_ptr<StorageResults> pstorageresult;
 
 enum DisconnectResult
 {

@@ -108,6 +108,13 @@ const std::vector<std::string> CHECKLEVEL_DOC {
  * */
 static constexpr int PRUNE_LOCK_BUFFER{10};
 
+std::unique_ptr<QtumState> globalState;
+std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
+bool fRecordLogOpcodes = false;
+bool fIsVMlogFile = false;
+bool fGettingValuesDGP = false;
+std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
+
 /**
  * Mutex to guard access to validation specific variables, such as reading
  * or changing the chainstate.
@@ -153,11 +160,18 @@ const CBlockIndex* Chainstate::FindForkInGlobalIndex(const CBlockLocator& locato
     return m_chain.Genesis();
 }
 
+std::unique_ptr<StorageResults> pstorageresult;
+
 bool CheckInputScripts(const CTransaction& tx, TxValidationState& state,
                        const CCoinsViewCache& inputs, unsigned int flags, bool cacheSigStore,
                        bool cacheFullScriptStore, PrecomputedTransactionData& txdata,
                        std::vector<CScriptCheck>* pvChecks = nullptr)
                        EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+
+int64_t FutureDrift(uint32_t nTime, int nHeight, const Consensus::Params& consensusParams)
+{
+    return nTime + consensusParams.StakeTimestampMask(nHeight);
+}
 
 bool CheckFinalTxAtTip(const CBlockIndex& active_chain_tip, const CTransaction& tx)
 {
@@ -1470,6 +1484,20 @@ PackageMempoolAcceptResult ProcessNewPackage(Chainstate& active_chainstate, CTxM
     BlockValidationState state_dummy;
     active_chainstate.FlushStateToDisk(state_dummy, FlushStateMode::PERIODIC);
     return result;
+}
+
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams)
+{
+    // Get the hash of the proof
+    // After validating the PoS block the computed hash proof is saved in the block index, which is used to check the index
+    uint256 hashProof = block.IsProofOfWork() ? block.GetBlockHash() : block.hashProof;
+    // Check for proof after the hash proof is computed
+    if(block.IsProofOfStake()){
+        //blocks are loaded out of order, so checking PoS kernels here is not practical
+        return true; //CheckKernel(block.pprev, block.nBits, block.nTime, block.prevoutStake);
+    }else{
+        return CheckProofOfWork(hashProof, block.nBits, consensusParams);
+    }
 }
 
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
