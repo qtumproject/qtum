@@ -27,6 +27,37 @@
 #include <utility>
 
 namespace node {
+unsigned int nMaxStakeLookahead = MAX_STAKE_LOOKAHEAD;
+unsigned int nBytecodeTimeBuffer = BYTECODE_TIME_BUFFER;
+unsigned int nStakeTimeBuffer = STAKE_TIME_BUFFER;
+unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
+unsigned int nMinerWaitWalidBlock = STAKER_WAIT_FOR_WALID_BLOCK;
+unsigned int nMinerWaitBestBlockHeader = STAKER_WAIT_FOR_BEST_BLOCK_HEADER;
+
+void updateMinerParams(int nHeight, const Consensus::Params& consensusParams, bool minDifficulty)
+{
+    static unsigned int timeDownscale = 1;
+    static unsigned int timeDefault = 1;
+    unsigned int timeDownscaleTmp = consensusParams.TimestampDownscaleFactor(nHeight);
+    if(timeDownscale != timeDownscaleTmp)
+    {
+        timeDownscale = timeDownscaleTmp;
+        unsigned int targetSpacing =  consensusParams.TargetSpacing(nHeight);
+        nMaxStakeLookahead = std::max(MAX_STAKE_LOOKAHEAD / timeDownscale, timeDefault);
+        nMaxStakeLookahead = std::min(nMaxStakeLookahead, targetSpacing);
+        nBytecodeTimeBuffer = std::max(BYTECODE_TIME_BUFFER / timeDownscale, timeDefault);
+        nStakeTimeBuffer = std::max(STAKE_TIME_BUFFER / timeDownscale, timeDefault);
+        nMinerSleep = std::max(STAKER_POLLING_PERIOD / timeDownscale, timeDefault);
+        nMinerWaitWalidBlock = std::max(STAKER_WAIT_FOR_WALID_BLOCK / timeDownscale, timeDefault);
+    }
+
+    // Sleep for 20 seconds when mining with minimum difficulty to avoid creating blocks every 4 seconds
+    if(minDifficulty && nMinerSleep != STAKER_POLLING_PERIOD_MIN_DIFFICULTY)
+    {
+        nMinerSleep = STAKER_POLLING_PERIOD_MIN_DIFFICULTY;
+    }
+}
+
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
     int64_t nOldTime = pblock->nTime;
@@ -38,7 +69,7 @@ int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParam
 
     // Updating time can change work required on testnet:
     if (consensusParams.fPowAllowMinDifficultyBlocks) {
-        pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams);
+        pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams, pblock->IsProofOfStake());
     }
 
     return nNewTime - nOldTime;
@@ -68,8 +99,8 @@ BlockAssembler::BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool
       m_chainstate(chainstate)
 {
     blockMinFeeRate = options.blockMinFeeRate;
-    // Limit weight to between 4K and MAX_BLOCK_WEIGHT-4K for sanity:
-    nBlockMaxWeight = std::max<size_t>(4000, std::min<size_t>(MAX_BLOCK_WEIGHT - 4000, options.nBlockMaxWeight));
+    // Limit weight to between 4K and dgpMaxBlockWeight-4K for sanity:
+    nBlockMaxWeight = std::max<size_t>(4000, std::min<size_t>(dgpMaxBlockWeight - 4000, options.nBlockMaxWeight));
 }
 
 static BlockAssembler::Options DefaultOptions()
@@ -300,7 +331,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
     // Keep track of entries that failed inclusion, to avoid duplicate work
     CTxMemPool::setEntries failedTx;
 
-    CTxMemPool::indexed_transaction_set::index<ancestor_score>::type::iterator mi = mempool.mapTx.get<ancestor_score>().begin();
+    CTxMemPool::indexed_transaction_set::index<ancestor_score_or_gas_price>::type::iterator mi = mempool.mapTx.get<ancestor_score_or_gas_price>().begin();
     CTxMemPool::txiter iter;
 
     // Limit the number of attempts to add transactions to the block when it is
@@ -309,7 +340,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
     const int64_t MAX_CONSECUTIVE_FAILURES = 1000;
     int64_t nConsecutiveFailed = 0;
 
-    while (mi != mempool.mapTx.get<ancestor_score>().end() || !mapModifiedTx.empty()) {
+    while (mi != mempool.mapTx.get<ancestor_score_or_gas_price>().end() || !mapModifiedTx.empty()) {
         // First try to find a new transaction in mapTx to evaluate.
         //
         // Skip entries in mapTx that are already in a block or are present
@@ -323,7 +354,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         // cached size/sigops/fee values that are not actually correct.
         /** Return true if given transaction from mapTx has already been evaluated,
          * or if the transaction's cached data in mapTx is incorrect. */
-        if (mi != mempool.mapTx.get<ancestor_score>().end()) {
+        if (mi != mempool.mapTx.get<ancestor_score_or_gas_price>().end()) {
             auto it = mempool.mapTx.project<0>(mi);
             assert(it != mempool.mapTx.end());
             if (mapModifiedTx.count(it) || inBlock.count(it) || failedTx.count(it)) {
@@ -336,16 +367,16 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         // the next entry from mapTx, or the best from mapModifiedTx?
         bool fUsingModified = false;
 
-        modtxscoreiter modit = mapModifiedTx.get<ancestor_score>().begin();
-        if (mi == mempool.mapTx.get<ancestor_score>().end()) {
+        modtxscoreiter modit = mapModifiedTx.get<ancestor_score_or_gas_price>().begin();
+        if (mi == mempool.mapTx.get<ancestor_score_or_gas_price>().end()) {
             // We're out of entries in mapTx; use the entry from mapModifiedTx
             iter = modit->iter;
             fUsingModified = true;
         } else {
             // Try to compare the mapTx entry to the mapModifiedTx entry
             iter = mempool.mapTx.project<0>(mi);
-            if (modit != mapModifiedTx.get<ancestor_score>().end() &&
-                    CompareTxMemPoolEntryByAncestorFee()(*modit, CTxMemPoolModifiedEntry(iter))) {
+            if (modit != mapModifiedTx.get<ancestor_score_or_gas_price>().end() &&
+                    CompareModifiedEntry()(*modit, CTxMemPoolModifiedEntry(iter))) {
                 // The best entry in mapModifiedTx has higher score
                 // than the one from mapTx.
                 // Switch which transaction (package) to consider
@@ -381,7 +412,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
                 // Since we always look at the best entry in mapModifiedTx,
                 // we must erase failed entries so that we can consider the
                 // next best entry on the next loop iteration
-                mapModifiedTx.get<ancestor_score>().erase(modit);
+                mapModifiedTx.get<ancestor_score_or_gas_price>().erase(modit);
                 failedTx.insert(iter);
             }
 
@@ -406,7 +437,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         // Test if all tx's are Final
         if (!TestPackageTransactions(ancestors)) {
             if (fUsingModified) {
-                mapModifiedTx.get<ancestor_score>().erase(modit);
+                mapModifiedTx.get<ancestor_score_or_gas_price>().erase(modit);
                 failedTx.insert(iter);
             }
             continue;
@@ -431,4 +462,18 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         nDescendantsUpdated += UpdatePackagesForAdded(mempool, ancestors, mapModifiedTx);
     }
 }
+
+bool CanStake()
+{
+    bool canStake = gArgs.GetBoolArg("-staking", DEFAULT_STAKE);
+
+    if(canStake)
+    {
+        // Signet is for creating PoW blocks by an authorized signer
+        canStake = !Params().GetConsensus().signet_blocks;
+    }
+
+    return canStake;
+}
+
 } // namespace node

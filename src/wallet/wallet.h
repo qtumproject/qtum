@@ -52,6 +52,7 @@ using LoadWalletFn = std::function<void(std::unique_ptr<interfaces::Wallet> wall
 class CScript;
 enum class FeeEstimateMode;
 struct bilingual_str;
+namespace boost { class thread_group; }
 
 namespace wallet {
 struct WalletContext;
@@ -1136,7 +1137,9 @@ public:
     std::map<uint160, Delegation> m_my_delegations;
     std::map<uint160, bool> m_have_coin_superstaker;
     int m_num_threads = 1;
+    mutable boost::thread_group threads;
     std::string m_ledger_id;
+    boost::thread_group* stakeThread = nullptr;
     std::map<COutPoint, CStakeCache> stakeCache;
     std::map<COutPoint, CStakeCache> stakeDelegateCache;
     bool fHasMinerStakeCache = false;

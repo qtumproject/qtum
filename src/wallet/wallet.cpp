@@ -4708,7 +4708,63 @@ bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
 
 bool CWallet::CleanTokenTxEntries(bool fFlushOnClose)
 {
-    return {};
+    LOCK(cs_wallet);
+
+    // Open db
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    // Get all token transaction hashes
+    std::vector<uint256> tokenTxHashes;
+    for(auto it = mapTokenTx.begin(); it != mapTokenTx.end(); it++)
+    {
+        tokenTxHashes.push_back(it->first);
+    }
+
+    // Remove existing entries
+    for(size_t i = 0; i < tokenTxHashes.size(); i++)
+    {
+        // Get the I entry
+        uint256 hashTxI = tokenTxHashes[i];
+        auto itTxI = mapTokenTx.find(hashTxI);
+        if(itTxI == mapTokenTx.end()) continue;
+        CTokenTx tokenTxI = itTxI->second;
+
+        for(size_t j = 0; j < tokenTxHashes.size(); j++)
+        {
+            // Skip the same entry
+            if(i == j) continue;
+
+            // Get the J entry
+            uint256 hashTxJ = tokenTxHashes[j];
+            auto itTxJ = mapTokenTx.find(hashTxJ);
+            if(itTxJ == mapTokenTx.end()) continue;
+            CTokenTx tokenTxJ = itTxJ->second;
+
+            // Compare I and J entries
+            if(tokenTxI.strContractAddress != tokenTxJ.strContractAddress) continue;
+            if(tokenTxI.strSenderAddress != tokenTxJ.strSenderAddress) continue;
+            if(tokenTxI.strReceiverAddress != tokenTxJ.strReceiverAddress) continue;
+            if(tokenTxI.blockHash != tokenTxJ.blockHash) continue;
+            if(tokenTxI.blockNumber != tokenTxJ.blockNumber) continue;
+            if(tokenTxI.transactionHash != tokenTxJ.transactionHash) continue;
+
+            // Delete the lower entry from disk
+            size_t nLower = uintTou256(tokenTxI.nValue) < uintTou256(tokenTxJ.nValue) ? i : j;
+            auto itTx = nLower == i ? itTxI : itTxJ;
+            uint256 hashTx = nLower == i ? hashTxI : hashTxJ;
+
+            if (!batch.EraseTokenTx(hashTx))
+                return false;
+
+            mapTokenTx.erase(itTx);
+
+            NotifyTokenTransactionChanged(this, hashTx, CT_DELETED);
+
+            break;
+        }
+    }
+
+    return true;
 }
 
 bool CWallet::SetContractBook(const std::string &strAddress, const std::string &strName, const std::string &strAbi)

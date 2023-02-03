@@ -12,6 +12,7 @@
 #include <fs.h>
 #include <hash.h>
 #include <pow.h>
+#include <pos.h>
 #include <reverse_iterator.h>
 #include <shutdown.h>
 #include <signet.h>
@@ -87,7 +88,8 @@ CBlockIndex* BlockManager::AddToBlockIndex(const CBlockHeader& block, CBlockInde
 {
     AssertLockHeld(cs_main);
 
-    auto [mi, inserted] = m_block_index.try_emplace(block.GetHash(), block);
+    uint256 hash = block.GetHash();
+    auto [mi, inserted] = m_block_index.try_emplace(hash, block);
     if (!inserted) {
         return &mi->second;
     }
@@ -98,6 +100,8 @@ CBlockIndex* BlockManager::AddToBlockIndex(const CBlockHeader& block, CBlockInde
     // competitive advantage.
     pindexNew->nSequenceId = 0;
 
+    if (pindexNew->IsProofOfStake())
+        setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nTime));
     pindexNew->phashBlock = &((*mi).first);
     BlockMap::iterator miPrev = m_block_index.find(block.hashPrevBlock);
     if (miPrev != m_block_index.end()) {
@@ -107,6 +111,7 @@ CBlockIndex* BlockManager::AddToBlockIndex(const CBlockHeader& block, CBlockInde
     }
     pindexNew->nTimeMax = (pindexNew->pprev ? std::max(pindexNew->pprev->nTimeMax, pindexNew->nTime) : pindexNew->nTime);
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
+    pindexNew->nStakeModifier = ComputeStakeModifier(pindexNew->pprev, block.IsProofOfWork() ? hash : block.prevoutStake.hash);
     pindexNew->RaiseValidity(BLOCK_VALID_TREE);
     if (best_header == nullptr || best_header->nChainWork < pindexNew->nChainWork) {
         best_header = pindexNew;
@@ -368,6 +373,14 @@ bool BlockManager::LoadBlockIndexDB(const Consensus::Params& consensus_params)
     m_block_tree_db->ReadReindexing(fReindexing);
     if (fReindexing) fReindex = true;
 
+    ///////////////////////////////////////////////////////////// // qtum
+    m_block_tree_db->ReadFlag("addrindex", fAddressIndex);
+    LogPrintf("LoadBlockIndexDB(): address index %s\n", fAddressIndex ? "enabled" : "disabled");
+    /////////////////////////////////////////////////////////////
+    // Check whether we have a transaction index
+    m_block_tree_db->ReadFlag("logevents", fLogEvents);
+    LogPrintf("%s: log events index %s\n", __func__, fLogEvents ? "enabled" : "disabled");
+
     return true;
 }
 
@@ -399,6 +412,38 @@ const CBlockIndex* BlockManager::GetFirstStoredBlock(const CBlockIndex& start_bl
         last_block = last_block->pprev;
     }
     return last_block;
+}
+
+bool BlockManager::CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data)
+{
+    const MapCheckpoints& checkpoints = data.mapCheckpoints;
+
+    MapCheckpoints::const_iterator i = checkpoints.find(nHeight);
+    if (i == checkpoints.end()) return true;
+    return hash == i->second;
+}
+
+// Automatically select a suitable sync-checkpoint 
+const CBlockIndex* BlockManager::AutoSelectSyncCheckpoint(const CBlockIndex *pindexBest)
+{
+    const CBlockIndex *pindex = pindexBest;
+    // Search backward for a block within max span and maturity window
+    int checkpointSpan = Params().GetConsensus().CheckpointSpan(pindexBest->nHeight);
+    while (pindex->pprev && pindex->nHeight + checkpointSpan > pindexBest->nHeight)
+        pindex = pindex->pprev;
+    return pindex;
+}
+
+// Check against synchronized checkpoint
+bool BlockManager::CheckSync(int nHeight, const CBlockIndex *pindexBest)
+{
+    const CBlockIndex* pindexSync = nullptr;
+    if(nHeight)
+        pindexSync = AutoSelectSyncCheckpoint(pindexBest);
+
+    if(nHeight && nHeight <= pindexSync->nHeight)
+        return false;
+    return true;
 }
 
 // If we're using -prune with -reindex, then delete block files that will be ignored by the

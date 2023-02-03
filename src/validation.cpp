@@ -2004,6 +2004,157 @@ static int64_t nTimeIndex = 0;
 static int64_t nTimeTotal = 0;
 static int64_t nBlocksTotal = 0;
 
+/////////////////////////////////////////////////////////////////////// qtum
+bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin) {
+    std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>();
+    CBlock& block = *pblock;
+    if (!ReadBlockFromDisk(block, pindex, Params().GetConsensus())) {
+        return error("GetSpentCoinFromBlock(): Could not read block from disk");
+    }
+
+    for(size_t j = 1; j < block.vtx.size(); ++j) {
+        CTransactionRef& tx = block.vtx[j];
+        for(size_t k = 0; k < tx->vin.size(); ++k) {
+            const COutPoint& tmpprevout = tx->vin[k].prevout;
+            if(tmpprevout == prevout) {
+                CBlockUndo undo;
+                if(!UndoReadFromDisk(undo, pindex)) {
+                    return error("GetSpentCoinFromBlock(): Could not read undo block from disk");
+                }
+
+                if(undo.vtxundo.size() != block.vtx.size() - 1) {
+                    return error("GetSpentCoinFromBlock(): undo tx size not equal to block tx size");
+                }
+
+                CTxUndo &txundo = undo.vtxundo[j-1]; // no vtxundo for coinbase
+
+                if(txundo.vprevout.size() != tx->vin.size()) {
+                    return error("GetSpentCoinFromBlock(): undo tx vin size not equal to block tx vin size");
+                }
+
+                *coin = txundo.vprevout[k];
+                return true;
+            }
+
+        }
+    }
+    return false;
+}
+
+bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin, CChain& chain) {
+    const CBlockIndex* pforkBase = chain.FindFork(pforkPrev);
+
+    // If the forkbase is more than coinbaseMaturity blocks in the past, do not attempt to scan the main chain.
+    int nHeight = chain.Tip()->nHeight;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
+    if(nHeight - pforkBase->nHeight > coinbaseMaturity) {
+        return error("The fork's base is behind by more than 500 blocks");
+    }
+
+    // First, we make sure that the prevout has not been spent in any of pforktip's ancestors as the prevoutStake.
+    // This is done to prevent a single staker building a long chain based on only a single prevout.
+    {
+        const CBlockIndex* pindex = pforkPrev;
+        while(pindex && pindex != pforkBase) {
+            // The coinstake has already been spent in the fork.
+            if(pindex->prevoutStake == prevoutStake) {
+                return error("prevout already spent in the orphan chain");
+            }
+            pindex = pindex->pprev;
+        }
+    }
+
+    // Scan through blocks until we reach the forkbase to check if the prevoutStake has been spent in one of those blocks
+    // If it not in any of those blocks, and not in the utxo set, it can't be spendable in the orphan chain.
+    {
+        CBlockIndex* pindex = chain.Tip();
+        while(pindex && pindex != pforkBase) {
+            if(GetSpentCoinFromBlock(pindex, prevoutStake, coin)) {
+                return true;
+            }
+            pindex = pindex->pprev;
+        }
+    }
+
+    return false;
+}
+
+bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int nHeight){
+    if(!tx.HasOpSender())
+        return true;
+
+    if(!(nHeight >= chainparams.GetConsensus().QIP5Height))
+        return false;
+
+    // Check that the sender address inside the output is only valid for contract outputs
+    for (const CTxOut& txout : tx.vout)
+    {
+        bool hashOpSender = txout.scriptPubKey.HasOpSender();
+        if(hashOpSender &&
+                !(txout.scriptPubKey.HasOpCreate() ||
+                  txout.scriptPubKey.HasOpCall()))
+        {
+            return false;
+        }
+
+        // Solve the script that match the sender templates
+        if(hashOpSender && !ExtractSenderData(txout.scriptPubKey, nullptr, nullptr))
+            return false;
+    }
+
+    return true;
+}
+
+bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
+    // Check for the sender that pays the coins
+    CScript script = view.AccessCoin(tx.vin[0].prevout).out.scriptPubKey;
+    if(!script.IsPayToPubkeyHash() && !script.IsPayToPubkey()){
+        return false;
+    }
+
+    // Check for additional VM sender
+    if(!tx.HasOpSender())
+        return true;
+
+    // Check for the VM sender that is encoded into the output
+    for (const CTxOut& txout : tx.vout)
+    {
+        if(txout.scriptPubKey.HasOpSender())
+        {
+            // Extract the sender data
+            CScript senderPubKey, senderSig;
+            if(!ExtractSenderData(txout.scriptPubKey, &senderPubKey, &senderSig))
+                return false;
+
+            // Check that the pub key is valid sender that can be used in the VM
+            if(!senderPubKey.IsPayToPubkeyHash() && !senderPubKey.IsPayToPubkey())
+                return false;
+
+            // Get the signature stack
+            std::vector <std::vector<unsigned char> > stack;
+            if (!EvalScript(stack, senderSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SigVersion::BASE))
+                return false;
+
+            // Check that the signature script contains only signature and public key (2 items)
+            if(stack.size() != STANDARD_SENDER_STACK_ITEMS)
+                return false;
+
+            // Check that the items size is no more than 80 bytes
+            for(size_t i=0; i < stack.size(); i++)
+            {
+                if(stack[i].size() > MAX_STANDARD_SENDER_STACK_ITEM_SIZE)
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount){
+    return {};
+}
+
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
  *  can fail if those validity checks fail (among other reasons). */

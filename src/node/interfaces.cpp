@@ -46,6 +46,8 @@
 #include <validation.h>
 #include <validationinterface.h>
 #include <warnings.h>
+#include <qtum/qtumdelegation.h>
+#include <qtum/qtumDGP.h>
 
 #if defined(HAVE_CONFIG_H)
 #include <config/bitcoin-config.h>
@@ -57,6 +59,11 @@
 #include <utility>
 
 #include <boost/signals2/signal.hpp>
+
+#ifdef ENABLE_WALLET
+#include <wallet/stake.h>
+#include <node/miner.h>
+#endif
 
 using interfaces::BlockTip;
 using interfaces::Chain;
@@ -347,6 +354,13 @@ public:
     }
     void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
     {
+        LOCK(::cs_main);
+
+        QtumDGP qtumDGP(globalState.get(), chainman().ActiveChainstate(), fGettingValuesDGP);
+        int numBlocks = chainman().ActiveChain().Height();
+        blockGasLimit = qtumDGP.getBlockGasLimit(numBlocks);
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(numBlocks));
+        nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     }
     void getSyncInfo(int& numBlocks, bool& isSyncing) override
     {
@@ -375,19 +389,23 @@ public:
     }
     int64_t getBlockSubsidy(int nHeight) override
     {
-        return {};
+        const CChainParams& chainparams = Params();
+        return GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     uint64_t getNetworkStakeWeight() override
     {
-        return {};
+        LOCK(::cs_main);
+        return GetPoSKernelPS(chainman());
     }
     double getEstimatedAnnualROI() override
     {
-        return {};
+        LOCK(::cs_main);
+        return GetEstimatedAnnualROI(chainman());
     }
     int64_t getMoneySupply() override
     {
-        return {};
+        auto best_header = chainman().m_best_header;
+        return best_header ? best_header->nMoneySupply : 0;
     }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
@@ -891,11 +909,12 @@ public:
 #endif
     bool getDelegation(const uint160& address, Delegation& delegation) override
     {
-        return {};
+        QtumDelegation qtumDelegation;
+        return qtumDelegation.ExistDelegationContract() ? qtumDelegation.GetDelegation(address, delegation, chainman().ActiveChainstate()) : false;
     }
     bool verifyDelegation(const uint160& address, const Delegation& delegation) override
     {
-        return {};
+        return QtumDelegation::VerifyDelegation(address, delegation);
     }
 
     NodeContext& m_node;
