@@ -177,6 +177,8 @@ private:
     QAction* sendToContractAction = nullptr;
     QAction* callContractAction = nullptr;
     QAction* QRCTokenAction = nullptr;
+    QAction* tokenAction = nullptr;
+    QAction* nftAction = nullptr;
     QAction* stakeAction = nullptr;
     QAction* sendTokenAction = nullptr;
     QAction* receiveTokenAction = nullptr;
@@ -302,6 +304,8 @@ public Q_SLOTS:
 
     /** Show incoming transaction notification for new token transactions. */
     void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& walletName, const QString& title);
+    /** Show incoming transaction notification for new nft transactions. */
+    void incomingNftTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& name, const QString& walletName, const QString& title);
 #endif // ENABLE_WALLET
 
 private:
@@ -327,6 +331,8 @@ public Q_SLOTS:
     void gotoCallContractPage();
     /** Switch to token page */
     void gotoTokenPage();
+    /** Switch to nft page */
+    void gotoNftPage();
     /** Switch to stake page */
     void gotoStakePage();
     /** Switch to delegation page */

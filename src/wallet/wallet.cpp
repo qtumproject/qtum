@@ -3665,6 +3665,13 @@ void CWallet::postInitProcess()
     if (CanStake()) {
         StartStake();
     }
+
+    // Clean nft preview cache
+    bool fCleanNftPreviewCache = gArgs.GetBoolArg("-cleannftpreviewcache", false);
+    if(fCleanNftPreviewCache)
+    {
+        CleanNftPreviewCache();
+    }
 }
 
 bool CWallet::BackupWallet(const std::string& strDest) const
@@ -3684,6 +3691,22 @@ bool CWallet::LoadTokenTx(const CTokenTx &tokenTx)
 {
     uint256 hash = tokenTx.GetHash();
     mapTokenTx[hash] = tokenTx;
+
+    return true;
+}
+
+bool CWallet::LoadNft(const CNftInfo &nft)
+{
+    uint256 hash = nft.GetHash();
+    mapNft[hash] = nft;
+
+    return true;
+}
+
+bool CWallet::LoadNftTx(const CNftTx &nftTx)
+{
+    uint256 hash = nftTx.GetHash();
+    mapNftTx[hash] = nftTx;
 
     return true;
 }
@@ -3774,6 +3797,124 @@ bool CWallet::AddTokenTxEntry(const CTokenTx &tokenTx, bool fFlushOnClose)
     LogPrintf("AddTokenTxEntry %s\n", wtokenTx.GetHash().ToString());
 
     return true;
+}
+
+bool CWallet::AddNftEntry(const CNftInfo &nft, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    uint256 hash = nft.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CNftInfo>::iterator it = mapNft.find(hash);
+    if(it!=mapNft.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CNftInfo wnft = nft;
+    if(fInsertedNew)
+    {
+        wnft.nCreateTime = chain().getAdjustedTime();
+    }
+    else
+    {
+        if(!wnft.nCreateTime)
+        {
+            wnft.nCreateTime = it->second.nCreateTime;
+        }
+
+        if(wnft.nCount > 0)
+        {
+            if(wnft.strThumbnail == "")
+            {
+                wnft.strThumbnail = it->second.strThumbnail;
+            }
+        }
+        else
+        {
+            wnft.strThumbnail = "";
+        }
+    }
+
+    if (!batch.WriteNft(wnft))
+        return false;
+
+    mapNft[hash] = wnft;
+
+    NotifyNftChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    if(fInsertedNew)
+    {
+        LogPrintf("AddNftEntry %s\n", wnft.GetHash().ToString());
+    }
+
+    return true;
+}
+
+bool CWallet::AddNftTxEntry(const CNftTx &nftTx, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    uint256 hash = nftTx.GetHash();
+
+    bool fInsertedNew = true;
+
+    std::map<uint256, CNftTx>::iterator it = mapNftTx.find(hash);
+    if(it!=mapNftTx.end())
+    {
+        fInsertedNew = false;
+    }
+
+    // Write to disk
+    CNftTx wnftTx = nftTx;
+    int64_t blockTime;
+    uint256 blockHash = wnftTx.blockNumber < 0 ? uint256() : chain().getBlockHash(wnftTx.blockNumber);
+    bool found = !blockHash.IsNull() && chain().findBlock(blockHash, FoundBlock().time(blockTime));
+    wnftTx.nCreateTime = found ? blockTime : chain().getAdjustedTime();
+
+    if (!batch.WriteNftTx(wnftTx))
+        return false;
+
+    mapNftTx[hash] = wnftTx;
+
+    NotifyNftTransactionChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
+
+    if(fInsertedNew)
+    {
+        LogPrintf("AddNftTxEntry %s\n", wnftTx.GetHash().ToString());
+    }
+
+    return true;
+}
+
+bool CWallet::AddNftTxEntries(const std::vector<CNftTx> &nftTxs)
+{
+    LOCK(cs_wallet);
+
+    bool ret = true;
+    for (const CNftTx& nftTx : nftTxs)
+    {
+        // Check if the nft is mine
+        if(IsNftTxMine(nftTx))
+        {
+            // Remove the unconfirmed nft tx entry
+            ret &= RemoveUnconfirmedNftTxEntry(nftTx);
+
+            // Add the new nft tx entry
+            if(!ExistNftTxEntry(nftTx))
+            {
+                ret &= AddNftTxEntry(nftTx, true);
+            }
+        }
+    }
+    return ret;
 }
 
 CKeyPool::CKeyPool()
@@ -4218,6 +4359,16 @@ uint256 CSuperStakerInfo::GetHash() const
     return SerializeHash(*this, SER_GETHASH, 0);
 }
 
+uint256 CNftInfo::GetHash() const
+{
+    return SerializeHash(*this, SER_GETHASH, 0);
+}
+
+uint256 CNftTx::GetHash() const
+{
+    return SerializeHash(*this, SER_GETHASH, 0);
+}
+
 bool CWallet::GetTokenTxDetails(const CTokenTx &wtx, uint256 &credit, uint256 &debit, std::string &tokenSymbol, uint8_t &decimals) const
 {
     LOCK(cs_wallet);
@@ -4270,6 +4421,110 @@ bool CWallet::IsTokenTxMine(const CTokenTx &wtx) const
     return ret;
 }
 
+bool CWallet::IsNftTxMine(const CNftTx &wtx) const
+{
+    LOCK(cs_wallet);
+    bool ret = false;
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    CTxDestination sender = DecodeDestination(wtx.strSender);
+    CTxDestination receiver = DecodeDestination(wtx.strReceiver);
+    if(HasPrivateKey(sender, fAllowWatchOnly) ||
+        HasPrivateKey(receiver, fAllowWatchOnly))
+    {
+        ret = true;
+    }
+
+    return ret;
+}
+
+bool CWallet::ExistNftTxEntry(const CNftTx &wtx) const
+{
+    LOCK(cs_wallet);
+
+    uint256 hash = wtx.GetHash();
+    std::map<uint256, CNftTx>::const_iterator it = mapNftTx.find(hash);
+
+    return it != mapNftTx.end();
+}
+
+bool CWallet::IsNftMine(const CNftInfo &info) const
+{
+    LOCK(cs_wallet);
+    bool ret = false;
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    CTxDestination owner = DecodeDestination(info.strOwner);
+    if(HasPrivateKey(owner, fAllowWatchOnly))
+    {
+        ret = true;
+    }
+
+    return ret;
+}
+
+std::vector<CNftInfo> CWallet::GetRawNftFromTx() const
+{
+    LOCK(cs_wallet);
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    std::vector<CNftInfo> nftList;
+    for(auto it = mapNftTx.begin(); it != mapNftTx.end(); it++)
+    {
+        CNftTx wtx = it->second;
+        CTxDestination receiver = DecodeDestination(wtx.strReceiver);
+        if(!HasPrivateKey(receiver, fAllowWatchOnly))
+            continue;
+
+        bool found = false;
+        for(const CNftInfo& info : nftList)
+        {
+            if(info.id == wtx.id && info.strOwner == wtx.strReceiver)
+                found = true;
+        }
+
+        if(!found)
+        {            
+            CNftInfo info;
+            info.id = wtx.id;
+            info.strOwner = wtx.strReceiver;
+            nftList.push_back(info);
+        }
+    }
+
+    return nftList;
+}
+
+bool CWallet::GetNftTxDetails(const CNftTx &wtx, int32_t &credit, int32_t &debit, std::string &name) const
+{
+    LOCK(cs_wallet);
+    bool ret = false;
+
+    for(auto it = mapNft.begin(); it != mapNft.end(); it++)
+    {
+        CNftInfo info = it->second;
+        if(wtx.id == info.id)
+        {
+            name = info.strName;
+            break;
+        }
+    }
+
+    bool fAllowWatchOnly = IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    CTxDestination sender = DecodeDestination(wtx.strSender);
+    if(HasPrivateKey(sender, fAllowWatchOnly))
+    {
+        debit = wtx.nValue;
+        ret = true;
+    }
+
+    CTxDestination receiver = DecodeDestination(wtx.strReceiver);
+    if(HasPrivateKey(receiver, fAllowWatchOnly))
+    {
+        credit = wtx.nValue;
+        ret = true;
+    }
+
+    return ret;
+}
+
 bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
 {
     LOCK(cs_wallet);
@@ -4305,6 +4560,111 @@ bool CWallet::RemoveTokenEntry(const uint256 &tokenHash, bool fFlushOnClose)
     LogPrintf("RemoveTokenEntry %s\n", tokenHash.ToString());
 
     return true;
+}
+
+bool CWallet::RemoveNftEntry(const uint256 &nftHash, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    bool fFound = false;
+
+    std::map<uint256, CNftInfo>::iterator it = mapNft.find(nftHash);
+    if(it!=mapNft.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        // Remove from disk
+        if (!batch.EraseNft(nftHash))
+            return false;
+
+        mapNft.erase(it);
+
+        NotifyNftChanged(this, nftHash, CT_DELETED);
+    }
+
+    LogPrintf("RemoveNftEntry %s\n", nftHash.ToString());
+
+    return true;
+}
+
+bool CWallet::RemoveNftTxEntry(const uint256 &nftTxHash, bool fFlushOnClose)
+{
+    LOCK(cs_wallet);
+
+    WalletBatch batch(GetDatabase(), fFlushOnClose);
+
+    bool fFound = false;
+
+    std::map<uint256, CNftTx>::iterator it = mapNftTx.find(nftTxHash);
+    if(it!=mapNftTx.end())
+    {
+        fFound = true;
+    }
+
+    if(fFound)
+    {
+        // Remove from disk
+        if (!batch.EraseNftTx(nftTxHash))
+            return false;
+
+        mapNftTx.erase(it);
+
+        NotifyNftTransactionChanged(this, nftTxHash, CT_DELETED);
+    }
+
+    LogPrintf("RemoveNftTxEntry %s\n", nftTxHash.ToString());
+
+    return true;
+}
+
+bool CWallet::RemoveUnconfirmedNftTxEntry(const CNftTx &nftTx)
+{
+    bool ret = true;
+    if(!nftTx.transactionHash.IsNull())
+    {
+        LOCK(cs_wallet);
+        std::vector<uint256> nftTxIds;
+        for (const auto& entry : mapNftTx)
+        {
+            if(entry.second.blockNumber == -1 &&
+                    entry.second.transactionHash == nftTx.transactionHash)
+            {
+                nftTxIds.push_back(entry.first);
+            }
+        }
+        for(const auto& entry : nftTxIds)
+        {
+            ret &= RemoveNftTxEntry(entry, false);
+        }
+    }
+
+    return ret;
+}
+
+bool CWallet::CleanNftPreviewCache()
+{
+    LOCK(cs_wallet);
+    bool ret = true;
+    for(auto it = mapNft.begin(); it != mapNft.end(); it++)
+    {
+        CNftInfo info = it->second;
+        if(!info.strThumbnail.empty())
+        {
+            info.strThumbnail = "";
+            mapNft[it->first] = info;
+            ret &= AddNftEntry(info);
+        }
+    }
+    if(!ret)
+    {
+        LogPrintf("CleanNftPreviewCache error\n");
+    }
+    return ret;
 }
 
 bool CWallet::CleanTokenTxEntries(bool fFlushOnClose)
@@ -5208,7 +5568,7 @@ void CWallet::SelectAddress(std::map<uint160, bool> &mapAddress) const
     }
 }
 
-bool CWallet::HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly)
+bool CWallet::HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly) const
 {
     CScript script = GetScriptForDestination(dest);
     isminetype mine = IsMine(script);
@@ -5219,7 +5579,7 @@ bool CWallet::HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchO
     return spendable;
 }
 
-CKeyID CWallet::GetKeyForDestination(const CTxDestination& dest)
+CKeyID CWallet::GetKeyForDestination(const CTxDestination& dest) const
 {
     CScript script = GetScriptForDestination(dest);
     std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
@@ -5304,3 +5664,4 @@ bool CWallet::GetHDKeyPath(const CTxDestination &dest, std::string &hdkeypath) c
 
     return false;
 }
+

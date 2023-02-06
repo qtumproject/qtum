@@ -39,6 +39,20 @@ public:
     bool searchTokenTx(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, std::string eventName, std::string strContractAddress, std::string strSenderAddress, int numTopics, QVariant& result);
 
     /**
+     * @brief searchNftTx Search the event log for nft transactions
+     * @param node Select node to search
+     * @param wallet Select wallet to search
+     * @param fromBlock Begin from block
+     * @param toBlock End to block
+     * @param minconf Minimum confirmations
+     * @param eventName Event name
+     * @param strContractAddress Nft contract address
+     * @param result Result of the performed call
+     * @return success of the operation
+     */
+    bool searchNftTx(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, std::string eventName, std::string strContractAddress, QVariant& result);
+
+    /**
      * @brief search Search for log events
      * @param node Select node to search
      * @param wallet Select wallet to search

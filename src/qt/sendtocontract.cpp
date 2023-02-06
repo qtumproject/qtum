@@ -287,6 +287,8 @@ void SendToContract::on_sendToContractClicked()
                     if(isSent)
                     {
                         ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+                        widgetResult->setModel(m_model);
+                        widgetResult->setClientModel(m_clientModel);
                         widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField->getParamsValues(), ContractResult::SendToResult);
                         ui->stackedWidget->addWidget(widgetResult);
                         int position = ui->stackedWidget->count() - 1;

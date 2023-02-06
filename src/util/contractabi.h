@@ -4,6 +4,11 @@
 #include <vector>
 #include <map>
 
+namespace ContractABI_NS
+{
+// define constransts
+const static int HEX_INSTRUCTION_SIZE = 64;
+}
 
 /**
  * @brief The ParameterType class Decode the api parameter type,

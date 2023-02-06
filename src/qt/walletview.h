@@ -25,6 +25,7 @@ class QRCToken;
 class StakePage;
 class DelegationPage;
 class SuperStakerPage;
+class NftPage;
 class WalletFrame;
 
 QT_BEGIN_NAMESPACE
@@ -78,6 +79,7 @@ private:
     StakePage *stakePage;
     DelegationPage* delegationPage;
     SuperStakerPage* superStakerPage;
+    NftPage* nftPage;
 
     TransactionView *transactionView;
 
@@ -108,6 +110,8 @@ public Q_SLOTS:
     void gotoDelegationPage();
     /** Switch to super staker page */
     void gotoSuperStakerPage();
+    /** Switch to nft page */
+    void gotoNftPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -127,6 +131,12 @@ public Q_SLOTS:
         The new items are those between start and end inclusive, under the given parent item.
     */
     void processNewTokenTransaction(const QModelIndex& parent, int start, int /*end*/);
+
+    /** Show incoming nft transaction notification for new nft transactions.
+
+        The new items are those between start and end inclusive, under the given parent item.
+    */
+    void processNewNftTransaction(const QModelIndex& parent, int start, int /*end*/);
 
     /** Encrypt the wallet */
     void encryptWallet();
@@ -168,6 +178,8 @@ Q_SIGNALS:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
     /** Notify that a new token transaction appeared */
     void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& walletName, const QString& title);
+    /** Notify that a new nft transaction appeared */
+    void incomingNftTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& name, const QString& walletName, const QString& title);
     /** Notify that the out of sync warning icon has been pressed */
     void outOfSyncWarningClicked();
     void showMore();

@@ -40,8 +40,10 @@ class TokenTransactionTableModel;
 class ContractTableModel;
 class WalletWorker;
 class TokenItemModel;
+class NftItemModel;
 class SuperStakerItemModel;
 class DelegationStakerItemModel;
+class NftTransactionTableModel;
 
 class CCoinControl;
 class CKeyID;
@@ -93,10 +95,12 @@ public:
     TransactionTableModel *getTransactionTableModel();
     RecentRequestsTableModel *getRecentRequestsTableModel();
     TokenItemModel *getTokenItemModel();
+    NftItemModel *getNftItemModel();
     TokenTransactionTableModel *getTokenTransactionTableModel();
     DelegationItemModel *getDelegationItemModel();
     SuperStakerItemModel *getSuperStakerItemModel();
     DelegationStakerItemModel *getDelegationStakerItemModel();
+    NftTransactionTableModel *getNftTransactionTableModel();
 
     EncryptionStatus getEncryptionStatus() const;
 
@@ -222,10 +226,12 @@ private:
     TransactionTableModel *transactionTableModel;
     RecentRequestsTableModel *recentRequestsTableModel;
     TokenItemModel *tokenItemModel;
+    NftItemModel *nftItemModel;
     TokenTransactionTableModel *tokenTransactionTableModel;
     DelegationItemModel *delegationItemModel;
     SuperStakerItemModel *superStakerItemModel;
     DelegationStakerItemModel *delegationStakerItemModel;
+    NftTransactionTableModel *nftTransactionTableModel;
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;
@@ -263,6 +269,7 @@ private:
     void unsubscribeFromCoreSignals();
     bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);
     void checkTokenBalanceChanged();
+    void checkNftBalanceChanged();
     void checkDelegationChanged();
     void checkSuperStakerChanged();
 

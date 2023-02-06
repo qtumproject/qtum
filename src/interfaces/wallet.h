@@ -52,6 +52,8 @@ struct DelegationDetails;
 struct SuperStakerInfo;
 struct DelegationStakerInfo;
 struct SignDelegation;
+struct NftTx;
+struct NftInfo;
 
 
 using WalletOrderForm = std::vector<std::pair<std::string, std::string>>;
@@ -444,6 +446,57 @@ public:
     //! Get staker ledger id.
     virtual std::string getStakerLedgerId() = 0;
 
+    //! Add wallet nft entry.
+    virtual bool addNftEntry(const NftInfo &nft) = 0;
+
+    //! Check if exist wallet nft entry.
+    virtual bool existNftEntry(const NftInfo &nft) = 0;
+
+    //! Remove wallet nft entry.
+    virtual bool removeNftEntry(const std::string &sHash) = 0;
+
+    //! Get nft information.
+    virtual NftInfo getNft(const uint256& id) = 0;
+
+    //! Get list of all nfts.
+    virtual std::vector<NftInfo> getNfts() = 0;
+
+    //! Get list of raw nft from tx.
+    virtual std::vector<NftInfo> getRawNftFromTx() = 0;
+
+    //! Remove unconfirmed nft tx entry.
+    virtual bool removeUnconfirmedNftTxEntry(const NftTx &nftTx) = 0;
+
+    //! Check if exist wallet nft tx entry.
+    virtual bool existNftTxEntry(const NftTx &nftTx) = 0;
+
+    //! Add wallet nft transactions entries.
+    virtual bool addNftTxEntries(const std::vector<NftTx> &nftTxs)  = 0;
+
+    //! Add wallet nft transaction entry.
+    virtual bool addNftTxEntry(const NftTx& nftTx, bool fFlushOnClose=true) = 0;
+
+    //! Get nft transaction information.
+    virtual NftTx getNftTx(const uint256& txid) = 0;
+
+    //! Get list of all wallet nft transactions.
+    virtual std::vector<NftTx> getNftTxs() = 0;
+
+    //! Check if nft transaction is mine
+    virtual bool isNftTxMine(const NftTx &wtx) = 0;
+
+    //! Get nft transaction details
+    virtual bool getNftTxDetails(const NftTx &wtx, int32_t& credit, int32_t& debit, std::string& name) = 0;
+
+    //! Get updated status for a particular nft transaction.
+    virtual bool getNftTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) = 0;
+
+    //! Try to get updated status for a particular nft transaction, if possible without blocking.
+    virtual bool tryGetNftTxStatus(const uint256& txid, int& block_number, bool& in_mempool, int& num_blocks) = 0;
+
+    //! Try to get updated name for a particular nft, if possible without blocking.
+    virtual bool tryGetNftName(const uint256& id, std::string& name) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;
@@ -502,6 +555,14 @@ public:
     //! Register handler for delegations staker changed messages.
     using DelegationsStakerChangedFn = std::function<void(const uint160& id, ChangeType status)>;
     virtual std::unique_ptr<Handler> handleDelegationsStakerChanged(DelegationsStakerChangedFn fn) = 0;
+
+    //! Register handler for nft changed messages.
+    using NftChangedFn = std::function<void(const uint256& id, ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleNftChanged(NftChangedFn fn) = 0;
+
+    //! Register handler for nft transaction changed messages.
+    using NftTransactionChangedFn = std::function<void(const uint256& id, ChangeType status)>;
+    virtual std::unique_ptr<Handler> handleNftTransactionChanged(NftTransactionChangedFn fn) = 0;
 
     //! Return pointer to internal wallet class, useful for testing.
     virtual CWallet* wallet() { return nullptr; }
@@ -763,6 +824,35 @@ struct SignDelegation
     std::string delegate;
     std::string staker;
     std::string PoD;
+};
+
+// Wallet nft information.
+struct NftInfo
+{
+    std::string owner;
+    uint256 id;
+    uint256 NFTId;
+    std::string name;
+    std::string url;
+    std::string desc;
+    int64_t create_time = 0;
+    int32_t count = 0;
+    uint256 hash;
+    std::string thumbnail;
+};
+
+// Wallet nft transaction
+struct NftTx
+{
+    std::string sender;
+    std::string receiver;
+    uint256 id;
+    int32_t value = 0;
+    uint256 tx_hash;
+    int64_t create_time = 0;
+    uint256 block_hash;
+    int64_t block_number = -1;
+    uint256 hash;
 };
 
 //! Return implementation of Wallet interface. This function is defined in

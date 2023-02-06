@@ -30,6 +30,9 @@
 #include <qt/superstakerpage.h>
 #include <qt/hardwaresigntxdialog.h>
 #include <qt/walletframe.h>
+#include <qt/nftpage.h>
+#include <qt/nfttransactiontablemodel.h>
+#include <qt/nfttransactionrecord.h>
 
 #include <interfaces/node.h>
 #include <node/ui_interface.h>
@@ -83,6 +86,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     callContractPage = new CallContract(platformStyle);
 
     QRCTokenPage = new QRCToken(platformStyle);
+    nftPage = new NftPage(platformStyle);
 
     stakePage = new StakePage(platformStyle);
     delegationPage = new DelegationPage(platformStyle);
@@ -94,6 +98,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     addWidget(sendToContractPage);
     addWidget(callContractPage);
     addWidget(QRCTokenPage);
+    addWidget(nftPage);
     addWidget(stakePage);
     addWidget(delegationPage);
     addWidget(superStakerPage);
@@ -130,6 +135,8 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     connect(sendToContractPage, &SendToContract::message, this, &WalletView::message);
     // Pass through messages from QRCTokenPage
     connect(QRCTokenPage, &QRCToken::message, this, &WalletView::message);
+    // Pass through messages from NftPage
+    connect(nftPage, &NftPage::message, this, &WalletView::message);
     // Pass through messages from delegationPage
     connect(delegationPage, &DelegationPage::message, this, &WalletView::message);
     // Pass through messages from superStakerPage
@@ -152,6 +159,7 @@ void WalletView::setClientModel(ClientModel *_clientModel)
     sendToContractPage->setClientModel(_clientModel);
     callContractPage->setClientModel(_clientModel);
     QRCTokenPage->setClientModel(_clientModel);
+    nftPage->setClientModel(_clientModel);
     stakePage->setClientModel(_clientModel);
     delegationPage->setClientModel(_clientModel);
     superStakerPage->setClientModel(_clientModel);
@@ -171,6 +179,7 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
     sendToContractPage->setModel(_walletModel);
     callContractPage->setModel(_walletModel);
     QRCTokenPage->setModel(_walletModel);
+    nftPage->setModel(_walletModel);
     stakePage->setWalletModel(_walletModel);
     delegationPage->setModel(_walletModel);
     superStakerPage->setModel(_walletModel);
@@ -195,6 +204,10 @@ void WalletView::setWalletModel(WalletModel *_walletModel)
         // Balloon pop-up for new token transaction
         connect(_walletModel->getTokenTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
                 this, SLOT(processNewTokenTransaction(QModelIndex,int,int)));
+
+        // Balloon pop-up for new nft transaction
+        connect(_walletModel->getNftTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),
+                this, SLOT(processNewNftTransaction(QModelIndex,int,int)));
 
         // Ask for passphrase if needed
         connect(_walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
@@ -257,6 +270,37 @@ void WalletView::processNewTokenTransaction(const QModelIndex &parent, int start
     Q_EMIT incomingTokenTransaction(date, amount, type, address, label, walletModel->getWalletName(), title);
 }
 
+void WalletView::processNewNftTransaction(const QModelIndex &parent, int start, int /*end*/)
+{
+    // Prevent balloon-spam when initial block download is in progress
+    if (!walletModel || !clientModel || clientModel->node().isInitialBlockDownload())
+        return;
+
+    NftTransactionTableModel *nttm = walletModel->getNftTransactionTableModel();
+    if (!nttm || nttm->processingQueuedTransactions())
+        return;
+
+    QString date = nttm->index(start, NftTransactionTableModel::Date, parent).data().toString();
+    QString amount(nttm->index(start, NftTransactionTableModel::Amount, parent).data(NftTransactionTableModel::FormattedAmountWithUnitRole).toString());
+    QString type = nttm->index(start, NftTransactionTableModel::Type, parent).data().toString();
+    QModelIndex index = nttm->index(start, 0, parent);
+    QString address = nttm->data(index, NftTransactionTableModel::AddressRole).toString();
+    QString name = nttm->data(index, NftTransactionTableModel::NameRole).toString();
+    QString title;
+    int txType = nttm->data(index, NftTransactionTableModel::TypeRole).toInt();
+    switch (txType)
+    {
+    case NftTransactionRecord::RecvWithAddress:
+    case NftTransactionRecord::RecvFromOther:
+        title = tr("Incoming transaction");
+        break;
+    default:
+        title = tr("Sent transaction");
+        break;
+    }
+    Q_EMIT incomingNftTransaction(date, amount, type, address, name, walletModel->getWalletName(), title);
+}
+
 void WalletView::gotoOverviewPage()
 {
     setCurrentWidget(overviewPage);
@@ -305,6 +349,11 @@ void WalletView::gotoCallContractPage()
 void WalletView::gotoTokenPage()
 {
     setCurrentWidget(QRCTokenPage);
+}
+
+void WalletView::gotoNftPage()
+{
+    setCurrentWidget(nftPage);
 }
 
 void WalletView::gotoStakePage()

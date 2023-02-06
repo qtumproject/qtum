@@ -23,6 +23,8 @@
 #include <qt/delegationitemmodel.h>
 #include <qt/superstakeritemmodel.h>
 #include <qt/delegationstakeritemmodel.h>
+#include <qt/nftitemmodel.h>
+#include <qt/nfttransactiontablemodel.h>
 
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
@@ -81,10 +83,12 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
     transactionTableModel(nullptr),
     recentRequestsTableModel(nullptr),
     tokenItemModel(nullptr),
+    nftItemModel(nullptr),
     tokenTransactionTableModel(nullptr),
     delegationItemModel(nullptr),
     superStakerItemModel(nullptr),
     delegationStakerItemModel(nullptr),
+    nftTransactionTableModel(nullptr),
     cachedEncryptionStatus(Unencrypted),
     timer(new QTimer(this)),
     nWeight(0),
@@ -98,10 +102,12 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
     transactionTableModel = new TransactionTableModel(platformStyle, this);
     recentRequestsTableModel = new RecentRequestsTableModel(this);
     tokenItemModel = new TokenItemModel(this);
+    nftItemModel = new NftItemModel(this);
     tokenTransactionTableModel = new TokenTransactionTableModel(platformStyle, this);
     delegationItemModel = new DelegationItemModel(this);
     superStakerItemModel = new SuperStakerItemModel(this);
     delegationStakerItemModel = new DelegationStakerItemModel(this);
+    nftTransactionTableModel = new NftTransactionTableModel(platformStyle, this);
 
     worker = new WalletWorker(this);
     worker->moveToThread(&(t));
@@ -186,11 +192,15 @@ void WalletModel::pollBalanceChanged()
         if(tokenTransactionTableModel)
             tokenTransactionTableModel->updateConfirmations();
 
+        if(nftTransactionTableModel)
+            nftTransactionTableModel->updateConfirmations();
+
         if(cachedBlockHashChanged)
         {
             checkTokenBalanceChanged();
             checkDelegationChanged();
             checkSuperStakerChanged();
+            checkNftBalanceChanged();
         }
 
         if(balanceChanged)
@@ -228,6 +238,14 @@ void WalletModel::checkTokenBalanceChanged()
     if(tokenItemModel)
     {
         tokenItemModel->checkTokenBalanceChanged();
+    }
+}
+
+void WalletModel::checkNftBalanceChanged()
+{
+    if(nftItemModel)
+    {
+        nftItemModel->checkNftBalanceChanged();
     }
 }
 
@@ -435,6 +453,11 @@ TokenItemModel *WalletModel::getTokenItemModel()
     return tokenItemModel;
 }
 
+NftItemModel *WalletModel::getNftItemModel()
+{
+    return nftItemModel;
+}
+
 TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
 {
     return tokenTransactionTableModel;
@@ -453,6 +476,11 @@ SuperStakerItemModel *WalletModel::getSuperStakerItemModel()
 DelegationStakerItemModel *WalletModel::getDelegationStakerItemModel()
 {
     return delegationStakerItemModel;
+}
+
+NftTransactionTableModel *WalletModel::getNftTransactionTableModel()
+{
+    return nftTransactionTableModel;
 }
 
 WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
@@ -1088,6 +1116,8 @@ void WalletModel::join()
     // Join models
     if(tokenItemModel)
         tokenItemModel->join();
+    if(nftItemModel)
+        nftItemModel->join();
     if(delegationItemModel)
         delegationItemModel->join();
     if(superStakerItemModel)

@@ -72,6 +72,7 @@
 #endif
 #include <walletinitinterface.h>
 #include <key_io.h>
+#include <qtum/nftconfig.h>
 
 #include <functional>
 #include <set>
@@ -477,6 +478,9 @@ void SetupServerArgs(ArgsManager& argsman)
     argsman.AddArg("-dgpstorage", "Receiving data from DGP via storage (default: -dgpevm)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-dgpevm", "Receiving data from DGP via a contract call (default: -dgpevm)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-hwitoolpath=<path>", "Specify HWI tool path", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-nftpreviewmaxsize=<n>", strprintf("NFT Preview max size in megabytes, 1 to %u, (default: %u)", MAX_NFT_PREVIEW_MAX_SIZE, DEFAULT_NFT_PREVIEW_SIZE), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-nftpreviewdownloadtimeout=<n>", strprintf("NFT Preview download timeout in seconds, 1 to %u, (default: %u)", MAX_NFT_PREVIEW_DOWNLOAD_TIMEOUT, DEFAULT_NFT_PREVIEW_DOWNLOAD_TIMEOUT), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-cleannftpreviewcache", "Clean NFTs preview cache and download the files from the URLs to extract the thumbnails.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 #ifdef USE_UPNP
 #if USE_UPNP
     argsman.AddArg("-upnp", "Use UPnP to map the listening port (default: 1 when listening and no -proxy)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
@@ -560,6 +564,7 @@ void SetupServerArgs(ArgsManager& argsman)
     argsman.AddArg("-muirglacierheight=<n>", "Use given block height to check contracts with EVM Muir Glacier (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-londonheight=<n>", "Use given block height to check contracts with EVM London (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-taprootheight=<n>", "Use given block height to check taproot (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-nftaddress=<adr>", "Use given contract nft address for non-fungible token (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions(argsman);
 
@@ -1270,6 +1275,20 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         {
             UpdateTaprootHeight(taprootheight);
             LogPrintf("Activate taproot at block height %d\n.", taprootheight);
+        }
+    }
+
+    if (args.IsArgSet("-nftaddress")) {
+        // Allow overriding nft address for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("nft address may only be overridden on regtest."));
+        }
+
+        std::string nftAddress = args.GetArg("-nftaddress", std::string());
+        if(IsHex(nftAddress))
+        {
+            UpdateNftAddress(uint160(ParseHex(nftAddress)));
+            LogPrintf("Activate nft address %s\n.", nftAddress);
         }
     }
 

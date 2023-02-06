@@ -2,11 +2,11 @@ packages:=boost openssl libevent gmp
 
 qrencode_packages = qrencode
 
-qt_linux_packages:=qt expat libxcb xcb_proto libXau xproto freetype fontconfig libxkbcommon
+qt_linux_packages:=openssl qt expat libxcb xcb_proto libXau xproto freetype fontconfig libxkbcommon
 qt_android_packages=qt
 
-qt_darwin_packages=qt
-qt_mingw32_packages=qt
+qt_darwin_packages=openssl qt
+qt_mingw32_packages=openssl qt
 
 bdb_packages=bdb
 sqlite_packages=sqlite

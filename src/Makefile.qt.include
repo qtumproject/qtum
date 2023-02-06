@@ -62,7 +62,12 @@ QT_FORMS_UI = \
   qt/forms/titlebar.ui \
   qt/forms/tokendescdialog.ui \
   qt/forms/tokenitemwidget.ui \
-  qt/forms/transactiondescdialog.ui
+  qt/forms/transactiondescdialog.ui \
+  qt/forms/sendnftdialog.ui \
+  qt/forms/createnftdialog.ui \
+  qt/forms/nftitemwidget.ui \
+  qt/forms/nftpage.ui \
+  qt/forms/nftdescdialog.ui
 
 QT_MOC_CPP = \
   qt/moc_abifunctionfield.cpp \
@@ -174,7 +179,20 @@ QT_MOC_CPP = \
   qt/moc_hardwaresigntx.cpp \
   qt/moc_walletframe.cpp \
   qt/moc_walletmodel.cpp \
-  qt/moc_walletview.cpp
+  qt/moc_walletview.cpp \
+  qt/moc_sendnftdialog.cpp \
+  qt/moc_createnftdialog.cpp \
+  qt/moc_nftitemmodel.cpp \
+  qt/moc_nftitemwidget.cpp \
+  qt/moc_nftlistwidget.cpp \
+  qt/moc_nftpage.cpp \
+  qt/moc_nfttransactiondesc.cpp \
+  qt/moc_nfttransactiontablemodel.cpp \
+  qt/moc_nftdescdialog.cpp \
+  qt/moc_nfttxfilterproxy.cpp \
+  qt/moc_nfttransactionview.cpp \
+  qt/moc_nftfilterproxy.cpp \
+  qt/moc_nfturllabel.cpp
 
 BITCOIN_MM = \
   qt/macdockiconhandler.mm \
@@ -190,6 +208,7 @@ QT_MOC = \
   qt/tokenitemmodel.moc \
   qt/delegationitemmodel.moc \
   qt/superstakeritemmodel.moc \
+  qt/nftitemmodel.moc \
   qt/walletmodel.moc
 
 QT_QRC_CPP = qt/qrc_bitcoin.cpp
@@ -322,7 +341,22 @@ BITCOIN_QT_H = \
   qt/winshutdownmonitor.h \
   qt/qtumpushbutton.h \
   qt/qtumhwitool.h \
-  qt/hardwaresigntx.h
+  qt/hardwaresigntx.h \
+  qt/sendnftdialog.h \
+  qt/nft.h \
+  qt/createnftdialog.h \
+  qt/nftitemmodel.h \
+  qt/nftitemwidget.h \
+  qt/nftlistwidget.h \
+  qt/nftpage.h \
+  qt/nfttransactionrecord.h \
+  qt/nfttransactiondesc.h \
+  qt/nfttransactiontablemodel.h \
+  qt/nftdescdialog.h \
+  qt/nfttxfilterproxy.h \
+  qt/nfttransactionview.h \
+  qt/nftfilterproxy.h \
+  qt/nfturllabel.h
 
 RES_FONTS = \
   qt/res/fonts/RobotoMono-Bold.ttf
@@ -446,7 +480,9 @@ BITCOIN_QT_BASE_CPP = \
   qt/qtumversionchecker.cpp \
   qt/qtumpushbutton.cpp \
   qt/qtumhwitool.cpp \
-  qt/hardwaresigntx.cpp
+  qt/hardwaresigntx.cpp \
+  qt/nftitemmodel.cpp \
+  qt/nft.cpp
 
 BITCOIN_QT_WINDOWS_CPP = qt/winshutdownmonitor.cpp
 
@@ -470,6 +506,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/contractresult.cpp \
   qt/contracttablemodel.cpp \
   qt/createcontract.cpp \
+  qt/createnftdialog.cpp \
   qt/delegationfilterproxy.cpp \
   qt/delegationitemwidget.cpp \
   qt/delegationlistwidget.cpp \
@@ -503,6 +540,7 @@ BITCOIN_QT_WALLET_CPP = \
   qt/sendcoinsentry.cpp \
   qt/sendtocontract.cpp \
   qt/sendtokenpage.cpp \
+  qt/sendnftdialog.cpp \
   qt/signverifymessagedialog.cpp \
   qt/superstakeritemwidget.cpp \
   qt/superstakerlistwidget.cpp \
@@ -522,6 +560,17 @@ BITCOIN_QT_WALLET_CPP = \
   qt/transactionview.cpp \
   qt/tokenitemwidget.cpp \
   qt/tokenlistwidget.cpp \
+  qt/nftitemwidget.cpp \
+  qt/nftlistwidget.cpp \
+  qt/nftpage.cpp \
+  qt/nfttransactionrecord.cpp \
+  qt/nfttransactiondesc.cpp \
+  qt/nfttransactiontablemodel.cpp \
+  qt/nftdescdialog.cpp \
+  qt/nfttxfilterproxy.cpp \
+  qt/nfttransactionview.cpp \
+  qt/nftfilterproxy.cpp \
+  qt/nfturllabel.cpp \
   qt/walletcontroller.cpp \
   qt/waitmessagebox.cpp \
   qt/walletframe.cpp \

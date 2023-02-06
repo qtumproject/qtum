@@ -80,6 +80,17 @@ bool EventLog::searchTokenTx(interfaces::Node& node, const WalletModel* wallet_m
     return search(node, wallet_model, fromBlock, toBlock, minconf, addresses, topics, result);
 }
 
+bool EventLog::searchNftTx(interfaces::Node &node, const WalletModel *wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, std::string eventName, std::string strContractAddress, QVariant &result)
+{
+    std::vector<std::string> addresses;
+    addresses.push_back(strContractAddress);
+
+    std::vector<std::string> topics;
+    topics.push_back(eventName);
+
+    return search(node, wallet_model, fromBlock, toBlock, minconf, addresses, topics, result);
+}
+
 bool EventLog::search(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant &result)
 {
     setStartBlock(fromBlock);

@@ -134,6 +134,8 @@ enum class FeeEstimateMode;
 class ReserveDestination;
 namespace boost { class thread_group; }
 class CTokenInfo;
+class CNftInfo;
+class CNftTx;
 
 //! Default for -addresstype
 constexpr OutputType DEFAULT_ADDRESS_TYPE{OutputType::LEGACY};
@@ -470,6 +472,10 @@ public:
 
     std::map<uint256, CSuperStakerInfo> mapSuperStaker;
 
+    std::map<uint256, CNftInfo> mapNft;
+
+    std::map<uint256, CNftTx> mapNftTx;
+
     bool fUpdatedSuperStaker = false;
 
     std::map<COutPoint, CStakeCache> minerStakeCache;
@@ -585,6 +591,10 @@ public:
     bool LoadToken(const CTokenInfo &token);
 
     bool LoadTokenTx(const CTokenTx &tokenTx);
+
+    bool LoadNft(const CNftInfo &nft);
+
+    bool LoadNftTx(const CNftTx &nftTx);
 
     //! Adds a contract data tuple to the store, without saving it to disk
     bool LoadContractData(const std::string &address, const std::string &key, const std::string &value);
@@ -790,8 +800,8 @@ public:
     isminetype IsMine(const CTxDestination& dest) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     isminetype IsMine(const CScript& script) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     isminetype IsMine(const CTxIn& txin) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
-    bool HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
-    CKeyID GetKeyForDestination(const CTxDestination& dest);
+    bool HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    CKeyID GetKeyForDestination(const CTxDestination& dest) const;
     bool GetPubKey(const PKHash& pkhash, CPubKey& pubkey) const;
     bool GetKeyOrigin(const PKHash& pkhash, KeyOriginInfo& info) const;
     /**
@@ -914,6 +924,14 @@ public:
     /** Wallet delegations staker added, removed or updated. */
     boost::signals2::signal<void (CWallet *wallet, const uint160 &addressDelegate,
             ChangeType status)> NotifyDelegationsStakerChanged;
+
+    /** Wallet NFT added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashNft,
+            ChangeType status)> NotifyNftChanged;
+
+    /** Wallet nft transaction added, removed or updated. */
+    boost::signals2::signal<void (CWallet *wallet, const uint256 &hashTx,
+            ChangeType status)> NotifyNftTransactionChanged;
 
     /** Inquire whether this wallet broadcasts transactions. */
     bool GetBroadcastTransactions() const { return fBroadcastTransactions; }
@@ -1092,6 +1110,42 @@ public:
     /* Clean token transaction entries in the wallet */
     bool CleanTokenTxEntries(bool fFlushOnClose=true);
 
+    /* Add nft entry into the wallet */
+    bool AddNftEntry(const CNftInfo& nft, bool fFlushOnClose=true);
+
+    /* Remove nft entry from the wallet */
+    bool RemoveNftEntry(const uint256& nftHash, bool fFlushOnClose=true);
+
+    /* Add nft tx entry into the wallet */
+    bool AddNftTxEntry(const CNftTx& nftTx, bool fFlushOnClose=true);
+
+    /* Add nft tx entries into the wallet */
+    bool AddNftTxEntries(const std::vector<CNftTx> &nftTxs);
+
+    /* Remove nft tx entry from the wallet */
+    bool RemoveNftTxEntry(const uint256& nftHash, bool fFlushOnClose=true);
+
+    /* Remove unconfirmed nft tx entry from the wallet */
+    bool RemoveUnconfirmedNftTxEntry(const CNftTx& nftTx);
+
+    /* Check if nft transaction is mine */
+    bool IsNftTxMine(const CNftTx &wtx) const;
+
+    /* Check if nft is mine */
+    bool IsNftMine(const CNftInfo &info) const;
+
+    /* Check if exist nft transaction */
+    bool ExistNftTxEntry(const CNftTx &wtx) const;
+
+    /* Get raw nft from tx (Owner and Id for NFT)*/
+    std::vector<CNftInfo> GetRawNftFromTx() const;
+
+    /* Get details nft tx entry into the wallet */
+    bool GetNftTxDetails(const CNftTx &wtx, int32_t& credit, int32_t& debit, std::string& name) const;
+
+    /* Delete the stored NFT preview cache */
+    bool CleanNftPreviewCache();
+
     /* Load delegation entry into the wallet */
     bool LoadDelegation(const CDelegationInfo &delegation);
 
@@ -1133,6 +1187,7 @@ public:
     int m_num_threads = 1;
     mutable boost::thread_group threads;
     std::string m_ledger_id;
+    int64_t m_nft_tx_from_block = 0;
 };
 
 /**
@@ -1377,6 +1432,96 @@ public:
         nMinDelegateUtxo = 0;
         delegateAddressList.clear();
         nDelegateAddressType = 0;
+    }
+
+    uint256 GetHash() const;
+};
+
+class CNftInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strOwner;
+    uint256 id;
+    uint256 NFTId;
+    std::string strName;
+    std::string strUrl;
+    std::string strDesc;
+    int64_t nCreateTime;
+    int32_t nCount;
+    std::string strThumbnail;
+
+    CNftInfo()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CNftInfo, obj) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.nCount, obj.strThumbnail);
+        }
+        READWRITE(obj.strOwner, obj.id, obj.NFTId, obj.strName, obj.strUrl, obj.strDesc);
+    }
+
+    void SetNull()
+    {
+        nVersion = CNftInfo::CURRENT_VERSION;
+        strOwner = "";
+        id.SetNull();
+        NFTId.SetNull();
+        strName = "";
+        strUrl = "";
+        strDesc = "";
+        nCreateTime = 0;
+        nCount = 0;
+        strThumbnail = "";
+    }
+
+    uint256 GetHash() const;
+};
+
+class CNftTx
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strSender;
+    std::string strReceiver;
+    uint256 id;
+    int32_t nValue;
+    uint256 transactionHash;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
+
+    CNftTx()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CNftTx, obj) {
+        if (!(s.GetType() & SER_GETHASH))
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.blockHash, obj.blockNumber);
+        }
+        READWRITE(obj.strSender, obj.strReceiver, obj.id, obj.nValue, obj.transactionHash);
+    }
+
+    void SetNull()
+    {
+        nVersion = CNftTx::CURRENT_VERSION;
+        nCreateTime = 0;
+        strSender = "";
+        strReceiver = "";
+        id.SetNull();
+        nValue = 0;
+        transactionHash.SetNull();
+        blockHash.SetNull();
+        blockNumber = -1;
     }
 
     uint256 GetHash() const;

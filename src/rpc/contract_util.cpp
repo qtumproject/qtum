@@ -4,6 +4,7 @@
 #include <key_io.h>
 #include <rpc/server.h>
 #include <txdb.h>
+#include <util/contractabi.h>
 
 UniValue executionResultToJSON(const dev::eth::ExecutionResult& exRes)
 {
@@ -268,6 +269,27 @@ void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h2
 
         return boost::optional<dev::h256>(dev::h256(addrStr));
     });
+}
+
+uint256 parseTokenId(const std::string& tokenId)
+{
+    uint256 id;
+    uint64_t number = 0;
+
+    if(tokenId.size() == 64 && CheckHex(tokenId))
+    {
+        id = uint256(ParseHex(tokenId));
+    }
+    else if(ParseUInt64(tokenId, &number))
+    {
+        id = u256Touint(number);
+    }
+    else
+    {
+        throw JSONRPCError(RPC_MISC_ERROR, "Incorrect token ID");
+    }
+
+    return id;
 }
 
 class SearchLogsParams {
@@ -560,4 +582,177 @@ bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, 
 void CallToken::setCheckGasForCall(bool value)
 {
     checkGasForCall = value;
+}
+
+CallNft::CallNft(ChainstateManager &_chainman):
+    chainman(_chainman)
+{
+    setQtumNftExec(this);
+}
+
+bool CallNft::execValid(const int &func, const bool &sendTo)
+{
+    if(func == -1 || sendTo)
+        return false;
+    return true;
+}
+
+bool CallNft::execEventsValid(const int &func, const int64_t &fromBlock)
+{
+    if(func == -1 || fromBlock < 0)
+        return false;
+    return true;
+}
+
+bool CallNft::exec(const bool &sendTo, const std::map<std::string, std::string> &lstParams, std::string &result, std::string &)
+{
+    if(sendTo)
+        return false;
+
+    UniValue params(UniValue::VARR);
+
+    // Set address
+    auto it = lstParams.find(paramAddress());
+    if(it != lstParams.end())
+        params.push_back(it->second);
+    else
+        return false;
+
+    // Set data
+    it = lstParams.find(paramDatahex());
+    if(it != lstParams.end())
+        params.push_back(it->second);
+    else
+        return false;
+
+    // Set sender
+    it = lstParams.find(paramSender());
+    if(it != lstParams.end())
+    {
+        if(params.size() == 2)
+            params.push_back(it->second);
+        else
+            return false;
+    }
+
+    // Set gas limit
+    if(checkGasForCall)
+    {
+        it = lstParams.find(paramGasLimit());
+        if(it != lstParams.end())
+        {
+            if(params.size() == 3)
+            {
+                UniValue param(UniValue::VNUM);
+                param.setInt(atoi64(it->second));
+                params.push_back(param);
+            }
+            else
+                return false;
+        }
+    }
+
+    // Get execution result
+    UniValue response = CallToContract(params, chainman);
+    if(!response.isObject() || !response.exists("executionResult"))
+        return false;
+    UniValue executionResult = response["executionResult"];
+
+    // Get output
+    if(!executionResult.isObject() || !executionResult.exists("output"))
+        return false;
+    UniValue output = executionResult["output"];
+    result = output.get_str();
+
+    return true;
+}
+
+bool CallNft::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t& minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, const FunctionABI& func, std::vector<NftEvent> &result)
+{
+    UniValue resultVar;
+    if(!searchNftTx(fromBlock, toBlock, minconf, eventName, contractAddress, numTopics, resultVar))
+        return false;
+
+    const UniValue& list = resultVar.get_array();
+    for(size_t i = 0; i < list.size(); i++)
+    {
+        // Search the log for events
+        const UniValue& eventMap = list[i].get_obj();
+        const UniValue& listLog = eventMap["log"].get_array();
+        for(size_t i = 0; i < listLog.size(); i++)
+        {
+            // Skip the not needed events
+            const UniValue& eventLog = listLog[i].get_obj();
+            const UniValue& topicsList = eventLog["topics"].get_array();
+            if(topicsList.size() < (size_t)numTopics) continue;
+            if(topicsList[0].get_str() != eventName) continue;
+
+            // Create new event
+            NftEvent nftEvent;
+            nftEvent.blockHash = uint256S(eventMap["blockHash"].get_str());
+            nftEvent.blockNumber = eventMap["blockNumber"].get_int64();
+            nftEvent.transactionHash = uint256S(eventMap["transactionHash"].get_str());
+
+            // Parse data
+            std::vector<std::string> topics;
+            for(size_t i = 0; i < topicsList.size(); i++)
+            {
+                topics.push_back(topicsList[i].get_str());
+            }
+            std::string data = eventLog["data"].get_str();
+            addEvent(func, topics, data, nftEvent, result);
+        }
+    }
+
+    return true;
+}
+
+bool CallNft::isEventMine(const std::string &sender, const std::string &receiver)
+{
+    if(!filter) return true;
+    return sender == owner || receiver == owner;
+}
+
+bool CallNft::filterMatch(const NftEvent &nftEvent)
+{
+    if(!filter) return true;
+    return nftEvent.id == id;
+}
+
+bool CallNft::searchNftTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const int &numTopics, UniValue &resultVar)
+{
+    UniValue params(UniValue::VARR);
+    params.push_back(fromBlock);
+    params.push_back(toBlock);
+
+    UniValue addresses(UniValue::VARR);
+    addresses.push_back(contractAddress);
+    UniValue addressesObj(UniValue::VOBJ);
+    addressesObj.pushKV("addresses", addresses);
+    params.push_back(addressesObj);
+
+    UniValue topics(UniValue::VARR);
+    // Add event type
+    topics.push_back(eventName);
+    UniValue topicsObj(UniValue::VOBJ);
+    topicsObj.pushKV("topics", topics);
+    params.push_back(topicsObj);
+
+    params.push_back(minconf);
+
+    resultVar = SearchLogs(params, chainman);
+
+    return true;
+}
+
+void CallNft::setCheckGasForCall(bool value)
+{
+    checkGasForCall = value;
+}
+
+void CallNft::setFilter(const uint256 &_id, const std::string &_owner)
+{
+    id = _id;
+    owner = _owner;
+    filter = true;
 }

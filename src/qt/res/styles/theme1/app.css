@@ -1083,7 +1083,7 @@ Token Page Widget CSS
     background-color: rgba(46, 46, 46, 20%);
     border: 1px solid rgba(156, 156, 156, 20%);
 }
-#tokenItemFrame, #delegationItemFrame, #superStakerItemFrame{
+#tokenItemFrame, #nftItemFrame, #delegationItemFrame, #superStakerItemFrame{
     background-color: #393939;
     border-radius: 6px;
 }
@@ -1106,6 +1106,30 @@ TokenItemWidget #senderAddress{
 TokenItemWidget #tokenLogo{
     background-color: #575757;
     border-radius: 20px;
+}
+NftListWidget{
+    background-color: #2e2e2e;
+}
+NftItemWidget #nftName{
+    color: white;
+    font: 13pt;
+}
+NftItemWidget #nftDesc,
+#labelNewNft{
+    color: #C5C5C5;
+    font: 13pt;
+}
+NftItemWidget #nftOwner{
+    color: #9c9c9c;
+    font: 10pt;
+}
+NftItemWidget #nftBalance{
+    background-color: #575757;
+    border-radius: 20px;
+    font: 16px;
+}
+NftUrlLabel{
+    border: 1px solid #575757;
 }
 DelegationListWidget{
     background-color: #2e2e2e;
