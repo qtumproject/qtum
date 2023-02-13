@@ -262,6 +262,23 @@ public:
 
     explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool);
     explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, const Options& options);
+#ifdef ENABLE_WALLET
+    explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, wallet::CWallet *pwallet);
+#endif
+
+///////////////////////////////////////////// // qtum
+    ByteCodeExecResult bceResult;
+    uint64_t minGasPrice = 1;
+    uint64_t hardBlockGasLimit;
+    uint64_t softBlockGasLimit;
+    uint64_t txGasLimit;
+/////////////////////////////////////////////
+
+    // The original constructed reward tx (either coinbase or coinstake) without gas refund adjustments
+    CMutableTransaction originalRewardTx; // qtum
+
+    //When GetAdjustedTime() exceeds this, no more transactions will attempt to be added
+    int32_t nTimeLimit;
 
     /** Construct a new block template with coinbase to scriptPubKeyIn */
     std::unique_ptr<CBlockTemplate> CreateNewBlock(const CScript& scriptPubKeyIn);
@@ -276,12 +293,16 @@ private:
     /** Add a tx to the block */
     void AddToBlock(CTxMemPool::txiter iter);
 
+    bool AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64_t minGasPrice, CBlock* pblock);
+
     // Methods for how to add transactions to a block.
     /** Add transactions based on feerate including unconfirmed ancestors
       * Increments nPackagesSelected / nDescendantsUpdated with corresponding
       * statistics from the package selection (for logging statistics). */
     void addPackageTxs(const CTxMemPool& mempool, int& nPackagesSelected, int& nDescendantsUpdated) EXCLUSIVE_LOCKS_REQUIRED(mempool.cs);
 
+    /** Rebuild the coinbase/coinstake transaction to account for new gas refunds **/
+    void RebuildRefundTransaction(CBlock* pblock);
     // helper functions for addPackageTxs()
     /** Remove confirmed (inBlock) entries from given set */
     void onlyUnconfirmed(CTxMemPool::setEntries& testSet);

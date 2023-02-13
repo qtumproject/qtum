@@ -134,9 +134,9 @@ struct Params {
     int64_t nPowTargetTimespan;
     int64_t nPowTargetTimespanV2;
     int64_t nRBTPowTargetTimespan;
-    std::chrono::seconds PowTargetSpacing() const
+    std::chrono::seconds TargetSpacingChrono(int height) const
     {
-        return std::chrono::seconds{nPowTargetSpacing};
+        return std::chrono::seconds{TargetSpacing(height)};
     }
     int64_t DifficultyAdjustmentInterval(int height = 0) const
     {
