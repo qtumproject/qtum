@@ -42,9 +42,23 @@ static RPCHelpMan sendrawtransaction()
             {"maxfeerate", RPCArg::Type::AMOUNT, RPCArg::Default{FormatMoney(DEFAULT_MAX_RAW_TX_FEE_RATE.GetFeePerK())},
              "Reject transactions whose fee rate is higher than the specified value, expressed in " + CURRENCY_UNIT +
                  "/kvB.\nSet to 0 to accept any fee rate.\n"},
+            {"showcontractdata", RPCArg::Type::BOOL, RPCArg::Default{false}, "Show created contract data, ignored when no contracts created"},
         },
-        RPCResult{
-            RPCResult::Type::STR_HEX, "", "The transaction hash in hex"
+        {
+            RPCResult{
+                RPCResult::Type::STR_HEX, "", "The transaction hash in hex"
+            },
+            RPCResult{"for create contract with showcontractdata = true",
+                RPCResult::Type::OBJ, "", "",
+                {
+                    {RPCResult::Type::STR_HEX, "txid", "The transaction hash in hex"},
+                    {RPCResult::Type::ARR, "contracts", "",
+                    {
+                        {RPCResult::Type::STR, "address", "The expected contract address"},
+                        {RPCResult::Type::NUM, "index", "The index of the output"},
+                    }},
+                }
+            },
         },
         RPCExamples{
             "\nCreate a transaction\n"
@@ -61,6 +75,7 @@ static RPCHelpMan sendrawtransaction()
             RPCTypeCheck(request.params, {
                 UniValue::VSTR,
                 UniValueType(), // VNUM or VSTR, checked inside AmountFromValue()
+                UniValue::VBOOL,
             });
 
             CMutableTransaction mtx;
@@ -84,7 +99,47 @@ static RPCHelpMan sendrawtransaction()
                 throw JSONRPCTransactionError(err, err_string);
             }
 
-            return tx->GetHash().GetHex();
+            std::string txid = tx->GetHash().GetHex();
+
+            bool showcontractdata = false;
+            if (!request.params[2].isNull()) showcontractdata = request.params[2].get_bool();
+
+            if(showcontractdata && tx->HasOpCreate()){
+                uint32_t voutNumber=0;
+                UniValue result(UniValue::VOBJ);
+                result.pushKV("txid", txid);
+
+                UniValue contracts(UniValue::VARR);
+                for (const CTxOut& txout : tx->vout) {
+                    if(txout.scriptPubKey.HasOpCreate()){
+                        std::vector<unsigned char> SHA256TxVout(32);
+                        std::vector<unsigned char> contractAddress(20);
+                        std::vector<unsigned char> txIdAndVout(tx->GetHash().begin(), tx->GetHash().end());
+                        std::vector<unsigned char> voutNumberChrs;
+
+                        if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+                        std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+                        txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
+                        CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
+                        CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
+
+                        UniValue contract(UniValue::VOBJ);
+                        contract.pushKV("address", HexStr(contractAddress));
+                        contract.pushKV("index", (int64_t)voutNumber);
+                        contracts.push_back(contract);
+
+                        SHA256TxVout.clear();
+                        contractAddress.clear();
+                        txIdAndVout.clear();
+                    }
+                    voutNumber++;
+                }
+                result.pushKV("contracts", contracts);
+
+                return result;
+            }
+
+            return txid;
         },
     };
 }
