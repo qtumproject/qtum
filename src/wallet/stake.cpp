@@ -494,19 +494,19 @@ void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<uint256>&
 {
     for(size_t i = from; i < to; i++)
     {
-        std::map<uint256, CWalletTx>::const_iterator it = wallet.mapWallet.find(maturedTx[i]);
+        auto it = wallet.mapWallet.find(maturedTx[i]);
         if(it == wallet.mapWallet.end()) continue;
         const uint256& wtxid = it->first;
         const CWalletTx* pcoin = &(*it).second;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
+            COutPoint prevout = COutPoint(wtxid, i);
             isminetype mine = wallet.IsMine(pcoin->tx->vout[i]);
-            if (!(wallet.IsSpent(wtxid, i)) && mine != ISMINE_NO &&
-                !wallet.IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
+            if (!(wallet.IsSpent(prevout)) && mine != ISMINE_NO &&
+                !wallet.IsLockedCoin(prevout) && (pcoin->tx->vout[i].nValue > 0) &&
                 // Check if the staking coin is dust
                 pcoin->tx->vout[i].nValue >= wallet.m_staker_min_utxo_size)
             {
                 // Get the script data for the coin
-                COutPoint prevout = COutPoint(pcoin->GetHash(), i);
                 const CScriptCache& scriptCache = wallet.GetScriptCache(prevout, pcoin->tx->vout[i].scriptPubKey, insertScriptCache);
 
                 // Check that the script is not a contract script
@@ -611,19 +611,19 @@ void AvailableAddress(const CWallet& wallet, const std::vector<uint256> &matured
 {
     for(size_t i = from; i < to; i++)
     {
-        std::map<uint256, CWalletTx>::const_iterator it = wallet.mapWallet.find(maturedTx[i]);
+        auto it = wallet.mapWallet.find(maturedTx[i]);
         if(it == wallet.mapWallet.end()) continue;
         const uint256& wtxid = it->first;
         const CWalletTx* pcoin = &(*it).second;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
+            COutPoint prevout = COutPoint(wtxid, i);
             isminetype mine = wallet.IsMine(pcoin->tx->vout[i]);
-            if (!(wallet.IsSpent(wtxid, i)) && mine != ISMINE_NO &&
-                !wallet.IsLockedCoin((*it).first, i) && (pcoin->tx->vout[i].nValue > 0) &&
+            if (!(wallet.IsSpent(prevout)) && mine != ISMINE_NO &&
+                !wallet.IsLockedCoin(prevout) && (pcoin->tx->vout[i].nValue > 0) &&
                 // Check if the staking coin is dust
                 pcoin->tx->vout[i].nValue >= wallet.m_staker_min_utxo_size)
             {
                 // Get the script data for the coin
-                COutPoint prevout = COutPoint(pcoin->GetHash(), i);
                 const CScriptCache& scriptCache = wallet.GetScriptCache(prevout, pcoin->tx->vout[i].scriptPubKey, insertScriptCache);
 
                 // Check that the script is not a contract script
@@ -655,11 +655,11 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
     std::vector<uint256> maturedTx;
     const bool include_watch_only = wallet.GetLegacyScriptPubKeyMan() && wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     const isminetype is_mine_filter = include_watch_only ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
-    for (std::map<uint256, CWalletTx>::const_iterator it = wallet.mapWallet.begin(); it != wallet.mapWallet.end(); ++it)
+    for (auto it = wallet.mapWallet.begin(); it != wallet.mapWallet.end(); ++it)
     {
         // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
-        const CAmount tx_credit_mine{CachedTxGetAvailableCredit(wallet, *pcoin, /* fUseCache */ true, is_mine_filter | ISMINE_NO)};
+        const CAmount tx_credit_mine{CachedTxGetAvailableCredit(wallet, *pcoin, is_mine_filter | ISMINE_NO)};
         if(tx_credit_mine == 0)
             continue;
 
@@ -828,11 +828,11 @@ void SelectAddress(const CWallet& wallet, std::map<uint160, bool> &mapAddress)
     std::vector<uint256> maturedTx;
     const bool include_watch_only = wallet.GetLegacyScriptPubKeyMan() && wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
     const isminetype is_mine_filter = include_watch_only ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
-    for (std::map<uint256, CWalletTx>::const_iterator it = wallet.mapWallet.begin(); it != wallet.mapWallet.end(); ++it)
+    for (auto it = wallet.mapWallet.begin(); it != wallet.mapWallet.end(); ++it)
     {
         // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
-        const CAmount tx_credit_mine{CachedTxGetAvailableCredit(wallet, *pcoin, /* fUseCache */ true, is_mine_filter | ISMINE_NO)};
+        const CAmount tx_credit_mine{CachedTxGetAvailableCredit(wallet, *pcoin, is_mine_filter | ISMINE_NO)};
         if(tx_credit_mine == 0)
             continue;
 
