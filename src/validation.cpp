@@ -5114,8 +5114,8 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
 
     // Check proof of work
     const Consensus::Params& consensusParams = chainman.GetConsensus();
-    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
-        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
+    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams, block.IsProofOfStake()))
+        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect difficulty value");
 
     // Check against checkpoints
     if (fCheckpointsEnabled) {
@@ -5127,14 +5127,22 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
             LogPrintf("ERROR: %s: forked chain older than last checkpoint (height %d)\n", __func__, nHeight);
             return state.Invalid(BlockValidationResult::BLOCK_CHECKPOINT, "bad-fork-prior-to-checkpoint");
         }
+        if(!blockman.CheckHardened(nHeight, block.GetHash(), chainman.GetParams().Checkpoints())) {
+            return state.Invalid(BlockValidationResult::BLOCK_CHECKPOINT, "bad-fork-hardened-checkpoint", strprintf("%s: expected hardened checkpoint at height %d", __func__, nHeight));
+        }
     }
 
+    // Check that the block satisfies synchronized checkpoint
+    if (!blockman.CheckSync(nHeight, chainman.ActiveTip()))
+        return state.Invalid(BlockValidationResult::BLOCK_HEADER_SYNC, "bad-fork-prior-to-synch-checkpoint", strprintf("%s: forked chain older than synchronized checkpoint (height %d)", __func__, nHeight));
+
     // Check timestamp against prev
-    if (block.GetBlockTime() <= pindexPrev->GetMedianTimePast())
+    if (pindexPrev && block.IsProofOfStake() && block.GetBlockTime() <= pindexPrev->GetMedianTimePast())
         return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "time-too-old", "block's timestamp is too early");
 
     // Check timestamp
-    if (block.Time() > now + std::chrono::seconds{MAX_FUTURE_BLOCK_TIME}) {
+    int64_t nAdjustedTime = TicksSinceEpoch<std::chrono::seconds>(now);
+    if (block.IsProofOfStake() && block.GetBlockTime() > FutureDrift(nAdjustedTime, nHeight, consensusParams)) {
         return state.Invalid(BlockValidationResult::BLOCK_TIME_FUTURE, "time-too-new", "block timestamp too far in the future");
     }
 
@@ -5389,6 +5397,30 @@ bool ChainstateManager::AcceptBlockHeader(const CBlockHeader& block, BlockValida
                     return state.Invalid(BlockValidationResult::BLOCK_INVALID_PREV, "bad-prevblk");
                 }
             }
+        }
+
+        // Reject proof of work at height consensusParams.nLastPOWBlock
+        int nHeight = pindexPrev->nHeight + 1;
+        if (block.IsProofOfWork() && nHeight > GetConsensus().nLastPOWBlock)
+            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "reject-pow", strprintf("reject proof-of-work at height %d", nHeight));
+
+        if(block.IsProofOfStake())
+        {
+            // Reject proof of stake before height coinbaseMaturity
+            int coinbaseMaturity = GetConsensus().CoinbaseMaturity(nHeight);
+            if (nHeight < coinbaseMaturity)
+                return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "reject-pos", strprintf("reject proof-of-stake at height %d", nHeight));
+
+            // Check coin stake timestamp
+            if(!CheckCoinStakeTimestamp(block.nTime, nHeight, GetConsensus()))
+                return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "timestamp-invalid", "proof of stake failed due to invalid timestamp");
+        }
+
+        // Check block header
+        // if (!CheckBlockHeader(block, state, GetConsensus(), true, CheckPOS(block, pindexPrev)))
+        if (!CheckBlockHeader(block, state, GetConsensus(), chainstate)) {
+            LogPrint(BCLog::VALIDATION, "%s: Consensus::CheckBlockHeader: %s, %s\n", __func__, hash.ToString(), state.ToString());
+            return false;
         }
     }
     if (!min_pow_checked) {
@@ -5725,7 +5757,14 @@ bool TestBlockValidity(BlockValidationState& state,
         return error("%s: Consensus::CheckBlock: %s", __func__, state.ToString());
     if (!ContextualCheckBlock(block, state, chainstate.m_chainman, pindexPrev))
         return error("%s: Consensus::ContextualCheckBlock: %s", __func__, state.ToString());
+
+    dev::h256 oldHashStateRoot(globalState->rootHash()); // qtum
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO()); // qtum
+
     if (!chainstate.ConnectBlock(block, state, &indexDummy, viewNew, true)) {
+        globalState->setRoot(oldHashStateRoot); // qtum
+        globalState->setRootUTXO(oldHashUTXORoot); // qtum
+        pstorageresult->clearCacheResult();
         return false;
     }
     assert(state.IsValid());
@@ -6161,6 +6200,7 @@ bool Chainstate::LoadGenesisBlock()
             return error("%s: writing genesis block to disk failed", __func__);
         }
         CBlockIndex* pindex = m_blockman.AddToBlockIndex(block, m_chainman.m_best_header);
+        pindex->hashProof = m_params.GetConsensus().hashGenesisBlock;
         ReceivedBlockTransactions(block, pindex, blockPos);
     } catch (const std::runtime_error& e) {
         return error("%s: failed to write genesis block: %s", __func__, e.what());
@@ -6184,7 +6224,7 @@ void Chainstate::LoadExternalBlockFile(
     int nLoaded = 0;
     try {
         // This takes over fileIn and calls fclose() on it in the CBufferedFile destructor
-        CBufferedFile blkdat(fileIn, 2*MAX_BLOCK_SERIALIZED_SIZE, MAX_BLOCK_SERIALIZED_SIZE+8, SER_DISK, CLIENT_VERSION);
+        CBufferedFile blkdat(fileIn, 2*dgpMaxBlockSerSize, dgpMaxBlockSerSize+8, SER_DISK, CLIENT_VERSION);
         uint64_t nRewind = blkdat.GetPos();
         while (!blkdat.eof()) {
             if (ShutdownRequested()) return;

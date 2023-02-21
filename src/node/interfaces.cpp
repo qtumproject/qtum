@@ -63,6 +63,8 @@
 #ifdef ENABLE_WALLET
 #include <wallet/stake.h>
 #include <node/miner.h>
+#include <wallet/rpc/contract.h>
+#include <wallet/rpc/mining.h>
 #endif
 
 using interfaces::BlockTip;
@@ -607,8 +609,8 @@ public:
     }
     std::map<COutPoint, uint32_t> getImmatureStakes() override
     {
-
-        return {};
+        LOCK(cs_main);
+        return GetImmatureStakes(chainman());
     }
     std::optional<int> findLocatorFork(const CBlockLocator& locator) override
     {
@@ -882,29 +884,35 @@ public:
     }
     CAmount getTxGasFee(const CMutableTransaction& tx) override
     {
-        return {};
+        return GetTxGasFee(tx, mempool(), chainman().ActiveChainstate());
     }
 #ifdef ENABLE_WALLET
     void startStake(wallet::CWallet& wallet) override
     {
+        if (node::CanStake()) 
+        {
+            StartStake(wallet);
+        }
     }
     void stopStake(wallet::CWallet& wallet) override
     {
+        StopStake(wallet);
     }
     uint64_t getStakeWeight(const wallet::CWallet& wallet, uint64_t* pStakerWeight, uint64_t* pDelegateWeight) override
     {
-        return {};
+        return GetStakeWeight(wallet, pStakerWeight, pDelegateWeight);
     }
     void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) override
     {
+        RefreshDelegates(pwallet, myDelegates, stakerDelegates);
     }
     Span<const CRPCCommand> getContractRPCCommands() override
     {
-        return {};
+        return wallet::GetContractRPCCommands();
     }
     Span<const CRPCCommand> getMiningRPCCommands() override
     {
-        return {};
+        return wallet::GetMiningRPCCommands();
     }
 #endif
     bool getDelegation(const uint160& address, Delegation& delegation) override
