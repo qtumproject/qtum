@@ -217,6 +217,10 @@ def count_bytes(hex_string):
     return len(bytearray.fromhex(hex_string))
 
 
+def hex_str_to_bytes(hex_str):
+    return unhexlify(hex_str.encode('ascii'))
+
+
 def bytes_to_hex_str(byte_str):
     return hexlify(byte_str).decode('ascii')
 def str_to_b64str(string):
@@ -481,7 +485,7 @@ def find_output(node, txid, amount, *, blockhash=None):
 
 # Helper to create at least "count" utxos
 # Pass in a fee that is sufficient for relay and mining new transactions.
-def create_confirmed_utxos(test_framework, fee, node, count, **kwargs, sync_lambda=None):
+def create_confirmed_utxos(test_framework, fee, node, count, sync_lambda=None, **kwargs):
     to_generate = int(0.5 * count) + COINBASE_MATURITY+1
     while to_generate > 0:
         test_framework.generate(node, min(25, to_generate), **kwargs)

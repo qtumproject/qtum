@@ -48,8 +48,8 @@ def create_deterministic_address_bcrt1_p2tr_op_true():
     """
     internal_key = (1).to_bytes(32, 'big')
     scriptPubKey = taproot_construct(internal_key, [(None, CScript([OP_TRUE]))]).scriptPubKey
-    address = encode_segwit_address("bcrt", 1, scriptPubKey[2:])
-    assert_equal(address, 'bcrt1p9yfmy5h72durp7zrhlw9lf7jpwjgvwdg0jr0lqmmjtgg83266lqsekaqka')
+    address = encode_segwit_address("qcrt", 1, scriptPubKey[2:])
+    assert_equal(address, 'qcrt1p9yfmy5h72durp7zrhlw9lf7jpwjgvwdg0jr0lqmmjtgg83266lqs3rx7ch')
     return (address, internal_key)
 
 

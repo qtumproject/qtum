@@ -379,7 +379,7 @@ class ECKey():
         ret.compressed = self.compressed
         return ret
 
-    def sign_ecdsa(self, msg, low_s=True, der_sig=True):
+    def sign_ecdsa(self, msg, low_s=True, der_sig=True, rfc6979=False):
         """Construct a DER-encoded ECDSA signature with this key.
 
         See https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm for the
@@ -404,7 +404,7 @@ class ECKey():
         rb = r.to_bytes((r.bit_length() + 8) // 8, 'big')
         sb = s.to_bytes((s.bit_length() + 8) // 8, 'big')
         if der_sig:
-        return b'\x30' + bytes([4 + len(rb) + len(sb), 2, len(rb)]) + rb + bytes([2, len(sb)]) + sb
+            return b'\x30' + bytes([4 + len(rb) + len(sb), 2, len(rb)]) + rb + bytes([2, len(sb)]) + sb
         else:
             v = R[1] & 1
             v ^= high

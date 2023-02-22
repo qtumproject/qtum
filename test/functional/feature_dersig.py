@@ -98,6 +98,8 @@ class BIP66Test(BitcoinTestFramework):
         block_time = self.nodes[0].getblock(self.nodes[0].getbestblockhash())['time']+1
         block = create_block(tip, create_coinbase(self.nodes[0].getblockcount()+1), block_time)
         block.nVersion = 2
+        block.solve()
+
         with self.nodes[0].assert_debug_log(expected_msgs=[f'{block.hash}, bad-version(0x00000002)']):
             peer.send_and_ping(msg_block(block))
             assert_equal(int(self.nodes[0].getbestblockhash(), 16), tip)
