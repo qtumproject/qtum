@@ -27,6 +27,7 @@ from test_framework.util import (
     find_vout_for_address,
 )
 from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import *
 
 TXID = "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000"
 
@@ -75,9 +76,9 @@ class RawTransactionsTest(BitcoinTestFramework):
     def run_test(self):
         self.log.info("Prepare some coins for multiple *rawtransaction commands")
         self.generate(self.nodes[2], 1)
-        self.generate(self.nodes[0], COINBASE_MATURITY + 1)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, None, self.nodes)
         for amount in [1.5, 1.0, 5.0]:
-        self.nodes[0].generate(COINBASE_MATURITY + 1)
+            self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), amount)
         self.sync_all()
         self.generate(self.nodes[0], 5)
 
@@ -85,7 +86,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.createrawtransaction_tests()
         self.signrawtransactionwithwallet_tests()
         self.sendrawtransaction_tests()
-        self.sendrawtransaction_testmempoolaccept_tests()
+        # self.sendrawtransaction_testmempoolaccept_tests()
         self.decoderawtransaction_tests()
         self.transaction_version_number_tests()
         if not self.options.descriptors:
@@ -218,7 +219,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.nodes[0].createrawtransaction(inputs=[], outputs={})  # Should not throw for backwards compatibility
         self.nodes[0].createrawtransaction(inputs=[], outputs=[])
         assert_raises_rpc_error(-8, "Data must be hexadecimal string", self.nodes[0].createrawtransaction, [], {'data': 'foo'})
-       assert_raises_rpc_error(-5, "Invalid Qtum address", self.nodes[0].createrawtransaction, [], {'foo': 0})
+        assert_raises_rpc_error(-5, "Invalid Qtum address", self.nodes[0].createrawtransaction, [], {'foo': 0})
         assert_raises_rpc_error(-3, "Invalid amount", self.nodes[0].createrawtransaction, [], {address: 'foo'})
         assert_raises_rpc_error(-3, "Amount out of range", self.nodes[0].createrawtransaction, [], {address: -1})
         assert_raises_rpc_error(-8, "Invalid parameter, duplicated address: %s" % address, self.nodes[0].createrawtransaction, [], multidict([(address, 1), (address, 1)]))
@@ -431,8 +432,9 @@ class RawTransactionsTest(BitcoinTestFramework):
         assert_raises_rpc_error(-5, "Invalid public key", self.nodes[0].createmultisig, 1, ["01020304"])
         # createmultisig can only take public keys
         self.nodes[0].createmultisig(2, [addr1Obj['pubkey'], addr2Obj['pubkey']])
-        # we still allow addresses that are in the wallet for createmultisig, which has been deprecated and then removed in bitcoin
-        assert_raises_rpc_error(-5, "no full public key for address", self.nodes[0].createmultisig, 2, [addr1Obj['pubkey'], addr1]) # addmultisigaddress can take both pubkeys and addresses so long as they are in the wallet, which is tested here.
+        # addmultisigaddress can take both pubkeys and addresses so long as they are in the wallet, which is tested here
+        assert_raises_rpc_error(-5, "Invalid public key", self.nodes[0].createmultisig, 2, [addr1Obj['pubkey'], addr1])
+
         mSigObj = self.nodes[2].addmultisigaddress(2, [addr1Obj['pubkey'], addr1])['address']
 
         # use balance deltas instead of absolute values

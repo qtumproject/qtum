@@ -28,11 +28,11 @@ class GetBlockFromPeerTest(BitcoinTestFramework):
     def run_test(self):
         self.log.info("Mine 4 blocks on Node 0")
         self.generate(self.nodes[0], 4, sync_fun=self.no_op)
-        assert_equal(self.nodes[0].getblockcount(), 204)
+        assert_equal(self.nodes[0].getblockcount(), 2104)
 
         self.log.info("Mine competing 3 blocks on Node 1")
         self.generate(self.nodes[1], 3, sync_fun=self.no_op)
-        assert_equal(self.nodes[1].getblockcount(), 203)
+        assert_equal(self.nodes[1].getblockcount(), 2103)
         short_tip = self.nodes[1].getbestblockhash()
 
         self.log.info("Connect nodes to sync headers")

@@ -14,7 +14,7 @@ from test_framework.util import (
     assert_equal,
 )
 
-from test_framework.qtumconfig COINBASE_MATURITY, import MAX_BLOCK_SIGOPS
+from test_framework.qtumconfig import MAX_BLOCK_SIGOPS
 from test_framework.qtum import generatesynchronized
 
 class WalletGroupTest(BitcoinTestFramework):
@@ -114,6 +114,7 @@ class WalletGroupTest(BitcoinTestFramework):
         tx4_grouped_fee = 148800
         tx5_6_ungrouped_fee = 207600
         tx5_6_grouped_fee = 5911200
+        tx5_6_grouped_fee2 = 325200
 
         self.log.info("Test wallet option maxapsfee")
         addr_aps = self.nodes[3].getnewaddress()
@@ -144,7 +145,7 @@ class WalletGroupTest(BitcoinTestFramework):
         addr_aps3 = self.nodes[4].getnewaddress()
         [self.nodes[0].sendtoaddress(addr_aps3, 1.0) for _ in range(5)]
         self.generate(self.nodes[0], 1)
-        with self.nodes[4].assert_debug_log([f'Fee non-grouped = {tx5_6_ungrouped_fee}, grouped = {tx5_6_grouped_fee}, using grouped']):
+        with self.nodes[4].assert_debug_log([f'Fee non-grouped = {tx5_6_ungrouped_fee}, grouped = {tx5_6_grouped_fee2}, using grouped']):
             txid6 = self.nodes[4].sendtoaddress(self.nodes[0].getnewaddress(), 2.95)
         tx6 = self.nodes[4].getrawtransaction(txid6, True)
         # tx6 should have 5 inputs and 2 outputs

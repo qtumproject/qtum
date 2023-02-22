@@ -41,7 +41,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         self.address = node.get_deterministic_priv_key().address
         self.coins = []
         # The last 100 coinbase transactions are premature
-        for b in self.generatetoaddress(node, 200, self.address)[:100]:
+        for b in self.generatetoaddress(node, 2100, self.address)[:100]:
             coinbase = node.getblock(blockhash=b, verbosity=2)["tx"][0]
             self.coins.append({
                 "txid": coinbase["txid"],
@@ -126,7 +126,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         self.log.info("Check that in-mempool and in-package descendants are calculated properly in packages")
         # Top parent in mempool, M1
         first_coin = self.coins.pop()
-        parent_value = (first_coin["amount"] - Decimal("0.0002")) / 2 # Deduct reasonable fee and make 2 outputs
+        parent_value = (first_coin["amount"] - Decimal("0.2")) / 2 # Deduct reasonable fee and make 2 outputs
         inputs = [{"txid": first_coin["txid"], "vout": 0}]
         outputs = [{self.address : parent_value}, {ADDRESS_BCRT1_P2WSH_OP_TRUE : parent_value}]
         rawtx = node.createrawtransaction(inputs, outputs)
@@ -152,7 +152,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
                 package_hex.append(txhex)
 
         # Chain B
-        value = parent_value - Decimal("0.0001")
+        value = parent_value - Decimal("0.01")
         rawtx_b = node.createrawtransaction([{"txid": parent_txid, "vout": 1}], {self.address : value})
         tx_child_b = tx_from_hex(rawtx_b) # M2b
         tx_child_b.wit.vtxinwit = [CTxInWitness()]
@@ -335,7 +335,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
             for i in range(12):
                 (tx, txhex, value, spk) = make_chain(node, self.address, self.privkeys, txid, value, 0, spk)
                 txid = tx.rehash()
-                value -= Decimal("0.0001")
+                value -= Decimal("0.01")
                 node.sendrawtransaction(txhex)
                 if i == 11:
                     # last 2 transactions will be the parents of Pc
@@ -346,7 +346,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         # Child Pc
         pc_hex = create_child_with_parents(node, self.address, self.privkeys, parents_tx, values, scripts)
         pc_tx = tx_from_hex(pc_hex)
-        pc_value = sum(values) - Decimal("0.0002")
+        pc_value = sum(values) - Decimal("0.02")
         pc_spk = pc_tx.vout[0].scriptPubKey.hex()
 
         # Child Pd
@@ -428,7 +428,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         values = []
         scripts = []
         target_weight = WITNESS_SCALE_FACTOR * 1000 * 30 # 30KvB
-        high_fee = Decimal("0.003") # 10 sats/vB
+        high_fee = Decimal("0.3") # 10 sats/vB
         self.log.info("Check that in-mempool and in-package ancestor size limits are calculated properly in packages")
         # Mempool transactions A and B
         for _ in range(2):
@@ -483,7 +483,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         node = self.nodes[0]
         assert_equal(0, node.getmempoolinfo()["size"])
         target_weight = 21 * 1000 * WITNESS_SCALE_FACTOR
-        high_fee = Decimal("0.0021") # 10 sats/vB
+        high_fee = Decimal("0.21") # 10 sats/vB
         self.log.info("Check that in-mempool and in-package descendant sizes are calculated properly in packages")
         # Top parent in mempool, Ma
         first_coin = self.coins.pop()

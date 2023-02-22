@@ -41,7 +41,7 @@ class FeatureBlockfilterindexPruneTest(BitcoinTestFramework):
 
         # mine and sync index up to a height that will later be the pruneheight
         self.generate(self.nodes[0], 298)
-        self.sync_index(height=998)
+        self.sync_index(height=2898)
 
         self.log.info("start node without blockfilterindex")
         self.restart_node(0, extra_args=["-fastprune", "-prune=1"])
@@ -52,15 +52,15 @@ class FeatureBlockfilterindexPruneTest(BitcoinTestFramework):
 
         self.log.info("prune exactly up to the blockfilterindexes best block while blockfilters are disabled")
         pruneheight_2 = self.nodes[0].pruneblockchain(1000)
-        assert_equal(pruneheight_2, 998)
+        assert_equal(pruneheight_2, 2280)
         self.restart_node(0, extra_args=["-fastprune", "-prune=1", "-blockfilterindex=1"])
         self.log.info("make sure that we can continue with the partially synced index after having pruned up to the index height")
-        self.sync_index(height=1500)
+        self.sync_index(height=3400)
 
         self.log.info("prune below the blockfilterindexes best block while blockfilters are disabled")
         self.restart_node(0, extra_args=["-fastprune", "-prune=1"])
         self.generate(self.nodes[0], 1000)
-        pruneheight_3 = self.nodes[0].pruneblockchain(2000)
+        pruneheight_3 = self.nodes[0].pruneblockchain(4000)
         assert_greater_than(pruneheight_3, pruneheight_2)
         self.stop_node(0)
 

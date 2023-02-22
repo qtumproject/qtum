@@ -147,9 +147,9 @@ class EstimateFeeTest(BitcoinTestFramework):
         self.num_nodes = 3
         # Force fSendTrickle to true (via whitelist.noban)
         self.extra_args = [
-            ["-whitelist=noban@127.0.0.1"],
-            ["-whitelist=noban@127.0.0.1", "-blockmaxweight=68000"],
-            ["-whitelist=noban@127.0.0.1", "-blockmaxweight=32000"],
+            ["-whitelist=noban@127.0.0.1", "-dustrelayfee=0"],
+            ["-whitelist=noban@127.0.0.1", "-blockmaxweight=68000", "-dustrelayfee=0"],
+            ["-whitelist=noban@127.0.0.1", "-blockmaxweight=32000", "-dustrelayfee=0"],
         ]
 
     def skip_test_if_missing_module(self):
@@ -173,7 +173,7 @@ class EstimateFeeTest(BitcoinTestFramework):
         self.stop_nodes()
 
     def transact_and_mine(self, numblocks, mining_node):
-        min_fee = Decimal("0.001")
+        min_fee = Decimal("0.0009")
         # We will now mine numblocks blocks generating on average 100 transactions between each block
         # We shuffle our confirmed txout set before each set of transactions
         # small_txpuzzle_randfee will use the transactions that have inputs already in the chain when possible
@@ -186,7 +186,7 @@ class EstimateFeeTest(BitcoinTestFramework):
                     self.nodes[from_index],
                     self.confutxo,
                     self.memutxo,
-                    Decimal("0.005"),
+                    Decimal("0.5"),
                     min_fee,
                     min_fee,
                 )
@@ -205,11 +205,11 @@ class EstimateFeeTest(BitcoinTestFramework):
 
     def initial_split(self, node):
         """Split two coinbase UTxOs into many small coins"""
-        utxo_count = 2048
+        utxo_count = 3048
         self.confutxo = []
-        splitted_amount = Decimal("0.04")
-        fee = Decimal("0.1")
-        change = Decimal("100") - splitted_amount * utxo_count - fee
+        splitted_amount = Decimal("4")
+        fee = Decimal("1")
+        change = Decimal("40000") - splitted_amount * utxo_count - fee
         tx = CTransaction()
         tx.vin = [
             CTxIn(COutPoint(int(cb["txid"], 16), cb["vout"]))
@@ -272,8 +272,8 @@ class EstimateFeeTest(BitcoinTestFramework):
         node = self.nodes[0]
         miner = self.nodes[1]
         # In sat/vb
-        low_feerate = 1
-        high_feerate = 10
+        low_feerate = 1200
+        high_feerate = 10000
         # Cache the utxos of which to replace the spender after it failed to get
         # confirmed
         utxos_to_respend = []

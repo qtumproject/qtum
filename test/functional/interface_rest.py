@@ -14,7 +14,7 @@ import urllib.parse
 
 
 from test_framework.messages import (
-    BLOCK_HEADER_SIZE,
+    # BLOCK_HEADER_SIZE,
     COIN,
 )
 from test_framework.test_framework import BitcoinTestFramework
@@ -164,7 +164,7 @@ class RESTTest (BitcoinTestFramework):
         response_hash = output.read(32)[::-1].hex()
 
         assert_equal(bb_hash, response_hash)  # check if getutxo's chaintip during calculation was fine
-        assert_equal(chain_height, COINBASE_MATURITY+2)  # chain height must be 102
+        assert_equal(chain_height, COINBASE_MATURITY+101)  # chain height must be 102
 
         self.log.info("Test the /getutxos URI with and without /checkmempool")
         # Create a transaction, check that it's found with /checkmempool, but
@@ -172,7 +172,7 @@ class RESTTest (BitcoinTestFramework):
         # found with or without /checkmempool.
 
         # do a tx and don't sync
-        txid, _ = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=getnewdestination()[1], amount=int(0.1 * COIN))
+        txid, _ = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=getnewdestination()[1], amount=int(0.1 * COIN), sort_by_height=True)
         json_obj = self.test_rest_request(f"/tx/{txid}")
         # get the spent output to later check for utxo (should be spent by then)
         spent = (json_obj['vin'][0]['txid'], json_obj['vin'][0]['vout'])

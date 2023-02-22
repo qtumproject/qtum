@@ -172,7 +172,7 @@ class AbandonConflictTest(BitcoinTestFramework):
         inputs = []
         inputs.append({"txid": txA, "vout": nA})
         outputs = {}
-        outputs[self.nodes[1].getnewaddress()] = Decimal("9.99")
+        outputs[self.nodes[1].getnewaddress()] = Decimal("3.99")
         outputs[bob.getnewaddress()] = Decimal("5.9999")
         tx = alice.createrawtransaction(inputs, outputs)
         signed = alice.signrawtransactionwithwallet(tx)
