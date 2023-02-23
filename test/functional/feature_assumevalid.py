@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2020 The Bitcoin Core developers
+# Copyright (c) 2014-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test logic for skipping signature validation on old blocks.
@@ -129,7 +129,7 @@ class AssumeValidTest(BitcoinTestFramework):
         height += 1
 
         # Bury the block 100 deep so the coinbase output is spendable
-        for _ in range(COINBASE_MATURITY):
+        for _ in range(COINBASE_MATURITY): 
             block = create_block(self.tip, create_coinbase(height), self.block_time)
             block.solve()
             self.blocks.append(block)
@@ -143,11 +143,8 @@ class AssumeValidTest(BitcoinTestFramework):
         tx.vout.append(CTxOut(49 * 100000000, CScript([OP_TRUE])))
         tx.calc_sha256()
 
-        block102 = create_block(self.tip, create_coinbase(height), self.block_time)
+        block102 = create_block(self.tip, create_coinbase(height), self.block_time, txlist=[tx])
         self.block_time += 1
-        block102.vtx.extend([tx])
-        block102.hashMerkleRoot = block102.calc_merkle_root()
-        block102.rehash()
         block102.solve()
         self.blocks.append(block102)
         self.tip = block102.sha256
@@ -157,7 +154,6 @@ class AssumeValidTest(BitcoinTestFramework):
         # Bury the assumed valid block 2100 deep
         for _ in range(10000):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
-            block.nVersion = 4
             block.solve()
             self.blocks.append(block)
             self.tip = block.sha256
@@ -181,16 +177,15 @@ class AssumeValidTest(BitcoinTestFramework):
         p2p0.send_header_for_blocks(self.blocks[6000:8000])
         p2p0.send_header_for_blocks(self.blocks[8000:10000])
         p2p0.send_header_for_blocks(self.blocks[10000:])
-
         p2p1.send_header_for_blocks(self.blocks[0:2000])
         p2p1.send_header_for_blocks(self.blocks[2000:4000])
         p2p1.send_header_for_blocks(self.blocks[4000:6000])
+
         p2p1.send_header_for_blocks(self.blocks[6000:8000])
         p2p1.send_header_for_blocks(self.blocks[8000:10000])
         p2p1.send_header_for_blocks(self.blocks[10000:])
 
         p2p2.send_header_for_blocks(self.blocks[0:600])
-
         # Send blocks to node0. Block 102 will be rejected.
         self.send_blocks_until_disconnected(p2p0)
         self.assert_blockchain_height(self.nodes[0], COINBASE_MATURITY+1)
@@ -206,7 +201,6 @@ class AssumeValidTest(BitcoinTestFramework):
             if self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'] == 1000:
                 break
         assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 1000)
-        
 
         # Send blocks to node2. Block 102 will be rejected.
         p2p2 = self.nodes[2].add_p2p_connection(BaseNode())

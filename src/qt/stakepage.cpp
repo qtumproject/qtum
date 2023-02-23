@@ -16,9 +16,9 @@
 #include <qt/styleSheet.h>
 #include <qt/transactionview.h>
 #include <qt/hardwaresigntx.h>
-#include <amount.h>
+#include <consensus/amount.h>
 
-#include <miner.h>
+#include <node/miner.h>
 
 #include <QSortFilterProxyModel>
 #include <QTimer>
@@ -37,7 +37,7 @@ StakePage::StakePage(const PlatformStyle *_platformStyle, QWidget *parent) :
     m_expectedAnnualROI(0)
 {
     ui->setupUi(this);
-    ui->checkStake->setEnabled(CanStake());
+    ui->checkStake->setEnabled(node::CanStake());
     transactionView = new TransactionView(platformStyle, this, true);
     ui->frameStakeRecords->layout()->addWidget(transactionView);
 }

@@ -57,7 +57,7 @@ AddDelegationPage::AddDelegationPage(QWidget *parent) :
 
     ui->spinBoxFee->setMinimum(0);
     ui->spinBoxFee->setMaximum(100);
-    ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
+    ui->spinBoxFee->setValue(wallet::DEFAULT_STAKING_MIN_FEE);
 
     ui->addDelegationButton->setEnabled(false);
 
@@ -124,7 +124,7 @@ void AddDelegationPage::clearAll()
 {
     ui->lineEditStakerName->setText("");
     ui->lineEditStakerAddress->setText("");
-    ui->spinBoxFee->setValue(DEFAULT_STAKING_MIN_FEE);
+    ui->spinBoxFee->setValue(wallet::DEFAULT_STAKING_MIN_FEE);
     ui->lineEditAddress->setCurrentIndex(-1);
     ui->lineEditGasLimit->setValue(DEFAULT_GAS_LIMIT_OP_CREATE);
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
@@ -269,13 +269,14 @@ void AddDelegationPage::on_addDelegationClicked()
         }
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm address delegation proposal.") : tr("Confirm address delegation to staker.");
-        const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
-        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
+        const bool enable_send{!bCreateUnsigned};
+        const bool always_show_unsigned{m_model->getOptionsModel()->getEnablePSBTControls()};
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, enable_send, always_show_unsigned, this);
 
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
-        if(retval == QMessageBox::Yes)
+        if(retval == QMessageBox::Yes || retval == QMessageBox::Save)
         {
             // Execute RPC command line
             if(!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))

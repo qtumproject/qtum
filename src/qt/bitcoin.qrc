@@ -113,6 +113,9 @@
         <file alias="spinner-034">res/animation/spinner-034.png</file>
         <file alias="spinner-035">res/animation/spinner-035.png</file>
     </qresource>
+    <qresource prefix="/fonts">
+        <file alias="monospace">res/fonts/RobotoMono-Regular.ttf</file>
+    </qresource>
     <qresource prefix="/tokens">
         <file alias="6b8bf98ff497c064e8f0bde13e0c4f5ed5bf8ce7">res/tokens/6b8bf98ff497c064e8f0bde13e0c4f5ed5bf8ce7.png</file>
         <file alias="9d3d4cc1986d81f9109f2b091b7732e7d9bcf63b">res/tokens/9d3d4cc1986d81f9109f2b091b7732e7d9bcf63b.png</file>

@@ -323,7 +323,7 @@ UniValue SearchLogs(const UniValue& _params, ChainstateManager &chainman)
 
     std::vector<std::vector<uint256>> hashesToBlock;
 
-    curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses, chainman);
+    curheight = chainman.m_blockman.m_block_tree_db->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses, chainman);
 
     if (curheight == -1) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");

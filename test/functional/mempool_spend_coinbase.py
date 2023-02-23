@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2020 The Bitcoin Core developers
+# Copyright (c) 2014-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test spending coinbase transactions.
@@ -16,6 +16,7 @@ from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet import MiniWallet
+from test_framework.qtumconfig import * 
 
 
 class MempoolSpendCoinbaseTest(BitcoinTestFramework):
@@ -29,19 +30,19 @@ class MempoolSpendCoinbaseTest(BitcoinTestFramework):
         chain_height = 2098
         self.nodes[0].invalidateblock(self.nodes[0].getblockhash(chain_height + 1))
         assert_equal(chain_height, self.nodes[0].getblockcount())
+        wallet.rescan_utxos()
 
         # Coinbase at height chain_height-100+1 ok in mempool, should
         # get mined. Coinbase at height chain_height-100+2 is
         # too immature to spend.
-        wallet.scan_blocks(start=chain_height - COINBASE_MATURITY + 1, num=1)
-        utxo_mature = wallet.get_utxo()
-        wallet.scan_blocks(start=chain_height - COINBASE_MATURITY + 2, num=1)
-        utxo_immature = wallet.get_utxo()
+        coinbase_txid = lambda h: self.nodes[0].getblock(self.nodes[0].getblockhash(h))['tx'][0]
+        utxo_mature = wallet.get_utxo(txid=coinbase_txid(chain_height - COINBASE_MATURITY + 1))
+        utxo_immature = wallet.get_utxo(txid=coinbase_txid(chain_height - COINBASE_MATURITY + 2))
 
         spend_mature_id = wallet.send_self_transfer(from_node=self.nodes[0], fee_rate=Decimal("0.03"), utxo_to_spend=utxo_mature)["txid"]
 
         # other coinbase should be too immature to spend
-        immature_tx = wallet.create_self_transfer(from_node=self.nodes[0], fee_rate=Decimal("0.03"), utxo_to_spend=utxo_immature, mempool_valid=False)
+        immature_tx = wallet.create_self_transfer(fee_rate=Decimal("0.03"), utxo_to_spend=utxo_immature, mempool_valid=False)
         assert_raises_rpc_error(-26,
                                 "bad-txns-premature-spend-of-coinbase",
                                 lambda: self.nodes[0].sendrawtransaction(immature_tx['hex']))
@@ -50,7 +51,7 @@ class MempoolSpendCoinbaseTest(BitcoinTestFramework):
         assert_equal(self.nodes[0].getrawmempool(), [spend_mature_id])
 
         # mine a block, mature one should get confirmed
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         assert_equal(set(self.nodes[0].getrawmempool()), set())
 
         # ... and now previously immature can be spent:

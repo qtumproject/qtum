@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -32,7 +32,6 @@ ReceiveRequestDialog::ReceiveRequestDialog(const PlatformStyle *_platformStyle, 
 {
     ui->setupUi(this);
     GUIUtil::handleCloseWindowShortcut(this);
-
     requestPaymentDialog = new ReceiveCoinsDialog(platformStyle, this);
 
     SetObjectStyleSheet(ui->btnRefreshAddress, StyleSheetNames::ButtonLight);
@@ -52,7 +51,6 @@ ReceiveRequestDialog::~ReceiveRequestDialog()
 void ReceiveRequestDialog::setModel(WalletModel *_model)
 {
     this->model = _model;
-
     if (_model && _model->getOptionsModel())
     {
         connect(_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &ReceiveRequestDialog::update);
@@ -73,6 +71,7 @@ void ReceiveRequestDialog::setModel(WalletModel *_model)
     }
 
     requestPaymentDialog->setModel(model);
+
 
     // update the display unit if necessary
     update();
@@ -170,6 +169,7 @@ void ReceiveRequestDialog::on_btnCopyAddress_clicked()
 {
     GUIUtil::setClipboard(info.address);
 }
+
 void ReceiveRequestDialog::on_btnRefreshAddress_clicked()
 {
     // Refresh address

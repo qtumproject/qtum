@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -126,6 +126,13 @@ struct Params {
     int64_t nPowTargetTimespan;
     int64_t nPowTargetTimespanV2;
     int64_t nRBTPowTargetTimespan;
+    int64_t DifficultyAdjustmentInterval(int height) const
+    {
+        int64_t targetTimespan = TargetTimespan(height);
+        int64_t targetSpacing = TargetSpacing(height);
+        return targetTimespan / targetSpacing;
+    }
+    /** The best chain should have at least this much work */
     uint256 nMinimumChainWork;
     /** By default assume that the signatures in ancestors of this block are valid */
     uint256 defaultAssumeValid;
@@ -136,6 +143,7 @@ struct Params {
      */
     bool signet_blocks{false};
     std::vector<uint8_t> signet_challenge;
+
     int DeploymentHeight(BuriedDeployment dep) const
     {
         switch (dep) {
@@ -170,12 +178,6 @@ struct Params {
     /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
     int nCoinbaseMaturity;
     int nRBTCoinbaseMaturity;
-    int64_t DifficultyAdjustmentInterval(int height) const
-    {
-        int64_t targetTimespan = TargetTimespan(height);
-        int64_t targetSpacing = TargetSpacing(height);
-        return targetTimespan / targetSpacing;
-    }
     int64_t StakeTimestampMask(int height) const
     {
         return height < nReduceBlocktimeHeight ? nStakeTimestampMask : nRBTStakeTimestampMask;

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -42,17 +42,17 @@ class WalletWorker;
 class TokenItemModel;
 class SuperStakerItemModel;
 class DelegationStakerItemModel;
-
-class CCoinControl;
 class CKeyID;
 class COutPoint;
-class COutput;
 class CPubKey;
 class uint256;
 
 namespace interfaces {
 class Node;
 } // namespace interfaces
+namespace wallet {
+class CCoinControl;
+} // namespace wallet
 
 QT_BEGIN_NAMESPACE
 class QTimer;
@@ -82,6 +82,7 @@ public:
 
     enum EncryptionStatus
     {
+        NoKeys,       // wallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS)
         Unencrypted,  // !wallet->IsCrypted()
         Locked,       // wallet->IsCrypted() && wallet->IsLocked()
         Unlocked      // wallet->IsCrypted() && !wallet->IsLocked()
@@ -97,7 +98,6 @@ public:
     DelegationItemModel *getDelegationItemModel();
     SuperStakerItemModel *getSuperStakerItemModel();
     DelegationStakerItemModel *getDelegationStakerItemModel();
-
     EncryptionStatus getEncryptionStatus() const;
 
     // Check address for validity
@@ -116,7 +116,7 @@ public:
     };
 
     // prepare transaction for getting txfee before sending coins
-    SendCoinsReturn prepareTransaction(WalletModelTransaction &transaction, const CCoinControl& coinControl);
+    SendCoinsReturn prepareTransaction(WalletModelTransaction &transaction, const wallet::CCoinControl& coinControl);
 
     // Send coins to a list of recipients
     SendCoinsReturn sendCoins(WalletModelTransaction &transaction);
@@ -129,7 +129,6 @@ public:
     bool restoreWallet(const QString &filename, const QString &param);
     bool getWalletUnlockStakingOnly();
     void setWalletUnlockStakingOnly(bool unlock);
-
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
     {
@@ -170,13 +169,11 @@ public:
     QString getDisplayName() const;
 
     bool isMultiwallet();
-
     QString getRestorePath();
     QString getRestoreParam();
     bool restore();
 
     uint64_t getStakeWeight();
-
     AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 
     void refresh(bool pk_hash_only = false);
@@ -234,7 +231,6 @@ private:
 
     // Block hash denoting when the last balance update was done.
     uint256 m_cached_last_update_tip{};
-
     int pollNum = 0;
 
     QString restorePath;
@@ -258,7 +254,6 @@ private:
 
     QThread t;
     WalletWorker *worker;
-
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
     bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);

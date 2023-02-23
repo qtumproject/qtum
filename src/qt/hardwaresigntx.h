@@ -66,9 +66,10 @@ public:
      * @param model Wallet model
      * @param psbt Transaction
      * @param result Result to update
+     * @param send Send the transaction
      * @return success of the operation
      */
-    static bool process(QWidget *widget, WalletModel *model, const QString& psbt, QVariantMap& result);
+    static bool process(QWidget *widget, WalletModel *model, const QString& psbt, QVariantMap& result, bool send = true);
 
 Q_SIGNALS:
 

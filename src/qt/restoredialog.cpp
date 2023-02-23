@@ -70,14 +70,14 @@ void RestoreDialog::on_btnBoxRestore_accepted()
         }
         else
         {
-            fs::path path = GetWalletDir();
+            fs::path path = wallet::GetWalletDir();
             QString restoreName = model ? model->getWalletName() : "";
             if(!restoreName.isEmpty())
             {
-                path /= restoreName.toStdString();
+                path /= fs::PathFromString(restoreName.toStdString());
             }
             path /= "wallet.dat";
-            filename = QString::fromStdString(path.string());
+            filename = QString::fromStdString(fs::PathToString(path));
         }
     }
     QString param = getParam();
@@ -92,7 +92,7 @@ void RestoreDialog::on_btnBoxRestore_accepted()
         {
             if(model->restoreWallet(filename, param))
             {
-                QApplication::quit();
+                qApp->closeAllWindows();
             }
         }
         else return;

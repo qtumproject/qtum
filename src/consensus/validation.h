@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -53,6 +53,7 @@ enum class TxValidationResult {
      */
     TX_CONFLICT,
     TX_MEMPOOL_POLICY,        //!< violated mempool's fee/size/descendant/RBF/etc limits
+    TX_NO_MEMPOOL,            //!< this node does not have a mempool so can't validate the transaction
     TX_INVALID_SENDER_SCRIPT, //!< invalid contract sender script, used in the mempool
     TX_GAS_EXCEEDS_LIMIT,     //!< transaction gas exceeds block gas limit
 };

@@ -41,7 +41,6 @@ private Q_SLOTS:
     void on_btnClear_clicked();
 
     void update();
-
 private:
     bool refreshAddress();
     bool getDefaultAddress();

@@ -1,12 +1,11 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_RPC_SERVER_H
 #define BITCOIN_RPC_SERVER_H
 
-#include <amount.h>
 #include <rpc/request.h>
 #include <rpc/util.h>
 #include <uint256.h>
@@ -22,15 +21,6 @@
 #include <univalue.h>
 #include <util/system.h>
 
-struct CUpdatedBlock
-{
-    uint256 hash;
-    int height;
-};
-
-extern Mutex cs_blockchange;
-extern std::condition_variable cond_blockchange;
-extern CUpdatedBlock latestblock GUARDED_BY(cs_blockchange);
 static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
 
 class CRPCCommand;
@@ -78,9 +68,6 @@ public:
      */
      HTTPRequest* req();
 };
-
-/** Query whether RPC is running */
-bool IsRPCRunning();
 
 /** Throw JSONRPCError if RPC is not running */
 void RpcInterruptionPoint();
