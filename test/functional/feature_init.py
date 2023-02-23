@@ -46,7 +46,7 @@ class InitStressTest(BitcoinTestFramework):
             """Ensure that node restarts successfully after various interrupts."""
             node.start()
             node.wait_for_rpc_connection()
-            assert_equal(200, node.getblockcount())
+            assert_equal(2100, node.getblockcount())
 
         lines_to_terminate_after = [
             'Validating signatures for all blocks',

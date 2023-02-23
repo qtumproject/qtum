@@ -66,6 +66,7 @@ from test_framework.util import (
     assert_equal,
     softfork_active,
 	satoshi_round
+)
 from test_framework.wallet import MiniWallet
 
 
@@ -305,12 +306,6 @@ class CompactBlocksTest(BitcoinTestFramework):
                 segwit_tx_generated = True
 
         if use_witness_address:
-            # Want at least one segwit spend, so move all funds to
-            # a witness address.
-            address = node.getnewaddress(address_type='bech32')
-            value_to_send = node.getbalance()
-            node.sendtoaddress(address, satoshi_round(value_to_send - Decimal(0.2)))
-            node.generate(1)
             assert segwit_tx_generated  # check that our test is not broken
 
         # Wait until we've seen the block announcement for the resulting tip

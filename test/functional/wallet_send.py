@@ -554,7 +554,7 @@ class WalletSendTest(BitcoinTestFramework):
             add_inputs=True,
             psbt=True,
             include_watching=True,
-            fee_rate=10
+            fee_rate=400
         )
         signed = ext_wallet.walletprocesspsbt(res["psbt"])
         signed = ext_fund.walletprocesspsbt(res["psbt"])
@@ -562,7 +562,7 @@ class WalletSendTest(BitcoinTestFramework):
         tx = self.nodes[0].finalizepsbt(signed["psbt"])
         testres = self.nodes[0].testmempoolaccept([tx["hex"]])[0]
         assert_equal(testres["allowed"], True)
-        assert_fee_amount(testres["fees"]["base"], testres["vsize"], Decimal(0.0001))
+        assert_fee_amount(testres["fees"]["base"], testres["vsize"], Decimal(0.004))
 
 if __name__ == '__main__':
     WalletSendTest().main()

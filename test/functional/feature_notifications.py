@@ -12,6 +12,7 @@ from test_framework.util import (
     assert_equal,
 )
 from test_framework.qtumconfig import *
+from test_framework.qtum import generatesynchronized
 
 # Linux allow all characters other than \x00
 # Windows disallow control characters (0-31) and /\?%:|"<>

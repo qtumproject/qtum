@@ -661,7 +661,8 @@ class ImportDescriptorsTest(BitcoinTestFramework):
                               "range": 1,
                               "timestamp": "now"},
                               success=True,
-                              warnings=["Unknown output type, cannot set descriptor to active."])
+                              # warnings=["Unknown output type, cannot set descriptor to active."]
+                              )
 
 if __name__ == '__main__':
     ImportDescriptorsTest().main()

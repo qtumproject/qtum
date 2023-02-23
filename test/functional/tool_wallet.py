@@ -71,7 +71,7 @@ class ToolWalletTest(BitcoinTestFramework):
     def get_expected_info_output(self, name="", transactions=0, keypool=2, address=0):
         wallet_name = self.default_wallet_name if name == "" else name
         if self.options.descriptors:
-            output_types = 4  # p2pkh, p2sh, segwit, bech32m
+            output_types = 5  # p2pkh, p2sh, segwit, bech32m
             return textwrap.dedent('''\
                 Wallet info
                 ===========
@@ -299,8 +299,8 @@ class ToolWalletTest(BitcoinTestFramework):
             assert_equal(1000, out['keypoolsize_hd_internal'])
             assert_equal(True, 'hdseedid' in out)
         else:
-            assert_equal(4000, out['keypoolsize'])
-            assert_equal(4000, out['keypoolsize_hd_internal'])
+            assert_equal(5000, out['keypoolsize'])
+            assert_equal(5000, out['keypoolsize_hd_internal'])
 
         self.log_wallet_timestamp_comparison(timestamp_before, timestamp_after)
         assert_equal(timestamp_before, timestamp_after)
