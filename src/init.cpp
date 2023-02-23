@@ -1745,6 +1745,15 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 _("Error reading from database, shutting down."),
                 "", CClientUIInterface::MSG_ERROR);
         };
+        if((args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) || (!args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) ||
+          (!args.IsArgSet("-dgpstorage") && !args.IsArgSet("-dgpevm"))){
+            options.getting_values_dgp = true;
+        } else {
+            options.getting_values_dgp = false;
+        }
+        options.record_log_opcodes = args.IsArgSet("-record-log-opcodes");
+        options.addrindex = args.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX);
+        options.logevents = args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS);
 
         uiInterface.InitMessage(_("Loading block index…").translated);
         const auto load_block_index_start_time{SteadyClock::now()};

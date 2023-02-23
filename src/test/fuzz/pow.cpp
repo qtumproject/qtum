@@ -103,12 +103,12 @@ FUZZ_TARGET_INIT(pow_transition, initialize_pow)
         nbits = pow_limit.GetCompact();
     }
     // Create one difficulty adjustment period worth of headers
-    for (int height = 0; height < consensus_params.DifficultyAdjustmentInterval(); ++height) {
+    for (int height = 0; height < consensus_params.DifficultyAdjustmentInterval(height); ++height) {
         CBlockHeader header;
         header.nVersion = version;
         header.nTime = old_time;
         header.nBits = nbits;
-        if (height == consensus_params.DifficultyAdjustmentInterval() - 1) {
+        if (height == consensus_params.DifficultyAdjustmentInterval(height) - 1) {
             header.nTime = new_time;
         }
         auto current_block{std::make_unique<CBlockIndex>(header)};

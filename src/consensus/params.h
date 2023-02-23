@@ -138,7 +138,7 @@ struct Params {
     {
         return std::chrono::seconds{TargetSpacing(height)};
     }
-    int64_t DifficultyAdjustmentInterval(int height = 0) const
+    int64_t DifficultyAdjustmentInterval(int height) const
     {
         int64_t targetTimespan = TargetTimespan(height);
         int64_t targetSpacing = TargetSpacing(height);
