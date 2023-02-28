@@ -300,8 +300,8 @@ void TokenTransactionView::dateRangeChanged()
     if(!tokenProxyModel)
         return;
     tokenProxyModel->setDateRange(
-                QDateTime(dateFrom->date()),
-                QDateTime(dateTo->date()).addDays(1));
+                dateFrom->date().startOfDay(),
+                dateTo->date().startOfDay().addDays(1));
 }
 
 void TokenTransactionView::showDetails()
@@ -352,30 +352,30 @@ void TokenTransactionView::chooseDate(int idx)
         break;
     case Today:
         tokenProxyModel->setDateRange(
-                    QDateTime(current),
+                    current.startOfDay(),
                     TokenFilterProxy::MAX_DATE);
         break;
     case ThisWeek: {
         // Find last Monday
         QDate startOfWeek = current.addDays(-(current.dayOfWeek()-1));
         tokenProxyModel->setDateRange(
-                    QDateTime(startOfWeek),
+                    startOfWeek.startOfDay(),
                     TokenFilterProxy::MAX_DATE);
 
     } break;
     case ThisMonth:
         tokenProxyModel->setDateRange(
-                    QDateTime(QDate(current.year(), current.month(), 1)),
+                    QDate(current.year(), current.month(), 1).startOfDay(),
                     TokenFilterProxy::MAX_DATE);
         break;
     case LastMonth:
         tokenProxyModel->setDateRange(
-                    QDateTime(QDate(current.year(), current.month(), 1).addMonths(-1)),
-                    QDateTime(QDate(current.year(), current.month(), 1)));
+                    QDate(current.year(), current.month(), 1).addMonths(-1).startOfDay(),
+                    QDate(current.year(), current.month(), 1).startOfDay());
         break;
     case ThisYear:
         tokenProxyModel->setDateRange(
-                    QDateTime(QDate(current.year(), 1, 1)),
+                    QDate(current.year(), 1, 1).startOfDay(),
                     TokenFilterProxy::MAX_DATE);
         break;
     case Range:

@@ -202,8 +202,8 @@ void StakerDelegationView::dateRangeChanged()
     if(!delegationProxyModel)
         return;
     delegationProxyModel->setDateRange(
-                QDateTime(dateFrom->date()),
-                QDateTime(dateTo->date()).addDays(1));
+                dateFrom->date().startOfDay(),
+                dateTo->date().startOfDay().addDays(1));
 }
 
 void StakerDelegationView::contextualMenu(const QPoint &point)
@@ -249,30 +249,30 @@ void StakerDelegationView::chooseDate(int idx)
         break;
     case Today:
         delegationProxyModel->setDateRange(
-                    QDateTime(current),
+                    current.startOfDay(),
                     DelegationFilterProxy::MAX_DATE);
         break;
     case ThisWeek: {
         // Find last Monday
         QDate startOfWeek = current.addDays(-(current.dayOfWeek()-1));
         delegationProxyModel->setDateRange(
-                    QDateTime(startOfWeek),
+                    startOfWeek.startOfDay(),
                     DelegationFilterProxy::MAX_DATE);
 
     } break;
     case ThisMonth:
         delegationProxyModel->setDateRange(
-                    QDateTime(QDate(current.year(), current.month(), 1)),
+                    QDate(current.year(), current.month(), 1).startOfDay(),
                     DelegationFilterProxy::MAX_DATE);
         break;
     case LastMonth:
         delegationProxyModel->setDateRange(
-                    QDateTime(QDate(current.year(), current.month(), 1).addMonths(-1)),
-                    QDateTime(QDate(current.year(), current.month(), 1)));
+                    QDate(current.year(), current.month(), 1).addMonths(-1).startOfDay(),
+                    QDate(current.year(), current.month(), 1).startOfDay());
         break;
     case ThisYear:
         delegationProxyModel->setDateRange(
-                    QDateTime(QDate(current.year(), 1, 1)),
+                    QDate(current.year(), 1, 1).startOfDay(),
                     DelegationFilterProxy::MAX_DATE);
         break;
     case Range:

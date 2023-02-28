@@ -924,8 +924,25 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
     }
     TRACE5(coin_selection, selected_coins, wallet.GetName().c_str(), GetAlgorithmName(result->GetAlgo()).c_str(), result->GetTarget(), result->GetWaste(), result->GetSelectedValue());
 
+    std::set<COutput> setCoins = result->GetInputSet();
+    std::vector<COutput> vCoins;
+
     const CAmount change_amount = result->GetChange(coin_selection_params.min_viable_change, coin_selection_params.m_change_fee);
     if (change_amount > 0) {
+        // send change to existing address
+        if (!wallet.m_use_change_address &&
+                !std::holds_alternative<CNoDestination>(coin_control.destChange) &&
+                setCoins.size() > 0)
+        {
+            // setCoins will be added as inputs to the new transaction
+            // Set the first input script as change script for the new transaction
+            auto pcoin = setCoins.begin();
+            scriptChange = pcoin->txout.scriptPubKey;
+
+            change_prototype_txout = CTxOut(0, scriptChange);
+            coin_selection_params.change_output_size = GetSerializeSize(change_prototype_txout);
+        }
+
         CTxOut newTxOut(change_amount, scriptChange);
         if (nChangePosInOut == -1) {
             // Insert change txn at random position:
@@ -938,8 +955,28 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         nChangePosInOut = -1;
     }
 
+    // Move sender input to position 0
+    std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
+    if(hasSender && coin_control.HasSelected()){
+        for (std::vector<COutput>::size_type i = 0 ; i != vCoins.size(); i++){
+            if(vCoins[i].outpoint==senderInput){
+                if(i==0)break;
+                iter_swap(vCoins.begin(),vCoins.begin()+i);
+                break;
+            }
+        }
+    }
+
     // Shuffle selected coins and fill in final vin
-    std::vector<COutput> selected_coins = result->GetShuffledInputVector();
+    int shuffleOffset = 0;
+    if(hasSender && coin_control.HasSelected() && vCoins.size() > 0 && vCoins[0].outpoint==senderInput){
+        shuffleOffset = 1;
+    }
+    setCoins = std::set<COutput>(vCoins.begin(), vCoins.end());
+    result->SetInputSet(setCoins);
+    vCoins.clear();
+    setCoins.clear();
+    std::vector<COutput> selected_coins = result->GetShuffledInputVector(shuffleOffset);
 
     // The sequence number is set to non-maxint so that DiscourageFeeSniping
     // works.
@@ -961,7 +998,7 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
     if (nBytes == -1) {
         return util::Error{_("Missing solving data for estimating transaction size")};
     }
-    CAmount fee_needed = coin_selection_params.m_effective_feerate.GetFee(nBytes);
+    CAmount fee_needed = coin_selection_params.m_effective_feerate.GetFee(nBytes)+nGasFee;
     nFeeRet = result->GetSelectedValue() - recipients_sum - change_amount;
 
     // The only time that fee_needed should be less than the amount available for fees is when
