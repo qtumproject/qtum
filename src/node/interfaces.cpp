@@ -409,6 +409,10 @@ public:
         auto best_header = chainman().m_best_header;
         return best_header ? best_header->nMoneySupply : 0;
     }
+    double getPoSKernelPS() override
+    {
+        return GetPoSKernelPS(chainman());
+    }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
         return MakeHandler(::uiInterface.InitMessage_connect(fn));

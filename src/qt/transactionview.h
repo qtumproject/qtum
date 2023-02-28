@@ -34,7 +34,7 @@ class TransactionView : public QWidget
     Q_OBJECT
 
 public:
-    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = nullptr);
+    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = nullptr, bool hideFilter = false);
     ~TransactionView();
 
     void setModel(WalletModel *model);

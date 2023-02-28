@@ -243,6 +243,9 @@ public:
     //! Get the money supply
     virtual int64_t getMoneySupply() = 0;
 
+    //! Get PoS kernel PS
+    virtual double getPoSKernelPS() = 0;
+
     //! Register handler for init messages.
     using InitMessageFn = std::function<void(const std::string& message)>;
     virtual std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) = 0;

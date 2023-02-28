@@ -100,6 +100,7 @@ public:
 
     /* Explicit setters */
     void SetPruneTargetGB(int prune_target_gb);
+    bool getZeroBalanceAddressToken() const { return bZeroBalanceAddressToken; }
 
     /* Restart flag helper */
     void setRestartRequired(bool fRequired);
@@ -132,6 +133,7 @@ private:
 
     /* settings that were overridden by command-line */
     QString strOverriddenByCommandLine;
+    bool bZeroBalanceAddressToken;
 
     // Add option to list of GUI options overridden through command line/config file
     void addOverriddenOption(const std::string &option);

@@ -40,7 +40,7 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
-TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *parent)
+TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *parent, bool hideFilter)
     : QWidget(parent), m_platform_style{platformStyle}
 {
     // Build filter row

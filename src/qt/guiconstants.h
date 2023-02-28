@@ -16,6 +16,9 @@ static constexpr auto MODEL_UPDATE_DELAY{250ms};
 /* A delay between shutdown pollings */
 static constexpr auto SHUTDOWN_POLLING_DELAY{200ms};
 
+/* Milliseconds between device updates */
+static constexpr auto DEVICE_UPDATE_DELAY{10000ms};
+
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;
 
@@ -33,10 +36,15 @@ static const bool DEFAULT_SPLASHSCREEN = true;
 #define COLOR_NEGATIVE QColor(255, 0, 0)
 /* Transaction list -- bare address (without label) */
 #define COLOR_BAREADDRESS QColor(140, 140, 140)
+/* Transaction list -- TX status decoration - open until date */
+#define COLOR_TX_STATUS_OPENUNTILDATE QColor(64, 64, 255)
 /* Transaction list -- TX status decoration - danger, tx needs attention */
 #define COLOR_TX_STATUS_DANGER QColor(200, 100, 100)
 /* Transaction list -- TX status decoration - default color */
 #define COLOR_BLACK QColor(0, 0, 0)
+
+// Number of different confirmation icons
+#define CONFIRM_ICONS 5
 
 /* Tooltips longer than this (in characters) are converted into rich text,
    so that they can be word-wrapped.
@@ -58,5 +66,14 @@ static constexpr uint64_t GB_BYTES{1000000000};
 
 // Default prune target displayed in GUI.
 static constexpr int DEFAULT_PRUNE_TARGET_GB{2};
+
+/* Mainnet qtum explorer uri */
+#define QTUM_INFO_MAINNET "<a href='https://qtum.info/%1/%2'>%2</a>"
+
+/* Testnet qtum explorer uri */
+#define QTUM_INFO_TESTNET "<a href='https://testnet.qtum.info/%1/%2'>%2</a>"
+
+/* Hardware wallet interface uri */
+#define QTUM_HWI_TOOL "<a href='https://github.com/qtumproject/HWI/tags'>HWI Tool</a>"
 
 #endif // BITCOIN_QT_GUICONSTANTS_H
