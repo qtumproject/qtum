@@ -66,6 +66,9 @@ public:
     */
     QWidget *setupTabChain(QWidget *prev);
 
+    /** Notify always for valueChanged when it the same*/
+    void setNotifyAlways(bool value);
+
 Q_SIGNALS:
     void valueChanged();
 

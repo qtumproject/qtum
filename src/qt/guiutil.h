@@ -98,6 +98,13 @@ namespace GUIUtil
      */
     void copyEntryData(const QAbstractItemView *view, int column, int role=Qt::EditRole);
 
+    /** Copy a field of the currently selected entry of a view to the clipboard. Does nothing if nothing
+        is selected.
+       @param[in] role    Data role to extract from the model
+       @see  QRCToken::copyTokenAddress
+     */
+    void copyEntryDataFromList(QAbstractItemView *view, int role=Qt::EditRole);
+
     /** Return a field of the currently selected entry as a QString. Does nothing if nothing
         is selected.
        @param[in] column  Data column to extract from the model
@@ -485,6 +492,15 @@ namespace GUIUtil
      * @return Path to HWI tool
      */
     QString getHwiToolPath();
+
+    /**
+     * @brief estimateNumberHeadersLeft Get estimate number headers left
+     * @param timeSpan Time span
+     * @param bestHeaderHeight Best header height
+     * @return headers left
+     */
+    int estimateNumberHeadersLeft(qint64 timeSpan, int bestHeaderHeight);
+
 
 } // namespace GUIUtil
 
