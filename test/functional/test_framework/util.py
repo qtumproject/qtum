@@ -498,7 +498,7 @@ def create_confirmed_utxos(test_framework, fee, node, count, **kwargs, sync_lamb
     to_generate = int(0.5 * count) + COINBASE_MATURITY+1
     while to_generate > 0:
         test_framework.generate(node, min(25, to_generate), **kwargs)
-        if sync_lambda: sync_lambda()//QTUM_INSERT_LINE
+        if sync_lambda: sync_lambda()
         to_generate -= 25
     utxos = node.listunspent()
     iterations = count - len(utxos)

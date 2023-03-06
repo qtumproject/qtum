@@ -640,18 +640,7 @@ class SegWitTest(BitcoinTestFramework):
             # Just check mempool acceptance, but don't add the transaction to the mempool, since witness is disallowed
             # in blocks and the tx is impossible to mine right now.
             assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'wtxid': tx3.getwtxid(), 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.00100000')}}])
-//QTUM_DELETE_BEGIN
-                self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]),
-                [{
-                    'txid': tx3.hash,
-                    'wtxid': tx3.getwtxid(),
-                    'allowed': True,
-                    'vsize': tx3.get_vsize(),
-                    'fees': {
-                        'base': Decimal('0.00001000'),
-                    },
-                }],
-            )
+
             # Create the same output as tx3, but by replacing tx
             tx3_out = tx3.vout[0]
             tx3 = tx

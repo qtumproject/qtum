@@ -37,7 +37,7 @@ if ENABLE_REDUCED_BLOCK_TIME:
     MY_VERSION = 70019  # past bip-31 for ping/pong
 else:
     MY_VERSION = 70018  # past bip-31 for ping/pong
-//QTUM_INSERT_END
+
 MAX_LOCATOR_SZ = 101
 MAX_BLOCK_WEIGHT = 4000000
 MAX_BLOOM_FILTER_SIZE = 36000
@@ -654,7 +654,7 @@ class CTransaction:
 
 
 class CBlockHeader(object):
-    __slots__ = ("hash", "hashMerkleRoot", "hashPrevBlock", "hashStateRoot", "hashUTXORoot", "prevoutStake", "vchBlockSig", "nBits", "nNonce",//QTUM_LINE
+    __slots__ = ("hash", "hashMerkleRoot", "hashPrevBlock", "hashStateRoot", "hashUTXORoot", "prevoutStake", "vchBlockSig", "nBits", "nNonce",
                  "nTime", "nVersion", "sha256")
 
     def __init__(self, header=None):

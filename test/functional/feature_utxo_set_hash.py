@@ -6,7 +6,7 @@
 
 import struct
 
-from decimal import Decimal //QTUM_INSERT_LINE
+from decimal import Decimal
 from test_framework.messages import (
     CBlock,
     COutPoint,
