@@ -26,8 +26,7 @@ from test_framework.util import (
     find_vout_for_address,
 )
 from test_framework.wallet_util import bytes_to_wif
-
-
+from test_framework.qtumconfig import * 
 def get_unspent(listunspent, amount):
     for utx in listunspent:
         if utx['amount'] == amount:
@@ -104,7 +103,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.fee_tolerance = 2 * self.min_relay_tx_fee / 1000
 
         self.generate(self.nodes[2], 1)
-        self.generate(self.nodes[0], 121)
+        self.nodes[0].generate(COINBASE_MATURITY+121)
 
         self.test_add_inputs_default_value()
         self.test_preset_inputs_selection()
@@ -147,7 +146,7 @@ class RawTransactionsTest(BitcoinTestFramework):
     def test_change_position(self):
         """Ensure setting changePosition in fundraw with an exact match is handled properly."""
         self.log.info("Test fundrawtxn changePosition option")
-        rawmatch = self.nodes[2].createrawtransaction([], {self.nodes[2].getnewaddress():50})
+        rawmatch = self.nodes[2].createrawtransaction([], {self.nodes[2].getnewaddress():INITIAL_BLOCK_REWARD})
         rawmatch = self.nodes[2].fundrawtransaction(rawmatch, {"changePosition":1, "subtractFeeFromOutputs":[0]})
         assert_equal(rawmatch["changepos"], -1)
 
@@ -277,7 +276,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         dec_tx  = self.nodes[2].decoderawtransaction(rawtx)
         assert_equal(utx['txid'], dec_tx['vin'][0]['txid'])
 
-        assert_raises_rpc_error(-5, "Change address must be a valid bitcoin address", self.nodes[2].fundrawtransaction, rawtx, {'changeAddress':'foobar'})
+        assert_raises_rpc_error(-5, "Change address must be a valid qtum address", self.nodes[2].fundrawtransaction, rawtx, {'changeAddress':'foobar'})
 
     def test_valid_change_address(self):
         self.log.info("Test fundrawtxn with a provided change address")
@@ -592,22 +591,23 @@ class RawTransactionsTest(BitcoinTestFramework):
             self.nodes[1].walletlock()
 
         # Drain the keypool.
-        self.nodes[1].getnewaddress()
-        self.nodes[1].getrawchangeaddress()
+        self.nodes[1].getnewaddress("", "bech32")
+        self.nodes[1].getrawchangeaddress("bech32")
 
         # Choose 2 inputs
         inputs = self.nodes[1].listunspent()[0:2]
         value = sum(inp["amount"] for inp in inputs) - Decimal("0.00000500") # Pay a 500 sat fee
-        outputs = {self.nodes[0].getnewaddress():value}
+        outputs = {self.nodes[0].getnewaddress("", "bech32"):value}
         rawtx = self.nodes[1].createrawtransaction(inputs, outputs)
         # fund a transaction that does not require a new key for the change output
         self.nodes[1].fundrawtransaction(rawtx)
 
         # fund a transaction that requires a new key for the change output
         # creating the key must be impossible because the wallet is locked
-        outputs = {self.nodes[0].getnewaddress():value - Decimal("0.1")}
+        outputs = {self.nodes[0].getnewaddress("", "bech32"):value - Decimal("0.1")}
         rawtx = self.nodes[1].createrawtransaction(inputs, outputs)
-        assert_raises_rpc_error(-4, "Transaction needs a change address, but we can't generate it.", self.nodes[1].fundrawtransaction, rawtx)
+
+        assert_raises_rpc_error(-4, "Transaction needs a change address, but we can't generate it. Error: Keypool ran out, please call keypoolrefill first", self.nodes[1].fundrawtransaction, rawtx, {"change_type": "bech32"})
 
         # Refill the keypool.
         self.nodes[1].walletpassphrase("test", 100)
@@ -630,7 +630,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.generate(self.nodes[1], 1)
 
         # Make sure funds are received at node1.
-        assert_equal(oldBalance+Decimal('51.10000000'), self.nodes[0].getbalance())
+        assert_equal(oldBalance+INITIAL_BLOCK_REWARD+Decimal('1.10000000'), self.nodes[0].getbalance())
 
     def test_many_inputs_fee(self):
         """Multiple (~19) inputs tx test | Compare fee."""
@@ -641,7 +641,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.generate(self.nodes[1], 1)
 
         for _ in range(20):
-            self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.01)
+            self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.1)
         self.generate(self.nodes[0], 1)
 
         # Fund a tx with ~20 small inputs.
@@ -667,7 +667,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.generate(self.nodes[1], 1)
 
         for _ in range(20):
-            self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.01)
+            self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.1)
         self.generate(self.nodes[0], 1)
 
         # Fund a tx with ~20 small inputs.
@@ -680,7 +680,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         fundedAndSignedTx = self.nodes[1].signrawtransactionwithwallet(fundedTx['hex'])
         self.nodes[1].sendrawtransaction(fundedAndSignedTx['hex'])
         self.generate(self.nodes[1], 1)
-        assert_equal(oldBalance+Decimal('50.19000000'), self.nodes[0].getbalance()) #0.19+block reward
+        assert_equal(oldBalance+INITIAL_BLOCK_REWARD+Decimal('0.19000000'), self.nodes[0].getbalance()) #0.19+block reward 
 
     def test_op_return(self):
         self.log.info("Test fundrawtxn with OP_RETURN and no vin")
@@ -701,7 +701,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.log.info("Test fundrawtxn using only watchonly")
 
         inputs = []
-        outputs = {self.nodes[2].getnewaddress(): self.watchonly_amount / 2}
+        outputs = {self.nodes[2].getnewaddress("", "bech32"): self.watchonly_amount / 2}
         rawtx = self.nodes[3].createrawtransaction(inputs, outputs)
 
         self.nodes[3].loadwallet('wwatch')
@@ -722,7 +722,7 @@ class RawTransactionsTest(BitcoinTestFramework):
             wwatch.importmulti(desc_import)
 
         # Backward compatibility test (2nd params is includeWatching)
-        result = wwatch.fundrawtransaction(rawtx, True)
+        result = wwatch.fundrawtransaction(rawtx, {"change_type": "bech32", "includeWatching": True})
         res_dec = self.nodes[0].decoderawtransaction(result["hex"])
         assert_equal(len(res_dec["vin"]), 1)
         assert_equal(res_dec["vin"][0]["txid"], self.watchonly_txid)
@@ -777,7 +777,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         result4 = node.fundrawtransaction(rawtx, {"feeRate": str(10 * self.min_relay_tx_fee)})
 
         result_fee_rate = result['fee'] * 1000 / count_bytes(result['hex'])
-        assert_fee_amount(result1['fee'], count_bytes(result1['hex']), 2 * result_fee_rate)
+        assert_fee_amount(result1['fee'], count_bytes(result2['hex']), 2 * result_fee_rate)
         assert_fee_amount(result2['fee'], count_bytes(result2['hex']), 2 * result_fee_rate)
         assert_fee_amount(result3['fee'], count_bytes(result3['hex']), 10 * result_fee_rate)
         assert_fee_amount(result4['fee'], count_bytes(result4['hex']), 10 * result_fee_rate)
@@ -787,10 +787,10 @@ class RawTransactionsTest(BitcoinTestFramework):
             assert_equal(self.nodes[3].fundrawtransaction(rawtx, {param: zero_value})["fee"], 0)
 
         # With no arguments passed, expect fee of 141 satoshis.
-        assert_approx(node.fundrawtransaction(rawtx)["fee"], vexp=0.00000141, vspan=0.00000001)
+        assert_approx(node.fundrawtransaction(rawtx)["fee"], vexp=0.0009, vspan=0.00000001)
         # Expect fee to be 10,000x higher when an explicit fee rate 10,000x greater is specified.
         result = node.fundrawtransaction(rawtx, {"fee_rate": 10000})
-        assert_approx(result["fee"], vexp=0.0141, vspan=0.0001)
+        assert_approx(result["fee"], vexp=0.02250000, vspan=0.0001)
 
         self.log.info("Test fundrawtxn with invalid estimate_mode settings")
         for k, v in {"number": 42, "object": {"foo": "bar"}}.items():
@@ -811,7 +811,7 @@ class RawTransactionsTest(BitcoinTestFramework):
                     node.fundrawtransaction, rawtx, {"estimate_mode": mode, "conf_target": n, "add_inputs": True})
 
         self.log.info("Test invalid fee rate settings")
-        for param, value in {("fee_rate", 100000), ("feeRate", 1.000)}:
+        for param, value in {("fee_rate", 500000), ("feeRate", 5.000)}:
             assert_raises_rpc_error(-4, "Fee exceeds maximum configured by user (e.g. -maxtxfee, maxfeerate)",
                 node.fundrawtransaction, rawtx, {param: value, "add_inputs": True})
             assert_raises_rpc_error(-3, "Amount out of range",
@@ -831,7 +831,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         node.fundrawtransaction(rawtx, {"feeRate": 0.00000999, "add_inputs": True})
 
         self.log.info("- raises RPC error if both feeRate and fee_rate are passed")
-        assert_raises_rpc_error(-8, "Cannot specify both fee_rate (sat/vB) and feeRate (BTC/kvB)",
+        assert_raises_rpc_error(-8, "Cannot specify both fee_rate (sat/vB) and feeRate (QTUM/kvB)",
             node.fundrawtransaction, rawtx, {"fee_rate": 0.1, "feeRate": 0.1, "add_inputs": True})
 
         self.log.info("- raises RPC error if both feeRate and estimate_mode passed")
@@ -971,14 +971,14 @@ class RawTransactionsTest(BitcoinTestFramework):
         wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
         recipient = self.nodes[0].get_wallet_rpc("large")
         outputs = {}
-        rawtx = recipient.createrawtransaction([], {wallet.getnewaddress(): 147.99899260})
+        rawtx = recipient.createrawtransaction([], {wallet.getnewaddress(): 98.56732907})
 
         # Make 1500 0.1 BTC outputs. The amount that we target for funding is in
         # the BnB range when these outputs are used.  However if these outputs
         # are selected, the transaction will end up being too large, so it
         # shouldn't use BnB and instead fall back to Knapsack but that behavior
         # is not implemented yet. For now we just check that we get an error.
-        for _ in range(1500):
+        for _ in range(999):
             outputs[recipient.getnewaddress()] = 0.1
         wallet.sendmany("", outputs)
         self.generate(self.nodes[0], 10)

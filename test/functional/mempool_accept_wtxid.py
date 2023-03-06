@@ -34,6 +34,8 @@ from test_framework.util import (
     assert_equal,
 )
 
+from test_framework.qtumconfig import COINBASE_MATURITY 
+
 class MempoolWtxidTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
@@ -44,7 +46,7 @@ class MempoolWtxidTest(BitcoinTestFramework):
 
         self.log.info('Start with empty mempool and 101 blocks')
         # The last 100 coinbase transactions are premature
-        blockhash = self.generate(node, 101)[0]
+        blockhash = self.generate(node, COINBASE_MATURITY+1)[0]
         txid = node.getblock(blockhash=blockhash, verbosity=2)["tx"][0]["txid"]
         assert_equal(node.getmempoolinfo()['size'], 0)
 
@@ -73,7 +75,7 @@ class MempoolWtxidTest(BitcoinTestFramework):
 
         child_one = CTransaction()
         child_one.vin.append(CTxIn(COutPoint(int(parent_txid, 16), 0), b""))
-        child_one.vout.append(CTxOut(int(9.99996 * COIN), child_script_pubkey))
+        child_one.vout.append(CTxOut(int(9.999 * COIN), child_script_pubkey))
         child_one.wit.vtxinwit.append(CTxInWitness())
         child_one.wit.vtxinwit[0].scriptWitness.stack = [b'Preimage', b'\x01', witness_script]
         child_one_wtxid = child_one.getwtxid()

@@ -45,8 +45,8 @@ class MaxUploadTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 1
         self.extra_args = [[
-            "-maxuploadtarget=800M",
-            "-datacarriersize=100000",
+            "-maxuploadtarget=1350M",
+            "-acceptnonstdtxn=1",
         ]]
         self.supports_cli = False
 
@@ -58,8 +58,7 @@ class MaxUploadTest(BitcoinTestFramework):
         self.nodes[0].setmocktime(old_time)
 
         # Generate some old blocks
-        self.wallet = MiniWallet(self.nodes[0])
-        self.generate(self.wallet, 130)
+        self.nodes[0].generate(2030)
 
         # p2p_conns[0] will only request old blocks
         # p2p_conns[1] will only request new blocks
@@ -92,9 +91,8 @@ class MaxUploadTest(BitcoinTestFramework):
 
         getdata_request = msg_getdata()
         getdata_request.inv.append(CInv(MSG_BLOCK, big_old_block))
-
-        max_bytes_per_day = 800*1024*1024
-        daily_buffer = 144 * 4000000
+        max_bytes_per_day = 1350*1024*1024
+        daily_buffer = 2700 * 512000
         max_bytes_available = max_bytes_per_day - daily_buffer
         success_count = max_bytes_available // old_block_size
 
@@ -107,7 +105,7 @@ class MaxUploadTest(BitcoinTestFramework):
         assert_equal(len(self.nodes[0].getpeerinfo()), 3)
         # At most a couple more tries should succeed (depending on how long
         # the test has been running so far).
-        for _ in range(3):
+        for _ in range(4000):
             p2p_conns[0].send_message(getdata_request)
         p2p_conns[0].wait_for_disconnect()
         assert_equal(len(self.nodes[0].getpeerinfo()), 2)

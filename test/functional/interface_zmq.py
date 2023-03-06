@@ -18,6 +18,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.messages import (
     CTransaction,
     hash256,
+    CBlockHeader,
 )
 from test_framework.util import (
     assert_equal,
@@ -29,6 +30,7 @@ from test_framework.wallet import (
 from test_framework.netutil import test_ipv6_local
 from io import BytesIO
 from time import sleep
+from test_framework.qtum import convert_btc_bech32_address_to_qtum 
 
 # Test may be skipped and not have zmq installed
 try:
@@ -204,7 +206,11 @@ class ZMQTest (BitcoinTestFramework):
 
             # Should receive the generated raw block.
             block = rawblock.receive()
-            assert_equal(genhashes[x], hash256_reversed(block[:80]).hex())
+            f = BytesIO(block)
+            header = CBlockHeader()
+            header.deserialize(f)
+            header.rehash()
+            assert_equal(genhashes[x], header.hash)
 
             # Should receive the generated block hash.
             hash = hashblock.receive().hex()

@@ -30,7 +30,7 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
         self.priv_keys.append(bytes_to_wif(key.get_bytes()))
         return address
 
-    def transaction_graph_test(self, size, n_tx_to_mine=None, start_input_txid='', end_address='', fee=Decimal(0.00100000)):
+    def transaction_graph_test(self, size, n_tx_to_mine=None, start_input_txid='', end_address='', fee=Decimal(0.40000000)):
         """Create an acyclic tournament (a type of directed graph) of transactions and use it for testing.
 
         Keyword arguments:

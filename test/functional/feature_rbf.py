@@ -180,7 +180,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         initial_nValue = 5 * COIN
         tx0_outpoint = self.make_utxo(self.nodes[0], initial_nValue)
 
-        def branch(prevout, initial_value, max_txs, tree_width=5, fee=0.00001 * COIN, _total_txs=None):
+        def branch(prevout, initial_value, max_txs, tree_width=5, fee=0.0001 * COIN, _total_txs=None):
             if _total_txs is None:
                 _total_txs = [0]
             if _total_txs[0] >= max_txs:
@@ -208,7 +208,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
                                   _total_txs=_total_txs):
                     yield x
 
-        fee = int(0.00001 * COIN)
+        fee = int(0.01 * COIN)
         n = MAX_REPLACEMENT_LIMIT
         tree_txs = list(branch(tx0_outpoint, initial_nValue, n, fee=fee))
         assert_equal(len(tree_txs), n)
@@ -238,7 +238,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         # Try again, but with more total transactions than the "max txs
         # double-spent at once" anti-DoS limit.
         for n in (MAX_REPLACEMENT_LIMIT + 1, MAX_REPLACEMENT_LIMIT * 2):
-            fee = int(0.00001 * COIN)
+            fee = int(0.01 * COIN)
             tx0_outpoint = self.make_utxo(self.nodes[0], initial_nValue)
             tree_txs = list(branch(tx0_outpoint, initial_nValue, n, fee=fee))
             assert_equal(len(tree_txs), n)
@@ -256,7 +256,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
 
     def test_replacement_feeperkb(self):
         """Replacement requires fee-per-KB to be higher"""
-        tx0_outpoint = self.make_utxo(self.nodes[0], int(1.1 * COIN))
+        tx0_outpoint = make_utxo(self.nodes[0], int(1.1 * COIN))
 
         self.wallet.send_self_transfer(
             from_node=self.nodes[0],
@@ -343,9 +343,9 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         # transactions
 
         # Start by creating a single transaction with many outputs
-        initial_nValue = 10 * COIN
-        utxo = self.make_utxo(self.nodes[0], initial_nValue)
-        fee = int(0.0001 * COIN)
+        initial_nValue = 1000 * COIN
+        utxo = make_utxo(self.nodes[0], initial_nValue)
+        fee = int(0.01 * COIN)
         split_value = int((initial_nValue - fee) / (MAX_REPLACEMENT_LIMIT + 1))
 
         splitting_tx_utxos = self.wallet.send_self_transfer_multi(
@@ -550,7 +550,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         # correctly used by replacement logic
 
         # 1. Check that feeperkb uses modified fees
-        tx0_outpoint = self.make_utxo(self.nodes[0], int(1.1 * COIN))
+        tx0_outpoint = make_utxo(self.nodes[0], int(1.1 * COIN))
 
         tx1a_txid = self.wallet.send_self_transfer(
             from_node=self.nodes[0],
@@ -560,12 +560,10 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         )["txid"]
 
         # Higher fee, but the actual fee per KB is much lower.
-        tx1b_hex = self.wallet.create_self_transfer_multi(
-            utxos_to_spend=[tx0_outpoint],
-            sequence=0,
-            num_outputs=100,
-            amount_per_output=int(0.00001 * COIN),
-        )["hex"]
+        tx1b = CTransaction()
+        tx1b.vin = [CTxIn(tx0_outpoint, nSequence=0)]
+        tx1b.vout = [CTxOut(int(0.01 * COIN), CScript([b'a' * 74000]))]
+        tx1b_hex = tx1b.serialize().hex()
 
         # Verify tx1b cannot replace tx1a.
         assert_raises_rpc_error(-26, "insufficient fee", self.nodes[0].sendrawtransaction, tx1b_hex, 0)
@@ -693,7 +691,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         self.wallet.get_utxo(txid=optout_child_tx['txid'])
 
     def test_replacement_relay_fee(self):
-        tx = self.wallet.send_self_transfer(from_node=self.nodes[0])['tx']
+        tx = self.wallet.send_self_transfer(from_node=self.nodes[0], fee_rate=Decimal("0.03"))['tx']
 
         # Higher fee, higher feerate, different txid, but the replacement does not provide a relay
         # fee conforming to node's `incrementalrelayfee` policy of 1000 sat per KB.

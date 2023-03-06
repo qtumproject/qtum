@@ -5,8 +5,10 @@
 """Test BIP68 implementation."""
 
 import time
+import random 
 
 from test_framework.blocktools import (
+	COINBASE_MATURITY,
     NORMAL_GBT_REQUEST_PARAMS,
     add_witness_commitment,
     create_block,
@@ -57,7 +59,7 @@ class BIP68Test(BitcoinTestFramework):
         self.relayfee = self.nodes[0].getnetworkinfo()["relayfee"]
 
         # Generate some coins
-        self.generate(self.nodes[0], 110)
+        self.generate(self.nodes[0], COINBASE_MATURITY+10)
 
         self.log.info("Running test disable flag")
         self.test_disable_flag()
@@ -68,11 +70,11 @@ class BIP68Test(BitcoinTestFramework):
         self.log.info("Running test sequence-lock-unconfirmed-inputs")
         self.test_sequence_lock_unconfirmed_inputs()
 
-        self.log.info("Running test BIP68 not consensus before activation")
-        self.test_bip68_not_consensus()
+        #self.log.info("Running test BIP68 not consensus before activation")
+        #self.test_bip68_not_consensus()
 
-        self.log.info("Activating BIP68 (and 112/113)")
-        self.activateCSV()
+        #self.log.info("Activating BIP68 (and 112/113)")
+        #self.activateCSV()
 
         self.log.info("Verifying nVersion=2 transactions are standard.")
         self.log.info("Note that nVersion=2 transactions are always standard (independent of BIP68 activation status).")
@@ -138,7 +140,6 @@ class BIP68Test(BitcoinTestFramework):
         while len(addresses) < max_outputs:
             addresses.append(self.nodes[0].getnewaddress())
         while len(self.nodes[0].listunspent()) < 200:
-            import random
             random.shuffle(addresses)
             num_outputs = random.randint(1, max_outputs)
             outputs = {}

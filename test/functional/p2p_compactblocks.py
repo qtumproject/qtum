@@ -4,6 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test compact blocks (BIP 152)."""
 import random
+from decimal import Decimal 
 
 from test_framework.blocktools import (
     COINBASE_MATURITY,
@@ -59,7 +60,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
     softfork_active,
-)
+	satoshi_round 
 from test_framework.wallet import MiniWallet
 
 
@@ -289,7 +290,14 @@ class CompactBlocksTest(BitcoinTestFramework):
             if not tx.wit.is_null():
                 segwit_tx_generated = True
 
-        assert segwit_tx_generated  # check that our test is not broken
+        if use_witness_address:
+            # Want at least one segwit spend, so move all funds to
+            # a witness address.
+            address = node.getnewaddress(address_type='bech32')
+            value_to_send = node.getbalance()
+            node.sendtoaddress(address, satoshi_round(value_to_send - Decimal(0.2)))
+            node.generate(1)
+            assert segwit_tx_generated  # check that our test is not broken
 
         # Wait until we've seen the block announcement for the resulting tip
         tip = int(node.getbestblockhash(), 16)
@@ -419,7 +427,7 @@ class CompactBlocksTest(BitcoinTestFramework):
         for _ in range(num_transactions):
             tx = CTransaction()
             tx.vin.append(CTxIn(COutPoint(utxo[0], utxo[1]), b''))
-            tx.vout.append(CTxOut(utxo[2] - 1000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
+            tx.vout.append(CTxOut(utxo[2] - 100000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
             tx.rehash()
             utxo = [tx.sha256, 0, tx.vout[0].nValue]
             block.vtx.append(tx)

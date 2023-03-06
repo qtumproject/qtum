@@ -28,7 +28,12 @@ from test_framework.wallet import (
     MiniWallet,
     getnewdestination,
 )
+from test_framework.messages import CBlockHeader
 
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized
+
+BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
 
 INVALID_PARAM = "abc"
 UNKNOWN_PARAM = "0000000000000000000000000000000000000000000000000000000000000000"
@@ -169,7 +174,7 @@ class RESTTest (BitcoinTestFramework):
         response_hash = output.read(32)[::-1].hex()
 
         assert_equal(bb_hash, response_hash)  # check if getutxo's chaintip during calculation was fine
-        assert_equal(chain_height, 201)  # chain height must be 201 (pre-mined chain [200] + generated block [1])
+        assert_equal(chain_height, COINBASE_MATURITY+2)  # chain height must be 102 
 
         self.log.info("Test the /getutxos URI with and without /checkmempool")
         # Create a transaction, check that it's found with /checkmempool, but

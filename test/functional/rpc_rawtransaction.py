@@ -26,12 +26,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
-from test_framework.wallet import (
-    getnewdestination,
-    MiniWallet,
-)
-
-
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD 
 TXID = "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000"
 
 
@@ -58,8 +53,9 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 3
         self.extra_args = [
-            ["-txindex"],
-            ["-txindex"],
+            ["-txindex", "-addresstype=legacy", "-minrelaytxfee=0.00000010"],
+            ["-txindex", "-addresstype=legacy", "-minrelaytxfee=0.00000010"],
+            ["-txindex", "-addresstype=legacy", "-minrelaytxfee=0.00000010"],
             [],
         ]
         # whitelist all peers to speed up tx relay / mempool sync
@@ -293,9 +289,9 @@ class RawTransactionsTest(BitcoinTestFramework):
         # and sendrawtransaction should throw
         assert_raises_rpc_error(-25, fee_exceeds_max, self.nodes[2].sendrawtransaction, tx['hex'])
         # and the following calls should both succeed
-        testres = self.nodes[2].testmempoolaccept(rawtxs=[tx['hex']], maxfeerate='0.20000000')[0]
+        testres = self.nodes[2].testmempoolaccept(rawtxs=[rawTxSigned['hex']], maxfeerate='10')[0]
         assert_equal(testres['allowed'], True)
-        self.nodes[2].sendrawtransaction(hexstring=tx['hex'], maxfeerate='0.20000000')
+        self.nodes[2].sendrawtransaction(hexstring=rawTxSigned['hex'], maxfeerate='10')
 
         self.log.info("Test sendrawtransaction/testmempoolaccept with tx already in the chain")
         self.generate(self.nodes[2], 1)
@@ -360,9 +356,8 @@ class RawTransactionsTest(BitcoinTestFramework):
         assert_raises_rpc_error(-5, "Invalid public key", self.nodes[0].createmultisig, 1, ["01020304"])
         # createmultisig can only take public keys
         self.nodes[0].createmultisig(2, [addr1Obj['pubkey'], addr2Obj['pubkey']])
-        # addmultisigaddress can take both pubkeys and addresses so long as they are in the wallet, which is tested here
-        assert_raises_rpc_error(-5, "Invalid public key", self.nodes[0].createmultisig, 2, [addr1Obj['pubkey'], addr1])
-
+        # we still allow addresses that are in the wallet for createmultisig, which has been deprecated and then removed in bitcoin
+        assert_raises_rpc_error(-5, "no full public key for address", self.nodes[0].createmultisig, 2, [addr1Obj['pubkey'], addr1]) # addmultisigaddress can take both pubkeys and addresses so long as they are in the wallet, which is tested here.
         mSigObj = self.nodes[2].addmultisigaddress(2, [addr1Obj['pubkey'], addr1])['address']
 
         # use balance deltas instead of absolute values
@@ -415,7 +410,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         rawTx = self.nodes[0].decoderawtransaction(rawTxSigned['hex'])
         self.sync_all()
         self.generate(self.nodes[0], 1)
-        assert_equal(self.nodes[0].getbalance(), bal + Decimal('50.00000000') + Decimal('2.19000000'))  # block reward + tx
+        assert_equal(self.nodes[0].getbalance(), bal+INITIAL_BLOCK_REWARD+Decimal('2.19000000')) #block reward + tx 
 
         # 2of2 test for combining transactions
         bal = self.nodes[2].getbalance()
@@ -458,7 +453,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         rawTx2 = self.nodes[0].decoderawtransaction(rawTxComb)
         self.sync_all()
         self.generate(self.nodes[0], 1)
-        assert_equal(self.nodes[0].getbalance(), bal + Decimal('50.00000000') + Decimal('2.19000000'))  # block reward + tx
+        assert_equal(self.nodes[0].getbalance(), bal+INITIAL_BLOCK_REWARD+Decimal('2.19000000')) #block reward + tx 
 
 
 if __name__ == '__main__':
