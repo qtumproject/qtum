@@ -164,8 +164,8 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">ยืนยันการเข้ารหัสวอลเล็ต</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">คำเตือน: หาก คุณ เข้ารหัส วอลเล็ต ของคุณ และ ทำพาสเฟส หาย , คุณ จะ สูญเสีย &lt;b&gt;BITCOINS ทั้งหมดของคุณ&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">คำเตือน: หาก คุณ เข้ารหัส วอลเล็ต ของคุณ และ ทำพาสเฟส หาย , คุณ จะ สูญเสีย &lt;b&gt;QTUMS ทั้งหมดของคุณ&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -184,9 +184,9 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">ป้อนพาสเฟสเก่าและพาสเฟสใหม่สำหรับวอลเล็ต</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">โปรดจำ ไว้ว่า การเข้ารหัส วอลเล็ต ของคุณ ไม่สามารถ ปกป้อง bitcoins ของคุณ ได้อย่างเต็มที่ จากการ ถูกขโมย โดยมัลแวร์ ที่ติดไวรัส บนคอมพิวเตอร์ ของคุณ</translation>
-    </message>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">โปรดจำ ไว้ว่า การเข้ารหัส วอลเล็ต ของคุณ ไม่สามารถ ปกป้อง qtums ของคุณ ได้อย่างเต็มที่ จากการ ถูกขโมย โดยมัลแวร์ ที่ติดไวรัส บนคอมพิวเตอร์ ของคุณ</translation> 
+   </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">วอลเล็ตที่จะเข้ารหัส</translation>
@@ -381,7 +381,7 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">%s นักพัฒนา</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source> 
         <translation type="unfinished">ข้อผิดพลาด: ดัมพ์ไฟล์เวอร์ชัน ไม่รองรับเวอร์ชัน บิตคอยน์-วอลเล็ต รุ่นนี้รองรับไฟล์ดัมพ์เวอร์ชัน 1 เท่านั้น รับดัมพ์ไฟล์พร้อมเวอร์ชัน %s</translation>
     </message>
     <message>
@@ -769,8 +769,8 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">พร็อกซี่ ถูก &lt;b&gt;เปิดใช้งาน&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation type="unfinished">ส่ง เหรียญ ไปยัง Bitcoin แอดเดรส</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">ส่ง เหรียญ ไปยัง Qtum แอดเดรส</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -813,9 +813,9 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">เซ็น &amp;ข้อความ...</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation type="unfinished">เซ็นชื่อด้วยข้อความ ที่เก็บ Bitcoin เพื่อแสดงว่าท่านเป็นเจ้าของ bitcoin นี้จริง</translation>
-    </message>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation type="unfinished">เซ็น ข้อความ ด้วย Qtum แอดเดรส ของคุณ เพื่อ พิสูจน์ว่า คุณ เป็นเจ้าของ มัน</translation>
+   </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;ยืนยัน ข้อความ…</translation>
@@ -885,16 +885,16 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">กำลังเชื่อมต่อ ไปยัง peers…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">ขอการชำระเงิน (สร้างรหัส QR และ bitcoin: URIs)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">เรียกเก็บ การชำระเงิน (สร้าง QR codes และ qtum: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
-        <translation type="unfinished">แสดงรายการที่ใช้ในการส่งแอดเดรสและเลเบลที่ใช้แล้ว</translation>
+        <translation type="unfinished">แสดงรายการ ที่เก็บเงินที่จะส่ง qtum ออก และป้ายชื่อ ที่ใช้ไปแล้ว</translation>
     </message>
     <message>
         <source>Show the list of used receiving addresses and labels</source>
-        <translation type="unfinished">แสดงรายการที่ได้ใช้ในการรับแอดเดรสและเลเบล</translation>
+        <translation type="unfinished">แสดงรายการ ที่เก็บเงินที่จะรับ qtum เข้า และป้ายชื่อ ที่ใช้ไปแล้ว</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -1037,10 +1037,10 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">&amp;แสดง</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n เครือข่ายที่สามารถใช้เชื่อมต่อไปยังเครือข่ายบิตคอยน์ได้</numerusform>
+            <numerusform>%n การเชื่อมต่อ ที่ใช้งานได้ เพื่อ เชื่อมกับเครือข่าย Qtum</numerusform> 
         </translation>
     </message>
     <message>
@@ -1490,8 +1490,8 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">แก้ไข แอดเดรส การส่ง</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation type="unfinished">แอดเดรส ที่ป้อน "%1" เป็น Bitcoin แอดเดรส ที่ ไม่ ถูกต้อง</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation type="unfinished">แอดเดรส ที่ป้อน "%1" เป็น Qtum แอดเดรส ที่ ไม่ ถูกต้อง</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1661,8 +1661,8 @@ Signing is only possible with addresses of the type 'legacy'</translation>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation type="unfinished">เปิด bitcoin: URI</translation>
+        <source>Open qtum URI</source>
+        <translation type="unfinished">เปิด qtum: URI</translation>
     </message>
     </context>
 <context>
@@ -2397,9 +2397,9 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">คุณต้องการสร้างธุรกรรมนี้หรือไม่?</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitcoin Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">โปรดตรวจสอบธุรกรรมของคุณ คุณสามารถสร้างและส่งธุรกรรมนี้หรือสร้างธุรกรรม Bitcoin ที่ลงชื่อบางส่วน (PSBT) ซึ่งคุณสามารถบันทึกหรือคัดลอกแล้วลงชื่อเข้าใช้ เช่น วอลเล็ต %1 ออฟไลน์, หรือ PSBT-compatible hardware wallet</translation>
+        <translation type="unfinished">โปรดตรวจสอบธุรกรรมของคุณ คุณสามารถสร้างและส่งธุรกรรมนี้หรือสร้างธุรกรรม Qtum ที่ลงชื่อบางส่วน (PSBT) ซึ่งคุณสามารถบันทึกหรือคัดลอกแล้วลงชื่อเข้าใช้ เช่น วอลเล็ต %1 ออฟไลน์, หรือ PSBT-compatible hardware wallet</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
