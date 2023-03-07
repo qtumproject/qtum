@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation type="unfinished">Izvēlies adresi ar kuru saņemt qtums</translation>//QTUM_LINE
+        <translation type="unfinished">Izvēlies adresi ar kuru saņemt qtums</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>

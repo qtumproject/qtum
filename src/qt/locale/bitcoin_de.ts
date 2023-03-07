@@ -2359,7 +2359,7 @@ Verifikations-Error: %s</translation>
     </message>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Über einen SOCKS5-Proxy mit dem Qtum-Netzwerk verbinden.</translation>//QTUM_END
+        <translation type="unfinished">Über einen SOCKS5-Proxy mit dem Qtum-Netzwerk verbinden.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -3594,7 +3594,6 @@ Hinweis: Da die Gebühr auf Basis der Bytes berechnet wird, führt eine Gebühre
 
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">Nur die minimale Gebühr zu bezahlen ist so lange in Ordnung, wie weniger Transaktionsvolumen als Platz in den Blöcken vorhanden ist. Aber Vorsicht, diese Option kann dazu führen, dass Transaktionen nicht bestätigt werden, wenn mehr Bedarf an Qtum-Transaktionen besteht als das Netzwerk verarbeiten kann.</translation>
-//QTUM_END
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
