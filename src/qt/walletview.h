@@ -27,7 +27,6 @@ class StakePage;
 class DelegationPage;
 class SuperStakerPage;
 class WalletFrame;
-
 QT_BEGIN_NAMESPACE
 class QModelIndex;
 class QProgressDialog;
@@ -79,7 +78,6 @@ private:
     StakePage *stakePage;
     DelegationPage* delegationPage;
     SuperStakerPage* superStakerPage;
-
     TransactionView *transactionView;
 
     QProgressDialog* progressDialog{nullptr};
@@ -109,7 +107,6 @@ public Q_SLOTS:
     void gotoDelegationPage();
     /** Switch to super staker page */
     void gotoSuperStakerPage();
-
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
@@ -120,6 +117,7 @@ public Q_SLOTS:
         The new items are those between start and end inclusive, under the given parent item.
     */
     void processNewTransaction(const QModelIndex& parent, int start, int /*end*/);
+
     /** Show incoming token transaction notification for new token transactions.
 
         The new items are those between start and end inclusive, under the given parent item.
@@ -139,7 +137,6 @@ public Q_SLOTS:
     void lockWallet();
     /** Sign transaction with hardware wallet*/
     void signTxHardware(const QString& tx = "");
-
     /** Show used sending addresses */
     void usedSendingAddresses();
     /** Show used receiving addresses */
@@ -157,12 +154,11 @@ Q_SIGNALS:
     /** Encryption status of wallet changed */
     void encryptionStatusChanged();
     /** Notify that a new transaction appeared */
-    void incomingTransaction(const QString& date, BitcoinUnit unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
+    void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
     /** Notify that a new token transaction appeared */
     void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& walletName, const QString& title);
     /** Notify that the out of sync warning icon has been pressed */
     void outOfSyncWarningClicked();
-
     void showMore();
     void sendCoins(QString addr = "");
     void receiveCoins();

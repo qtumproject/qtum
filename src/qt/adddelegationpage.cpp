@@ -12,7 +12,7 @@
 #include <qt/execrpccommand.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/hardwaresigntx.h>
-#include <node/interface_ui.h>
+#include <node/ui_interface.h>
 
 namespace AddDelegation_NS
 {
@@ -198,7 +198,7 @@ void AddDelegationPage::on_addDelegationClicked()
         QVariant result;
         QString errorMessage;
         QString resultJson;
-        BitcoinUnit unit = BitcoinUnit::BTC;
+        int unit = BitcoinUnits::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         QString delegateAddress = ui->lineEditAddress->currentText();

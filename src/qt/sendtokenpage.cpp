@@ -18,7 +18,7 @@
 #include <qt/styleSheet.h>
 #include <qt/hardwaresigntx.h>
 #include <interfaces/node.h>
-#include <node/interface_ui.h>
+#include <node/ui_interface.h>
 
 static const CAmount SINGLE_STEP = 0.00000001*COIN;
 
@@ -176,7 +176,7 @@ void SendTokenPage::on_confirmClicked()
 
     if(m_model)
     {
-        BitcoinUnit unit = BitcoinUnit::BTC;
+        int unit = BitcoinUnits::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         std::string label = ui->lineEditDescription->text().trimmed().toStdString();

@@ -84,7 +84,7 @@ bool ExecRPCCommand::exec(interfaces::Node &node, const WalletModel* wallet_mode
     {
         try // Nice formatting for standard-format error
         {
-            int code = find_value(objError, "code").getInt<int>();
+            int code = find_value(objError, "code").get_int();
             std::string message = find_value(objError, "message").get_str();
             errorMessage = QString::fromStdString(message) + " (code " + QString::number(code) + ")";
         }

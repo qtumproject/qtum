@@ -16,7 +16,6 @@
 #include <qt/tabbarinfo.h>
 #include <qt/titlebar.h>
 #include <wallet/wallet.h>
-
 #include <cassert>
 #include <fstream>
 #include <string>
@@ -227,7 +226,6 @@ void WalletFrame::gotoStakePage()
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoStakePage();
 }
-
 void WalletFrame::gotoSignMessageTab(QString addr)
 {
     WalletView *walletView = currentWalletView();
@@ -307,7 +305,6 @@ void WalletFrame::restoreWallet()
     if (walletView)
         walletView->restoreWallet();
 }
-
 void WalletFrame::changePassphrase()
 {
     WalletView *walletView = currentWalletView();

@@ -11,6 +11,7 @@
 #include <qt/clientmodel.h>
 #include <interfaces/node.h>
 #include <chainparams.h>
+#include <rpc/server.h>
 #include <qt/guiutil.h>
 
 #include <QFile>
@@ -147,7 +148,7 @@ void SuperStakerItemWidget::updateLogo()
     uint64_t nDelegationsWeight = d->delegationsWeight;
     if (d->staking_on && nWeight && nDelegationsWeight)
     {
-        uint64_t nNetworkWeight = m_model->node().getPoSKernelPS();
+        uint64_t nNetworkWeight = GetPoSKernelPS();
         int headersTipHeight = m_clientModel->getHeaderTipHeight();
         int64_t nTargetSpacing = Params().GetConsensus().TargetSpacing(headersTipHeight);
 
@@ -220,7 +221,7 @@ void SuperStakerItemWidget::updateDisplayUnit()
 
 void SuperStakerItemWidget::updateBalance()
 {
-    BitcoinUnit unit = BitcoinUnit::BTC;
+    int unit = BitcoinUnits::BTC;
     if(m_model && m_model->getOptionsModel())
         unit = m_model->getOptionsModel()->getDisplayUnit();
     ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, d->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS));

@@ -236,7 +236,6 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
     amount->setLocale(QLocale::c());
     amount->installEventFilter(this);
     amount->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
     unit = new QValueComboBox(this);
@@ -244,6 +243,7 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
     unit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     unit->setMinimumWidth(120);
     layout->addWidget(unit);
+    layout->addStretch(1);
     layout->setContentsMargins(0,0,0,0);
 
     setLayout(layout);
@@ -284,7 +284,7 @@ void BitcoinAmountField::setValid(bool valid)
     if (valid)
         amount->setStyleSheet("");
     else
-         SetObjectStyleSheet(amount, StyleSheetNames::Invalid);
+        SetObjectStyleSheet(amount, StyleSheetNames::Invalid);
 }
 
 bool BitcoinAmountField::eventFilter(QObject *object, QEvent *event)

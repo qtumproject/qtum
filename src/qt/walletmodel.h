@@ -13,13 +13,13 @@
 #include <script/standard.h>
 
 #include <qt/walletmodeltransaction.h>
-#include <qt/qtumhwitool.h>
+#include <qt/qtumhwitool.h> 
 
 #include <interfaces/wallet.h>
 #include <support/allocators/secure.h>
 
 #include <vector>
-#include <atomic>
+#include <atomic> 
 
 #include <QObject>
 #include <QStringList>
@@ -42,7 +42,6 @@ class WalletWorker;
 class TokenItemModel;
 class SuperStakerItemModel;
 class DelegationStakerItemModel;
-
 class CKeyID;
 class COutPoint;
 class CPubKey;
@@ -88,17 +87,16 @@ public:
         Unlocked      // wallet->IsCrypted() && !wallet->IsLocked()
     };
 
-    OptionsModel* getOptionsModel() const;
-    AddressTableModel* getAddressTableModel() const;
-    ContractTableModel *getContractTableModel() const;
-    TransactionTableModel* getTransactionTableModel() const;
-    RecentRequestsTableModel* getRecentRequestsTableModel() const;
-    TokenItemModel *getTokenItemModel() const;
-    TokenTransactionTableModel *getTokenTransactionTableModel() const;
-    DelegationItemModel *getDelegationItemModel() const;
-    SuperStakerItemModel *getSuperStakerItemModel() const;
-    DelegationStakerItemModel *getDelegationStakerItemModel() const;
-
+    OptionsModel *getOptionsModel();
+    AddressTableModel *getAddressTableModel();
+    ContractTableModel *getContractTableModel();
+    TransactionTableModel *getTransactionTableModel();
+    RecentRequestsTableModel *getRecentRequestsTableModel();
+    TokenItemModel *getTokenItemModel();
+    TokenTransactionTableModel *getTokenTransactionTableModel();
+    DelegationItemModel *getDelegationItemModel();
+    SuperStakerItemModel *getSuperStakerItemModel();
+    DelegationStakerItemModel *getDelegationStakerItemModel();
     EncryptionStatus getEncryptionStatus() const;
 
     // Check address for validity
@@ -169,23 +167,17 @@ public:
     QString getWalletName() const;
     QString getDisplayName() const;
 
-    bool isMultiwallet() const;
+    bool isMultiwallet();
     QString getRestorePath();
     QString getRestoreParam();
     bool restore();
 
     uint64_t getStakeWeight();
+    AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 
     void refresh(bool pk_hash_only = false);
 
     uint256 getLastBlockProcessed() const;
-
-    // Retrieve the cached wallet balance
-    interfaces::WalletBalances getCachedBalance() const;
-
-    // If coin control has selected outputs, searches the total amount inside the wallet.
-    // Otherwise, uses the wallet's cached available balance.
-    CAmount getAvailableBalance(const wallet::CCoinControl* control);
 
     // Get or set selected hardware device fingerprint (only for hardware wallet applicable)
     QString getFingerprint(bool stake = false) const;
@@ -199,7 +191,6 @@ public:
     bool hasLedgerProblem();
 
     void join();
-
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
     std::unique_ptr<interfaces::Handler> m_handler_unload;
@@ -297,10 +288,8 @@ Q_SIGNALS:
 
     // Notify that there are now keys in the keypool
     void canGetAddressesChanged();
-
     // Signal that available coin addresses are changed
     void availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses, bool includeZeroValue);
-
     void timerTimeout();
 
 public Q_SLOTS:

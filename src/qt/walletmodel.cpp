@@ -72,7 +72,6 @@ private Q_SLOTS:
 };
 
 #include <qt/walletmodel.moc>
-
 WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel& client_model, const PlatformStyle *platformStyle, QObject *parent) :
     QObject(parent),
     m_wallet(std::move(wallet)),
@@ -162,7 +161,6 @@ void WalletModel::pollBalanceChanged()
     pollNum++;
     if(!m_node.tryGetSyncInfo(numBlocks, isSyncing) || (isSyncing && pollNum < pollSyncSkip))
         return;
-
     // Avoid recomputing wallet balances unless a TransactionChanged or
     // BlockTip notification was received.
     if (!fForceCheckBalanceChanged && m_cached_last_update_tip == getLastBlockProcessed()) return;
@@ -176,6 +174,7 @@ void WalletModel::pollBalanceChanged()
     if (!m_wallet->tryGetBalances(new_balances, block_hash)) {
         return;
     }
+
     pollNum = 0;
 
     bool cachedBlockHashChanged = block_hash != m_cached_last_update_tip;
@@ -221,17 +220,12 @@ void WalletModel::updateContractBook(const QString &address, const QString &labe
 
 bool WalletModel::checkBalanceChanged(const interfaces::WalletBalances& new_balances)
 {
-    if (new_balances.balanceChanged(m_cached_balances)) {
+    if(new_balances.balanceChanged(m_cached_balances)) {
         m_cached_balances = new_balances;
         Q_EMIT balanceChanged(new_balances);
         return true;
     }
     return false;
-}
-
-interfaces::WalletBalances WalletModel::getCachedBalance() const
-{
-    return m_cached_balances;
 }
 
 void WalletModel::checkTokenBalanceChanged()
@@ -256,6 +250,12 @@ void WalletModel::checkSuperStakerChanged()
     {
         superStakerItemModel->checkSuperStakerChanged();
     }
+}
+
+
+interfaces::WalletBalances WalletModel::getCachedBalance() const
+{
+    return m_cached_balances;
 }
 
 void WalletModel::updateTransaction()
@@ -426,7 +426,7 @@ AddressTableModel* WalletModel::getAddressTableModel() const
     return addressTableModel;
 }
 
-ContractTableModel *WalletModel::getContractTableModel() const
+ContractTableModel *WalletModel::getContractTableModel()
 {
     return contractTableModel;
 }
@@ -441,27 +441,27 @@ RecentRequestsTableModel* WalletModel::getRecentRequestsTableModel() const
     return recentRequestsTableModel;
 }
 
-TokenItemModel *WalletModel::getTokenItemModel() const
+TokenItemModel *WalletModel::getTokenItemModel()
 {
     return tokenItemModel;
 }
 
-TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel() const
+TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
 {
     return tokenTransactionTableModel;
 }
 
-DelegationItemModel *WalletModel::getDelegationItemModel() const
+DelegationItemModel *WalletModel::getDelegationItemModel()
 {
     return delegationItemModel;
 }
 
-SuperStakerItemModel *WalletModel::getSuperStakerItemModel() const
+SuperStakerItemModel *WalletModel::getSuperStakerItemModel()
 {
     return superStakerItemModel;
 }
 
-DelegationStakerItemModel *WalletModel::getDelegationStakerItemModel() const
+DelegationStakerItemModel *WalletModel::getDelegationStakerItemModel()
 {
     return delegationStakerItemModel;
 }
@@ -516,7 +516,7 @@ bool WalletModel::restoreWallet(const QString &filename, const QString &param)
 {
     if(QFile::exists(filename))
     {
-        fs::path pathWalletBak = gArgs.GetDataDirNet() / strprintf("wallet.%d.bak", GetTime()).c_str();
+        fs::path pathWalletBak = gArgs.GetDataDirNet() / strprintf("wallet.%d.bak", GetTime());
         std::string walletBak = fs::PathToString(pathWalletBak);
         if(m_wallet->backupWallet(walletBak))
         {
@@ -631,20 +631,17 @@ void WalletModel::unsubscribeFromCoreSignals()
     m_handler_show_progress->disconnect();
     m_handler_watch_only_changed->disconnect();
     m_handler_can_get_addrs_changed->disconnect();
-    m_handler_contract_book_changed->disconnect();
 }
 
 // WalletModel::UnlockContext implementation
 WalletModel::UnlockContext WalletModel::requestUnlock()
 {
     bool was_locked = getEncryptionStatus() == Locked;
-
     if ((!was_locked) && getWalletUnlockStakingOnly())
     {
        setWalletLocked(true);
        was_locked = getEncryptionStatus() == Locked;
     }
-
     if(was_locked)
     {
         // Request UI to unlock wallet
@@ -675,11 +672,13 @@ WalletModel::UnlockContext::~UnlockContext()
     {
         wallet->setWalletLocked(true);
     }
+
     if(!relock)
     {
         wallet->setWalletUnlockStakingOnly(stakingOnly);
         wallet->updateStatus();
     }
+
 }
 
 void WalletModel::UnlockContext::CopyFrom(UnlockContext&& rhs)
@@ -824,7 +823,6 @@ CAmount WalletModel::getAvailableBalance(const CCoinControl* control)
 {
     return control && control->HasSelected() ? wallet().getAvailableBalance(*control) : getCachedBalance().balance;
 }
-
 QString WalletModel::getRestorePath()
 {
     return restorePath;

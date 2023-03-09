@@ -104,9 +104,9 @@ public:
     void updateEntry(const DelegationStakerItemEntry &item, int status)
     {
         // Find delegation staker in model
-        QList<DelegationStakerItemEntry>::iterator lower = std::lower_bound(
+        QList<DelegationStakerItemEntry>::iterator lower = qLowerBound(
             cachedDelegationStakerItem.begin(), cachedDelegationStakerItem.end(), item, DelegationStakerItemEntryLessThan());
-        QList<DelegationStakerItemEntry>::iterator upper = std::upper_bound(
+        QList<DelegationStakerItemEntry>::iterator upper = qUpperBound(
             cachedDelegationStakerItem.begin(), cachedDelegationStakerItem.end(), item, DelegationStakerItemEntryLessThan());
         int lowerIndex = (lower - cachedDelegationStakerItem.begin());
         int upperIndex = (upper - cachedDelegationStakerItem.begin());

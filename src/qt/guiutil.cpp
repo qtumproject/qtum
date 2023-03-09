@@ -125,7 +125,7 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
 
     // We don't want translators to use own addresses in translations
     // and this is the only place, where this address is supplied.
-    widget->setPlaceholderText(QObject::tr("Enter a Qtum address (e.g. %1)").arg(
+    widget->setPlaceholderText(QObject::tr("Enter a Qtum address (e.g. %1)").arg( 
         QString::fromStdString(DummyAddress(Params()))));
     widget->setValidator(new BitcoinAddressEntryValidator(parent));
     widget->setCheckValidator(new BitcoinAddressCheckValidator(parent));
@@ -139,7 +139,7 @@ void AddButtonShortcut(QAbstractButton* button, const QKeySequence& shortcut)
 bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
 {
     // return if URI is not valid or is no bitcoin: URI
-    if(!uri.isValid() || uri.scheme() != QString("qtum"))
+    if(!uri.isValid() || uri.scheme() != QString("qtum")) 
         return false;
 
     SendCoinsRecipient rv;
@@ -633,7 +633,7 @@ fs::path static StartupShortcutPath()
         return GetSpecialFolderPath(CSIDL_STARTUP) / "Qtum.lnk";
     if (chain == CBaseChainParams::TESTNET) // Remove this special case when CBaseChainParams::TESTNET = "testnet4"
         return GetSpecialFolderPath(CSIDL_STARTUP) / "Qtum (testnet).lnk";
-    return GetSpecialFolderPath(CSIDL_STARTUP) / fs::u8path(strprintf("Qtum (%s).lnk", chain));
+    return GetSpecialFolderPath(CSIDL_STARTUP) / strprintf("Qtum (%s).lnk", chain);
 }
 
 bool GetStartOnSystemStartup()
@@ -714,7 +714,7 @@ fs::path static GetAutostartFilePath()
     std::string chain = gArgs.GetChainName();
     if (chain == CBaseChainParams::MAIN)
         return GetAutostartDir() / "qtum.desktop";
-    return GetAutostartDir() / fs::u8path(strprintf("qtum-%s.desktop", chain));
+    return GetAutostartDir() / strprintf("qtum-%s.desktop", chain);
 }
 
 bool GetStartOnSystemStartup()

@@ -19,7 +19,7 @@
 #include <qt/styleSheet.h>
 #include <qt/hardwaresigntx.h>
 #include <interfaces/node.h>
-#include <node/interface_ui.h>
+#include <node/ui_interface.h>
 
 #include <QRegularExpressionValidator>
 
@@ -190,7 +190,7 @@ void CreateContract::on_createContractClicked()
         QVariant result;
         QString errorMessage;
         QString resultJson;
-        BitcoinUnit unit = BitcoinUnit::BTC;
+        int unit = BitcoinUnits::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         int func = m_ABIFunctionField->getSelectedFunction();

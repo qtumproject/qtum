@@ -2,6 +2,7 @@
 #include <qt/forms/ui_stakepage.h>
 
 #include <qt/bitcoinunits.h>
+#include <qt/clientmodel.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
@@ -86,7 +87,7 @@ void StakePage::setWalletModel(WalletModel *model)
 
 void StakePage::setBalance(const interfaces::WalletBalances& balances)
 {
-    BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
+    int unit = walletModel->getOptionsModel()->getDisplayUnit();
     m_balances = balances;
     CAmount balance = balances.balance;
     CAmount stake = balances.stake;
@@ -135,9 +136,9 @@ void StakePage::updateDisplayUnit()
     }
 }
 
-void StakePage::numBlocksChanged(int count, const QDateTime& blockDate, double nVerificationProgress, SyncType header, SynchronizationState sync_state)
+void StakePage::numBlocksChanged(int count, const QDateTime &, double, bool headers)
 {
-    if(header==SyncType::BLOCK_SYNC && clientModel && walletModel)
+    if(!headers && clientModel && walletModel)
     {
         ui->labelHeight->setText(BitcoinUnits::formatInt(count));
         m_subsidy = clientModel->node().getBlockSubsidy(count);
@@ -151,7 +152,7 @@ void StakePage::numBlocksChanged(int count, const QDateTime& blockDate, double n
 
 void StakePage::updateSubsidy()
 {
-    BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
+    int unit = walletModel->getOptionsModel()->getDisplayUnit();
     QString strSubsidy = BitcoinUnits::formatWithUnit(unit, m_subsidy, false, BitcoinUnits::SeparatorStyle::ALWAYS) + "/Block";
     ui->labelReward->setText(strSubsidy);
 }

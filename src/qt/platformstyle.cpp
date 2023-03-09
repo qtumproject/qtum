@@ -3,10 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qt/platformstyle.h>
-
 #include <qt/guiconstants.h>
 #include "styleSheet.h"
-
 #include <QApplication>
 #include <QColor>
 #include <QImage>
@@ -45,7 +43,6 @@ void MakeSingleColorImage(QImage& img, const QColor& colorbase, double opacity =
         }
     }
 }
-
 QPixmap MakeSingleColorPixmap(QImage& img, const QColor& colorbase, double opacity = 1)
 {
     MakeSingleColorImage(img, colorbase, opacity);
@@ -71,7 +68,7 @@ QImage ColorizeImage(const QString& filename, const QColor& colorbase, double op
     return img;
 }
 
-QIcon ColorizeIcon(const QString& filename, const QColor& colorbase, double opacity = 1)
+QIcon ColorizeIcon(const QString& filename, const QColor& colorbase, double opacity = 1) 
 {
     return QIcon(QPixmap::fromImage(ColorizeImage(filename, colorbase, opacity)));
 }
@@ -115,17 +112,22 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
 
 QColor PlatformStyle::TextColor() const
 {
-    return textColor;
+    return QApplication::palette().color(QPalette::WindowText);
 }
 
 QColor PlatformStyle::SingleColor() const
 {
-    return singleColor;
-}
-
-QColor PlatformStyle::MenuColor() const
-{
-    return menuColor;
+    if (colorizeIcons) {
+        const QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
+        const QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
+        const QColor colorText(QApplication::palette().color(QPalette::WindowText));
+        const int colorTextLightness = colorText.lightness();
+        if (abs(colorHighlightBg.lightness() - colorTextLightness) < abs(colorHighlightFg.lightness() - colorTextLightness)) {
+            return colorHighlightBg;
+        }
+        return colorHighlightFg;
+    }
+    return {0, 0, 0};
 }
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const

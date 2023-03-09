@@ -23,7 +23,7 @@
 #include <qt/hardwaresigntx.h>
 #include <QClipboard>
 #include <interfaces/node.h>
-#include <node/interface_ui.h>
+#include <node/ui_interface.h>
 
 namespace SendToContract_NS
 {
@@ -220,7 +220,7 @@ void SendToContract::on_sendToContractClicked()
         QVariant result;
         QString errorMessage;
         QString resultJson;
-        BitcoinUnit unit = BitcoinUnit::BTC;
+        int unit = BitcoinUnits::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         int func = m_ABIFunctionField->getSelectedFunction();
