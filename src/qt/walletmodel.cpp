@@ -228,6 +228,11 @@ bool WalletModel::checkBalanceChanged(const interfaces::WalletBalances& new_bala
     return false;
 }
 
+interfaces::WalletBalances WalletModel::getCachedBalance() const
+{
+    return m_cached_balances;
+}
+
 void WalletModel::checkTokenBalanceChanged()
 {
     if(m_client_model && tokenItemModel)
@@ -250,12 +255,6 @@ void WalletModel::checkSuperStakerChanged()
     {
         superStakerItemModel->checkSuperStakerChanged();
     }
-}
-
-
-interfaces::WalletBalances WalletModel::getCachedBalance() const
-{
-    return m_cached_balances;
 }
 
 void WalletModel::updateTransaction()
@@ -426,7 +425,7 @@ AddressTableModel* WalletModel::getAddressTableModel() const
     return addressTableModel;
 }
 
-ContractTableModel *WalletModel::getContractTableModel()
+ContractTableModel *WalletModel::getContractTableModel() const
 {
     return contractTableModel;
 }
@@ -441,27 +440,27 @@ RecentRequestsTableModel* WalletModel::getRecentRequestsTableModel() const
     return recentRequestsTableModel;
 }
 
-TokenItemModel *WalletModel::getTokenItemModel()
+TokenItemModel *WalletModel::getTokenItemModel() const
 {
     return tokenItemModel;
 }
 
-TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel()
+TokenTransactionTableModel *WalletModel::getTokenTransactionTableModel() const
 {
     return tokenTransactionTableModel;
 }
 
-DelegationItemModel *WalletModel::getDelegationItemModel()
+DelegationItemModel *WalletModel::getDelegationItemModel() const
 {
     return delegationItemModel;
 }
 
-SuperStakerItemModel *WalletModel::getSuperStakerItemModel()
+SuperStakerItemModel *WalletModel::getSuperStakerItemModel() const
 {
     return superStakerItemModel;
 }
 
-DelegationStakerItemModel *WalletModel::getDelegationStakerItemModel()
+DelegationStakerItemModel *WalletModel::getDelegationStakerItemModel() const
 {
     return delegationStakerItemModel;
 }
@@ -516,7 +515,7 @@ bool WalletModel::restoreWallet(const QString &filename, const QString &param)
 {
     if(QFile::exists(filename))
     {
-        fs::path pathWalletBak = gArgs.GetDataDirNet() / strprintf("wallet.%d.bak", GetTime());
+        fs::path pathWalletBak = gArgs.GetDataDirNet() / strprintf("wallet.%d.bak", GetTime()).c_str();
         std::string walletBak = fs::PathToString(pathWalletBak);
         if(m_wallet->backupWallet(walletBak))
         {
@@ -631,6 +630,7 @@ void WalletModel::unsubscribeFromCoreSignals()
     m_handler_show_progress->disconnect();
     m_handler_watch_only_changed->disconnect();
     m_handler_can_get_addrs_changed->disconnect();
+    m_handler_contract_book_changed->disconnect();
 }
 
 // WalletModel::UnlockContext implementation
@@ -823,6 +823,7 @@ CAmount WalletModel::getAvailableBalance(const CCoinControl* control)
 {
     return control && control->HasSelected() ? wallet().getAvailableBalance(*control) : getCachedBalance().balance;
 }
+
 QString WalletModel::getRestorePath()
 {
     return restorePath;

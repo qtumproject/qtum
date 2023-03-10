@@ -181,6 +181,7 @@ Usa el boton "Crear nueva direccion de recibimiento" en la pestaña de recibir p
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Recuerda que codificando tu billetera no garantiza mantener a salvo tus qtums en caso de tener virus en el computador.</translation>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Billetera para ser encriptada</translation>

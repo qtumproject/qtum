@@ -569,7 +569,6 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
     {
         return qvariant_cast<QIcon>(index.data(RawDecorationRole)); 
-
     }
     case Qt::DisplayRole:
         switch (column) {
@@ -739,7 +738,6 @@ void TransactionTableModel::updateDisplayUnit()
 void TransactionTablePriv::NotifyTransactionChanged(const uint256 &hash, ChangeType status)
 {
     TransactionNotification notification(hash, status, true);
-
 
     if (!m_loaded || m_loading)
     {

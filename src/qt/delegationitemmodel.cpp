@@ -244,9 +244,9 @@ public:
     void updateEntry(const DelegationItemEntry &item, int status)
     {
         // Find delegation in model
-        QList<DelegationItemEntry>::iterator lower = qLowerBound(
+        QList<DelegationItemEntry>::iterator lower = std::lower_bound(
             cachedDelegationItem.begin(), cachedDelegationItem.end(), item, DelegationItemEntryLessThan());
-        QList<DelegationItemEntry>::iterator upper = qUpperBound(
+        QList<DelegationItemEntry>::iterator upper = std::upper_bound(
             cachedDelegationItem.begin(), cachedDelegationItem.end(), item, DelegationItemEntryLessThan());
         int lowerIndex = (lower - cachedDelegationItem.begin());
         int upperIndex = (upper - cachedDelegationItem.begin());

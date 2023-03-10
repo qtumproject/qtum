@@ -4178,6 +4178,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Enter the receiver's address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</source>
         <translation type="unfinished">Введите ниже адрес получателя, сообщение (убедитесь, что переводы строк, пробелы, знаки табуляции и т. п. скопированы в точности) и подпись, чтобы проверить сообщение. Убедитесь, что вы не придаёте сообщению большего смысла, чем оно на самом деле несёт, чтобы не стать жертвой атаки "человек посередине". Обратите внимание, что подпись доказывает лишь то, что подписавший может получать qtumы на этот адрес, но никак не то, что он отправил какую-либо транзакцию!</translation>
+    </message>
     <message>
         <source>The Bitcoin address the message was signed with</source>
         <translation type="unfinished">Биткоин-адрес, которым было подписано сообщение</translation>

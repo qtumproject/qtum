@@ -1283,7 +1283,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <source>Form</source>
         <translation type="unfinished">Forma</translation>
     </message>
-    <message>.
+    <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Naujausi sandoriai gali būti dar nematomi, todėl jūsų piniginės likutis gali būti neteisingas. Ši informacija bus teisinga, kai jūsų piniginė bus baigta sinchronizuoti su qtum tinklu, kaip nurodyta žemiau.</translation>
     </message>

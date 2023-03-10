@@ -220,6 +220,21 @@ QString ClientModel::blocksDir() const
 
 void ClientModel::TipChanged(SynchronizationState sync_state, interfaces::BlockTip tip, double verification_progress, SyncType synctype)
 {
+    // Wallet batch mode checks
+    bool batchMode = false;
+    if(tip.block_height > 0)
+    {
+        int64_t secs = GetTime() - tip.block_time;
+        batchMode = secs >= MAX_BLOCK_TIME_GAP ? true : false;
+        if(batchMode)
+        {
+            if(!fBatchProcessingMode)
+            {
+                fBatchProcessingMode = true;
+            }
+        }
+    }
+
     if (synctype == SyncType::HEADER_SYNC) {
         // cache best headers time and height to reduce future cs_main locks
         cachedBestHeaderHeight = tip.block_height;
@@ -230,7 +245,7 @@ void ClientModel::TipChanged(SynchronizationState sync_state, interfaces::BlockT
     }
 
     // Throttle GUI notifications about (a) blocks during initial sync, and (b) both blocks and headers during reindex.
-    const bool throttle = (sync_state != SynchronizationState::POST_INIT && synctype == SyncType::BLOCK_SYNC) || sync_state == SynchronizationState::INIT_REINDEX;
+    const bool throttle = (sync_state != SynchronizationState::POST_INIT && synctype == SyncType::BLOCK_SYNC) || sync_state == SynchronizationState::INIT_REINDEX || batchMode;
     const int64_t now = throttle ? GetTimeMillis() : 0;
     int64_t& nLastUpdateNotification = synctype != SyncType::BLOCK_SYNC ? nLastHeaderTipUpdateNotification : nLastBlockTipUpdateNotification;
     if (throttle && now < nLastUpdateNotification + count_milliseconds(MODEL_UPDATE_DELAY)) {

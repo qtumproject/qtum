@@ -112,22 +112,17 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
 
 QColor PlatformStyle::TextColor() const
 {
-    return QApplication::palette().color(QPalette::WindowText);
+    return textColor;
 }
 
 QColor PlatformStyle::SingleColor() const
 {
-    if (colorizeIcons) {
-        const QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
-        const QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
-        const QColor colorText(QApplication::palette().color(QPalette::WindowText));
-        const int colorTextLightness = colorText.lightness();
-        if (abs(colorHighlightBg.lightness() - colorTextLightness) < abs(colorHighlightFg.lightness() - colorTextLightness)) {
-            return colorHighlightBg;
-        }
-        return colorHighlightFg;
-    }
-    return {0, 0, 0};
+    return singleColor;
+}
+
+QColor PlatformStyle::MenuColor() const
+{
+    return menuColor;
 }
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const

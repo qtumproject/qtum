@@ -45,8 +45,8 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     : QStackedWidget(parent),
       clientModel(nullptr),
       walletModel(wallet_model),
-    platformStyle(_platformStyle),
-    walletFrame(qobject_cast<WalletFrame*>(parent)) //QTUM_INSERT_LINE
+      platformStyle(_platformStyle),
+      walletFrame(qobject_cast<WalletFrame*>(parent))
 {
     assert(walletModel);
 
@@ -82,6 +82,7 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
 
     usedReceivingAddressesPage = new AddressBookPage(platformStyle, AddressBookPage::ForEditing, AddressBookPage::ReceivingTab, this);
     usedReceivingAddressesPage->setModel(walletModel->getAddressTableModel());
+
     createContractPage = new CreateContract(platformStyle);
     createContractPage->setModel(walletModel);
     sendToContractPage = new SendToContract(platformStyle);
@@ -98,6 +99,7 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     delegationPage->setModel(walletModel);
     superStakerPage = new SuperStakerPage(platformStyle);
     superStakerPage->setModel(walletModel);
+
     addWidget(overviewPage);
     addWidget(transactionsPage);
     addWidget(createContractPage);
@@ -233,6 +235,7 @@ void WalletView::processNewTokenTransaction(const QModelIndex &parent, int start
     }
     Q_EMIT incomingTokenTransaction(date, amount, type, address, label, walletModel->getWalletName(), title);
 }
+
 void WalletView::gotoOverviewPage()
 {
     setCurrentWidget(overviewPage);
@@ -442,6 +445,7 @@ void WalletView::showProgress(const QString &title, int nProgress)
         }
     }
 }
+
 void WalletView::signTxHardware(const QString &tx)
 {
     if(!walletModel)

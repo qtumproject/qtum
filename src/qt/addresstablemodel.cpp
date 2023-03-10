@@ -412,9 +412,9 @@ QString AddressTableModel::labelForAddress(const QString &address, bool cached) 
     if(cached)
     {
         // Find address / label in model
-        QList<AddressTableEntry>::iterator lower = qLowerBound(
+        QList<AddressTableEntry>::iterator lower = std::lower_bound(
             priv->cachedAddressTable.begin(), priv->cachedAddressTable.end(), address, AddressTableEntryLessThan());
-        QList<AddressTableEntry>::iterator upper = qUpperBound(
+        QList<AddressTableEntry>::iterator upper = std::upper_bound(
             priv->cachedAddressTable.begin(), priv->cachedAddressTable.end(), address, AddressTableEntryLessThan());
         bool inModel = (lower != upper);
         if(inModel)

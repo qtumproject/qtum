@@ -1435,7 +1435,7 @@
         <source>&amp;Verify Message</source>
         <translation type="unfinished">&amp;Verificar mensaje</translation>
     </message>
-    <message
+    <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verificar el mensaje para comprobar que fue firmado con la dirección Qtum indicada</translation>
  </message>

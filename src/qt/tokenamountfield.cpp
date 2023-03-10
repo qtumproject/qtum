@@ -161,7 +161,7 @@ protected:
         if (text().isEmpty()) // Allow step-up with empty field
             return StepUpEnabled;
 
-        StepEnabled rv = 0;
+        StepEnabled rv = QAbstractSpinBox::StepNone;
         bool valid = false;
         int256_t val = value(&valid);
         if(valid)

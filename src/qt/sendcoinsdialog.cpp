@@ -183,7 +183,7 @@ void SendCoinsDialog::setModel(WalletModel *_model)
         coinControlUpdateLabels();
 
         // fee section
-       for (const int n : confTargets) {
+        for (const int n : confTargets) {
             ui->confTargetSelector->addItem(tr("%1 (%2 blocks)").arg(GUIUtil::formatNiceTimeOffset(n*Params().GetConsensus().nPowTargetSpacing)).arg(n));
         }
         connect(ui->confTargetSelector, qOverload<int>(&QComboBox::currentIndexChanged), this, &SendCoinsDialog::updateSmartFeeLabel);
@@ -589,16 +589,9 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
         // failed, or more signatures are needed.
         if (broadcast) {
             // now send the prepared transaction
-            WalletModel::SendCoinsReturn sendStatus = model->sendCoins(*m_current_transaction);
-            // process sendStatus and on error generate message shown to user
-            processSendCoinsReturn(sendStatus);
-
-            if (sendStatus.status == WalletModel::OK) {
-                Q_EMIT coinsSent(m_current_transaction->getWtx()->GetHash());
-                accept();
-            } else {
-                send_failure = true;
-            }
+            model->sendCoins(*m_current_transaction);
+            Q_EMIT coinsSent(m_current_transaction->getWtx()->GetHash());
+            accept();
         }
     }
     if (!send_failure) {

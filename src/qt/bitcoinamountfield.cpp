@@ -243,7 +243,6 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
     unit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     unit->setMinimumWidth(120);
     layout->addWidget(unit);
-    layout->addStretch(1);
     layout->setContentsMargins(0,0,0,0);
 
     setLayout(layout);

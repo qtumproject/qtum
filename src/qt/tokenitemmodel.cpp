@@ -221,9 +221,9 @@ public:
     {
         // Find address / label in model
         TokenItemEntry item;
-        QList<TokenItemEntry>::iterator lower = qLowerBound(
+        QList<TokenItemEntry>::iterator lower = std::lower_bound(
             cachedTokenItem.begin(), cachedTokenItem.end(), _item, TokenItemEntryLessThan());
-        QList<TokenItemEntry>::iterator upper = qUpperBound(
+        QList<TokenItemEntry>::iterator upper = std::upper_bound(
             cachedTokenItem.begin(), cachedTokenItem.end(), _item, TokenItemEntryLessThan());
         int lowerIndex = (lower - cachedTokenItem.begin());
         int upperIndex = (upper - cachedTokenItem.begin());

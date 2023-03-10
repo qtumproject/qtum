@@ -633,7 +633,7 @@ fs::path static StartupShortcutPath()
         return GetSpecialFolderPath(CSIDL_STARTUP) / "Qtum.lnk";
     if (chain == CBaseChainParams::TESTNET) // Remove this special case when CBaseChainParams::TESTNET = "testnet4"
         return GetSpecialFolderPath(CSIDL_STARTUP) / "Qtum (testnet).lnk";
-    return GetSpecialFolderPath(CSIDL_STARTUP) / strprintf("Qtum (%s).lnk", chain);
+    return GetSpecialFolderPath(CSIDL_STARTUP) / fs::u8path(strprintf("Qtum (%s).lnk", chain));
 }
 
 bool GetStartOnSystemStartup()
@@ -714,7 +714,7 @@ fs::path static GetAutostartFilePath()
     std::string chain = gArgs.GetChainName();
     if (chain == CBaseChainParams::MAIN)
         return GetAutostartDir() / "qtum.desktop";
-    return GetAutostartDir() / strprintf("qtum-%s.desktop", chain);
+    return GetAutostartDir() / fs::u8path(strprintf("qtum-%s.desktop", chain));
 }
 
 bool GetStartOnSystemStartup()

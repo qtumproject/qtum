@@ -13,6 +13,7 @@
 #include <key_io.h>
 #include <util/message.h> // For MessageSign(), MessageVerify()
 #include <wallet/wallet.h>
+#include <qt/styleSheet.h>
 
 #include <vector>
 

@@ -70,7 +70,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
                 {
                     sub.idx = i; // vout index
                     sub.credit = txout.nValue;
-                }//QTUM_LINE
+                }
                 sub.involvesWatchAddress = mine & ISMINE_WATCH_ONLY;
                 if (wtx.txout_address_is_mine[i])
                 {

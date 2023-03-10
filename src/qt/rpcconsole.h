@@ -139,10 +139,6 @@ public Q_SLOTS:
     /** Active wallet changed */
     void activeWalletChanged(int index);
 
-Q_SIGNALS:
-    // For RPC command executor
-    void cmdRequest(const QString &command, const WalletModel* wallet_model);
-
 private:
     struct TranslatedStrings {
         const QString yes{tr("Yes")}, no{tr("No")}, to{tr("To")}, from{tr("From")},

@@ -73,6 +73,7 @@ std::vector<WalletModel*> WalletController::getOpenWallets() const
     QMutexLocker locker(&m_mutex);
     return m_wallets;
 }
+
 std::map<std::string, bool> WalletController::listWalletDir() const
 {
     QMutexLocker locker(&m_mutex);
@@ -364,8 +365,8 @@ void CreateWalletActivity::finish()
     else
     {
         if (m_wallet_model) Q_EMIT created(m_wallet_model);
-        Q_EMIT finished(); //QTUM_LINE
-    }//QTUM_INSERT_LINE
+        Q_EMIT finished();
+    }
 }
 
 void CreateWalletActivity::create()
@@ -480,6 +481,33 @@ void WalletController::getRestoreData(QString &restorePath, QString &restorePara
             restorePath = walletModel->getRestorePath();
             restoreName = walletModel->getWalletName();
             return;
+        }
+    }
+}
+
+RestoreWalletActivity::RestoreWalletActivity(WalletController* wallet_controller, QWidget* parent_widget)
+    : WalletControllerActivity(wallet_controller, parent_widget)
+{
+}
+
+void RestoreWalletActivity::restore(const fs::path& backup_file, const std::string& wallet_name)
+{
+    QString name = QString::fromStdString(wallet_name);
+
+    showProgressDialog(
+        //: Title of progress window which is displayed when wallets are being restored.
+        tr("Restore Wallet"),
+        /*: Descriptive text of the restore wallets progress window which indicates to
+            the user that wallets are currently being restored.*/
+        tr("Restoring Wallet <b>%1</b>…").arg(name.toHtmlEscaped()));
+
+    QTimer::singleShot(0, worker(), [this, backup_file, wallet_name] {
+        auto wallet{node().walletLoader().restoreWallet(backup_file, wallet_name, m_warning_message)};
+
+        if (wallet) {
+            m_wallet_model = m_wallet_controller->getOrCreateWallet(std::move(*wallet));
+        } else {
+            m_error_message = util::ErrorString(wallet);
         }
 
         QTimer::singleShot(0, this, &RestoreWalletActivity::finish);

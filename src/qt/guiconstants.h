@@ -18,6 +18,7 @@ static constexpr auto SHUTDOWN_POLLING_DELAY{200ms};
 
 /* Milliseconds between device updates */
 static constexpr auto DEVICE_UPDATE_DELAY{10000ms};
+
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;
 
@@ -56,6 +57,7 @@ static const int TOOLTIP_WRAP_THRESHOLD = 80;
 #define QAPP_APP_NAME_TESTNET "Qtum-Qt-testnet"
 #define QAPP_APP_NAME_SIGNET "Qtum-Qt-signet"
 #define QAPP_APP_NAME_REGTEST "Qtum-Qt-regtest"
+
 /* One gigabyte (GB) in bytes */
 static constexpr uint64_t GB_BYTES{1000000000};
 
