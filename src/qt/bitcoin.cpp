@@ -548,14 +548,14 @@ void BitcoinApplication::parseParameters(int argc, const char* const argv[])
     }
 }
 
-void BitcoinApplication::restart(const QString& commandLine)
+void BitcoinApplication::restart(const QString& program, const QStringList& arguments)
 {
     // Unlock the data folder
     UnlockDataDirectory();
     QThread::currentThread()->sleep(2);
 
     // Create new process and start the wallet
-    QProcess::startDetached(commandLine);
+    QProcess::startDetached(program, arguments);
 }
 
 void BitcoinApplication::restartWallet()
@@ -566,7 +566,6 @@ void BitcoinApplication::restartWallet()
     { 
         // Create command line
         QString walletParam = "-wallet=" + restoreName;
-        QString commandLine;
         QStringList arg = parameters;
         removeParam(arg, "-reindex", false);
         removeParam(arg, "-deleteblockchaindata", false);
@@ -579,7 +578,6 @@ void BitcoinApplication::restartWallet()
         {
             arg.append(walletParam);
         }
-        commandLine = arg.join(' ');
 
         // Copy the new wallet.dat to the data folder
         fs::path path = wallet::GetWalletDir();
@@ -600,7 +598,9 @@ void BitcoinApplication::restartWallet()
         // Restart wallet for restore
         if(ret)
         {
-            restart(commandLine);
+            QStringList arguments = arg;
+            QString program = arguments.takeFirst();
+            restart(program, arguments);
             restartApp = false;
         }
     }
@@ -609,8 +609,9 @@ void BitcoinApplication::restartWallet()
     if(restartApp)
     {
         // Restart wallet for option
-        QString commandLine = parameters.join(' ');
-        restart(commandLine);
+        QStringList arguments = parameters;
+        QString program = arguments.takeFirst();
+        restart(program, arguments);
     }
 }
 

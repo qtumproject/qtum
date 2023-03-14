@@ -118,7 +118,7 @@ private:
     std::unique_ptr<interfaces::Node> m_node;
 
     void startThread();
-    void restart(const QString& commandLine);
+    void restart(const QString &program, const QStringList &arguments);
 
     QString restorePath;
     QString restoreParam;
