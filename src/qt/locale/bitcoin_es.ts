@@ -72,8 +72,8 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Estas son tus direcciones Qtum para la recepción de pagos. Usa el botón 'Crear una nueva dirección para recepción' en la pestaña Recibir para crear nuevas direcciones.
-Firmar solo es posible con direcciones del tipo Legacy.</translation>
+        <translation type="unfinished">Estas son tus direcciones Qtum para la recepción de pagos. Usa el botón «Crear una nueva dirección para recepción» en la pestaña Recibir para crear nuevas direcciones.
+Firmar solo es posible con direcciones del tipo «Legacy».</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -165,7 +165,7 @@ Firmar solo es posible con direcciones del tipo Legacy.</translation>
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Atención: Si cifras tu monedero y pierdes la contraseña, perderás ¡&lt;b&gt;TODOS TUS QTUMS&lt;/b&gt;!</translation>
+        <translation type="unfinished">Atención: Si cifras tu monedero y pierdes la contraseña, &lt;b&gt;¡PERDERÁS TODOS TUS QTUMS!&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -406,8 +406,16 @@ Firmar solo es posible con direcciones del tipo Legacy.</translation>
         <translation type="unfinished">El archivo de configuración no puede escribirse</translation>
     </message>
     <message>
+        <source>The %s developers</source>
+        <translation type="unfinished">Los desarrolladores de %s</translation>
+    </message>
+    <message>
         <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
         <translation type="unfinished">%s corrupto. Intenta utilizar la herramienta del monedero qtum-monedero para salvar o restaurar una copia de seguridad.</translation>
+    </message>
+    <message>
+        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
+        <translation type="unfinished">-maxtxfee tiene un valor muy elevado! Comisiones muy grandes podrían ser pagadas en una única transacción.</translation>
     </message>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
@@ -443,7 +451,7 @@ Firmar solo es posible con direcciones del tipo Legacy.</translation>
     </message>
     <message>
         <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Error: la versión del archivo volcado no es compatible. Esta versión de qtum-wallet solo admite archivos de volcado de la versión 1. Consiguió dumpfile con versión %s</translation>
+        <translation type="unfinished">Error: la versión del archivo volcado no es compatible. Esta versión de monedero qtum solo admite archivos de volcado de la versión 1. Consigue volcado de fichero con la versión %s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
@@ -610,8 +618,8 @@ Firmar solo es posible con direcciones del tipo Legacy.</translation>
         <translation type="unfinished">La actualización -txindex iniciada por una versión anterior no puede completarse. Reinicie con la versión anterior o ejecute un -reindex completo.</translation>
     </message>
     <message>
-        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Bitcoin Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">solicitud %s de escucha en el puerto %u . Este puerto se considera "malo" y por lo tanto es poco probable que ningún par de Bitcoin Core se conecte a él. Ver doc/p2p-bad-ports.md para más detalles y una lista completa.</translation>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Qtum Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">solicitud %s de escucha en el puerto %u . Este puerto se considera "malo" y por lo tanto es poco probable que ningún par de Qtum Core se conecte a él. Ver doc/p2p-bad-ports.md para más detalles y una lista completa.</translation>
     </message>
     <message>
         <source>-reindex-chainstate option is not compatible with -blockfilterindex. Please temporarily disable blockfilterindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
@@ -1295,7 +1303,7 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Firmar mensajes con sus direcciones Qtum para probar la propiedad</translation>
+        <translation type="unfinished">Firmar un mensaje para probar que eres dueño de esta dirección</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
@@ -1303,7 +1311,7 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Verificar un mensaje para comprobar que fue firmado con la dirección Qtum indicada</translation>
+        <translation type="unfinished">Verificar mensajes comprobando que están firmados con direcciones Qtum concretas</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -1367,7 +1375,7 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">Solicitar pagos (genera código QR y URL's de Qtum)</translation>
+        <translation type="unfinished">Solicitar pagos (genera código QR y URI's de Qtum)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -1538,8 +1546,8 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
         <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n conexión(es) activas con la red de Qtum</numerusform>
-            <numerusform>%n conexión(es) activas con la red de Qtum</numerusform>
+            <numerusform>%n conexión activa con la red Qtum.</numerusform>
+            <numerusform>%n conexiones activas con la red Qtum.</numerusform>
         </translation>
     </message>
     <message>
@@ -2019,7 +2027,7 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">La dirección introducida "%1" no es una dirección Qtum válida.</translation>
+        <translation type="unfinished">La dirección introducida «%1» no es una dirección Qtum válida.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -2102,7 +2110,15 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 descargará y almacenará una copia del blockchain de Qtum.</translation>
+        <translation type="unfinished">%1 descargará y almacenará una copia de la cadena de bloques de Qtum.</translation>
+    </message>
+    <message>
+        <source>The wallet will also be stored in this directory.</source>
+        <translation type="unfinished">El monedero también se almacenará en este directorio.</translation>
+    </message>
+    <message>
+        <source>Error: Specified data directory "%1" cannot be created.</source>
+        <translation type="unfinished">Error: El directorio de datos especificado «%1» no pudo ser creado.</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -2178,12 +2194,20 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
 <context>
     <name>ModalOverlay</name>
     <message>
+        <source>Form</source>
+        <translation type="unfinished">Formulario</translation>
+    </message>
+    <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Es posible que las transacciones recientes aún no estén visibles y, por lo tanto, el saldo de su monedero podría ser incorrecto. Esta información será correcta una vez que su monedero haya terminado de sincronizarse con la red qtum, como se detalla a continuación.</translation>
+        <translation type="unfinished">Es posible que las transacciones recientes aún no estén visibles y por lo tanto, el saldo de su monedero podría ser incorrecto. Esta información será correcta una vez que su monedero haya terminado de sincronizarse con la red qtum, como se detalla a continuación.</translation>
     </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">La red no aceptará intentar gastar qtums que se vean afectados por transacciones aún no mostradas.</translation>
+    </message>
+    <message>
+        <source>Number of blocks left</source>
+        <translation type="unfinished">Numero de bloques pendientes</translation>
     </message>
     <message>
         <source>Unknown…</source>
@@ -2417,6 +2441,26 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
         <translation type="unfinished">Conectar a la red de Qtum a través de un proxy SOCKS5.</translation>
     </message>
     <message>
+        <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
+        <translation type="unfinished">&amp;Conectar a través del proxy SOCKS5 (proxy predeterminado):</translation>
+    </message>
+    <message>
+        <source>Proxy &amp;IP:</source>
+        <translation type="unfinished">&amp;IP proxy::</translation>
+    </message>
+    <message>
+        <source>&amp;Port:</source>
+        <translation type="unfinished">&amp;Puerto:</translation>
+    </message>
+    <message>
+        <source>Port of the proxy (e.g. 9050)</source>
+        <translation type="unfinished">Puerto del proxy (ej. 9050)</translation>
+    </message>
+    <message>
+        <source>Used for reaching peers via:</source>
+        <translation type="unfinished">Utilizado para llegar a los pares a través de:</translation>
+    </message>
+    <message>
         <source>&amp;Window</source>
         <translation type="unfinished">&amp;Ventana</translation>
     </message>
@@ -2467,6 +2511,10 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
     <message>
         <source>&amp;Third-party transaction URLs</source>
         <translation type="unfinished">URLs de transacciones de &amp;terceros</translation>
+    </message>
+    <message>
+        <source>Whether to show coin control features or not.</source>
+        <translation type="unfinished">Mostrar o no funcionalidad del control de moneda</translation>
     </message>
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
@@ -2571,7 +2619,7 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">La información mostrada puede estar desactualizada. Su billetera se sincroniza automáticamente con la red de Qtum después de establecer una conexión, pero este proceso aún no se ha completado.</translation>
+        <translation type="unfinished">La información mostrada puede estar desactualizada. Su monedero se sincroniza automáticamente con la red de Qtum después de establecer una conexión, pero este proceso aún no se ha completado.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -2769,12 +2817,20 @@ No es posible restaurar la copia de seguridad del monedero.</translation>
 <context>
     <name>PaymentServer</name>
     <message>
+        <source>Payment request error</source>
+        <translation type="unfinished">Error en la solicitud de pago</translation>
+    </message>
+    <message>
         <source>Cannot start qtum: click-to-pay handler</source>
-        <translation type="unfinished">No se puede iniciar qtum: encargado click-para-pagar</translation>
+        <translation type="unfinished">No se puede iniciar qtum: controlador clic-para-pagar</translation>
+    </message>
+    <message>
+        <source>URI handling</source>
+        <translation type="unfinished">Gestión de URI</translation>
     </message>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
-        <translation type="unfinished">'qtum: //' no es un URI válido. Use 'qtum:' en su lugar.</translation>
+        <translation type="unfinished">«qtum: //» no es un URI válido. Use «qtum:» en su lugar.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -3329,6 +3385,34 @@ Escribe %5 para ver un resumen de los comandos disponibles. Para más informaci�
         <translation type="unfinished">Mensaje opcional para agregar a la solicitud de pago, el cual será mostrado cuando la solicitud esté abierta. Nota: El mensaje no se enviará con el pago a través de la red de Qtum.</translation>
     </message>
     <message>
+        <source>An optional label to associate with the new receiving address.</source>
+        <translation type="unfinished">Etiqueta opcional para asociar con la nueva dirección de recepción.</translation>
+    </message>
+    <message>
+        <source>Use this form to request payments. All fields are &lt;b&gt;optional&lt;/b&gt;.</source>
+        <translation type="unfinished">Usa este formulario para solicitar un pago. Todos los campos son &lt;b&gt;opcionales&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>An optional amount to request. Leave this empty or zero to not request a specific amount.</source>
+        <translation type="unfinished">Un importe opcional para solicitar. Deje esto vacío o en cero para no solicitar una cantidad específica.</translation>
+    </message>
+    <message>
+        <source>An optional label to associate with the new receiving address (used by you to identify an invoice).  It is also attached to the payment request.</source>
+        <translation type="unfinished">Etiqueta opcional para asociar con la nueva dirección de recepción (utilizado por ti para identificar una factura). También esta asociado a la solicitud de pago.</translation>
+    </message>
+    <message>
+        <source>An optional message that is attached to the payment request and may be displayed to the sender.</source>
+        <translation type="unfinished">Mensaje opcional asociado a la solicitud de pago que podría ser presentado al remitente </translation>
+    </message>
+    <message>
+        <source>&amp;Create new receiving address</source>
+        <translation type="unfinished">&amp;Crear una nueva dirección de recepción</translation>
+    </message>
+    <message>
+        <source>Clear all fields of the form.</source>
+        <translation type="unfinished">Limpiar todos los campos del formulario.</translation>
+    </message>
+    <message>
         <source>Clear</source>
         <translation type="unfinished">Limpiar</translation>
     </message>
@@ -3664,8 +3748,24 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
         <translation type="unfinished">Configura una ruta externa al script en Opciones -&gt; Monedero</translation>
     </message>
     <message>
+        <source>Cr&amp;eate Unsigned</source>
+        <translation type="unfinished">Cr&amp;ear sin firmar</translation>
+    </message>
+    <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">Crea una Transacción de Qtum Parcialmente Firmada (TBPF) para uso con p.ej. un monedero fuera de linea %1, o un monedero de hardware compatible con TBPF</translation>
+    </message>
+    <message>
+        <source> from wallet '%1'</source>
+        <translation type="unfinished">desde monedero «%1»</translation>
+    </message>
+    <message>
+        <source>%1 to '%2'</source>
+        <translation type="unfinished">%1 a «%2»</translation>
+    </message>
+    <message>
+        <source>%1 to %2</source>
+        <translation type="unfinished">%1 a %2</translation>
     </message>
     <message>
         <source>To review recipient list click "Show Details…"</source>
@@ -3707,9 +3807,13 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
         <translation type="unfinished">o</translation>
     </message>
     <message>
+        <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
+        <translation type="unfinished">Puede incrementar la comisión más tarde (use Replace-By-Fee, BIP-125).</translation>
+    </message>
+    <message>
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Por favor, revisa tu propuesta de transacción. Esto producirá una Transacción de Qtum Parcialmente Firmada (TBPF) que puedes guardar o copiar y después firmar p.ej. un monedero fuera de línea %1, o un monedero de hardware compatible con TBPF.</translation> 
+        <translation type="unfinished">Por favor, revisa tu propuesta de transacción. Esto producirá una Transacción de Qtum Parcialmente Firmada (TBPF) que puedes guardar o copiar y después firmar p.ej. un monedero fuera de línea %1, o un monedero de hardware compatible con TBPF.</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>
@@ -3717,9 +3821,9 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
         <translation type="unfinished">¿Deseas crear esta transacción?</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source> 
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">Por favor, revisa tu transacción. Puedes crear y enviar esta transacción o crear una Transacción Qtum Parcialmente Firmada (PSBT), que puedes guardar o copiar y luego firmar con, por ejemplo, un monedero %1 offline o un monedero hardware compatible con PSBT.</translation> 
+        <translation type="unfinished">Por favor, revisa tu transacción. Puedes crear y enviar esta transacción o crear una Transacción Qtum Parcialmente Firmada (TBPF), que puedes guardar o copiar y luego firmar con, por ejemplo, un monedero %1 offline o un monedero hardware compatible con TBPF.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3786,6 +3890,18 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
         <translation type="unfinished">Alerta: Dirección de Qtum inválida</translation>
     </message>
     <message>
+        <source>Warning: Unknown change address</source>
+        <translation type="unfinished">Alerta: Dirección de cambio desconocida</translation>
+    </message>
+    <message>
+        <source>Confirm custom change address</source>
+        <translation type="unfinished">Confirmar dirección de cambio personalizada</translation>
+    </message>
+    <message>
+        <source>The address you selected for change is not part of this wallet. Any or all funds in your wallet may be sent to this address. Are you sure?</source>
+        <translation type="unfinished">La dirección que ha seleccionado para el cambio no es parte de su monedero. Parte o todos sus fondos pueden ser enviados a esta dirección. ¿Está seguro?</translation>
+    </message>
+    <message>
         <source>(no label)</source>
         <translation type="unfinished">(sin etiqueta)</translation>
     </message>
@@ -3813,6 +3929,10 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
         <translation type="unfinished">Dirección Qtum a la que se enviará el pago</translation>
     </message>
     <message>
+        <source>Paste address from clipboard</source>
+        <translation type="unfinished">Pegar dirección desde portapapeles</translation>
+    </message>
+    <message>
         <source>Remove this entry</source>
         <translation type="unfinished">Quitar esta entrada</translation>
     </message>
@@ -3822,7 +3942,11 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
     </message>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished">La comisión será deducida de la cantidad enviada. El destinatario recibirá menos qtums que la cantidad introducida en el campo Cantidad. Si hay varios destinatarios seleccionados, la comisión será distribuida a partes iguales.</translation>
+        <translation type="unfinished">La comisión será deducida de la cantidad enviada. El destinatario recibirá menos qtums que la cantidad introducida en el campo Importe. Si hay varios destinatarios seleccionados, la comisión será distribuida a partes iguales.</translation>
+    </message>
+    <message>
+        <source>S&amp;ubtract fee from amount</source>
+        <translation type="unfinished">S&amp;ustraer comisión del importe.</translation>
     </message>
     <message>
         <source>Use available balance</source>
@@ -3838,7 +3962,7 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">Mensaje que se agrgará al URI de Qtum, el cuál será almacenado con la transacción para su referencia. Nota: Este mensaje no será mandado a través de la red de Qtum.</translation>
+        <translation type="unfinished">Mensaje que se agrgará al URI de Qtum, el cuál será almacenado con la transacción para su referencia. Nota: Este mensaje no será enviado a través de la red de Qtum.</translation>
     </message>
 </context>
 <context>
@@ -3887,16 +4011,88 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
         <translation type="unfinished">Firma</translation>
     </message>
     <message>
+        <source>Copy the current signature to the system clipboard</source>
+        <translation type="unfinished">Copiar la firma actual al portapapeles del sistema</translation>
+    </message>
+    <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Firmar un mensaje para demostrar que se posee una dirección Qtum</translation>
+    </message>
+    <message>
+        <source>Sign &amp;Message</source>
+        <translation type="unfinished">Firmar &amp;mensaje</translation>
+    </message>
+    <message>
+        <source>Reset all sign message fields</source>
+        <translation type="unfinished">Limpiar todos los campos de la firma de mensaje</translation>
+    </message>
+    <message>
+        <source>Clear &amp;All</source>
+        <translation type="unfinished">Limpiar &amp;todo</translation>
+    </message>
+    <message>
+        <source>&amp;Verify Message</source>
+        <translation type="unfinished">&amp;Verificar mensaje</translation>
+    </message>
+    <message>
+        <source>Enter the receiver's address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</source>
+        <translation type="unfinished">Introduzca la dirección para la firma, el mensaje (asegurándose de copiar tal cual los saltos de línea, espacios, tabulaciones, etc.) y la firma a continuación para verificar el mensaje. Tenga cuidado de no asumir más información de lo que dice el propio mensaje firmado para evitar fraudes basados en ataques de tipo man-in-the-middle. Tenga en cuenta que esto solo prueba que la parte firmante recibe con esta dirección, ¡no puede probar el envío de ninguna transacción!</translation>
     </message>
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">Dirección Qtum con la que firmar el mensaje</translation>
     </message>
     <message>
+        <source>The signed message to verify</source>
+        <translation type="unfinished">El mensaje firmado para verificar</translation>
+    </message>
+    <message>
+        <source>The signature given when the message was signed</source>
+        <translation type="unfinished">La firma proporcionada cuando el mensaje fue firmado</translation>
+    </message>
+    <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verifique el mensaje para comprobar que fue firmado con la dirección Qtum indicada</translation>
+    </message>
+    <message>
+        <source>Verify &amp;Message</source>
+        <translation type="unfinished">Verificar &amp;mensaje</translation>
+    </message>
+    <message>
+        <source>Reset all verify message fields</source>
+        <translation type="unfinished">Limpiar todos los campos de la verificación de mensaje</translation>
+    </message>
+    <message>
+        <source>Click "Sign Message" to generate signature</source>
+        <translation type="unfinished">Haga clic en «Firmar mensaje» para generar la firma</translation>
+    </message>
+    <message>
+        <source>The entered address is invalid.</source>
+        <translation type="unfinished">La dirección introducida es inválida</translation>
+    </message>
+    <message>
+        <source>Please check the address and try again.</source>
+        <translation type="unfinished">Por favor, revise la dirección e inténtelo nuevamente.</translation>
+    </message>
+    <message>
+        <source>The entered address does not refer to a key.</source>
+        <translation type="unfinished">La dirección introducida no corresponde a una clave.</translation>
+    </message>
+    <message>
+        <source>Wallet unlock was cancelled.</source>
+        <translation type="unfinished">Se ha cancelado el desbloqueo del monedero. </translation>
+    </message>
+    <message>
+        <source>No error</source>
+        <translation type="unfinished">Sin error </translation>
+    </message>
+    <message>
+        <source>Private key for the entered address is not available.</source>
+        <translation type="unfinished">No se dispone de la clave privada para la dirección introducida.</translation>
+    </message>
+    <message>
+        <source>Message signing failed.</source>
+        <translation type="unfinished">Falló la firma del mensaje.</translation>
     </message>
     <message>
         <source>Message signed.</source>
@@ -4506,6 +4702,32 @@ Vaya a Archivo&gt; Abrir monedero para cargar un monedero.
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Cancelar</translation>
+    </message>
+</context>
+<context>
+    <name>RestoreDialog</name>
+    <message>
+        <source>Select wallet file to restore from</source>
+        <translation>Seleccione el archivo de billetera para restaurar</translation>
+    </message>
+    <message>
+        <source>Rebuild blockchain index</source>
+        <translation>rescan - reindexa la blockchain en busqueda de transacciones que no se esten mostrando
+ -  Corrige transacciones faltantes y balance incorrecto</translation>
+    </message>
+    <message>
+        <source>Recover transactions without metadata</source>
+        <translation>zapwallettxes=2 - recupera transacciones sin metadatos.
+ - Corrige problemas con transacciones faltantes, bajo balance, bloques huerfanos y cadenas separadas. Realiza una copia de seguridad luego de ejecutar este comando.</translation>
+    </message>
+    <message>
+        <source>Delete the local copy of the block chain</source>
+        <translation>Borrar datos de blockchain - borra la copia local de blockchain y activa una re-sincronizacion de la blockchain en su totalidad
+ - Corrige problemas sincronizando al igual que datos corruptos al igual que separaciones de cadena</translation>
+    </message>
+    <message>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex or -deleteblockchaindata option.</source>
+        <translation>Realiza una copia de tu billetera primero, esto necesita reiniciar la aplicacion luego de seleccionar la opcion.</translation>
     </message>
 </context>
 </TS>

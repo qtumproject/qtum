@@ -400,8 +400,16 @@
         <translation type="unfinished">Mostrar información acerca de Qt</translation>
     </message>
     <message>
+        <source>Create a new wallet</source>
+        <translation type="unfinished">Crear monedero nuevo</translation>
+    </message>
+    <message>
+        <source>&amp;Minimize</source>
+        <translation type="unfinished">Minimizar</translation>
+    </message>
+    <message>
         <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">Enviar monedas a una dirección Qtum</translation>
+        <translation type="unfinished">Enviar monedas a una dirección Bitcoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>

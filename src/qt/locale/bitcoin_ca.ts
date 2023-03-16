@@ -1088,7 +1088,7 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Signa els missatges amb la seva adreça de Qtum per a provar que les posseeixes</translation>
+        <translation type="unfinished">Signa el missatges amb la seva adreça de Qtum per provar que les poseeixes</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
@@ -1096,7 +1096,7 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Verifiqueu els missatges per a assegurar-vos que han estat signats amb una adreça Qtum específica.</translation>
+        <translation type="unfinished">Verifiqueu els missatges per assegurar-vos que han estat signats amb una adreça Qtum específica.</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -1212,6 +1212,10 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Carrega la transacció Qtum signada parcialment</translation>
+    </message>
+    <message>
+        <source>Load PSBT from &amp;clipboard…</source>
+        <translation type="unfinished">Carrega la PSBT des del porta-retalls.</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
@@ -2459,6 +2463,7 @@ Si rebeu aquest error, haureu de sol·licitar al comerciant que proporcioni un U
     </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <translation type="unfinished">L'URI no pot ser analitzat! Això pot ser a causa d'una adreça de Qtum no vàlida o per paràmetres URI amb mal format.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -3546,8 +3551,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">Podeu signar missatges/acords amb les vostres adreces per a provar que rebeu les qtums que s'hi envien. Aneu amb compte no signar res que sigui vague o aleatori, perquè en alguns atacs de suplantació es pot provar que hi signeu la vostra identitat. Només signeu aquelles declaracions completament detallades en què hi esteu d'acord. </translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation type="unfinished">L'adreça Bitcoin amb què signar el missatge</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation type="unfinished">L'adreça Qtum amb què signar el missatge</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
