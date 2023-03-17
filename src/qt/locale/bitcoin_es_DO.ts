@@ -409,7 +409,7 @@
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">Enviar monedas a una dirección Bitcoin</translation>
+        <translation type="unfinished">Enviar monedas a una dirección Qtum</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>

@@ -444,6 +444,7 @@
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">ផ្ញើកាក់ទៅកាន់ អាសយដ្ឋាន Qtum មួយ</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>

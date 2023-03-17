@@ -606,8 +606,8 @@ E' possibile firmare solo con indirizzi di tipo "legacy".</translation>
         <translation type="unfinished">L'upgrade -txindex avviato su una versione precedente non può essere completato. Riavviare con la versione precedente o eseguire un -reindex completo.</translation>
     </message>
     <message>
-        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Bitcoin Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">%s richiede di ascoltare sulla porta %u.  Questa porta è considerata "cattiva" e quindi è improbabile che qualsiasi peer Bitcoin Core si colleghi ad essa. Guardare doc/p2p-bad-ports.md per i dettagli ed un elenco completo.</translation>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Qtum Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">%s richiede di ascoltare sulla porta %u.  Questa porta è considerata "cattiva" e quindi è improbabile che qualsiasi peer Qtum Core si colleghi ad essa. Guardare doc/p2p-bad-ports.md per i dettagli ed un elenco completo.</translation>
     </message>
     <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
@@ -1314,7 +1314,7 @@ Non in grado di ripristinare il backup del portafoglio.</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">Carica Partially Signed Qtum Transaction</translation>
+        <translation type="unfinished">Carica Transazione Qtum Parzialmente Firmata (PSBT)</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -1430,8 +1430,8 @@ Non in grado di ripristinare il backup del portafoglio.</translation>
         <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%nconnessione attiva alla rete Bitcoin</numerusform>
-            <numerusform>%nconnessioni attive alla rete Bitcoin</numerusform>
+            <numerusform>%nconnessione attiva alla rete Qtum</numerusform>
+            <numerusform>%nconnessioni attive alla rete Qtum</numerusform>
         </translation>
     </message>
     <message>
@@ -2702,7 +2702,8 @@ Non in grado di ripristinare il backup del portafoglio.</translation>
     </message>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
-        <translation type="unfinished">Impossibile avviare qtum: gestore click-to-pay</translation>   </message>
+        <translation type="unfinished">Impossibile avviare qtum: gestore click-to-pay</translation>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Gestione URI</translation>
@@ -4442,7 +4443,7 @@ Vai su File &gt; Apri Portafoglio per caricare un portafoglio.
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
-        <translation type="unfinished">Invia Qtum</translation>
+        <translation type="unfinished">Invia Monete</translation>
     </message>
     <message>
         <source>Fee bump error</source>

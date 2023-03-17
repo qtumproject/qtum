@@ -321,7 +321,7 @@ Alihkan fail data ke dalam tab semasa</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">sahkan mesej bersama alamat Qtum anda untuk menunjukkan alamat ini anda punya</translation>
+        <translation type="unfinished">sahkan mesej bersama alamat qtum anda untuk menunjukkan alamat ini anda punya</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
@@ -345,8 +345,8 @@ Alihkan fail data ke dalam tab semasa</translation>
 </translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and Qtum: URIs)</source>
-        <translation type="unfinished">Request payments (generates QR codes and Qtum: URIs)
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">Request payments (generates QR codes and qtum: URIs)
 </translation>
     </message>
     <message>

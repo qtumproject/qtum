@@ -1233,8 +1233,8 @@ Tidak dapat memulihkan cadangan dompet..</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Tanda tangani sebuah pesan menggunakan alamat Qtum Anda untuk membuktikan bahwa Anda adalah pemiliknya</translation>
-   </message>
+        <translation type="unfinished">Tanda tangani sebuah pesan menggunakan alamat Qtum Anda untuk membuktikan bahwa Anda adalah pemilik alamat tersebut</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verifikasi pesan...</translation>
@@ -2326,7 +2326,8 @@ Tidak dapat memulihkan cadangan dompet..</translation>
    </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-   </message>
+        <translation type="unfinished">Otomatis membuka port client Qtum di router. Hanya berjalan apabila router anda mendukung UPnP dan di-enable.</translation>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Petakan port dengan &amp;UPnP</translation>
@@ -3814,8 +3815,8 @@ Catatan: Karena biaya dihitung berdasarkan per byte, tarif biaya "100 satoshi pe
         <translation type="unfinished">Masukkan label untuk alamat ini untuk dimasukan dalam daftar alamat yang pernah digunakan</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the qtum network.</source>
-        <translation type="unfinished">Pesan yang dilampirkan ke qtum: URI yang akan disimpan dengan transaksi untuk referensi Anda. Catatan: Pesan ini tidak akan dikirim melalui jaringan qtum.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">Pesan yang dilampirkan ke qtum: URI yang akan disimpan dengan transaksi untuk referensi Anda. Catatan: Pesan ini tidak akan dikirim melalui jaringan Qtum.</translation>
     </message>
 </context>
 <context>

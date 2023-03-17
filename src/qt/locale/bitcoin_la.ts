@@ -359,6 +359,7 @@
    </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation type="unfinished">Verifica nuntios ut certus sis eos signatos esse cum specificatis inscriptionibus Qtum</translation>
     </message>
     <message>
         <source>&amp;File</source>

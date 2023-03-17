@@ -174,7 +174,7 @@
     </message>
 </context>
 <context>
-    <name>QtumApplication</name>
+    <name>BitcoinApplication</name>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">ਇੱਕ ਘਾਤਕ ਗਲਤੀ ਆਈ ਹੈ। %1ਹੁਣ ਸੁਰੱਖਿਅਤ ਢੰਗ ਨਾਲ ਜਾਰੀ ਨਹੀਂ ਰਹਿ ਸਕਦਾ ਹੈ ਅਤੇ ਛੱਡ ਦੇਵੇਗਾ।</translation>
@@ -234,7 +234,7 @@
     </message>
     </context>
 <context>
-    <name>qtum-core</name>
+    <name>bitcoin-core</name>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">ਸੈਟਿੰਗ ਫਾਈਲ ਨੂੰ ਪੜ੍ਹਨ ਵਿੱਚ ਅਸਫਲ</translation>
@@ -245,7 +245,7 @@
     </message>
     </context>
 <context>
-    <name>QtumGUI</name>
+    <name>BitcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation type="unfinished">&amp;ਓਵਰਵਿਊ</translation>

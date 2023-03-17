@@ -484,8 +484,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>PaymentServer</name>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation type="unfinished">ناتوانێت دەست بکات بە bitcoin: کرتە بکە بۆ-پارەدانی کار</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation type="unfinished">ناتوانێت دەست بکات بە qtum: کرتە بکە بۆ-پارەدانی کار</translation>
     </message>
     </context>
 <context>

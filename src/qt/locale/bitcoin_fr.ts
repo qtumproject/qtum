@@ -72,8 +72,8 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Ce sont vos adresses Qtum pour recevoir des paiements. Utilisez le bouton « Créer une nouvelle adresse de réception » dans l’onglet Recevoir afin de créer de nouvelles adresses.
-Il n’est possible de signer qu’avec les adresses de type « legacy ».</translation>
+        <translation type="unfinished">Il s'agit de vos adresses Qtum pour la réception des paiements. Utilisez le bouton "Créer une nouvelle adresse de réception" dans l'onglet "Recevoir" pour créer de nouvelles adresses.
+La signature n'est possible qu'avec les adresses de type "patrimoine".</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -305,6 +305,10 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Saisir une adresse Qtum (p. ex. %1)</translation>
+    </message>
+    <message>
+        <source>Ctrl+W</source>
+        <translation type="unfinished">Ctrl-W</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -1471,8 +1475,8 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n connexion active avec le réseau Qtum.</numerusform>
-            <numerusform>%n connexions actives avec le réseau Qtum.</numerusform>
+            <numerusform />
+            <numerusform />
         </translation>
     </message>
     <message>
@@ -3781,13 +3785,9 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation type="unfinished">Avertissement : L’adresse Bitcoin est invalide</translation>
-    </message>
-    <message>
         <source>Warning: Invalid Qtum address</source>
-        <translation type="unfinished">Avertissement : L’adresse Qtum est invalide</translation> 
-   </message>
+        <translation type="unfinished">Avertissement : L’adresse Qtum est invalide</translation>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Avertissement : L’adresse de monnaie est inconnue</translation>
@@ -3860,8 +3860,8 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <translation type="unfinished">Saisir une étiquette pour cette adresse afin de l’ajouter à la liste d’adresses utilisées</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">Un message qui était joint à l’URI qtum: et qui sera stocké avec la transaction pour référence. Note : Ce message ne sera pas envoyé par le réseau Bitcoin.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">Un message qui était joint à l’URI qtum: et qui sera stocké avec la transaction pour référence. Note : Ce message ne sera pas envoyé par le réseau Qtum.</translation>
     </message>
 </context>
 <context>
