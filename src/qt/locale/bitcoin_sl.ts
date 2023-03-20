@@ -1213,8 +1213,8 @@ Podpisovanje je možno le s podedovanimi ("legacy") naslovi.</translation>
         </translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation type="unfinished">Naloži delno podpisano bitcoin-transakcijo</translation>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation type="unfinished">Naloži delno podpisano qtum-transakcijo</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -1326,10 +1326,10 @@ Podpisovanje je možno le s podedovanimi ("legacy") naslovi.</translation>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n aktivna povezava v omrežje qtum</numerusform>
-            <numerusform>%n aktivni povezavi v omrežje qtum</numerusform>
-            <numerusform>%n aktivne povezave v omrežje qtum</numerusform>
-            <numerusform>%n aktivnih povezav v omrežje qtum</numerusform> 
+            <numerusform>%n aktivna povezava v omrežje qtum. </numerusform>
+            <numerusform>%n aktivni povezavi v omrežje qtum.</numerusform>
+            <numerusform>%n aktivne povezave v omrežje qtum.</numerusform>
+            <numerusform>%n aktivnih povezav v omrežje qtum.</numerusform> 
        </translation>
     </message>
     <message>
@@ -3766,8 +3766,8 @@ Opomba: Ker se provizija izračuna na bajt, bi provizija "100 satoshijev na kvB"
         <translation type="unfinished">Če vnesete oznako za zgornji naslov, se bo skupaj z naslovom shranila v imenik že uporabljenih naslovov</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">Sporočilo, ki je bilo pripeto na URI tipa qtum: in bo shranjeno skupaj s podatki o transakciji. Opomba: Sporočilo ne bo poslano preko omrežja Bitcoin.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">Sporočilo, ki je bilo pripeto na URI tipa qtum: in bo shranjeno skupaj s podatki o transakciji. Opomba: Sporočilo ne bo poslano preko omrežja Qtum.</translation>
     </message>
 </context>
 <context>

@@ -1032,8 +1032,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">连到同行...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and Qtum: URIs)</source>
-        <translation type="unfinished">要求付款(產生 QR Code 和 Qtum 付款協議的資源識別碼: URI)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">要求付款(產生 QR Code 和 qtum 付款協議的資源識別碼: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -1110,7 +1110,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;接收地址</translation>
     </message>
     <message>
-        <source>Open a Qtum: URI</source>
+        <source>Open a qtum: URI</source>
         <translation type="unfinished">打開一個比特幣：URI</translation>
     </message>
     <message>
@@ -1738,12 +1738,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">表單</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation type="unfinished">最近的交易可能還看不到，因此錢包餘額可能不正確。在錢包軟體完成跟 Qtum 網路的同步後，這裡的資訊就會正確。詳情請見下面。</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation type="unfinished">最近的交易可能還看不到，因此錢包餘額可能不正確。在錢包軟體完成跟 qtum 網路的同步後，這裡的資訊就會正確。詳情請見下面。</translation>
     </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">使用還沒顯示出來的交易所影響到的 qtums 可能會不被網路所接受。</translation>
+        <translation type="unfinished">使用還沒顯示出來的交易所影響到的 qtum 可能會不被網路所接受。</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -3031,7 +3031,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid qtum address</source>
+        <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">警告: 比特幣地址無效</translation>
     </message>
     <message>
@@ -3070,7 +3070,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">選擇先前使用過的地址</translation>
     </message>
     <message>
-        <source>The qtum address to send the payment to</source>
+        <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">將支付發送到的比特幣地址給</translation>
     </message>
     <message>
@@ -3106,8 +3106,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">請輸入這個地址的標籤，來把它加進去已使用過地址清單。</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">附加在 qtum 付款協議的資源識別碼(URI)中的訊息，會和交易內容一起存起來，給你自己做參考。注意: 這個訊息不會送到 Bitcoin 網路上。</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">附加在 Qtum 付款協議的資源識別碼(URI)中的訊息，會和交易內容一起存起來，給你自己做參考。注意: 這個訊息不會送到 Qtum 網路上。</translation>
     </message>
 </context>
 <context>

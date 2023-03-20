@@ -462,8 +462,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s пошкоджено. Спробуйте скористатися інструментом гаманця qtum-wallet для відновлення або відновлення резервної копії.</translation> 
-   </message>
+        <translation type="unfinished">%s пошкоджено. Спробуйте скористатися інструментом гаманця qtum-wallet для виправлення або відновлення резервної копії.</translation>
+    </message>
     <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
         <translation type="unfinished">Встановлено дуже велике значення -maxtxfee! Такі великі комісії можуть бути сплачені окремою транзакцією.</translation>
@@ -669,8 +669,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Оновлення -txindex, що було почате попередньою версією, не вдалося завершити. Перезапустить попередню версію або виконайте повний -reindex.</translation>
     </message>
     <message>
-        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Bitcoin Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">%s запитує прослуховування порту %u . Цей порт вважається "поганим", і тому малоймовірно, що будь-які інші вузли Bitcoin Core підключаться до нього. Дивіться doc/p2p-bad-ports.md для отримання детальної інформації та повного списку.</translation>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Qtum Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">%s запитує прослуховування порту %u . Цей порт вважається "поганим", і тому малоймовірно, що будь-які інші вузли Qtum Core підключаться до нього. Дивіться doc/p2p-bad-ports.md для отримання детальної інформації та повного списку.</translation>
     </message>
     <message>
         <source>-reindex-chainstate option is not compatible with -blockfilterindex. Please temporarily disable blockfilterindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
@@ -1358,8 +1358,8 @@ Unable to restore backup of wallet.</source>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Підтвердіть, що ви є власником повідомлення підписавши його вашою Qtum-адресою</translation> 
-   </message>
+        <translation type="unfinished">Підтвердіть, що Ви є власником повідомлення, підписавши його Вашою qtum-адресою</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">П&amp;еревірити повідомлення...</translation>
@@ -1486,7 +1486,7 @@ Unable to restore backup of wallet.</source>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">Завантажити частково підписану qtum-транзакцію (PSBT) з файлу</translation>
+        <translation type="unfinished">Завантажити частково підписану qtum-транзакцію (PSBT)</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -1610,9 +1610,9 @@ Unable to restore backup of wallet.</source>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n активне з'єднання з мережею Qtum</numerusform>
-            <numerusform>%n активних з'єднання з мережею Qtum</numerusform>
-            <numerusform>%n активних з'єднань з мережею Qtum</numerusform>
+            <numerusform>%n активне з'єднання з мережею Qtum.</numerusform>
+            <numerusform>%n активних з'єднання з мережею Qtum.</numerusform>
+            <numerusform>%n активних з'єднань з мережею Qtum.</numerusform>
         </translation>
     </message>
     <message>
@@ -2104,7 +2104,7 @@ Unable to restore backup of wallet.</source>
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">Введена адреса "%1" не є дійсною Qtum адресою.</translation>
+        <translation type="unfinished">Введена адреса "%1" не є дійсною qtum-адресою.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -2284,7 +2284,7 @@ Unable to restore backup of wallet.</source>
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Нещодавні транзакції ще не відображаються, тому баланс вашого гаманця може бути неточним. Ця інформація буде вірною після того, як ваш гаманець завершить синхронізацію з мережею Qtum, враховуйте показники нижче.</translation>
+        <translation type="unfinished">Нещодавні транзакції ще не відображаються, тому баланс вашого гаманця може бути неточним. Ця інформація буде вірною після того, як ваш гаманець завершить синхронізацію з мережею Qtum (дивіться нижче).</translation>
     </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
@@ -2486,7 +2486,7 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Enable &amp;PSBT controls</source>
         <extracomment>An options window setting to enable PSBT controls.</extracomment>
-        <translation type="unfinished">Увімкнути функції &amp;частково підписаних біткоїн-транзакцій (PSBT)</translation>
+        <translation type="unfinished">Увімкнути функції &amp;частково підписаних qtum-транзакцій (PSBT)</translation>
     </message>
     <message>
         <source>Whether to show PSBT controls.</source>
@@ -2860,7 +2860,7 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Partially Signed Transaction (Binary)</source>
         <extracomment>Expanded name of the binary PSBT file format. See: BIP 174.</extracomment>
-        <translation type="unfinished">Частково підписана біткоїн-транзакція (бінарний файл)</translation>
+        <translation type="unfinished">Частково підписана qtum-транзакція (бінарний файл)</translation>
     </message>
     <message>
         <source>PSBT saved to disk.</source>
@@ -3509,7 +3509,7 @@ For more information on using this console, type %6.
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">Необов'язкове повідомлення на додаток до запиту платежу, котре буде показане під час відкриття запиту. Примітка: Це повідомлення не буде відправлено з платежем через мережу Qtum.</translation>
+        <translation type="unfinished">Необов'язкове повідомлення на додаток до запиту платежу, яке буде показане під час відкриття запиту. Примітка: це повідомлення не буде відправлено з платежем через мережу Qtum.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -4058,8 +4058,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
-        <translation type="unfinished">Адреса Qtum для відправлення платежу</translation>
-   </message>
+        <translation type="unfinished">Qtum-адреса для відправлення платежу</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Вставити адресу</translation>
@@ -4093,8 +4093,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">Введіть мітку для цієї адреси для додавання її в список використаних адрес</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">Повідомлення, що було додане до qtum:URI та буде збережено разом з транзакцією для довідки. Примітка: це повідомлення не буде відправлено в мережу Біткоїн.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">Повідомлення, що було додане до qtum:URI та буде збережено разом з транзакцією для довідки. Примітка: це повідомлення не буде відправлено в мережу Qtum.</translation>
     </message>
 </context>
 <context>

@@ -66,13 +66,13 @@
         <translation type="unfinished">แอดเดรส การรับ</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <translation type="unfinished">These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'</translation>
     </message>
     <message>
@@ -405,8 +405,8 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <translation type="unfinished">ไม่สามารถตั้งค่า -peerblockfilters โดยที่ไม่มี -blockfilterindex</translation>
     </message>
     <message>
-        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Bitcoin Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">%sขอฟังความเห็นเรื่องพอร์ต%u พอร์ตนี้ถือว่า "ไม่ดี" ดังนั้นจึงไม่น่าเป็นไปได้ที่ Bitcoin Core จะเชื่อมต่อกับพอร์ตนี้ ดู doc/p2p-bad-ports.md สำหรับรายละเอียดและรายการทั้งหมด</translation>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Qtum Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">%sขอฟังความเห็นเรื่องพอร์ต%u พอร์ตนี้ถือว่า "ไม่ดี" ดังนั้นจึงไม่น่าเป็นไปได้ที่ Qtum Core จะเชื่อมต่อกับพอร์ตนี้ ดู doc/p2p-bad-ports.md สำหรับรายละเอียดและรายการทั้งหมด</translation>
     </message>
     <message>
         <source>Error loading %s: External signer wallet being loaded without external signer support compiled</source>
@@ -814,15 +814,15 @@ Signing is only possible with addresses of the type 'legacy'</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">เซ็น ข้อความ ด้วย Qtum แอดเดรส ของคุณ เพื่อ พิสูจน์ว่า คุณ เป็นเจ้าของ มัน</translation>
-   </message>
+        <translation type="unfinished">เซ็นชื่อด้วยข้อความ ที่เก็บ Qtum เพื่อแสดงว่าท่านเป็นเจ้าของ qtum นี้จริง</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;ยืนยัน ข้อความ…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation type="unfinished">ตรวจสอบ ข้อความ เพื่อให้แน่ใจว่า การเซ็นต์ชื่อ ด้วยที่เก็บ Bitcoin แล้ว</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation type="unfinished">ตรวจสอบ ข้อความ เพื่อให้แน่ใจว่า การเซ็นต์ชื่อ ด้วยที่เก็บ Qtum แล้ว</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -886,15 +886,15 @@ Signing is only possible with addresses of the type 'legacy'</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">เรียกเก็บ การชำระเงิน (สร้าง QR codes และ qtum: URIs)</translation>
+        <translation type="unfinished">ขอการชำระเงิน (สร้างรหัส QR และ qtum: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
-        <translation type="unfinished">แสดงรายการ ที่เก็บเงินที่จะส่ง qtum ออก และป้ายชื่อ ที่ใช้ไปแล้ว</translation>
+        <translation type="unfinished">แสดงรายการที่ใช้ในการส่งแอดเดรสและเลเบลที่ใช้แล้ว</translation>
     </message>
     <message>
         <source>Show the list of used receiving addresses and labels</source>
-        <translation type="unfinished">แสดงรายการ ที่เก็บเงินที่จะรับ qtum เข้า และป้ายชื่อ ที่ใช้ไปแล้ว</translation>
+        <translation type="unfinished">แสดงรายการที่ได้ใช้ในการรับแอดเดรสและเลเบล</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -1040,7 +1040,7 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n การเชื่อมต่อ ที่ใช้งานได้ เพื่อ เชื่อมกับเครือข่าย Qtum</numerusform> 
+            <numerusform>%n เครือข่ายที่สามารถใช้เชื่อมต่อไปยังเครือข่ายบิตคอยน์ได้</numerusform>
         </translation>
     </message>
     <message>
@@ -1557,8 +1557,8 @@ Signing is only possible with addresses of the type 'legacy'</translation>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 จะดาวน์โหลดและจัดเก็บสำเนาของบล็อกเชน Bitcoin</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 จะดาวน์โหลดและจัดเก็บสำเนาของบล็อกเชน Qtum</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>

@@ -129,8 +129,8 @@
     </message>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Xin lưu ý rằng mật mã hóa ví của bạn không thể bảo vệ hoàn toàn qtum của bạn khỏi đánh cắp bởi các phẩn mềm gián điệp nhiễm vào máy tính của bạn.</translation>
-   </message>
+        <translation type="unfinished">Xin lưu ý rằng mã hoá ví của bạn không thể bảo về hoàn toàn Qtum của bạn khỏi việc bị đánh cắp mới các phần mềm gián điệp nhiễm vào máy tính của bạn.</translation>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Ví sẽ được mã hoá</translation>
@@ -275,8 +275,8 @@
         <translation type="unfinished">Không thể hoàn tất nâng cấp -txindex được bắt đầu bởi phiên bản trước. Khởi động lại với phiên bản trước đó hoặc chạy -reindex đầy đủ.</translation>
     </message>
     <message>
-        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Bitcoin Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">%s yêu cầu lắng nghe trên cổng %u. Cổng này được coi là "xấu" và do đó không có khả năng bất kỳ ngang hàng Bitcoin Core nào kết nối với nó. Xem doc/p2p-bad-ports.md để biết chi tiết và danh sách đầy đủ.</translation>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Qtum Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">%s yêu cầu lắng nghe trên cổng %u. Cổng này được coi là "xấu" và do đó không có khả năng bất kỳ ngang hàng Qtum Core nào kết nối với nó. Xem doc/p2p-bad-ports.md để biết chi tiết và danh sách đầy đủ.</translation>
     </message>
     <message>
         <source>-reindex-chainstate option is not compatible with -blockfilterindex. Please temporarily disable blockfilterindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
@@ -362,16 +362,16 @@
         <translation type="unfinished">&amp;Thay dổi Passphrase…</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation type="unfinished">Đăng ký lời nhắn với địa chỉ Bitcoin của bạn để chứng minh quyền sở hữu chúng</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation type="unfinished">Đăng ký lời nhắn với địa chỉ Qtum của bạn để chứng minh quyền sở hữu chúng</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Xác minh tin nhắn…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation type="unfinished">Xác minh lời nhắn để chắc chắn đã được đăng ký với địa chỉ Bitcoin xác định</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation type="unfinished">Xác minh lời nhắn để chắc chắn đã được đăng ký với địa chỉ Qtum xác định</translation>
     </message>
     <message>
         <source>Close Wallet…</source>
@@ -432,8 +432,8 @@
         <translation type="unfinished">Đang bắt kịp...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation type="unfinished">Kết nối với mạng Bitcoin thông qua một proxy SOCKS5 riêng cho các dịch vụ Tor hành.</translation>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation type="unfinished">Kết nối với mạng Qtum thông qua một proxy SOCKS5 riêng cho các dịch vụ Tor hành.</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -481,12 +481,9 @@
         <translation type="unfinished">Khôi phục ví...</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation type="unfinished">Hiển thị %1 tin nhắn hỗ trợ để nhận được danh sách Qtum command-line khả dụng</translation> 
-   </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">ví mặc định</translation>
+        <source>Restore a wallet from a backup file</source>
+        <extracomment>Status tip for Restore Wallet menu item</extracomment>
+        <translation type="unfinished">Khôi phục ví từ tệp đã sao lưu</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -519,10 +516,10 @@
         <translation type="unfinished">Trìn&amp;h diễn</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%nkết nối đang hoạt động với mạng lưới Bitcoin</numerusform>
+            <numerusform>%nkết nối đang hoạt động với mạng lưới Qtum</numerusform>
         </translation>
     </message>
     <message>
@@ -718,8 +715,8 @@
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 sẽ download và lưu trữ một bản copy của Qtum block chain.</translation>
+        <source>Error: Specified data directory "%1" cannot be created.</source>
+        <translation type="unfinished">Lỗi: Danh mục data xác định "%1" không thể được tạo.</translation>
     </message>
     <message>
         <source>Welcome</source>
@@ -763,16 +760,8 @@
 <context>
     <name>ModalOverlay</name>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Giao dịch gần đây có thể chưa được hiển thị, và vì vậy số dư wallet của bạn có thể không dúng. Thông tin này sẽ được làm đúng khi wallet hoàn thành đồng bộ với qtum network, như chi tiết bên dưới.</translation> 
-   </message>
-    <message>
-        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Cố gắng spend các qtums bị ảnh hưởng bởi các giao dịch chưa được hiển thị sẽ không được chấp nhận bởi mạng.</translation>
-   </message>
-    <message>
-        <source>Number of blocks left</source>
-        <translation type="unfinished">Số của blocks còn lại</translation>
+        <source>Unknown…</source>
+        <translation type="unfinished">Không xác định…</translation>
     </message>
     <message>
         <source>calculating…</source>
@@ -785,10 +774,6 @@
     </context>
 <context>
     <name>OpenURIDialog</name>
-    <message>
-        <source>Open qtum URI</source>
-        <translation type="unfinished">Mở qtum URI</translation> 
-   </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -1016,9 +1001,9 @@
         <translation type="unfinished">Bạn có muốn tạo giao dịch này không?</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitcoin Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">Vui lòng xem lại giao dịch của bạn. Bạn có thể tạo và gửi giao dịch này hoặc tạo Giao dịch Bitcoin được ký một phần (PSBT), bạn có thể lưu hoặc sao chép và sau đó ký bằng, ví dụ: ví %1 ngoại tuyến hoặc ví phần cứng tương thích với PSBT.</translation>
+        <translation type="unfinished">Vui lòng xem lại giao dịch của bạn. Bạn có thể tạo và gửi giao dịch này hoặc tạo Giao dịch Qtum được ký một phần (PSBT), bạn có thể lưu hoặc sao chép và sau đó ký bằng, ví dụ: ví %1 ngoại tuyến hoặc ví phần cứng tương thích với PSBT.</translation>
     </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
