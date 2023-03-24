@@ -122,7 +122,7 @@ class CScript;
  * Testing fixture that pre-creates a 100-block REGTEST-mode block chain
  */
 struct TestChain100Setup : public TestingSetup {
-    TestChain100Setup(const std::string& chain_name = CBaseChainParams::REGTEST,
+    TestChain100Setup(const std::string& chain_name = CBaseChainParams::UNITTEST,
                       const std::vector<const char*>& extra_args = {});
 
     /**

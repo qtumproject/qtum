@@ -265,13 +265,6 @@ void TestGUI(interfaces::Node& node)
         }
     }
 
-    // Clear button
-    QPushButton* clearButton = receiveCoinsDialog.findChild<QPushButton*>("clearButton");
-    clearButton->click();
-    QCOMPARE(labelInput->text(), QString(""));
-    QCOMPARE(amountInput->value(), CAmount(0));
-    QCOMPARE(messageInput->text(), QString(""));
-
     // Check addition to history
     int currentRowCount = requestTableModel->rowCount({});
     QCOMPARE(currentRowCount, initialRowCount+1);

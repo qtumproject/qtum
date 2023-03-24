@@ -50,6 +50,7 @@
 #include <validation.h>
 #include <validationinterface.h>
 #include <walletinitinterface.h>
+#include <util/convert.h>
 
 #include <algorithm>
 #include <functional>
@@ -188,6 +189,26 @@ ChainTestingSetup::ChainTestingSetup(const std::string& chainName, const std::ve
     m_node.scheduler->m_service_thread = std::thread(util::TraceThread, "scheduler", [&] { m_node.scheduler->serviceQueue(); });
     GetMainSignals().RegisterBackgroundSignalScheduler(*m_node.scheduler);
 
+////////////////////////////////////////////////////////////// qtum
+    dev::eth::NoProof::init();		
+    std::filesystem::path pathTemp = fs::temp_directory_path() / strprintf("test_qtum_%lu_%i", (unsigned long)GetTime(), (int)(GetRand(100000)));
+    std::filesystem::create_directories(pathTemp);
+    const dev::h256 hashDB(dev::sha3(dev::rlp("")));
+    globalState = std::unique_ptr<QtumState>(new QtumState(dev::u256(0), QtumState::openDB(pathTemp.string(), hashDB, dev::WithExisting::Trust), pathTemp.string(), dev::eth::BaseState::Empty));
+    dev::eth::ChainParams cp(chainparams.EVMGenesisInfo());
+    cp.EIP150ForkBlock = 0xffffffffffffffff;
+    cp.EIP158ForkBlock = 0xffffffffffffffff;
+    cp.byzantiumForkBlock = 0xffffffffffffffff;
+    cp.constantinopleForkBlock = 0xffffffffffffffff;
+    cp.constantinopleFixForkBlock = 0xffffffffffffffff;
+    globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+    globalState->populateFrom(cp.genesisState);
+    globalState->setRootUTXO(uintToh256(chainparams.GenesisBlock().hashUTXORoot));
+    globalState->db().commit();
+    globalState->dbUtxo().commit();
+    pstorageresult.reset(new StorageResults(pathTemp.string()));
+//////////////////////////////////////////////////////////////
+
     m_node.fee_estimator = std::make_unique<CBlockPolicyEstimator>(FeeestPath(*m_node.args));
     m_node.mempool = std::make_unique<CTxMemPool>(MemPoolOptionsForTest(m_node));
 
@@ -220,6 +241,11 @@ ChainTestingSetup::~ChainTestingSetup()
     m_node.mempool.reset();
     m_node.scheduler.reset();
     m_node.chainman.reset();
+
+/////////////////////////////////////////////// // qtum
+    delete globalState.release();
+    globalSealEngine.reset();
+///////////////////////////////////////////////
 }
 
 TestingSetup::TestingSetup(const std::string& chainName, const std::vector<const char*>& extra_args)
