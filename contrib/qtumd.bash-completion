@@ -3,13 +3,13 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-_bitcoind() {
+_qtumd() {
     local cur prev words=() cword
-    local bitcoind
+    local qtumd
 
-    # save and use original argument to invoke bitcoind for -help
+    # save and use original argument to invoke qtumd for -help
     # it might not be in $PATH
-    bitcoind="$1"
+    qtumd="$1"
 
     COMPREPLY=()
     _get_comp_words_by_ref -n = cur prev words cword
@@ -33,7 +33,7 @@ _bitcoind() {
             # only parse -help if sensible
             if [[ -z "$cur" || "$cur" =~ ^- ]]; then
                 local helpopts
-                helpopts=$($bitcoind -help 2>&1 | awk '$1 ~ /^-/ { sub(/=.*/, "="); print $1 }' )
+                helpopts=$($qtumd -help 2>&1 | awk '$1 ~ /^-/ { sub(/=.*/, "="); print $1 }' )
                 COMPREPLY=( $( compgen -W "$helpopts" -- "$cur" ) )
             fi
 
@@ -45,7 +45,7 @@ _bitcoind() {
             ;;
     esac
 } &&
-complete -F _bitcoind bitcoind bitcoin-qt
+complete -F _qtumd qtumd qtum-qt
 
 # Local variables:
 # mode: shell-script
