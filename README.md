@@ -152,18 +152,18 @@ This is a quick start script for compiling Qtum on Ubuntu
     sudo add-apt-repository ppa:bitcoin/bitcoin
     sudo apt-get update
     sudo apt-get install libdb4.8-dev libdb4.8++-dev
-
+    
     # If you want to build the Qt GUI:
     sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler qrencode
-
+    
     git clone https://github.com/qtumproject/qtum --recursive
     cd qtum
-
+    
     # Note autogen will prompt to install some more dependencies if needed
     ./autogen.sh
     ./configure 
     make -j2
-    
+
 ### Build on CentOS
 
 Here is a brief description for compiling Qtum on CentOS, for more details please refer to [the specific document](https://github.com/qtumproject/qtum/blob/master/doc/build-unix.md)
@@ -209,7 +209,10 @@ Then install [Homebrew](https://brew.sh).
 
 #### Dependencies
 
-    brew install cmake automake berkeley-db4 libtool boost miniupnpc openssl pkg-config protobuf qt@5 libevent imagemagick librsvg qrencode gmp
+    brew install cmake automake berkeley-db@4 libtool boost@1.76 miniupnpc openssl pkg-config protobuf qt@5 libevent imagemagick librsvg qrencode gmp
+
+After installing all dependencies, make sure to run "brew link boost@1.76"
+NOTE: This will work for building on Intel Macs and Apple Silicon Macs
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
 
