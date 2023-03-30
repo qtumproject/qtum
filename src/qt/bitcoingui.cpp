@@ -1787,14 +1787,14 @@ void BitcoinGUI::updateStakingIcon()
             labelStakingIcon->setToolTip(tr("Not staking because wallet is offline"));
         else if (m_node.isInitialBlockDownload())
             labelStakingIcon->setToolTip(tr("Not staking because wallet is syncing"));
-        else if (walletModel->wallet().privateKeysDisabled())
-            labelStakingIcon->setToolTip(tr("Not staking because private keys are disabled"));
         else if (!nWeight)
             labelStakingIcon->setToolTip(tr("Not staking because you don't have mature coins"));
         else if (walletModel->wallet().isLocked())
             labelStakingIcon->setToolTip(tr("Not staking because wallet is locked"));
         else if(walletModel->hasLedgerProblem())
             labelStakingIcon->setToolTip(tr("Not staking because the ledger device failed to connect"));
+        else if (walletModel->wallet().privateKeysDisabled())
+            labelStakingIcon->setToolTip(tr("Not staking because wallet with private keys disabled require a Ledger device selected for staking"));
         else
             labelStakingIcon->setToolTip(tr("Not staking"));
     }
