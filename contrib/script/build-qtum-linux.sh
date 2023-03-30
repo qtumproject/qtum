@@ -24,7 +24,8 @@ then
   exit 1
 fi
 cd ..
-CONFIG_SITE=$PWD/depends/$HOST/share/config.site ./configure --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests --disable-fuzz-binary CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS="-static-libstdc++ -Wl,-O2"
+which yum &> /dev/null && SECCMP="--without-seccomp"
+CONFIG_SITE=$PWD/depends/$HOST/share/config.site ./configure --disable-ccache --disable-maintainer-mode --disable-dependency-tracking --enable-glibc-back-compat --enable-reduce-exports --disable-bench --disable-gui-tests --disable-fuzz-binary $SECCMP CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS="-static-libstdc++ -Wl,-O2"
 make clean
 make $BUILD_PARAM
 INSTALLPATH="${PWD}/installed/${HOST}"

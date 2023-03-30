@@ -221,11 +221,12 @@ void CreateContract::on_createContractClicked()
         }
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm contract creation proposal.") : tr("Confirm contract creation.");
-        const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
-        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
+        const bool enable_send{!bCreateUnsigned};
+        const bool always_show_unsigned{m_model->getOptionsModel()->getEnablePSBTControls()};
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, enable_send, always_show_unsigned, this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
-        if(retval == QMessageBox::Yes)
+        if(retval == QMessageBox::Yes || retval == QMessageBox::Save)
         {
             // Execute RPC command line
             if(errorMessage.isEmpty() && m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))

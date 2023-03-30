@@ -2,10 +2,10 @@
 export LC_ALL=C
 set -e -o pipefail
 
-# shellcheck source=../../shell/realpath.bash
+# shellcheck source=contrib/shell/realpath.bash
 source contrib/shell/realpath.bash
 
-# shellcheck source=../../shell/git-utils.bash
+# shellcheck source=contrib/shell/git-utils.bash
 source contrib/shell/git-utils.bash
 
 ################
@@ -50,7 +50,7 @@ fi
 ################
 
 VERSION="${FORCE_VERSION:-$(git_head_version)}"
-DISTNAME="${DISTNAME:-bitcoin-${VERSION}}"
+DISTNAME="${DISTNAME:-qtum-${VERSION}}"
 
 version_base_prefix="${PWD}/guix-build-"
 VERSION_BASE="${version_base_prefix}${VERSION}"  # TOP

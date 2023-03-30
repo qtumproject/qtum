@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -75,7 +75,13 @@ void DirectoryCommit(const fs::path &dirname);
 bool TruncateFile(FILE *file, unsigned int length);
 int RaiseFileDescriptorLimit(int nMinFD);
 void AllocateFileRange(FILE *file, unsigned int offset, unsigned int length);
+
+/**
+ * Rename src to dest.
+ * @return true if the rename was successful.
+ */
 [[nodiscard]] bool RenameOver(fs::path src, fs::path dest);
+
 bool LockDirectory(const fs::path& directory, const std::string lockfile_name, bool probe_only=false, bool try_lock = true);
 void UnlockDirectory(const fs::path& directory, const std::string& lockfile_name);
 bool DirIsWritable(const fs::path& directory);
@@ -164,12 +170,18 @@ struct SectionInfo
 class ArgsManager
 {
 public:
+    /**
+     * Flags controlling how config and command line arguments are validated and
+     * interpreted.
+     */
     enum Flags : uint32_t {
-        // Boolean options can accept negation syntax -noOPTION or -noOPTION=1
-        ALLOW_BOOL = 0x01,
-        ALLOW_INT = 0x02,
-        ALLOW_STRING = 0x04,
-        ALLOW_ANY = ALLOW_BOOL | ALLOW_INT | ALLOW_STRING,
+        ALLOW_ANY = 0x01,         //!< disable validation
+        // ALLOW_BOOL = 0x02,     //!< unimplemented, draft implementation in #16545
+        // ALLOW_INT = 0x04,      //!< unimplemented, draft implementation in #16545
+        // ALLOW_STRING = 0x08,   //!< unimplemented, draft implementation in #16545
+        // ALLOW_LIST = 0x10,     //!< unimplemented, draft implementation in #16545
+        DISALLOW_NEGATION = 0x20, //!< disallow -nofoo syntax
+
         DEBUG_ONLY = 0x100,
         /* Some options would cause cross-contamination if values for
          * mainnet were used while running on regtest/testnet (or vice-versa).
@@ -211,6 +223,7 @@ protected:
      */
     bool UseDefaultSection(const std::string& arg) const EXCLUSIVE_LOCKS_REQUIRED(cs_args);
 
+ public:
     /**
      * Get setting value.
      *
@@ -225,7 +238,6 @@ protected:
      */
     std::vector<util::SettingsValue> GetSettingsList(const std::string& arg) const;
 
-public:
     ArgsManager();
     ~ArgsManager();
 
@@ -263,6 +275,16 @@ public:
      * Get the command and command args (returns std::nullopt if no command provided)
      */
     std::optional<const Command> GetCommand() const;
+
+    /**
+     * Get a normalized path from a specified pathlike argument
+     *
+     * It is guaranteed that the returned path has no trailing slashes.
+     *
+     * @param pathlike_arg Pathlike argument to get a path from (e.g., "-datadir", "-blocksdir" or "-walletdir")
+     * @return Normalized path which is get from a specified pathlike argument
+     */
+    fs::path GetPathArg(std::string pathlike_arg) const;
 
     /**
      * Get blocks directory path
@@ -333,7 +355,7 @@ public:
      * @param nDefault (e.g. 1)
      * @return command-line argument (0 if invalid number) or default value
      */
-    int64_t GetArg(const std::string& strArg, int64_t nDefault) const;
+    int64_t GetIntArg(const std::string& strArg, int64_t nDefault) const;
 
     /**
      * Return boolean argument or default value
@@ -524,8 +546,6 @@ inline void SetThreadPriority(int nPriority)
 #endif
 }
 #endif
-
-std::string CopyrightHolders(const std::string& strPrefix);
 
 bool CheckHex(const std::string& str);
 

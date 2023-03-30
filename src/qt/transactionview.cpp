@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -19,6 +19,9 @@
 #include <qt/styleSheet.h>
 
 #include <node/ui_interface.h>
+
+#include <chrono>
+#include <optional>
 
 #include <QApplication>
 #include <QComboBox>
@@ -45,6 +48,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     setContentsMargins(0,0,0,0);
 
     QHBoxLayout *hlayout = new QHBoxLayout();
+
     hlayout->setContentsMargins(0,6,0,6);
     hlayout->setSpacing(10);
     hSpacer = new QSpacerItem(0, 20, QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -92,6 +96,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     amountWidget = new QLineEdit(this);
     amountWidget->setPlaceholderText(tr("Min amount"));
     amountWidget->setFixedWidth(AMOUNT_MINIMUM_COLUMN_WIDTH -10);
+
     QDoubleValidator *amountValidator = new QDoubleValidator(0, 1e20, 8, this);
     QLocale amountLocale(QLocale::C);
     amountLocale.setNumberOptions(QLocale::RejectGroupSeparator);
@@ -99,8 +104,8 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     amountWidget->setValidator(amountValidator);
     hlayout->addWidget(amountWidget);
 
-    // Delay before filtering transactions in ms
-    static const int input_filter_delay = 200;
+    // Delay before filtering transactions
+    static constexpr auto input_filter_delay{200ms};
 
     QTimer* amount_typing_delay = new QTimer(this);
     amount_typing_delay->setSingleShot(true);
@@ -116,6 +121,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
 
     transactionView = new QTableView(this);
     transactionView->setObjectName("transactionView");
+
     if(hideFilter)
     {
         createDateRangeWidget();
@@ -125,6 +131,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
         vlayout->addLayout(hlayout);
         vlayout->addWidget(createDateRangeWidget());
     }
+
     vlayout->addWidget(transactionView);
     vlayout->setSpacing(0);
     int width = transactionView->verticalScrollBar()->sizeHint().width();
@@ -187,6 +194,7 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
         amountWidget->setVisible(false);
         dateRangeWidget->setVisible(false);
     }
+
 }
 
 TransactionView::~TransactionView()
@@ -225,17 +233,21 @@ void TransactionView::setModel(WalletModel *_model)
         {
             // Add third party transaction URLs to context menu
             QStringList listUrls = GUIUtil::SplitSkipEmptyParts(_model->getOptionsModel()->getThirdPartyTxUrls(), "|");
+            bool actions_created = false;
             for (int i = 0; i < listUrls.size(); ++i)
             {
                 QString url = listUrls[i].trimmed();
                 QString host = QUrl(url, QUrl::StrictMode).host();
                 if (!host.isEmpty())
                 {
-                    QAction *thirdPartyTxUrlAction = new QAction(host, this); // use host as menu item label
-                    if (i == 0)
+                    if (!actions_created) {
                         contextMenu->addSeparator();
-                    contextMenu->addAction(thirdPartyTxUrlAction);
-                    connect(thirdPartyTxUrlAction, &QAction::triggered, [this, url] { openThirdPartyTxUrl(url); });
+                        actions_created = true;
+                    }
+                    /*: Transactions table context menu action to show the
+                        selected transaction in a third-party block explorer.
+                        %1 is a stand-in argument for the URL of the explorer. */
+                    contextMenu->addAction(tr("Show in %1").arg(host), [this, url] { openThirdPartyTxUrl(url); });
                 }
             }
         }
@@ -271,26 +283,26 @@ void TransactionView::chooseDate(int idx)
     {
     case All:
         transactionProxyModel->setDateRange(
-                TransactionFilterProxy::MIN_DATE,
-                TransactionFilterProxy::MAX_DATE);
+                std::nullopt,
+                std::nullopt);
         break;
     case Today:
         transactionProxyModel->setDateRange(
                 GUIUtil::StartOfDay(current),
-                TransactionFilterProxy::MAX_DATE);
+                std::nullopt);
         break;
     case ThisWeek: {
         // Find last Monday
         QDate startOfWeek = current.addDays(-(current.dayOfWeek()-1));
         transactionProxyModel->setDateRange(
                 GUIUtil::StartOfDay(startOfWeek),
-                TransactionFilterProxy::MAX_DATE);
+                std::nullopt);
 
         } break;
     case ThisMonth:
         transactionProxyModel->setDateRange(
                 GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)),
-                TransactionFilterProxy::MAX_DATE);
+                std::nullopt);
         break;
     case LastMonth:
         transactionProxyModel->setDateRange(
@@ -300,7 +312,7 @@ void TransactionView::chooseDate(int idx)
     case ThisYear:
         transactionProxyModel->setDateRange(
                 GUIUtil::StartOfDay(QDate(current.year(), 1, 1)),
-                TransactionFilterProxy::MAX_DATE);
+                std::nullopt);
         break;
     case Range:
         dateRangeWidget->setVisible(true);
@@ -356,7 +368,7 @@ void TransactionView::exportClicked()
     QString filename = GUIUtil::getSaveFileName(this,
         tr("Export Transaction History"), QString(),
         /*: Expanded name of the CSV file format.
-            See https://en.wikipedia.org/wiki/Comma-separated_values */
+            See: https://en.wikipedia.org/wiki/Comma-separated_values. */
         tr("Comma separated file") + QLatin1String(" (*.csv)"), nullptr);
 
     if (filename.isNull())
@@ -503,22 +515,22 @@ void TransactionView::editLabel()
             // Determine type of address, launch appropriate editor dialog type
             QString type = modelIdx.data(AddressTableModel::TypeRole).toString();
 
-            EditAddressDialog dlg(
+            auto dlg = new EditAddressDialog(
                 type == AddressTableModel::Receive
                 ? EditAddressDialog::EditReceivingAddress
                 : EditAddressDialog::EditSendingAddress, this);
-            dlg.setModel(addressBook);
-            dlg.loadRow(idx);
-            dlg.exec();
+            dlg->setModel(addressBook);
+            dlg->loadRow(idx);
+            GUIUtil::ShowModalDialogAsynchronously(dlg);
         }
         else
         {
             // Add sending address
-            EditAddressDialog dlg(EditAddressDialog::NewSendingAddress,
+            auto dlg = new EditAddressDialog(EditAddressDialog::NewSendingAddress,
                 this);
-            dlg.setModel(addressBook);
-            dlg.setAddress(address);
-            dlg.exec();
+            dlg->setModel(addressBook);
+            dlg->setAddress(address);
+            GUIUtil::ShowModalDialogAsynchronously(dlg);
         }
     }
 }
@@ -654,7 +666,6 @@ void TransactionView::updateWatchOnlyColumn(bool fHaveWatchOnly)
 {
     watchOnlyWidget->setVisible(fHaveWatchOnly);
     transactionView->setColumnHidden(TransactionTableModel::Watchonly, !fHaveWatchOnly);
-
     int spacerWidth = fHaveWatchOnly ? 0 : STATUS_COLUMN_WIDTH + 6;
     hSpacer->changeSize(spacerWidth, 20, QSizePolicy::Fixed, QSizePolicy::Fixed);
 }

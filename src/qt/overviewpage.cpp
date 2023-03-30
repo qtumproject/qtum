@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -19,7 +19,6 @@
 #include <interfaces/wallet.h>
 #include <qt/transactiondescdialog.h>
 #include <qt/styleSheet.h>
-
 #include <QAbstractItemDelegate>
 #include <QApplication>
 #include <QDateTime>
@@ -27,7 +26,6 @@
 #include <QStatusTipEvent>
 #include <QMessageBox>
 #include <QTimer>
-
 #include <algorithm>
 #include <map>
 #include <QStandardItem>
@@ -35,6 +33,7 @@
 #include <QSortFilterProxyModel>
 
 #define NUM_ITEMS 5
+
 #define TOKEN_SIZE 40
 #define MARGIN 5
 #define SYMBOL_WIDTH 80
@@ -46,6 +45,7 @@
 #define AMOUNT_WIDTH 205
 
 #define BUTTON_ICON_SIZE 24
+
 
 Q_DECLARE_METATYPE(interfaces::WalletBalances)
 
@@ -67,12 +67,14 @@ public:
         amount_color = GetStringStyleValue("txviewdelegate/amount-color", "#ffffff");
         color_unconfirmed = GetColorStyleValue("guiconstants/color-unconfirmed", COLOR_UNCONFIRMED);
         color_negative = GetColorStyleValue("guiconstants/color-negative", COLOR_NEGATIVE);
+
     }
 
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
                       const QModelIndex &index ) const override
     {
         painter->save();
+
         bool selected = option.state & QStyle::State_Selected;
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
@@ -172,6 +174,7 @@ public:
         {
             amountText = QString("[") + amountText + QString("]");
         }
+
         QRect amount_bounding_rect;
         QRect amountRect(addressRect.right() + MARGIN, addressRect.top(), AMOUNT_WIDTH, TX_SIZE);
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText, &amount_bounding_rect);
@@ -191,7 +194,6 @@ public:
         const int minimum_text_width = search == m_minimum_width.end() ? 0 : search->second;
         return {TX_SIZE + 8 + minimum_text_width, TX_SIZE};
     }
-
     int unit;
 
 Q_SIGNALS:
@@ -234,7 +236,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 
     ui->labelTransactionsStatus->setIcon(icon);
     ui->labelWalletStatus->setIcon(icon);
-
     ui->labelDate->setFixedWidth(DATE_WIDTH);
     ui->labelType->setFixedWidth(TYPE_WIDTH);
     ui->labelAmount->setFixedWidth(AMOUNT_WIDTH);
@@ -244,7 +245,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->buttonSend->setIconSize(QSize(BUTTON_ICON_SIZE, BUTTON_ICON_SIZE));
     ui->buttonReceive->setIcon(platformStyle->MultiStatesIcon(":/icons/receiving_addresses", PlatformStyle::PushButton));
     ui->buttonReceive->setIconSize(QSize(BUTTON_ICON_SIZE, BUTTON_ICON_SIZE));
-
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
     ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
@@ -254,7 +254,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     connect(ui->listTransactions, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showDetails()));
-
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
     connect(ui->labelWalletStatus, &QPushButton::clicked, this, &OverviewPage::outOfSyncWarningClicked);
@@ -302,7 +301,7 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
             ui->labelWatchPending->setText(BitcoinUnits::formatPrivacy(unit, balances.unconfirmed_watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
             ui->labelWatchImmature->setText(BitcoinUnits::formatPrivacy(unit, balances.immature_watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
             ui->labelWatchStake->setText(BitcoinUnits::formatPrivacy(unit, balances.watch_only_stake, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelWatchTotal->setText(BitcoinUnits::formatWithPrivacy(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelWatchTotal->setText(BitcoinUnits::formatWithPrivacy(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance + balances.watch_only_stake, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
         }
     } else {
         ui->labelBalance->setText(BitcoinUnits::formatPrivacy(unit, balances.balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
@@ -349,6 +348,7 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 {
     ui->labelSpendable->setVisible(showWatchOnly);      // show spendable label (only when watch-only is active)
     ui->labelWatchonly->setVisible(showWatchOnly);      // show watch-only label
+
     ui->widgetWatchAvailable->setVisible(showWatchOnly); // show watch-only available balance
     ui->widgetWatchPending->setVisible(showWatchOnly);   // show watch-only pending balance
     ui->widgetWatchTotal->setVisible(showWatchOnly);     // show watch-only total balance

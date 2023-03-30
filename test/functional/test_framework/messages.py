@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2010 ArtForz -- public domain half-a-node
 # Copyright (c) 2012 Jeff Garzik
-# Copyright (c) 2010-2020 The Bitcoin Core developers
+# Copyright (c) 2010-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Bitcoin test framework primitive and message structures
@@ -19,7 +19,6 @@ Classes use __slots__ to ensure extraneous attributes aren't accidentally added
 by tests, compromising their intended effect.
 """
 from base64 import b32decode, b32encode
-from codecs import encode
 import copy
 import hashlib
 from io import BytesIO
@@ -30,7 +29,8 @@ import struct
 import time
 
 from test_framework.siphash import siphash256
-from test_framework.util import hex_str_to_bytes, assert_equal
+from test_framework.util import assert_equal
+
 from test_framework.qtumconfig import INITIAL_HASH_STATE_ROOT, INITIAL_HASH_UTXO_ROOT, ENABLE_REDUCED_BLOCK_TIME
 
 if ENABLE_REDUCED_BLOCK_TIME:
@@ -39,7 +39,7 @@ else:
     MY_VERSION = 70018  # past bip-31 for ping/pong
 
 MAX_LOCATOR_SZ = 101
-MAX_BLOCK_BASE_SIZE = 1000000
+MAX_BLOCK_WEIGHT = 2000000
 MAX_BLOOM_FILTER_SIZE = 36000
 MAX_BLOOM_HASH_FUNCS = 50
 
@@ -47,6 +47,7 @@ COIN = 100000000  # 1 btc in satoshis
 MAX_MONEY = 10782240625000000
 
 BIP125_SEQUENCE_NUMBER = 0xfffffffd  # Sequence number that is rbf-opt-in (BIP 125) and csv-opt-out (BIP 68)
+SEQUENCE_FINAL = 0xffffffff  # Sequence number that disables nLockTime if set for every input of a tx
 
 MAX_PROTOCOL_MESSAGE_LENGTH = 8000000  # Maximum length of incoming protocol messages
 MAX_HEADERS_RESULTS = 2000  # Number of headers sent in one getheaders result
@@ -71,12 +72,14 @@ FILTER_TYPE_BASIC = 0
 
 WITNESS_SCALE_FACTOR = 4
 
-# Serialization/deserialization tools
+
 def sha256(s):
-    return hashlib.new('sha256', s).digest()
+    return hashlib.sha256(s).digest()
+
 
 def hash256(s):
     return sha256(sha256(s))
+
 
 def ser_compact_size(l):
     r = b""
@@ -203,7 +206,7 @@ def from_hex(obj, hex_string):
     Note that there is no complementary helper like e.g. `to_hex` for the
     inverse operation. To serialize a message object to a hex string, simply
     use obj.serialize().hex()"""
-    obj.deserialize(BytesIO(hex_str_to_bytes(hex_string)))
+    obj.deserialize(BytesIO(bytes.fromhex(hex_string)))
     return obj
 
 
@@ -513,7 +516,7 @@ class CTransaction:
 
     def __init__(self, tx=None):
         if tx is None:
-            self.nVersion = 1
+            self.nVersion = 2
             self.vin = []
             self.vout = []
             self.wit = CTxWitness()
@@ -614,12 +617,15 @@ class CTransaction:
                 return False
         return True
 
-    # Calculate the virtual transaction size using witness and non-witness
+    # Calculate the transaction weight using witness and non-witness
     # serialization size (does NOT use sigops).
-    def get_vsize(self):
+    def get_weight(self):
         with_witness_size = len(self.serialize_with_witness())
         without_witness_size = len(self.serialize_without_witness())
-        return math.ceil(((WITNESS_SCALE_FACTOR - 1) * without_witness_size + with_witness_size) / WITNESS_SCALE_FACTOR)
+        return (WITNESS_SCALE_FACTOR - 1) * without_witness_size + with_witness_size
+
+    def get_vsize(self):
+        return math.ceil(self.get_weight() / WITNESS_SCALE_FACTOR)
 
     def __repr__(self):
         return "CTransaction(nVersion=%i vin=%s vout=%s wit=%s nLockTime=%i)" \
@@ -644,7 +650,6 @@ class CBlockHeader(object):
             self.hashUTXORoot = header.hashUTXORoot
             self.prevoutStake = header.prevoutStake
             self.vchBlockSig = header.vchBlockSig
-
             self.sha256 = header.sha256
             self.hash = header.hash
             self.calc_sha256()
@@ -660,7 +665,6 @@ class CBlockHeader(object):
         self.hashUTXORoot = INITIAL_HASH_UTXO_ROOT
         self.prevoutStake = COutPoint(0, 0xffffffff)
         self.vchBlockSig = b""
-
         self.sha256 = None
         self.hash = None
 
@@ -676,7 +680,6 @@ class CBlockHeader(object):
         self.prevoutStake = COutPoint()
         self.prevoutStake.deserialize(f)
         self.vchBlockSig = deser_string(f)
-
         self.sha256 = None
         self.hash = None
 
@@ -708,7 +711,7 @@ class CBlockHeader(object):
             r += self.prevoutStake.serialize() if self.prevoutStake else COutPoint(0, 0xffffffff).serialize()
             r += ser_string(self.vchBlockSig)
             self.sha256 = uint256_from_str(hash256(r))
-            self.hash = encode(hash256(r)[::-1], 'hex_codec').decode('ascii')
+            self.hash = hash256(r)[::-1].hex()
 
     def rehash(self):
         self.sha256 = None
@@ -731,7 +734,6 @@ class CBlockHeader(object):
                 self.prevoutStake = prevout
                 return True
         return False
-
     def __repr__(self):
         return "CBlockHeader(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x)" \
             % (self.nVersion, self.hashPrevBlock, self.hashMerkleRoot,
@@ -812,6 +814,13 @@ class CBlock(CBlockHeader):
         while self.sha256 > target:
             self.nNonce += 1
             self.rehash()
+
+    # Calculate the block weight using witness and non-witness
+    # serialization size (does NOT use sigops).
+    def get_weight(self):
+        with_witness_size = len(self.serialize(with_witness=True))
+        without_witness_size = len(self.serialize(with_witness=False))
+        return (WITNESS_SCALE_FACTOR - 1) * without_witness_size + with_witness_size
 
     def sign_block(self, key, low_s=True, pod=None, der_sig=False):
         data = b""

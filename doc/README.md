@@ -5,7 +5,7 @@ Setup
 ---------------------
 Qtum Core is the original Qtum client and it builds the backbone of the network. It downloads and, by default, stores the entire history of Qtum transactions (which is currently several GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
 
-To download Qtum Core, visit [qtumcore.org](https://www.qtumcore.org/).
+To download Qtum Core, visit [qtumcore.org](https://qtumeco.io/wallet).
 
 Running
 ---------------------
@@ -46,7 +46,6 @@ The following are developer notes on how to build Bitcoin Core on your native pl
 - [OpenBSD Build Notes](build-openbsd.md)
 - [NetBSD Build Notes](build-netbsd.md)
 - [Android Build Notes](build-android.md)
-- [Gitian Building Guide (External Link)](https://github.com/bitcoin-core/docs/blob/master/gitian-building.md)
 
 Development
 ---------------------
@@ -72,15 +71,21 @@ The Bitcoin repo's [root README](/README.md) contains relevant information on th
 
 ### Miscellaneous
 - [Assets Attribution](assets-attribution.md)
+- [Assumeutxo design](assumeutxo.md)
 - [bitcoin.conf Configuration File](bitcoin-conf.md)
+- [CJDNS Support](cjdns.md)
 - [Files](files.md)
 - [Fuzz-testing](fuzzing.md)
 - [I2P Support](i2p.md)
 - [Init Scripts (systemd/upstart/openrc)](init.md)
+- [Managing Wallets](managing-wallets.md)
+- [Multisig Tutorial](multisig-tutorial.md)
+- [P2P bad ports definition and list](p2p-bad-ports.md)
 - [PSBT support](psbt.md)
 - [Reduce Memory](reduce-memory.md)
 - [Reduce Traffic](reduce-traffic.md)
 - [Tor Support](tor.md)
+- [Transaction Relay Policy](policy/README.md)
 - [ZMQ](zmq.md)
 
 License

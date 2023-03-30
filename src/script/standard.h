@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,7 +14,6 @@
 #include <map>
 #include <string>
 #include <variant>
-
 
 static const bool DEFAULT_ACCEPT_DATACARRIER = true;
 
@@ -211,26 +210,10 @@ TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned c
 
 /**
  * Parse a standard scriptPubKey for the destination address. Assigns result to
- * the addressRet parameter and returns true if successful. For multisig
- * scripts, instead use ExtractDestinations. Currently only works for P2PK,
+ * the addressRet parameter and returns true if successful. Currently only works for P2PK,
  * P2PKH, P2SH, P2WPKH, and P2WSH scripts.
  */
 bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL);
-
-/**
- * Parse a standard scriptPubKey with one or more destination addresses. For
- * multisig scripts, this populates the addressRet vector with the pubkey IDs
- * and nRequiredRet with the n required to spend. For other destinations,
- * addressRet is populated with a single value and nRequiredRet is set to 1.
- * Returns true if successful.
- *
- * Note: this function confuses destinations (a subset of CScripts that are
- * encodable as an address) with key identifiers (of keys involved in a
- * CScript), and its use should be phased out.
- *
- * TODO: from v23 ("addresses" and "reqSigs" deprecated) "ExtractDestinations" should be removed
- */
-bool ExtractDestinations(const CScript& scriptPubKey, TxoutType& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet, bool contractConsensus=false);
 
 /**
  * Generate a Bitcoin scriptPubKey for the given CTxDestination. Returns a P2PKH
@@ -262,8 +245,11 @@ struct TaprootSpendData
     /** The Merkle root of the script tree (0 if no scripts). */
     uint256 merkle_root;
     /** Map from (script, leaf_version) to (sets of) control blocks.
-     *  The control blocks are sorted by size, so that the signing logic can
-     *  easily prefer the cheapest one. */
+     *  More than one control block for a given script is only possible if it
+     *  appears in multiple branches of the tree. We keep them all so that
+     *  inference can reconstruct the full tree. Within each set, the control
+     *  blocks are sorted by size, so that the signing logic can easily
+     *  prefer the cheapest one. */
     std::map<std::pair<CScript, int>, std::set<std::vector<unsigned char>, ShortestVectorFirstComparator>> scripts;
     /** Merge other TaprootSpendData (for the same scriptPubKey) into this. */
     void Merge(TaprootSpendData other);
@@ -287,7 +273,7 @@ private:
         /** Merkle hash of this node. */
         uint256 hash;
         /** Tracked leaves underneath this node (either from the node itself, or its children).
-         *  The merkle_branch field for each is the partners to get to *this* node. */
+         *  The merkle_branch field of each is the partners to get to *this* node. */
         std::vector<LeafInfo> leaves;
     };
     /** Whether the builder is in a valid state so far. */

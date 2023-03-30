@@ -18,8 +18,8 @@
 static void DeserializeBlockTest(benchmark::Bench& bench)
 {
     CDataStream stream(benchmark::data::blockbench, SER_NETWORK, PROTOCOL_VERSION);
-    char a = '\0';
-    stream.write(&a, 1); // Prevent compaction
+    std::byte a{0};
+    stream.write({&a, 1}); // Prevent compaction
 
     bench.unit("block").run([&] {
         CBlock block;
@@ -32,8 +32,8 @@ static void DeserializeBlockTest(benchmark::Bench& bench)
 static void DeserializeAndCheckBlockTest(benchmark::Bench& bench)
 {
     CDataStream stream(benchmark::data::blockbench, SER_NETWORK, PROTOCOL_VERSION);
-    char a = '\0';
-    stream.write(&a, 1); // Prevent compaction
+    std::byte a{0};
+    stream.write({&a, 1}); // Prevent compaction
 
     ArgsManager bench_args;
     const auto chainParams = CreateChainParams(bench_args, CBaseChainParams::MAIN);

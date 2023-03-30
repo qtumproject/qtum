@@ -1,8 +1,10 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qt/bitcoinunits.h>
+
+#include <consensus/amount.h>
 
 #include <QStringList>
 
@@ -66,6 +68,7 @@ QString BitcoinUnits::description(int unit)
 {
     switch(unit)
     {
+
     case BTC: return QString("Qtums");
     case mBTC: return QString("Milli-Qtums (1 / 1" THIN_SP_UTF8 "000)");
     case uBTC: return QString("Micro-Qtums (bits) (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");

@@ -4,8 +4,6 @@
 
 This guide describes how to build qtumd, command-line utilities, and GUI on macOS
 
-**Note:** The following is for Intel Macs only!
-
 ## Dependencies
 
 The following dependencies are **required**:
@@ -35,7 +33,6 @@ The following dependencies are **optional** packages required for deploying:
 
 Library                                             | Purpose          | Description
 ----------------------------------------------------|------------------|----------------------
-[librsvg](https://formulae.brew.sh/formula/librsvg) | Deploy Dependency| Library to render SVG files
 [ds_store](https://pypi.org/project/ds-store/)      | Deploy Dependency| Examine and modify .DS_Store files
 [mac_alias](https://pypi.org/project/mac-alias/)    | Deploy Dependency| Generate/Read binary alias and bookmark records
 
@@ -115,15 +112,11 @@ brew install berkeley-db@4
 
 ###### Descriptor Wallet Support
 
-Note: Apple has included a useable `sqlite` package since macOS 10.14.
-You may not need to install this package.
+`sqlite` is required to support for descriptor wallets.
 
-`sqlite` is required to enable support for descriptor wallets.
-Skip if you don't intend to use descriptor wallets.
+macOS ships with a useable `sqlite` package, meaning you don't need to
+install anything.
 
-``` bash
-brew install sqlite
-```
 ---
 
 #### GUI Dependencies
@@ -217,10 +210,6 @@ You can deploy a `.dmg` containing the Qtum Core application using `make deploy`
 This command depends on a couple of python packages, so it is required that you have `python` installed.
 
 Ensuring that `python` is installed, you can install the deploy dependencies by running the following commands in your terminal:
-
-``` bash
-brew install librsvg
-```
 
 ``` bash
 pip3 install ds_store mac_alias

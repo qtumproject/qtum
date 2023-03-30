@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 The Bitcoin Core developers
+// Copyright (c) 2019-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,7 +6,7 @@
 #include <config/bitcoin-config.h>
 #endif
 
-#include <external_signer.h>
+#include <interfaces/node.h>
 #include <qt/createwalletdialog.h>
 #include <qt/forms/ui_createwalletdialog.h>
 #include <chainparams.h>
@@ -108,7 +108,6 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
         ui->external_signer_checkbox->setEnabled(false);
         ui->external_signer_checkbox->setChecked(false);
 #endif
-
     connect(ui->hardware_wallet_checkbox, &QCheckBox::toggled, [this](bool checked) {
 #ifdef ENABLE_EXTERNAL_SIGNER
         // Uncheck external signer when hardware wallet is checked
@@ -148,7 +147,7 @@ CreateWalletDialog::~CreateWalletDialog()
     delete ui;
 }
 
-void CreateWalletDialog::setSigners(const std::vector<ExternalSigner>& signers)
+void CreateWalletDialog::setSigners(const std::vector<std::unique_ptr<interfaces::ExternalSigner>>& signers)
 {
     m_has_signers = !signers.empty();
     if (m_has_signers) {
@@ -161,7 +160,7 @@ void CreateWalletDialog::setSigners(const std::vector<ExternalSigner>& signers)
         ui->blank_wallet_checkbox->setChecked(false);
         ui->disable_privkeys_checkbox->setEnabled(false);
         ui->disable_privkeys_checkbox->setChecked(true);
-        const std::string label = signers[0].m_name;
+        const std::string label = signers[0]->getName();
         ui->wallet_name_line_edit->setText(QString::fromStdString(label));
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     } else {

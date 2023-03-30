@@ -358,7 +358,7 @@ This is especially notable because Ubuntu Focal packages `libgit2 v0.28.4`, and
 Should you be in this situation, you need to build both `libgit2 v1.1.x` and
 `guile-git` from source.
 
-Source: http://logs.guix.gnu.org/guix/2020-11-12.log#232527
+Source: https://logs.guix.gnu.org/guix/2020-11-12.log#232527
 
 ##### `{scheme,guile}-bytestructures` v1.0.8 and v1.0.9 are broken for Guile v2.2
 
@@ -468,7 +468,7 @@ in the Guix Reference Manual for more details.
 
 ## Optional setup
 
-At this point, you are set up to [use Guix to build Bitcoin
+At this point, you are set up to [use Guix to build Qtum
 Core](./README.md#usage). However, if you want to polish your setup a bit and
 make it "what Guix intended", then read the next few subsections.
 

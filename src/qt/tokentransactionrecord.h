@@ -1,7 +1,7 @@
 #ifndef QTUM_QT_TOKENTRANSACTIONRECORD_H
 #define QTUM_QT_TOKENTRANSACTIONRECORD_H
 
-#include <amount.h>
+#include <consensus/amount.h>
 #include <uint256.h>
 #include <util/convert.h>
 

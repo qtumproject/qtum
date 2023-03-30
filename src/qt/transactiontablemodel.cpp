@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -309,11 +309,13 @@ void TransactionTableModel::updateConfirmations()
     // Invalidate status (number of confirmations) and (possibly) description
     //  for all rows. Qt is smart enough to only actually request the data for the
     //  visible rows.
+
     if(priv->isDataLoading)
         priv->isDataLoading = false;
 
     modelDataChanged(Status);
     modelDataChanged(ToAddress);
+
 }
 
 int TransactionTableModel::rowCount(const QModelIndex &parent) const
@@ -338,12 +340,6 @@ QString TransactionTableModel::formatTxStatus(const TransactionRecord *wtx) cons
 
     switch(wtx->status.status)
     {
-    case TransactionStatus::OpenUntilBlock:
-        status = tr("Open for %n more block(s)","",wtx->status.open_for);
-        break;
-    case TransactionStatus::OpenUntilDate:
-        status = tr("Open until %1").arg(GUIUtil::dateTimeStr(wtx->status.open_for));
-        break;
     case TransactionStatus::Unconfirmed:
         status = tr("Unconfirmed");
         break;
@@ -439,6 +435,7 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
         return platformStyle->TableColorIcon(":/icons/contract_input", PlatformStyle::Input);
     default:
         return platformStyle->TableColorIcon(":/icons/tx_inout", PlatformStyle::Inout);
+
     }
 }
 
@@ -509,9 +506,6 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx)
 {
     switch(wtx->status.status)
     {
-    case TransactionStatus::OpenUntilBlock:
-    case TransactionStatus::OpenUntilDate:
-        return color_tx_status_openuntildate;
     case TransactionStatus::Unconfirmed:
         return platformStyle->TableColorIcon(":/icons/transaction_0", PlatformStyle::Normal);
     case TransactionStatus::Abandoned:
@@ -639,7 +633,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case TypeRole:
         return rec->type;
     case DateRole:
-        return QDateTime::fromTime_t(static_cast<uint>(rec->time));
+        return QDateTime::fromSecsSinceEpoch(rec->time);
     case WatchonlyRole:
         return rec->involvesWatchAddress;
     case WatchonlyDecorationRole:
@@ -659,7 +653,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case TxPlainTextRole:
         {
             QString details;
-            QDateTime date = QDateTime::fromTime_t(static_cast<uint>(rec->time));
+            QDateTime date = QDateTime::fromSecsSinceEpoch(rec->time);
             QString txLabel = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
 
             details.append(date.toString("M/d/yy HH:mm"));
@@ -748,6 +742,7 @@ void TransactionTableModel::updateDisplayUnit()
 
 void TransactionTablePriv::NotifyTransactionChanged(const uint256 &hash, ChangeType status)
 {
+
     TransactionNotification notification(hash, status, true);
 
     if (!m_loaded || m_loading)

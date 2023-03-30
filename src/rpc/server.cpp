@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -22,7 +22,6 @@
 #include <unordered_map>
 
 static Mutex g_rpc_warmup_mutex;
-static std::atomic<bool> g_rpc_running{false};
 static bool fRPCInWarmup GUARDED_BY(g_rpc_warmup_mutex) = true;
 static std::string rpcWarmupStatus GUARDED_BY(g_rpc_warmup_mutex) = "RPC server started";
 /* Timer-creating functions */
@@ -31,10 +30,6 @@ static RPCTimerInterface* timerInterface = nullptr;
 static Mutex g_deadline_timers_mutex;
 static std::map<std::string, std::unique_ptr<RPCTimerBase> > deadlineTimers GUARDED_BY(g_deadline_timers_mutex);
 static bool ExecuteCommand(const CRPCCommand& command, const JSONRPCRequest& request, UniValue& result, bool last_handler);
-
-Mutex cs_blockchange;
-std::condition_variable cond_blockchange;
-CUpdatedBlock latestblock;
 
 struct RPCCommandExecutionInfo
 {
@@ -244,7 +239,7 @@ static RPCHelpMan getrpcinfo()
     UniValue result(UniValue::VOBJ);
     result.pushKV("active_commands", active_commands);
 
-    const std::string path = LogInstance().m_file_path.string();
+    const std::string path = LogInstance().m_file_path.u8string();
     UniValue log_path(UniValue::VSTR, path);
     result.pushKV("logpath", log_path);
 
@@ -321,11 +316,6 @@ void StopRPC()
         DeleteAuthCookie();
         g_rpcSignals.Stopped();
     });
-}
-
-bool IsRPCRunning()
-{
-    return g_rpc_running;
 }
 
 void RpcInterruptionPoint()
@@ -589,7 +579,7 @@ void RPCRunLater(const std::string& name, std::function<void()> func, int64_t nS
 int RPCSerializationFlags()
 {
     int flag = 0;
-    if (gArgs.GetArg("-rpcserialversion", DEFAULT_RPC_SERIALIZE_VERSION) == 0)
+    if (gArgs.GetIntArg("-rpcserialversion", DEFAULT_RPC_SERIALIZE_VERSION) == 0)
         flag |= SERIALIZE_TRANSACTION_NO_WITNESS;
     return flag;
 }

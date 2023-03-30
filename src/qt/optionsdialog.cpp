@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,13 +16,13 @@
 #ifdef ENABLE_WALLET
 #include <qt/hardwaresigntx.h>
 #endif
-
 #include <interfaces/node.h>
 #include <validation.h> // for DEFAULT_SCRIPTCHECK_THREADS and MAX_SCRIPTCHECK_THREADS
 #include <netbase.h>
 #include <txdb.h> // for -dbcache defaults
 #include <qt/styleSheet.h>
 #include <chainparams.h>
+#include <chrono>
 
 #include <QDataWidgetMapper>
 #include <QDir>
@@ -40,7 +40,6 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     mapper(nullptr)
 {
     ui->setupUi(this);
-
     SetObjectStyleSheet(ui->resetButton, StyleSheetNames::ButtonLight);
     SetObjectStyleSheet(ui->openBitcoinConfButton, StyleSheetNames::ButtonLight);
     SetObjectStyleSheet(ui->okButton, StyleSheetNames::ButtonGray);
@@ -162,7 +161,6 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         }
     }
     ui->unit->setModel(new BitcoinUnits(this));
-
     ui->theme->setToolTip(ui->theme->toolTip().arg(tr(PACKAGE_NAME)));
     ui->theme->addItem(QString("(") + tr("default") + QString(")"), QVariant(""));
     QStringList themes = StyleSheet::getSupportedThemes();
@@ -177,7 +175,6 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         }
         ui->theme->addItem(tr(themeName.toStdString().c_str()), QVariant(themeStr));
     }
-
     /* Widget-to-option mapper */
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
@@ -268,6 +265,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->signPSBTHWITool, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Network */
     connect(ui->allowIncoming, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
+    connect(ui->enableServer, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->connectSocks, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->connectSocksTor, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Display */
@@ -299,10 +297,10 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance);
     mapper->addMapping(ui->txtHWIToolPath, OptionsModel::HWIToolPath);
     mapper->addMapping(ui->txtStakeLedgerId, OptionsModel::StakeLedgerId);
-
     /* Wallet */
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
     mapper->addMapping(ui->coinControlFeatures, OptionsModel::CoinControlFeatures);
+    mapper->addMapping(ui->subFeeFromAmount, OptionsModel::SubFeeFromAmount);
     mapper->addMapping(ui->externalSignerPath, OptionsModel::ExternalSignerPath);
     mapper->addMapping(ui->zeroBalanceAddressToken, OptionsModel::ZeroBalanceAddressToken);
     mapper->addMapping(ui->useChangeAddress, OptionsModel::UseChangeAddress);
@@ -313,6 +311,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->mapPortUpnp, OptionsModel::MapPortUPnP);
     mapper->addMapping(ui->mapPortNatpmp, OptionsModel::MapPortNatpmp);
     mapper->addMapping(ui->allowIncoming, OptionsModel::Listen);
+    mapper->addMapping(ui->enableServer, OptionsModel::Server);
 
     mapper->addMapping(ui->connectSocks, OptionsModel::ProxyUse);
     mapper->addMapping(ui->proxyIp, OptionsModel::ProxyIP);
@@ -358,16 +357,29 @@ void OptionsDialog::on_resetButton_clicked()
 
         /* reset all options and close GUI */
         model->Reset();
-        QApplication::quit();
+        close();
+        Q_EMIT quitOnReset();
     }
 }
 
 void OptionsDialog::on_openBitcoinConfButton_clicked()
 {
-    /* explain the purpose of the config file */
-    QMessageBox::information(this, tr("Configuration options"),
-        tr("The configuration file is used to specify advanced user options which override GUI settings. "
-           "Additionally, any command-line options will override this configuration file."));
+    QMessageBox config_msgbox(this);
+    config_msgbox.setIcon(QMessageBox::Information);
+    //: Window title text of pop-up box that allows opening up of configuration file.
+    config_msgbox.setWindowTitle(tr("Configuration options"));
+    /*: Explanatory text about the priority order of instructions considered by client.
+        The order from high to low being: command-line, configuration file, GUI settings. */
+    config_msgbox.setText(tr("The configuration file is used to specify advanced user options which override GUI settings. "
+                             "Additionally, any command-line options will override this configuration file."));
+
+    QPushButton* open_button = config_msgbox.addButton(tr("Continue"), QMessageBox::ActionRole);
+    config_msgbox.addButton(tr("Cancel"), QMessageBox::RejectRole);
+    open_button->setDefault(true);
+
+    config_msgbox.exec();
+
+    if (config_msgbox.clickedButton() != open_button) return;
 
     /* show an error if there was some problem opening the file */
     if (!GUIUtil::openBitcoinConf())
@@ -378,7 +390,6 @@ void OptionsDialog::on_okButton_clicked()
 {
     mapper->submit();
     updateDefaultProxyNets();
-
     if (model && model->isRestartRequired()) {
         QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet restart"),
                  QString("%1<br><br>%2").arg(tr("Client restart required to activate changes."), tr("Are you sure you wish to restart your wallet?")),
@@ -386,10 +397,8 @@ void OptionsDialog::on_okButton_clicked()
                  QMessageBox::Cancel);
         if(retval == QMessageBox::Yes)
         {
-
-            qApp->processEvents();
             model->setRestartApp(true);
-            QApplication::quit();
+            qApp->closeAllWindows();
         }
     }
 
@@ -427,7 +436,6 @@ void OptionsDialog::on_toolStakeLedgerId_clicked()
     ui->txtStakeLedgerId->setText(fingerprint);
 #endif
 }
-
 void OptionsDialog::on_showTrayIcon_stateChanged(int state)
 {
     if (state == Qt::Checked) {
@@ -456,7 +464,7 @@ void OptionsDialog::showRestartWarning(bool fPersistent)
         ui->statusLabel->setText(tr("This change would require a client restart."));
         // clear non-persistent status label after 10 seconds
         // Todo: should perhaps be a class attribute, if we extend the use of statusLabel
-        QTimer::singleShot(10000, this, &OptionsDialog::clearStatusLabel);
+        QTimer::singleShot(10s, this, &OptionsDialog::clearStatusLabel);
     }
 }
 
@@ -487,7 +495,7 @@ void OptionsDialog::updateProxyValidationState()
 
 void OptionsDialog::updateDefaultProxyNets()
 {
-    proxyType proxy;
+    Proxy proxy;
     std::string strProxy;
     QString strDefaultProxyGUI;
 
@@ -517,7 +525,7 @@ QValidator::State ProxyAddressValidator::validate(QString &input, int &pos) cons
     Q_UNUSED(pos);
     // Validate the proxy
     CService serv(LookupNumeric(input.toStdString(), DEFAULT_GUI_PROXY_PORT));
-    proxyType addrProxy = proxyType(serv, true);
+    Proxy addrProxy = Proxy(serv, true);
     if (addrProxy.IsValid())
         return QValidator::Acceptable;
 
