@@ -3563,11 +3563,6 @@ bool CWallet::IsTxImmatureCoinStake(const CWalletTx& wtx) const
     return wtx.IsCoinStake() && IsTxImmature(wtx);
 }
 
-bool CWallet::HasPrivateKeys() const
-{
-    return !IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS);
-}
-
 bool CWallet::IsCrypted() const
 {
     return HasEncryptionKeys();

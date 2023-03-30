@@ -419,7 +419,6 @@ public:
         assert(NotifyUnload.empty());
     }
 
-    bool HasPrivateKeys() const;
     bool IsCrypted() const;
     bool IsLocked() const override;
     bool Lock();
