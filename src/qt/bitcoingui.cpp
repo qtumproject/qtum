@@ -1783,7 +1783,7 @@ void BitcoinGUI::updateStakingIcon()
     {
         labelStakingIcon->setPixmap(platformStyle->MultiStatesIcon(":/icons/staking_off").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
 
-        if (m_node.getNodeCount(ConnectionDirection::Both) == 0)
+        if (m_node.getNodeCount(ConnectionDirection::Both) == 0 && !Params().MineBlocksOnDemand() /*not regtest mode*/)
             labelStakingIcon->setToolTip(tr("Not staking because wallet is offline"));
         else if (m_node.isInitialBlockDownload())
             labelStakingIcon->setToolTip(tr("Not staking because wallet is syncing"));
@@ -1793,6 +1793,8 @@ void BitcoinGUI::updateStakingIcon()
             labelStakingIcon->setToolTip(tr("Not staking because wallet is locked"));
         else if(walletModel->hasLedgerProblem())
             labelStakingIcon->setToolTip(tr("Not staking because the ledger device failed to connect"));
+        else if (walletModel->wallet().privateKeysDisabled())
+            labelStakingIcon->setToolTip(tr("Not staking because wallet with private keys disabled require a Ledger device selected for staking"));
         else
             labelStakingIcon->setToolTip(tr("Not staking"));
     }
