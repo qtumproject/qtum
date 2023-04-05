@@ -293,6 +293,12 @@ std::string LogCategoryToStr(BCLog::LogFlags category)
         return "util";
     case BCLog::LogFlags::BLOCKSTORE:
         return "blockstorage";
+    case BCLog::LogFlags::COINSTAKE:
+        return "coinstake";
+    case BCLog::LogFlags::HTTPPOLL:
+        return "http-poll";
+    case BCLog::LogFlags::INDEX:
+        return "index";
     case BCLog::LogFlags::ALL:
         return "all";
     }
@@ -457,27 +463,33 @@ void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& loggi
         cb(str_prefixed);
     }
     if (m_print_to_file) {
+        assert(m_fileout != nullptr);
+        assert(m_fileoutVM != nullptr);
+
+        // reopen the log file, if requested
+        if (m_reopen_file) {
+            m_reopen_file = false;
+            FILE* new_fileout = fsbridge::fopen(m_file_path, "a");
+            if (new_fileout) {
+                setbuf(new_fileout, nullptr); // unbuffered
+                fclose(m_fileout);
+                m_fileout = new_fileout;
+            }
+            FILE* new_fileoutVM = fsbridge::fopen(m_file_pathVM, "a");
+            if (new_fileoutVM) {
+                setbuf(new_fileoutVM, nullptr); // unbuffered
+                fclose(m_fileoutVM);
+                m_fileoutVM = new_fileoutVM;
+            }
+        }
+
         //////////////////////////////// // qtum
         FILE* file = m_fileout;
         if(useVMLog){
             file = m_fileoutVM;
         }
         ////////////////////////////////
-        assert(file != nullptr);
 
-        // reopen the log file, if requested
-        if (m_reopen_file) {
-            m_reopen_file = false;
-            fs::path file_path = m_file_path;
-            if(useVMLog)
-                file_path = m_file_pathVM;
-            FILE* new_fileout = fsbridge::fopen(file_path, "a");
-            if (new_fileout) {
-                setbuf(new_fileout, nullptr); // unbuffered
-                fclose(file);
-                file = new_fileout;
-            }
-        }
         FileWriteStr(str_prefixed, file);
     }
 }
