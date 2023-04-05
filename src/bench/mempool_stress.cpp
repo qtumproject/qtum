@@ -102,7 +102,7 @@ static void ComplexMemPool(benchmark::Bench& bench)
 static void MempoolCheck(benchmark::Bench& bench)
 {
     FastRandomContext det_rand{true};
-    auto testing_setup = MakeNoLogFileContext<TestChain100Setup>(CBaseChainParams::REGTEST, {"-checkmempool=1"});
+    auto testing_setup = MakeNoLogFileContext<TestChain100Setup>(CBaseChainParams::UNITTEST, {"-checkmempool=1"});
     CTxMemPool& pool = *testing_setup.get()->m_node.mempool;
     LOCK2(cs_main, pool.cs);
     testing_setup->PopulateMempool(det_rand, 400, true);
