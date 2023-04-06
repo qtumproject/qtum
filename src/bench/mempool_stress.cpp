@@ -110,7 +110,7 @@ static void MempoolCheck(benchmark::Bench& bench)
 
     bench.run([&]() NO_THREAD_SAFETY_ANALYSIS {
         // Bump up the spendheight so we don't hit premature coinbase spend errors.
-        pool.check(coins_tip, /*spendheight=*/300);
+        pool.check(coins_tip, /*spendheight=*/4100);
     });
 }
 

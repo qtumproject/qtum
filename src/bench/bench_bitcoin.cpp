@@ -106,9 +106,6 @@ int main(int argc, char** argv)
         return EXIT_SUCCESS;
     }
 
-    // Overwrite arguments for bench
-    gArgs.SoftSetBoolArg("-acceptnonstdtxn", true);
-
     benchmark::Args args;
     args.asymptote = parseAsymptote(argsman.GetArg("-asymptote", ""));
     args.is_list_only = argsman.GetBoolArg("-list", false);
