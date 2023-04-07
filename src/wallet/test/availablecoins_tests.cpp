@@ -61,6 +61,9 @@ BOOST_FIXTURE_TEST_CASE(BasicOutputTypesTest, AvailableCoinsTestingSetup)
     util::Result<CTxDestination> dest{util::Error{}};
     LOCK(wallet->cs_wallet);
 
+    // Set the default address type to Bech32
+    wallet->m_default_address_type = OutputType::BECH32;
+
     // Verify our wallet has one usable coinbase UTXO before starting
     // This UTXO is a P2PK, so it should show up in the Other bucket
     available_coins = AvailableCoins(*wallet);

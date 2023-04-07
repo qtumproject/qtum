@@ -88,7 +88,7 @@
     "error_txt": "error: Invalid TX input index",
     "description": "Tests the check for an invalid input index with delin"
   },
-  { "exec": "./bitcoin-tx",
+  { "exec": "./qtum-tx",
     "args": ["-", "delout=1"],
     "input": "tx394b54bb.hex",
     "output_cmp": "tt-delout1-out.hex",

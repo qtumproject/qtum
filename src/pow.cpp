@@ -141,6 +141,14 @@ unsigned int CalculateNextWorkRequired(const CBlockIndex* pindexLast, int64_t nF
 
 // Check that on difficulty adjustments, the new difficulty does not increase
 // or decrease beyond the permitted limits.
+#ifdef QTUM_BUILD
+bool PermittedDifficultyTransition(const Consensus::Params&, int64_t, uint32_t, uint32_t)
+{
+    // Qtum has different difficulty adjustment algorithm than Bitcoin, so checking the borders for the new difficulty value might not be the same.
+    // The method is used for unit testing and to reject headers (headerssync.cpp) during synching for Bitcoin depending on the difficulty transition.
+    return true;
+}
+#else
 bool PermittedDifficultyTransition(const Consensus::Params& params, int64_t height, uint32_t old_nbits, uint32_t new_nbits)
 {
     if (params.fPowAllowMinDifficultyBlocks) return true;
@@ -189,6 +197,7 @@ bool PermittedDifficultyTransition(const Consensus::Params& params, int64_t heig
     }
     return true;
 }
+#endif
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params& params)
 {
