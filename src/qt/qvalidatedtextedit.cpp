@@ -1,5 +1,6 @@
 #include <qt/qvalidatedtextedit.h>
 #include <qt/styleSheet.h>
+#include <qt/guiutil.h>
 
 #include <QValidator>
 
@@ -174,7 +175,7 @@ void QValidatedTextEdit::setEmptyIsValid(bool value)
 
 QStringList QValidatedTextEdit::getLines() const
 {
-    return toPlainText().split('\n', Qt::SkipEmptyParts);
+    return GUIUtil::SplitSkipEmptyParts(toPlainText(), '\n');
 }
 
 void QValidatedTextEdit::setLines(const QStringList &lines)

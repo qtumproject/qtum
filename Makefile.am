@@ -179,6 +179,9 @@ LCOV_FILTER_PATTERN = \
 	-p "src/crypto/ctaes" \
 	-p "src/minisketch" \
 	-p "src/secp256k1" \
+	-p "src/cryptopp" \
+	-p "src/evmone" \
+	-p "src/eth_client" \
 	-p "depends"
 
 DIR_FUZZ_SEED_CORPUS ?= qa-assets/fuzz_seed_corpus

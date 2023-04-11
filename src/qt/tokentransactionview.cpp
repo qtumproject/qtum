@@ -300,8 +300,8 @@ void TokenTransactionView::dateRangeChanged()
     if(!tokenProxyModel)
         return;
     tokenProxyModel->setDateRange(
-                dateFrom->date().startOfDay(),
-                dateTo->date().startOfDay().addDays(1));
+                GUIUtil::StartOfDay(dateFrom->date()),
+                GUIUtil::StartOfDay(dateTo->date().addDays(1)));
 }
 
 void TokenTransactionView::showDetails()
@@ -352,30 +352,30 @@ void TokenTransactionView::chooseDate(int idx)
         break;
     case Today:
         tokenProxyModel->setDateRange(
-                    current.startOfDay(),
+                    GUIUtil::StartOfDay(current),
                     TokenFilterProxy::MAX_DATE);
         break;
     case ThisWeek: {
         // Find last Monday
         QDate startOfWeek = current.addDays(-(current.dayOfWeek()-1));
         tokenProxyModel->setDateRange(
-                    startOfWeek.startOfDay(),
+                    GUIUtil::StartOfDay(startOfWeek),
                     TokenFilterProxy::MAX_DATE);
 
     } break;
     case ThisMonth:
         tokenProxyModel->setDateRange(
-                    QDate(current.year(), current.month(), 1).startOfDay(),
+                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)),
                     TokenFilterProxy::MAX_DATE);
         break;
     case LastMonth:
         tokenProxyModel->setDateRange(
-                    QDate(current.year(), current.month(), 1).addMonths(-1).startOfDay(),
-                    QDate(current.year(), current.month(), 1).startOfDay());
+                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1).addMonths(-1)),
+                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)));
         break;
     case ThisYear:
         tokenProxyModel->setDateRange(
-                    QDate(current.year(), 1, 1).startOfDay(),
+                    GUIUtil::StartOfDay(QDate(current.year(), 1, 1)),
                     TokenFilterProxy::MAX_DATE);
         break;
     case Range:

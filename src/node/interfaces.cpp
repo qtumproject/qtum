@@ -863,7 +863,7 @@ public:
     }
 
     NodeContext* context() override { return &m_node; }
-    ChainstateManager& chainman() { return *Assert(m_node.chainman); }
+    ChainstateManager& chainman() override { return *Assert(m_node.chainman); }
     const CTxMemPool& mempool() override { return *Assert(m_node.mempool); }
 
     CBlockIndex* getTip() const override

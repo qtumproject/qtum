@@ -400,7 +400,7 @@ endif
 if TARGET_WINDOWS
 else
 if ENABLE_BENCH
-	@echo "Running bench/bench_bitcoin (one iteration sanity check)..."
+	@echo "Running bench/bench_qtum (one iteration sanity check)..."
 	$(BENCH_BINARY) --sanity-check > /dev/null
 endif
 endif
