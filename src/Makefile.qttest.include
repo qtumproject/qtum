@@ -27,7 +27,7 @@ TEST_QT_H = \
   qt/test/wallettests.h
 
 qt_test_test_qtum_qt_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(BITCOIN_QT_INCLUDES) \
-  $(QT_INCLUDES) $(QT_TEST_INCLUDES) $(BOOST_CPPFLAGS)
+  $(QT_INCLUDES) $(QT_TEST_INCLUDES)
 
 qt_test_test_qtum_qt_SOURCES = \
   init/bitcoin-qt.cpp \

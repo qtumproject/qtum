@@ -51,7 +51,7 @@ bench_bench_qtum_SOURCES = \
 
 nodist_bench_bench_qtum_SOURCES = $(GENERATED_BENCH_FILES)
 
-bench_bench_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(BOOST_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS) -I$(builddir)/bench/
+bench_bench_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS) -I$(builddir)/bench/
 bench_bench_qtum_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 bench_bench_qtum_LDADD = \
   $(LIBTEST_UTIL) \
