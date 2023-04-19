@@ -1368,7 +1368,7 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
             QMetaObject::invokeMethod(clientModel, "tipChanged", Qt::QueuedConnection);
         }
     }
-    else
+    else if (synctype == SyncType::BLOCK_SYNC)
     {
         QString timeBehindText = GUIUtil::formatNiceTimeOffset(secs);
 

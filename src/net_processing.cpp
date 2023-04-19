@@ -2561,13 +2561,14 @@ arith_uint256 PeerManagerImpl::GetAntiDoSWorkThreshold()
 {
     arith_uint256 near_chaintip_work = 0;
     LOCK(cs_main);
-    if (m_chainman.ActiveChain().Tip() != nullptr) {
-        const CBlockIndex *tip = m_chainman.ActiveChain().Tip();
-        // Use a 144 block buffer, so that we'll accept headers that fork from
+    const CBlockIndex *tip = m_chainman.ActiveChain().Tip();
+    if (tip != nullptr) {
+        // Use an auto selected sync checkpoint
         // near our tip.
-        near_chaintip_work = tip->nChainWork - std::min<arith_uint256>(144*GetBlockProof(*tip), tip->nChainWork);
+        const CBlockIndex* pcheckpoint = m_chainman.m_blockman.AutoSelectSyncCheckpoint(tip);
+        near_chaintip_work = pcheckpoint->nChainWork;
     }
-    return std::max(near_chaintip_work, arith_uint256(nMinimumChainWork));
+    return near_chaintip_work;
 }
 
 /**
