@@ -2022,11 +2022,8 @@ int64_t CWallet::GetDefaultNextResend() { return GetTime() + (12 * 60 * 60) + Ge
 // (on start, or after import) uses relay=false force=true.
 void CWallet::ResubmitWalletTransactions(bool relay, bool force)
 {
-    // Clean coin stake
-    if(fCleanCoinStake && !chain().getReindex() && !chain().getImporting())
-    {
-        CleanCoinStake();
-    }
+    // Clean coinstake transactions when not reindex and not importing
+    TryCleanCoinStake();
 
     // Don't attempt to resubmit if the wallet is configured to not broadcast,
     // even if forcing.
@@ -2066,6 +2063,8 @@ void CWallet::ResubmitWalletTransactions(bool relay, bool force)
 void MaybeResendWalletTxs(WalletContext& context)
 {
     for (const std::shared_ptr<CWallet>& pwallet : GetWallets(context)) {
+        // Clean coinstake transactions when not reindex and not importing
+        pwallet->TryCleanCoinStake();
         if (!pwallet->ShouldResend()) continue;
         pwallet->ResubmitWalletTransactions(/*relay=*/true, /*force=*/false);
         pwallet->SetNextResend();
@@ -5212,6 +5211,14 @@ void CWallet::CleanCoinStake()
                 }
             }
         }
+    }
+}
+
+void CWallet::TryCleanCoinStake()
+{
+    if(fCleanCoinStake && !chain().getReindex() && !chain().getImporting())
+    {
+        CleanCoinStake();
     }
 }
 

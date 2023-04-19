@@ -1128,6 +1128,9 @@ public:
     /* Clean coinstake transactions */
     void CleanCoinStake();
 
+    /* Clean coinstake transactions when not reindex and not importing */
+    void TryCleanCoinStake();
+
     void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
     void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);
     void updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
