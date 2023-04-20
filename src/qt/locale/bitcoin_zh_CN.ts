@@ -574,6 +574,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">卸载钱包</translation>
     </message>
     <message>
+        <source>Load Wallet Backup…</source>
+        <translation type="unfinished">加载钱包备份...</translation>
+    </message>
+    <message>
         <source>Restore Wallet…</source>
         <extracomment>Name of the menu item that restores wallet from a backup file.</extracomment>
         <translation type="unfinished">恢复钱包...</translation>

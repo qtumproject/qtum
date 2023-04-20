@@ -419,7 +419,7 @@ void BitcoinGUI::createActions()
     encryptWalletAction->setCheckable(true);
     backupWalletAction = new QAction(tr("&Backup Wallet…"), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
-    restoreWalletAction = new QAction(tr("&Restore Wallet..."), this);
+    restoreWalletAction = new QAction(tr("Restore Wallet…"), this);
     restoreWalletAction->setStatusTip(tr("Restore wallet from another location"));
     changePassphraseAction = new QAction(tr("&Change Passphrase…"), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
@@ -466,7 +466,7 @@ void BitcoinGUI::createActions()
     m_create_wallet_action->setStatusTip(tr("Create a new wallet"));
 
     //: Name of the menu item that restores wallet from a backup file.
-    m_restore_wallet_action = new QAction(tr("Restore Wallet…"), this);
+    m_restore_wallet_action = new QAction(tr("Load Wallet Backup…"), this);
     m_restore_wallet_action->setEnabled(false);
     //: Status tip for Restore Wallet menu item
     m_restore_wallet_action->setStatusTip(tr("Restore a wallet from a backup file"));
@@ -603,8 +603,8 @@ void BitcoinGUI::createMenuBar()
         file->addAction(m_close_all_wallets_action);
         file->addSeparator();
         file->addAction(backupWalletAction);
-        file->addAction(m_restore_wallet_action);
         file->addAction(restoreWalletAction);
+        file->addAction(m_restore_wallet_action);
         file->addSeparator();
         file->addAction(openAction);
         file->addAction(signMessageAction);
