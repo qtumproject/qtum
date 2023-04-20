@@ -9,7 +9,6 @@
 #include <fs.h>
 #include <util/strencodings.h>
 #include <util/system.h>
-#include <libethcore/SealEngine.h>
 
 #include <chrono>
 #include <cstdint>
@@ -27,9 +26,10 @@ static void SetupBenchArgs(ArgsManager& argsman)
     argsman.AddArg("-asymptote=<n1,n2,n3,...>", "Test asymptotic growth of the runtime of an algorithm, if supported by the benchmark", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-filter=<regex>", strprintf("Regular expression filter to select benchmark by name (default: %s)", DEFAULT_BENCH_FILTER), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-list", "List benchmarks without executing them", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
-    argsman.AddArg("-min_time=<milliseconds>", strprintf("Minimum runtime per benchmark, in milliseconds (default: %d)", DEFAULT_MIN_TIME_MS), ArgsManager::ALLOW_ANY | ArgsManager::DISALLOW_NEGATION, OptionsCategory::OPTIONS);
-    argsman.AddArg("-output_csv=<output.csv>", "Generate CSV file with the most important benchmark results", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
-    argsman.AddArg("-output_json=<output.json>", "Generate JSON file with all benchmark results", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-min-time=<milliseconds>", strprintf("Minimum runtime per benchmark, in milliseconds (default: %d)", DEFAULT_MIN_TIME_MS), ArgsManager::ALLOW_ANY | ArgsManager::DISALLOW_NEGATION, OptionsCategory::OPTIONS);
+    argsman.AddArg("-output-csv=<output.csv>", "Generate CSV file with the most important benchmark results", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-output-json=<output.json>", "Generate JSON file with all benchmark results", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-sanity-check", "Run benchmarks for only one iteration", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 }
 
 // parses a comma separated list like "10,20,30,50"
@@ -57,12 +57,12 @@ int main(int argc, char** argv)
     }
 
     if (HelpRequested(argsman)) {
-        std::cout << "Usage:  bench_bitcoin [options]\n"
+        std::cout << "Usage:  bench_qtum [options]\n"
                      "\n"
                   << argsman.GetHelpMessage()
                   << "Description:\n"
                      "\n"
-                     "  bench_bitcoin executes microbenchmarks. The quality of the benchmark results\n"
+                     "  bench_qtum executes microbenchmarks. The quality of the benchmark results\n"
                      "  highly depend on the stability of the machine. It can sometimes be difficult\n"
                      "  to get stable, repeatable results, so here are a few tips:\n"
                      "\n"
@@ -74,9 +74,9 @@ int main(int argc, char** argv)
                      "    sure each run has exactly the same preconditions.\n"
                      "\n"
                      "  * If results are still not reliable, increase runtime with e.g.\n"
-                     "    -min_time=5000 to let a benchmark run for at least 5 seconds.\n"
+                     "    -min-time=5000 to let a benchmark run for at least 5 seconds.\n"
                      "\n"
-                     "  * bench_bitcoin uses nanobench [3] for which there is extensive\n"
+                     "  * bench_qtum uses nanobench [3] for which there is extensive\n"
                      "    documentation available online.\n"
                      "\n"
                      "Environment Variables:\n"
@@ -84,12 +84,12 @@ int main(int argc, char** argv)
                      "  To attach a profiler you can run a benchmark in endless mode. This can be\n"
                      "  done with the environment variable NANOBENCH_ENDLESS. E.g. like so:\n"
                      "\n"
-                     "    NANOBENCH_ENDLESS=MuHash ./bench_bitcoin -filter=MuHash\n"
+                     "    NANOBENCH_ENDLESS=MuHash ./bench_qtum -filter=MuHash\n"
                      "\n"
                      "  In rare cases it can be useful to suppress stability warnings. This can be\n"
                      "  done with the environment variable NANOBENCH_SUPPRESS_WARNINGS, e.g:\n"
                      "\n"
-                     "    NANOBENCH_SUPPRESS_WARNINGS=1 ./bench_bitcoin\n"
+                     "    NANOBENCH_SUPPRESS_WARNINGS=1 ./bench_qtum\n"
                      "\n"
                      "Notes:\n"
                      "\n"
@@ -106,16 +106,14 @@ int main(int argc, char** argv)
         return EXIT_SUCCESS;
     }
 
-    // Overwrite arguments for bench
-    gArgs.SoftSetBoolArg("-acceptnonstdtxn", true);
-
     benchmark::Args args;
     args.asymptote = parseAsymptote(argsman.GetArg("-asymptote", ""));
     args.is_list_only = argsman.GetBoolArg("-list", false);
-    args.min_time = std::chrono::milliseconds(argsman.GetIntArg("-min_time", DEFAULT_MIN_TIME_MS));
-    args.output_csv = fs::PathFromString(argsman.GetArg("-output_csv", ""));
-    args.output_json = fs::PathFromString(argsman.GetArg("-output_json", ""));
+    args.min_time = std::chrono::milliseconds(argsman.GetIntArg("-min-time", DEFAULT_MIN_TIME_MS));
+    args.output_csv = argsman.GetPathArg("-output-csv");
+    args.output_json = argsman.GetPathArg("-output-json");
     args.regex_filter = argsman.GetArg("-filter", DEFAULT_BENCH_FILTER);
+    args.sanity_check = argsman.GetBoolArg("-sanity-check", false);
 
     benchmark::BenchRunner::RunAll(args);
 

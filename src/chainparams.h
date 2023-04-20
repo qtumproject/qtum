@@ -137,6 +137,7 @@ public:
     bool HasHardwareWalletSupport() const { return fHasHardwareWalletSupport; }
     void UpdateLondonHeight(int nHeight);
     void UpdateTaprootHeight(int nHeight);
+
     //! Get allowed assumeutxo configuration.
     //! @see ChainstateManager
     const MapAssumeutxo& Assumeutxo() const { return m_assumeutxo_data; }

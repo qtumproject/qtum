@@ -111,13 +111,13 @@ void HardwareSignTxDialog::txChanged()
                 if(sendToFound)
                 {
                     CAmount amountValue;
-                    BitcoinUnits::parse(BitcoinUnits::BTC, vout.value("value").toVariant().toString(), &amountValue);
+                    BitcoinUnits::parse(BitcoinUnit::BTC, vout.value("value").toVariant().toString(), &amountValue);
                     amount += amountValue;
                 }
             }
 
             // Determine the fee
-            BitcoinUnits::parse(BitcoinUnits::BTC, jsonData.value("fee").toVariant().toString(), &fee);
+            BitcoinUnits::parse(BitcoinUnit::BTC, jsonData.value("fee").toVariant().toString(), &fee);
 
             ui->lineEditAmount->setValue(amount);
             ui->lineEditFee->setValue(fee);

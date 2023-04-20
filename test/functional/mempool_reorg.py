@@ -72,7 +72,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
 
         self.log.info("Create spend_2_1 and spend_3_1")
         spend_2_utxo = wallet.get_utxo(txid=spend_2['txid'])
-        spend_2_1 = wallet.create_self_transfer(utxo_to_spend=spend_2_utxo, fee_rate=Decimal("0.03"))
+        spend_2_1 = wallet.create_self_transfer(utxo_to_spend=spend_2_utxo, fee_rate=Decimal("0.03")) 
         spend_3_utxo = wallet.get_utxo(txid=spend_3['txid'])
         spend_3_1 = wallet.create_self_transfer(utxo_to_spend=spend_3_utxo, fee_rate=Decimal("0.03"))
 

@@ -29,13 +29,16 @@ from test_framework.wallet_util import (
     test_address,
 )
 
-from test_framework.qtum import convert_btc_address_to_qtum, convert_btc_bech32_address_to_qtum
+from test_framework.qtum import convert_btc_address_to_qtum, convert_btc_bech32_address_to_qtum 
 class ImportDescriptorsTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.extra_args = [["-addresstype=legacy"],
                            ["-addresstype=bech32", "-keypool=5"]
                           ]
+        # whitelist peers to speed up tx relay / mempool sync
+        for args in self.extra_args:
+            args.append("-whitelist=noban@127.0.0.1")
         self.setup_clean_chain = True
         self.wallet_names = []
 
@@ -447,7 +450,7 @@ class ImportDescriptorsTest(BitcoinTestFramework):
 
         assert_equal(wmulti_priv.getwalletinfo()['keypoolsize'], 1001) # Range end (1000) is inclusive, so 1001 addresses generated
         addr = wmulti_priv.getnewaddress('', 'bech32')
-        assert_equal(addr, convert_btc_bech32_address_to_qtum('bcrt1qdt0qy5p7dzhxzmegnn4ulzhard33s2809arjqgjndx87rv5vd0fq2czhy8')) # Derived at m/84'/0'/0'/0
+        assert_equal(addr, convert_btc_bech32_address_to_qtum('bcrt1qdt0qy5p7dzhxzmegnn4ulzhard33s2809arjqgjndx87rv5vd0fq2czhy8')) # Derived at m/84'/0'/0'/0 
         change_addr = wmulti_priv.getrawchangeaddress('bech32')
         assert_equal(change_addr, convert_btc_bech32_address_to_qtum('bcrt1qt9uhe3a9hnq7vajl7a094z4s3crm9ttf8zw3f5v9gr2nyd7e3lnsy44n8e'))
         assert_equal(wmulti_priv.getwalletinfo()['keypoolsize'], 1000)
@@ -456,7 +459,7 @@ class ImportDescriptorsTest(BitcoinTestFramework):
         send_txid = wmulti_priv.sendtoaddress(w0.getnewaddress(), 8)
         decoded = wmulti_priv.gettransaction(txid=send_txid, verbose=True)['decoded']
         assert_equal(len(decoded['vin'][0]['txinwitness']), 4)
-        self.generate(self.nodes[0], 6)
+        self.sync_all()
 
         self.nodes[1].createwallet(wallet_name="wmulti_pub", disable_private_keys=True, blank=True, descriptors=True)
         wmulti_pub = self.nodes[1].get_wallet_rpc("wmulti_pub")

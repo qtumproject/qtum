@@ -24,22 +24,21 @@ bool SetDefaultPayForContractAddress(const CWallet& wallet, CCoinControl & coinC
 {
     // Set default coin to pay for the contract
     // Select any valid unspent output that can be used to pay for the contract
-    std::vector<COutput> vecOutputs;
-    coinControl.fAllowOtherInputs=true;
+    coinControl.m_allow_other_inputs = true;
     coinControl.m_include_unsafe_inputs = true;
 
-    AvailableCoins(wallet, vecOutputs, &coinControl);
+    std::vector<COutput> vecOutputs = AvailableCoins(wallet, &coinControl).All();
 
     for (const COutput& out : vecOutputs) {
         CTxDestination destAdress;
-        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-        bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress)
+        const CScript& scriptPubKey = out.txout.scriptPubKey;
+        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress)
                 && IsValidContractSenderAddress(destAdress);
 
         if (!fValidAddress)
             continue;
 
-        coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
+        coinControl.Select(out.outpoint);
         break;
     }
 
@@ -50,15 +49,14 @@ bool SetDefaultSignSenderAddress(const CWallet& wallet, CTxDestination& destAdre
 {
     // Set default sender address if none provided
     // Select any valid unspent output that can be used for contract sender address
-    std::vector<COutput> vecOutputs;
-    coinControl.fAllowOtherInputs=true;
+    coinControl.m_allow_other_inputs = true;
     coinControl.m_include_unsafe_inputs = true;
 
-    AvailableCoins(wallet, vecOutputs, &coinControl);
+    std::vector<COutput> vecOutputs = AvailableCoins(wallet, &coinControl).All();
 
     for (const COutput& out : vecOutputs) {
-        const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-        bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress)
+        const CScript& scriptPubKey = out.txout.scriptPubKey;
+        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress)
                 && IsValidContractSenderAddress(destAdress);
 
         if (!fValidAddress)
@@ -170,7 +168,7 @@ RPCHelpMan createcontract()
 
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_CREATE;
     if (!request.params[1].isNull()){
-        nGasLimit = request.params[1].get_int64();
+        nGasLimit = request.params[1].getInt<int64_t>();
         if (nGasLimit > blockGasLimit)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Maximum is: "+i64tostr(blockGasLimit)+")");
         if (nGasLimit < MINIMUM_GAS_LIMIT)
@@ -224,22 +222,20 @@ RPCHelpMan createcontract()
     CTxDestination signSenderAddress = CNoDestination();
     if(fHasSender){
         // Find a UTXO with sender address
-        std::vector<COutput> vecOutputs;
-
-        coinControl.fAllowOtherInputs=true;
+        coinControl.m_allow_other_inputs = true;
 
         assert(pwallet != NULL);
-        AvailableCoins(*pwallet, vecOutputs, NULL);
+        std::vector<COutput> vecOutputs = AvailableCoins(*pwallet, NULL).All();
 
         for (const COutput& out : vecOutputs) {
             CTxDestination destAdress;
-            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-            bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress);
+            const CScript& scriptPubKey = out.txout.scriptPubKey;
+            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress);
 
             if (!fValidAddress || senderAddress != destAdress)
                 continue;
 
-            coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
+            coinControl.Select(out.outpoint);
 
             break;
 
@@ -313,23 +309,17 @@ RPCHelpMan createcontract()
     }
 
     // Create and send the transaction
-    CAmount nFeeRequired;
-    bilingual_str error;
-    std::string strError;
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
     CRecipient recipient = {scriptPubKey, 0, false};
     vecSend.push_back(recipient);
 
     bool sign = !fPsbt;
-    CTransactionRef tx;
-    FeeCalculation fee_calc_out;
-    if (!CreateTransaction(*pwallet, vecSend, tx, nFeeRequired, nChangePosRet, error, coinControl, fee_calc_out, sign, nGasFee, true, signSenderAddress)) {
-        if (nFeeRequired > curBalance)
-            strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
-        else strError = error.original;
-        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    auto res = CreateTransaction(*pwallet, vecSend, nChangePosRet, coinControl, sign, nGasFee, true, signSenderAddress);
+    if (!res) {
+        throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
     }
+    CTransactionRef tx = res->tx;
 
     CTxDestination txSenderDest;
     pwallet->GetSenderDest(*tx, txSenderDest, sign);
@@ -439,7 +429,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
 
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (!params[3].isNull()){
-        nGasLimit = params[3].get_int64();
+        nGasLimit = params[3].getInt<int64_t>();
         if (nGasLimit > blockGasLimit)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit (Maximum is: "+i64tostr(blockGasLimit)+")");
         if (nGasLimit < MINIMUM_GAS_LIMIT)
@@ -493,22 +483,20 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
     CTxDestination signSenderAddress = CNoDestination();
     if(fHasSender){
         // Find a UTXO with sender address
-        std::vector<COutput> vecOutputs;
+        coinControl.m_allow_other_inputs = true;
 
-        coinControl.fAllowOtherInputs=true;
-
-        AvailableCoins(wallet, vecOutputs, NULL);
+        std::vector<COutput> vecOutputs = AvailableCoins(wallet, NULL).All();
 
         for (const COutput& out : vecOutputs) {
 
             CTxDestination destAdress;
-            const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
-            bool fValidAddress = out.fSpendable && ExtractDestination(scriptPubKey, destAdress);
+            const CScript& scriptPubKey = out.txout.scriptPubKey;
+            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress);
 
             if (!fValidAddress || senderAddress != destAdress)
                 continue;
 
-            coinControl.Select(COutPoint(out.tx->GetHash(),out.i));
+            coinControl.Select(out.outpoint);
 
             break;
 
@@ -583,23 +571,17 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
     }
 
     // Create and send the transaction
-    CAmount nFeeRequired;
-    bilingual_str error;
-    std::string strError;
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
     CRecipient recipient = {scriptPubKey, nAmount, false};
     vecSend.push_back(recipient);
 
     bool sign = !fPsbt;
-    CTransactionRef tx;
-    FeeCalculation fee_calc_out;
-    if (!CreateTransaction(wallet, vecSend, tx, nFeeRequired, nChangePosRet, error, coinControl, fee_calc_out, sign, nGasFee, true, signSenderAddress)) {
-        if (nFeeRequired > curBalance)
-            strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
-        else strError = error.original;
-        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    auto res = CreateTransaction(wallet, vecSend, nChangePosRet, coinControl, sign, nGasFee, true, signSenderAddress);
+    if (!res) {
+        throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
     }
+    CTransactionRef tx = res->tx;
 
     CTxDestination txSenderDest;
     wallet.GetSenderDest(*tx, txSenderDest, sign);
@@ -980,7 +962,7 @@ RPCHelpMan setdelegateforaddress()
     PKHash pkhStaker = std::get<PKHash>(destStaker);
 
     // Parse the staker fee
-    int fee = request.params[1].get_int();
+    int fee = request.params[1].getInt<int>();
     if(fee < 0 || fee > 100)
         throw JSONRPCError(RPC_PARSE_ERROR, "The staker fee need to be between 0 and 100");
 
@@ -1016,7 +998,10 @@ RPCHelpMan setdelegateforaddress()
         {
             throw JSONRPCError(RPC_WALLET_ERROR, "Fail to sign the staker address");
         }
-        PoD = DecodeBase64(str_sig.c_str());
+        if(auto decodePoD = DecodeBase64(str_sig))
+        {
+            PoD = *decodePoD;
+        }
     }
 
     // Serialize the data
@@ -1087,7 +1072,7 @@ RPCHelpMan qrc20approve()
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (!request.params[4].isNull()){
-        nGasLimit = request.params[4].get_int64();
+        nGasLimit = request.params[4].getInt<int64_t>();
     }
 
     // Get gas price
@@ -1194,7 +1179,7 @@ RPCHelpMan qrc20transfer()
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (!request.params[4].isNull()){
-        nGasLimit = request.params[4].get_int64();
+        nGasLimit = request.params[4].getInt<int64_t>();
     }
 
     // Get gas price
@@ -1313,7 +1298,7 @@ RPCHelpMan qrc20transferfrom()
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (!request.params[5].isNull()){
-        nGasLimit = request.params[5].get_int64();
+        nGasLimit = request.params[5].getInt<int64_t>();
     }
 
     // Get gas price
@@ -1428,7 +1413,7 @@ RPCHelpMan qrc20burn()
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (!request.params[3].isNull()){
-        nGasLimit = request.params[3].get_int64();
+        nGasLimit = request.params[3].getInt<int64_t>();
     }
 
     // Get gas price
@@ -1545,7 +1530,7 @@ RPCHelpMan qrc20burnfrom()
     // Get gas limit
     uint64_t nGasLimit=DEFAULT_GAS_LIMIT_OP_SEND;
     if (!request.params[4].isNull()){
-        nGasLimit = request.params[4].get_int64();
+        nGasLimit = request.params[4].getInt<int64_t>();
     }
 
     // Get gas price

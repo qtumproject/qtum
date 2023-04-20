@@ -70,6 +70,12 @@
         <translation type="unfinished">ეს არის თქვენი ბიტკოინ-მისამართები, რომელთაგანაც შეგიძლიათ გადახდა. აუცილებლად შეამოწმეთ თანხა და მიმღები მისამართი გაგზავნამდე.</translation>
     </message>
     <message>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">ეს თქვენი ბიტკოინის მიმღები მიმსამართებია. ისარგებლეთ ღილაკით "შექმენით ახალი მიმღები მისამართები", როემლიც მოცემულია მიმღების ჩანართში ახალი მისამართების შესაქმნელად.
+ხელმოწერა მხოლოდ "მემკვიდრეობის" ტიპის მისამართებთანაა შესაძლებელია</translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">მისამართის კოპირება</translation>
     </message>
@@ -84,6 +90,11 @@
     <message>
         <source>Export Address List</source>
         <translation type="unfinished">მისამართების სიის ექსპორტი</translation>
+    </message>
+    <message>
+        <source>Comma separated file</source>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
+        <translation type="unfinished">CSV (სპეციალური ტექსტური ფაილი)</translation>
     </message>
     <message>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
@@ -173,7 +184,7 @@
         <translation type="unfinished">შეიყვანეთ ძველი საიდუმლო ფრაზა და ახალი საიდუმლო ფრაზა საფულისთვის</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source> 
         <translation type="unfinished">გახსოვდეთ, რომ თქვენი საფულის დაშიფვრა ვერ უზრუნველყოფს სრულად დაიცვას თქვენი ბიტკოინების მოპარვა კომპიუტერში მავნე პროგრამებით.</translation>
     </message>
     <message>
@@ -438,7 +449,7 @@
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">მონეტების გაგზავნა Qtum-მისამართზე</translation>
-    </message>
+   </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">საფულის არქივირება სხვა ადგილზე</translation>
@@ -461,12 +472,12 @@
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">მესიჯებზე ხელმოწერა თქვენი Qtum-მისამართებით იმის დასტურად, რომ ის თქვენია</translation>
-    </message>
+        <translation type="unfinished">მესიჯებზე ხელმოწერა თქვენი Qtum-მისამართებით იმის დასტურად, რომ ის თქვენია</translation> 
+  </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">შეამოწმეთ, რომ მესიჯები ხელმოწერილია მითითებული Qtum-მისამართით</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;ფაილი</translation>
@@ -485,8 +496,8 @@
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">გადახდის მოთხოვნა (შეიქმნება QR-კოდები და qtum: ბმულები)</translation>
-    </message>
+        <translation type="unfinished">გადახდის მოთხოვნა (შეიქმნება QR-კოდები და qtum: ბმულები)</translation> 
+   </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">გამოყენებული გაგზავნის მისამართებისა და ნიშნულების სიის ჩვენება</translation>
@@ -551,7 +562,7 @@
         <translation type="unfinished">მისამართების მიღება</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source>
+        <source>Open a qtum: URI</source> 
         <translation type="unfinished">გახსენით ბიტკოინი: URI</translation>
     </message>
     <message>
@@ -583,7 +594,7 @@
         <translation type="unfinished">%1 კლიენტი</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -810,7 +821,7 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">შეყვანილი მისამართი "%1" არ არის ვალიდური Qtum-მისამართი.</translation>
-    </message>
+   </message>
     <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">საფულის განბლოკვა ვერ მოხერხდა.</translation>
@@ -845,6 +856,27 @@
 </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
     <message numerus="yes">
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
@@ -1039,10 +1071,12 @@
     </message>
     <message>
         <source>Confirm options reset</source>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
         <translation type="unfinished">დაადასტურეთ პარამეტრების დაბრუნება ნაგულისხმევზე</translation>
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
+        <extracomment>Text explaining that the settings changed will not come into effect until the client is restarted.</extracomment>
         <translation type="unfinished">ცვლილებები ძალაში შევა კლიენტის ხელახალი გაშვების შემდეგ.</translation>
     </message>
     <message>
@@ -1067,7 +1101,7 @@
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">ნაჩვენები ინფორმაცია შეიძლება მოძველებული იყოს. თქვენი საფულე ავტომატურად სინქრონიზდება Qtum-ის ქსელთან კავშირის დამყარების შემდეგ, ეს პროცესი ჯერ არ არის დასრულებული.</translation>
-    </message>
+   </message>
     <message>
         <source>Available:</source>
         <translation type="unfinished">ხელმისაწვდომია:</translation>
@@ -1528,7 +1562,7 @@
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">ყურადღება: არასწორია Qtum-მისამართი</translation>
-    </message>
+   </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">ყურადღება: უცნობია ხურდის მისამართი</translation>
@@ -1573,16 +1607,8 @@
         <translation type="unfinished">შეიყვანეთ ამ მისამართის ნიშნული გამოყენებული მისამართების სიაში დასამატებლად</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source> 
         <translation type="unfinished">მესიჯი, რომელიც თან ერთვის მონეტებს:  URI, რომელიც შეინახება ტრანსაქციასთან ერთად თქვენთვის. შენიშვნა: მესიჯი არ გაყვება გადახდას ბითქოინის ქსელში.</translation>
-    </message>
-    <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">ადრესატი:</translation>
-    </message>
-    <message>
-        <source>Memo:</source>
-        <translation type="unfinished">შენიშვნა:</translation>
     </message>
 </context>
 <context>
@@ -1616,7 +1642,7 @@
         <translation type="unfinished">მიმდინარე ხელმოწერის კოპირება კლიპბორდში</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Qtum address</source>
+        <source>Sign the message to prove you own this Qtum address</source> 
         <translation type="unfinished">მოაწერეთ ხელი იმის დასადასტურებლად, რომ ეს მისამართი თქვენია</translation>
     </message>
     <message>
@@ -1638,7 +1664,7 @@
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">შეამოწმეთ, რომ მესიჯი ხელმოწერილია მითითებული Qtum-მისამართით</translation>
-    </message>
+   </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">&amp;მესიჯის ვერიფიკაცია</translation>
@@ -1704,10 +1730,12 @@
     <name>TransactionDesc</name>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/დაუდასტურებელია</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">%1 დადასტურებულია</translation>
     </message>
     <message>
@@ -1961,6 +1989,11 @@
     <message>
         <source>Export Transaction History</source>
         <translation type="unfinished">ტრანსაქციების ისტორიის ექსპორტი</translation>
+    </message>
+    <message>
+        <source>Comma separated file</source>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
+        <translation type="unfinished">CSV (სპეციალური ტექსტური ფაილი)</translation>
     </message>
     <message>
         <source>Confirmed</source>

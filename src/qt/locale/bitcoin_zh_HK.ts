@@ -68,7 +68,7 @@
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">這些是你要付款過去的 Qtum 位址。在付款之前，務必要檢查金額和收款位址是否正確。</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">複製地址 &amp;C</translation>
@@ -155,7 +155,7 @@
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">警告: 如果你將錢包加密後又忘記密碼，你就會&lt;b&gt;失去所有 Qtum 了&lt;/b&gt;！</translation>
-    </message>
+   </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">你確定要把錢包加密嗎？</translation>
@@ -248,7 +248,7 @@
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">輸入一個 Qtum 位址 (例如 %1)</translation>
-    </message>
+   </message>
     <message>
         <source>%1 d</source>
         <translation type="unfinished">%1 日</translation>
@@ -371,7 +371,7 @@
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">付款至一個 Qtum 位址</translation>
-    </message>
+   </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">把錢包備份到其它地方</translation>
@@ -403,7 +403,7 @@
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">要求付款 (產生QR碼 qtum: URIs)</translation>
-    </message>
+   </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation type="unfinished">
@@ -498,6 +498,24 @@
     </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
     <message numerus="yes">
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>

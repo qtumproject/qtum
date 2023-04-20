@@ -205,7 +205,6 @@ class SegWitTest(BitcoinTestFramework):
                 for v in range(2):
                     wit_ids[n][v].append(send_to_witness(v, self.nodes[0], find_unspent(self.nodes[0], INITIAL_BLOCK_REWARD), self.pubkey[n], False, INITIAL_BLOCK_REWARD - Decimal("0.001")))
                     p2sh_ids[n][v].append(send_to_witness(v, self.nodes[0], find_unspent(self.nodes[0], INITIAL_BLOCK_REWARD), self.pubkey[n], True, INITIAL_BLOCK_REWARD - Decimal("0.001")))
-
         self.generate(self.nodes[0], 1)  # block 163
 
         # Make sure all nodes recognize the transactions as theirs
@@ -214,7 +213,6 @@ class SegWitTest(BitcoinTestFramework):
         assert_equal(self.nodes[2].getbalance(), 20*(INITIAL_BLOCK_REWARD - Decimal("0.001")))
 
         self.nodes[0].generate(32 if ENABLE_REDUCED_BLOCK_TIME else 260)  # block 423
-
         self.log.info("Verify witness txs are skipped for mining before the fork")
         self.skip_mine(self.nodes[2], wit_ids[NODE_2][P2WPKH][0], True)  # block 424
         self.skip_mine(self.nodes[2], wit_ids[NODE_2][P2WSH][0], True)  # block 425
@@ -224,11 +222,18 @@ class SegWitTest(BitcoinTestFramework):
         self.log.info("Verify unsigned p2sh witness txs without a redeem script are invalid")
         self.fail_accept(self.nodes[2], "mandatory-script-verify-flag-failed (Operation not valid with the current stack size)", p2sh_ids[NODE_2][P2WPKH][1], sign=False)
         self.fail_accept(self.nodes[2], "mandatory-script-verify-flag-failed (Operation not valid with the current stack size)", p2sh_ids[NODE_2][P2WSH][1], sign=False)
-        self.generate(self.nodes[2], 4)  # blocks 428-431
 
-        self.log.info("Verify previous witness txs skipped for mining can now be mined")
+        self.generate(self.nodes[0], 1)  # block 164
+
+        self.log.info("Verify witness txs are mined as soon as segwit activates")
+
+        send_to_witness(1, self.nodes[2], getutxo(wit_ids[NODE_2][P2WPKH][0]), self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=True)
+        send_to_witness(1, self.nodes[2], getutxo(wit_ids[NODE_2][P2WSH][0]), self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=True)
+        send_to_witness(1, self.nodes[2], getutxo(p2sh_ids[NODE_2][P2WPKH][0]), self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=True)
+        send_to_witness(1, self.nodes[2], getutxo(p2sh_ids[NODE_2][P2WSH][0]), self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=True)
+
         assert_equal(len(self.nodes[2].getrawmempool()), 4)
-        blockhash = self.generate(self.nodes[2], 1)[0]  # block 432 (first block with new rules; 432 = 144 * 3)
+        blockhash = self.generate(self.nodes[2], 1)[0]  # block 165 (first block with new rules)
         assert_equal(len(self.nodes[2].getrawmempool()), 0)
         segwit_tx_list = self.nodes[2].getblock(blockhash)["tx"]
         assert_equal(len(segwit_tx_list), 5)
@@ -270,10 +275,10 @@ class SegWitTest(BitcoinTestFramework):
         self.fail_accept(self.nodes[2], 'non-mandatory-script-verify-flag (Witness program was passed an empty witness)', p2sh_ids[NODE_2][P2WSH][2], sign=False, redeem_script=witness_script(True, self.pubkey[2]))
 
         self.log.info("Verify default node can now use witness txs")
-        self.success_mine(self.nodes[0], wit_ids[NODE_0][P2WPKH][0], True)  # block 432
-        self.success_mine(self.nodes[0], wit_ids[NODE_0][P2WSH][0], True)  # block 433
-        self.success_mine(self.nodes[0], p2sh_ids[NODE_0][P2WPKH][0], True)  # block 434
-        self.success_mine(self.nodes[0], p2sh_ids[NODE_0][P2WSH][0], True)  # block 435
+        self.success_mine(self.nodes[0], wit_ids[NODE_0][P2WPKH][0], True)
+        self.success_mine(self.nodes[0], wit_ids[NODE_0][P2WSH][0], True)
+        self.success_mine(self.nodes[0], p2sh_ids[NODE_0][P2WPKH][0], True)
+        self.success_mine(self.nodes[0], p2sh_ids[NODE_0][P2WSH][0], True)
 
         self.log.info("Verify sigops are counted in GBT with BIP141 rules after the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
@@ -329,7 +334,7 @@ class SegWitTest(BitcoinTestFramework):
         # Now create tx3, which will spend from txid2
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(int(txid2, 16), 0), b""))
-        tx.vout.append(CTxOut(int((INITIAL_BLOCK_REWARD-Decimal('0.05'))*COIN), CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))  # Huge fee
+        tx.vout.append(CTxOut(int((INITIAL_BLOCK_REWARD-Decimal('0.05'))*COIN), CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))  # Huge fee 
         tx.calc_sha256()
         txid3 = self.nodes[0].sendrawtransaction(hexstring=tx.serialize().hex(), maxfeerate=0)
         assert tx.wit.is_null()
@@ -633,6 +638,11 @@ class SegWitTest(BitcoinTestFramework):
                 self.restart_node(1)
                 assert_equal(self.nodes[1].gettransaction(txid, True)["txid"], txid)
                 assert_equal(self.nodes[1].listtransactions("*", 1, 0, True)[0]["txid"], txid)
+
+        self.log.info('Test negative and unknown rpcserialversion throw an init error')
+        self.stop_node(0)
+        self.nodes[0].assert_start_raises_init_error(["-rpcserialversion=-1"], "Error: rpcserialversion must be non-negative.")
+        self.nodes[0].assert_start_raises_init_error(["-rpcserialversion=100"], "Error: Unknown rpcserialversion requested.")
 
     def mine_and_test_listunspent(self, script_list, ismine):
         utxo = find_spendable_utxo(self.nodes[0], 50)

@@ -22,7 +22,6 @@ public:
 
     bool getEmptyIsValid() const;
     void setEmptyIsValid(bool value);
-
 protected:
     void focusInEvent(QFocusEvent *evt) override;
     void focusOutEvent(QFocusEvent *evt) override;
@@ -43,6 +42,7 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void markValid();
+
 };
 
 #endif // BITCOIN_QT_QVALIDATEDLINEEDIT_H

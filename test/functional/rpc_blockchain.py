@@ -25,6 +25,7 @@ from decimal import Decimal
 import http.client
 import os
 import subprocess
+
 from test_framework.blocktools import (
     MAX_FUTURE_BLOCK_TIME,
     TIME_GENESIS_BLOCK,
@@ -37,6 +38,7 @@ from test_framework.messages import (
     msg_block,
 )
 from test_framework.p2p import P2PInterface
+from test_framework.script import hash256
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
@@ -91,7 +93,7 @@ class BlockchainTest(BitcoinTestFramework):
 
     def mine_chain(self):
         self.log.info(f"Generate {HEIGHT} blocks after the genesis block in ten-minute steps")
-        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 32 * 2100, 32):
+        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 32 * 2100, 32): 
             self.nodes[0].setmocktime(t)
             self.generate(self.wallet, 1)
         assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 2100)
@@ -197,7 +199,7 @@ class BlockchainTest(BitcoinTestFramework):
                 'bip9': {
                     'bit': 28,
                     'start_time': 0,
-                    'since': 432,
+                    'since': 432, 
                     'timeout': 0x7fffffffffffffff,  # testdummy does not have a timeout so is set to the max int64 value
                     'min_activation_height': 0,
                     'status': 'started',
@@ -262,12 +264,12 @@ class BlockchainTest(BitcoinTestFramework):
         assert_raises_rpc_error(-1, 'getchaintxstats', self.nodes[0].getchaintxstats, 0, '', 0)
 
         # Test `getchaintxstats` invalid `nblocks`
-        assert_raises_rpc_error(-1, "JSON value is not an integer as expected", self.nodes[0].getchaintxstats, '')
+        assert_raises_rpc_error(-1, "JSON value of type string is not of expected type number", self.nodes[0].getchaintxstats, '')
         assert_raises_rpc_error(-8, "Invalid block count: should be between 0 and the block's height - 1", self.nodes[0].getchaintxstats, -1)
         assert_raises_rpc_error(-8, "Invalid block count: should be between 0 and the block's height - 1", self.nodes[0].getchaintxstats, self.nodes[0].getblockcount())
 
         # Test `getchaintxstats` invalid `blockhash`
-        assert_raises_rpc_error(-1, "JSON value is not a string as expected", self.nodes[0].getchaintxstats, blockhash=0)
+        assert_raises_rpc_error(-1, "JSON value of type number is not of expected type string", self.nodes[0].getchaintxstats, blockhash=0)
         assert_raises_rpc_error(-8, "blockhash must be of length 64 (not 1, for '0')", self.nodes[0].getchaintxstats, blockhash='0')
         assert_raises_rpc_error(-8, "blockhash must be hexadecimal string (not 'ZZZ0000000000000000000000000000000000000000000000000000000000000')", self.nodes[0].getchaintxstats, blockhash='ZZZ0000000000000000000000000000000000000000000000000000000000000')
         assert_raises_rpc_error(-5, "Block not found", self.nodes[0].getchaintxstats, blockhash='0000000000000000000000000000000000000000000000000000000000000000')
@@ -321,7 +323,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res['bestblock'], node.getblockhash(2100))
         size = res['disk_size']
         assert size > 6400
-        assert size < 176400
+        assert size < 176400 
         assert_equal(len(res['bestblock']), 64)
         assert_equal(len(res['hash_serialized_2']), 64)
 
@@ -461,11 +463,13 @@ class BlockchainTest(BitcoinTestFramework):
             b.solve()
             peer.send_and_ping(msg_block(b))
             return b
-
         b21f = solve_and_send_block(int(b20hash, 16), 2101, b20['time'] + 1)
         b22f = solve_and_send_block(b21f.sha256, 2102, b21f.nTime + 1)
 
-        node.invalidateblock(b22f.hash)
+        b1 = solve_and_send_block(int(fork_hash, 16), fork_height+1, fork_block['time'] + 1)
+        b2 = solve_and_send_block(b1.sha256, fork_height+2, b1.nTime + 1)
+
+        node.invalidateblock(b2.hash)
 
         def assert_waitforheight(height, timeout=2):
             assert_equal(
@@ -484,6 +488,10 @@ class BlockchainTest(BitcoinTestFramework):
 
         self.wallet.send_self_transfer(fee_rate=fee_per_kb, from_node=node)
         blockhash = self.generate(node, 1)[0]
+
+        def assert_hexblock_hashes(verbosity):
+            block = node.getblock(blockhash, verbosity)
+            assert_equal(blockhash, hash256(bytes.fromhex(block[:160]))[::-1].hex())
 
         def assert_fee_not_in_block(verbosity):
             block = node.getblock(blockhash, verbosity)
@@ -519,8 +527,13 @@ class BlockchainTest(BitcoinTestFramework):
                 for vin in tx["vin"]:
                     assert "prevout" not in vin
 
+        self.log.info("Test that getblock with verbosity 0 hashes to expected value")
+        assert_hexblock_hashes(0)
+        assert_hexblock_hashes(False)
+
         self.log.info("Test that getblock with verbosity 1 doesn't include fee")
         assert_fee_not_in_block(1)
+        assert_fee_not_in_block(True)
 
         self.log.info('Test that getblock with verbosity 2 and 3 includes expected fee')
         assert_fee_in_block(2)
@@ -537,7 +550,7 @@ class BlockchainTest(BitcoinTestFramework):
         datadir = get_datadir_path(self.options.tmpdir, 0)
 
         self.log.info("Test getblock with invalid verbosity type returns proper error message")
-        assert_raises_rpc_error(-1, "JSON value is not an integer as expected", node.getblock, blockhash, "2")
+        assert_raises_rpc_error(-1, "JSON value of type string is not of expected type number", node.getblock, blockhash, "2")
 
         def move_block_file(old, new):
             old_path = os.path.join(datadir, self.chain, 'blocks', old)

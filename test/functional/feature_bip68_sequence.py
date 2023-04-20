@@ -5,7 +5,7 @@
 """Test BIP68 implementation."""
 
 import time
-import random
+import random 
 
 from test_framework.blocktools import (
 	COINBASE_MATURITY,

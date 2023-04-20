@@ -23,7 +23,6 @@ from test_framework.util import (
     assert_equal,
     p2p_port,
 )
-
 from test_framework.qtum import convert_btc_bech32_address_to_qtum, generatesynchronized
 from test_framework.qtumconfig import COINBASE_MATURITY
 
@@ -93,6 +92,7 @@ class P2PPermissionsTests(BitcoinTestFramework):
         self.nodes[1].assert_start_raises_init_error(["-whitelist=oopsie@127.0.0.1"], "Invalid P2P permission", match=ErrorMatch.PARTIAL_REGEX)
         self.nodes[1].assert_start_raises_init_error(["-whitelist=noban@127.0.0.1:230"], "Invalid netmask specified in", match=ErrorMatch.PARTIAL_REGEX)
         self.nodes[1].assert_start_raises_init_error(["-whitebind=noban@127.0.0.1/10"], "Cannot resolve -whitebind address", match=ErrorMatch.PARTIAL_REGEX)
+        self.nodes[1].assert_start_raises_init_error(["-whitebind=noban@127.0.0.1", "-bind=127.0.0.1", "-listen=0"], "Cannot set -bind or -whitebind together with -listen=0", match=ErrorMatch.PARTIAL_REGEX)
 
     def check_tx_relay(self):
         block_op_true = self.nodes[0].getblock(generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, convert_btc_bech32_address_to_qtum(ADDRESS_BCRT1_P2WSH_OP_TRUE), self.nodes)[0])

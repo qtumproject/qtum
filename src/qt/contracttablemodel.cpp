@@ -57,16 +57,16 @@ public:
                               QString::fromStdString(item.abi)));
         }
 
-        // qLowerBound() and qUpperBound() require our cachedContractTable list to be sorted in asc order
-        qSort(cachedContractTable.begin(), cachedContractTable.end(), ContractTableEntryLessThan());
+        // std::lower_bound() and std::upper_bound() require our cachedContractTable list to be sorted in asc order
+        std::sort(cachedContractTable.begin(), cachedContractTable.end(), ContractTableEntryLessThan());
     }
 
     void updateEntry(const QString &address, const QString &label, const QString &abi, int status)
     {
         // Find address / label in model
-        QList<ContractTableEntry>::iterator lower = qLowerBound(
+        QList<ContractTableEntry>::iterator lower = std::lower_bound(
             cachedContractTable.begin(), cachedContractTable.end(), address, ContractTableEntryLessThan());
-        QList<ContractTableEntry>::iterator upper = qUpperBound(
+        QList<ContractTableEntry>::iterator upper = std::upper_bound(
             cachedContractTable.begin(), cachedContractTable.end(), address, ContractTableEntryLessThan());
         int lowerIndex = (lower - cachedContractTable.begin());
         int upperIndex = (upper - cachedContractTable.begin());

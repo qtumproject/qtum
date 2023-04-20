@@ -80,7 +80,7 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
     }
     uint64_t gasLimit=0;
     if(!params[3].isNull()){
-        gasLimit = params[3].get_int64();
+        gasLimit = params[3].getInt<int64_t>();
     }
 
     CAmount nAmount = 0;
@@ -156,7 +156,7 @@ size_t parseUInt(const UniValue& val, size_t defaultVal) {
     if (val.isNull()) {
         return defaultVal;
     } else {
-        int n = val.get_int();
+        int n = val.getInt<int>();
         if (n < 0) {
             throw JSONRPCError(RPC_INVALID_PARAMS, "Expects unsigned integer");
         }
@@ -177,7 +177,7 @@ int parseBlockHeight(const UniValue& val) {
     }
 
     if (val.isNum()) {
-        int blockHeight = val.get_int();
+        int blockHeight = val.getInt<int>();
 
         if (blockHeight < 0) {
             return latestblock.height;
@@ -506,7 +506,7 @@ bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, con
                 ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
             }
             tokenEvent.blockHash = uint256S(eventMap["blockHash"].get_str());
-            tokenEvent.blockNumber = eventMap["blockNumber"].get_int64();
+            tokenEvent.blockNumber = eventMap["blockNumber"].getInt<int64_t>();
             tokenEvent.transactionHash = uint256S(eventMap["transactionHash"].get_str());
 
             // Parse data

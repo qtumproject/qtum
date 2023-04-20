@@ -144,8 +144,8 @@ Alihkan fail data ke dalam tab semasa</translation>
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Amaran: Jika anda enkripkan dompet anda dan hilangkan frasa laluan, anda akan &lt;b&gt;ANDA AKAN HILANGKAN SEMUA QTUM ANDA&lt;/b&gt;!</translation>
-    </message>
+        <translation type="unfinished">Amaran: Jika anda enkripkan dompet anda dan hilangkan frasa laluan, anda akan &lt;b&gt;ANDA AKAN HILANGKAN SEMUA QTUM ANDA&lt;/b&gt;!</translation> 
+   </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Anda pasti untuk membuat enkripsi dompet anda?</translation>
@@ -298,7 +298,7 @@ Alihkan fail data ke dalam tab semasa</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Menghantar koin kepada alamat Qtum</translation>
-    </message>
+   </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Wallet sandaran ke lokasi lain</translation>
@@ -444,6 +444,24 @@ Alihkan fail data ke dalam tab semasa</translation>
     </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
     <message numerus="yes">
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>

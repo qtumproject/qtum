@@ -43,18 +43,18 @@ from .script_util import (
     script_to_p2wsh_script,
 )
 from .util import assert_equal
-from .qtumconfig import INITIAL_BLOCK_REWARD, INITIAL_BLOCK_REWARD_POS
+from .qtumconfig import INITIAL_BLOCK_REWARD, INITIAL_BLOCK_REWARD_POS 
 
 WITNESS_SCALE_FACTOR = 4
 MAX_BLOCK_SIGOPS = 20000
 MAX_BLOCK_SIGOPS_WEIGHT = MAX_BLOCK_SIGOPS * WITNESS_SCALE_FACTOR
 
 # Genesis block time (regtest)
-TIME_GENESIS_BLOCK = 1504695029
+TIME_GENESIS_BLOCK = 1504695029 
 MAX_FUTURE_BLOCK_TIME = 2 * 60 * 60
 
 # Coinbase transaction outputs can only be spent after this number of new blocks (network rule)
-COINBASE_MATURITY = 2000
+COINBASE_MATURITY = 2000 
 
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"
@@ -166,30 +166,6 @@ def create_tx_with_script(prevtx, n, script_sig=b"", *, amount, script_pub_key=C
     tx.vout.append(CTxOut(amount, script_pub_key))
     tx.calc_sha256()
     return tx
-
-def create_transaction(node, txid, to_address, *, amount):
-    """ Return signed transaction spending the first output of the
-        input txid. Note that the node must have a wallet that can
-        sign for the output that is being spent.
-    """
-    raw_tx = create_raw_transaction(node, txid, to_address, amount=amount)
-    tx = tx_from_hex(raw_tx)
-    return tx
-
-def create_raw_transaction(node, txid, to_address, *, amount):
-    """ Return raw signed transaction spending the first output of the
-        input txid. Note that the node must have a wallet that can sign
-        for the output that is being spent.
-    """
-    psbt = node.createpsbt(inputs=[{"txid": txid, "vout": 0}], outputs={to_address: amount})
-    for _ in range(2):
-        for w in node.listwallets():
-            wrpc = node.get_wallet_rpc(w)
-            signed_psbt = wrpc.walletprocesspsbt(psbt)
-            psbt = signed_psbt['psbt']
-    final_psbt = node.finalizepsbt(psbt)
-    assert_equal(final_psbt["complete"], True)
-    return final_psbt['hex']
 
 def get_legacy_sigopcount_block(block, accurate=True):
     count = 0

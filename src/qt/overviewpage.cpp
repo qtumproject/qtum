@@ -19,6 +19,7 @@
 #include <interfaces/wallet.h>
 #include <qt/transactiondescdialog.h>
 #include <qt/styleSheet.h>
+
 #include <QAbstractItemDelegate>
 #include <QApplication>
 #include <QDateTime>
@@ -26,6 +27,7 @@
 #include <QStatusTipEvent>
 #include <QMessageBox>
 #include <QTimer>
+
 #include <algorithm>
 #include <map>
 #include <QStandardItem>
@@ -46,16 +48,14 @@
 
 #define BUTTON_ICON_SIZE 24
 
-
 Q_DECLARE_METATYPE(interfaces::WalletBalances)
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    explicit TxViewDelegate(const PlatformStyle *_platformStyle, QObject *parent=nullptr):
-        QAbstractItemDelegate(parent), unit(BitcoinUnits::BTC),
-        platformStyle(_platformStyle)
+    explicit TxViewDelegate(const PlatformStyle* _platformStyle, QObject* parent = nullptr)
+        : QAbstractItemDelegate(parent), platformStyle(_platformStyle)
     {
         connect(this, &TxViewDelegate::width_changed, this, &TxViewDelegate::sizeHintChanged);
 
@@ -67,7 +67,6 @@ public:
         amount_color = GetStringStyleValue("txviewdelegate/amount-color", "#ffffff");
         color_unconfirmed = GetColorStyleValue("guiconstants/color-unconfirmed", COLOR_UNCONFIRMED);
         color_negative = GetColorStyleValue("guiconstants/color-negative", COLOR_NEGATIVE);
-
     }
 
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -168,7 +167,6 @@ public:
             foreground = foreground_color_selected;
         }
         painter->setPen(foreground);
-
         QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true, BitcoinUnits::SeparatorStyle::ALWAYS);
         if(!confirmed)
         {
@@ -194,7 +192,8 @@ public:
         const int minimum_text_width = search == m_minimum_width.end() ? 0 : search->second;
         return {TX_SIZE + 8 + minimum_text_width, TX_SIZE};
     }
-    int unit;
+
+    BitcoinUnit unit{BitcoinUnit::BTC};
 
 Q_SIGNALS:
     //! An intermediate signal for emitting from the `paint() const` member function.
@@ -229,11 +228,8 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     SetObjectStyleSheet(ui->labelWalletStatus, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->labelTransactionsStatus, StyleSheetNames::ButtonTransparent);
 
-    m_balances.balance = -1;
-
     // use a MultiStatesIcon for the "out of sync warning" icon
-    QIcon icon = platformStyle->MultiStatesIcon(":/icons/warning", PlatformStyle::PushButton);
-
+    QIcon icon = m_platform_style->MultiStatesIcon(":/icons/warning", PlatformStyle::PushButton);
     ui->labelTransactionsStatus->setIcon(icon);
     ui->labelWalletStatus->setIcon(icon);
     ui->labelDate->setFixedWidth(DATE_WIDTH);
@@ -241,9 +237,9 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->labelAmount->setFixedWidth(AMOUNT_WIDTH);
 
     // Set send/receive icons
-    ui->buttonSend->setIcon(platformStyle->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
+    ui->buttonSend->setIcon(m_platform_style->MultiStatesIcon(":/icons/send", PlatformStyle::PushButton));
     ui->buttonSend->setIconSize(QSize(BUTTON_ICON_SIZE, BUTTON_ICON_SIZE));
-    ui->buttonReceive->setIcon(platformStyle->MultiStatesIcon(":/icons/receiving_addresses", PlatformStyle::PushButton));
+    ui->buttonReceive->setIcon(m_platform_style->MultiStatesIcon(":/icons/receiving_addresses", PlatformStyle::PushButton));
     ui->buttonReceive->setIconSize(QSize(BUTTON_ICON_SIZE, BUTTON_ICON_SIZE));
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
@@ -263,8 +259,9 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 void OverviewPage::setPrivacy(bool privacy)
 {
     m_privacy = privacy;
-    if (m_balances.balance != -1) {
-        setBalance(m_balances);
+    const auto& balances = walletModel->getCachedBalance();
+    if (balances.balance != -1) {
+        setBalance(balances);
     }
 
     ui->widgetListTransaction->setVisible(!m_privacy);
@@ -282,8 +279,7 @@ OverviewPage::~OverviewPage()
 
 void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 {
-    int unit = walletModel->getOptionsModel()->getDisplayUnit();
-    m_balances = balances;
+    BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
     if (walletModel->wallet().isLegacy()) {
         if (walletModel->wallet().privateKeysDisabled()) {
             ui->labelBalance->setText(BitcoinUnits::formatPrivacy(unit, balances.watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
@@ -393,14 +389,13 @@ void OverviewPage::setWalletModel(WalletModel *model)
         ui->listTransactions->setModelColumn(TransactionTableModel::ToAddress);
 
         // Keep up to date with wallet
-        interfaces::Wallet& wallet = model->wallet();
-        interfaces::WalletBalances balances = wallet.getBalances();
-        setBalance(balances);
+        setBalance(model->getCachedBalance());
         connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
 
         connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
 
-        updateWatchOnlyLabels(wallet.haveWatchOnly() && !model->wallet().privateKeysDisabled());
+        interfaces::Wallet& wallet = model->wallet();
+        updateWatchOnlyLabels(wallet.haveWatchOnly() && !wallet.privateKeysDisabled());
         connect(model, &WalletModel::notifyWatchonlyChanged, [this](bool showWatchOnly) {
             updateWatchOnlyLabels(showWatchOnly && !walletModel->wallet().privateKeysDisabled());
         });
@@ -435,10 +430,10 @@ void OverviewPage::changeEvent(QEvent* e)
 
 void OverviewPage::updateDisplayUnit()
 {
-    if(walletModel && walletModel->getOptionsModel())
-    {
-        if (m_balances.balance != -1) {
-            setBalance(m_balances);
+    if (walletModel && walletModel->getOptionsModel()) {
+        const auto& balances = walletModel->getCachedBalance();
+        if (balances.balance != -1) {
+            setBalance(balances);
         }
 
         // Update txdelegate->unit with the current unit

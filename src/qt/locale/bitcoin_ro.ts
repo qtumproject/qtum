@@ -183,7 +183,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Reţineti: criptarea portofelului dvs. nu vă poate proteja în totalitate qtum-urile împotriva furtului de malware care vă infectează computerul.</translation>
-    </message>
+   </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Portofel de criptat</translation>
@@ -239,6 +239,10 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
 <context>
     <name>BitcoinApplication</name>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Fișierul de configurări %1 poate fi corupt sau invalid.</translation>
+    </message>
+    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">Excepție de fugă</translation>
     </message>
@@ -284,7 +288,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Introduceţi o adresă Qtum (de exemplu %1)</translation>
-    </message>
+   </message>
     <message>
         <source>Inbound</source>
         <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
@@ -381,10 +385,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
         <translation type="unfinished">Eroare la citirea %s! Toate cheile sînt citite corect, dar datele tranzactiei sau anumite intrări din agenda sînt incorecte sau lipsesc.</translation>
-    </message>
-    <message>
-        <source>Error: Listening for incoming connections failed (listen returned error %s)</source>
-        <translation type="unfinished">Eroare: Ascultarea conexiunilor de intrare nu a reuşit (ascultarea a reurnat eroarea %s)</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
@@ -517,10 +517,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Error reading from database, shutting down.</source>
         <translation type="unfinished">Eroare la citirea bazei de date. Oprire.</translation>
-    </message>
-    <message>
-        <source>Error upgrading chainstate database</source>
-        <translation type="unfinished">Eroare la actualizarea bazei de date chainstate</translation>
     </message>
     <message>
         <source>Error: Disk space is low for %s</source>
@@ -687,10 +683,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Categoria de logging %s=%s nu este suportata.</translation>
     </message>
     <message>
-        <source>Upgrading UTXO database</source>
-        <translation type="unfinished">Actualizarea bazei de date UTXO</translation>
-    </message>
-    <message>
         <source>User Agent comment (%s) contains unsafe characters.</source>
         <translation type="unfinished">Comentariul (%s) al Agentului Utilizator contine caractere nesigure.</translation>
     </message>
@@ -765,7 +757,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Trimite monede către o adresă Qtum</translation>
-    </message>
+   </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Creează o copie de rezervă a portofelului într-o locaţie diferită</translation>
@@ -809,7 +801,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Semnaţi mesaje cu adresa dvs. Qtum pentru a dovedi că vă aparţin</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verifică mesajul...</translation>
@@ -817,7 +809,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Verificaţi mesaje pentru a vă asigura că au fost semnate cu adresa Qtum specificată</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">&amp;Încarcă PSBT din fișier...</translation>
@@ -881,7 +873,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Cereţi plăţi (generează coduri QR şi qtum-uri: URls)</translation>
-    </message>
+  </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Arată lista de adrese trimise şi etichetele folosite.</translation>
@@ -937,7 +929,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Încărcați Tranzacția Qtum Parțial Semnată</translation>
-    </message>
+   </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Încărcați Tranzacția Qtum Parțial Semnată din clipboard</translation>
@@ -997,6 +989,11 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>No wallets available</source>
         <translation type="unfinished">Niciun portofel disponibil</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">Numele portofelului</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1380,8 +1377,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">Adresa introdusă "%1" nu este o adresă Qtum validă.</translation>
-    </message>
+        <translation type="unfinished">Adresa introdusă "%1" nu este o adresă Qtum validă.</translation> 
+  </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Adresa "%1" exista deja ca si adresa de primire cu eticheta "%2" si deci nu poate fi folosita ca si adresa de trimitere.</translation>
@@ -1424,6 +1421,30 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
 </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
         <translation type="unfinished">Cel putin %1GB de date vor fi stocate in acest director, si aceasta valoare va creste in timp.</translation>
@@ -1468,10 +1489,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
         <translation type="unfinished">Deoarece este prima lansare a programului poți alege unde %1 va stoca datele sale.</translation>
-    </message>
-    <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation type="unfinished">Cand apasati OK, %1 va incepe descarcarea si procesarea intregului %4 blockchain (%2GB) incepand cu cele mai vechi tranzactii din %3 de la lansarea initiala a %4.</translation>
     </message>
     <message>
         <source>Reverting this setting requires re-downloading the entire blockchain. It is faster to download the full chain first and prune it later. Disables some advanced features.</source>
@@ -1524,8 +1541,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <name>ModalOverlay</name>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Tranzactiile recente pot sa nu fie inca vizibile, de aceea balanta portofelului poate fi incorecta. Aceasta informatie va fi corecta de indata ce portofelul va fi complet sincronizat cu reteaua Qtum, asa cum este detaliat mai jos.</translation>
-    </message>
+        <translation type="unfinished">Tranzactiile recente pot sa nu fie inca vizibile, de aceea balanta portofelului poate fi incorecta. Aceasta informatie va fi corecta de indata ce portofelul va fi complet sincronizat cu reteaua Qtum, asa cum este detaliat mai jos.</translation>  
+  </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Incercarea de a cheltui qtumi care sunt afectati de tranzactii ce inca nu sunt afisate nu va fi acceptata de retea.</translation>
@@ -1659,8 +1676,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">Deschide automat în router portul aferent clientului Qtum. Funcţionează doar dacă routerul duportă UPnP şi e activat.</translation>
-    </message>
+        <translation type="unfinished">Deschide automat în router portul aferent clientului Qtum. Funcţionează doar dacă routerul duportă UPnP şi e activat.</translation> 
+ </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapare port folosind &amp;UPnP</translation>
@@ -1675,8 +1692,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Conectare la reţeaua Qtum printr-un proxy SOCKS.</translation>
-    </message>
+        <translation type="unfinished">Conectare la reţeaua Qtum printr-un proxy SOCKS.</translation> 
+  </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Conectare printr-un proxy SOCKS (implicit proxy):</translation>
@@ -1747,14 +1764,17 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>Confirm options reset</source>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
         <translation type="unfinished">Confirmă resetarea opţiunilor</translation>
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
+        <extracomment>Text explaining that the settings changed will not come into effect until the client is restarted.</extracomment>
         <translation type="unfinished">Este necesară repornirea clientului pentru a activa schimbările.</translation>
     </message>
     <message>
         <source>Client will be shut down. Do you want to proceed?</source>
+        <extracomment>Text asking the user to confirm if they would like to proceed with a client shutdown.</extracomment>
         <translation type="unfinished">Clientul va fi închis. Doriţi să continuaţi?</translation>
     </message>
     <message>
@@ -1793,7 +1813,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Informaţiile afişate pot fi neactualizate. Portofelul dvs. se sincronizează automat cu reţeaua Qtum după ce o conexiune este stabilită, dar acest proces nu a fost finalizat încă.</translation>
-    </message>
+   </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Doar-supraveghere:</translation>
@@ -2575,10 +2595,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation type="unfinished">O taxă mai mare de %1 este considerată o taxă absurd de mare</translation>
     </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation type="unfinished">Cerere de plată expirata</translation>
-    </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation type="unfinished">
@@ -2629,7 +2645,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Adresa qtum către care se face plata</translation>
-    </message>
+   </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Lipeşte adresa din clipboard</translation>
@@ -2641,7 +2657,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">Taxa va fi scazuta in suma trimisa. Destinatarul va primi mai putini qtum decat ati specificat in campul sumei trimise. Daca au fost selectati mai multi destinatari, taxa se va imparti in mod egal.</translation>
-    </message>
+   </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">S&amp;cade taxa din suma</translation>
@@ -2655,14 +2671,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Mesaj:</translation>
     </message>
     <message>
-        <source>This is an unauthenticated payment request.</source>
-        <translation type="unfinished">Aceasta este o cerere de plata neautentificata.</translation>
-    </message>
-    <message>
-        <source>This is an authenticated payment request.</source>
-        <translation type="unfinished">Aceasta este o cerere de plata autentificata.</translation>
-    </message>
-    <message>
         <source>Enter a label for this address to add it to the list of used addresses</source>
         <translation type="unfinished">Introduceţi eticheta pentru ca această adresa să fie introdusă în lista de adrese folosite</translation>
     </message>
@@ -2670,11 +2678,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">un mesaj a fost ataşat la qtum: URI care va fi stocat cu tranzacţia pentru referinţa dvs. Notă: Acest mesaj nu va fi trimis către reţeaua qtum.</translation>
     </message>
-    <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">Plăteşte către:</translation>
-    </message>
-    </context>
+</context>
 <context>
     <name>SendConfirmationDialog</name>
     <message>
@@ -2694,8 +2698,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Puteţi semna mesaje/contracte cu adresele dvs. pentru a demostra ca puteti primi qtumi trimisi la ele. Aveţi grijă să nu semnaţi nimic vag sau aleator, deoarece atacurile de tip phishing vă pot păcăli să le transferaţi identitatea. Semnaţi numai declaraţiile detaliate cu care sînteti de acord.</translation>
-    </message>
+        <translation type="unfinished">Puteţi semna mesaje/contracte cu adresele dvs. pentru a demostra ca puteti primi qtumi trimisi la ele. Aveţi grijă să nu semnaţi nimic vag sau aleator, deoarece atacurile de tip phishing vă pot păcăli să le transferaţi identitatea. Semnaţi numai declaraţiile detaliate cu care sînteti de acord.</translation> 
+   </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Adresa cu care semnaţi mesajul</translation>
@@ -2723,7 +2727,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Semnează mesajul pentru a dovedi ca deţineţi acestă adresă Qtum</translation>
-    </message>
+   </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Semnează &amp;mesaj</translation>
@@ -2747,11 +2751,11 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">Introduceţi o adresă Qtum</translation>
-    </message>
+  </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verificaţi mesajul pentru a vă asigura că a fost semnat cu adresa Qtum specificată</translation>
-    </message>
+   </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Verifică &amp;mesaj</translation>
@@ -2821,26 +2825,22 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <name>TransactionDesc</name>
     <message>
         <source>conflicted with a transaction with %1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that conflicts with a confirmed transaction.</extracomment>
         <translation type="unfinished">in conflict cu o tranzactie cu %1 confirmari</translation>
     </message>
     <message>
-        <source>0/unconfirmed, %1</source>
-        <translation type="unfinished">0/neconfirmat, %1</translation>
-    </message>
-    <message>
-        <source>not in memory pool</source>
-        <translation type="unfinished">nu e in memory pool</translation>
-    </message>
-    <message>
         <source>abandoned</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an abandoned transaction.</extracomment>
         <translation type="unfinished">abandonat</translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/neconfirmat</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">%1 confirmări</translation>
     </message>
     <message>

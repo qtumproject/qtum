@@ -10,7 +10,7 @@
 #include <qt/execrpccommand.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/hardwaresigntx.h>
-#include <node/ui_interface.h>
+#include <node/interface_ui.h>
 
 namespace RemoveDelegation_NS
 {
@@ -157,7 +157,7 @@ void RemoveDelegationPage::on_removeDelegationClicked()
         QVariant result;
         QString errorMessage;
         QString resultJson;
-        int unit = BitcoinUnits::BTC;
+        BitcoinUnit unit = BitcoinUnit::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
         std::string sDelegateAddress = address.toStdString();

@@ -49,13 +49,16 @@ def create_transactions(node, address, amt, fees):
 
 class WalletTest(BitcoinTestFramework):
     def set_test_params(self):
-        self.num_nodes = 3
+        self.num_nodes = 3 
         self.setup_clean_chain = True
         self.extra_args = [
             ['-limitdescendantcount=3', '-headerspamfilter=0'],  # Limit mempool descendants as a hack to have wallet txs rejected from the mempool
             ['-headerspamfilter=0'],
             ['-headerspamfilter=0']
         ]
+        # whitelist peers to speed up tx relay / mempool sync
+        for args in self.extra_args:
+            args.append("-whitelist=noban@127.0.0.1")
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -92,7 +95,7 @@ class WalletTest(BitcoinTestFramework):
             assert_equal(self.nodes[1].getbalances()['mine']['trusted'], 50)
 
             assert_equal(self.nodes[0].getbalances()['watchonly']['immature'], COINBASE_MATURITY*INITIAL_BLOCK_REWARD)
-            assert 'watchonly' not in self.nodes[1].getbalances()
+           assert 'watchonly' not in self.nodes[1].getbalances()
 
             assert_equal(self.nodes[0].getbalance(), 50)
             assert_equal(self.nodes[1].getbalance(), 50)
@@ -175,9 +178,9 @@ class WalletTest(BitcoinTestFramework):
                                                  'stake':             Decimal('0.0')}}
             expected_balances_1 = {'mine':      {'immature':          Decimal('0E-8'),
                                                  'trusted':           Decimal('0E-8'),  # node 1's send had an unsafe input
+
                                                  'untrusted_pending': Decimal('30.0') - fee_node_1,
                                                  'stake':             Decimal('0.0')}}  # Doesn't include output of node 0's send since it was spent
-            if self.options.descriptors:
                 del expected_balances_0["watchonly"]
             assert_equal(self.nodes[0].getbalances(), expected_balances_0)
             assert_equal(self.nodes[1].getbalances(), expected_balances_1)
@@ -278,7 +281,6 @@ class WalletTest(BitcoinTestFramework):
         self.nodes[0].syncwithvalidationinterfacequeue()
         assert_equal(self.nodes[0].getbalance(minconf=0), 0)  # wallet txs not in the mempool are untrusted
         self.generatetoaddress(self.nodes[0], 1, ADDRESS_WATCHONLY, sync_fun=self.no_op)
-        assert_equal(self.nodes[0].getbalance(minconf=0), 0)  # wallet txs not in the mempool are untrusted
 
         # Now confirm tx_orig
         self.restart_node(1, ['-persistmempool=0'])
@@ -289,6 +291,26 @@ class WalletTest(BitcoinTestFramework):
         self.nodes[1].sendrawtransaction(tx_orig)
         self.generatetoaddress(self.nodes[1], 1, ADDRESS_WATCHONLY)
         assert_equal(self.nodes[0].getbalance(minconf=0), total_amount + 1)  # The reorg recovered our fee of 1 coin
+
+        if not self.options.descriptors:
+            self.log.info('Check if mempool is taken into account after import*')
+            address = self.nodes[0].getnewaddress()
+            privkey = self.nodes[0].dumpprivkey(address)
+            self.nodes[0].sendtoaddress(address, 0.1)
+            self.nodes[0].unloadwallet('')
+            # check importaddress on fresh wallet
+            self.nodes[0].createwallet('w1', False, True)
+            self.nodes[0].importaddress(address)
+            assert_equal(self.nodes[0].getbalances()['mine']['untrusted_pending'], 0)
+            assert_equal(self.nodes[0].getbalances()['watchonly']['untrusted_pending'], Decimal('0.1'))
+            self.nodes[0].importprivkey(privkey)
+            assert_equal(self.nodes[0].getbalances()['mine']['untrusted_pending'], Decimal('0.1'))
+            assert_equal(self.nodes[0].getbalances()['watchonly']['untrusted_pending'], 0)
+            self.nodes[0].unloadwallet('w1')
+            # check importprivkey on fresh wallet
+            self.nodes[0].createwallet('w2', False, True)
+            self.nodes[0].importprivkey(privkey)
+            assert_equal(self.nodes[0].getbalances()['mine']['untrusted_pending'], Decimal('0.1'))
 
 
 if __name__ == '__main__':

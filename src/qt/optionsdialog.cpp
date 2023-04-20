@@ -10,6 +10,7 @@
 #include <qt/forms/ui_optionsdialog.h>
 
 #include <qt/bitcoinunits.h>
+#include <qt/clientmodel.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
@@ -29,7 +30,6 @@
 #include <QIntValidator>
 #include <QLocale>
 #include <QMessageBox>
-#include <QSettings>
 #include <QSystemTrayIcon>
 #include <QTimer>
 
@@ -63,10 +63,6 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 #ifndef USE_NATPMP
     ui->mapPortNatpmp->setEnabled(false);
 #endif
-    connect(this, &QDialog::accepted, [this](){
-        QSettings settings;
-        model->node().mapPort(settings.value("fUseUPnP").toBool(), settings.value("fUseNatpmp").toBool());
-    });
 
     ui->proxyIp->setEnabled(false);
     ui->proxyIpLabel->setEnabled(false);
@@ -95,12 +91,13 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     connect(ui->connectSocksTor, &QPushButton::toggled, this, &OptionsDialog::updateProxyValidationState);
 
     /* Window elements init */
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     /* remove Window tab on Mac */
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabWindow));
     /* hide launch at startup option on macOS */
     ui->bitcoinAtStartup->setVisible(false);
     ui->tabMain->layout()->removeWidget(ui->bitcoinAtStartup);
+
 #endif
 
     /* remove Wallet tab and 3rd party-URL textbox in case of -disablewallet */
@@ -175,6 +172,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         }
         ui->theme->addItem(tr(themeName.toStdString().c_str()), QVariant(themeStr));
     }
+
     /* Widget-to-option mapper */
     mapper = new QDataWidgetMapper(this);
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
@@ -217,6 +215,11 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 OptionsDialog::~OptionsDialog()
 {
     delete ui;
+}
+
+void OptionsDialog::setClientModel(ClientModel* client_model)
+{
+    m_client_model = client_model;
 }
 
 void OptionsDialog::setModel(OptionsModel *_model)
@@ -322,7 +325,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->proxyPortTor, OptionsModel::ProxyPortTor);
 
     /* Window */
-#ifndef Q_OS_MAC
+#ifndef Q_OS_MACOS
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         mapper->addMapping(ui->showTrayIcon, OptionsModel::ShowTrayIcon);
         mapper->addMapping(ui->minimizeToTray, OptionsModel::MinimizeToTray);
@@ -345,14 +348,23 @@ void OptionsDialog::setOkButtonState(bool fState)
 
 void OptionsDialog::on_resetButton_clicked()
 {
-    if(model)
-    {
+    if (model) {
         // confirmation dialog
+        /*: Text explaining that the settings changed will not come into effect
+            until the client is restarted. */
+        QString reset_dialog_text = tr("Client restart required to activate changes.") + "<br><br>";
+        /*: Text explaining to the user that the client's current settings
+            will be backed up at a specific location. %1 is a stand-in
+            argument for the backup location's path. */
+        reset_dialog_text.append(tr("Current settings will be backed up at \"%1\".").arg(m_client_model->dataDir()) + "<br><br>");
+        /*: Text asking the user to confirm if they would like to proceed
+            with a client shutdown. */
+        reset_dialog_text.append(tr("Client will be shut down. Do you want to proceed?"));
+        //: Window title text of pop-up window shown when the user has chosen to reset options.
         QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm options reset"),
-            tr("Client restart required to activate changes.") + "<br><br>" + tr("Client will be shut down. Do you want to proceed?"),
-            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+            reset_dialog_text, QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 
-        if(btnRetVal == QMessageBox::Cancel)
+        if (btnRetVal == QMessageBox::Cancel)
             return;
 
         /* reset all options and close GUI */
@@ -436,6 +448,7 @@ void OptionsDialog::on_toolStakeLedgerId_clicked()
     ui->txtStakeLedgerId->setText(fingerprint);
 #endif
 }
+
 void OptionsDialog::on_showTrayIcon_stateChanged(int state)
 {
     if (state == Qt::Checked) {

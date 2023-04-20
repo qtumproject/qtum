@@ -68,7 +68,7 @@
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">これらは、あなたが知っている送信先の Qtum アドレスです。コインを送る前に必ず、金額と受取用アドレスを確認してください。</translation>
-    </message>
+   </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
@@ -187,7 +187,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">ウォレットを暗号化しても、コンピュータに感染したマルウェアなどによる Qtum の盗難を完全に防ぐことはできないことにご注意ください。</translation>
-    </message>
+   </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">暗号化するウォレット</translation>
@@ -302,7 +302,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Qtum アドレスを入力してください (例: %1)</translation>
-    </message>
+   </message>
     <message>
         <source>Unroutable</source>
         <translation type="unfinished">ルーティング不可能</translation>
@@ -373,31 +373,31 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>%n second(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 秒</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 分</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 時間</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message numerus="yes">
         <source>%n day(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 日</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message numerus="yes">
         <source>%n week(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 週</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message>
@@ -407,7 +407,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>%n year(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 年</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message>
@@ -472,14 +472,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
         <translation type="unfinished">エラー: Dumpfileのバージョンが未指定です。このバージョンのqtum-walletは、バージョン1のDumpfileのみをサポートします。バージョン%sのDumpfileを取得しました。</translation>
-    </message>
+   </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
         <translation type="unfinished">エラー: レガシーウォレットは、アドレスタイプ「legacy」および「p2sh-segwit」、「bech32」のみをサポートします</translation>
-    </message>
-    <message>
-        <source>Error: Listening for incoming connections failed (listen returned error %s)</source>
-        <translation type="unfinished">エラー: 内向きの接続をリッスンするのに失敗しました（%s エラーが返却されました）</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
@@ -710,10 +706,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ウォレットデータベースから次のレコードの読み取りでエラー</translation>
     </message>
     <message>
-        <source>Error upgrading chainstate database</source>
-        <translation type="unfinished">chainstate データベースの更新時にエラーが発生しました</translation>
-    </message>
-    <message>
         <source>Error: Couldn't create cursor into database</source>
         <translation type="unfinished">エラー: データベースにカーソルを作成できませんでした</translation>
     </message>
@@ -862,20 +854,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">アドレスが使えません</translation>
     </message>
     <message>
-        <source>No proxy server specified. Use -proxy=&lt;ip&gt; or -proxy=&lt;ip:port&gt;.</source>
-        <translation type="unfinished">プロキシサーバーが指定されてません. -proxy=&lt;ip&gt; か -proxy=&lt;ip:port&gt; を使用してください.</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation type="unfinished">使用可能なファイルディスクリプタが不足しています。</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>
         <translation type="unfinished">剪定モードの設定値は負の値にはできません。</translation>
-    </message>
-    <message>
-        <source>Prune mode is incompatible with -coinstatsindex.</source>
-        <translation type="unfinished">剪定モードは -txindex オプションと互換性がありません。</translation>
     </message>
     <message>
         <source>Prune mode is incompatible with -txindex.</source>
@@ -1054,10 +1038,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">サポートされていないログカテゴリ %s=%s 。</translation>
     </message>
     <message>
-        <source>Upgrading UTXO database</source>
-        <translation type="unfinished">UTXOデータベースの更新中</translation>
-    </message>
-    <message>
         <source>User Agent comment (%s) contains unsafe characters.</source>
         <translation type="unfinished">ユーザエージェントのコメント ( %s ) に安全でない文字が含まれています。</translation>
     </message>
@@ -1188,7 +1168,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Qtum アドレスでメッセージに署名することで、そのアドレスの所有権を証明する</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">メッセージを検証…(&amp;V)</translation>
@@ -1196,7 +1176,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">メッセージを検証して、指定された Qtum アドレスで署名されたことを確認する</translation>
-    </message>
+  </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">PSBTをファイルから読む…(&amp;L)</translation>
@@ -1260,7 +1240,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">支払いをリクエストする（QRコードと qtum:で始まるURIを生成する）</translation>
-    </message>
+   </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">送金したことがあるアドレスとラベルの一覧を表示する</translation>
@@ -1276,7 +1256,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation type="unfinished">
-            <numerusform>%n ブロックの取引履歴を処理しました。</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message>
@@ -1320,7 +1300,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">PSBTをクリップボードから読む…</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source> 
         <translation type="unfinished">部分的に署名されたビットコインのトランザクションをクリップボードから読み込み</translation>
     </message>
     <message>
@@ -1341,8 +1321,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">qtum: URIを開く</translation>
-    </message>
+        <translation type="unfinished">qtum: URIを開く</translation>  
+  </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">ウォレットを開く</translation>
@@ -1361,8 +1341,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation type="unfinished">%1 のヘルプ メッセージを表示し、使用可能な Qtum のコマンドラインオプション一覧を見る。</translation>
-    </message>
+        <translation type="unfinished">%1 のヘルプ メッセージを表示し、使用可能な Qtum のコマンドラインオプション一覧を見る。</translation> 
+   </message>
     <message>
         <source>&amp;Mask values</source>
         <translation type="unfinished">&amp;値を隠す</translation>
@@ -1378,6 +1358,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>No wallets available</source>
         <translation type="unfinished">ウォレットは利用できません</translation>
+    </message>
+    <message>
+        <source>Wallet Data</source>
+        <extracomment>Name of the wallet data file format.</extracomment>
+        <translation type="unfinished">ウォレットデータ</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">ウォレット名</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1404,10 +1394,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">表示</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>Qtum Networkへのアクティブな接続数: %n</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message>
@@ -1693,7 +1683,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Can't list signers</source>
         <translation type="unfinished">署名者をリストできません</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>LoadWalletsActivity</name>
     <message>
@@ -1864,7 +1854,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">入力されたアドレス "%1" は無効な Qtum アドレスです。</translation>
-    </message>
+   </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">アドレス "%1" は既に受取用アドレスにラベル "%2" として存在するので、送金先アドレスとしては追加できません。</translation>
@@ -1907,17 +1897,23 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>Intro</name>
-    <message>
-        <source>%1 GB of space available</source>
-        <translation type="unfinished">%1 GBの空き容量が利用可能</translation>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
     </message>
-    <message>
-        <source>(of %1 GB needed)</source>
-        <translation type="unfinished">(内 %1 GB が必要)</translation>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
     </message>
-    <message>
-        <source>(%1 GB needed for full chain)</source>
-        <translation type="unfinished">(フルチェーンには %1 GB が必要)</translation>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -1931,12 +1927,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
         <translation type="unfinished">
-            <numerusform>(%n 日前のバックアップを復元するのに充分です)</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 は Qtum ブロックチェーンのコピーをダウンロードし保存します。</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1961,10 +1956,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
         <translation type="unfinished">これはプログラムの最初の起動です。%1 がデータを保存する場所を選択してください。</translation>
-    </message>
-    <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation type="unfinished">OKをクリックすると、%1 は %4 がリリースされた%3年における最初の取引からの完全な %4 ブロックチェーン（%2GB）のダウンロードおよび処理を開始します。</translation>
     </message>
     <message>
         <source>Limit block chain storage to</source>
@@ -2026,11 +2017,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">最近の取引がまだ表示されていない可能性があります。そのため、ウォレットの残高が正しく表示されていないかもしれません。この情報は、ウォレットが Qtum ネットワークへの同期が完了すると正確なものとなります。詳細は下記を参照してください。</translation>
-    </message>
+   </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">まだ表示されていない取引が関係する Qtum の使用を試みた場合、ネットワークから認証を受けられません。</translation>
-    </message>
+   </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">残りのブロック数</translation>
@@ -2071,13 +2062,13 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Unknown. Syncing Headers (%1, %2%)…</source>
         <translation type="unfinished">不明。ヘッダ (%1, %2%) の同期中…</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">qtum URIを開く</translation>
-    </message>
+   </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -2233,7 +2224,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">自動的にルーター上の Qtum クライアントのポートを開放します。あなたのルーターが UPnP に対応していて、それが有効になっている場合のみ動作します。</translation>
-    </message>
+  </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">UPnP を使ってポートを割り当てる(&amp;U)</translation>
@@ -2355,10 +2346,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">最もマッチする  "%1"</translation>
     </message>
     <message>
-        <source>Options set in this dialog are overridden by the command line or in the configuration file:</source>
-        <translation type="unfinished">このダイアログで指定したオプションは、コマンドラインや設定ファイルの内容でオーバーライドされます:</translation>
-    </message>
-    <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">キャンセル(&amp;C)</translation>
     </message>
@@ -2377,14 +2364,17 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Confirm options reset</source>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
         <translation type="unfinished">設定リセットの確認</translation>
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
+        <extracomment>Text explaining that the settings changed will not come into effect until the client is restarted.</extracomment>
         <translation type="unfinished">変更を有効化するにはクライアントを再起動する必要があります。</translation>
     </message>
     <message>
         <source>Client will be shut down. Do you want to proceed?</source>
+        <extracomment>Text asking the user to confirm if they would like to proceed with a client shutdown.</extracomment>
         <translation type="unfinished">クライアントを終了します。よろしいですか？</translation>
     </message>
     <message>
@@ -2877,29 +2867,22 @@ BIP70には広範なセキュリティー上の問題があるので、ウォレ
     </message>
     <message>
         <source>Whether we relay addresses to this peer.</source>
-        <extracomment>Tooltip text for the Address Relay field in the peer details area.</extracomment>
+        <extracomment>Tooltip text for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
         <translation type="unfinished">このピアにアドレスを中継するか否か。</translation>
     </message>
     <message>
         <source>Address Relay</source>
+        <extracomment>Text title for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
         <translation type="unfinished">アドレスの中継</translation>
     </message>
     <message>
-        <source>Total number of addresses processed, excluding those dropped due to rate-limiting.</source>
-        <extracomment>Tooltip text for the Addresses Processed field in the peer details area.</extracomment>
-        <translation type="unfinished">レート制限のために除外されたアドレスを除く、処理されたアドレスの総数。</translation>
-    </message>
-    <message>
         <source>Addresses Processed</source>
+        <extracomment>Text title for the Addresses Processed field in the peer details area, which displays the total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</extracomment>
         <translation type="unfinished">処理されたアドレス</translation>
     </message>
     <message>
-        <source>Total number of addresses dropped due to rate-limiting.</source>
-        <extracomment>Tooltip text for the Addresses Rate-Limited field in the peer details area.</extracomment>
-        <translation type="unfinished">レート制限のために除外されたアドレスの総数。</translation>
-    </message>
-    <message>
         <source>Addresses Rate-Limited</source>
+        <extracomment>Text title for the Addresses Rate-Limited field in the peer details area, which displays the total number of addresses received from this peer that were dropped (not processed) due to rate-limiting.</extracomment>
         <translation type="unfinished">レート制限対象のアドレス</translation>
     </message>
     <message>
@@ -3206,8 +3189,8 @@ For more information on using this console, type %6.
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">支払いリクエストに添付するメッセージ（任意）。支払リクエスト開始時に表示されます。注意: メッセージは Qtum ネットワーク上へ送信されません。</translation>
-    </message>
+        <translation type="unfinished">支払いリクエストに添付するメッセージ（任意）。支払リクエスト開始時に表示されます。注意: メッセージは Qtum ネットワーク上へ送信されません。</translation> 
+   </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">新規受取用アドレスに紐づけるラベル（任意）。</translation>
@@ -3651,7 +3634,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">取引を確認してください。 この取引を作成して送信するか、部分的に署名されたビットコイン取引（Partially Signed Qtum Transaction: PSBT）を作成できます。これを保存またはコピーして、オフラインの %1 ウォレットやPSBT互換のハードウェアウォレットなどで署名できます。</translation>
+        <translation type="unfinished">取引を確認してください。 この取引を作成して送信するか、部分的に署名されたビットコイン取引（Partially Signed Qtum Transaction: PSBT）を作成できます。これを保存またはコピーして、オフラインの %1 ウォレットやPSBT互換のハードウェアウォレットなどで署名できます。</translation> 
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3706,20 +3689,16 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation type="unfinished">%1 よりも高い手数料は、異常に高すぎです。</translation>
     </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation type="unfinished">支払いリクエストが期限切れです。</translation>
-    </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation type="unfinished">
-            <numerusform>%n ブロック以内に承認が開始される見込みです。</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">警告: 無効な Qtum アドレス</translation>
-    </message>
+   </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">警告：正体不明のお釣りアドレスです</translation>
@@ -3774,7 +3753,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">手数料は送金する金額から差し引かれます。送金先には金額欄で指定した額よりも少ない Qtum が送られます。送金先が複数ある場合は、手数料は均等に分けられます。</translation>
-    </message>
+   </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">送金額から手数料を差し引く(&amp;U)</translation>
@@ -3788,28 +3767,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">メッセージ:</translation>
     </message>
     <message>
-        <source>This is an unauthenticated payment request.</source>
-        <translation type="unfinished">これは未認証の支払いリクエストです。</translation>
-    </message>
-    <message>
-        <source>This is an authenticated payment request.</source>
-        <translation type="unfinished">これは認証済みの支払いリクエストです。</translation>
-    </message>
-    <message>
         <source>Enter a label for this address to add it to the list of used addresses</source>
         <translation type="unfinished">このアドレスに対するラベルを入力することで、送金したことがあるアドレスの一覧に追加することができます</translation>
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">qtum URIに添付されていたメッセージです。これは参照用として取引とともに保存されます。注意: メッセージは Qtum ネットワーク上へ送信されません。</translation>
-    </message>
-    <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">送金先:</translation>
-    </message>
-    <message>
-        <source>Memo:</source>
-        <translation type="unfinished">メモ:</translation>
     </message>
 </context>
 <context>
@@ -3836,11 +3799,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">あなたが所有しているアドレスでメッセージや契約書に署名をすることで、それらのアドレスへ送られた Qtum を受け取ることができることを証明できます。フィッシング攻撃者があなたを騙して、あなたの身分情報に署名させようとしている可能性があるため、よくわからないものやランダムな文字列に対して署名しないでください。あなたが同意した、よく詳細の記された文言にのみ署名するようにしてください。</translation>
-    </message>
+   </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">メッセージの署名に使用する Qtum アドレス</translation>
-    </message>
+  </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">これまでに使用したことがあるアドレスから選択</translation>
@@ -3887,8 +3850,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>The Qtum address the message was signed with</source>
-        <translation type="unfinished">メッセージの署名に使われた Qtum アドレス</translation>
-    </message>
+        <translation type="unfinished">メッセージの署名に使われた Qtum アドレス</translation> 
+   </message>
     <message>
         <source>The signed message to verify</source>
         <translation type="unfinished">検証したい署名済みメッセージ</translation>
@@ -3900,7 +3863,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">メッセージを検証して指定された Qtum アドレスで署名されたことを確認</translation>
-    </message>
+   </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">メッセージを検証(&amp;M)</translation>
@@ -3988,30 +3951,22 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <name>TransactionDesc</name>
     <message>
         <source>conflicted with a transaction with %1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that conflicts with a confirmed transaction.</extracomment>
         <translation type="unfinished">%1 承認の取引と衝突</translation>
     </message>
     <message>
-        <source>0/unconfirmed, %1</source>
-        <translation type="unfinished">0/未承認, %1</translation>
-    </message>
-    <message>
-        <source>in memory pool</source>
-        <translation type="unfinished">メモリプール内</translation>
-    </message>
-    <message>
-        <source>not in memory pool</source>
-        <translation type="unfinished">メモリプール外</translation>
-    </message>
-    <message>
         <source>abandoned</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an abandoned transaction.</extracomment>
         <translation type="unfinished">送信中止</translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/未承認</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">%1 承認</translation>
     </message>
     <message>
@@ -4061,7 +4016,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
         <translation type="unfinished">
-            <numerusform>あと %n ブロックで熟成します</numerusform>
+            <numerusform />
         </translation>
     </message>
     <message>

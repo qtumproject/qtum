@@ -13,13 +13,13 @@
 #include <script/standard.h>
 
 #include <qt/walletmodeltransaction.h>
-#include <qt/qtumhwitool.h>
+#include <qt/qtumhwitool.h> 
 
 #include <interfaces/wallet.h>
 #include <support/allocators/secure.h>
 
 #include <vector>
-#include <atomic>
+#include <atomic> 
 
 #include <QObject>
 #include <QStringList>
@@ -76,8 +76,7 @@ public:
         AmountWithFeeExceedsBalance,
         DuplicateAddress,
         TransactionCreationFailed, // Error returned when wallet is still locked
-        AbsurdFee,
-        PaymentRequestExpired
+        AbsurdFee
     };
 
     enum EncryptionStatus
@@ -88,20 +87,21 @@ public:
         Unlocked      // wallet->IsCrypted() && !wallet->IsLocked()
     };
 
-    OptionsModel *getOptionsModel();
-    AddressTableModel *getAddressTableModel();
-    ContractTableModel *getContractTableModel();
-    TransactionTableModel *getTransactionTableModel();
-    RecentRequestsTableModel *getRecentRequestsTableModel();
-    TokenItemModel *getTokenItemModel();
-    TokenTransactionTableModel *getTokenTransactionTableModel();
-    DelegationItemModel *getDelegationItemModel();
-    SuperStakerItemModel *getSuperStakerItemModel();
-    DelegationStakerItemModel *getDelegationStakerItemModel();
+    OptionsModel* getOptionsModel() const;
+    AddressTableModel* getAddressTableModel() const;
+    ContractTableModel *getContractTableModel() const;
+    TransactionTableModel* getTransactionTableModel() const;
+    RecentRequestsTableModel* getRecentRequestsTableModel() const;
+    TokenItemModel *getTokenItemModel() const;
+    TokenTransactionTableModel *getTokenTransactionTableModel() const;
+    DelegationItemModel *getDelegationItemModel() const;
+    SuperStakerItemModel *getSuperStakerItemModel() const;
+    DelegationStakerItemModel *getDelegationStakerItemModel() const;
+
     EncryptionStatus getEncryptionStatus() const;
 
     // Check address for validity
-    bool validateAddress(const QString &address);
+    bool validateAddress(const QString& address) const;
 
     // Return status record for SendCoins, contains error id + information
     struct SendCoinsReturn
@@ -119,7 +119,7 @@ public:
     SendCoinsReturn prepareTransaction(WalletModelTransaction &transaction, const wallet::CCoinControl& coinControl);
 
     // Send coins to a list of recipients
-    SendCoinsReturn sendCoins(WalletModelTransaction &transaction);
+    void sendCoins(WalletModelTransaction& transaction);
 
     // Wallet encryption
     bool setWalletEncrypted(const SecureString& passphrase);
@@ -156,7 +156,7 @@ public:
     UnlockContext requestUnlock();
 
     bool bumpFee(uint256 hash, uint256& new_hash);
-    bool displayAddress(std::string sAddress);
+    bool displayAddress(std::string sAddress) const;
 
     static bool isWalletEnabled();
 
@@ -168,17 +168,23 @@ public:
     QString getWalletName() const;
     QString getDisplayName() const;
 
-    bool isMultiwallet();
+    bool isMultiwallet() const;
     QString getRestorePath();
     QString getRestoreParam();
     bool restore();
 
     uint64_t getStakeWeight();
-    AddressTableModel* getAddressTableModel() const { return addressTableModel; }
 
     void refresh(bool pk_hash_only = false);
 
     uint256 getLastBlockProcessed() const;
+
+    // Retrieve the cached wallet balance
+    interfaces::WalletBalances getCachedBalance() const;
+
+    // If coin control has selected outputs, searches the total amount inside the wallet.
+    // Otherwise, uses the wallet's cached available balance.
+    CAmount getAvailableBalance(const wallet::CCoinControl* control);
 
     // Get or set selected hardware device fingerprint (only for hardware wallet applicable)
     QString getFingerprint(bool stake = false) const;

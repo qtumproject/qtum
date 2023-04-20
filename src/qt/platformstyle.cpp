@@ -3,10 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qt/platformstyle.h>
-
 #include <qt/guiconstants.h>
 #include "styleSheet.h"
-
 #include <QApplication>
 #include <QColor>
 #include <QImage>
@@ -45,7 +43,6 @@ void MakeSingleColorImage(QImage& img, const QColor& colorbase, double opacity =
         }
     }
 }
-
 QPixmap MakeSingleColorPixmap(QImage& img, const QColor& colorbase, double opacity = 1)
 {
     MakeSingleColorImage(img, colorbase, opacity);
@@ -71,7 +68,7 @@ QImage ColorizeImage(const QString& filename, const QColor& colorbase, double op
     return img;
 }
 
-QIcon ColorizeIcon(const QString& filename, const QColor& colorbase, double opacity = 1)
+QIcon ColorizeIcon(const QString& filename, const QColor& colorbase, double opacity = 1) 
 {
     return QIcon(QPixmap::fromImage(ColorizeImage(filename, colorbase, opacity)));
 }

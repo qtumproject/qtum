@@ -11,7 +11,7 @@ from test_framework.util import (
     find_output,
     find_vout_for_address
 )
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD 
 
 
 class TxnMallTest(BitcoinTestFramework):
@@ -40,7 +40,7 @@ class TxnMallTest(BitcoinTestFramework):
 
     def run_test(self):
         # All nodes should start with 1,250 BTC:
-        starting_balance = 25*INITIAL_BLOCK_REWARD
+        starting_balance = 25*INITIAL_BLOCK_REWARD 
 
         # All nodes should be out of IBD.
         # If the nodes are not all out of IBD, that can interfere with
@@ -51,7 +51,6 @@ class TxnMallTest(BitcoinTestFramework):
 
         for i in range(3):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
-
         spend_from_foo = starting_balance - INITIAL_BLOCK_REWARD*5
         spend_from_bar = INITIAL_BLOCK_REWARD*5 - 100
         spend_from_doublespend = spend_from_foo + spend_from_bar - 8
@@ -104,7 +103,7 @@ class TxnMallTest(BitcoinTestFramework):
         # matured block, minus 40, minus 20, and minus transaction fees:
         expected = starting_balance + fund_foo_tx["fee"] + fund_bar_tx["fee"]
         if self.options.mine_block:
-            expected += INITIAL_BLOCK_REWARD
+            expected += INITIAL_BLOCK_REWARD 
         expected += tx1["amount"] + tx1["fee"]
         expected += tx2["amount"] + tx2["fee"]
         assert_equal(self.nodes[0].getbalance(), expected)
@@ -141,7 +140,7 @@ class TxnMallTest(BitcoinTestFramework):
         # Node0's total balance should be starting balance, plus 100BTC for
         # two more matured blocks, minus 1240 for the double-spend, plus fees (which are
         # negative):
-        expected = starting_balance + 2*INITIAL_BLOCK_REWARD - spend_from_doublespend + fund_foo_tx["fee"] + fund_bar_tx["fee"] + doublespend_fee
+        expected = starting_balance + 2*INITIAL_BLOCK_REWARD - spend_from_doublespend + fund_foo_tx["fee"] + fund_bar_tx["fee"] + doublespend_fee 
         assert_equal(self.nodes[0].getbalance(), expected)
 
         assert_equal(self.nodes[0].getbalance("*"), expected)

@@ -155,7 +155,7 @@
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Aviso: Si encriptas a túa carteira e perdes a túa frase contrasinal, &lt;b&gt;PERDERÁS TODOS OS TEUS QTUMS&lt;/b&gt;!</translation>
-    </message>
+   </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">¿Seguro que queres encriptar a túa carteira?</translation>
@@ -371,7 +371,7 @@
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Asina mensaxes cos teus enderezos de Qtum para probar que che pertencen</translation>
-    </message>
+   </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Verifica mensaxes para asegurar que foron asinados cos enderezos de Qtum especificados</translation>
@@ -458,7 +458,7 @@
     <message>
         <source>Open a qtum: URI</source>
         <translation type="unfinished">Abre una URI de Qtum</translation>
-    </message>
+   </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Abrir carteira</translation>
@@ -484,6 +484,11 @@
         <translation type="unfinished">Non hai carteiras dispoñibles</translation>
     </message>
     <message>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">Nome da Carteira</translation>
+    </message>
+    <message>
         <source>&amp;Window</source>
         <translation type="unfinished">&amp;Xanela</translation>
     </message>
@@ -496,7 +501,7 @@
         <translation type="unfinished">%1 cliente</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -806,7 +811,7 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">O enderezo introducido "%1" non é un enderezo de Qtum válido.</translation>
-    </message>
+   </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">O enderezo "%1" xa existe como un enderezo de recepción ca etiqueta "%2" polo que non pode ser añadido como un enderezo de envío.</translation>
@@ -822,6 +827,27 @@
     </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
     <message numerus="yes">
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>

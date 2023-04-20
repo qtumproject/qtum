@@ -60,7 +60,7 @@
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Reni reng kekang Qtum address king pamagpadalang kabayaran. Lawan mulang masalese reng alaga ampo ing address na ning tumanggap bayu ka magpadalang barya.</translation>
-    </message>
+  </message>
     <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">&amp;Kopyan ing address</translation>
@@ -121,8 +121,8 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Kapabaluan: Istung in-encrypt me ing kekang wallet at meala ya ing passphrase na, ma-&lt;b&gt;ALA NO NGAN RING KEKANG QTUMS&lt;/b&gt;</translation>
-    </message>
+        <translation type="unfinished">Kapabaluan: Istung in-encrypt me ing kekang wallet at meala ya ing passphrase na, ma-&lt;b&gt;ALA NO NGAN RING KEKANG QTUMS&lt;/b&gt;</translation> 
+   </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Siguradu na kang buri meng i-encrypt ing kekang wallet?</translation>
@@ -283,7 +283,7 @@
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Magpadalang barya king Qtum address</translation>
-    </message>
+  </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">I-backup ing wallet king aliwang lugal</translation>
@@ -414,7 +414,7 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Ing pepalub yung address "%1" ali ya katanggap-tanggap a Qtum address.</translation>
-    </message>
+   </message>
     <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">Ali ya bisang mag-unlock ing wallet</translation>
@@ -426,6 +426,24 @@
 </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
     <message numerus="yes">
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
@@ -481,7 +499,7 @@
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Ibuklat yang antimanu ing Qtum client port king router. Gagana yamu ini istung ing router mu susuporta yang UPnP at magsilbi ya.</translation>
-    </message>
+  </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapa ng ning port gamit ing &amp;UPnP</translation>
@@ -540,7 +558,7 @@
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Ing makaltong impormasion mapalyaring luma ne. Ing kekang wallet otomatiku yang mag-synchronize keng Qtum network istung mekakonekta ne king network, oneng ing prosesung ini ali ya pa kumpletu.</translation>
-    </message>
+   </message>
     <message>
         <source>Your current spendable balance</source>
         <translation type="unfinished">Ing kekang kasalungsungan balanse a malyari mung gastusan</translation>
@@ -745,10 +763,6 @@
         <source>Message:</source>
         <translation type="unfinished">Mensayi:</translation>
     </message>
-    <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">Ibayad kang:</translation>
-    </message>
     </context>
 <context>
     <name>SignVerifyMessageDialog</name>
@@ -779,7 +793,7 @@
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Pirman ing mensayi ban patune na keka ya ining Qtum address</translation>
-    </message>
+  </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Pirman ing &amp;Mensayi</translation>
@@ -798,8 +812,8 @@
     </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
-        <translation type="unfinished">Beripikan ing mensayi ban asiguradu a me pirma ya ini gamit ing mepiling Qtum address</translation>
-    </message>
+        <translation type="unfinished">Beripikan ing mensayi ban asiguradu a me pirma ya ini gamit ing mepiling Qtum address</translation> 
+   </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Beripikan ing &amp;Mensayi</translation>
@@ -865,10 +879,12 @@
     <name>TransactionDesc</name>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/ali me-kumpirma</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">%1 kumpirmasion</translation>
     </message>
     <message>

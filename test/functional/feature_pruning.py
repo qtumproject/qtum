@@ -23,7 +23,7 @@ from test_framework.util import (
     assert_greater_than,
     assert_raises_rpc_error,
 )
-from test_framework.qtum import generatesynchronized
+from test_framework.qtum import generatesynchronized 
 
 # Rescans start at the earliest block up to 2 hours before a key timestamp, so
 # the manual prune RPC avoids pruning blocks in the same window to be
@@ -126,6 +126,7 @@ class PruneTest(BitcoinTestFramework):
         self.sync_blocks(self.nodes[0:5])
 
     def test_invalid_command_line_options(self):
+        self.stop_node(0)
         self.nodes[0].assert_start_raises_init_error(
             expected_msg='Error: Prune cannot be configured with a negative value.',
             extra_args=['-prune=-1'],
@@ -139,8 +140,8 @@ class PruneTest(BitcoinTestFramework):
             extra_args=['-prune=550', '-txindex'],
         )
         self.nodes[0].assert_start_raises_init_error(
-            expected_msg='Error: Prune mode is incompatible with -coinstatsindex.',
-            extra_args=['-prune=550', '-coinstatsindex'],
+            expected_msg='Error: Prune mode is incompatible with -reindex-chainstate. Use full -reindex instead.',
+            extra_args=['-prune=550', '-reindex-chainstate'],
         )
 
     def test_height_min(self):
@@ -291,7 +292,7 @@ class PruneTest(BitcoinTestFramework):
 
         def prune(index):
             ret = node.pruneblockchain(height=height(index))
-            assert_equal(ret, node.getblockchaininfo()['pruneheight'])
+            assert_equal(ret + 1, node.getblockchaininfo()['pruneheight'])
 
         def has_block(index):
             return os.path.isfile(os.path.join(self.nodes[node_number].datadir, self.chain, "blocks", f"blk{index:05}.dat"))

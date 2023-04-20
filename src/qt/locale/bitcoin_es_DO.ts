@@ -162,6 +162,14 @@
         <translation type="unfinished">Monedero cifrado</translation>
     </message>
     <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation type="unfinished">Tu monedero va a ser cifrado</translation>
+    </message>
+    <message>
+        <source>Your wallet is now encrypted. </source>
+        <translation type="unfinished">Tu monedero está ahora cifrado</translation>
+    </message>
+    <message>
         <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
         <translation type="unfinished">IMPORTANTE: Cualquier copia de seguridad que haya realizado previamente de su archivo de monedero debe reemplazarse con el nuevo archivo de monedero cifrado. Por razones de seguridad, las copias de seguridad previas del archivo de monedero no cifradas serán inservibles en cuanto comience a usar el nuevo monedero cifrado.</translation>
     </message>
@@ -194,6 +202,13 @@
         <translation type="unfinished">Aviso: ¡La tecla de bloqueo de mayúsculas está activada!</translation>
     </message>
 </context>
+<context>
+    <name>BitcoinApplication</name>
+    <message>
+        <source>Internal error</source>
+        <translation type="unfinished">Error interno</translation>
+    </message>
+    </context>
 <context>
     <name>QObject</name>
     <message>
@@ -385,6 +400,14 @@
         <translation type="unfinished">Mostrar información acerca de Qt</translation>
     </message>
     <message>
+        <source>Create a new wallet</source>
+        <translation type="unfinished">Crear monedero nuevo</translation>
+    </message>
+    <message>
+        <source>&amp;Minimize</source>
+        <translation type="unfinished">Minimizar</translation>
+    </message>
+    <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Enviar monedas a una dirección Qtum</translation>
     </message>
@@ -403,6 +426,10 @@
     <message>
         <source>&amp;Receive</source>
         <translation type="unfinished">&amp;Recibir</translation>
+    </message>
+    <message>
+        <source>&amp;Encrypt Wallet…</source>
+        <translation type="unfinished">&amp;Cifrar monedero</translation>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
@@ -484,7 +511,7 @@
         <translation type="unfinished">&amp;Ventana</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -699,6 +726,27 @@
 <context>
     <name>Intro</name>
     <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
         <translation type="unfinished">
@@ -861,10 +909,12 @@
     </message>
     <message>
         <source>Confirm options reset</source>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
         <translation type="unfinished">Confirme el restablecimiento de las opciones</translation>
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
+        <extracomment>Text explaining that the settings changed will not come into effect until the client is restarted.</extracomment>
         <translation type="unfinished">Reinicio del cliente para activar cambios.</translation>
     </message>
     <message>
@@ -931,7 +981,7 @@
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">No se pudo iniciar qtum: manejador de pago-al-clic</translation>
-    </message>
+   </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Gestión de URI</translation>
@@ -1297,11 +1347,11 @@
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
-        <translation type="unfinished">Alerta: Dirección de Qtum inválida</translation>
-    </message>
+        <translation type="unfinished">Alerta: Dirección de Qtum inválida</translation>  
+  </message>
     <message>
         <source>Warning: Unknown change address</source>
-        <translation type="unfinished">Alerta: Dirección de Qtum inválida</translation>
+        <translation type="unfinished">Alerta: Dirección de Qtum inválida</translation> 
     </message>
     <message>
         <source>(no label)</source>
@@ -1342,10 +1392,6 @@
         <source>Enter a label for this address to add it to the list of used addresses</source>
         <translation type="unfinished">Introduce una etiqueta para esta dirección para añadirla a la lista de direcciones utilizadas</translation>
     </message>
-    <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">Paga a:</translation>
-    </message>
     </context>
 <context>
     <name>SignVerifyMessageDialog</name>
@@ -1380,7 +1426,7 @@
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Firmar el mensaje para demostrar que se posee esta dirección Qtum</translation>
-    </message>
+   </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Firmar &amp;mensaje</translation>
@@ -1400,7 +1446,7 @@
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verificar el mensaje para comprobar que fue firmado con la dirección Qtum indicada</translation>
-    </message>
+ </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Verificar &amp;mensaje</translation>
@@ -1466,10 +1512,12 @@
     <name>TransactionDesc</name>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/no confirmado</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">%1 confirmaciones</translation>
     </message>
     <message>
@@ -1753,6 +1801,13 @@
         <translation type="unfinished">para</translation>
     </message>
 </context>
+<context>
+    <name>WalletFrame</name>
+    <message>
+        <source>Create a new wallet</source>
+        <translation type="unfinished">Crear monedero nuevo</translation>
+    </message>
+    </context>
 <context>
     <name>WalletModel</name>
     <message>

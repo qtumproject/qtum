@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">Cliquer à droite pour modifier l’adresse ou l’étiquette</translation>
+        <translation type="unfinished">‎Cliquez avec le bouton droit de la souris pour modifier l’adresse ou l’étiquette‎</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -72,8 +72,8 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Ce sont vos adresses Qtum pour recevoir des paiements. Utilisez le bouton « Créer une nouvelle adresse de réception » dans l’onglet Recevoir afin de créer de nouvelles adresses.
-Il n’est possible de signer qu’avec les adresses de type « legacy ».</translation>
+        <translation type="unfinished">Il s'agit de vos adresses Qtum pour la réception des paiements. Utilisez le bouton "Créer une nouvelle adresse de réception" dans l'onglet "Recevoir" pour créer de nouvelles adresses.
+La signature n'est possible qu'avec les adresses de type "patrimoine".</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -246,6 +246,10 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
 <context>
     <name>BitcoinApplication</name>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Le fichier de configuration %1 est peut-être corrompu ou invalide.</translation>
+    </message>
+    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">Exception excessive</translation>
     </message>
@@ -255,7 +259,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     </message>
     <message>
         <source>Internal error</source>
-        <translation type="unfinished">Erreur interne</translation>
+        <translation type="unfinished">erreur interne</translation>
     </message>
     <message>
         <source>An internal error occurred. %1 will attempt to continue safely. This is an unexpected bug which can be reported as described below.</source>
@@ -301,6 +305,10 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Saisir une adresse Qtum (p. ex. %1)</translation>
+    </message>
+    <message>
+        <source>Ctrl+W</source>
+        <translation type="unfinished">Ctrl-W</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -364,7 +372,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message numerus="yes">
         <source>%n second(s)</source>
         <translation type="unfinished">
-            <numerusform>%n seconde</numerusform>
+            <numerusform>%n second</numerusform>
             <numerusform>%n secondes</numerusform>
         </translation>
     </message>
@@ -403,8 +411,8 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message numerus="yes">
         <source>%n year(s)</source>
         <translation type="unfinished">
-            <numerusform>%n an</numerusform>
-            <numerusform>%n ans</numerusform>
+            <numerusform>%n année</numerusform>
+            <numerusform>%n années</numerusform>
         </translation>
     </message>
     <message>
@@ -480,15 +488,11 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     </message>
     <message>
         <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Erreur : La version du fichier de vidage n’est pas prise en charge. Cette version de qtum-wallet ne prend en charge que les fichiers de vidage version 1. Le fichier de vidage obtenu est de la version %s.</translation>
-    </message>
+        <translation type="unfinished">Erreur : La version du fichier de vidage n’est pas prise en charge. Cette version de qtum-wallet ne prend en charge que les fichiers de vidage version 1. Le fichier de vidage obtenu est de la version %s.</translation> 
+   </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
         <translation type="unfinished">Erreur : les porte-monnaie hérités ne prennent en charge que les types d’adresse « legacy », « p2sh-segwit », et « bech32 »</translation>
-    </message>
-    <message>
-        <source>Error: Listening for incoming connections failed (listen returned error %s)</source>
-        <translation type="unfinished">Erreur : L’écoute des connexions entrantes a échoué (l’écoute a retourné l’erreur %s)</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
@@ -655,8 +659,16 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <translation type="unfinished">Échec de renommage du fichier peers.dat invalide. Veuillez le déplacer ou le supprimer, puis réessayer.</translation>
     </message>
     <message>
-        <source>Outbound connections restricted to Tor (-onlynet=onion) but the proxy for reaching the Tor network is not provided (no -proxy= and no -onion= given) or it is explicitly forbidden (-onion=0)</source>
-        <translation type="unfinished">Les connexions sortantes sont limitées à Tor (-onlynet=onion), mais le relais pour accéder à Tor n’est pas indiqué (aucun -proxy= et aucun no -onion= n’est indiqué), ou il est explicitement interdit (-onion=0)</translation>
+        <source>
+Unable to cleanup failed migration</source>
+        <translation type="unfinished">
+Impossible de nettoyer la migration en erreur</translation>
+    </message>
+    <message>
+        <source>
+Unable to restore backup of wallet.</source>
+        <translation type="unfinished">
+Impossible de restaurer la sauvegarde du portefeuille.</translation>
     </message>
     <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>
@@ -739,10 +751,6 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <translation type="unfinished">Erreur de lecture de l’enregistrement suivant de la base de données du porte-monnaie</translation>
     </message>
     <message>
-        <source>Error upgrading chainstate database</source>
-        <translation type="unfinished">Erreur de mise à niveau de la base de données d’état de la chaîne</translation>
-    </message>
-    <message>
         <source>Error: Couldn't create cursor into database</source>
         <translation type="unfinished">Erreur : Impossible de créer le curseur dans la base de données</translation>
     </message>
@@ -775,8 +783,20 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <translation type="unfinished">Erreur : Aucune adresse %s n’est disponible.</translation>
     </message>
     <message>
+        <source>Error: This wallet already uses SQLite</source>
+        <translation type="unfinished">Erreur : ce portefeuille utilise déjà SQLite</translation>
+    </message>
+    <message>
+        <source>Error: Unable to make a backup of your wallet</source>
+        <translation type="unfinished">Erreur : impossible de faire une sauvegarde de votre portefeuille</translation>
+    </message>
+    <message>
         <source>Error: Unable to parse version %u as a uint32_t</source>
         <translation type="unfinished">Erreur : Impossible d’analyser la version %u en tant que uint32_t</translation>
+    </message>
+    <message>
+        <source>Error: Unable to read all records in the database</source>
+        <translation type="unfinished">Erreur : impossible de lire tous les enregistrement dans la base de données</translation>
     </message>
     <message>
         <source>Error: Unable to write record to new wallet</source>
@@ -891,20 +911,12 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <translation type="unfinished">Aucune adresse n’est disponible</translation>
     </message>
     <message>
-        <source>No proxy server specified. Use -proxy=&lt;ip&gt; or -proxy=&lt;ip:port&gt;.</source>
-        <translation type="unfinished">Aucun serveur mandataire n’est indiqué. Utiliser -proxy=&lt;ip&gt; ou -proxy=&lt;ip:port&gt;</translation>
-    </message>
-    <message>
         <source>Not enough file descriptors available.</source>
         <translation type="unfinished">Trop peu de descripteurs de fichiers sont disponibles.</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>
         <translation type="unfinished">L’élagage ne peut pas être configuré avec une valeur négative</translation>
-    </message>
-    <message>
-        <source>Prune mode is incompatible with -coinstatsindex.</source>
-        <translation type="unfinished">Le mode élagage n’est pas compatible avec -coinstatsindex.</translation>
     </message>
     <message>
         <source>Prune mode is incompatible with -txindex.</source>
@@ -1039,6 +1051,10 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <translation type="unfinished">Impossible de créer le fichier PID « %s » : %s</translation>
     </message>
     <message>
+        <source>Unable to find UTXO for external input</source>
+        <translation type="unfinished">Impossible de trouver UTXO pour l'entrée externe</translation>
+    </message>
+    <message>
         <source>Unable to generate initial keys</source>
         <translation type="unfinished">Impossible de générer les clés initiales</translation>
     </message>
@@ -1059,8 +1075,12 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <translation type="unfinished">Impossible de démarrer le serveur HTTP. Consulter le journal de débogage pour plus de précisions.</translation>
     </message>
     <message>
+        <source>Unable to unload the wallet before migrating</source>
+        <translation type="unfinished">Impossible de décharger le portefeuille avant de migrer</translation>
+    </message>
+    <message>
         <source>Unknown -blockfilterindex value %s.</source>
-        <translation type="unfinished">La valeur -blockfilterindex %s est inconnue</translation>
+        <translation type="unfinished">La valeur -blockfilterindex %s est inconnue.</translation>
     </message>
     <message>
         <source>Unknown address type '%s'</source>
@@ -1081,10 +1101,6 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Unsupported logging category %s=%s.</source>
         <translation type="unfinished">La catégorie de journalisation %s=%s n’est pas prise en charge</translation>
-    </message>
-    <message>
-        <source>Upgrading UTXO database</source>
-        <translation type="unfinished">Mise à niveau de la base de données UTXO</translation>
     </message>
     <message>
         <source>User Agent comment (%s) contains unsafe characters.</source>
@@ -1209,7 +1225,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Signer les messages avec vos adresses Qtum pour prouver que vous les détenez</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Vérifier un message…</translation>
@@ -1220,7 +1236,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
-        <translation type="unfinished">&amp;Charger une TBSP d’un fichier…</translation>
+        <translation type="unfinished">&amp;Charger la TBSP d’un fichier…</translation>
     </message>
     <message>
         <source>Open &amp;URI…</source>
@@ -1281,7 +1297,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Demander des paiements (génère des codes QR et des URI qtum:)</translation>
-    </message>
+   </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Afficher la liste d’adresses et d’étiquettes d’envoi utilisées</translation>
@@ -1297,8 +1313,8 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation type="unfinished">
-            <numerusform>%n bloc d’historique transactionnel a été traité.</numerusform>
-            <numerusform>%n blocs d’historique transactionnel ont été traités.</numerusform>
+            <numerusform />
+            <numerusform />
         </translation>
     </message>
     <message>
@@ -1336,22 +1352,22 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Charger une transaction Qtum signée partiellement</translation>
-    </message>
+   </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Charger la TBSP du &amp;presse-papiers…</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">Charger du presse-papiers une transaction Qtum signée partiellement</translation>
-    </message>
+        <translation type="unfinished">Charger du presse-papiers une transaction Qtum signée partiellement</translation> 
+   </message>
     <message>
         <source>Node window</source>
         <translation type="unfinished">Fenêtre des nœuds</translation>
     </message>
     <message>
         <source>Open node debugging and diagnostic console</source>
-        <translation type="unfinished">Ouvrir une console de débogage des nœuds et de diagnostic</translation>
+        <translation type="unfinished">Ouvrir une console de débogage de nœuds et de diagnostic</translation>
     </message>
     <message>
         <source>&amp;Sending addresses</source>
@@ -1364,10 +1380,10 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Open a qtum: URI</source>
         <translation type="unfinished">Ouvrir une URI qtum:</translation>
-    </message>
+   </message>
     <message>
         <source>Open Wallet</source>
-        <translation type="unfinished">Ouvrir un porte-monnaie</translation>
+        <translation type="unfinished">Ouvrir le porte-monnaie</translation>
     </message>
     <message>
         <source>Open a wallet</source>
@@ -1378,13 +1394,23 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <translation type="unfinished">Fermer le porte-monnaie</translation>
     </message>
     <message>
+        <source>Restore Wallet…</source>
+        <extracomment>Name of the menu item that restores wallet from a backup file.</extracomment>
+        <translation type="unfinished">Restaurer un portefeuille...</translation>
+    </message>
+    <message>
+        <source>Restore a wallet from a backup file</source>
+        <extracomment>Status tip for Restore Wallet menu item</extracomment>
+        <translation type="unfinished">Restaurer un portefeuille depuis un fichier de récupération</translation>
+    </message>
+    <message>
         <source>Close all wallets</source>
         <translation type="unfinished">Fermer tous les porte-monnaie</translation>
     </message>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Afficher le message d’aide de %1 pour obtenir la liste des options possibles en ligne de commande Qtum</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;Mask values</source>
         <translation type="unfinished">&amp;Masquer les montants</translation>
@@ -1400,6 +1426,26 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>No wallets available</source>
         <translation type="unfinished">Aucun porte-monnaie n’est disponible</translation>
+    </message>
+    <message>
+        <source>Wallet Data</source>
+        <extracomment>Name of the wallet data file format.</extracomment>
+        <translation type="unfinished">Données du porte-monnaie</translation>
+    </message>
+    <message>
+        <source>Load Wallet Backup</source>
+        <extracomment>The title for Restore Wallet File Windows</extracomment>
+        <translation type="unfinished">Charger la Sauvegarde du Portefeuille</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">Restaurer le portefeuille</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">Nom du porte-monnaie</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1426,11 +1472,11 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <translation type="unfinished">A&amp;fficher</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n connexion active avec le réseau Qtum.</numerusform>
-            <numerusform>%n connexions actives avec le réseau Qtum.</numerusform>
+            <numerusform />
+            <numerusform />
         </translation>
     </message>
     <message>
@@ -1452,6 +1498,10 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <source>Enable network activity</source>
         <extracomment>A context menu item. The network activity was disabled previously.</extracomment>
         <translation type="unfinished">Activer l’activité réseau</translation>
+    </message>
+    <message>
+        <source>Pre-syncing Headers (%1%)…</source>
+        <translation type="unfinished">Pré-synchronisation des en-têtes (%1%)...</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -1708,7 +1758,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <source>Can't list signers</source>
         <translation type="unfinished">Impossible de lister les signataires</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>LoadWalletsActivity</name>
     <message>
@@ -1745,6 +1795,29 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
         <extracomment>Descriptive text of the open wallet progress window which indicates to the user which wallet is currently being opened.</extracomment>
         <translation type="unfinished">Ouverture du porte-monnaie &lt;b&gt;%1&lt;/b&gt;…</translation>
+    </message>
+</context>
+<context>
+    <name>RestoreWalletActivity</name>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">Restaurer le portefeuille</translation>
+    </message>
+    <message>
+        <source>Restoring Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the restore wallets progress window which indicates to the user that wallets are currently being restored.</extracomment>
+        <translation type="unfinished">Restauration du Portefeuille &lt;b&gt;%1&lt;/b&gt;...</translation>
+    </message>
+    <message>
+        <source>Restore wallet failed</source>
+        <extracomment>Title of message box which is displayed when the wallet could not be restored.</extracomment>
+        <translation type="unfinished">Échec de la restauration du portefeuille</translation>
+    </message>
+    <message>
+        <source>Restore wallet message</source>
+        <extracomment>Title of message box which is displayed when the wallet is successfully restored.</extracomment>
+        <translation type="unfinished">Message de restauration du portefeuille</translation>
     </message>
 </context>
 <context>
@@ -1878,8 +1951,8 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">L’adresse saisie « %1 » n’est pas une adresse Qtum valide.</translation>
-    </message>
+        <translation type="unfinished">L’adresse saisie « %1 » n’est pas une adresse Qtum valide.</translation> 
+   </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">L’adresse « %1 » existe déjà en tant qu’adresse de réception avec l’étiquette « %2 » et ne peut donc pas être ajoutée en tant qu’adresse d’envoi.</translation>
@@ -1922,13 +1995,26 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
 </context>
 <context>
     <name>Intro</name>
-    <message>
-        <source>%1 GB of space available</source>
-        <translation type="unfinished">%1 Go d’espace disponible</translation>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform>%n Go d’espace disponible</numerusform>
+            <numerusform>%n Go d’espace disponible</numerusform>
+        </translation>
     </message>
-    <message>
-        <source>(of %1 GB needed)</source>
-        <translation type="unfinished">(sur %1 Go nécessaires)</translation>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -1942,14 +2028,14 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
         <translation type="unfinished">
-            <numerusform>(suffisant pour restaurer les sauvegardes âgées de %n jour)</numerusform>
-            <numerusform>(suffisant pour restaurer les sauvegardes âgées de %n jours)</numerusform>
+            <numerusform />
+            <numerusform />
         </translation>
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 téléchargera et stockera une copie de la chaîne de blocs Qtum.</translation>
-    </message>
+   </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Le porte-monnaie sera aussi stocké dans ce répertoire.</translation>
@@ -1973,10 +2059,6 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
         <translation type="unfinished">Comme le logiciel est lancé pour la première fois, vous pouvez choisir où %1 stockera ses données.</translation>
-    </message>
-    <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation type="unfinished">Quand vous cliquerez sur Valider, %1 commencera à télécharger et à traiter l’intégralité de la chaîne de blocs %4 (%2 Go) en débutant avec les transactions les plus anciennes de %3, quand %4 a été lancé initialement.</translation>
     </message>
     <message>
         <source>Limit block chain storage to</source>
@@ -2038,7 +2120,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Les transactions récentes ne sont peut-être pas encore visibles et par conséquent le solde de votre porte-monnaie est peut-être erroné. Ces renseignements seront justes quand votre porte-monnaie aura fini de se synchroniser avec le réseau Qtum, comme décrit ci-dessous.</translation>
-    </message>
+   </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Toute tentative de dépense de qtums affectés par des transactions qui ne sont pas encore affichées ne sera pas acceptée par le réseau.</translation>
@@ -2049,7 +2131,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     </message>
     <message>
         <source>Unknown…</source>
-        <translation type="unfinished">Inconnus…</translation>
+        <translation type="unfinished">Inconnu…</translation>
     </message>
     <message>
         <source>calculating…</source>
@@ -2087,13 +2169,13 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <source>Unknown. Syncing Headers (%1, %2%)…</source>
         <translation type="unfinished">Inconnu. Synchronisation des en-têtes (%1, %2 %)…</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">Ouvrir une URI qtum</translation>
-    </message>
+   </message>
     <message>
         <source>URI:</source>
         <translation type="unfinished">URI :</translation>
@@ -2249,11 +2331,11 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Full path to a Qtum Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
         <translation type="unfinished">Chemin complet vers un script compatible avec Qtum Core (p. ex. C:\Téléchargements\hwi.exe ou /Utilisateurs/vous/Téléchargements/hwi.py). Attention : des programmes malveillants peuvent voler vos pièces !</translation>
-    </message>
+   </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">Ouvrir automatiquement le port du client Qtum sur le routeur. Cela ne fonctionne que si votre routeur prend en charge l’UPnP et si la fonction est activée.</translation>
-    </message>
+        <translation type="unfinished">Ouvrir automatiquement le port du client Qtum sur le routeur. Cela ne fonctionne que si votre routeur prend en charge l’UPnP et si la fonction est activée.</translation> 
+  </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapper le port avec l’&amp;UPnP</translation>
@@ -2277,7 +2359,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Se connecter au réseau Qtum par un mandataire SOCKS5.</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">Se &amp;connecter par un mandataire SOCKS5 (mandataire par défaut) :</translation>
@@ -2357,7 +2439,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
         <translation type="unfinished">Se connecter au réseau Qtum par un mandataire SOCKS5 séparé pour les services oignon de Tor.</translation>
-    </message>
+   </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation type="unfinished">Utiliser un mandataire SOCKS&amp;5 séparé pour atteindre les pairs par les services oignon de Tor :</translation>
@@ -2373,10 +2455,6 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>closest matching "%1"</source>
         <translation type="unfinished">correspondance la plus proche « %1 »</translation>
-    </message>
-    <message>
-        <source>Options set in this dialog are overridden by the command line or in the configuration file:</source>
-        <translation type="unfinished">Les options définies dans cette boîte de dialogue sont remplacées par la ligne de commande ou par le fichier de configuration :</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -2401,14 +2479,22 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     </message>
     <message>
         <source>Confirm options reset</source>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
         <translation type="unfinished">Confirmer la réinitialisation des options</translation>
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
+        <extracomment>Text explaining that the settings changed will not come into effect until the client is restarted.</extracomment>
         <translation type="unfinished">Le redémarrage du client est exigé pour activer les changements.</translation>
     </message>
     <message>
+        <source>Current settings will be backed up at "%1".</source>
+        <extracomment>Text explaining to the user that the client's current settings will be backed up at a specific location. %1 is a stand-in argument for the backup location's path.</extracomment>
+        <translation type="unfinished">Les paramètres courants seront sauvegardés à "%1".</translation>
+    </message>
+    <message>
         <source>Client will be shut down. Do you want to proceed?</source>
+        <extracomment>Text asking the user to confirm if they would like to proceed with a client shutdown.</extracomment>
         <translation type="unfinished">Le client sera arrêté. Voulez-vous continuer ?</translation>
     </message>
     <message>
@@ -2455,7 +2541,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Les renseignements affichés peuvent être obsolètes. Votre porte-monnaie se synchronise automatiquement avec le réseau Qtum dès qu’une connexion est établie, mais ce processus n’est pas encore achevé.</translation>
-    </message>
+   </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Juste-regarder :</translation>
@@ -2665,8 +2751,8 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     </message>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
-        <translation type="unfinished">Impossible de démarrer le gestionnaire de cliquer-pour-payer qtum:</translation>
-    </message>
+        <translation type="unfinished">Impossible de démarrer le gestionnaire de cliquer-pour-payer qtum:</translation> 
+   </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Gestion des URI</translation>
@@ -2674,7 +2760,7 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' n’est pas une URI valide. Utilisez plutôt 'qtum:'.</translation>
-    </message>
+   </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
@@ -2684,7 +2770,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">L’URI ne peut pas être analysée. Cela peut être causé par une adresse Qtum invalide ou par des paramètres d’URI mal formés.</translation>
-    </message>
+  </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">Gestion des fichiers de demande de paiement</translation>
@@ -2701,6 +2787,11 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <source>Peer</source>
         <extracomment>Title of Peers Table column which contains a unique number used to identify a connection.</extracomment>
         <translation type="unfinished">Pair</translation>
+    </message>
+    <message>
+        <source>Age</source>
+        <extracomment>Title of Peers Table column which indicates the duration (length of time) since the peer connection started.</extracomment>
+        <translation type="unfinished">Âge</translation>
     </message>
     <message>
         <source>Sent</source>
@@ -2889,29 +2980,22 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Whether we relay addresses to this peer.</source>
-        <extracomment>Tooltip text for the Address Relay field in the peer details area.</extracomment>
+        <extracomment>Tooltip text for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
         <translation type="unfinished">Reliez ou non des adresses à ce pair.</translation>
     </message>
     <message>
         <source>Address Relay</source>
+        <extracomment>Text title for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
         <translation type="unfinished">Relais d’adresses</translation>
     </message>
     <message>
-        <source>Total number of addresses processed, excluding those dropped due to rate-limiting.</source>
-        <extracomment>Tooltip text for the Addresses Processed field in the peer details area.</extracomment>
-        <translation type="unfinished">Nombre total d’adresses traitées, excluant celles abandonnées en raison de la limite de débit.</translation>
-    </message>
-    <message>
         <source>Addresses Processed</source>
+        <extracomment>Text title for the Addresses Processed field in the peer details area, which displays the total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</extracomment>
         <translation type="unfinished">Adresses traitées</translation>
     </message>
     <message>
-        <source>Total number of addresses dropped due to rate-limiting.</source>
-        <extracomment>Tooltip text for the Addresses Rate-Limited field in the peer details area.</extracomment>
-        <translation type="unfinished">Nombre total d’adresses abandonnées en raison de la limite de débit.</translation>
-    </message>
-    <message>
         <source>Addresses Rate-Limited</source>
+        <extracomment>Text title for the Addresses Rate-Limited field in the peer details area, which displays the total number of addresses received from this peer that were dropped (not processed) due to rate-limiting.</extracomment>
         <translation type="unfinished">Adresses ciblées par la limite de débit</translation>
     </message>
     <message>
@@ -3205,8 +3289,8 @@ Pour plus de précisions sur cette console, tapez %6.
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">Un message facultatif à joindre à la demande de paiement et qui sera affiché à l’ouverture de celle-ci. Note : Le message ne sera pas envoyé avec le paiement par le réseau Qtum.</translation>
-    </message>
+        <translation type="unfinished">Un message facultatif à joindre à la demande de paiement et qui sera affiché à l’ouverture de celle-ci. Note : Le message ne sera pas envoyé avec le paiement par le réseau Qtum.</translation>  
+  </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Un étiquette facultative à associer à la nouvelle adresse de réception.</translation>
@@ -3478,8 +3562,8 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
-        <translation type="unfinished">Quand le volume des transactions est inférieur à l’espace dans les blocs, les mineurs et les nœuds de relais peuvent imposer des frais minimaux. Il est correct de payer ces frais minimaux, mais soyez conscient que cette transaction pourrait n’être jamais confirmée si la demande en transactions de qtums dépassait la capacité de traitement du réseau.</translation>
-    </message>
+        <translation type="unfinished">Quand le volume des transactions est inférieur à l’espace dans les blocs, les mineurs et les nœuds de relais peuvent imposer des frais minimaux. Il est correct de payer ces frais minimaux, mais soyez conscient que cette transaction pourrait n’être jamais confirmée si la demande en transactions de qtums dépassait la capacité de traitement du réseau.</translation> 
+   </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
         <translation type="unfinished">Si les frais sont trop bas, cette transaction pourrait n’être jamais confirmée (lire l’infobulle)</translation>
@@ -3568,8 +3652,8 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     </message>
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Crée une transaction Qtum signée partiellement (TBSP) à utiliser, par exemple, avec un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBSP.</translation>
-    </message>
+        <translation type="unfinished">Crée une transaction Qtum signée partiellement (TBSP) à utiliser, par exemple, avec un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBSP.</translation> 
+   </message>
     <message>
         <source> from wallet '%1'</source>
         <translation type="unfinished">du porte-monnaie '%1'</translation>
@@ -3626,9 +3710,9 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <translation type="unfinished">Vous pouvez augmenter les frais ultérieurement (signale Remplacer-par-des-frais, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source> 
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Veuillez réviser votre proposition de transaction. Une transaction Qtum partiellement signée (TBSP) sera produite, que vous pourrez enregistrer ou copier puis signer avec, par exemple, un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBSP.</translation>
+        <translation type="unfinished">Veuillez réviser votre proposition de transaction. Une transaction Qtum partiellement signée (TBSP) sera produite, que vous pourrez enregistrer ou copier puis signer avec, par exemple, un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBSP.</translation> 
     </message>
     <message>
         <source>Do you want to create this transaction?</source>
@@ -3636,9 +3720,9 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <translation type="unfinished">Voulez-vous créer cette transaction ?</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source> 
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">Veuillez réviser votre transaction. Vous pouvez créer et envoyer cette transaction ou créer une transaction Qtum partiellement signée (TBSP), que vous pouvez enregistrer ou copier, et ensuite avec laquelle signer, par ex., un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBSP.</translation>
+        <translation type="unfinished">Veuillez réviser votre transaction. Vous pouvez créer et envoyer cette transaction ou créer une transaction Qtum partiellement signée (TBSP), que vous pouvez enregistrer ou copier, et ensuite avec laquelle signer, par ex., un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBSP.</translation> 
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3693,9 +3777,12 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation type="unfinished">Des frais supérieurs à %1 sont considérés comme ridiculement élevés.</translation>
     </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation type="unfinished">La demande de paiement a expiré.</translation>
+    <message numerus="yes">
+        <source>Estimated to begin confirmation within %n block(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
@@ -3734,15 +3821,15 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     </message>
     <message>
         <source>Choose previously used address</source>
-        <translation type="unfinished">Choisir une adresse déjà utilisée</translation>
+        <translation type="unfinished">Choisir une adresse utilisée précédemment</translation>
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">L’adresse Qtum à laquelle envoyer le paiement</translation>
-    </message>
+   </message>
     <message>
         <source>Paste address from clipboard</source>
-        <translation type="unfinished">Coller l’adresse du presse-papiers</translation>
+        <translation type="unfinished">Collez l’adresse du presse-papiers</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -3769,28 +3856,12 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <translation type="unfinished">Message :</translation>
     </message>
     <message>
-        <source>This is an unauthenticated payment request.</source>
-        <translation type="unfinished">Cette demande de paiement n’est pas authentifiée.</translation>
-    </message>
-    <message>
-        <source>This is an authenticated payment request.</source>
-        <translation type="unfinished">Cette demande de paiement est authentifiée.</translation>
-    </message>
-    <message>
         <source>Enter a label for this address to add it to the list of used addresses</source>
         <translation type="unfinished">Saisir une étiquette pour cette adresse afin de l’ajouter à la liste d’adresses utilisées</translation>
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Un message qui était joint à l’URI qtum: et qui sera stocké avec la transaction pour référence. Note : Ce message ne sera pas envoyé par le réseau Qtum.</translation>
-    </message>
-    <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">Payer à :</translation>
-    </message>
-    <message>
-        <source>Memo:</source>
-        <translation type="unfinished">Mémo :</translation>
     </message>
 </context>
 <context>
@@ -3828,7 +3899,7 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     </message>
     <message>
         <source>Paste address from clipboard</source>
-        <translation type="unfinished">Coller l’adresse du presse-papiers</translation>
+        <translation type="unfinished">Collez l’adresse du presse-papiers</translation>
     </message>
     <message>
         <source>Enter the message you want to sign here</source>
@@ -3865,7 +3936,7 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">L’adresse Qtum avec laquelle le message a été signé</translation>
-    </message>
+   </message>
     <message>
         <source>The signed message to verify</source>
         <translation type="unfinished">Le message signé à vérifier</translation>
@@ -3877,7 +3948,7 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Vérifier le message pour s’assurer qu’il a été signé avec l’adresse Qtum indiquée</translation>
-    </message>
+   </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Vérifier le &amp;message</translation>
@@ -3951,7 +4022,7 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     </message>
     <message>
         <source>press q to shutdown</source>
-        <translation type="unfinished">appuyer sur q pour fermer</translation>
+        <translation type="unfinished">Appuyer sur q pour fermer</translation>
     </message>
 </context>
 <context>
@@ -3965,26 +4036,17 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     <name>TransactionDesc</name>
     <message>
         <source>conflicted with a transaction with %1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that conflicts with a confirmed transaction.</extracomment>
         <translation type="unfinished">est en conflit avec une transaction ayant %1 confirmations</translation>
     </message>
     <message>
-        <source>0/unconfirmed, %1</source>
-        <translation type="unfinished">0/non confirmées, %1</translation>
-    </message>
-    <message>
-        <source>in memory pool</source>
-        <translation type="unfinished">dans la réserve de mémoire</translation>
-    </message>
-    <message>
-        <source>not in memory pool</source>
-        <translation type="unfinished">pas dans la réserve de mémoire</translation>
-    </message>
-    <message>
         <source>abandoned</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an abandoned transaction.</extracomment>
         <translation type="unfinished">abandonnée</translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/non confirmée</translation>
     </message>
     <message>
@@ -4026,8 +4088,8 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
         <translation type="unfinished">
-            <numerusform>arrivera à maturité dans %n bloc</numerusform>
-            <numerusform>arrivera à maturité dans %n blocs</numerusform>
+            <numerusform>matures dans %n bloc supplémentaire</numerusform>
+            <numerusform>matures dans %n blocs supplémentaires</numerusform>
         </translation>
     </message>
     <message>

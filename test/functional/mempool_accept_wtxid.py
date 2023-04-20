@@ -34,7 +34,7 @@ from test_framework.util import (
     assert_equal,
 )
 
-from test_framework.qtumconfig import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY 
 
 class MempoolWtxidTest(BitcoinTestFramework):
     def set_test_params(self):

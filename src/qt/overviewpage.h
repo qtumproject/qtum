@@ -57,7 +57,6 @@ private:
     Ui::OverviewPage *ui;
     ClientModel *clientModel;
     WalletModel *walletModel;
-    interfaces::WalletBalances m_balances;
     bool m_privacy{false};
 
     const PlatformStyle* m_platform_style;

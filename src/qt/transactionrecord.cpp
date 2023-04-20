@@ -24,7 +24,6 @@ std::string toStringHash160(const CKeyID& keyid)
 {
     return HexStr(valtype(keyid.begin(),keyid.end()));
 }
-
 /* Return positive answer if transaction should be shown in list.
  */
 bool TransactionRecord::showTransaction(const interfaces::WalletTx& wtx)
@@ -159,7 +158,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
 
                 if(wtx.has_create_or_call)
                     break;
-
                 if (!std::get_if<CNoDestination>(&wtx.txout_address[nOut]))
                 {
                     // Sent to Bitcoin Address
@@ -196,7 +194,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
 
                 parts.append(sub);
             }
-
         }
         else
         {

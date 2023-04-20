@@ -27,7 +27,7 @@ class MempoolSpendCoinbaseTest(BitcoinTestFramework):
         wallet = MiniWallet(self.nodes[0])
 
         # Invalidate two blocks, so that miniwallet has access to a coin that will mature in the next block
-        chain_height = 2098
+        chain_height = 2098 
         self.nodes[0].invalidateblock(self.nodes[0].getblockhash(chain_height + 1))
         assert_equal(chain_height, self.nodes[0].getblockcount())
         wallet.rescan_utxos()

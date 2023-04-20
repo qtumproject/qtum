@@ -17,16 +17,16 @@
 
 #include <boost/test/unit_test.hpp>
 
-static const std::string strSecret1     ("5JJsmJUKbBRt2KJvxdSipMMVBueAypioUxWKaPYLJrAYWgybBxB");
-static const std::string strSecret2     ("5JqXG1jtemZ7dVesB2h5MPMGoTVRHhsHA5CiY8Npti1gfAqLLQJ");
-static const std::string strSecret1C    ("KyPu4Y7b3s2pCop9AXrXZzqRR9M53odWAPzQzNVJDn185rGaRQZt");
-static const std::string strSecret2C    ("L1jAZGGJyhekG5U8TGTtCyeUk3vSCjNvK3YiLPZLPE223PZxvfhJ");
-static const std::string addr1 ("QeQm1wAnWYQ6YPQxLGKtiTVGDuMU7giAH8");
-static const std::string addr2 ("QetZmtkmbZMVfhM77Yy5kFk85ubkxJmvaN");
-static const std::string addr1C("QYrLvRbEkkBkEp3v7yrCthrmj3zgE81J4z");
-static const std::string addr2C("QLjSN1pxpkTLY7MvYJZkP2cJYy9RdgV2P7");
+static const std::string strSecret1 = "5JJsmJUKbBRt2KJvxdSipMMVBueAypioUxWKaPYLJrAYWgybBxB";
+static const std::string strSecret2 = "5JqXG1jtemZ7dVesB2h5MPMGoTVRHhsHA5CiY8Npti1gfAqLLQJ";
+static const std::string strSecret1C = "KyPu4Y7b3s2pCop9AXrXZzqRR9M53odWAPzQzNVJDn185rGaRQZt";
+static const std::string strSecret2C = "L1jAZGGJyhekG5U8TGTtCyeUk3vSCjNvK3YiLPZLPE223PZxvfhJ";
+static const std::string addr1 = "QeQm1wAnWYQ6YPQxLGKtiTVGDuMU7giAH8";
+static const std::string addr2 = "QetZmtkmbZMVfhM77Yy5kFk85ubkxJmvaN";
+static const std::string addr1C = "QYrLvRbEkkBkEp3v7yrCthrmj3zgE81J4z";
+static const std::string addr2C = "QLjSN1pxpkTLY7MvYJZkP2cJYy9RdgV2P7";
 
-static const std::string strAddressBad("QHV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF");
+static const std::string strAddressBad = "QHV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF";
 
 
 BOOST_FIXTURE_TEST_SUITE(key_tests, BasicTestingSetup)
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(key_key_negation)
     // create a dummy hash for signature comparison
     unsigned char rnd[8];
     std::string str = "Bitcoin key verification\n";
-    GetRandBytes(rnd, sizeof(rnd));
+    GetRandBytes(rnd);
     uint256 hash;
     CHash256().Write(MakeUCharSpan(str)).Write(rnd).Finalize(hash);
 

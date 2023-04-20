@@ -28,9 +28,7 @@ class BitcoinAddressCheckValidator : public QValidator
 
 public:
     explicit BitcoinAddressCheckValidator(QObject *parent, bool senderAddress = false);
-
     State validate(QString &input, int &pos) const override;
-
 private:
     bool m_senderAddress;
 };

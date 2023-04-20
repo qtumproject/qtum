@@ -8,6 +8,7 @@
 
 #include <coins.h>
 #include <dbwrapper.h>
+#include <sync.h>
 #include <chain.h>
 #include <primitives/block.h>
 #include <libdevcore/Common.h>
@@ -88,8 +89,8 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
     std::unique_ptr<CCoinsViewCursor> Cursor() const override;
 
-    //! Attempt to update from an older database format. Returns whether an error occurred.
-    bool Upgrade();
+    //! Whether an unsupported database format is used.
+    bool NeedsUpgrade();
     size_t EstimateSize() const override;
 
     //! Dynamically alter the underlying leveldb cache size.

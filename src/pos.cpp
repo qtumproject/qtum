@@ -162,7 +162,7 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
 }
 
 // Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, CChainState& chainstate)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, Chainstate& chainstate)
 {
     if (!tx.IsCoinStake())
         return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
@@ -546,7 +546,7 @@ int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin, bool delegateOu
     return (nValueStaker * 100 + nReward - 1) / nReward;
 }
 
-bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, CChainState& chainstate)
+bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, Chainstate& chainstate)
 {
     Delegation delegation;
     QtumDelegation& qtumDelegation = GetQtumDelegation();

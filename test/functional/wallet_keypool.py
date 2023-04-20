@@ -13,7 +13,7 @@ from test_framework.util import assert_equal, assert_raises_rpc_error
 class KeyPoolTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
-        self.extra_args = [['-addresstype=bech32']]
+        self.extra_args = [['-addresstype=bech32']] 
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()

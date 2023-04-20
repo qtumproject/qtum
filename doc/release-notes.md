@@ -1,23 +1,12 @@
-*After branching off for a major version release of Bitcoin Core, use this
-template to create the initial release notes draft.*
+24.0.1 Release Notes
+====================
 
-*The release notes draft is a temporary file that can be added to by anyone. See
-[/doc/developer-notes.md#release-notes](/doc/developer-notes.md#release-notes)
-for the process.*
+Due to last-minute issues (#26616), 24.0, although tagged, was never fully
+announced or released.
 
-*Create the draft, named* "*version* Release Notes Draft"
-*(e.g. "22.0 Release Notes Draft"), as a collaborative wiki in:*
+Bitcoin Core version 24.0.1 is now available from:
 
-https://github.com/bitcoin-core/bitcoin-devwiki/wiki/
-
-*Before the final release, move the notes back to this git repository.*
-
-*version* Release Notes Draft
-===============================
-
-Bitcoin Core version *version* is now available from:
-
-  <https://bitcoincore.org/bin/bitcoin-core-*version*/>
+  <https://bitcoincore.org/bin/bitcoin-core-24.0.1/>
 
 This release includes new features, various bug fixes and performance
 improvements, as well as updated translations.
@@ -35,7 +24,7 @@ How to Upgrade
 
 If you are running an older version, shut it down. Wait until it has completely
 shut down (which might take a few minutes in some cases), then run the
-installer (on Windows) or just copy over `/Applications/Bitcoin-Qt` (on Mac)
+installer (on Windows) or just copy over `/Applications/Bitcoin-Qt` (on macOS)
 or `bitcoind`/`bitcoin-qt` (on Linux).
 
 Upgrading directly from a version of Bitcoin Core that has reached its EOL is
@@ -51,161 +40,222 @@ Core should also work on most other Unix-like systems but is not as
 frequently tested on them.  It is not recommended to use Bitcoin Core on
 unsupported systems.
 
+Notice of new option for transaction replacement policies
+=========================================================
+
+This version of Bitcoin Core adds a new `mempoolfullrbf` configuration
+option which allows users to change the policy their individual node
+will use for relaying and mining unconfirmed transactions.  The option
+defaults to the same policy that was used in previous releases and no
+changes to node policy will occur if everyone uses the default.
+
+Some Bitcoin services today expect that the first version of an
+unconfirmed transaction that they see will be the version of the
+transaction that ultimately gets confirmed---a transaction acceptance
+policy sometimes called "first-seen".
+
+The Bitcoin Protocol does not, and cannot, provide any assurance that
+the first version of an unconfirmed transaction seen by a particular
+node will be the version that gets confirmed.  If there are multiple
+versions of the same unconfirmed transaction available, only the miner
+who includes one of those transactions in a block gets to decide which
+version of the transaction gets confirmed.
+
+Despite this lack of assurance, multiple merchants and services today
+still make this assumption.
+
+There are several benefits to users from removing this *first-seen*
+simplification.  One key benefit, the ability for the sender of a
+transaction to replace it with an alternative version paying higher
+fees, was realized in [Bitcoin Core 0.12.0][] (February 2016) with the
+introduction of [BIP125][] opt-in Replace By Fee (RBF).
+
+Since then, there has been discussion about completely removing the
+first-seen simplification and allowing users to replace any of their
+older unconfirmed transactions with newer transactions, a feature called
+*full-RBF*.  This release includes a `mempoolfullrbf` configuration
+option that allows enabling full-RBF, although it defaults to off
+(allowing only opt-in RBF).
+
+Several alternative node implementations have already enabled full-RBF by
+default for years, and several contributors to Bitcoin Core are
+advocating for enabling full-RBF by default in a future version of
+Bitcoin Core.
+
+As more nodes that participate in relay and mining begin enabling
+full-RBF, replacement of unconfirmed transactions by ones offering higher
+fees may rapidly become more reliable.
+
+Contributors to this project strongly recommend that merchants and services
+not accept unconfirmed transactions as final, and if they insist on doing so,
+to take the appropriate steps to ensure they have some recourse or plan for
+when their assumptions do not hold.
+
+[Bitcoin Core 0.12.0]: https://bitcoincore.org/en/releases/0.12.0/#opt-in-replace-by-fee-transactions
+[bip125]: https://github.com/bitcoin/bips/blob/master/bip-0125.mediawiki
+
 Notable changes
 ===============
 
 P2P and network changes
 -----------------------
 
-- A bitcoind node will no longer rumour addresses to inbound peers by default.
-  They will become eligible for address gossip after sending an ADDR, ADDRV2,
-  or GETADDR message. (#21528)
+- To address a potential denial-of-service, the logic to download headers from peers
+  has been reworked.  This is particularly relevant for nodes starting up for the
+  first time (or for nodes which are starting up after being offline for a long time).
 
-Fee estimation changes
-----------------------
+  Whenever headers are received from a peer that have a total chainwork that is either
+  less than the node's `-minimumchainwork` value or is sufficiently below the work at
+  the node's tip, a "presync" phase will begin, in which the node will download the
+  peer's headers and verify the cumulative work on the peer's chain, prior to storing
+  those headers permanently. Once that cumulative work is verified to be sufficiently high,
+  the headers will be redownloaded from that peer and fully validated and stored.
 
-- Fee estimation now takes the feerate of replacement (RBF) transactions into
-  account. (#22539)
+  This may result in initial headers sync taking longer for new nodes starting up for
+  the first time, both because the headers will be downloaded twice, and because the effect
+  of a peer disconnecting during the presync phase (or while the node's best headers chain has less
+  than `-minimumchainwork`), will result in the node needing to use the headers presync mechanism
+  with the next peer as well (downloading the headers twice, again). (#25717)
 
-Rescan startup parameter removed
---------------------------------
-
-The `-rescan` startup parameter has been removed. Wallets which require
-rescanning due to corruption will still be rescanned on startup.
-Otherwise, please use the `rescanblockchain` RPC to trigger a rescan. (#23123)
+- With I2P connections, a new, transient address is used for each outbound
+  connection if `-i2pacceptincoming=0`. (#25355)
 
 Updated RPCs
 ------------
 
-- The `validateaddress` RPC now returns an `error_locations` array for invalid
-  addresses, with the indices of invalid character locations in the address (if
-  known). For example, this will attempt to locate up to two Bech32 errors, and
-  return their locations if successful. Success and correctness are only guaranteed
-  if fewer than two substitution errors have been made.
-  The error message returned in the `error` field now also returns more specific
-  errors when decoding fails. (#16807)
+- The `-deprecatedrpc=softforks` configuration option has been removed.  The
+  RPC `getblockchaininfo` no longer returns the `softforks` field, which was
+  previously deprecated in 23.0. (#23508) Information on soft fork status is
+  now only available via the `getdeploymentinfo` RPC.
 
-- The `-deprecatedrpc=addresses` configuration option has been removed.  RPCs
-  `gettxout`, `getrawtransaction`, `decoderawtransaction`, `decodescript`,
-  `gettransaction verbose=true` and REST endpoints `/rest/tx`, `/rest/getutxos`,
-  `/rest/block` no longer return the `addresses` and `reqSigs` fields, which
-  were previously deprecated in 22.0. (#22650)
-- The `getblock` RPC command now supports verbosity level 3 containing transaction inputs'
-  `prevout` information.  The existing `/rest/block/` REST endpoint is modified to contain
-  this information too. Every `vin` field will contain an additional `prevout` subfield
-  describing the spent output. `prevout` contains the following keys:
-  - `generated` - true if the spent coins was a coinbase.
-  - `height`
-  - `value`
-  - `scriptPubKey`
+- The `deprecatedrpc=exclude_coinbase` configuration option has been removed.
+  The `receivedby` RPCs (`listreceivedbyaddress`, `listreceivedbylabel`,
+  `getreceivedbyaddress` and `getreceivedbylabel`) now always return results
+  accounting for received coins from coinbase outputs, without an option to
+  change that behaviour. Excluding coinbases was previously deprecated in 23.0.
+  (#25171)
 
-- The top-level fee fields `fee`, `modifiedfee`, `ancestorfees` and `descendantfees`
-  returned by RPCs `getmempoolentry`,`getrawmempool(verbose=true)`,
-  `getmempoolancestors(verbose=true)` and `getmempooldescendants(verbose=true)`
-  are deprecated and will be removed in the next major version (use
-  `-deprecated=fees` if needed in this version). The same fee fields can be accessed
-  through the `fees` object in the result. WARNING: deprecated
-  fields `ancestorfees` and `descendantfees` are denominated in sats, whereas all
-  fields in the `fees` object are denominated in BTC. (#22689)
+- The `deprecatedrpc=fees` configuration option has been removed. The top-level
+  fee fields `fee`, `modifiedfee`, `ancestorfees` and `descendantfees` are no
+  longer returned by RPCs `getmempoolentry`, `getrawmempool(verbose=true)`,
+  `getmempoolancestors(verbose=true)` and `getmempooldescendants(verbose=true)`.
+  The same fee fields can be accessed through the `fees` object in the result.
+  The top-level fee fields were previously deprecated in 23.0. (#25204)
 
-- Both `createmultisig` and `addmultisigaddress` now include a `warnings`
-  field, which will show a warning if a non-legacy address type is requested
-  when using uncompressed public keys. (#23113)
+- The `getpeerinfo` RPC has been updated with a new `presynced_headers` field,
+  indicating the progress on the presync phase mentioned in the
+  "P2P and network changes" section above.
+
+Changes to wallet related RPCs can be found in the Wallet section below.
 
 New RPCs
 --------
 
-- Information on soft fork status has been moved from `getblockchaininfo`
-  to the new `getdeploymentinfo` RPC which allows querying soft fork status at any
-  block, rather than just at the chain tip. Inclusion of soft fork
-  status in `getblockchaininfo` can currently be restored using the
-  configuration `-deprecatedrpc=softforks`, but this will be removed in
-  a future release. Note that in either case, the `status` field
-  now reflects the status of the current block rather than the next
-  block. (#23508)
+- The `sendall` RPC spends specific UTXOs to one or more recipients
+  without creating change. By default, the `sendall` RPC will spend
+  every UTXO in the wallet. `sendall` is useful to empty wallets or to
+  create a changeless payment from select UTXOs. When creating a payment
+  from a specific amount for which the recipient incurs the transaction
+  fee, continue to use the `subtractfeefromamount` option via the
+  `send`, `sendtoaddress`, or `sendmany` RPCs. (#24118)
+
+- A new `gettxspendingprevout` RPC has been added, which scans the mempool to find
+  transactions spending any of the given outpoints. (#24408)
+
+- The `simulaterawtransaction` RPC iterates over the inputs and outputs of the given
+  transactions, and tallies up the balance change for the given wallet. This can be
+  useful e.g. when verifying that a coin join like transaction doesn't contain unexpected
+  inputs that the wallet will then sign for unintentionally. (#22751)
+
+Updated REST APIs
+-----------------
+
+- The `/headers/` and `/blockfilterheaders/` endpoints have been updated to use
+  a query parameter instead of path parameter to specify the result count. The
+  count parameter is now optional, and defaults to 5 for both endpoints. The old
+  endpoints are still functional, and have no documented behaviour change.
+
+  For `/headers`, use
+  `GET /rest/headers/<BLOCK-HASH>.<bin|hex|json>?count=<COUNT=5>`
+  instead of
+  `GET /rest/headers/<COUNT>/<BLOCK-HASH>.<bin|hex|json>` (deprecated)
+
+  For `/blockfilterheaders/`, use
+  `GET /rest/blockfilterheaders/<FILTERTYPE>/<BLOCK-HASH>.<bin|hex|json>?count=<COUNT=5>`
+  instead of
+  `GET /rest/blockfilterheaders/<FILTERTYPE>/<COUNT>/<BLOCK-HASH>.<bin|hex|json>` (deprecated)
+
+  (#24098)
 
 Build System
 ------------
 
-Files
------
-
-* On startup, the list of banned hosts and networks (via `setban` RPC) in
-  `banlist.dat` is ignored and only `banlist.json` is considered. Bitcoin Core
-  version 22.x is the only version that can read `banlist.dat` and also write
-  it to `banlist.json`. If `banlist.json` already exists, version 22.x will not
-  try to translate the `banlist.dat` into json. After an upgrade, `listbanned`
-  can be used to double check the parsed entries. (#22570)
+- Guix builds are now reproducible across architectures (x86_64 & aarch64). (#21194)
 
 New settings
 ------------
 
-Updated settings
-----------------
-
-- In previous releases, the meaning of the command line option
-  `-persistmempool` (without a value provided) incorrectly disabled mempool
-  persistence.  `-persistmempool` is now treated like other boolean options to
-  mean `-persistmempool=1`. Passing `-persistmempool=0`, `-persistmempool=1`
-  and `-nopersistmempool` is unaffected. (#23061)
-
-- `-maxuploadtarget` now allows human readable byte units [k|K|m|M|g|G|t|T].
-  E.g. `-maxuploadtarget=500g`. No whitespace, +- or fractions allowed.
-  Default is `M` if no suffix provided. (#23249)
-
-- If `-proxy=` is given together with `-noonion` then the provided proxy will
-  not be set as a proxy for reaching the Tor network. So it will not be
-  possible to open manual connections to the Tor network for example with the
-  `addnode` RPC. To mimic the old behavior use `-proxy=` together with
-  `-onlynet=` listing all relevant networks except `onion`. (#22834)
-
-Tools and Utilities
--------------------
-
-- Update `-getinfo` to return data in a user-friendly format that also reduces vertical space. (#21832)
-
-- CLI `-addrinfo` now returns a single field for the number of `onion` addresses
-  known to the node instead of separate `torv2` and `torv3` fields, as support
-  for Tor V2 addresses was removed from Bitcoin Core in 22.0. (#22544)
+- A new `mempoolfullrbf` option has been added, which enables the mempool to
+  accept transaction replacement without enforcing BIP125 replaceability
+  signaling. (#25353)
 
 Wallet
 ------
 
-- `upgradewallet` will now automatically flush the keypool if upgrading
-  from a non-HD wallet to an HD wallet, to immediately start using the
-  newly-generated HD keys. (#23093)
+- The `-walletrbf` startup option will now default to `true`. The
+  wallet will now default to opt-in RBF on transactions that it creates. (#25610)
 
-- a new RPC `newkeypool` has been added, which will flush (entirely
-  clear and refill) the keypool. (#23093)
+- The `replaceable` option for the `createrawtransaction` and
+  `createpsbt` RPCs will now default to `true`. Transactions created
+  with these RPCs will default to having opt-in RBF enabled. (#25610)
 
-- `listunspent` now includes `ancestorcount`, `ancestorsize`, and
-  `ancestorfees` for each transaction output that is still in the mempool.
-  (#12677)
+- The `wsh()` output descriptor was extended with Miniscript support. You can import Miniscript
+  descriptors for P2WSH in a watchonly wallet to track coins, but you can't spend from them using
+  the Bitcoin Core wallet yet.
+  You can find more about Miniscript on the [reference website](https://bitcoin.sipa.be/miniscript/). (#24148)
 
-- `lockunspent` now optionally takes a third parameter, `persistent`, which
-  causes the lock to be written persistently to the wallet database. This
-  allows UTXOs to remain locked even after node restarts or crashes. (#23065)
+- The `tr()` output descriptor now supports multisig scripts through the `multi_a()` and
+  `sortedmulti_a()` functions. (#24043)
 
-- `receivedby` RPCs now include coinbase transactions. Previously, the
-  following wallet RPCs excluded coinbase transactions: `getreceivedbyaddress`,
-  `getreceivedbylabel`, `listreceivedbyaddress`, `listreceivedbylabel`. This
-  release changes this behaviour and returns results accounting for received
-  coins from coinbase outputs. The previous behaviour can be restored using the
-  configuration `-deprecatedrpc=exclude_coinbase`, but may be removed in a
-  future release. (#14707)
+- To help prevent fingerprinting transactions created by the Bitcoin Core wallet, change output
+  amounts are now randomized. (#24494)
 
-- A new option in the same `receivedby` RPCs, `include_immature_coinbase`
-  (default=`false`), determines whether to account for immature coinbase
-  transactions. Immature coinbase transactions are coinbase transactions that
-  have 100 or fewer confirmations, and are not spendable. (#14707)
+- The `listtransactions`, `gettransaction`, and `listsinceblock`
+  RPC methods now include a wtxid field (hash of serialized transaction,
+  including witness data) for each transaction. (#24198)
+
+- The `listsinceblock`, `listtransactions` and `gettransaction` output now contain a new
+  `parent_descs` field for every "receive" entry. (#25504)
+
+- A new optional `include_change` parameter was added to the `listsinceblock` command.
+
+- RPC `getreceivedbylabel` now returns an error, "Label not found
+  in wallet" (-4), if the label is not in the address book. (#25122)
+
+Migrating Legacy Wallets to Descriptor Wallets
+---------------------------------------------
+
+An experimental RPC `migratewallet` has been added to migrate Legacy (non-descriptor) wallets to
+Descriptor wallets. More information about the migration process is available in the
+[documentation](https://github.com/bitcoin/bitcoin/blob/master/doc/managing-wallets.md#migrating-legacy-wallets-to-descriptor-wallets).
 
 GUI changes
 -----------
 
-- UTXOs which are locked via the GUI are now stored persistently in the
-  wallet database, so are not lost on node shutdown or crash. (#23065)
+- A new menu item to restore a wallet from a backup file has been added (gui#471).
 
-- The Bech32 checkbox has been replaced with a dropdown for all address types, including the new Bech32m (BIP-350) standard for Taproot enabled wallets.
+- Configuration changes made in the bitcoin GUI (such as the pruning setting,
+proxy settings, UPNP preferences) are now saved to `<datadir>/settings.json`
+file rather than to the Qt settings backend (windows registry or unix desktop
+config files), so these settings will now apply to bitcoind, instead of being
+ignored. (#15936, gui#602)
+
+- Also, the interaction between GUI settings and `bitcoin.conf` settings is
+simplified. Settings from `bitcoin.conf` are now displayed normally in the GUI
+settings dialog, instead of in a separate warning message ("Options set in this
+dialog are overridden by the configuration file: -setting=value"). And these
+settings can now be edited because `settings.json` values take precedence over
+`bitcoin.conf` values. (#15936)
 
 Low-level changes
 =================
@@ -213,20 +263,129 @@ Low-level changes
 RPC
 ---
 
-- `getblockchaininfo` now returns a new `time` field, that provides the chain tip time. (#22407)
+- The `deriveaddresses`, `getdescriptorinfo`, `importdescriptors` and `scantxoutset` commands now
+  accept Miniscript expression within a `wsh()` descriptor. (#24148)
 
-Tests
------
-
-- For the `regtest` network the activation heights of several softforks were
-  set to block height 1. They can be changed by the runtime setting
-  `-testactivationheight=name@height`. (#22818)
+- The `getaddressinfo`, `decodescript`, `listdescriptors` and `listunspent` commands may now output
+  a Miniscript descriptor inside a `wsh()` where a `wsh(raw())` descriptor was previously returned. (#24148)
 
 Credits
 =======
 
 Thanks to everyone who directly contributed to this release:
 
+- /dev/fd0
+- 0xb10c
+- Adam Jonas
+- akankshakashyap
+- Ali Sherief
+- amadeuszpawlik
+- Andreas Kouloumos
+- Andrew Chow
+- Anthony Towns
+- Antoine Poinsot
+- Antoine Riard
+- Aurèle Oulès
+- avirgovi
+- Ayush Sharma
+- Baas
+- Ben Woosley
+- BrokenProgrammer
+- brunoerg
+- brydinh
+- Bushstar
+- Calvin Kim
+- CAnon
+- Carl Dong
+- chinggg
+- Cory Fields
+- Daniel Kraft
+- Daniela Brozzoni
+- darosior
+- Dave Scotese
+- David Bakin
+- dergoegge
+- dhruv
+- Dimitri
+- dontbyte
+- Duncan Dean
+- eugene
+- Eunoia
+- Fabian Jahr
+- furszy
+- Gleb Naumenko
+- glozow
+- Greg Weber
+- Gregory Sanders
+- gruve-p
+- Hennadii Stepanov
+- hiago
+- Igor Bubelov
+- ishaanam
+- Jacob P.
+- Jadi
+- James O'Beirne
+- Janna
+- Jarol Rodriguez
+- Jeremy Rand
+- Jeremy Rubin
+- jessebarton
+- João Barbosa
+- John Newbery
+- Jon Atack
+- Josiah Baker
+- Karl-Johan Alm
+- KevinMusgrave
+- Kiminuo
+- klementtan
+- Kolby Moroz
+- kouloumos
+- Kristaps Kaupe
+- Larry Ruane
+- Luke Dashjr
+- MarcoFalke
+- Marnix
+- Martin Leitner-Ankerl
+- Martin Zumsande
+- Michael Dietz
+- Michael Folkson
+- Michael Ford
+- Murch
+- mutatrum
+- muxator
+- Oskar Mendel
+- Pablo Greco
+- pasta
+- Patrick Strateman
+- Pavol Rusnak
+- Peter Bushnell
+- phyBrackets
+- Pieter Wuille
+- practicalswift
+- randymcmillan
+- Robert Spigler
+- Russell Yanofsky
+- S3RK
+- Samer Afach
+- Sebastian Falbesoner
+- Seibart Nedor
+- Shashwat
+- Sjors Provoost
+- Smlep
+- sogoagain
+- Stacie
+- Stéphan Vuylsteke
+- Suhail Saqan
+- Suhas Daftuar
+- t-bast
+- TakeshiMusgrave
+- Vasil Dimov
+- W. J. van der Laan
+- w0xlt
+- whiteh0rse
+- willcl-ark
+- William Casarin
+- Yancy Ribbens
 
 As well as to everyone that helped with translations on
 [Transifex](https://www.transifex.com/bitcoin/bitcoin/).

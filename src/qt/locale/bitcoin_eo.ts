@@ -72,7 +72,7 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Jen viaj qtumaj adresoj por ricevi pagojn. Estas konsilinde uzi apartan ricevan adreson por ĉiu transakcio.</translation>
+        <translation type="unfinished">Jen viaj qtumaj adresoj por ricevi pagojn. Estas konsilinde uzi apartan ricevan adreson por ĉiu transakcio.</translation> 
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -568,6 +568,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">defaŭlta monujo</translation>
     </message>
     <message>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">Monujo-Nomo</translation>
+    </message>
+    <message>
         <source>&amp;Window</source>
         <translation type="unfinished">&amp;Fenestro</translation>
     </message>
@@ -580,7 +585,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Ĉefa Fenestro</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -930,6 +935,27 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Qtumo</translation>
     </message>
     <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
         <translation type="unfinished">
@@ -1123,7 +1149,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation type="unfinished">Elekti la defaŭltan manieron por montri qtumajn sumojn en la interfaco, kaj kiam vi sendos qtumon.</translation>
+        <translation type="unfinished">Elekti la defaŭltan manieron por montri qtumajn sumojn en la interfaco, kaj kiam vi sendos qtumon.</translation> 
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -1147,6 +1173,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Confirm options reset</source>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
         <translation type="unfinished">Konfirmi reŝargo de agordoj</translation>
     </message>
     <message>
@@ -1231,7 +1258,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Eraro dum pagopeto</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source>
+        <source>Cannot start qtum: click-to-pay handler</source> 
         <translation type="unfinished">Ne eblas lanĉi la ilon 'klaki-por-pagi'</translation>
     </message>
     <message>
@@ -1531,7 +1558,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation type="unfinished">Sendi Qtumon</translation>
+        <translation type="unfinished">Sendi Qtumon</translation> 
     </message>
     <message>
         <source>Coin Control Features</source>
@@ -1651,7 +1678,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Confirm send coins</source>
-        <translation type="unfinished">Konfirmi sendon de qtumo</translation>
+        <translation type="unfinished">Konfirmi sendon de qtumo</translation> 
     </message>
     <message>
         <source>The amount to pay must be larger than 0.</source>
@@ -1719,15 +1746,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Enter a label for this address to add it to the list of used addresses</source>
         <translation type="unfinished">Tajpu etikedon por tiu ĉi adreso por aldoni ĝin al la listo de uzitaj adresoj</translation>
     </message>
-    <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">Pagi Al:</translation>
-    </message>
-    <message>
-        <source>Memo:</source>
-        <translation type="unfinished">Memorando:</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>SendConfirmationDialog</name>
     <message>
@@ -1854,10 +1873,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>TransactionDesc</name>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/nekonfirmite</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">%1 konfirmoj</translation>
     </message>
     <message>
@@ -2149,7 +2170,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
-        <translation type="unfinished">Sendi Qtumon</translation>
+        <translation type="unfinished">Sendi Qtumon</translation> 
     </message>
     <message>
         <source>default wallet</source>

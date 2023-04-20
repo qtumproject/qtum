@@ -5,6 +5,7 @@
 #include <qt/delegationstakeritemmodel.h>
 #include <qt/optionsmodel.h>
 #include <qt/walletmodel.h>
+#include <qt/guiutil.h>
 
 #include <QComboBox>
 #include <QDateTimeEdit>
@@ -202,8 +203,8 @@ void StakerDelegationView::dateRangeChanged()
     if(!delegationProxyModel)
         return;
     delegationProxyModel->setDateRange(
-                QDateTime(dateFrom->date()),
-                QDateTime(dateTo->date()).addDays(1));
+                GUIUtil::StartOfDay(dateFrom->date()),
+                GUIUtil::StartOfDay(dateTo->date().addDays(1)));
 }
 
 void StakerDelegationView::contextualMenu(const QPoint &point)
@@ -249,30 +250,30 @@ void StakerDelegationView::chooseDate(int idx)
         break;
     case Today:
         delegationProxyModel->setDateRange(
-                    QDateTime(current),
+                    GUIUtil::StartOfDay(current),
                     DelegationFilterProxy::MAX_DATE);
         break;
     case ThisWeek: {
         // Find last Monday
         QDate startOfWeek = current.addDays(-(current.dayOfWeek()-1));
         delegationProxyModel->setDateRange(
-                    QDateTime(startOfWeek),
+                    GUIUtil::StartOfDay(startOfWeek),
                     DelegationFilterProxy::MAX_DATE);
 
     } break;
     case ThisMonth:
         delegationProxyModel->setDateRange(
-                    QDateTime(QDate(current.year(), current.month(), 1)),
+                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)),
                     DelegationFilterProxy::MAX_DATE);
         break;
     case LastMonth:
         delegationProxyModel->setDateRange(
-                    QDateTime(QDate(current.year(), current.month(), 1).addMonths(-1)),
-                    QDateTime(QDate(current.year(), current.month(), 1)));
+                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1).addMonths(-1)),
+                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)));
         break;
     case ThisYear:
         delegationProxyModel->setDateRange(
-                    QDateTime(QDate(current.year(), 1, 1)),
+                    GUIUtil::StartOfDay(QDate(current.year(), 1, 1)),
                     DelegationFilterProxy::MAX_DATE);
         break;
     case Range:

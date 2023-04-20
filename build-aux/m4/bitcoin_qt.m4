@@ -7,7 +7,7 @@ dnl Output: If qt version is auto, set bitcoin_enable_qt to false. Else, exit.
 AC_DEFUN([BITCOIN_QT_FAIL],[
   if test "$bitcoin_qt_want_version" = "auto" && test "$bitcoin_qt_force" != "yes"; then
     if test "$bitcoin_enable_qt" != "no"; then
-      AC_MSG_WARN([$1; bitcoin-qt frontend will not be built])
+      AC_MSG_WARN([$1; qtum-qt frontend will not be built])
     fi
     bitcoin_enable_qt=no
     bitcoin_enable_qt_test=no
@@ -116,8 +116,8 @@ AC_DEFUN([BITCOIN_QT_CONFIGURE],[
   BITCOIN_QT_CHECK([
   TEMP_CPPFLAGS=$CPPFLAGS
   TEMP_CXXFLAGS=$CXXFLAGS
-  CPPFLAGS="$QT_INCLUDES $CPPFLAGS"
-  CXXFLAGS="$PIC_FLAGS $CXXFLAGS"
+  CPPFLAGS="$QT_INCLUDES $CORE_CPPFLAGS $CPPFLAGS"
+  CXXFLAGS="$PIC_FLAGS $CORE_CXXFLAGS $CXXFLAGS"
   _BITCOIN_QT_IS_STATIC
   if test "$bitcoin_cv_static_qt" = "yes"; then
     _BITCOIN_QT_CHECK_STATIC_LIBS
@@ -178,8 +178,8 @@ AC_DEFUN([BITCOIN_QT_CONFIGURE],[
     AC_MSG_CHECKING([whether -fPIE can be used with this Qt config])
     TEMP_CPPFLAGS=$CPPFLAGS
     TEMP_CXXFLAGS=$CXXFLAGS
-    CPPFLAGS="$QT_INCLUDES $CPPFLAGS"
-    CXXFLAGS="$PIE_FLAGS $CXXFLAGS"
+    CPPFLAGS="$QT_INCLUDES $CORE_CPPFLAGS $CPPFLAGS"
+    CXXFLAGS="$PIE_FLAGS $CORE_CXXFLAGS $CXXFLAGS"
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <QtCore/qconfig.h>
         #ifndef QT_VERSION
@@ -201,7 +201,7 @@ AC_DEFUN([BITCOIN_QT_CONFIGURE],[
     BITCOIN_QT_CHECK([
     AC_MSG_CHECKING([whether -fPIC is needed with this Qt config])
     TEMP_CPPFLAGS=$CPPFLAGS
-    CPPFLAGS="$QT_INCLUDES $CPPFLAGS"
+    CPPFLAGS="$QT_INCLUDES $CORE_CPPFLAGS $CPPFLAGS"
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <QtCore/qconfig.h>
         #ifndef QT_VERSION

@@ -6,6 +6,7 @@
 #define BITCOIN_QT_WALLETVIEW_H
 
 #include <consensus/amount.h>
+#include <qt/bitcoinunits.h>
 
 #include <QStackedWidget>
 
@@ -122,7 +123,6 @@ public Q_SLOTS:
         The new items are those between start and end inclusive, under the given parent item.
     */
     void processNewTokenTransaction(const QModelIndex& parent, int start, int /*end*/);
-
     /** Encrypt the wallet */
     void encryptWallet();
     /** Backup the wallet */
@@ -154,18 +154,14 @@ Q_SIGNALS:
     /** Encryption status of wallet changed */
     void encryptionStatusChanged();
     /** Notify that a new transaction appeared */
-    void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
-
+    void incomingTransaction(const QString& date, BitcoinUnit unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
     /** Notify that a new token transaction appeared */
     void incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& walletName, const QString& title);
-
     /** Notify that the out of sync warning icon has been pressed */
     void outOfSyncWarningClicked();
-
     void showMore();
     void sendCoins(QString addr = "");
     void receiveCoins();
-
 };
 
 #endif // BITCOIN_QT_WALLETVIEW_H

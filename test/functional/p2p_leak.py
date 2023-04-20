@@ -10,7 +10,7 @@ and feature negotiation messages (WTXIDRELAY, SENDADDRV2).
 This test connects to a node and sends it a few messages, trying to entice it
 into sending us something it shouldn't."""
 
-from test_framework.qtumconfig import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY 
 import time
 
 from test_framework.messages import (
@@ -139,6 +139,9 @@ class P2PLeakTest(BitcoinTestFramework):
         # Give the node enough time to possibly leak out a message
         time.sleep(PEER_TIMEOUT + 2)
 
+        self.log.info("Connect peer to ensure the net thread runs the disconnect logic at least once")
+        self.nodes[0].add_p2p_connection(P2PInterface())
+
         # Make sure only expected messages came in
         assert not no_version_idle_peer.unexpected_msg
         assert not no_version_idle_peer.got_wtxidrelay
@@ -155,7 +158,7 @@ class P2PLeakTest(BitcoinTestFramework):
         # Expect peers to be disconnected due to timeout
         assert not no_version_idle_peer.is_connected
         assert not no_verack_idle_peer.is_connected
-        # assert not pre_wtxidrelay_peer.is_connected
+        # assert not pre_wtxidrelay_peer.is_connected 
 
         self.log.info('Check that the version message does not leak the local address of the node')
         p2p_version_store = self.nodes[0].add_p2p_connection(P2PVersionStore())

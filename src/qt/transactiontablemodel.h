@@ -9,7 +9,7 @@
 
 #include <QAbstractTableModel>
 #include <QStringList>
-#include <QColor>
+#include <QColor> 
 
 #include <memory>
 
@@ -99,7 +99,6 @@ private:
     QColor color_tx_status_openuntildate;
     QColor color_tx_status_danger;
     QColor color_black;
-
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();

@@ -9,6 +9,7 @@ from enum import Enum
 import argparse
 import logging
 import os
+import platform
 import pdb
 import random
 import re
@@ -34,7 +35,6 @@ from .util import (
     p2p_port,
     wait_until_helper,
 )
-
 from .qtumconfig import COINBASE_MATURITY
 from .qtum import generatesynchronized
 
@@ -123,7 +123,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         assert self.wallet_names is None or len(self.wallet_names) <= self.num_nodes
         if self.options.timeout_factor == 0 :
             self.options.timeout_factor = 99999
-        self.options.timeout_factor = 7
+        self.options.timeout_factor = 7 
         self.rpc_timeout = int(self.rpc_timeout * self.options.timeout_factor) # optionally, increase timeout by a factor
 
     def main(self):
@@ -226,10 +226,10 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 # It still needs to exist and be None in order for tests to work however.
                 self.options.descriptors = None
 
+        PortSeed.n = self.options.port_seed
+
     def setup(self):
         """Call this method to start up the test framework object with options set."""
-
-        PortSeed.n = self.options.port_seed
 
         check_json_precision()
 
@@ -249,6 +249,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         )
         self.options.bitcoind = os.getenv("BITCOIND", default=fname_bitcoind)
         self.options.bitcoincli = os.getenv("BITCOINCLI", default=fname_bitcoincli)
+        self.options.bitcoinutil = os.getenv("BITCOINUTIL", default=fname_bitcoinutil)
 
         os.environ['PATH'] = os.pathsep.join([
             os.path.join(config['environment']['BUILDDIR'], 'src'),
@@ -578,6 +579,8 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
     def connect_nodes(self, a, b):
         from_connection = self.nodes[a]
         to_connection = self.nodes[b]
+        from_num_peers = 1 + len(from_connection.getpeerinfo())
+        to_num_peers = 1 + len(to_connection.getpeerinfo())
         ip_port = "127.0.0.1:" + str(p2p_port(b))
         from_connection.addnode(ip_port, "onetry")
         # poll until version handshake complete to avoid race conditions
@@ -585,30 +588,30 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         # See comments in net_processing:
         # * Must have a version message before anything else
         # * Must have a verack message before anything else
-        wait_until_helper(lambda: all(peer['version'] != 0 for peer in from_connection.getpeerinfo()))
-        wait_until_helper(lambda: all(peer['version'] != 0 for peer in to_connection.getpeerinfo()))
-        wait_until_helper(lambda: all(peer['bytesrecv_per_msg'].pop('verack', 0) == 24 for peer in from_connection.getpeerinfo()))
-        wait_until_helper(lambda: all(peer['bytesrecv_per_msg'].pop('verack', 0) == 24 for peer in to_connection.getpeerinfo()))
+        self.wait_until(lambda: sum(peer['version'] != 0 for peer in from_connection.getpeerinfo()) == from_num_peers)
+        self.wait_until(lambda: sum(peer['version'] != 0 for peer in to_connection.getpeerinfo()) == to_num_peers)
+        self.wait_until(lambda: sum(peer['bytesrecv_per_msg'].pop('verack', 0) == 24 for peer in from_connection.getpeerinfo()) == from_num_peers)
+        self.wait_until(lambda: sum(peer['bytesrecv_per_msg'].pop('verack', 0) == 24 for peer in to_connection.getpeerinfo()) == to_num_peers)
 
     def disconnect_nodes(self, a, b):
-        def disconnect_nodes_helper(from_connection, node_num):
-            def get_peer_ids():
+        def disconnect_nodes_helper(node_a, node_b):
+            def get_peer_ids(from_connection, node_num):
                 result = []
                 for peer in from_connection.getpeerinfo():
                     if "testnode{}".format(node_num) in peer['subver']:
                         result.append(peer['id'])
                 return result
 
-            peer_ids = get_peer_ids()
+            peer_ids = get_peer_ids(node_a, node_b.index)
             if not peer_ids:
                 self.log.warning("disconnect_nodes: {} and {} were not connected".format(
-                    from_connection.index,
-                    node_num,
+                    node_a.index,
+                    node_b.index,
                 ))
                 return
             for peer_id in peer_ids:
                 try:
-                    from_connection.disconnectnode(nodeid=peer_id)
+                    node_a.disconnectnode(nodeid=peer_id)
                 except JSONRPCException as e:
                     # If this node is disconnected between calculating the peer id
                     # and issuing the disconnect, don't worry about it.
@@ -617,9 +620,10 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                         raise
 
             # wait to disconnect
-            wait_until_helper(lambda: not get_peer_ids(), timeout=5)
+            self.wait_until(lambda: not get_peer_ids(node_a, node_b.index), timeout=5)
+            self.wait_until(lambda: not get_peer_ids(node_b, node_a.index), timeout=5)
 
-        disconnect_nodes_helper(self.nodes[a], b)
+        disconnect_nodes_helper(self.nodes[a], self.nodes[b])
 
     def split_network(self):
         """
@@ -806,7 +810,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
 
             os.rmdir(cache_path('wallets'))  # Remove empty wallets dir
             for entry in os.listdir(cache_path()):
-                if entry not in ['chainstate', 'blocks', 'indexes', 'stateQtum']:  # Only indexes, chainstate and blocks folders
+                if entry not in ['chainstate', 'blocks', 'indexes', 'stateQtum']:  # Only indexes, chainstate and blocks folders 
                     os.remove(cache_path(entry))
 
         for i in range(self.num_nodes):
@@ -829,6 +833,29 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             import zmq  # noqa
         except ImportError:
             raise SkipTest("python3-zmq module not available.")
+
+    def skip_if_no_python_bcc(self):
+        """Attempt to import the bcc package and skip the tests if the import fails."""
+        try:
+            import bcc  # type: ignore[import] # noqa: F401
+        except ImportError:
+            raise SkipTest("bcc python module not available")
+
+    def skip_if_no_bitcoind_tracepoints(self):
+        """Skip the running test if bitcoind has not been compiled with USDT tracepoint support."""
+        if not self.is_usdt_compiled():
+            raise SkipTest("bitcoind has not been built with USDT tracepoints enabled.")
+
+    def skip_if_no_bpf_permissions(self):
+        """Skip the running test if we don't have permissions to do BPF syscalls and load BPF maps."""
+        # check for 'root' permissions
+        if os.geteuid() != 0:
+            raise SkipTest("no permissions to use BPF (please review the tests carefully before running them with higher privileges)")
+
+    def skip_if_platform_not_linux(self):
+        """Skip the running test if we are not on a Linux platform"""
+        if platform.system() != "Linux":
+            raise SkipTest("not on a Linux system")
 
     def skip_if_no_bitcoind_zmq(self):
         """Skip the running test if bitcoind has not been compiled with zmq support."""
@@ -859,6 +886,11 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         """Skip the running test if bitcoin-wallet has not been compiled."""
         if not self.is_wallet_tool_compiled():
             raise SkipTest("bitcoin-wallet has not been compiled")
+
+    def skip_if_no_bitcoin_util(self):
+        """Skip the running test if bitcoin-util has not been compiled."""
+        if not self.is_bitcoin_util_compiled():
+            raise SkipTest("bitcoin-util has not been compiled")
 
     def skip_if_no_cli(self):
         """Skip the running test if bitcoin-cli has not been compiled."""
@@ -907,9 +939,17 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         """Checks whether bitcoin-wallet was compiled."""
         return self.config["components"].getboolean("ENABLE_WALLET_TOOL")
 
+    def is_bitcoin_util_compiled(self):
+        """Checks whether bitcoin-util was compiled."""
+        return self.config["components"].getboolean("ENABLE_BITCOIN_UTIL")
+
     def is_zmq_compiled(self):
         """Checks whether the zmq module was compiled."""
         return self.config["components"].getboolean("ENABLE_ZMQ")
+
+    def is_usdt_compiled(self):
+        """Checks whether the USDT tracepoints were compiled."""
+        return self.config["components"].getboolean("ENABLE_USDT_TRACEPOINTS")
 
     def is_sqlite_compiled(self):
         """Checks whether the wallet module was compiled with Sqlite support."""

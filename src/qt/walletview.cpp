@@ -30,11 +30,10 @@
 #include <qt/hardwaresigntxdialog.h>
 #include <qt/walletframe.h>
 #include <interfaces/node.h>
-#include <node/ui_interface.h>
+#include <node/interface_ui.h>
 #include <util/strencodings.h>
 
 #include <QAction>
-#include <QActionGroup>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QProgressDialog>
@@ -46,8 +45,8 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     : QStackedWidget(parent),
       clientModel(nullptr),
       walletModel(wallet_model),
-    platformStyle(_platformStyle),
-    walletFrame(qobject_cast<WalletFrame*>(parent))
+      platformStyle(_platformStyle),
+      walletFrame(qobject_cast<WalletFrame*>(parent))
 {
     assert(walletModel);
 
@@ -116,7 +115,6 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     connect(overviewPage, &OverviewPage::transactionClicked, transactionView, qOverload<const QModelIndex&>(&TransactionView::focusTransaction));
 
     connect(overviewPage, &OverviewPage::outOfSyncWarningClicked, this, &WalletView::outOfSyncWarningClicked);
-
     // Clicking on a transaction on the overview page simply sends you to transaction history page
     connect(overviewPage, &OverviewPage::showMoreClicked, this, &WalletView::showMore);
 
@@ -125,7 +123,6 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
 
     // Clicking receive coins button show receive coins dialog
     connect(overviewPage, &OverviewPage::receiveCoinsClicked, this, &WalletView::receiveCoins);
-
     connect(sendCoinsPage, &SendCoinsDialog::coinsSent, this, &WalletView::coinsSent);
     // Highlight transaction after send
     connect(sendCoinsPage, &SendCoinsDialog::coinsSent, transactionView, qOverload<const uint256&>(&TransactionView::focusTransaction));
@@ -158,10 +155,8 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
 
     // Balloon pop-up for new transaction
     connect(walletModel->getTransactionTableModel(), &TransactionTableModel::rowsInserted, this, &WalletView::processNewTransaction);
-
     // Balloon pop-up for new token transaction
     connect(walletModel->getTokenTransactionTableModel(), &TokenTransactionTableModel::rowsInserted, this, &WalletView::processNewTokenTransaction);
-
     // Ask for passphrase if needed
     connect(walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
     connect(stakePage, SIGNAL(requireUnlock(bool)), this, SLOT(unlockWallet(bool)));
@@ -171,9 +166,7 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     connect(walletModel, &WalletModel::showProgress, this, &WalletView::showProgress);
 }
 
-WalletView::~WalletView()
-{
-}
+WalletView::~WalletView() = default;
 
 void WalletView::setClientModel(ClientModel *_clientModel)
 {
@@ -261,7 +254,6 @@ void WalletView::gotoReceiveCoinsPage()
     {
         receiveCoinsPage->show();
     }
-
 }
 
 void WalletView::gotoSendCoinsPage(QString addr)
@@ -408,7 +400,6 @@ void WalletView::unlockWallet(bool fromMenu)
         // A modal dialog must be synchronous here as expected
         // in the WalletModel::requestUnlock() function.
         dlg.exec();
-
         if(sender() == stakePage)
             stakePage->updateEncryptionStatus();
     }
@@ -463,3 +454,4 @@ void WalletView::signTxHardware(const QString &tx)
     dlg.setModel(walletModel);
     dlg.exec();
 }
+

@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">عنوانعنوانأنقر بزر الماوس الأيمن لتحرير العنوان أو التصنيف</translation>
+        <translation type="unfinished">أنقر بزر الماوس الأيمن لتحرير العنوان أو التصنيف</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation type="unfinished">غلق</translation>
+        <translation type="unfinished">أغلق</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation type="unfinished">إختر العنوان الرقمي اللذي سيحصل على العملات</translation>
+        <translation type="unfinished">اختر العنوان الذي تود إرسال العملات إليه</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
@@ -66,7 +66,7 @@
         <translation type="unfinished">العنوان الرقمي المُرسَل إليه</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source> 
         <translation type="unfinished">هذه هي عناوين البيتكوين لإرسال المدفوعات. دائما تحقق من المبلغ وعنوان المستلم قبل الإرسال.</translation>
     </message>
     <message>
@@ -159,7 +159,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">تأكيد تشفير المحفظة</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source> 
         <translation type="unfinished">إذا شفرت محفظتك وفقدت كلمة المرور، ستفقد كل ما تملك من البيتكوين.</translation>
     </message>
     <message>
@@ -179,7 +179,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ادخل كملة المرور القديمة وكلمة المرور الجديدة للمحفظة.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source> 
         <translation type="unfinished">تذكر أن تشفير محفظتك لا يحمي البيتكوين الخاصة بك بشكل كامل من السرقة من قبل البرامج الخبيثةالتي تصيب حاسوبك</translation>
     </message>
     <message>
@@ -241,6 +241,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>BitcoinApplication</name>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">ملف الاعدادات %1 قد يكون تالف او غير صالح</translation>
+    </message>
+    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">استثناء هارب</translation>
     </message>
@@ -276,7 +280,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">مبلغ</translation>
     </message>
     <message>
-        <source>Enter a Qtum address (e.g. %1)</source>
+        <source>Enter a Qtum address (e.g. %1)</source> 
         <translation type="unfinished">ادخل عنوان محفطة البتكوين (مثال %1)</translation>
     </message>
     <message>
@@ -353,12 +357,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>%n second(s)</source>
         <translation type="unfinished">
-            <numerusform>%n second(s)</numerusform>
-            <numerusform>%n second(s)</numerusform>
-            <numerusform>%n second(s)</numerusform>
-            <numerusform>%n second(s)</numerusform>
-            <numerusform>%n second(s)</numerusform>
-            <numerusform>%n second(s)</numerusform>
+            <numerusform>%nثانية</numerusform>
+            <numerusform>%nثانية </numerusform>
+            <numerusform>%nثانية</numerusform>
+            <numerusform>%n ثواني</numerusform>
+            <numerusform>%nثواني </numerusform>
+            <numerusform>%n ثواني</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -540,6 +544,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">لايمكن الكتابة على دليل البيانات '%s'؛ تحقق من السماحيات. </translation>
     </message>
     <message>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Qtum Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">%s طلب الاستماع على منفذ %u. يعتبر منفذه "سيئًا" وبالتالي فمن غير المحتمل أن يتصل به أي من أقران Qtum Core. انظر الى doc / p2p-bad-ports.md للحصول على التفاصيل والقائمة الكاملة.</translation>
+    </message>
+    <message>
+        <source>Failed to rename invalid peers.dat file. Please move or delete it and try again.</source>
+        <translation type="unfinished">فشل في إعادة تسمية ملف peers.dat غير صالح. يرجى نقلها أو حذفها وحاول مرة أخرى.</translation>
+    </message>
+    <message>
         <source>Copyright (C) %i-%i</source>
         <translation type="unfinished">حقوق الطبع والنشر (C) %i-%i</translation>
     </message>
@@ -598,10 +610,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Error reading next record from wallet database</source>
         <translation type="unfinished">خطأ قراءة السجل التالي من قاعدة بيانات المحفظة</translation>
-    </message>
-    <message>
-        <source>Error upgrading chainstate database</source>
-        <translation type="unfinished">خطأ في ترقية قاعدة بيانات chainstate</translation>
     </message>
     <message>
         <source>Error: Couldn't create cursor into database</source>
@@ -814,10 +822,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">شبكة مجهولة عرفت حددت في -onlynet: '%s'</translation>
     </message>
     <message>
-        <source>Upgrading UTXO database</source>
-        <translation type="unfinished">ترقية قاعدة بيانات UTXO</translation>
-    </message>
-    <message>
         <source>Verifying blocks…</source>
         <translation type="unfinished">جار التحقق من الكتل...</translation>
     </message>
@@ -894,7 +898,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 اتصال نشط بشبكة البيتكوين</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source>
+        <source>Send coins to a Qtum address</source> 
         <translation type="unfinished">ارسل عملات الى عنوان بيتكوين</translation>
     </message>
     <message>
@@ -1006,7 +1010,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">الاتصال بالأقران ...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <source>Request payments (generates QR codes and qtum: URIs)</source> 
         <translation type="unfinished">أطلب دفعات (يولد كودات الرمز المربع وبيت كوين: العناوين المعطاة)</translation>
     </message>
     <message>
@@ -1069,7 +1073,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">تحميل معاملة بتكوين الموقعة جزئيًا</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source> 
         <translation type="unfinished">تحميل معاملة بتكوين الموقعة جزئيًا من الحافظة</translation>
     </message>
     <message>
@@ -1089,7 +1093,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;عناوين الإستقبال</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source>
+        <source>Open a qtum: URI</source> 
         <translation type="unfinished">افتح عملة بيتكوين: URI</translation>
     </message>
     <message>
@@ -1105,11 +1109,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">اغلق المحفظة</translation>
     </message>
     <message>
+        <source>Restore a wallet from a backup file</source>
+        <extracomment>Status tip for Restore Wallet menu item</extracomment>
+        <translation type="unfinished">استعادة محفظة من ملف النسخ الاحتياطي</translation>
+    </message>
+    <message>
         <source>Close all wallets</source>
         <translation type="unfinished">إغلاق جميع المحافظ ...</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source> 
         <translation type="unfinished">بين اشارة المساعدة %1 للحصول على قائمة من خيارات اوامر البت كوين المحتملة </translation>
     </message>
     <message>
@@ -1127,6 +1136,21 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>No wallets available</source>
         <translation type="unfinished">المحفظة الرقمية غير متوفرة</translation>
+    </message>
+    <message>
+        <source>Wallet Data</source>
+        <extracomment>Name of the wallet data file format.</extracomment>
+        <translation type="unfinished">بيانات المحفظة</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">استعادة المحفظة</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">إسم المحفظة</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -1436,7 +1460,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Can't list signers</source>
         <translation type="unfinished">لا يمكن سرد الموقعين</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OpenWalletActivity</name>
     <message>
@@ -1462,6 +1486,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">جاري فتح المحفظة&lt;b&gt;%1&lt;/b&gt;...</translation>
     </message>
 </context>
+<context>
+    <name>RestoreWalletActivity</name>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">استعادة المحفظة</translation>
+    </message>
+    </context>
 <context>
     <name>WalletController</name>
     <message>
@@ -1588,7 +1620,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">تعديل عنوان الارسال</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <source>The entered address "%1" is not a valid Qtum address.</source> 
         <translation type="unfinished">العنوان المدخل "%1" ليس عنوان بيت كوين صحيح.</translation>
     </message>
     <message>
@@ -1634,16 +1666,41 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>Intro</name>
     <message>
-        <source>Qtum</source>
+        <source>Qtum</source> 
         <translation type="unfinished">بتكوين</translation>
     </message>
-    <message>
-        <source>(of %1 GB needed)</source>
-        <translation type="unfinished">(من %1 الجيجابايت المطلوبة)</translation>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
-    <message>
-        <source>(%1 GB needed for full chain)</source>
-        <translation type="unfinished">(%1 مطلوب غيغابايت للسلسلة الكاملة)</translation>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -1666,7 +1723,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <source>%1 will download and store a copy of the Qtum block chain.</source> 
         <translation type="unfinished">سيقوم %1 بتنزيل نسخة من سلسلة كتل بتكوين وتخزينها.</translation>
     </message>
     <message>
@@ -1692,10 +1749,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
         <translation type="unfinished">بما انه هذه اول مرة لانطلاق هذا البرنامج, فيمكنك ان تختار اين سيخزن %1 بياناته</translation>
-    </message>
-    <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation type="unfinished">عند النقر على "موافق" ، سيبدأ %1 في تنزيل ومعالجة سلسلة الكتل %4 الكاملة (%2 جيجابايت) بدءًا من المعاملات الأقدم في %3 عند تشغيل %4 في البداية.</translation>
     </message>
     <message>
         <source>Limit block chain storage to</source>
@@ -1759,11 +1812,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">نمودج</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source> 
         <translation type="unfinished">قد لا تكون المعاملات الأخيرة مرئية بعد، وبالتالي قد يكون رصيد محفظتك غير صحيح. ستكون هذه المعلومات صحيحة بمجرد الانتهاء من محفظتك مع شبكة البيتكوين، كما هو مفصل أدناه.</translation>
     </message>
     <message>
-        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source> 
         <translation type="unfinished">لن تقبل الشبكة محاولة إنفاق البتكوين المتأثرة بالمعاملات التي لم يتم عرضها بعد.</translation>
     </message>
     <message>
@@ -1806,11 +1859,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Unknown. Syncing Headers (%1, %2%)…</source>
         <translation type="unfinished">مجهول.  مزامنة الرؤوس (%1،%2٪) ...</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open qtum URI</source>
+        <source>Open qtum URI</source> 
         <translation type="unfinished">افتح بتكوين URI</translation>
     </message>
     <message>
@@ -1938,7 +1991,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">المسار الكامل إلى برنامج نصي متوافق مع Qtum Core (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). احذر: يمكن أن تسرق البرامج الضارة عملاتك!</translation>
     </message>
     <message>
-        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source> 
         <translation type="unfinished">فتح منفذ خادم البتكوين تلقائيا على الموجه. هذا فقط يعمل عندما يكون الموجه الخاص بك يدعم UPnP ومفعل ايضا.</translation>
     </message>
     <message>
@@ -1962,7 +2015,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">السماح بالاتصالات الواردة.</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source> 
         <translation type="unfinished">الاتصال بشبكة البتكوين عبر وكيل SOCKS5.</translation>
     </message>
     <message>
@@ -2038,7 +2091,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ما اذا أردت إظهار ميزات التحكم في العملة أم لا.</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source> 
         <translation type="unfinished">اتصل بشبكة بتكوين من خلال وكيل SOCKS5 منفصل لخدمات Tor onion.</translation>
     </message>
     <message>
@@ -2052,10 +2105,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>embedded "%1"</source>
         <translation type="unfinished">المضمنة "%1"</translation>
-    </message>
-    <message>
-        <source>Options set in this dialog are overridden by the command line or in the configuration file:</source>
-        <translation type="unfinished">يتم تجاوز الخيارات المعينة في مربع الحوار هذا بواسطة سطر الأوامر أو في ملف التكوين:</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -2080,14 +2129,17 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Confirm options reset</source>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
         <translation type="unfinished">تأكيد استعادة الخيارات</translation>
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
+        <extracomment>Text explaining that the settings changed will not come into effect until the client is restarted.</extracomment>
         <translation type="unfinished">يتطلب إعادة تشغيل العميل لتفعيل التغييرات.</translation>
     </message>
     <message>
         <source>Client will be shut down. Do you want to proceed?</source>
+        <extracomment>Text asking the user to confirm if they would like to proceed with a client shutdown.</extracomment>
         <translation type="unfinished">سوف يتم إيقاف العميل تماماً. هل تريد الإستمرار؟</translation>
     </message>
     <message>
@@ -2128,7 +2180,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">نمودج</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source> 
         <translation type="unfinished">قد تكون المعلومات المعروضة قديمة. تتزامن محفظتك تلقائيًا مع شبكة البتكوين بعد إنشاء الاتصال، ولكن هذه العملية لم تكتمل بعد.</translation>
     </message>
     <message>
@@ -2327,7 +2379,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">خطأ في طلب الدفع</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source>
+        <source>Cannot start qtum: click-to-pay handler</source> 
         <translation type="unfinished">لا يمكن تشغيل بتكوين: معالج النقر للدفع</translation>
     </message>
     <message>
@@ -2345,7 +2397,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">لا يمكن معالجة طلب الدفع لأن BIP70 غير مدعوم. نظرًا لوجود عيوب أمنية واسعة النطاق في BIP70 ، يوصى بشدة بتجاهل أي تعليمات تاجر لتبديل المحافظ. إذا كنت تتلقى هذا الخطأ ، يجب أن تطلب من التاجر تقديم عنوان URI متوافق مع BIP21.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source> 
         <translation type="unfinished">لا يمكن تحليل العنوان (URI)! يمكن أن يحدث هذا بسبب عنوان بتكوين غير صالح أو معلمات عنوان (URI) غير صحيحة.</translation>
     </message>
     <message>
@@ -2842,7 +2894,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">&amp;رسالة:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source> 
         <translation type="unfinished">رسالة اختيارية لإرفاقها بطلب الدفع، والتي سيتم عرضها عند فتح الطلب. ملاحظة: لن يتم إرسال الرسالة مع الدفعة عبر شبكة البتكوين.</translation>
     </message>
     <message>
@@ -3288,10 +3340,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation type="unfinished">تعتبر الرسوم الأعلى من %1 رسوماً باهظة.</translation>
     </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation type="unfinished">انتهاء صلاحية طلب الدفع.</translation>
-    </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation type="unfinished">
@@ -3304,7 +3352,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Qtum address</source>
+        <source>Warning: Invalid Qtum address</source> 
         <translation type="unfinished">تحذير: عنوان بتكوين غير صالح</translation>
     </message>
     <message>
@@ -3343,7 +3391,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">اختر عنوانا مستخدم سابقا</translation>
     </message>
     <message>
-        <source>The Qtum address to send the payment to</source>
+        <source>The Qtum address to send the payment to</source> 
         <translation type="unfinished">عنوان البت كوين المرسل اليه الدفع</translation>
     </message>
     <message>
@@ -3359,7 +3407,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">المبلغ للإرسال في الوحدة المحددة</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source> 
         <translation type="unfinished">سيتم خصم الرسوم من المبلغ الذي يتم إرساله. لذا سوف يتلقى المستلم مبلغ أقل من البتكوين المدخل في حقل المبلغ. في حالة تحديد عدة مستلمين، يتم تقسيم الرسوم بالتساوي.</translation>
     </message>
     <message>
@@ -3375,28 +3423,12 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">الرسائل</translation>
     </message>
     <message>
-        <source>This is an unauthenticated payment request.</source>
-        <translation type="unfinished">هذا طلب دفع لم يتم مصادقته.</translation>
-    </message>
-    <message>
-        <source>This is an authenticated payment request.</source>
-        <translation type="unfinished">هذا طلب دفع تمت مصادقته.</translation>
-    </message>
-    <message>
         <source>Enter a label for this address to add it to the list of used addresses</source>
         <translation type="unfinished">أدخل تسمية لهذا العنوان لإضافته إلى قائمة العناوين المستخدمة</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source> 
         <translation type="unfinished">الرسالة التي تم إرفاقها مع البتكوين: العنوان الذي سيتم تخزينه مع المعاملة للرجوع إليه. ملاحظة: لن يتم إرسال هذه الرسالة عبر شبكة البتكوين.</translation>
-    </message>
-    <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">ادفع &amp;الى :</translation>
-    </message>
-    <message>
-        <source>Memo:</source>
-        <translation type="unfinished">مذكرة:</translation>
     </message>
 </context>
 <context>
@@ -3425,7 +3457,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">تستطيع توقيع رسائل/اتفاقات مع عناوينك لإثبات أنه بإمكانك استقبال بتكوين مرسل إليهم. كن حذرا من عدم توقيع أي شيء غامض أو عشوائي، كهجمات التصيد التي قد تحاول خداعك لتوقيع هويتك لديهم. وقع البيانات المفصلة بالكامل والتي أنت توافق عليها فقط.</translation>
     </message>
     <message>
-        <source>The Qtum address to sign the message with</source>
+        <source>The Qtum address to sign the message with</source> 
         <translation type="unfinished">عنوان البتكوين لتوقيع الرسالة به</translation>
     </message>
     <message>
@@ -3449,7 +3481,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">نسخ التوقيع الحالي إلى حافظة النظام</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Qtum address</source>
+        <source>Sign the message to prove you own this Qtum address</source> 
         <translation type="unfinished">وقع الرسالة لتثبت انك تمتلك عنوان البت كوين هذا</translation>
     </message>
     <message>
@@ -3473,7 +3505,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">أدخل عنوان المتلقي، راسل (تأكد من نسخ فواصل الأسطر، الفراغات، الخ.. تماما) والتوقيع أسفله لتأكيد الرسالة. كن حذرا من عدم قراءة داخل التوقيع أكثر مما هو موقع بالرسالة نفسها، لتجنب خداعك بهجوم man-in-the-middle. لاحظ أنه هذا لاثبات أن الجهة الموقعة تستقبل مع العنوان فقط، لا تستطيع اثبات الارسال لأي معاملة.</translation>
     </message>
     <message>
-        <source>The Qtum address the message was signed with</source>
+        <source>The Qtum address the message was signed with</source> 
         <translation type="unfinished">عنوان البتكوين الذي تم توقيع الرسالة به</translation>
     </message>
     <message>
@@ -3485,7 +3517,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">التوقيع يعطى عندما تكون الرسالة موقعة.</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source> 
         <translation type="unfinished">تحقق من الرسالة للتأكد من توقيعها مع عنوان البتكوين المحدد</translation>
     </message>
     <message>
@@ -3564,26 +3596,22 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <name>TransactionDesc</name>
     <message>
         <source>conflicted with a transaction with %1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that conflicts with a confirmed transaction.</extracomment>
         <translation type="unfinished">تعارضت مع معاملة لديها %1 تأكيدات</translation>
     </message>
     <message>
-        <source>in memory pool</source>
-        <translation type="unfinished">في تجمع الذاكرة</translation>
-    </message>
-    <message>
-        <source>not in memory pool</source>
-        <translation type="unfinished">ليس في تجمع الذاكرة</translation>
-    </message>
-    <message>
         <source>abandoned</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an abandoned transaction.</extracomment>
         <translation type="unfinished">مهجور</translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">غير مؤكدة/%1</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">تأكيد %1</translation>
     </message>
     <message>

@@ -23,7 +23,7 @@ from test_framework.blocktools import (
     send_to_witness,
 )
 from test_framework.messages import (
-    BIP125_SEQUENCE_NUMBER,
+    MAX_BIP125_RBF_SEQUENCE,
 )
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
@@ -54,6 +54,7 @@ class BumpFeeTest(BitcoinTestFramework):
             "-walletrbf={}".format(i),
             "-mintxfee=0.005",
             "-addresstype=bech32",
+            "-whitelist=noban@127.0.0.1",
         ] for i in range(self.num_nodes)]
 
     def skip_test_if_missing_module(self):
@@ -87,7 +88,7 @@ class BumpFeeTest(BitcoinTestFramework):
         self.test_invalid_parameters(rbf_node, peer_node, dest_address)
         test_segwit_bumpfee_succeeds(self, rbf_node, dest_address)
         test_nonrbf_bumpfee_fails(self, peer_node, dest_address)
-        test_notmine_bumpfee_fails(self, rbf_node, peer_node, dest_address)
+        test_notmine_bumpfee(self, rbf_node, peer_node, dest_address)
         test_bumpfee_with_descendant_fails(self, rbf_node, rbf_node_address, dest_address)
         test_dust_to_fee(self, rbf_node, dest_address)
         test_watchonly_psbt(self, peer_node, rbf_node, dest_address)
@@ -233,7 +234,7 @@ def test_nonrbf_bumpfee_fails(self, peer_node, dest_address):
     self.clear_mempool()
 
 
-def test_notmine_bumpfee_fails(self, rbf_node, peer_node, dest_address):
+def test_notmine_bumpfee(self, rbf_node, peer_node, dest_address):
     self.log.info('Test that it cannot bump fee if non-owned inputs are included')
     # here, the rbftx has a peer_node coin and then adds a rbf_node input
     # Note that this test depends upon the RPC code checking input ownership prior to change outputs
@@ -244,15 +245,34 @@ def test_notmine_bumpfee_fails(self, rbf_node, peer_node, dest_address):
         "txid": utxo["txid"],
         "vout": utxo["vout"],
         "address": utxo["address"],
-        "sequence": BIP125_SEQUENCE_NUMBER
+        "sequence": MAX_BIP125_RBF_SEQUENCE
     } for utxo in utxos]
     output_val = sum(utxo["amount"] for utxo in utxos) - fee
     rawtx = rbf_node.createrawtransaction(inputs, {dest_address: output_val})
     signedtx = rbf_node.signrawtransactionwithwallet(rawtx)
     signedtx = peer_node.signrawtransactionwithwallet(signedtx["hex"])
     rbfid = rbf_node.sendrawtransaction(signedtx["hex"])
+    entry = rbf_node.getmempoolentry(rbfid)
+    old_fee = entry["fees"]["base"]
+    old_feerate = int(old_fee / entry["vsize"] * Decimal(1e8))
     assert_raises_rpc_error(-4, "Transaction contains inputs that don't belong to this wallet",
                             rbf_node.bumpfee, rbfid)
+
+    def finish_psbtbumpfee(psbt):
+        psbt = rbf_node.walletprocesspsbt(psbt)
+        psbt = peer_node.walletprocesspsbt(psbt["psbt"])
+        final = rbf_node.finalizepsbt(psbt["psbt"])
+        res = rbf_node.testmempoolaccept([final["hex"]])
+        assert res[0]["allowed"]
+        assert_greater_than(res[0]["fees"]["base"], old_fee)
+
+    self.log.info("Test that psbtbumpfee works for non-owned inputs")
+    psbt = rbf_node.psbtbumpfee(txid=rbfid)
+    finish_psbtbumpfee(psbt["psbt"])
+
+    psbt = rbf_node.psbtbumpfee(txid=rbfid, options={"fee_rate": old_feerate + 10})
+    finish_psbtbumpfee(psbt["psbt"])
+
     self.clear_mempool()
 
 
@@ -607,7 +627,7 @@ def test_no_more_inputs_fails(self, rbf_node, dest_address):
     # feerate rbf requires confirmed outputs when change output doesn't exist or is insufficient
     self.generatetoaddress(rbf_node, 1, dest_address)
     # spend all funds, no change output
-    rbfid = rbf_node.sendtoaddress(rbf_node.getnewaddress(), rbf_node.getbalance(), "", "", True)
+    rbfid = rbf_node.sendall(recipients=[rbf_node.getnewaddress()])['txid']
     assert_raises_rpc_error(-4, "Unable to create transaction. Insufficient funds", rbf_node.bumpfee, rbfid)
     self.clear_mempool()
 

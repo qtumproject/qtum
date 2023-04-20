@@ -5,6 +5,7 @@
 #include <qt/transactiontablemodel.h>
 
 #include <qt/addresstablemodel.h>
+#include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
@@ -36,11 +37,11 @@
 
 // Amount column is right-aligned it contains numbers
 static int column_alignments[] = {
-        Qt::AlignLeft|Qt::AlignVCenter, /* status */
-        Qt::AlignLeft|Qt::AlignVCenter, /* watchonly */
-        Qt::AlignLeft|Qt::AlignVCenter, /* date */
-        Qt::AlignLeft|Qt::AlignVCenter, /* type */
-        Qt::AlignLeft|Qt::AlignVCenter, /* address */
+        Qt::AlignLeft|Qt::AlignVCenter, /*status=*/
+        Qt::AlignLeft|Qt::AlignVCenter, /*watchonly=*/
+        Qt::AlignLeft|Qt::AlignVCenter, /*date=*/
+        Qt::AlignLeft|Qt::AlignVCenter, /*type=*/
+        Qt::AlignLeft|Qt::AlignVCenter, /*address=*/
         Qt::AlignRight|Qt::AlignVCenter /* amount */
     };
 static int dataChangedChunk = 500;
@@ -66,7 +67,7 @@ struct TxLessThan
 struct TransactionNotification
 {
 public:
-    TransactionNotification() {}
+    TransactionNotification() = default;
     TransactionNotification(uint256 _hash, ChangeType _status, bool _showTransaction):
         hash(_hash), status(_status), showTransaction(_showTransaction) {}
 
@@ -120,7 +121,7 @@ public:
         assert(!m_loaded);
         {
             for (const auto& wtx : wallet.getWalletTxs()) {
-                if (TransactionRecord::showTransaction(wtx)) {
+                if (TransactionRecord::showTransaction(wtx)) { 
                     cachedWallet.append(TransactionRecord::decomposeTransaction(wtx));
                 }
             }
@@ -140,7 +141,6 @@ public:
         interfaces::WalletTx wtx = wallet.getWalletTx(hash);
         // Determine whether to show transaction or not (determine this here so that no relocking is needed in GUI thread)
         showTransaction &= TransactionRecord::showTransaction(wtx);
-
         qDebug() << "TransactionTablePriv::updateWallet: " + QString::fromStdString(hash.ToString()) + " " + QString::number(status);
 
         // Find bounds of this transaction in model
@@ -226,7 +226,6 @@ public:
     {
         if (idx >= 0 && idx < cachedWallet.size()) {
             TransactionRecord *rec = &cachedWallet[idx];
-
             if(!isDataLoading)
             {
                 // If a status update is needed (blocks came in since last check),
@@ -244,7 +243,7 @@ public:
         return nullptr;
     }
 
-    QString describe(interfaces::Node& node, interfaces::Wallet& wallet, TransactionRecord *rec, int unit)
+    QString describe(interfaces::Node& node, interfaces::Wallet& wallet, TransactionRecord* rec, BitcoinUnit unit)
     {
         return TransactionDesc::toHTML(node, wallet, rec, unit);
     }
@@ -275,7 +274,6 @@ TransactionTableModel::TransactionTableModel(const PlatformStyle *_platformStyle
     color_tx_status_openuntildate = GetColorStyleValue("guiconstants/color-tx-status-openuntildate", COLOR_TX_STATUS_OPENUNTILDATE);
     color_tx_status_danger = GetColorStyleValue("guiconstants/color-tx-status-danger", COLOR_TX_STATUS_DANGER);
     color_black = GetColorStyleValue("guiconstants/color-black", COLOR_BLACK);
-
     columns << QString() << QString() << tr("Date") << tr("Type") << tr("Label") << BitcoinUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
     priv->refreshWallet(walletModel->wallet());
 
@@ -309,13 +307,11 @@ void TransactionTableModel::updateConfirmations()
     // Invalidate status (number of confirmations) and (possibly) description
     //  for all rows. Qt is smart enough to only actually request the data for the
     //  visible rows.
-
     if(priv->isDataLoading)
         priv->isDataLoading = false;
 
     modelDataChanged(Status);
     modelDataChanged(ToAddress);
-
 }
 
 int TransactionTableModel::rowCount(const QModelIndex &parent) const
@@ -435,7 +431,6 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
         return platformStyle->TableColorIcon(":/icons/contract_input", PlatformStyle::Input);
     default:
         return platformStyle->TableColorIcon(":/icons/tx_inout", PlatformStyle::Inout);
-
     }
 }
 
@@ -525,7 +520,7 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx)
         return platformStyle->TableColorIcon(QString(":/icons/transaction_%1").arg(part), PlatformStyle::Normal);
         }
     case TransactionStatus::NotAccepted:
-        return platformStyle->TableColorIcon(":/icons/transaction_0", PlatformStyle::Error);
+        return platformStyle->TableColorIcon(":/icons/transaction_0", PlatformStyle::Error); 
     default:
         return color_black;
     }
@@ -534,7 +529,7 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx)
 QVariant TransactionTableModel::txWatchonlyDecoration(const TransactionRecord *wtx) const
 {
     if (wtx->involvesWatchAddress)
-        return platformStyle->TableColorIcon(":/icons/eye", PlatformStyle::Normal);
+        return platformStyle->TableColorIcon(":/icons/eye", PlatformStyle::Normal); 
     else
         return QVariant();
 }
@@ -573,7 +568,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
         assert(false);
     case Qt::DecorationRole:
     {
-        return qvariant_cast<QIcon>(index.data(RawDecorationRole));
+        return qvariant_cast<QIcon>(index.data(RawDecorationRole)); 
     }
     case Qt::DisplayRole:
         switch (column) {
@@ -742,7 +737,6 @@ void TransactionTableModel::updateDisplayUnit()
 
 void TransactionTablePriv::NotifyTransactionChanged(const uint256 &hash, ChangeType status)
 {
-
     TransactionNotification notification(hash, status, true);
 
     if (!m_loaded || m_loading)
@@ -804,3 +798,4 @@ void TransactionTableModel::modelDataChanged(const TransactionTableModel::Column
         if(qApp) qApp->processEvents();
     }
 }
+

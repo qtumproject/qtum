@@ -31,6 +31,7 @@ void QValidatedLineEdit::setValid(bool _valid)
 
     if(_valid)
     {
+
         QWidget *widget = this->parentWidget();
         if(widget && widget->inherits("QComboBox"))
         {
@@ -38,8 +39,10 @@ void QValidatedLineEdit::setValid(bool _valid)
         }
         else
         {
+
             setStyleSheet("");
         }
+
     }
     else
     {
@@ -52,6 +55,7 @@ void QValidatedLineEdit::setValid(bool _valid)
         {
             SetObjectStyleSheet(this, StyleSheetNames::Invalid);
         }
+
     }
     this->valid = _valid;
 }
@@ -70,6 +74,7 @@ void QValidatedLineEdit::focusOutEvent(QFocusEvent *evt)
 
     QLineEdit::focusOutEvent(evt);
 }
+
 
 bool QValidatedLineEdit::getEmptyIsValid() const
 {

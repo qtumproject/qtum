@@ -24,7 +24,7 @@ from test_framework.util import (
     assert_equal,
 )
 from test_framework.address import ADDRESS_BCRT1_UNSPENDABLE
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD 
 
 import time
 
