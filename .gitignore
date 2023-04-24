@@ -156,3 +156,5 @@ dist/
 .settings/language.settings.xml
 src/test/buildenv.py
 Debug
+src/secp256k1/gen_context
+src/secp256k1/src/ecmult_static_context.h

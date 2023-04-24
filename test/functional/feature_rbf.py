@@ -177,7 +177,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
     def test_doublespend_tree(self):
         """Doublespend of a big tree of transactions"""
 
-        initial_nValue = 5 * COIN
+        initial_nValue = 50 * COIN
         tx0_outpoint = self.make_utxo(self.nodes[0], initial_nValue)
 
         def branch(prevout, initial_value, max_txs, tree_width=5, fee=0.0001 * COIN, _total_txs=None):
@@ -256,7 +256,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
 
     def test_replacement_feeperkb(self):
         """Replacement requires fee-per-KB to be higher"""
-        tx0_outpoint = make_utxo(self.nodes[0], int(1.1 * COIN))
+        tx0_outpoint = self.make_utxo(self.nodes[0], int(1.1 * COIN))
 
         self.wallet.send_self_transfer(
             from_node=self.nodes[0],
@@ -344,7 +344,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
 
         # Start by creating a single transaction with many outputs
         initial_nValue = 1000 * COIN
-        utxo = make_utxo(self.nodes[0], initial_nValue)
+        utxo = self.make_utxo(self.nodes[0], initial_nValue)
         fee = int(0.01 * COIN)
         split_value = int((initial_nValue - fee) / (MAX_REPLACEMENT_LIMIT + 1))
 
@@ -550,7 +550,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         # correctly used by replacement logic
 
         # 1. Check that feeperkb uses modified fees
-        tx0_outpoint = make_utxo(self.nodes[0], int(1.1 * COIN))
+        tx0_outpoint = self.make_utxo(self.nodes[0], int(1.1 * COIN))
 
         tx1a_txid = self.wallet.send_self_transfer(
             from_node=self.nodes[0],

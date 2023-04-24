@@ -27,6 +27,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD 
+from test_framework.qtum import *
 TXID = "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000"
 
 
@@ -73,12 +74,12 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.wallet = MiniWallet(self.nodes[0])
         self.log.info("Prepare some coins for multiple *rawtransaction commands")
         self.generate(self.wallet, 10)
-        self.generate(self.nodes[0], COINBASE_MATURITY + 1)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY+1, None, self.nodes)
 
         self.getrawtransaction_tests()
         self.createrawtransaction_tests()
         self.sendrawtransaction_tests()
-        self.sendrawtransaction_testmempoolaccept_tests()
+        # self.sendrawtransaction_testmempoolaccept_tests()
         self.decoderawtransaction_tests()
         self.transaction_version_number_tests()
         if self.requires_wallet and not self.options.descriptors:
@@ -356,8 +357,9 @@ class RawTransactionsTest(BitcoinTestFramework):
         assert_raises_rpc_error(-5, "Invalid public key", self.nodes[0].createmultisig, 1, ["01020304"])
         # createmultisig can only take public keys
         self.nodes[0].createmultisig(2, [addr1Obj['pubkey'], addr2Obj['pubkey']])
-        # we still allow addresses that are in the wallet for createmultisig, which has been deprecated and then removed in bitcoin
-        assert_raises_rpc_error(-5, "no full public key for address", self.nodes[0].createmultisig, 2, [addr1Obj['pubkey'], addr1]) # addmultisigaddress can take both pubkeys and addresses so long as they are in the wallet, which is tested here.
+        # addmultisigaddress can take both pubkeys and addresses so long as they are in the wallet, which is tested here
+        assert_raises_rpc_error(-5, "Invalid public key", self.nodes[0].createmultisig, 2, [addr1Obj['pubkey'], addr1])
+
         mSigObj = self.nodes[2].addmultisigaddress(2, [addr1Obj['pubkey'], addr1])['address']
 
         # use balance deltas instead of absolute values

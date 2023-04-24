@@ -305,7 +305,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         assert_equal(0, node.getmempoolinfo()["size"])
         parent_utxos = []
         target_weight = WITNESS_SCALE_FACTOR * 1000 * 30 # 30KvB
-        high_fee = Decimal("0.003") # 10 sats/vB
+        high_fee = Decimal("0.3") # 10 sats/vB
         self.log.info("Check that in-mempool and in-package ancestor size limits are calculated properly in packages")
         # Mempool transactions A and B
         for _ in range(2):
@@ -341,7 +341,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         node = self.nodes[0]
         assert_equal(0, node.getmempoolinfo()["size"])
         target_weight = 21 * 1000 * WITNESS_SCALE_FACTOR
-        high_fee = Decimal("0.0021") # 10 sats/vB
+        high_fee = Decimal("0.21") # 10 sats/vB
         self.log.info("Check that in-mempool and in-package descendant sizes are calculated properly in packages")
         # Top parent in mempool, Ma
         ma_tx = self.wallet.create_self_transfer_multi(num_outputs=2, fee_per_output=int(high_fee / 2 * COIN), target_weight=target_weight)

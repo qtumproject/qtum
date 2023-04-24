@@ -51,11 +51,15 @@ from test_framework.util import (
     assert_is_hex_string,
     assert_raises_rpc_error,
     bytes_to_hex_str,
+    hex_str_to_bytes,
     try_rpc,
 )
 from test_framework.wallet_util import (
+    get_generate_key,
+)
 from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD, ENABLE_REDUCED_BLOCK_TIME, MAX_BLOCK_BASE_SIZE, MAX_BLOCK_SIGOPS, FACTOR_REDUCED_BLOCK_TIME
 from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized
+from test_framework.descriptors import descsum_create
 
 NODE_0 = 0
 NODE_2 = 2
@@ -94,18 +98,18 @@ class SegWitTest(BitcoinTestFramework):
             [
                 "-acceptnonstdtxn=1",
                 "-rpcserialversion=0",
-                "-segwitheight=2364" if ENABLE_REDUCED_BLOCK_TIME else "-segwitheight=864",
+                "-testactivationheight=segwit@2364" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@864",
                 "-addresstype=legacy",
             ],
             [
                 "-acceptnonstdtxn=1",
                 "-rpcserialversion=1",
-                "-segwitheight=2364" if ENABLE_REDUCED_BLOCK_TIME else "-segwitheight=864",
+                "-testactivationheight=segwit@2364" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@864",
                 "-addresstype=legacy",
             ],
             [
                 "-acceptnonstdtxn=1",
-                "-segwitheight=2364" if ENABLE_REDUCED_BLOCK_TIME else "-segwitheight=864",
+                "-testactivationheight=segwit@2364" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@864",
                 "-addresstype=legacy",
             ],
         ]
@@ -143,7 +147,7 @@ class SegWitTest(BitcoinTestFramework):
             block.rehash()
             block.solve()
             self.nodes[0].submitblock(bytes_to_hex_str(block.serialize()))
-        generatesynchronized(self.nodes[0], 17, None, self.nodes)
+        generatesynchronized(self.nodes[0], 18, None, self.nodes)
 
         self.log.info("Verify sigops are counted in GBT with pre-BIP141 rules before the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)

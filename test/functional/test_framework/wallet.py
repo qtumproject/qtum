@@ -14,6 +14,7 @@ from typing import (
 )
 from test_framework.address import (
     base58_to_byte,
+    base58_to_byte_btc,
     create_deterministic_address_bcrt1_p2tr_op_true,
     key_to_p2pkh,
     key_to_p2sh_p2wpkh,
@@ -57,7 +58,7 @@ from test_framework.util import (
     assert_greater_than_or_equal,
 )
 
-DEFAULT_FEE = Decimal("0.0001")
+DEFAULT_FEE = Decimal("0.05")
 
 class MiniWalletMode(Enum):
     """Determines the transaction type the MiniWallet is creating and spending.
@@ -181,14 +182,18 @@ class MiniWallet:
         assert_equal(self._mode, MiniWalletMode.ADDRESS_OP_TRUE)
         return self._address
 
-    def get_utxo(self, *, txid: str = '', vout: Optional[int] = None, mark_as_spent=True) -> dict:
+    def get_utxo(self, *, txid: str = '', vout: Optional[int] = None, mark_as_spent=True, sort_by_height=False) -> dict:
         """
         Returns a utxo and marks it as spent (pops it from the internal list)
 
         Args:
         txid: get the first utxo we find from a specific transaction
         """
-        self._utxos = sorted(self._utxos, key=lambda k: (k['value'], -k['height']))  # Put the largest utxo last
+        if sort_by_height:
+            self._utxos = sorted(self._utxos, key=lambda k: (-k['height'], k['value'])) 
+        else:
+            # Put the largest utxo last
+            self._utxos = sorted(self._utxos, key=lambda k: (k['value'], -k['height']))  # Put the largest utxo last
         if txid:
             utxo_filter: Any = filter(lambda utxo: txid == utxo['txid'], self._utxos)
         else:
@@ -214,7 +219,7 @@ class MiniWallet:
         self.sendrawtransaction(from_node=from_node, tx_hex=tx['hex'])
         return tx
 
-    def send_to(self, *, from_node, scriptPubKey, amount, fee=1000):
+    def send_to(self, *, from_node, scriptPubKey, amount, fee=55200, sort_by_height=False):
         """
         Create and send a tx with an output to a given scriptPubKey/amount,
         plus a change output to our internal address. To keep things simple, a
@@ -226,17 +231,18 @@ class MiniWallet:
 
         Returns a tuple (txid, n) referring to the created external utxo outpoint.
         """
-        tx = self.create_self_transfer(fee_rate=0)["tx"]
+        tx = self.create_self_transfer(fee_rate=0, sort_by_height=sort_by_height)["tx"]
         assert_greater_than_or_equal(tx.vout[0].nValue, amount + fee)
         tx.vout[0].nValue -= (amount + fee)           # change output -> MiniWallet
         tx.vout.append(CTxOut(amount, scriptPubKey))  # arbitrary output -> to be returned
         txid = self.sendrawtransaction(from_node=from_node, tx_hex=tx.serialize().hex())
         return txid, 1
 
-    def create_self_transfer(self, *, fee_rate=Decimal("0.03"), from_node=None, utxo_to_spend=None, mempool_valid=True, locktime=0, sequence=0):
+    def create_self_transfer(self, *, fee_rate=Decimal("0.03"), from_node=None, utxo_to_spend=None, mempool_valid=True, locktime=0, sequence=0, sort_by_height=False):
         """Create and return a tx with the specified fee_rate. Fee may be exact or at most one satoshi higher than needed."""
         from_node = from_node or self._test_node
-        utxo_to_spend = utxo_to_spend or self.get_utxo()
+        utxo_to_spend = utxo_to_spend or self.get_utxo(sort_by_height=sort_by_height)
+        
         assert fee_rate >= 0
         assert fee >= 0
         if self._mode in (MiniWalletMode.RAW_OP_TRUE, MiniWalletMode.ADDRESS_OP_TRUE):
@@ -319,10 +325,10 @@ def getnewdestination(address_type='bech32m'):
 
 def address_to_scriptpubkey(address):
     """Converts a given address to the corresponding output script (scriptPubKey)."""
-    payload, version = base58_to_byte(address)
-    if version == 111:  # testnet pubkey hash
+    payload, version = base58_to_byte_btc(address)
+    if version == 120:  # testnet pubkey hash
         return keyhash_to_p2pkh_script(payload)
-    elif version == 196:  # testnet script hash
+    elif version == 110:  # testnet script hash
         return scripthash_to_p2sh_script(payload)
     # TODO: also support other address formats
     else:
