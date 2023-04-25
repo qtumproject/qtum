@@ -48,7 +48,12 @@ See [dependencies.md](dependencies.md) for a complete overview.
 To install, run the following from your terminal:
 
 ``` bash
-brew install cmake automake libtool boost --c++11 --without-single --without-static pkg-config protobuf libevent gmp
+brew install cmake automake berkeley-db@4 libtool boost@1.76 miniupnpc openssl pkg-config protobuf qt@5 libevent imagemagick librsvg qrencode gmp
+```
+
+Link the specific boost version:
+``` bash
+brew link boost@1.76
 ```
 
 ### 4. Clone Qtum repository
