@@ -541,8 +541,8 @@ crypto_libbitcoin_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
 # static version of this library. We don't need a dynamic version, and a dynamic
 # version can't be used on windows anyway because the library doesn't currently
 # export DLL symbols.
-crypto_libbitcoin_crypto_base_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static -fPIC
-crypto_libbitcoin_crypto_base_la_LDFLAGS = $(AM_LDFLAGS) -static -fPIC
+crypto_libbitcoin_crypto_base_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
+crypto_libbitcoin_crypto_base_la_LDFLAGS = $(AM_LDFLAGS) -static
 
 crypto_libbitcoin_crypto_base_la_SOURCES = \
   crypto/aes.cpp \
@@ -573,22 +573,7 @@ crypto_libbitcoin_crypto_base_la_SOURCES = \
   crypto/sha512.cpp \
   crypto/sha512.h \
   crypto/siphash.cpp \
-  crypto/siphash.h \
-  eth_client/utils/libscrypt/b64.c \
-  eth_client/utils/libscrypt/b64.h \
-  eth_client/utils/libscrypt/crypto-mcf.c \
-  eth_client/utils/libscrypt/crypto-scrypt-saltgen.c \
-  eth_client/utils/libscrypt/crypto_scrypt-check.c \
-  eth_client/utils/libscrypt/crypto_scrypt-hash.c \
-  eth_client/utils/libscrypt/crypto_scrypt-hexconvert.c \
-  eth_client/utils/libscrypt/crypto_scrypt-hexconvert.h \
-  eth_client/utils/libscrypt/crypto_scrypt-nosse.c \
-  eth_client/utils/libscrypt/libscrypt.h \
-  eth_client/utils/libscrypt/sha256.c \
-  eth_client/utils/libscrypt/sha256.h \
-  eth_client/utils/libscrypt/slowequals.c \
-  eth_client/utils/libscrypt/slowequals.h \
-  eth_client/utils/libscrypt/sysendian.h
+  crypto/siphash.h
 
 if USE_ASM
 crypto_libbitcoin_crypto_base_la_SOURCES += crypto/sha256_sse4.cpp
@@ -632,7 +617,7 @@ crypto_libbitcoin_crypto_arm_shani_la_SOURCES = crypto/sha256_arm_shani.cpp
 
 # consensus: shared between all executables that validate any consensus rules.
 libbitcoin_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-libbitcoin_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -fPIC
+libbitcoin_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_consensus_a_SOURCES = \
   arith_uint256.cpp \
   arith_uint256.h \
@@ -881,6 +866,21 @@ libbitcoin_common_a_SOURCES = \
   eth_client/utils/json_spirit/json_spirit_writer.cpp \
   eth_client/utils/json_spirit/json_spirit_writer.h \
   eth_client/utils/json_spirit/json_spirit_writer_template.h \
+  eth_client/utils/libscrypt/b64.c \
+  eth_client/utils/libscrypt/b64.h \
+  eth_client/utils/libscrypt/crypto-mcf.c \
+  eth_client/utils/libscrypt/crypto-scrypt-saltgen.c \
+  eth_client/utils/libscrypt/crypto_scrypt-check.c \
+  eth_client/utils/libscrypt/crypto_scrypt-hash.c \
+  eth_client/utils/libscrypt/crypto_scrypt-hexconvert.c \
+  eth_client/utils/libscrypt/crypto_scrypt-hexconvert.h \
+  eth_client/utils/libscrypt/crypto_scrypt-nosse.c \
+  eth_client/utils/libscrypt/libscrypt.h \
+  eth_client/utils/libscrypt/sha256.c \
+  eth_client/utils/libscrypt/sha256.h \
+  eth_client/utils/libscrypt/slowequals.c \
+  eth_client/utils/libscrypt/slowequals.h \
+  eth_client/utils/libscrypt/sysendian.h \
   $(BITCOIN_CORE_H)
 
 #only added json_spirit so that `make dist` works properly
