@@ -810,6 +810,7 @@ class CBlock(CBlockHeader):
             hashes = [ser_uint256(0)]
             hashes_start_index = 1
 
+        for tx in self.vtx[hashes_start_index:]:
             # Calculate the hashes with witness data
             hashes.append(ser_uint256(tx.calc_sha256(True)))
 

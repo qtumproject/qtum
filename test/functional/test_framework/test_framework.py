@@ -247,6 +247,11 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             "src",
             "qtum-cli" + config["environment"]["EXEEXT"],
         )
+        fname_bitcoinutil = os.path.join(
+            config["environment"]["BUILDDIR"],
+            "src",
+            "qtum-util" + config["environment"]["EXEEXT"],
+        )
         self.options.bitcoind = os.getenv("BITCOIND", default=fname_bitcoind)
         self.options.bitcoincli = os.getenv("BITCOINCLI", default=fname_bitcoincli)
         self.options.bitcoinutil = os.getenv("BITCOINUTIL", default=fname_bitcoinutil)

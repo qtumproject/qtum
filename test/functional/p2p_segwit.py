@@ -93,6 +93,7 @@ from test_framework.util import (
 from test_framework.qtumconfig import *
 from test_framework.qtum import generatesynchronized
 from test_framework.messages import COIN
+from test_framework.wallet import MiniWallet
 
 MAX_SIGOP_COST = 80000 // FACTOR_REDUCED_BLOCK_TIME
 

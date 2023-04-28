@@ -273,7 +273,7 @@ class RPCPackagesTest(BitcoinTestFramework):
     def test_rbf(self):
         node = self.nodes[0]
         coin = self.coins.pop()
-        inputs = [{"txid": coin["txid"], "vout": 0, "sequence": BIP125_SEQUENCE_NUMBER}]
+        inputs = [{"txid": coin["txid"], "vout": 0, "sequence": MAX_BIP125_RBF_SEQUENCE}]
         fee = Decimal('0.0325000')
         output = {node.get_deterministic_priv_key().address: 20000 - fee}
         raw_replaceable_tx = node.createrawtransaction(inputs, output)

@@ -33,6 +33,8 @@ from decimal import (
     getcontext,
 )
 
+from test_framework.qtum import convert_btc_address_to_qtum
+
 class SignRawTransactionWithWalletTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
