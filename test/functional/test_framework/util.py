@@ -5,7 +5,7 @@
 """Helpful routines for regression testing."""
 
 from base64 import b64encode
-from binascii import unhexlify, hexlify 
+from binascii import unhexlify, hexlify
 from decimal import Decimal, ROUND_DOWN
 from subprocess import CalledProcessError
 import hashlib
@@ -22,7 +22,7 @@ from . import coverage
 from .authproxy import AuthServiceProxy, JSONRPCException
 from typing import Callable, Optional
 
-from .qtumconfig import COINBASE_MATURITY 
+from .qtumconfig import COINBASE_MATURITY
 logger = logging.getLogger("TestFramework.utils")
 
 # Assert functions
@@ -228,6 +228,8 @@ def hex_str_to_bytes(hex_str):
 
 def bytes_to_hex_str(byte_str):
     return hexlify(byte_str).decode('ascii')
+
+
 def str_to_b64str(string):
     return b64encode(string.encode('utf-8')).decode('ascii')
 
@@ -264,7 +266,7 @@ def wait_until_helper(predicate, *, attempts=float('inf'), timeout=float('inf'),
     `p2p.py` has a preset lock.
     """
     if attempts == float('inf') and timeout == float('inf'):
-        timeout = 180 
+        timeout = 180
     timeout = timeout * timeout_factor
     attempt = 0
     time_end = time.time() + timeout
@@ -496,38 +498,6 @@ def find_output(node, txid, amount, *, blockhash=None):
     raise RuntimeError("find_output txid %s : %s not found" % (txid, str(amount)))
 
 
-# Helper to create at least "count" utxos
-# Pass in a fee that is sufficient for relay and mining new transactions.
-def create_confirmed_utxos(test_framework, fee, node, count, sync_lambda=None, **kwargs):
-    to_generate = int(0.5 * count) + COINBASE_MATURITY+1
-    while to_generate > 0:
-        test_framework.generate(node, min(25, to_generate), **kwargs)
-        if sync_lambda: sync_lambda()
-        to_generate -= 25
-    utxos = node.listunspent()
-    iterations = count - len(utxos)
-    addr1 = node.getnewaddress()
-    addr2 = node.getnewaddress()
-    if iterations <= 0:
-        return utxos
-    for _ in range(iterations):
-        t = utxos.pop()
-        inputs = []
-        inputs.append({"txid": t["txid"], "vout": t["vout"]})
-        outputs = {}
-        send_value = t['amount'] - fee
-        outputs[addr1] = satoshi_round(send_value / 2)
-        outputs[addr2] = satoshi_round(send_value / 2)
-        raw_tx = node.createrawtransaction(inputs, outputs)
-        signed_tx = node.signrawtransactionwithwallet(raw_tx)["hex"]
-        node.sendrawtransaction(signed_tx)
-
-    while (node.getmempoolinfo()['size'] > 0):
-        test_framework.generate(node, 1, **kwargs)
-
-    utxos = node.listunspent()
-    assert len(utxos) >= count
-    return utxos
 def sync_blocks(rpc_connections, *, wait=1, timeout=60):
     """
     Wait until everybody has the same tip.
@@ -545,6 +515,7 @@ def sync_blocks(rpc_connections, *, wait=1, timeout=60):
         assert (all([len(x.getpeerinfo()) for x in rpc_connections]))
         time.sleep(wait)
     raise AssertionError("Block sync timed out:{}".format("".join("\n  {!r}".format(b) for b in best_hash)))
+
 
 def chain_transaction(node, parent_txids, vouts, value, fee, num_outputs):
     """Build and send a transaction that spends the given inputs (specified
@@ -598,8 +569,7 @@ def create_lots_of_big_transactions(mini_wallet, node, fee, tx_batch_size, txout
 
 def mine_large_block(test_framework, mini_wallet, node):
     # generate a 66k transaction,
-    # and 28 of them is close to the 1MB block limit 
-    num = 14
+    # and 28 of them is close to the 1MB block limit
     txouts = gen_return_txouts()
     fee = 100 * node.getnetworkinfo()["relayfee"]
     create_lots_of_big_transactions(mini_wallet, node, fee, 14, txouts)

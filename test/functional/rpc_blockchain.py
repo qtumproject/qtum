@@ -501,7 +501,7 @@ class BlockchainTest(BitcoinTestFramework):
 
         def assert_hexblock_hashes(verbosity):
             block = node.getblock(blockhash, verbosity)
-            assert_equal(blockhash, hash256(bytes.fromhex(block[:160]))[::-1].hex())
+            assert_equal(blockhash, hash256(bytes.fromhex(block[:362]))[::-1].hex())
 
         def assert_fee_not_in_block(verbosity):
             block = node.getblock(blockhash, verbosity)

@@ -174,7 +174,7 @@ class RESTTest (BitcoinTestFramework):
         response_hash = output.read(32)[::-1].hex()
 
         assert_equal(bb_hash, response_hash)  # check if getutxo's chaintip during calculation was fine
-        assert_equal(chain_height, COINBASE_MATURITY+101)  # chain height must be 102 
+        assert_equal(chain_height, COINBASE_MATURITY+101)  # chain height must be 2101 (pre-mined chain [200] + generated block [1])
 
         self.log.info("Test the /getutxos URI with and without /checkmempool")
         # Create a transaction, check that it's found with /checkmempool, but

@@ -50,7 +50,7 @@ from test_framework.p2p import P2PInterface
 from test_framework.script import (CScript, OP_TRUE)
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
-import inspect 
+import inspect
 
 
 class BaseNode(P2PInterface):
@@ -102,6 +102,7 @@ class AssumeValidTest(BitcoinTestFramework):
             elif current_height == height:
                 break
             timeout = timeout - 0.25
+
     def run_test(self):
         p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
 
@@ -128,7 +129,7 @@ class AssumeValidTest(BitcoinTestFramework):
         height += 1
 
         # Bury the block 100 deep so the coinbase output is spendable
-        for _ in range(COINBASE_MATURITY): 
+        for _ in range(COINBASE_MATURITY):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
             block.solve()
             self.blocks.append(block)
@@ -164,6 +165,7 @@ class AssumeValidTest(BitcoinTestFramework):
         # Start node1 and node2 with assumevalid so they accept a block with a bad signature.
         self.start_node(1, extra_args=["-assumevalid=" + hex(block102.sha256)[2:]])
         self.start_node(2, extra_args=["-assumevalid=" + hex(block102.sha256)[2:]])
+
         p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
         p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
         p2p2 = self.nodes[2].add_p2p_connection(BaseNode())
@@ -204,6 +206,7 @@ class AssumeValidTest(BitcoinTestFramework):
         p2p2 = self.nodes[2].add_p2p_connection(BaseNode())
         self.send_blocks_until_disconnected(p2p2)
         self.assert_blockchain_height(self.nodes[2], COINBASE_MATURITY+1)
+
 
 if __name__ == '__main__':
     AssumeValidTest().main()

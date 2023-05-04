@@ -214,7 +214,7 @@ def test_segwit_bumpfee_succeeds(self, rbf_node, dest_address):
     rbfraw = rbf_node.createrawtransaction([{
         'txid': segwitid,
         'vout': 0,
-        "sequence": BIP125_SEQUENCE_NUMBER
+        "sequence": MAX_BIP125_RBF_SEQUENCE
     }], {dest_address: Decimal("0.05"),
          rbf_node.getrawchangeaddress(): Decimal("0.03")})
     rbfsigned = rbf_node.signrawtransactionwithwallet(rbfraw)
@@ -306,7 +306,7 @@ def test_small_output_with_feerate_succeeds(self, rbf_node, dest_address):
     original_txin = input_list[0]
     self.log.info('Keep bumping until transaction fee out-spends non-destination value')
     tx_fee = 0
-    i = 0 
+    i = 0
     while True:
         input_list = rbf_node.getrawtransaction(rbfid, 1)["vin"]
         new_item = list(input_list)[0]
@@ -465,7 +465,9 @@ def test_watchonly_psbt(self, peer_node, rbf_node, dest_address):
     self.generate(peer_node, 1)
 
     # Create single-input PSBT for transaction to be bumped
-    psbt = watcher.walletcreatefundedpsbt([], {dest_address: 0.05}, 0, {"fee_rate": 1000}, True)['psbt']
+    # Ensure the payment amount + change can be fully funded using one of the 0.001BTC inputs.
+    psbt = watcher.walletcreatefundedpsbt([watcher.listunspent()[0]], {dest_address: 0.05}, 0,
+            {"fee_rate": 1000, "add_inputs": False}, True)['psbt']
     psbt_signed = signer.walletprocesspsbt(psbt=psbt, sign=True, sighashtype="ALL", bip32derivs=True)
     psbt_final = watcher.finalizepsbt(psbt_signed["psbt"])
     original_txid = watcher.sendrawtransaction(psbt_final["hex"])
@@ -599,7 +601,7 @@ def test_change_script_match(self, rbf_node, dest_address):
 
 def spend_one_input(node, dest_address, change_size=Decimal("0.04900000")):
     tx_input = dict(
-        sequence=BIP125_SEQUENCE_NUMBER, **next(u for u in node.listunspent() if u["amount"] == Decimal("0.10000000")))
+        sequence=MAX_BIP125_RBF_SEQUENCE, **next(u for u in node.listunspent() if u["amount"] == Decimal("0.10000000")))
     destinations = {dest_address: Decimal("0.05000000")}
     if change_size > 0:
         destinations[node.getrawchangeaddress()] = change_size

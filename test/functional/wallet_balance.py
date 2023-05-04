@@ -49,10 +49,12 @@ def create_transactions(node, address, amt, fees):
 
 class WalletTest(BitcoinTestFramework):
     def set_test_params(self):
-        self.num_nodes = 3 
+        self.num_nodes = 3
         self.setup_clean_chain = True
         self.extra_args = [
-            ['-limitdescendantcount=3', '-headerspamfilter=0'],  # Limit mempool descendants as a hack to have wallet txs rejected from the mempool
+            # Limit mempool descendants as a hack to have wallet txs rejected from the mempool.
+            # Set walletrejectlongchains=0 so the wallet still creates the transactions.
+            ['-limitdescendantcount=3', '-walletrejectlongchains=0', '-headerspamfilter=0'],
             ['-headerspamfilter=0'],
             ['-headerspamfilter=0']
         ]
@@ -95,7 +97,7 @@ class WalletTest(BitcoinTestFramework):
             assert_equal(self.nodes[1].getbalances()['mine']['trusted'], 50)
 
             assert_equal(self.nodes[0].getbalances()['watchonly']['immature'], COINBASE_MATURITY*INITIAL_BLOCK_REWARD)
-           assert 'watchonly' not in self.nodes[1].getbalances()
+            assert 'watchonly' not in self.nodes[1].getbalances()
 
             assert_equal(self.nodes[0].getbalance(), 50)
             assert_equal(self.nodes[1].getbalance(), 50)
@@ -178,9 +180,9 @@ class WalletTest(BitcoinTestFramework):
                                                  'stake':             Decimal('0.0')}}
             expected_balances_1 = {'mine':      {'immature':          Decimal('0E-8'),
                                                  'trusted':           Decimal('0E-8'),  # node 1's send had an unsafe input
-
                                                  'untrusted_pending': Decimal('30.0') - fee_node_1,
                                                  'stake':             Decimal('0.0')}}  # Doesn't include output of node 0's send since it was spent
+            if self.options.descriptors:
                 del expected_balances_0["watchonly"]
             assert_equal(self.nodes[0].getbalances(), expected_balances_0)
             assert_equal(self.nodes[1].getbalances(), expected_balances_1)

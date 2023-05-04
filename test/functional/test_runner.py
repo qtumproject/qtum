@@ -343,7 +343,7 @@ BASE_SCRIPTS = [
     'feature_shutdown.py',
     'wallet_migration.py',
     'p2p_ibd_txrelay.py',
-    'feature_blockfilterindex_prune.py',
+    'feature_index_prune.py',
     # Don't append tests at the end to avoid merge conflicts
     # Put them in a random line within the section that fits their approximate run-time
     # qtum

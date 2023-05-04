@@ -7,7 +7,7 @@
 
 from decimal import Decimal
 from itertools import product
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD 
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
 
 from test_framework.descriptors import descsum_create
 from test_framework.key import ECKey, H_POINT
@@ -41,7 +41,7 @@ from test_framework.util import (
     random_bytes,
 )
 from test_framework.wallet_util import bytes_to_wif
-from test_framework.qtum import convert_btc_bech32_address_to_qtum 
+from test_framework.qtum import convert_btc_bech32_address_to_qtum
 
 import json
 import os
@@ -480,7 +480,7 @@ class PSBTTest(BitcoinTestFramework):
                 new_value = list(k.values())[0]
                 new_outputs[new_key] = new_value
             creator['outputs'] = new_outputs
-            created_tx = self.nodes[0].createpsbt(creator['inputs'], creator['outputs'])
+            created_tx = self.nodes[0].createpsbt(inputs=creator['inputs'], outputs=creator['outputs'], replaceable=False)
             assert_equal(created_tx, creator['result'])
 
         # Signer tests

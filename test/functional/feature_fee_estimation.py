@@ -185,7 +185,7 @@ class EstimateFeeTest(BitcoinTestFramework):
         self.confutxo = self.wallet.send_self_transfer_multi(
             from_node=node,
             utxos_to_spend=[self.wallet.get_utxo() for _ in range(2)],
-            num_outputs=3048)['new_utxos']
+            num_outputs=2048)['new_utxos']
         while len(node.getrawmempool()) > 0:
             self.generate(node, 1, sync_fun=self.no_op)
 

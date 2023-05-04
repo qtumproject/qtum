@@ -560,10 +560,12 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         )["txid"]
 
         # Higher fee, but the actual fee per KB is much lower.
-        tx1b = CTransaction()
-        tx1b.vin = [CTxIn(tx0_outpoint, nSequence=0)]
-        tx1b.vout = [CTxOut(int(0.01 * COIN), CScript([b'a' * 74000]))]
-        tx1b_hex = tx1b.serialize().hex()
+        tx1b_hex = self.wallet.create_self_transfer_multi(
+            utxos_to_spend=[tx0_outpoint],
+            sequence=0,
+            num_outputs=100,
+            amount_per_output=int(0.01 * COIN),
+        )["hex"]
 
         # Verify tx1b cannot replace tx1a.
         assert_raises_rpc_error(-26, "insufficient fee", self.nodes[0].sendrawtransaction, tx1b_hex, 0)

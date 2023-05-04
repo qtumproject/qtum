@@ -22,17 +22,15 @@ from test_framework.wallet import (
     getnewdestination,
 )
 
-from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD 
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 class RpcCreateMultiSigTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 3
         self.supports_cli = False
+        if self.is_bdb_compiled():
+            self.requires_wallet = True
         self.extra_args = [['-addresstype=bech32']] * 3
-        self.requires_wallet = True
-        
-    def skip_test_if_missing_module(self):
-        self.skip_if_no_wallet()
 
     def get_keys(self):
         self.pub = []
@@ -85,9 +83,11 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         for keys in itertools.permutations([pk0, pk1, pk2]):
             # Results should be the same as this legacy one
             legacy_addr = wmulti0.createmultisig(2, keys, 'legacy')['address']
-            result = wmulti0.addmultisigaddress(2, keys, '', 'legacy')
-            assert_equal(legacy_addr, result['address'])
-            assert 'warnings' not in result
+
+            if self.is_bdb_compiled():
+                result = wmulti0.addmultisigaddress(2, keys, '', 'legacy')
+                assert_equal(legacy_addr, result['address'])
+                assert 'warnings' not in result
 
             # Generate addresses with the segwit types. These should all make legacy addresses
             err_msg = ["Unable to make chosen address type, please ensure no uncompressed public keys are present."]
@@ -113,10 +113,12 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             sorted_key_str = ','.join(t['sorted_keys'])
             sorted_key_desc = descsum_create('sh(multi(2,{}))'.format(sorted_key_str))
             assert_equal(self.nodes[0].deriveaddresses(sorted_key_desc)[0], t['address'])
+
         node0.createwallet(wallet_name='wmulti1', disable_private_keys=False)
         wmulti1 = node0.get_wallet_rpc('wmulti1')
         # Check that bech32m is currently not allowed
         assert_raises_rpc_error(-5, "createmultisig cannot create bech32m multisig addresses", wmulti1.createmultisig, 2, self.pub, "bech32m")
+
     def check_addmultisigaddress_errors(self):
         if self.options.descriptors:
             return
@@ -179,7 +181,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         mredeem = msig["redeemScript"]
         assert_equal(desc, msig['descriptor'])
         if self.output_type == 'bech32':
-            assert madd[0:4] == "qcrt"  # actually a bech32 address 
+            assert madd[0:4] == "qcrt"  # actually a bech32 address
 
         if self.is_bdb_compiled():
             # compare against addmultisigaddress

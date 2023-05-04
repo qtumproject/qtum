@@ -115,6 +115,7 @@ class FullBlockTest(BitcoinTestFramework):
         #duplicate_tx = b_dup_cb.vtx[0]
         #b_dup_cb = self.update_block('dup_cb', [])
         #self.send_blocks([b_dup_cb])
+
         b0 = self.next_block(0)
         self.save_spendable_output()
         self.send_blocks([b0])
@@ -129,7 +130,7 @@ class FullBlockTest(BitcoinTestFramework):
         blocks = []
         for i in range(NUM_BUFFER_BLOCKS_TO_GENERATE):
             blocks.append(self.next_block(f"maturitybuffer.{i}"))
-            self.save_spendable_output()      
+            self.save_spendable_output()        
         for i in range(0, len(blocks), 100):
             self.send_blocks(blocks[i:i+100])
         self.send_blocks(blocks[i:])
@@ -381,7 +382,6 @@ class FullBlockTest(BitcoinTestFramework):
         # Extend the b28 chain to make sure bitcoind isn't accepting b28
         b29 = self.next_block(29, spend=out[7])
         self.send_blocks([b29], False)
-
         # b30 has a max-sized coinbase scriptSig.
         self.move_tip(23)
         b30 = self.next_block(30)
@@ -659,6 +659,7 @@ class FullBlockTest(BitcoinTestFramework):
         # Header timestamp has changed. Re-solve the block.
         b48.solve()
         self.send_blocks([b48], False, force_send=True, reconnect=True)
+
         self.log.info("Reject a block with invalid merkle hash")
         self.move_tip(44)
         b49 = self.next_block(49)
@@ -819,7 +820,8 @@ class FullBlockTest(BitcoinTestFramework):
         self.log.info("Reject a block with a transaction with outputs > inputs")
         self.move_tip("57p2")
         b59 = self.next_block(59)
-        tx = self.create_and_sign_transaction(out[17], int(INITIAL_BLOCK_REWARD+1) * COIN)        b59 = self.update_block(59, [tx])
+        tx = self.create_and_sign_transaction(out[17], int(INITIAL_BLOCK_REWARD+1) * COIN)
+        b59 = self.update_block(59, [tx])
         self.send_blocks([b59], success=False, reject_reason='bad-txns-in-belowout', reconnect=True)
 
         # reset to good chain
@@ -1276,9 +1278,8 @@ class FullBlockTest(BitcoinTestFramework):
         self.send_blocks([b89a], success=False, reject_reason='bad-txns-inputs-missingorspent', reconnect=True)
 
         self.log.info("Test a re-org of one week's worth of blocks (1088 blocks)")
-
         self.move_tip(88)
-        LARGE_REORG_SIZE = 200 
+        LARGE_REORG_SIZE = 200
         blocks = []
         spend = out[32]
         for i in range(89, LARGE_REORG_SIZE + 89):

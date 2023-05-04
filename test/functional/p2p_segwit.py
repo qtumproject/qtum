@@ -90,10 +90,10 @@ from test_framework.util import (
     bytes_to_hex_str,
     hex_str_to_bytes,
 )
+from test_framework.wallet import MiniWallet
 from test_framework.qtumconfig import *
 from test_framework.qtum import generatesynchronized
 from test_framework.messages import COIN
-from test_framework.wallet import MiniWallet
 
 MAX_SIGOP_COST = 80000 // FACTOR_REDUCED_BLOCK_TIME
 
@@ -129,6 +129,7 @@ def sign_p2pk_witness_input(script, tx_to, in_idx, hashtype, value, key):
     signature = key.sign_ecdsa(tx_hash) + chr(hashtype).encode('latin-1')
     tx_to.wit.vtxinwit[in_idx].scriptWitness.stack = [signature, script]
     tx_to.rehash()
+
 def submit_old_blocks(node, n):
     node.importprivkey("cRComRro8wTGnDTGqgpyP5vwwo24Tn831cPu3PZEdr2532JVPjrZ")
     pubkey = "03716d5678c829d09cdfdb4bec058712de3ecd99968a4a064336ffb592342e21f9"
@@ -145,6 +146,7 @@ def submit_old_blocks(node, n):
         block.solve()
         node.submitblock(bytes_to_hex_str(block.serialize()))
     assert_equal(node.getblockcount(), num_blocks_old+n)
+
 def test_transaction_acceptance(node, p2p, tx, with_witness, accepted, reason=None):
     """Send a transaction to the node and check that it's accepted to the mempool
 
@@ -608,8 +610,8 @@ class SegWitTest(BitcoinTestFramework):
         # Start by creating a transaction with two outputs.
         tx = CTransaction()
         tx.vin = [CTxIn(COutPoint(p2sh_tx.sha256, 0), CScript([witness_script]))]
-        tx.vout = [CTxOut(p2sh_tx.vout[0].nValue - 10000, script_pubkey)]
-        tx.vout.append(CTxOut(8000, script_pubkey))  # Might burn this later
+        tx.vout = [CTxOut(p2sh_tx.vout[0].nValue - 1000000, script_pubkey)]
+        tx.vout.append(CTxOut(800000, script_pubkey))  # Might burn this later
         tx.vin[0].nSequence = MAX_BIP125_RBF_SEQUENCE  # Just to have the option to bump this tx from the mempool
         tx.rehash()
 
@@ -643,15 +645,35 @@ class SegWitTest(BitcoinTestFramework):
         if not self.segwit_active:
             # Just check mempool acceptance, but don't add the transaction to the mempool, since witness is disallowed
             # in blocks and the tx is impossible to mine right now.
-            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'wtxid': tx3.getwtxid(), 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.00100000')}}])
-
+            assert_equal(
+                self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]),
+                [{
+                    'txid': tx3.hash,
+                    'wtxid': tx3.getwtxid(),
+                    'allowed': True,
+                    'vsize': tx3.get_vsize(),
+                    'fees': {
+                        'base': Decimal('0.00100000'),
+                    },
+                }],
+            )
             # Create the same output as tx3, but by replacing tx
             tx3_out = tx3.vout[0]
             tx3 = tx
             tx3.vout = [tx3_out]
             tx3.rehash()
-            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'wtxid': tx3.getwtxid(), 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.01100000')}}])
-
+            assert_equal(
+                self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]),
+                [{
+                    'txid': tx3.hash,
+                    'wtxid': tx3.getwtxid(),
+                    'allowed': True,
+                    'vsize': tx3.get_vsize(),
+                    'fees': {
+                        'base': Decimal('0.01100000'),
+                    },
+                }],
+            )
         test_transaction_acceptance(self.nodes[0], self.test_node, tx3, with_witness=True, accepted=True)
 
         self.generate(self.nodes[0], 1)
@@ -879,7 +901,7 @@ class SegWitTest(BitcoinTestFramework):
         # This should give us plenty of room to tweak the spending tx's
         # virtual size.
         NUM_DROPS = 200  # 201 max ops per script!
-        NUM_OUTPUTS = 100 // FACTOR_REDUCED_BLOCK_TIME 
+        NUM_OUTPUTS = 100 // FACTOR_REDUCED_BLOCK_TIME
 
         witness_script = CScript([OP_2DROP] * NUM_DROPS + [OP_TRUE])
         script_pubkey = script_to_p2wsh_script(witness_script)
@@ -1059,7 +1081,7 @@ class SegWitTest(BitcoinTestFramework):
     def test_max_witness_push_length(self):
         """Test that witness stack can only allow up to 520 byte pushes."""
 
-        MAX_SCRIPT_ELEMENT_SIZE = 128000 //QTUM_LINE
+        MAX_SCRIPT_ELEMENT_SIZE = 128000
 
         block = self.build_next_block()
 

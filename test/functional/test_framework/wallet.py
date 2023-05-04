@@ -219,7 +219,7 @@ class MiniWallet:
         self.sendrawtransaction(from_node=from_node, tx_hex=tx['hex'])
         return tx
 
-    def send_to(self, *, from_node, scriptPubKey, amount, fee=55200, sort_by_height=False):
+    def send_to(self, *, from_node, scriptPubKey, amount, fee=80000, sort_by_height=False):
         """
         Create and send a tx with an output to a given scriptPubKey/amount,
         plus a change output to our internal address. To keep things simple, a
@@ -238,10 +238,71 @@ class MiniWallet:
         txid = self.sendrawtransaction(from_node=from_node, tx_hex=tx.serialize().hex())
         return txid, 1
 
+    def send_self_transfer_multi(self, *, from_node, **kwargs):
+        """Call create_self_transfer_multi and send the transaction."""
+        tx = self.create_self_transfer_multi(**kwargs)
+        self.sendrawtransaction(from_node=from_node, tx_hex=tx["hex"])
+        return tx
+
+    def create_self_transfer_multi(
+        self,
+        *,
+        utxos_to_spend: Optional[List[dict]] = None,
+        num_outputs=1,
+        amount_per_output=0,
+        sequence=0,
+        fee_per_output=80000,
+        target_weight=0
+    ):
+        """
+        Create and return a transaction that spends the given UTXOs and creates a
+        certain number of outputs with equal amounts. The output amounts can be
+        set by amount_per_output or automatically calculated with a fee_per_output.
+        """
+        utxos_to_spend = utxos_to_spend or [self.get_utxo()]
+        sequence = [sequence] * len(utxos_to_spend) if type(sequence) is int else sequence
+        assert_equal(len(utxos_to_spend), len(sequence))
+        # create simple tx template (1 input, 1 output)
+        tx = self.create_self_transfer(
+            fee_rate=0,
+            utxo_to_spend=utxos_to_spend[0])["tx"]
+
+        # duplicate inputs, witnesses and outputs
+        tx.vin = [deepcopy(tx.vin[0]) for _ in range(len(utxos_to_spend))]
+        for txin, seq in zip(tx.vin, sequence):
+            txin.nSequence = seq
+        tx.wit.vtxinwit = [deepcopy(tx.wit.vtxinwit[0]) for _ in range(len(utxos_to_spend))]
+        tx.vout = [deepcopy(tx.vout[0]) for _ in range(num_outputs)]
+
+        # adapt input prevouts
+        for i, utxo in enumerate(utxos_to_spend):
+            tx.vin[i] = CTxIn(COutPoint(int(utxo['txid'], 16), utxo['vout']))
+
+        # adapt output amounts (use fixed fee per output)
+        inputs_value_total = sum([int(COIN * utxo['value']) for utxo in utxos_to_spend])
+        outputs_value_total = inputs_value_total - fee_per_output * num_outputs
+        for o in tx.vout:
+            o.nValue = amount_per_output or (outputs_value_total // num_outputs)
+
+        if target_weight:
+            self._bulk_tx(tx, target_weight)
+
+        txid = tx.rehash()
+        return {
+            "new_utxos": [self._create_utxo(
+                txid=txid,
+                vout=i,
+                value=Decimal(tx.vout[i].nValue) / COIN,
+                height=0,
+            ) for i in range(len(tx.vout))],
+            "txid": txid,
+            "hex": tx.serialize().hex(),
+            "tx": tx,
+        }
+
     def create_self_transfer(self, *, fee_rate=Decimal("0.03"), fee=Decimal("0"), utxo_to_spend=None, locktime=0, sequence=0, target_weight=0, sort_by_height=False):
-        """Create and return a tx with the specified fee_rate. Fee may be exact or at most one satoshi higher than needed."""
+        """Create and return a tx with the specified fee. If fee is 0, use fee_rate, where the resulting fee may be exact or at most one satoshi higher than needed."""
         utxo_to_spend = utxo_to_spend or self.get_utxo(sort_by_height=sort_by_height)
-        
         assert fee_rate >= 0
         assert fee >= 0
         if self._mode in (MiniWalletMode.RAW_OP_TRUE, MiniWalletMode.ADDRESS_OP_TRUE):

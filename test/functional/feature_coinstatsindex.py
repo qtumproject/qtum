@@ -54,7 +54,7 @@ class CoinStatsIndexTest(BitcoinTestFramework):
         self._test_index_rejects_hash_serialized()
 
     def block_sanity_check(self, block_info):
-        block_subsidy = 20000 
+        block_subsidy = 20000
         assert_equal(
             block_info['prevout_spent'] + block_subsidy,
             block_info['new_outputs_ex_coinbase'] + block_info['coinbase'] + block_info['unspendable']

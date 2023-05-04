@@ -29,7 +29,7 @@ from test_framework.wallet_util import (
     test_address,
 )
 
-from test_framework.qtum import convert_btc_address_to_qtum, convert_btc_bech32_address_to_qtum 
+from test_framework.qtum import convert_btc_address_to_qtum, convert_btc_bech32_address_to_qtum
 class ImportDescriptorsTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
@@ -450,7 +450,7 @@ class ImportDescriptorsTest(BitcoinTestFramework):
 
         assert_equal(wmulti_priv.getwalletinfo()['keypoolsize'], 1001) # Range end (1000) is inclusive, so 1001 addresses generated
         addr = wmulti_priv.getnewaddress('', 'bech32')
-        assert_equal(addr, convert_btc_bech32_address_to_qtum('bcrt1qdt0qy5p7dzhxzmegnn4ulzhard33s2809arjqgjndx87rv5vd0fq2czhy8')) # Derived at m/84'/0'/0'/0 
+        assert_equal(addr, convert_btc_bech32_address_to_qtum('bcrt1qdt0qy5p7dzhxzmegnn4ulzhard33s2809arjqgjndx87rv5vd0fq2czhy8')) # Derived at m/84'/0'/0'/0
         change_addr = wmulti_priv.getrawchangeaddress('bech32')
         assert_equal(change_addr, convert_btc_bech32_address_to_qtum('bcrt1qt9uhe3a9hnq7vajl7a094z4s3crm9ttf8zw3f5v9gr2nyd7e3lnsy44n8e'))
         assert_equal(wmulti_priv.getwalletinfo()['keypoolsize'], 1000)
@@ -485,7 +485,9 @@ class ImportDescriptorsTest(BitcoinTestFramework):
         addr = wmulti_pub.getnewaddress('', 'bech32')
         assert_equal(addr, convert_btc_bech32_address_to_qtum('bcrt1qp8s25ckjl7gr6x2q3dx3tn2pytwp05upkjztk6ey857tt50r5aeqn6mvr9')) # Derived at m/84'/0'/0'/1
         change_addr = wmulti_pub.getrawchangeaddress('bech32')
-        assert_equal(change_addr, convert_btc_bech32_address_to_qtum('bcrt1qt9uhe3a9hnq7vajl7a094z4s3crm9ttf8zw3f5v9gr2nyd7e3lnsy44n8e'))
+        assert_equal(change_addr, convert_btc_bech32_address_to_qtum('bcrt1qzxl0qz2t88kljdnkzg4n4gapr6kte26390gttrg79x66nt4p04fssj53nl'))
+        assert(send_txid in self.nodes[0].getrawmempool(True))
+        assert(send_txid in (x['txid'] for x in wmulti_pub.listunspent(0)))
         assert_equal(wmulti_pub.getwalletinfo()['keypoolsize'], 999)
 
         # generate some utxos for next tests

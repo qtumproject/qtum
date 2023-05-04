@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test compact blocks (BIP 152)."""
 import random
-from decimal import Decimal 
+from decimal import Decimal
 
 from test_framework.blocktools import (
     COINBASE_MATURITY,
@@ -60,7 +60,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
     softfork_active,
-	satoshi_round 
+    satoshi_round,
 )
 from test_framework.wallet import MiniWallet
 
