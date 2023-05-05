@@ -738,6 +738,7 @@ public:
         allowed_syscalls.insert(__NR_sched_getscheduler); // get scheduling policy/parameters
         allowed_syscalls.insert(__NR_sched_setscheduler); // set scheduling policy/parameters
         allowed_syscalls.insert(__NR_sched_yield);        // yield the processor
+        allowed_syscalls.insert(__NR_setpriority);        // set thread priority
     }
 
     void AllowSignalHandling()
