@@ -10,10 +10,10 @@ import random
 TIME = datetime(2025, 10, 18)
 
 # Expected block interval. [timedelta]
-BLOCK_INTERVAL = timedelta(seconds=600)
+BLOCK_INTERVAL = timedelta(seconds=32)
 
 # The number of headers corresponding to the minchainwork parameter. [headers]
-MINCHAINWORK_HEADERS = 751565
+MINCHAINWORK_HEADERS = 2636000
 
 # Combined processing bandwidth from all attackers to one victim. [bit/s]
 # 6 Gbit/s is approximately the speed at which a single thread of a Ryzen 5950X CPU thread can hash
@@ -101,10 +101,10 @@ ASSUME_CONVEX = True
 ### System properties
 
 # Headers in the redownload buffer are stored without prevhash. [bits]
-COMPACT_HEADER_SIZE = 48 * 8
+COMPACT_HEADER_SIZE = 176 * 8
 
 # How many bits a header uses in P2P protocol. [bits]
-NET_HEADER_SIZE = 81 * 8
+NET_HEADER_SIZE = 246 * 8
 
 # How many headers are sent at once. [headers]
 HEADER_BATCH_COUNT = 2000
@@ -116,8 +116,8 @@ RANDOMIZE_OFFSET = True
 ### Derived values
 
 # The maximum number of headers a valid Bitcoin chain can have at time TIME. [headers]
-# When exploiting the timewarp attack, this can be up to 6 per seconds since genesis.
-MAX_HEADERS = 6 * ((TIME - datetime(2009, 1, 3)) // timedelta(seconds=1))
+# When exploiting the timewarp attack, this can be 1 header per 4 seconds since genesis.
+MAX_HEADERS = 5000 + ((TIME + timedelta(hours=2) - datetime(2017, 9, 6)) // timedelta(seconds=4))
 
 # What rate of headers worth of RAM attackers are allowed to cause in the victim. [headers/s]
 LIMIT_HEADERRATE = ATTACK_FRACTION / BLOCK_INTERVAL.total_seconds()
