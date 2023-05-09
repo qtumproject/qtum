@@ -43,6 +43,7 @@
 #include <clientversion.h>
 #include <consensus/merkle.h>
 #include <shutdown.h>
+#include <pos.h>
 
 #include <algorithm>
 #include <atomic>
@@ -702,8 +703,8 @@ private:
                                bool via_compact_block)
         EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex, !m_headers_presync_mutex);
     /** Various helpers for headers processing, invoked by ProcessHeadersMessage() */
-    /** Return true if headers are continuous and have valid proof-of-work (DoS points assigned on failure) */
-    bool CheckHeadersPoW(const std::vector<CBlockHeader>& headers, const Consensus::Params& consensusParams, Peer& peer);
+    /** Return true if headers are continuous and have valid proof-of-work and basic PoS checks (DoS points assigned on failure) */
+    bool CheckHeadersSanity(const std::vector<CBlockHeader>& headers, const Consensus::Params& consensusParams, Peer& peer);
     /** Calculate an anti-DoS work threshold for headers chains */
     arith_uint256 GetAntiDoSWorkThreshold();
     /** Deal with state tracking and headers sync for peers that send the
@@ -712,6 +713,10 @@ private:
     void HandleFewUnconnectingHeaders(CNode& pfrom, Peer& peer, const std::vector<CBlockHeader>& headers);
     /** Return true if the headers connect to each other, false otherwise */
     bool CheckHeadersAreContinuous(const std::vector<CBlockHeader>& headers) const;
+    /** Return true if the PoS headers connect to each other, false otherwise */
+    bool CheckPoSHeadersAreContinuous(const std::vector<CBlockHeader>& headers, const CBlockIndex* chain_start_header) const;
+    /** Return true if the headers timestamp and signature size is correct for PoS */
+    bool CheckHeadersTimestampAndSignatureSize(const std::vector<CBlockHeader>& headers) const;
     /** Try to continue a low-work headers sync that has already begun.
      * Assumes the caller has already verified the headers connect, and has
      * checked that each header satisfies the proof-of-work target included in
@@ -2541,7 +2546,7 @@ void PeerManagerImpl::SendBlockTransactions(CNode& pfrom, Peer& peer, const CBlo
     m_connman.PushMessage(&pfrom, msgMaker.Make(NetMsgType::BLOCKTXN, resp));
 }
 
-bool PeerManagerImpl::CheckHeadersPoW(const std::vector<CBlockHeader>& headers, const Consensus::Params& consensusParams, Peer& peer)
+bool PeerManagerImpl::CheckHeadersSanity(const std::vector<CBlockHeader>& headers, const Consensus::Params& consensusParams, Peer& peer)
 {
     // Do these headers have proof-of-work matching what's claimed?
     if (!HasValidProofOfWork(headers, consensusParams)) {
@@ -2554,6 +2559,13 @@ bool PeerManagerImpl::CheckHeadersPoW(const std::vector<CBlockHeader>& headers, 
         Misbehaving(peer, 20, "non-continuous headers sequence");
         return false;
     }
+
+    // Are these headers have valid timestamp and signature size?
+    if (!CheckHeadersTimestampAndSignatureSize(headers)) {
+        Misbehaving(peer, 100, "header with invalid proof of stake");
+        return false;
+    }
+
     return true;
 }
 
@@ -2568,7 +2580,7 @@ arith_uint256 PeerManagerImpl::GetAntiDoSWorkThreshold()
         const CBlockIndex* pcheckpoint = m_chainman.m_blockman.AutoSelectSyncCheckpoint(tip);
         near_chaintip_work = pcheckpoint->nChainWork;
     }
-    return near_chaintip_work;
+    return std::max(near_chaintip_work, arith_uint256(nMinimumChainWork));
 }
 
 /**
@@ -2620,6 +2632,56 @@ bool PeerManagerImpl::CheckHeadersAreContinuous(const std::vector<CBlockHeader>&
             return false;
         }
         hashLastBlock = header.GetHash();
+    }
+    return true;
+}
+
+bool PeerManagerImpl::CheckPoSHeadersAreContinuous(const std::vector<CBlockHeader>& headers, const CBlockIndex* chain_start_header) const
+{
+    int64_t nTimePrev = chain_start_header->GetBlockTime();
+    int nHeight = chain_start_header->nHeight + 1;
+    const Consensus::Params& consensusParams = m_chainparams.GetConsensus();
+    for (const CBlockHeader& header : headers)
+    {
+        //reject proof of work at height consensusParams.nLastPOWBlock
+        if (header.IsProofOfWork() && nHeight > consensusParams.nLastPOWBlock)
+            return false;
+
+        // Check coinstake timestamp
+        if (header.IsProofOfStake() && !CheckCoinStakeTimestamp(header.GetBlockTime(), nHeight, consensusParams))
+            return false;
+
+        // Check timestamp against prev
+        if (header.IsProofOfStake() && (header.GetBlockTime() <= nTimePrev || FutureDrift(header.GetBlockTime(), nHeight, consensusParams) < nTimePrev))
+            return false;
+
+        nTimePrev = header.GetBlockTime();
+        nHeight++;
+    }
+    return true;
+}
+
+bool PeerManagerImpl::CheckHeadersTimestampAndSignatureSize(const std::vector<CBlockHeader>& headers) const
+{
+    int64_t timeLastBlock = m_chainparams.GenesisBlock().GetBlockTime();
+    const Consensus::Params& consensusParams = m_chainparams.GetConsensus();
+    for (const CBlockHeader& header : headers) {
+        if(header.IsProofOfStake())
+        {
+            // Check coinstake timestamp
+            if (header.GetBlockTime() & consensusParams.MinStakeTimestampMask())
+                return false;
+
+            // Check timestamp against prev
+            if (header.GetBlockTime() <= timeLastBlock)
+                return false;
+        }
+
+        // Check signature size
+        if(!CheckCanonicalBlockSignature(&header))
+            return false;
+
+        timeLastBlock = header.GetBlockTime();
     }
     return true;
 }
@@ -2940,8 +3002,8 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, Peer& peer,
     // We'll rely on headers having valid proof-of-work further down, as an
     // anti-DoS criteria (note: this check is required before passing any
     // headers into HeadersSyncState).
-    if (!CheckHeadersPoW(headers, m_chainparams.GetConsensus(), peer)) {
-        // Misbehaving() calls are handled within CheckHeadersPoW(), so we can
+    if (!CheckHeadersSanity(headers, m_chainparams.GetConsensus(), peer)) {
+        // Misbehaving() calls are handled within CheckHeadersSanity(), so we can
         // just return. (Note that even if a header is announced via compact
         // block, the header itself should be valid, so this type of error can
         // always be punished.)
@@ -2994,6 +3056,13 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, Peer& peer,
         } else {
             Misbehaving(peer, 10, "invalid header received");
         }
+        return;
+    }
+
+    // Check that the received PoS headers are continuous
+    if(!CheckPoSHeadersAreContinuous(headers, chain_start_header))
+    {
+        Misbehaving(peer, 100, "invalid header received");
         return;
     }
 

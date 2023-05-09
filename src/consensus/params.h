@@ -194,6 +194,10 @@ struct Params {
     {
         return height < nReduceBlocktimeHeight ? nStakeTimestampMask : nRBTStakeTimestampMask;
     }
+    int64_t MinStakeTimestampMask() const
+    {
+        return nRBTStakeTimestampMask;
+    }
     int SubsidyHalvingInterval(int height) const
     {
         return height < nReduceBlocktimeHeight ? nSubsidyHalvingInterval : nSubsidyHalvingIntervalV2;
