@@ -84,6 +84,7 @@ class SignRawTransactionWithKeyTest(BitcoinTestFramework):
         eckey.generate()
         embedded_privkey = bytes_to_wif(eckey.get_bytes())
         embedded_pubkey = eckey.get_pubkey().get_bytes().hex()
+        self.nodes[1].createwallet(wallet_name="multisig")
         p2sh_p2wsh_address = self.nodes[1].createmultisig(1, [embedded_pubkey], "p2sh-segwit")
         # send transaction to P2SH-P2WSH 1-of-1 multisig address
         self.block_hash = self.generate(self.nodes[0], COINBASE_MATURITY + 1)
