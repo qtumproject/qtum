@@ -58,6 +58,10 @@ static const char* SettingName(OptionsModel::OptionID option)
     case OptionsModel::ProxyPortTor: return "onion";
     case OptionsModel::ProxyUseTor: return "onion";
     case OptionsModel::Language: return "lang";
+    case OptionsModel::HWIToolPath: return "hwitoolpath";
+    case OptionsModel::StakeLedgerId: return "stakerledgerid";
+    case OptionsModel::SignPSBTWithHWITool: return "signpsbtwithhwitool";
+    case OptionsModel::UseChangeAddress: return "usechangeaddress";
     default: throw std::logic_error(strprintf("GUI option %i has no corresponding node setting.", option));
     }
 }
@@ -196,7 +200,8 @@ bool OptionsModel::Init(bilingual_str& error)
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
     for (OptionID option : {DatabaseCache, ThreadsScriptVerif, SpendZeroConfChange, ExternalSignerPath, MapPortUPnP,
-                            MapPortNatpmp, Listen, Server, Prune, ProxyUse, ProxyUseTor, Language}) {
+                            MapPortNatpmp, Listen, Server, Prune, ProxyUse, ProxyUseTor, Language,
+                            HWIToolPath, StakeLedgerId, SignPSBTWithHWITool, UseChangeAddress}) {
         std::string setting = SettingName(option);
         if (node().isSettingIgnored(setting)) addOverriddenOption("-" + setting);
         try {
@@ -251,11 +256,6 @@ bool OptionsModel::Init(bilingual_str& error)
         settings.setValue("bZeroBalanceAddressToken", wallet::DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
     bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
 
-    if (!settings.contains("signPSBTWithHWITool"))
-        settings.setValue("signPSBTWithHWITool", wallet::DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
-    if (!gArgs.SoftSetBoolArg("-signpsbtwithhwitool", settings.value("signPSBTWithHWITool").toBool()))
-        addOverriddenOption("-signpsbtwithhwitool");
-
     if (!settings.contains("SubFeeFromAmount")) {
         settings.setValue("SubFeeFromAmount", false);
     }
@@ -265,23 +265,6 @@ bool OptionsModel::Init(bilingual_str& error)
     if (!settings.contains("fCheckForUpdates"))
         settings.setValue("fCheckForUpdates", DEFAULT_CHECK_FOR_UPDATES);
     fCheckForUpdates = settings.value("fCheckForUpdates").toBool();
-
-#ifdef ENABLE_WALLET
-    if (!settings.contains("fUseChangeAddress"))
-    {
-        // Set the default value
-        bool useChangeAddress = wallet::DEFAULT_USE_CHANGE_ADDRESS;
-
-        // Get the old parameter value if exist
-        if(settings.contains("fNotUseChangeAddress"))
-            useChangeAddress = !settings.value("fNotUseChangeAddress").toBool();
-
-        // Set the parameter value
-        settings.setValue("fUseChangeAddress", useChangeAddress);
-    }
-    if (!gArgs.SoftSetBoolArg("-usechangeaddress", settings.value("fUseChangeAddress").toBool()))
-        addOverriddenOption("-usechangeaddress");
-#endif
 
     // Display
     if (!settings.contains("UseEmbeddedMonospacedFont")) {
@@ -294,20 +277,6 @@ bool OptionsModel::Init(bilingual_str& error)
         settings.setValue("Theme", "");
 
     theme = settings.value("Theme").toString();
-
-#ifdef ENABLE_WALLET
-    if (!settings.contains("HWIToolPath"))
-        settings.setValue("HWIToolPath", "");
-
-    if (!gArgs.SoftSetArg("-hwitoolpath", settings.value("HWIToolPath").toString().toStdString()))
-        addOverriddenOption("-hwitoolpath");
-
-    if (!settings.contains("StakeLedgerId"))
-        settings.setValue("StakeLedgerId", "");
-
-    if (!gArgs.SoftSetArg("-stakerledgerid", settings.value("StakeLedgerId").toString().toStdString()))
-        addOverriddenOption("-stakerledgerid");
-#endif
 
     return true;
 }
@@ -497,7 +466,7 @@ QVariant OptionsModel::getOption(OptionID option) const
     case ReserveBalance:
         return settings.value("nReserveBalance");
     case SignPSBTWithHWITool:
-        return settings.value("signPSBTWithHWITool");
+        return SettingToBool(setting(), wallet::DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
 #endif
     case DisplayUnit:
         return QVariant::fromValue(m_display_bitcoin_unit);
@@ -531,7 +500,7 @@ QVariant OptionsModel::getOption(OptionID option) const
         return SettingToBool(setting(), false);
 #ifdef ENABLE_WALLET
     case UseChangeAddress:
-        return settings.value("fUseChangeAddress");
+        return SettingToBool(setting(), wallet::DEFAULT_USE_CHANGE_ADDRESS);
 #endif
     case CheckForUpdates:
         return settings.value("fCheckForUpdates");
@@ -539,9 +508,9 @@ QVariant OptionsModel::getOption(OptionID option) const
         return settings.value("Theme");
 #ifdef ENABLE_WALLET
     case HWIToolPath:
-        return settings.value("HWIToolPath");
+        return QString::fromStdString(SettingToString(setting(), ""));
     case StakeLedgerId:
-        return settings.value("StakeLedgerId");
+        return QString::fromStdString(SettingToString(setting(), ""));
 #endif
     default:
         return QVariant();
@@ -661,8 +630,8 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value)
         Q_EMIT zeroBalanceAddressTokenChanged(bZeroBalanceAddressToken);
         break;
     case SignPSBTWithHWITool:
-        if (settings.value("signPSBTWithHWITool") != value) {
-            settings.setValue("signPSBTWithHWITool", value);
+        if (changed()) {
+            update(value.toBool());
             setRestartRequired(true);
         }
         break;
@@ -753,10 +722,8 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value)
         break;
 #ifdef ENABLE_WALLET
     case UseChangeAddress:
-        if (settings.value("fUseChangeAddress") != value) {
-            settings.setValue("fUseChangeAddress", value);
-            // Set fNotUseChangeAddress for backward compatibility reason
-            settings.setValue("fNotUseChangeAddress", !value.toBool());
+        if (changed()) {
+            update(value.toBool());
             setRestartRequired(true);
         }
         break;
@@ -775,14 +742,14 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value)
         break;
 #ifdef ENABLE_WALLET
     case HWIToolPath:
-        if (settings.value("HWIToolPath") != value) {
-            settings.setValue("HWIToolPath", value);
+        if (changed()) {
+            update(value.toString().toStdString());
             setRestartRequired(true);
         }
         break;
     case StakeLedgerId:
-        if (settings.value("StakeLedgerId") != value) {
-            settings.setValue("StakeLedgerId", value);
+        if (changed()) {
+            update(value.toString().toStdString());
             setRestartRequired(true);
         }
         break;
@@ -845,6 +812,20 @@ void OptionsModel::checkAndMigrate()
         settings.setValue("addrSeparateProxyTor", GetDefaultProxyAddress());
     }
 
+#ifdef ENABLE_WALLET
+    // Overwrite fNotUseChangeAddress for backward compatibility reason
+    if (settings.contains("fNotUseChangeAddress"))
+    {
+        if (!settings.contains("fUseChangeAddress"))
+        {
+            // Set the parameter value
+            bool useChangeAddress = !settings.value("fNotUseChangeAddress").toBool();
+            settings.setValue("fUseChangeAddress", useChangeAddress);
+        }
+        settings.remove("fNotUseChangeAddress");
+    }
+#endif
+
     // Migrate and delete legacy GUI settings that have now moved to <datadir>/settings.json.
     auto migrate_setting = [&](OptionID option, const QString& qt_name) {
         if (!settings.contains(qt_name)) return;
@@ -870,6 +851,10 @@ void OptionsModel::checkAndMigrate()
 #ifdef ENABLE_WALLET
     migrate_setting(SpendZeroConfChange, "bSpendZeroConfChange");
     migrate_setting(ExternalSignerPath, "external_signer_path");
+    migrate_setting(HWIToolPath, "HWIToolPath");
+    migrate_setting(StakeLedgerId, "StakeLedgerId");
+    migrate_setting(SignPSBTWithHWITool, "signPSBTWithHWITool");
+    migrate_setting(UseChangeAddress, "fUseChangeAddress");
 #endif
     migrate_setting(MapPortUPnP, "fUseUPnP");
     migrate_setting(MapPortNatpmp, "fUseNatpmp");
