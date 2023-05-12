@@ -62,6 +62,9 @@ static const char* SettingName(OptionsModel::OptionID option)
     case OptionsModel::StakeLedgerId: return "stakerledgerid";
     case OptionsModel::SignPSBTWithHWITool: return "signpsbtwithhwitool";
     case OptionsModel::UseChangeAddress: return "usechangeaddress";
+    case OptionsModel::ReserveBalance: return "reservebalance";
+    case OptionsModel::LogEvents: return "logevents";
+    case OptionsModel::SuperStaking: return "superstaking";
     default: throw std::logic_error(strprintf("GUI option %i has no corresponding node setting.", option));
     }
 }
@@ -201,7 +204,8 @@ bool OptionsModel::Init(bilingual_str& error)
     // and we want command-line parameters to overwrite the GUI settings.
     for (OptionID option : {DatabaseCache, ThreadsScriptVerif, SpendZeroConfChange, ExternalSignerPath, MapPortUPnP,
                             MapPortNatpmp, Listen, Server, Prune, ProxyUse, ProxyUseTor, Language,
-                            HWIToolPath, StakeLedgerId, SignPSBTWithHWITool, UseChangeAddress}) {
+                            HWIToolPath, StakeLedgerId, SignPSBTWithHWITool, UseChangeAddress, ReserveBalance,
+                            LogEvents, SuperStaking}) {
         std::string setting = SettingName(option);
         if (node().isSettingIgnored(setting)) addOverriddenOption("-" + setting);
         try {
@@ -214,35 +218,6 @@ bool OptionsModel::Init(bilingual_str& error)
             return false;
         }
     }
-
-#ifdef ENABLE_WALLET
-    if (!settings.contains("fSuperStaking"))
-        settings.setValue("fSuperStaking", false);
-    bool fSuperStaking = settings.value("fSuperStaking").toBool();
-    if (!gArgs.SoftSetBoolArg("-superstaking", fSuperStaking))
-        addOverriddenOption("-superstaking");
-    if(fSuperStaking)
-    {
-        if (!gArgs.SoftSetBoolArg("-staking", true))
-            addOverriddenOption("-staking");
-        if (!gArgs.SoftSetBoolArg("-logevents", true))
-            addOverriddenOption("-logevents");
-        if (!gArgs.SoftSetBoolArg("-addrindex", true))
-            addOverriddenOption("-addrindex");
-    }
-#endif
-
-    if (!settings.contains("fLogEvents"))
-        settings.setValue("fLogEvents", fLogEvents);
-    if (!gArgs.SoftSetBoolArg("-logevents", settings.value("fLogEvents").toBool()))
-        addOverriddenOption("-logevents");
-
-#ifdef ENABLE_WALLET
-    if (!settings.contains("nReserveBalance"))
-        settings.setValue("nReserveBalance", (long long)wallet::DEFAULT_RESERVE_BALANCE);
-    if (!gArgs.SoftSetArg("-reservebalance", FormatMoney(settings.value("nReserveBalance").toLongLong())))
-        addOverriddenOption("-reservebalance");
-#endif
 
     // If setting doesn't exist create it with defaults.
 
@@ -464,7 +439,7 @@ QVariant OptionsModel::getOption(OptionID option) const
     case ZeroBalanceAddressToken:
         return settings.value("bZeroBalanceAddressToken");
     case ReserveBalance:
-        return settings.value("nReserveBalance");
+        return QString::fromStdString(SettingToString(setting(), FormatMoney(wallet::DEFAULT_RESERVE_BALANCE)));
     case SignPSBTWithHWITool:
         return SettingToBool(setting(), wallet::DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
 #endif
@@ -487,10 +462,10 @@ QVariant OptionsModel::getOption(OptionID option) const
     case DatabaseCache:
         return qlonglong(SettingToInt(setting(), nDefaultDbCache));
     case LogEvents:
-        return settings.value("fLogEvents");
+        return SettingToBool(setting(), fLogEvents);
 #ifdef ENABLE_WALLET
     case SuperStaking:
-        return settings.value("fSuperStaking");
+        return SettingToBool(setting(), false);
 #endif
     case ThreadsScriptVerif:
         return qlonglong(SettingToInt(setting(), DEFAULT_SCRIPTCHECK_THREADS));
@@ -688,21 +663,21 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value)
         }
         break;
     case LogEvents:
-        if (settings.value("fLogEvents") != value) {
-            settings.setValue("fLogEvents", value);
+        if (changed()) {
+            update(value.toBool());
             setRestartRequired(true);
         }
         break;
 #ifdef ENABLE_WALLET
     case SuperStaking:
-        if (settings.value("fSuperStaking") != value) {
-            settings.setValue("fSuperStaking", value);
+        if (changed()) {
+            update(value.toBool());
             setRestartRequired(true);
         }
         break;
     case ReserveBalance:
-        if (settings.value("nReserveBalance") != value) {
-            settings.setValue("nReserveBalance", value);
+        if (changed()) {
+            update(value.toString().toStdString());
             setRestartRequired(true);
         }
         break;
@@ -824,6 +799,16 @@ void OptionsModel::checkAndMigrate()
         }
         settings.remove("fNotUseChangeAddress");
     }
+
+    // Overwrite fLogEvents when superstake
+    if (settings.contains("fSuperStaking"))
+    {
+        bool fSuperStaking = settings.value("fSuperStaking").toBool();
+        if(fSuperStaking)
+        {
+            settings.setValue("fLogEvents", true);
+        }
+    }
 #endif
 
     // Migrate and delete legacy GUI settings that have now moved to <datadir>/settings.json.
@@ -839,6 +824,9 @@ void OptionsModel::checkAndMigrate()
                 ProxySetting parsed = ParseProxyString(value.toString());
                 setOption(ProxyIPTor, parsed.ip);
                 setOption(ProxyPortTor, parsed.port);
+            } else if (option == ReserveBalance) {
+                std::string balance = FormatMoney(value.toLongLong());
+                setOption(ReserveBalance, QString::fromStdString(balance));
             } else {
                 setOption(option, value);
             }
@@ -855,6 +843,8 @@ void OptionsModel::checkAndMigrate()
     migrate_setting(StakeLedgerId, "StakeLedgerId");
     migrate_setting(SignPSBTWithHWITool, "signPSBTWithHWITool");
     migrate_setting(UseChangeAddress, "fUseChangeAddress");
+    migrate_setting(ReserveBalance, "nReserveBalance");
+    migrate_setting(SuperStaking, "fSuperStaking");
 #endif
     migrate_setting(MapPortUPnP, "fUseUPnP");
     migrate_setting(MapPortNatpmp, "fUseNatpmp");
@@ -867,6 +857,7 @@ void OptionsModel::checkAndMigrate()
     migrate_setting(ProxyIPTor, "addrSeparateProxyTor");
     migrate_setting(ProxyUseTor, "fUseSeparateProxyTor");
     migrate_setting(Language, "language");
+    migrate_setting(LogEvents, "fLogEvents");
 
     // In case migrating QSettings caused any settings value to change, rerun
     // parameter interaction code to update other settings. This is particularly

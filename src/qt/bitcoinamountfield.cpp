@@ -9,6 +9,7 @@
 #include <qt/guiutil.h>
 #include <qt/styleSheet.h>
 #include <qt/qvaluecombobox.h>
+#include <util/moneystr.h>
 
 #include <QApplication>
 #include <QAbstractSpinBox>
@@ -357,4 +358,16 @@ void BitcoinAmountField::setSingleStep(const CAmount& step)
 void BitcoinAmountField::setNotifyAlways(bool value)
 {
     amount->setNotifyAlways(value);
+}
+
+QString BitcoinAmountField::valueText(bool *valid_out) const
+{
+    CAmount nValue = this->value(valid_out);
+    return QString::fromStdString(FormatMoney(nValue));
+}
+
+void BitcoinAmountField::setValueText(const QString &value)
+{
+    std::optional<CAmount> parsed = ParseMoney(value.toStdString());
+    setValue(parsed.value_or(0));
 }

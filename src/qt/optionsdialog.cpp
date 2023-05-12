@@ -209,6 +209,11 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     // Checking the embeddedFont_radioButton automatically unchecks the systemFont_radioButton.
     ui->systemFont_radioButton->setChecked(true);
 
+    if(enableWallet)
+    {
+        connect(ui->superStaking, &QCheckBox::clicked, this, &OptionsDialog::updateLogEvents);
+    }
+
     GUIUtil::handleCloseWindowShortcut(this);
 }
 
@@ -246,6 +251,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
         mapper->toFirst();
 
         updateDefaultProxyNets();
+        updateLogEvents();
     }
 
     /* warn when one of the following settings changes by user action (placed here so init via mapper doesn't trigger them) */
@@ -297,7 +303,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->pruneSize, OptionsModel::PruneSize);
     mapper->addMapping(ui->logEvents, OptionsModel::LogEvents);
     mapper->addMapping(ui->superStaking, OptionsModel::SuperStaking);
-    mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance);
+    mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance, "valueText");
     mapper->addMapping(ui->txtHWIToolPath, OptionsModel::HWIToolPath);
     mapper->addMapping(ui->txtStakeLedgerId, OptionsModel::StakeLedgerId);
     /* Wallet */
@@ -543,4 +549,14 @@ QValidator::State ProxyAddressValidator::validate(QString &input, int &pos) cons
         return QValidator::Acceptable;
 
     return QValidator::Invalid;
+}
+
+void OptionsDialog::updateLogEvents(bool)
+{
+    bool checked = ui->superStaking->isChecked();
+    if(checked)
+    {
+        ui->logEvents->setChecked(checked);
+    }
+    ui->logEvents->setEnabled(!checked);
 }
