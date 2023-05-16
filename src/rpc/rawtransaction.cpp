@@ -231,7 +231,31 @@ static RPCHelpMan fromhexaddress()
     };
 }
 
-static std::vector<RPCResult> DecodeTxDoc(const std::string& txid_field_doc)
+static std::vector<RPCResult> DecodeExpanded(bool isExpanded, bool isVin)
+{
+    if(isExpanded)
+    {
+        if(isVin) {
+            return {
+                {RPCResult::Type::STR_HEX, "value", /*optional=*/true, "The value in " + CURRENCY_UNIT + " (only if address index is enabled)"},
+                {RPCResult::Type::NUM, "valueSat", /*optional=*/true, "The value in Sat (only if address index is enabled)"},
+                {RPCResult::Type::STR, "address", /*optional=*/true, "The Qtum address (only if address index is enabled)"},
+            };
+        }
+        else {
+            return {
+                {RPCResult::Type::NUM, "valueSat", /*optional=*/true, "The value in Sat (only if address index is enabled)"},
+                {RPCResult::Type::STR_HEX, "spentTxId", /*optional=*/true, "The spent txid (only if address index is enabled)"},
+                {RPCResult::Type::NUM, "spentIndex", /*optional=*/true, "The spent index (only if address index is enabled)"},
+                {RPCResult::Type::NUM, "spentHeight", /*optional=*/true, "The spent height (only if address index is enabled)"},
+            };
+        }
+
+    }
+    return {};
+}
+
+static std::vector<RPCResult> DecodeTxDoc(const std::string& txid_field_doc, bool isExpanded = false)
 {
     return {
         {RPCResult::Type::STR_HEX, "txid", txid_field_doc},
@@ -245,35 +269,43 @@ static std::vector<RPCResult> DecodeTxDoc(const std::string& txid_field_doc)
         {
             {RPCResult::Type::OBJ, "", "",
             {
-                {RPCResult::Type::STR_HEX, "coinbase", /*optional=*/true, "The coinbase value (only if coinbase transaction)"},
-                {RPCResult::Type::STR_HEX, "txid", /*optional=*/true, "The transaction id (if not coinbase transaction)"},
-                {RPCResult::Type::NUM, "vout", /*optional=*/true, "The output number (if not coinbase transaction)"},
-                {RPCResult::Type::OBJ, "scriptSig", /*optional=*/true, "The script (if not coinbase transaction)",
+                Cat<std::vector<RPCResult>>(
                 {
-                    {RPCResult::Type::STR, "asm", "Disassembly of the signature script"},
-                    {RPCResult::Type::STR_HEX, "hex", "The raw signature script bytes, hex-encoded"},
-                }},
-                {RPCResult::Type::ARR, "txinwitness", /*optional=*/true, "",
-                {
-                    {RPCResult::Type::STR_HEX, "hex", "hex-encoded witness data (if any)"},
-                }},
-                {RPCResult::Type::NUM, "sequence", "The script sequence number"},
+                    {RPCResult::Type::STR_HEX, "coinbase", /*optional=*/true, "The coinbase value (only if coinbase transaction)"},
+                    {RPCResult::Type::STR_HEX, "txid", /*optional=*/true, "The transaction id (if not coinbase transaction)"},
+                    {RPCResult::Type::NUM, "vout", /*optional=*/true, "The output number (if not coinbase transaction)"},
+                    {RPCResult::Type::OBJ, "scriptSig", /*optional=*/true, "The script (if not coinbase transaction)",
+                    {
+                        {RPCResult::Type::STR, "asm", "Disassembly of the signature script"},
+                        {RPCResult::Type::STR_HEX, "hex", "The raw signature script bytes, hex-encoded"},
+                    }},
+                    {RPCResult::Type::ARR, "txinwitness", /*optional=*/true, "",
+                    {
+                        {RPCResult::Type::STR_HEX, "hex", "hex-encoded witness data (if any)"},
+                    }},
+                    {RPCResult::Type::NUM, "sequence", "The script sequence number"},
+                },
+                DecodeExpanded(isExpanded, true)),
             }},
         }},
         {RPCResult::Type::ARR, "vout", "",
         {
             {RPCResult::Type::OBJ, "", "",
             {
-                {RPCResult::Type::STR_AMOUNT, "value", "The value in " + CURRENCY_UNIT},
-                {RPCResult::Type::NUM, "n", "index"},
-                {RPCResult::Type::OBJ, "scriptPubKey", "",
+                Cat<std::vector<RPCResult>>(
                 {
-                    {RPCResult::Type::STR, "asm", "Disassembly of the public key script"},
-                    {RPCResult::Type::STR, "desc", "Inferred descriptor for the output"},
-                    {RPCResult::Type::STR_HEX, "hex", "The raw public key script bytes, hex-encoded"},
-                    {RPCResult::Type::STR, "type", "The type, eg 'pubkeyhash'"},
-                    {RPCResult::Type::STR, "address", /*optional=*/true, "The Qtum address (only if a well-defined address exists)"},
-                }},
+                    {RPCResult::Type::STR_AMOUNT, "value", "The value in " + CURRENCY_UNIT},
+                    {RPCResult::Type::NUM, "n", "index"},
+                    {RPCResult::Type::OBJ, "scriptPubKey", "",
+                    {
+                        {RPCResult::Type::STR, "asm", "Disassembly of the public key script"},
+                        {RPCResult::Type::STR, "desc", "Inferred descriptor for the output"},
+                        {RPCResult::Type::STR_HEX, "hex", "The raw public key script bytes, hex-encoded"},
+                        {RPCResult::Type::STR, "type", "The type, eg 'pubkeyhash'"},
+                        {RPCResult::Type::STR, "address", /*optional=*/true, "The Qtum address (only if a well-defined address exists)"},
+                    }},
+                },
+                DecodeExpanded(isExpanded, false)),
             }},
         }},
     };
@@ -368,7 +400,7 @@ static RPCHelpMan getrawtransaction()
                              {RPCResult::Type::NUM, "time", /*optional=*/true, "Same as \"blocktime\""},
                              {RPCResult::Type::STR_HEX, "hex", "The serialized, hex-encoded data for 'txid'"},
                          },
-                         DecodeTxDoc(/*txid_field_doc=*/"The transaction id (same as provided)")),
+                         DecodeTxDoc(/*txid_field_doc=*/"The transaction id (same as provided)", true)),
                     },
                 },
                 RPCExamples{
