@@ -26,11 +26,26 @@ RPCHelpMan getmininginfo()
                         {RPCResult::Type::NUM, "blocks", "The current block"},
                         {RPCResult::Type::NUM, "currentblockweight", /*optional=*/true, "The block weight of the last assembled block (only present if a block was ever assembled)"},
                         {RPCResult::Type::NUM, "currentblocktx", /*optional=*/true, "The number of block transactions of the last assembled block (only present if a block was ever assembled)"},
-                        {RPCResult::Type::NUM, "difficulty", "The current difficulty"},
+                        {RPCResult::Type::OBJ, "difficulty", "The current difficulty",
+                        {
+                            {RPCResult::Type::NUM, "proof-of-work", "Coinbase difficulty"},
+                            {RPCResult::Type::NUM, "proof-of-stake", "Coinstake difficulty"},
+                            {RPCResult::Type::NUM, "search-interval", "The search interval"},
+                        }},
                         {RPCResult::Type::NUM, "networkhashps", "The network hashes per second"},
                         {RPCResult::Type::NUM, "pooledtx", "The size of the mempool"},
                         {RPCResult::Type::STR, "chain", "current network name (main, test, signet, regtest)"},
                         {RPCResult::Type::STR, "warnings", "any network and blockchain warnings"},
+                        {RPCResult::Type::NUM, "blockvalue", "The block subsidy"},
+                        {RPCResult::Type::NUM, "netmhashps", "Network PoW hash power"},
+                        {RPCResult::Type::NUM, "netstakeweight", "Network stake weight"},
+                        {RPCResult::Type::STR, "errors", "Error messages"},
+                        {RPCResult::Type::OBJ, "stakeweight", "The stake weight",
+                        {
+                            {RPCResult::Type::NUM, "minimum", "The minimum stake weight"},
+                            {RPCResult::Type::NUM, "maximum", "The maximum stake weight"},
+                            {RPCResult::Type::NUM, "combined", "The combined stake weight"},
+                        }},
                     }},
                 RPCExamples{
                     HelpExampleCli("getmininginfo", "")
@@ -100,11 +115,13 @@ RPCHelpMan getstakinginfo()
                     {
                         {RPCResult::Type::BOOL, "enabled", "'true' if staking is enabled"},
                         {RPCResult::Type::BOOL, "staking", "'true' if wallet is currently staking"},
-                        {RPCResult::Type::STR, "errors", "error messages"},
+                        {RPCResult::Type::STR, "errors", "Error messages"},
+                        {RPCResult::Type::NUM, "currentblocktx", /*optional=*/true, "The number of block transactions of the last assembled block (only present if a block was ever assembled)"},
                         {RPCResult::Type::NUM, "pooledtx", "The size of the mempool"},
                         {RPCResult::Type::NUM, "difficulty", "The current difficulty"},
                         {RPCResult::Type::NUM, "search-interval", "The staker search interval"},
                         {RPCResult::Type::NUM, "weight", "The staker weight"},
+                        {RPCResult::Type::NUM, "delegateweight", "Delegate weight"},
                         {RPCResult::Type::NUM, "netstakeweight", "Network stake weight"},
                         {RPCResult::Type::NUM, "expectedtime", "Expected time to earn reward"},
                     }

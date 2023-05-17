@@ -663,9 +663,21 @@ static RPCHelpMan getaccountinfo()
                     RPCResult::Type::OBJ, "", "",
                     {
                         {RPCResult::Type::STR, "address", "The address of the contract"},
-                        {RPCResult::Type::STR_AMOUNT, "balance", "The balance of the contract"},
-                        {RPCResult::Type::STR, "storage", "The storage data of the contract"},
+                        {RPCResult::Type::NUM, "balance", "The balance of the contract"},
                         {RPCResult::Type::STR_HEX, "code", "The bytecode of the contract"},
+                        {RPCResult::Type::OBJ_DYN, "storage", "The storage data of the contract",
+                        {
+                            {RPCResult::Type::OBJ_DYN, "data", "The storage data entry",
+                            {
+                                {RPCResult::Type::STR_HEX, "hex", "The hex data"},
+                            }},
+                        }},
+                        {RPCResult::Type::OBJ, "vin", /*optional=*/true, "",
+                        {
+                            {RPCResult::Type::STR_HEX, "hash", "The data hash"},
+                            {RPCResult::Type::NUM, "nVout", "The vout index"},
+                            {RPCResult::Type::NUM, "value", "The vout value"},
+                        }},
                     }},
                 RPCExamples{
                     HelpExampleCli("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
@@ -728,11 +740,11 @@ static RPCHelpMan getstorage()
                     {"index", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "Zero-based index position of the storage"},
                 },
                 RPCResult{
-                    RPCResult::Type::OBJ, "", "The storage data of the contract",
+                    RPCResult::Type::OBJ_DYN, "", "The storage data of the contract",
                     {
-                        {RPCResult::Type::OBJ, "", true, "",
+                        {RPCResult::Type::OBJ_DYN, "data", "The storage data entry",
                         {
-                            {RPCResult::Type::STR_HEX, "", ""},
+                            {RPCResult::Type::STR_HEX, "hex", "The hex data"},
                         }},
                     }
                 },
@@ -1668,7 +1680,7 @@ RPCHelpMan listcontracts()
                     {"maxdisplay", RPCArg::Type::NUM, RPCArg::Default{20}, "Max accounts to list"},
                 },
                 RPCResult{
-                    RPCResult::Type::OBJ, "", "",
+                    RPCResult::Type::OBJ_DYN, "", "",
                     {
                         {RPCResult::Type::NUM, "account", "The balance for the account"},
                     }},

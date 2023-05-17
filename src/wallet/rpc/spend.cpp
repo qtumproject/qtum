@@ -1913,9 +1913,10 @@ RPCHelpMan splitutxosforaddress()
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
                     {
-                        {RPCResult::Type::STR_HEX, "txid", "The hex-encoded transaction id"},
-                        {RPCResult::Type::STR_AMOUNT, "selected", "Selected amount of coins"},
-                        {RPCResult::Type::STR_AMOUNT, "splited", "Splited amount of coins"},
+                        {RPCResult::Type::STR_HEX, "txid", /*optional=*/true, "The hex-encoded transaction id"},
+                        {RPCResult::Type::STR, "psbt", /*optional=*/true, "The base64-encoded unsigned PSBT of the new transaction."},
+                        {RPCResult::Type::STR, "selected", "Selected amount of coins"},
+                        {RPCResult::Type::STR, "splited", "Splited amount of coins"},
                     }
                 },
                 RPCExamples{
