@@ -1100,26 +1100,33 @@ RPCHelpMan callcontract()
                         {RPCResult::Type::OBJ, "executionResult", "The method execution result",
                             {
                                 {RPCResult::Type::NUM, "gasUsed", "The gas used"},
-                                {RPCResult::Type::NUM, "excepted", "The thrown exception"},
-                                {RPCResult::Type::STR, "newAddress", "The new address of the contract"},
+                                {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                                {RPCResult::Type::STR_HEX, "newAddress", "The new address of the contract"},
                                 {RPCResult::Type::STR_HEX, "output", "The returned data from the method"},
                                 {RPCResult::Type::NUM, "codeDeposit", "The code deposit"},
                                 {RPCResult::Type::NUM, "gasRefunded", "The gas refunded"},
                                 {RPCResult::Type::NUM, "depositSize", "The deposit size"},
                                 {RPCResult::Type::NUM, "gasForDeposit", "The gas for deposit"},
+                                {RPCResult::Type::STR, "exceptedMessage", "The thrown exception message"},
                             }},
                         {RPCResult::Type::OBJ, "transactionReceipt", "The transaction receipt",
                             {
                                 {RPCResult::Type::STR_HEX, "stateRoot", "The state root hash"},
+                                {RPCResult::Type::STR_HEX, "utxoRoot", "The utxo root hash"},
                                 {RPCResult::Type::NUM, "gasUsed", "The gas used"},
-                                {RPCResult::Type::STR, "bloom", "The bloom"},
+                                {RPCResult::Type::STR_HEX, "bloom", "The bloom"},
                                 {RPCResult::Type::ARR, "log", "The logs from the receipt",
                                     {
-                                        {RPCResult::Type::STR, "address", "The contract address"},
-                                        {RPCResult::Type::ARR, "topics", "The topic",
-                                            {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
-                                        {RPCResult::Type::STR_HEX, "data", "The logged data"},
-                                    }},
+                                        {RPCResult::Type::OBJ, "", "",
+                                            {
+                                                {RPCResult::Type::STR_HEX, "address", "The contract address"},
+                                                {RPCResult::Type::ARR, "topics", "The topic",
+                                                    {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                                {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                            }
+                                        }
+                                    }
+                                },
 
                             }},
                     }},
@@ -1206,12 +1213,17 @@ RPCHelpMan waitforlogs()
                                         {RPCResult::Type::NUM, "blockNumber", "The block number"},
                                         {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
                                         {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
-                                        {RPCResult::Type::STR, "from", "The from address"},
-                                        {RPCResult::Type::STR, "to", "The to address"},
+                                        {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                                        {RPCResult::Type::STR_HEX, "from", "The from address"},
+                                        {RPCResult::Type::STR_HEX, "to", "The to address"},
                                         {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
                                         {RPCResult::Type::NUM, "gasUsed", "The gas used"},
                                         {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
                                         {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                                        {RPCResult::Type::STR, "exceptedMessage", "The thrown exception message"},
+                                        {RPCResult::Type::STR_HEX, "bloom", "Bloom filter for light clients to quickly retrieve related logs"},
+                                        {RPCResult::Type::STR_HEX, "stateRoot", "The hash state root"},
+                                        {RPCResult::Type::STR_HEX, "utxoRoot", "The hash UTXO root"},
                                         {RPCResult::Type::ARR, "topics", "The topic",
                                             {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
                                         {RPCResult::Type::STR_HEX, "data", "The logged data"},
@@ -1220,7 +1232,7 @@ RPCHelpMan waitforlogs()
                             }
                         },
                         {RPCResult::Type::NUM, "count", "How many log entries are returned"},
-                        {RPCResult::Type::NUM, "nextBlock", "To wait for new log entries haven't seen before, use this number as `fromBlock`"},
+                        {RPCResult::Type::NUM, "nextblock", "To wait for new log entries haven't seen before, use this number as `fromBlock`"},
                     }
                 },
                 RPCExamples{
@@ -1390,32 +1402,39 @@ RPCHelpMan searchlogs()
                     {"minconf", RPCArg::Type::NUM, RPCArg::Default{0}, "Minimal number of confirmations before a log is returned"},
                 },
                 RPCResult{
-                    RPCResult::Type::ARR, "", "",
-                    {
-                        {RPCResult::Type::OBJ, "", "",
-                            {
-                                {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
-                                {RPCResult::Type::NUM, "blockNumber", "The block number"},
-                                {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
-                                {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
-                                {RPCResult::Type::STR, "from", "The from address"},
-                                {RPCResult::Type::STR, "to", "The to address"},
-                                {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
-                                {RPCResult::Type::NUM, "gasUsed", "The gas used"},
-                                {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
-                                {RPCResult::Type::STR, "excepted", "The thrown exception"},
-                                {RPCResult::Type::ARR, "log", "The logs from the receipt",
-                                    {
-                                        {RPCResult::Type::STR, "address", "The contract address"},
-                                        {RPCResult::Type::ARR, "topics", "The topic",
-                                            {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
-                                        {RPCResult::Type::STR_HEX, "data", "The logged data"},
+            RPCResult::Type::ARR, "", "",
+                {
+                    {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                            {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
+                            {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                            {RPCResult::Type::STR_HEX, "from", "The from address"},
+                            {RPCResult::Type::STR_HEX, "to", "The to address"},
+                            {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
+                            {RPCResult::Type::NUM, "gasUsed", "The gas used"},
+                            {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
+                            {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                            {RPCResult::Type::STR, "exceptedMessage", "The thrown exception message"},
+                            {RPCResult::Type::STR_HEX, "bloom", "Bloom filter for light clients to quickly retrieve related logs"},
+                            {RPCResult::Type::STR_HEX, "stateRoot", "The hash state root"},
+                            {RPCResult::Type::STR_HEX, "utxoRoot", "The hash UTXO root"},
+                            {RPCResult::Type::ARR, "log", "The logs from the receipt",
+                                {
+                                    {RPCResult::Type::OBJ, "", "",
+                                        {
+                                            {RPCResult::Type::STR_HEX, "address", "The contract address"},
+                                            {RPCResult::Type::ARR, "topics", "The topic",
+                                                {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                            {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                        }
                                     }
-                                },
-                            }
-                        }
-                    }
-                },
+                                }
+                            },
+                        }}
+                }},
                 RPCExamples{
                     HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
             + HelpExampleRpc("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
@@ -1444,20 +1463,29 @@ RPCHelpMan gettransactionreceipt()
                             {RPCResult::Type::NUM, "blockNumber", "The block number"},
                             {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
                             {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
-                            {RPCResult::Type::STR, "from", "The from address"},
-                            {RPCResult::Type::STR, "to", "The to address"},
+                            {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                            {RPCResult::Type::STR_HEX, "from", "The from address"},
+                            {RPCResult::Type::STR_HEX, "to", "The to address"},
                             {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
                             {RPCResult::Type::NUM, "gasUsed", "The gas used"},
                             {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
                             {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                            {RPCResult::Type::STR, "exceptedMessage", "The thrown exception message"},
                             {RPCResult::Type::STR_HEX, "bloom", "Bloom filter for light clients to quickly retrieve related logs"},
+                            {RPCResult::Type::STR_HEX, "stateRoot", "The hash state root"},
+                            {RPCResult::Type::STR_HEX, "utxoRoot", "The hash UTXO root"},
                             {RPCResult::Type::ARR, "log", "The logs from the receipt",
                                 {
-                                    {RPCResult::Type::STR, "address", "The contract address"},
-                                    {RPCResult::Type::ARR, "topics", "The topic",
-                                        {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
-                                    {RPCResult::Type::STR_HEX, "data", "The logged data"},
-                                }},
+                                    {RPCResult::Type::OBJ, "", "",
+                                        {
+                                            {RPCResult::Type::STR_HEX, "address", "The contract address"},
+                                            {RPCResult::Type::ARR, "topics", "The topic",
+                                                {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                            {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                        }
+                                    }
+                                }
+                            },
                         }}
                 }},
                 RPCExamples{
@@ -1605,7 +1633,7 @@ RPCHelpMan getdelegationsforstaker()
                             {RPCResult::Type::STR, "staker", "The staker address"},
                             {RPCResult::Type::NUM, "fee", "The percentage of the reward"},
                             {RPCResult::Type::NUM, "blockHeight", "The block height"},
-                            {RPCResult::Type::NUM, "weight", "Delegate weight, displayed when address index is enabled"},
+                            {RPCResult::Type::NUM, "weight", /*optional=*/true, "Delegate weight, displayed when address index is enabled"},
                             {RPCResult::Type::STR_HEX, "PoD", "The proof of delegation"},
                         }}
                 }},
