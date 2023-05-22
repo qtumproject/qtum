@@ -3647,7 +3647,7 @@ static RPCHelpMan qrc20listtransactions()
                         {
                             {RPCResult::Type::STR, "receiver", "The receiver qtum address"},
                             {RPCResult::Type::STR, "sender", "The sender qtum address"},
-                            {RPCResult::Type::STR_AMOUNT, "amount", "The transferred token amount"},
+                            {RPCResult::Type::STR, "amount", "The transferred token amount"},
                             {RPCResult::Type::NUM, "confirmations", "The number of confirmations of the most recent transaction included"},
                             {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
                             {RPCResult::Type::NUM, "blockNumber", "The block number"},

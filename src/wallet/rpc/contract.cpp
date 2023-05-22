@@ -132,7 +132,6 @@ RPCHelpMan createcontract()
                     RPCResult{"if broadcast is set to true",
                         RPCResult::Type::OBJ, "", "",
                         {
-                            {RPCResult::Type::STR, "psbt", /*optional=*/true, "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
                             {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                             {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
                             {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"},
@@ -820,7 +819,6 @@ RPCHelpMan sendtocontract()
                         RPCResult{"if broadcast is set to true",
                             RPCResult::Type::OBJ, "", "",
                             {
-                                {RPCResult::Type::STR, "psbt", /*optional=*/true, "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
                                 {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
                                 {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
                                 {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"}
@@ -872,7 +870,7 @@ RPCHelpMan removedelegationforaddress()
                         RPCResult::Type::OBJ, "", "",
                         {
                             {RPCResult::Type::STR, "psbt", /*optional=*/true, "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
-                            {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                            {RPCResult::Type::STR_HEX, "txid", /*optional=*/true, "The transaction id. Only returned when wallet private keys are enabled."},
                             {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
                             {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"}
                         }
@@ -933,7 +931,7 @@ RPCHelpMan setdelegateforaddress()
                         RPCResult::Type::OBJ, "", "",
                         {
                             {RPCResult::Type::STR, "psbt", /*optional=*/true, "The base64-encoded unsigned PSBT of the new transaction. Only returned when wallet private keys are disabled."},
-                            {RPCResult::Type::STR_HEX, "txid", "The transaction id. Only returned when wallet private keys are enabled."},
+                            {RPCResult::Type::STR_HEX, "txid", /*optional=*/true, "The transaction id. Only returned when wallet private keys are enabled."},
                             {RPCResult::Type::STR, "sender", CURRENCY_UNIT + " address of the sender"},
                             {RPCResult::Type::STR_HEX, "hash160", "Ripemd-160 hash of the sender"}
                         }
