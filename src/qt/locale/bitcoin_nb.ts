@@ -756,6 +756,11 @@ Kunne ikke gjenopprette sikkerhetskopi av lommebok.</translation>
         <translation type="unfinished">Mangler beløp</translation>
     </message>
     <message>
+        <source>Missing solving data for estimating transaction size</source>
+        <translation type="unfinished"> 
+Mangler løsningsdata for å estimere transaksjonsstørrelse</translation>
+    </message>
+    <message>
         <source>Need to specify a port with -whitebind: '%s'</source>
         <translation type="unfinished">Må oppgi en port med -whitebind: '%s'</translation>
     </message>
@@ -808,6 +813,10 @@ Kunne ikke gjenopprette sikkerhetskopi av lommebok.</translation>
         <translation type="unfinished">SQLiteDatabase: Uventet applikasjonsid. Forventet %u, fikk %u</translation>
     </message>
     <message>
+        <source>Section [%s] is not recognized.</source>
+        <translation type="unfinished">Avsnitt [%s] gjenkjennes ikke.</translation>
+    </message>
+    <message>
         <source>Signing transaction failed</source>
         <translation type="unfinished">Signering av transaksjon feilet</translation>
     </message>
@@ -822,6 +831,10 @@ Kunne ikke gjenopprette sikkerhetskopi av lommebok.</translation>
     <message>
         <source>Specified -walletdir "%s" is not a directory</source>
         <translation type="unfinished">Oppgitt -walletdir "%s" er ikke en katalog</translation>
+    </message>
+    <message>
+        <source>Specified blocks directory "%s" does not exist.</source>
+        <translation type="unfinished">Spesifisert blokkeringskatalog "%s" eksisterer ikke.</translation>
     </message>
     <message>
         <source>Starting network threads…</source>
@@ -898,6 +911,22 @@ Kunne ikke gjenopprette sikkerhetskopi av lommebok.</translation>
     <message>
         <source>Unable to start HTTP server. See debug log for details.</source>
         <translation type="unfinished">Kunne ikke starte HTTP-tjener. Se feilrettingslogg for detaljer.</translation>
+    </message>
+    <message>
+        <source>Unable to unload the wallet before migrating</source>
+        <translation type="unfinished">Kan ikke laste ut lommeboken før migrering</translation>
+    </message>
+    <message>
+        <source>Unknown -blockfilterindex value %s.</source>
+        <translation type="unfinished">Ukjent -blokkfilterindex-verdi 1 %s.</translation>
+    </message>
+    <message>
+        <source>Unknown address type '%s'</source>
+        <translation type="unfinished">Ukjent adressetype  '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown change type '%s'</source>
+        <translation type="unfinished">Ukjent endringstype '%s'</translation>
     </message>
     <message>
         <source>Unknown network specified in -onlynet: '%s'</source>
@@ -1272,8 +1301,8 @@ Kunne ikke gjenopprette sikkerhetskopi av lommebok.</translation>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform> %n aktiv tilkobling til Qtum-nettverket.</numerusform>
+            <numerusform>%n aktive tilkoblinger til Qtum-nettverket.</numerusform>
         </translation>
     </message>
     <message>
@@ -1800,8 +1829,8 @@ Kunne ikke gjenopprette sikkerhetskopi av lommebok.</translation>
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform>(Tilstrekkelig å gjenopprette backuper som er %n dag gammel) </numerusform>
+            <numerusform>(Tilstrekkelig å gjenopprette backuper som er %n dager gamle) </numerusform>
         </translation>
     </message>
     <message>

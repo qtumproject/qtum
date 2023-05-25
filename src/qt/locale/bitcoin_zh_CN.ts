@@ -153,8 +153,8 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation>您可以用这些QTUM地址收款。使用“接收”标签页中的"创建新收款地址"按钮创建新地址。
-只有“传统（legacy）”类型的地址支持签名。</translation>
+        <translation>这是您用来收款的QTUM地址。使用“接收”标签页中的“创建新收款地址”按钮来创建新的收款地址。
+只有“旧式（legacy）”类型的地址支持签名。</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -2130,7 +2130,7 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     </message>
     <message>
         <source>embedded "%1"</source>
-        <translation>嵌入了 “%1”</translation>
+        <translation>嵌入的 "%1"</translation>
     </message>
     <message>
         <source>closest matching "%1"</source>
@@ -3298,13 +3298,13 @@ For more information on using this console, type %6.
 
 %7WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.%8</source>
         <extracomment>RPC console welcome message. Placeholders %7 and %8 are style tags for the warning content, and they are not space separated from the rest of the text intentionally.</extracomment>
-        <translation>欢迎来到 %1 RPC 控制台。
+        <translation type="unfinished">欢迎来到 %1 RPC 控制台。
 使用上与下箭头以进行历史导航，%2 以清除屏幕。
 使用%3 和 %4 以增加或减小字体大小。
 输入 %5 以显示可用命令的概览。
 查看更多关于此控制台的信息，输入 %6。
 
-%7 警告：骗子们很活跃，告诉用户在这里输入命令，偷走他们钱包中的内容。不要在不完全了解一个命令的后果的情况下使用此控制台。%8</translation>
+%7 警告：骗子们很活跃，他们会让用户在这里输入命令以便偷走用户钱包中的内容。所以请您不要在不完全了解一个命令的后果的情况下使用此控制台。%8</translation>
     </message>
     <message>
         <source>Executing…</source>
@@ -5565,7 +5565,7 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
-        <translation>错误: 传统钱包只支持 "legacy", "p2sh-segwit", 和 "bech32" 这三种地址类型</translation>
+        <translation>错误: 旧式钱包只支持 "legacy", "p2sh-segwit", 和 "bech32" 这三种地址类型</translation>
     </message>
     <message>
         <source>No dump file provided. To use createfromdump, -dumpfile=&lt;filename&gt; must be provided.</source>
@@ -5805,7 +5805,7 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
     <message>
         <source>Error: Unable to produce descriptors for this legacy wallet. Make sure the wallet is unlocked first</source>
-        <translation type="unfinished">错误：无法为这个遗留钱包生成输出描述符。请先确定钱包已被解锁</translation>
+        <translation type="unfinished">错误：无法为这个旧式钱包生成输出描述符。请先确定钱包已被解锁</translation>
     </message>
     <message>
         <source>Failed to rename invalid peers.dat file. Please move or delete it and try again.</source>

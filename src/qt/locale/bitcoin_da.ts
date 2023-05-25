@@ -614,6 +614,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Opgraderingen af -txindex som er startet af en tidligere version kan ikke fuldføres. Genstart med den tidligere version eller kør en fuld -reindex.</translation>
     </message>
     <message>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Qtum Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">%sanmodning om st lytte på havn%uDenne port betragtes som „dårlig“, og det er derfor usandsynligt, at nogen Qtum Core-jævnaldrende opretter forbindelse til den. Se doc/p2p-bad-ports.md for detaljer og en komplet liste.</translation>
+    </message>
+    <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
         <translation type="unfinished">Kan ikke levere specifikke forbindelser og få adrman til at finde udgående forbindelser på samme tid.</translation>
     </message>
@@ -1901,15 +1905,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>(of %n GB needed)</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform>(ud af %n GB nødvendig)</numerusform>
+            <numerusform>(ud af %n GB nødvendig)</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>(%n GB needed for full chain)</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform>(%n GB nødvendig for komplet kæde)</numerusform>
+            <numerusform>(%n GB nødvendig for komplet kæde)</numerusform>
         </translation>
     </message>
     <message>

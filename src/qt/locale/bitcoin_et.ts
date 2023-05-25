@@ -70,6 +70,11 @@
         <translation type="unfinished">Need on sinu Qtum aadressid maksete saatmiseks. Ennem müntide saatmist kontrolli alati summat ja makse saaja aadressi.</translation>
     </message>
     <message>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">Need on sinu Qtum aadressid makse vastuvõtuks.Kasuta ‘Loo uus vastuvõttu aadress’ nuppu vastuvõtmise vahekaardis, et luua uus aadress. Allkirjastamine on võimalik ainult 'pärand' tüüpi aadressidega.</translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">&amp;Kopeeri Aadress</translation>
     </message>
@@ -457,8 +462,20 @@
         <translation type="unfinished">&amp;Valikud</translation>
     </message>
     <message>
+        <source>&amp;Encrypt Wallet…</source>
+        <translation type="unfinished">&amp;Krüpteeri Rahakott...</translation>
+    </message>
+    <message>
         <source>Encrypt the private keys that belong to your wallet</source>
         <translation type="unfinished">Krüpteeri oma rahakoti privaatvõtmed</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet…</source>
+        <translation type="unfinished">&amp;Tagavara Rahakott...</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase…</source>
+        <translation type="unfinished">&amp;Muuda Salasõna...</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
@@ -468,6 +485,14 @@
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Kinnita sõnumid kindlustamaks et need allkirjastati määratud Qtumi aadressiga</translation>
    </message>
+    <message>
+        <source>Close Wallet…</source>
+        <translation type="unfinished">Sulge Rahakott...</translation>
+    </message>
+    <message>
+        <source>Create Wallet…</source>
+        <translation type="unfinished">Loo Rahakott...</translation>
+    </message>
     <message>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;Fail</translation>
@@ -483,6 +508,10 @@
     <message>
         <source>Tabs toolbar</source>
         <translation type="unfinished">Vahelehe tööriistariba</translation>
+    </message>
+    <message>
+        <source>Synchronizing with network…</source>
+        <translation type="unfinished">Sünkroniseerin võrguga...</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>

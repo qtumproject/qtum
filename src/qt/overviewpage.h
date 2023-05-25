@@ -65,6 +65,7 @@ private:
     std::unique_ptr<TransactionFilterProxy> filter;
 
 private Q_SLOTS:
+    void LimitTransactionRows();
     void updateDisplayUnit();
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);

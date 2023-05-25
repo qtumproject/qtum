@@ -701,7 +701,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>QTUM 네트워크에 %n 개의 연결이 활성화 되고 있습니다.</numerusform>
+            <numerusform>QTUM 네트워크에 활성화된 %n연결</numerusform>
         </translation>
     </message>
     <message>
@@ -906,25 +906,25 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>%n second(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 초</numerusform>
+            <numerusform>%n초</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 분</numerusform>
+            <numerusform>%n분</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 시간</numerusform>
+            <numerusform>%n시간</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n day(s)</source>
         <translation type="unfinished">
-            <numerusform>%n 일</numerusform>
+            <numerusform>%n일</numerusform>
         </translation>
     </message>
     <message>
@@ -1724,13 +1724,13 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>(of %n GB needed)</source>
         <translation type="unfinished">
-            <numerusform />
+            <numerusform>(%n GB가 필요합니다.)</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>(%n GB needed for full chain)</source>
         <translation type="unfinished">
-            <numerusform />
+            <numerusform>(Full 체인이 되려면 %n GB 가 필요합니다.)</numerusform>
         </translation>
     </message>
     <message>
@@ -1745,7 +1745,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
         <translation>
-            <numerusform />
+            <numerusform>%n일차 백업을 복구하기에 충분합니다.</numerusform>
         </translation>
     </message>
     <message>
@@ -3957,7 +3957,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation>
-            <numerusform>%n 블록 안에 승인이 시작될 것으로 추정됩니다.</numerusform>
+            <numerusform>%n블록내로 컨펌이 시작될 것으로 예상됩니다.</numerusform>
         </translation>
     </message>
     <message>
@@ -4852,7 +4852,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
         <translation>
-            <numerusform>%n개의 블록검증이 더 필요함</numerusform>
+            <numerusform>%n개 이상 블록 이내에 완료됩니다.</numerusform>
         </translation>
     </message>
     <message>
@@ -5491,6 +5491,10 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">덤프파일이 입력되지 않았습니다. 덤프를 사용하기 위해서는 -dumpfile=&lt;filename&gt;이 반드시 입력되어야 합니다.</translation>
     </message>
     <message>
+        <source>No wallet file format provided. To use createfromdump, -format=&lt;format&gt; must be provided.</source>
+        <translation type="unfinished">shshhdchb bdfjj fb  rciivfjb doffbfbdjdj</translation>
+    </message>
+    <message>
         <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
         <translation>%s가 손상되었습니다. '비트 코인-지갑'을 사용하여 백업을 구제하거나 복원하십시오.</translation>
     </message>
@@ -5537,6 +5541,10 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer&apos;s date and time being set incorrectly. Only rebuild the block database if you are sure that your computer&apos;s date and time are correct</source>
         <translation type="unfinished">블록 데이터베이스에 미래의 거래 내역이 있습니다. 이는 현재 컴퓨터의 시간 설정이 잘못되어 발생된 것으로 보입니다. 컴퓨터 시간 설정 오류가 없을 경우 블록 데이터베이스를 다시 구축해주세요. </translation>
+    </message>
+    <message>
+        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
+        <translation type="unfinished">udhdbfjfjdnbdjfjf hdhdbjcn2owkd. jjwbdbdof dkdbdnck wdkdj </translation>
     </message>
     <message>
         <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
@@ -5609,6 +5617,10 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Cannot resolve -%s address: &apos;%s&apos;</source>
         <translation type="unfinished">- %s 주소： &apos;%s&apos;를 분석하지 못했습니다. </translation>
+    </message>
+    <message>
+        <source>Cannot set -forcednsseed to true when setting -dnsseed to false.</source>
+        <translation type="unfinished">naravfbj. dufb jdncnlfs. jx dhcji djc d jcbc jdnbfbicb </translation>
     </message>
     <message>
         <source>Cannot write to data directory &apos;%s&apos;; check permissions.</source>

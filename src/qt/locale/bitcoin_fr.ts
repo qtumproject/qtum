@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">‎Cliquez avec le bouton droit de la souris pour modifier l’adresse ou l’étiquette‎</translation>
+        <translation type="unfinished">Clic droit pour modifier l'adresse ou l'étiquette</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -247,7 +247,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <name>BitcoinApplication</name>
     <message>
         <source>Settings file %1 might be corrupt or invalid.</source>
-        <translation type="unfinished">Le fichier de configuration %1 est peut-être corrompu ou invalide.</translation>
+        <translation type="unfinished">Le fichier de paramètres %1 est peut-être corrompu ou non valide.</translation>
     </message>
     <message>
         <source>Runaway exception</source>
@@ -259,7 +259,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     </message>
     <message>
         <source>Internal error</source>
-        <translation type="unfinished">erreur interne</translation>
+        <translation type="unfinished">Eurrer interne</translation>
     </message>
     <message>
         <source>An internal error occurred. %1 will attempt to continue safely. This is an unexpected bug which can be reported as described below.</source>
@@ -305,10 +305,6 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Saisir une adresse Qtum (p. ex. %1)</translation>
-    </message>
-    <message>
-        <source>Ctrl+W</source>
-        <translation type="unfinished">Ctrl-W</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -372,7 +368,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message numerus="yes">
         <source>%n second(s)</source>
         <translation type="unfinished">
-            <numerusform>%n second</numerusform>
+            <numerusform>%n seconde</numerusform>
             <numerusform>%n secondes</numerusform>
         </translation>
     </message>
@@ -411,8 +407,8 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message numerus="yes">
         <source>%n year(s)</source>
         <translation type="unfinished">
-            <numerusform>%n année</numerusform>
-            <numerusform>%n années</numerusform>
+            <numerusform>%n an</numerusform>
+            <numerusform>%n ans</numerusform>
         </translation>
     </message>
     <message>
@@ -539,6 +535,10 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
         <translation type="unfinished">L’élagage est configuré au-dessous du minimum de %d Mio. Veuillez utiliser un nombre plus élevé.</translation>
     </message>
     <message>
+        <source>Prune mode is incompatible with -reindex-chainstate. Use full -reindex instead.</source>
+        <translation type="unfinished">Le mode Prune est incompatible avec -reindex-chainstate. Utilisez plutôt -reindex complet.</translation>
+    </message>
+    <message>
         <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
         <translation type="unfinished">Élagage : la dernière synchronisation de porte-monnaie va par-delà les données élaguées. Vous devez -reindex (réindexer, télécharger de nouveau toute la chaîne de blocs en cas de nœud élagué)</translation>
     </message>
@@ -589,6 +589,14 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message>
         <source>Unknown wallet file format "%s" provided. Please provide one of "bdb" or "sqlite".</source>
         <translation type="unfinished">Le format de fichier porte-monnaie « %s » indiqué est inconnu. Veuillez soit indiquer « bdb » soit « sqlite ».</translation>
+    </message>
+    <message>
+        <source>Unsupported chainstate database format found. Please restart with -reindex-chainstate. This will rebuild the chainstate database.</source>
+        <translation type="unfinished">Le format de la base de données chainstate n'est pas supporté. Veuillez redémarrer avec -reindex-chainstate. Cela reconstruira la base de données chainstate.</translation>
+    </message>
+    <message>
+        <source>Wallet created successfully. The legacy wallet type is being deprecated and support for creating and opening legacy wallets will be removed in the future.</source>
+        <translation type="unfinished">Portefeuille créé avec succès. Le type de portefeuille ancien est en cours de suppression et la prise en charge de la création et de l'ouverture des portefeuilles anciens sera supprimée à l'avenir.</translation>
     </message>
     <message>
         <source>Warning: Dumpfile wallet format "%s" does not match command line specified format "%s".</source>
@@ -647,6 +655,22 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
         <translation type="unfinished">%s a demandé d’écouter sur le port %u. Ce port est considéré comme « mauvais » et il est par conséquent improbable que des pairs Qtum Core y soient connectés. Consulter doc/p2p-bad-ports.md pour plus de précisions et une liste complète.</translation>
     </message>
     <message>
+        <source>-reindex-chainstate option is not compatible with -blockfilterindex. Please temporarily disable blockfilterindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
+        <translation type="unfinished">L'option -reindex-chainstate n'est pas compatible avec -blockfilterindex. Veuillez désactiver temporairement blockfilterindex lorsque vous utilisez -reindex-chainstate, ou remplacez -reindex-chainstate par -reindex pour reconstruire complètement tous les index.</translation>
+    </message>
+    <message>
+        <source>-reindex-chainstate option is not compatible with -coinstatsindex. Please temporarily disable coinstatsindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
+        <translation type="unfinished">L'option -reindex-chainstate n'est pas compatible avec -coinstatsindex. Veuillez désactiver temporairement coinstatsindex lorsque vous utilisez -reindex-chainstate, ou remplacez -reindex-chainstate par -reindex pour reconstruire complètement tous les index.</translation>
+    </message>
+    <message>
+        <source>-reindex-chainstate option is not compatible with -txindex. Please temporarily disable txindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
+        <translation type="unfinished">L'option -reindex-chainstate n'est pas compatible avec -txindex. Veuillez désactiver temporairement txindex lorsque vous utilisez -reindex-chainstate, ou remplacez -reindex-chainstate par -reindex pour reconstruire entièrement tous les index.</translation>
+    </message>
+    <message>
+        <source>Assumed-valid: last wallet synchronisation goes beyond available block data. You need to wait for the background validation chain to download more blocks.</source>
+        <translation type="unfinished">Validité présumée : la dernière synchronisation du portefeuille dépasse les données de blocs disponibles. Vous devez attendre que la chaîne de validation en arrière-plan télécharge d'autres blocs.</translation>
+    </message>
+    <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
         <translation type="unfinished">Il est impossible d’indiquer des connexions précises et en même temps de demander à addrman de trouver les connexions sortantes.</translation>
     </message>
@@ -655,14 +679,58 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
         <translation type="unfinished">Erreur de chargement de %s : le porte-monnaie signataire externe est chargé sans que la prise en charge de signataires externes soit compilée</translation>
     </message>
     <message>
+        <source>Error: Address book data in wallet cannot be identified to belong to migrated wallets</source>
+        <translation type="unfinished">Erreur : Les données du carnet d'adresses du portefeuille ne peuvent pas être identifiées comme appartenant à des portefeuilles migrés</translation>
+    </message>
+    <message>
+        <source>Error: Duplicate descriptors created during migration. Your wallet may be corrupted.</source>
+        <translation type="unfinished">Erreur : Descripteurs en double créés pendant la migration. Votre portefeuille est peut-être corrompu.</translation>
+    </message>
+    <message>
+        <source>Error: Transaction %s in wallet cannot be identified to belong to migrated wallets</source>
+        <translation type="unfinished">Erreur : La transaction %s dans le portefeuille ne peut pas être identifiée comme appartenant aux portefeuilles migrés</translation>
+    </message>
+    <message>
+        <source>Error: Unable to produce descriptors for this legacy wallet. Make sure the wallet is unlocked first</source>
+        <translation type="unfinished">Erreur : Impossible de produire des descripteurs pour ce portefeuille hérité. Assurez-vous d'abord que le portefeuille est déverrouillé</translation>
+    </message>
+    <message>
         <source>Failed to rename invalid peers.dat file. Please move or delete it and try again.</source>
         <translation type="unfinished">Échec de renommage du fichier peers.dat invalide. Veuillez le déplacer ou le supprimer, puis réessayer.</translation>
+    </message>
+    <message>
+        <source>Incompatible options: -dnsseed=1 was explicitly specified, but -onlynet forbids connections to IPv4/IPv6</source>
+        <translation type="unfinished">Options incompatibles : -dnsseed=1 a été explicitement spécifié, mais -onlynet interdit les connexions vers IPv4/IPv6</translation>
+    </message>
+    <message>
+        <source>Outbound connections restricted to Tor (-onlynet=onion) but the proxy for reaching the Tor network is explicitly forbidden: -onion=0</source>
+        <translation type="unfinished">Connexions sortantes limitées à Tor (-onlynet=onion) mais le proxy pour atteindre le réseau Tor est explicitement interdit : -onion=0</translation>
+    </message>
+    <message>
+        <source>Outbound connections restricted to Tor (-onlynet=onion) but the proxy for reaching the Tor network is not provided: none of -proxy, -onion or -listenonion is given</source>
+        <translation type="unfinished">Connexions sortantes limitées à Tor (-onlynet=onion) mais le proxy pour atteindre le réseau Tor n'est pas fourni : aucun des paramètres -proxy, -onion ou -listenonion n'est donné</translation>
+    </message>
+    <message>
+        <source>Unrecognized descriptor found. Loading wallet %s
+
+The wallet might had been created on a newer version.
+Please try running the latest software version.
+</source>
+        <translation type="unfinished">Descripteur non reconnu trouvé. Chargement du portefeuille %s
+
+Le portefeuille a peut-être été créé avec une version plus récente.
+Veuillez essayer d'utiliser la dernière version du logiciel.
+</translation>
+    </message>
+    <message>
+        <source>Unsupported category-specific logging level -loglevel=%s. Expected -loglevel=&lt;category&gt;:&lt;loglevel&gt;. Valid categories: %s. Valid loglevels: %s.</source>
+        <translation type="unfinished">Niveau de consignation spécifique à une catégorie non pris en charge -loglevel=%s. Attendu -loglevel=&lt;category&gt;:&lt;loglevel&gt;. Catégories valides : %s. Niveaux de consignation valides : %s.</translation>
     </message>
     <message>
         <source>
 Unable to cleanup failed migration</source>
         <translation type="unfinished">
-Impossible de nettoyer la migration en erreur</translation>
+Impossible de corriger l'échec de la migration</translation>
     </message>
     <message>
         <source>
@@ -751,6 +819,14 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <translation type="unfinished">Erreur de lecture de l’enregistrement suivant de la base de données du porte-monnaie</translation>
     </message>
     <message>
+        <source>Error: Could not add watchonly tx to watchonly wallet</source>
+        <translation type="unfinished">Erreur : Impossible d'ajouter la transaction watchonly au portefeuille watchonly</translation>
+    </message>
+    <message>
+        <source>Error: Could not delete watchonly transactions</source>
+        <translation type="unfinished">Erreur : Impossible d'effacer les transactions de type "watchonly".</translation>
+    </message>
+    <message>
         <source>Error: Couldn't create cursor into database</source>
         <translation type="unfinished">Erreur : Impossible de créer le curseur dans la base de données</translation>
     </message>
@@ -761,6 +837,10 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>Error: Dumpfile checksum does not match. Computed %s, expected %s</source>
         <translation type="unfinished">Erreur : La somme de contrôle du fichier de vidage ne correspond pas. Calculée %s, attendue %s</translation>
+    </message>
+    <message>
+        <source>Error: Failed to create new watchonly wallet</source>
+        <translation type="unfinished">Erreur : Echec de la création d'un nouveau portefeuille watchonly</translation>
     </message>
     <message>
         <source>Error: Got key that was not hex: %s</source>
@@ -783,12 +863,24 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <translation type="unfinished">Erreur : Aucune adresse %s n’est disponible.</translation>
     </message>
     <message>
+        <source>Error: Not all watchonly txs could be deleted</source>
+        <translation type="unfinished">Erreur : Toutes les transactions watchonly n'ont pas pu être supprimés.</translation>
+    </message>
+    <message>
         <source>Error: This wallet already uses SQLite</source>
-        <translation type="unfinished">Erreur : ce portefeuille utilise déjà SQLite</translation>
+        <translation type="unfinished">Erreur : Ce portefeuille utilise déjà SQLite</translation>
+    </message>
+    <message>
+        <source>Error: This wallet is already a descriptor wallet</source>
+        <translation type="unfinished">Erreur : Ce portefeuille est déjà un portefeuille de descripteurs</translation>
+    </message>
+    <message>
+        <source>Error: Unable to begin reading all records in the database</source>
+        <translation type="unfinished">Erreur : Impossible de commencer à lire tous les enregistrements de la base de données</translation>
     </message>
     <message>
         <source>Error: Unable to make a backup of your wallet</source>
-        <translation type="unfinished">Erreur : impossible de faire une sauvegarde de votre portefeuille</translation>
+        <translation type="unfinished">Erreur : Impossible d'effectuer une sauvegarde de votre portefeuille</translation>
     </message>
     <message>
         <source>Error: Unable to parse version %u as a uint32_t</source>
@@ -796,7 +888,11 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     </message>
     <message>
         <source>Error: Unable to read all records in the database</source>
-        <translation type="unfinished">Erreur : impossible de lire tous les enregistrement dans la base de données</translation>
+        <translation type="unfinished">Erreur : Impossible de lire tous les enregistrements de la base de données</translation>
+    </message>
+    <message>
+        <source>Error: Unable to remove watchonly address book data</source>
+        <translation type="unfinished">Erreur : Impossible de supprimer les données du carnet d'adresses watchonly</translation>
     </message>
     <message>
         <source>Error: Unable to write record to new wallet</source>
@@ -877,6 +973,10 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>Invalid netmask specified in -whitelist: '%s'</source>
         <translation type="unfinished">Le masque réseau indiqué dans -whitelist est invalide : « %s »</translation>
+    </message>
+    <message>
+        <source>Listening for incoming connections failed (listen returned error %s)</source>
+        <translation type="unfinished">L'écoute des connexions entrantes a échoué ( l'écoute a renvoyé une erreur %s)</translation>
     </message>
     <message>
         <source>Loading P2P addresses…</source>
@@ -1039,6 +1139,10 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <translation type="unfinished">La transaction est trop grosse</translation>
     </message>
     <message>
+        <source>Unable to allocate memory for -maxsigcachesize: '%s' MiB</source>
+        <translation type="unfinished">Impossible d'allouer de la mémoire pour -maxsigcachesize : '%s' Mo</translation>
+    </message>
+    <message>
         <source>Unable to bind to %s on this computer (bind returned error %s)</source>
         <translation type="unfinished">Impossible de se lier à %s sur cet ordinateur (la liaison a retourné l’erreur %s)</translation>
     </message>
@@ -1052,7 +1156,7 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     </message>
     <message>
         <source>Unable to find UTXO for external input</source>
-        <translation type="unfinished">Impossible de trouver UTXO pour l'entrée externe</translation>
+        <translation type="unfinished">Impossible de trouver l'UTXO pour l'entrée externe</translation>
     </message>
     <message>
         <source>Unable to generate initial keys</source>
@@ -1076,7 +1180,7 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     </message>
     <message>
         <source>Unable to unload the wallet before migrating</source>
-        <translation type="unfinished">Impossible de décharger le portefeuille avant de migrer</translation>
+        <translation type="unfinished">Impossible de vider le portefeuille avant la migration</translation>
     </message>
     <message>
         <source>Unknown -blockfilterindex value %s.</source>
@@ -1099,6 +1203,10 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <translation type="unfinished">Les nouvelles règles inconnues sont activées (versionbit %i)</translation>
     </message>
     <message>
+        <source>Unsupported global logging level -loglevel=%s. Valid values: %s.</source>
+        <translation type="unfinished">Niveau de consignation global non pris en charge -loglevel=%s. Valeurs valides : %s.</translation>
+    </message>
+    <message>
         <source>Unsupported logging category %s=%s.</source>
         <translation type="unfinished">La catégorie de journalisation %s=%s n’est pas prise en charge</translation>
     </message>
@@ -1116,7 +1224,7 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     </message>
     <message>
         <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation type="unfinished">Le porte-monnaie devait être réécrit : redémarrer %s pour terminer l’opération.</translation>
+        <translation type="unfinished">Le portefeuille doit être réécrit : redémarrer %s pour terminer</translation>
     </message>
 </context>
 <context>
@@ -1201,6 +1309,10 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>&amp;Receive</source>
         <translation type="unfinished">&amp;Recevoir</translation>
+    </message>
+    <message>
+        <source>&amp;Options…</source>
+        <translation type="unfinished">&amp;Choix</translation>
     </message>
     <message>
         <source>&amp;Encrypt Wallet…</source>
@@ -1313,8 +1425,8 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform>%n bloc d’historique transactionnel a été traité.</numerusform>
+            <numerusform>%n blocs d’historique transactionnel ont été traités.</numerusform>
         </translation>
     </message>
     <message>
@@ -1396,12 +1508,12 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>Restore Wallet…</source>
         <extracomment>Name of the menu item that restores wallet from a backup file.</extracomment>
-        <translation type="unfinished">Restaurer un portefeuille...</translation>
+        <translation type="unfinished">Restaurer le Portefeuille...</translation>
     </message>
     <message>
         <source>Restore a wallet from a backup file</source>
         <extracomment>Status tip for Restore Wallet menu item</extracomment>
-        <translation type="unfinished">Restaurer un portefeuille depuis un fichier de récupération</translation>
+        <translation type="unfinished">Restaurer le Portefeuille depuis un fichier de sauvegarde</translation>
     </message>
     <message>
         <source>Close all wallets</source>
@@ -1435,7 +1547,7 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>Load Wallet Backup</source>
         <extracomment>The title for Restore Wallet File Windows</extracomment>
-        <translation type="unfinished">Charger la Sauvegarde du Portefeuille</translation>
+        <translation type="unfinished">Lancer un Portefeuille de sauvegarde</translation>
     </message>
     <message>
         <source>Restore Wallet</source>
@@ -1475,8 +1587,8 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform>%n connexion active avec le réseau Qtum.</numerusform>
+            <numerusform>%n connexions actives avec le réseau Qtum.</numerusform>
         </translation>
     </message>
     <message>
@@ -1501,7 +1613,7 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     </message>
     <message>
         <source>Pre-syncing Headers (%1%)…</source>
-        <translation type="unfinished">Pré-synchronisation des en-têtes (%1%)...</translation>
+        <translation type="unfinished">En-têtes de pré-synchronisation (%1%)...</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -1758,7 +1870,11 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <source>Can't list signers</source>
         <translation type="unfinished">Impossible de lister les signataires</translation>
     </message>
-    </context>
+    <message>
+        <source>Too many external signers found</source>
+        <translation type="unfinished">Trop de signataires externes trouvés</translation>
+    </message>
+</context>
 <context>
     <name>LoadWalletsActivity</name>
     <message>
@@ -1807,7 +1923,7 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>Restoring Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
         <extracomment>Descriptive text of the restore wallets progress window which indicates to the user that wallets are currently being restored.</extracomment>
-        <translation type="unfinished">Restauration du Portefeuille &lt;b&gt;%1&lt;/b&gt;...</translation>
+        <translation type="unfinished">Restauration du Portefeuille&lt;b&gt;%1&lt;/b&gt;...</translation>
     </message>
     <message>
         <source>Restore wallet failed</source>
@@ -1815,9 +1931,14 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <translation type="unfinished">Échec de la restauration du portefeuille</translation>
     </message>
     <message>
+        <source>Restore wallet warning</source>
+        <extracomment>Title of message box which is displayed when the wallet is restored with some warning.</extracomment>
+        <translation type="unfinished">Avertissement de la récupération du Portefeuille</translation>
+    </message>
+    <message>
         <source>Restore wallet message</source>
         <extracomment>Title of message box which is displayed when the wallet is successfully restored.</extracomment>
-        <translation type="unfinished">Message de restauration du portefeuille</translation>
+        <translation type="unfinished">Message du Portefeuille restauré</translation>
     </message>
 </context>
 <context>
@@ -1998,22 +2119,22 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
-            <numerusform>%n Go d’espace disponible</numerusform>
-            <numerusform>%n Go d’espace disponible</numerusform>
+            <numerusform />
+            <numerusform />
         </translation>
     </message>
     <message numerus="yes">
         <source>(of %n GB needed)</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform>(of %n GB needed)</numerusform>
+            <numerusform>(of %n GB needed)</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>(%n GB needed for full chain)</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform>(%n GB needed for full chain)</numerusform>
+            <numerusform>(%n GB needed for full chain)</numerusform>
         </translation>
     </message>
     <message>
@@ -2028,8 +2149,8 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform>(suffisant pour restaurer les sauvegardes âgées de %n jour)</numerusform>
+            <numerusform>(suffisant pour restaurer les sauvegardes âgées de %n jours)</numerusform>
         </translation>
     </message>
     <message>
@@ -2075,6 +2196,10 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
         <translation type="unfinished">Cette synchronisation initiale est très exigeante et pourrait exposer des problèmes matériels dans votre ordinateur passés inaperçus auparavant. Chaque fois que vous exécuterez %1, le téléchargement reprendra où il s’était arrêté.</translation>
+    </message>
+    <message>
+        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2 GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
+        <translation type="unfinished">Quand vous cliquerez sur Valider, %1 commencera à télécharger et à traiter l’intégralité de la chaîne de blocs %4 (%2 Go) en débutant avec les transactions les plus anciennes de %3, quand %4 a été lancé initialement.</translation>
     </message>
     <message>
         <source>If you have chosen to limit block chain storage (pruning), the historical data must still be downloaded and processed, but will be deleted afterward to keep your disk usage low.</source>
@@ -2169,7 +2294,11 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
         <source>Unknown. Syncing Headers (%1, %2%)…</source>
         <translation type="unfinished">Inconnu. Synchronisation des en-têtes (%1, %2 %)…</translation>
     </message>
-    </context>
+    <message>
+        <source>Unknown. Pre-syncing Headers (%1, %2%)…</source>
+        <translation type="unfinished">Inconnu. En-têtes de présynchronisation (%1, %2%)...</translation>
+    </message>
+</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
@@ -2223,6 +2352,10 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>Minimize instead of exit the application when the window is closed. When this option is enabled, the application will be closed only after selecting Exit in the menu.</source>
         <translation type="unfinished">Quand la fenêtre est fermée, la réduire au lieu de quitter l’application. Si cette option est activée, l’application ne sera fermée qu’en sélectionnant Quitter dans le menu.</translation>
+    </message>
+    <message>
+        <source>Options set in this dialog are overridden by the command line:</source>
+        <translation type="unfinished">Les options définies dans cette boîte de dialogue sont remplacées par la ligne de commande :</translation>
     </message>
     <message>
         <source>Open the %1 configuration file from the working directory.</source>
@@ -2490,7 +2623,7 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>Current settings will be backed up at "%1".</source>
         <extracomment>Text explaining to the user that the client's current settings will be backed up at a specific location. %1 is a stand-in argument for the backup location's path.</extracomment>
-        <translation type="unfinished">Les paramètres courants seront sauvegardés à "%1".</translation>
+        <translation type="unfinished">Les paramètres actuels vont être restaurés à "%1".</translation>
     </message>
     <message>
         <source>Client will be shut down. Do you want to proceed?</source>
@@ -2530,6 +2663,13 @@ Impossible de restaurer la sauvegarde du portefeuille.</translation>
     <message>
         <source>The supplied proxy address is invalid.</source>
         <translation type="unfinished">L’adresse de serveur mandataire fournie est invalide.</translation>
+    </message>
+</context>
+<context>
+    <name>OptionsModel</name>
+    <message>
+        <source>Could not read setting "%1", %2.</source>
+        <translation type="unfinished">Impossible de lire le paramètre "%1", %2.</translation>
     </message>
 </context>
 <context>
@@ -2789,11 +2929,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">Pair</translation>
     </message>
     <message>
-        <source>Age</source>
-        <extracomment>Title of Peers Table column which indicates the duration (length of time) since the peer connection started.</extracomment>
-        <translation type="unfinished">Âge</translation>
-    </message>
-    <message>
         <source>Sent</source>
         <extracomment>Title of Peers Table column which indicates the total amount of network information we have sent to the peer.</extracomment>
         <translation type="unfinished">Envoyé</translation>
@@ -2987,6 +3122,16 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <source>Address Relay</source>
         <extracomment>Text title for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
         <translation type="unfinished">Relais d’adresses</translation>
+    </message>
+    <message>
+        <source>The total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</source>
+        <extracomment>Tooltip text for the Addresses Processed field in the peer details area, which displays the total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</extracomment>
+        <translation type="unfinished">Nombre total d'adresses reçues de ce pair qui ont été traitées (à l'exclusion des adresses qui ont été abandonnées en raison de la limitation du débit).</translation>
+    </message>
+    <message>
+        <source>The total number of addresses received from this peer that were dropped (not processed) due to rate-limiting.</source>
+        <extracomment>Tooltip text for the Addresses Rate-Limited field in the peer details area, which displays the total number of addresses received from this peer that were dropped (not processed) due to rate-limiting.</extracomment>
+        <translation type="unfinished">Nombre total d'adresses reçues de ce pair qui ont été abandonnées (non traitées) en raison de la limitation du débit.</translation>
     </message>
     <message>
         <source>Addresses Processed</source>
@@ -3777,13 +3922,6 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation type="unfinished">Des frais supérieurs à %1 sont considérés comme ridiculement élevés.</translation>
     </message>
-    <message numerus="yes">
-        <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">Avertissement : L’adresse Qtum est invalide</translation>
@@ -4040,6 +4178,16 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <translation type="unfinished">est en conflit avec une transaction ayant %1 confirmations</translation>
     </message>
     <message>
+        <source>0/unconfirmed, in memory pool</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that is in the memory pool.</extracomment>
+        <translation type="unfinished">0/non confirmé, dans la pool de mémoire</translation>
+    </message>
+    <message>
+        <source>0/unconfirmed, not in memory pool</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that is not in the memory pool.</extracomment>
+        <translation type="unfinished">0/non confirmé, pas dans la pool de mémoire</translation>
+    </message>
+    <message>
         <source>abandoned</source>
         <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an abandoned transaction.</extracomment>
         <translation type="unfinished">abandonnée</translation>
@@ -4088,8 +4236,8 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
         <translation type="unfinished">
-            <numerusform>matures dans %n bloc supplémentaire</numerusform>
-            <numerusform>matures dans %n blocs supplémentaires</numerusform>
+            <numerusform>arrivera à maturité dans %n bloc</numerusform>
+            <numerusform>arrivera à maturité dans %n blocs</numerusform>
         </translation>
     </message>
     <message>
