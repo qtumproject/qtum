@@ -142,7 +142,7 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
         out.pushKV("valueSat", txout.nValue);
         out.pushKV("n", (int64_t)i);
         UniValue o(UniValue::VOBJ);
-        ScriptToUniv(txout.scriptPubKey, o, true);
+        ScriptToUniv(txout.scriptPubKey, o, true, true);
         out.pushKV("scriptPubKey", o);
 
         // Add spent information if spentindex is enabled
@@ -237,7 +237,7 @@ static std::vector<RPCResult> DecodeExpanded(bool isExpanded, bool isVin)
     {
         if(isVin) {
             return {
-                {RPCResult::Type::STR_HEX, "value", /*optional=*/true, "The value in " + CURRENCY_UNIT + " (only if address index is enabled)"},
+                {RPCResult::Type::STR_AMOUNT, "value", /*optional=*/true, "The value in " + CURRENCY_UNIT + " (only if address index is enabled)"},
                 {RPCResult::Type::NUM, "valueSat", /*optional=*/true, "The value in Sat (only if address index is enabled)"},
                 {RPCResult::Type::STR, "address", /*optional=*/true, "The Qtum address (only if address index is enabled)"},
             };
@@ -398,6 +398,7 @@ static RPCHelpMan getrawtransaction()
                              {RPCResult::Type::NUM, "confirmations", /*optional=*/true, "The confirmations"},
                              {RPCResult::Type::NUM_TIME, "blocktime", /*optional=*/true, "The block time expressed in " + UNIX_EPOCH_TIME},
                              {RPCResult::Type::NUM, "time", /*optional=*/true, "Same as \"blocktime\""},
+                             {RPCResult::Type::NUM, "height", /*optional=*/true, "The block height"},
                              {RPCResult::Type::STR_HEX, "hex", "The serialized, hex-encoded data for 'txid'"},
                          },
                          DecodeTxDoc(/*txid_field_doc=*/"The transaction id (same as provided)", true)),

@@ -994,8 +994,8 @@ static RPCHelpMan getaddressmempool()
                             {RPCResult::Type::NUM, "index", "The related input or output index"},
                             {RPCResult::Type::NUM, "satoshis", "The difference of satoshis"},
                             {RPCResult::Type::NUM, "timestamp", "The time the transaction entered the mempool (seconds)"},
-                            {RPCResult::Type::STR_HEX, "prevtxid", "The previous txid (if spending)"},
-                            {RPCResult::Type::NUM, "prevout", "The previous transaction output index (if spending)"},
+                            {RPCResult::Type::STR_HEX, "prevtxid", /*optional=*/true, "The previous txid (if spending)"},
+                            {RPCResult::Type::NUM, "prevout", /*optional=*/true, "The previous transaction output index (if spending)"},
                         }}
                     }
                 },
@@ -1230,11 +1230,9 @@ static RPCHelpMan listconf()
                 "\nReturns the current options that qtumd was started with.\n",
                 {},
                 RPCResult{
-                    RPCResult::Type::OBJ, "", "",
+                    RPCResult::Type::OBJ_DYN, "", "",
                     {
-                        {RPCResult::Type::STR, "param1", "Value for param1"},
-                        {RPCResult::Type::STR, "param2", "Value for param2"},
-                        {RPCResult::Type::STR, "param3", "Value for param3"},
+                        {RPCResult::Type::STR, "param", "Value for param"},
                     }
                 },
                 RPCExamples{
