@@ -54,8 +54,11 @@ static RPCHelpMan sendrawtransaction()
                     {RPCResult::Type::STR_HEX, "txid", "The transaction hash in hex"},
                     {RPCResult::Type::ARR, "contracts", "",
                     {
-                        {RPCResult::Type::STR, "address", "The expected contract address"},
-                        {RPCResult::Type::NUM, "index", "The index of the output"},
+                        {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR_HEX, "address", "The expected contract address"},
+                            {RPCResult::Type::NUM, "index", "The index of the output"},
+                        }}
                     }},
                 }
             },
