@@ -42,7 +42,7 @@
 
 #define TX_SIZE 40
 #define DECORATION_SIZE 20
-#define DATE_WIDTH 110
+#define DATE_WIDTH 130
 #define TYPE_WIDTH 140
 #define AMOUNT_WIDTH 205
 
