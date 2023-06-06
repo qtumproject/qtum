@@ -227,7 +227,7 @@ RPCHelpMan createcontract()
         coinControl.m_allow_other_inputs = true;
 
         assert(pwallet != NULL);
-        std::vector<COutput> vecOutputs = AvailableCoins(*pwallet, NULL).All();
+        std::vector<COutput> vecOutputs = AvailableCoins(*pwallet, &coinControl).All();
 
         for (const COutput& out : vecOutputs) {
             CTxDestination destAdress;
@@ -487,7 +487,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
         // Find a UTXO with sender address
         coinControl.m_allow_other_inputs = true;
 
-        std::vector<COutput> vecOutputs = AvailableCoins(wallet, NULL).All();
+        std::vector<COutput> vecOutputs = AvailableCoins(wallet, &coinControl).All();
 
         for (const COutput& out : vecOutputs) {
 

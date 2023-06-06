@@ -338,7 +338,7 @@ RPCHelpMan sendtoaddress()
      coin_control.m_allow_other_inputs=true;
 
      assert(pwallet != NULL);
-     std::vector<COutput> vecOutputs = AvailableCoins(*pwallet, NULL).All();
+     std::vector<COutput> vecOutputs = AvailableCoins(*pwallet, &coin_control).All();
 
      for(const COutput& out : vecOutputs) {
          CTxDestination destAdress;
@@ -1981,7 +1981,7 @@ RPCHelpMan splitutxosforaddress()
     coin_control.m_allow_other_inputs=true;
 
     assert(pwallet != NULL);
-    std::vector<COutput> vecOutputs = AvailableCoins(*pwallet, NULL).All();
+    std::vector<COutput> vecOutputs = AvailableCoins(*pwallet, &coin_control).All();
 
     CAmount total = 0;
     CAmount nSelectedAmount = 0;
