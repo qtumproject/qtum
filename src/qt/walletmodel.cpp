@@ -821,7 +821,7 @@ uint256 WalletModel::getLastBlockProcessed() const
 
 CAmount WalletModel::getAvailableBalance(const CCoinControl* control)
 {
-    return control && control->HasSelected() ? wallet().getAvailableBalance(*control) : getCachedBalance().balance;
+    return control && control->HasSelected() ? wallet().getAvailableBalance(*control) : getCachedBalance(control);
 }
 
 QString WalletModel::getRestorePath()
@@ -1113,4 +1113,15 @@ void WalletModel::join()
         delegationItemModel->join();
     if(superStakerItemModel)
         superStakerItemModel->join();
+}
+
+CAmount WalletModel::getCachedBalance(const wallet::CCoinControl *control) const
+{
+    interfaces::WalletBalances balances = getCachedBalance();
+    if(control && control->fAllowWatchOnly)
+    {
+        return balances.balance + balances.watch_only_balance;
+    }
+
+    return balances.balance;
 }

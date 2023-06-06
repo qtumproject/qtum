@@ -186,6 +186,9 @@ public:
     // Otherwise, uses the wallet's cached available balance.
     CAmount getAvailableBalance(const wallet::CCoinControl* control);
 
+    // Retrieve the cached wallet balance
+    CAmount getCachedBalance(const wallet::CCoinControl* control) const;
+
     // Get or set selected hardware device fingerprint (only for hardware wallet applicable)
     QString getFingerprint(bool stake = false) const;
     void setFingerprint(const QString &value, bool stake = false);
