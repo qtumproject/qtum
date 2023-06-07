@@ -416,6 +416,7 @@ void OptionsDialog::on_okButton_clicked()
         if(retval == QMessageBox::Yes)
         {
             model->setRestartApp(true);
+            qApp->setQuitOnLastWindowClosed(true);
             qApp->closeAllWindows();
         }
     }
