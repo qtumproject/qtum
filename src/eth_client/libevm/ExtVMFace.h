@@ -230,10 +230,11 @@ public:
     ///
     /// @param beneficiary  The address of the account which will receive ETH
     ///                     from the selfdestructed account.
-    virtual void selfdestruct(Address beneficiary)
+    bool selfdestruct(Address beneficiary)
     {
         (void)beneficiary;
         sub.selfdestructs.insert(myAddress);
+        return true;
     }
 
     /// Create a new (contract) account.
@@ -331,10 +332,10 @@ public:
     size_t copy_code(const evmc::address& _addr, size_t _codeOffset, uint8_t* _bufferData,
         size_t _bufferSize) const noexcept override;
 
-    void selfdestruct(
+    bool selfdestruct(
         const evmc::address& _addr, const evmc::address& _beneficiary) noexcept override;
 
-    evmc::result call(const evmc_message& _msg) noexcept override;
+    evmc::Result call(const evmc_message& _msg) noexcept override;
 
     evmc_tx_context get_tx_context() const noexcept override;
 
@@ -349,7 +350,7 @@ public:
                                       const evmc::bytes32& key) noexcept final;
 
 private:
-    evmc::result create(evmc_message const& _msg) noexcept;
+    evmc::Result create(evmc_message const& _msg) noexcept;
     void record_account_access(const evmc::address& addr) const;
 
 private:
