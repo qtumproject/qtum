@@ -30,7 +30,7 @@ class DataCarrierTest(BitcoinTestFramework):
         ]
 
     def test_null_data_transaction(self, node: TestNode, data: bytes, success: bool) -> None:
-        tx = self.wallet.create_self_transfer(fee_rate=0)["tx"]
+        tx = self.wallet.create_self_transfer(fee_rate=78400)["tx"]
         tx.vout.append(CTxOut(nValue=0, scriptPubKey=CScript([OP_RETURN, data])))
         tx.vout[0].nValue -= tx.get_vsize()  # simply pay 1sat/vbyte fee
 
