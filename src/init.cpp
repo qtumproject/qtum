@@ -602,6 +602,7 @@ void SetupServerArgs(ArgsManager& argsman)
     argsman.AddArg("-muirglacierheight=<n>", "Use given block height to check contracts with EVM Muir Glacier (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-londonheight=<n>", "Use given block height to check contracts with EVM London (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-taprootheight=<n>", "Use given block height to check taproot (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-shanghaiheight=<n>", "Use given block height to check contracts with EVM Shanghai (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
 
     SetupChainParamsBaseOptions(argsman);
@@ -1314,6 +1315,20 @@ bool AppInitParameterInteraction(const ArgsManager& args, bool use_syscall_sandb
         {
             UpdateTaprootHeight(taprootheight);
             LogPrintf("Activate taproot at block height %d\n.", taprootheight);
+        }
+    }
+
+    if (args.IsArgSet("-shanghaiheight")) {
+        // Allow overriding EVM Shanghai block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Shanghai height may only be overridden on regtest."));
+        }
+
+        int shanghaiheight = args.GetIntArg("-shanghaiheight", 0);
+        if(shanghaiheight >= 0)
+        {
+            UpdateShanghaiHeight(shanghaiheight);
+            LogPrintf("Activate EVM Shanghai at block height %d\n.", shanghaiheight);
         }
     }
 

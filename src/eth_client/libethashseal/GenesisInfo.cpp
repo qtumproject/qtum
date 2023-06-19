@@ -48,5 +48,6 @@ std::string dev::eth::genesisInfoQtum(Network _n, EVMConsensus _consensus)
     ReplaceInt(_consensus.QIP7Height,         "QIP7_STARTING_BLOCK", _genesisInfo);
     ReplaceInt(_consensus.nMuirGlacierHeight, "MUIR_STARTING_BLOCK", _genesisInfo);
     ReplaceInt(_consensus.nLondonHeight,      "LONDON_STARTING_BLOCK", _genesisInfo);
+    ReplaceInt(_consensus.nShanghaiHeight,    "SHANGHAI_STARTING_BLOCK", _genesisInfo);
     return _genesisInfo;
 }
