@@ -72,13 +72,14 @@ private:
 
 struct SubState
 {
-    std::set<Address> selfdestructs;  ///< Any accounts that have selfdestructed.
+    std::unordered_map<Address, std::vector<Address>> selfdestructs;  ///< Any accounts that have selfdestructed.
     LogEntries logs;                  ///< Any logs.
     int64_t refunds = 0;              ///< Refund counter for storage changes.
 
     SubState& operator+=(SubState const& _s)
     {
-        selfdestructs += _s.selfdestructs;
+        for (auto const& i: _s.selfdestructs)
+            selfdestructs[i.first] += i.second;
         refunds += _s.refunds;
         logs += _s.logs;
         return *this;
@@ -230,11 +231,11 @@ public:
     ///
     /// @param beneficiary  The address of the account which will receive ETH
     ///                     from the selfdestructed account.
-    bool selfdestruct(Address beneficiary)
+    virtual bool selfdestruct(Address beneficiary)
     {
-        (void)beneficiary;
-        sub.selfdestructs.insert(myAddress);
-        return true;
+        auto& beneficiaries = sub.selfdestructs[myAddress];
+        beneficiaries.emplace_back(beneficiary);
+        return beneficiaries.size() == 1;
     }
 
     /// Create a new (contract) account.
