@@ -5,6 +5,7 @@ from test_framework.util import *
 from test_framework.script import *
 from test_framework.p2p import *
 from test_framework.address import *
+from test_framework.ripemd160 import ripemd160
 from test_framework.qtum import *
 import pprint
 import subprocess
@@ -214,7 +215,7 @@ class QtumEVMConstantinoplePrecompiledContractsTest(BitcoinTestFramework):
             abi += hex(len(in_val))[2:].zfill(64)
             abi += bytes_to_hex_str(in_val) + ("00" * (32 - len(in_val)))
             ret = self.send_and_call_method(abi)
-            assert_equal(ret[0:40], hashlib.new('ripemd160', in_val).hexdigest())
+            assert_equal(ret[0:40], ripemd160(in_val).hex())
 
         test("")
         test("a")
