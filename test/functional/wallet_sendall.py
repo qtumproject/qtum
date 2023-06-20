@@ -32,7 +32,7 @@ class SendallTest(BitcoinTestFramework):
     def set_test_params(self):
         getcontext().prec=10
         self.num_nodes = 1
-        self.setup_clean_chain = True
+        self.setup_clean_chain = False
 
     def assert_balance_swept_completely(self, tx, balance):
         output_sum = sum([o["value"] for o in tx["decoded"]["vout"]])
@@ -170,13 +170,12 @@ class SendallTest(BitcoinTestFramework):
         self.nodes[0].createwallet("dustwallet")
         dust_wallet = self.nodes[0].get_wallet_rpc("dustwallet")
 
-        self.def_wallet.sendtoaddress(dust_wallet.getnewaddress(), 0.00000400)
-        self.def_wallet.sendtoaddress(dust_wallet.getnewaddress(), 0.00000300)
+        self.def_wallet.sendtoaddress(dust_wallet.getnewaddress(), 0.00400)
+        self.def_wallet.sendtoaddress(dust_wallet.getnewaddress(), 0.00300)
         self.generate(self.nodes[0], 1)
         assert_greater_than(dust_wallet.getbalances()["mine"]["trusted"], 0)
 
-        assert_raises_rpc_error(-6, "Total value of UTXO pool too low to pay for transaction."
-                + " Try using lower feerate or excluding uneconomic UTXOs with 'send_max' option.",
+        assert_raises_rpc_error(-8, "Fee rate (300.000 sat/vB) is lower than the minimum fee rate setting (400.000 sat/vB)",
                 dust_wallet.sendall, recipients=[self.remainder_target], fee_rate=300)
 
         dust_wallet.unloadwallet()
@@ -184,15 +183,15 @@ class SendallTest(BitcoinTestFramework):
     @cleanup
     def sendall_with_send_max(self):
         self.log.info("Check that `send_max` option causes negative value UTXOs to be left behind")
-        self.add_utxos([0.00000400, 0.00000300, 1])
+        self.add_utxos([0.00400, 0.00300, 1])
 
         # sendall with send_max
-        sendall_tx_receipt = self.wallet.sendall(recipients=[self.remainder_target], fee_rate=300, options={"send_max": True})
+        sendall_tx_receipt = self.wallet.sendall(recipients=[self.remainder_target], fee_rate=400, options={"send_max": True})
         tx_from_wallet = self.wallet.gettransaction(txid = sendall_tx_receipt["txid"], verbose = True)
 
-        assert_equal(len(tx_from_wallet["decoded"]["vin"]), 1)
-        self.assert_tx_has_outputs(tx_from_wallet, [{"address": self.remainder_target, "value": 1 + tx_from_wallet["fee"]}])
-        assert_equal(self.wallet.getbalances()["mine"]["trusted"], Decimal("0.00000700"))
+        assert_equal(len(tx_from_wallet["decoded"]["vin"]), 3)
+        self.assert_tx_has_outputs(tx_from_wallet, [{"address": self.remainder_target, "value": Decimal("1.00506000")}])
+        assert_equal(self.wallet.getbalances()["mine"]["trusted"], 0)
 
         self.def_wallet.sendtoaddress(self.wallet.getnewaddress(), 1)
         self.generate(self.nodes[0], 1)
@@ -279,7 +278,7 @@ class SendallTest(BitcoinTestFramework):
                 "Fee exceeds maximum configured by user",
                 self.wallet.sendall,
                 recipients=[self.remainder_target],
-                fee_rate=100000)
+                fee_rate=10000000)
 
     @cleanup
     def sendall_watchonly_specific_inputs(self):
@@ -312,13 +311,14 @@ class SendallTest(BitcoinTestFramework):
     def sendall_fails_with_transaction_too_large(self):
         self.log.info("Test that sendall fails if resulting transaction is too large")
         # create many inputs
-        outputs = {self.wallet.getnewaddress(): 0.000025 for _ in range(1600)}
+        outputs = {self.wallet.getnewaddress(): 0.0025 for _ in range(1600)}
         self.def_wallet.sendmany(amounts=outputs)
         self.generate(self.nodes[0], 1)
 
         assert_raises_rpc_error(
-                -4,
-                "Transaction too large.",
+                -6,
+                "Total value of UTXO pool too low to pay for transaction. "
+                "Try using lower feerate or excluding uneconomic UTXOs with 'send_max' option.",
                 self.wallet.sendall,
                 recipients=[self.remainder_target])
 
