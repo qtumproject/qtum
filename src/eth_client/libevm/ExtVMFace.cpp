@@ -243,7 +243,7 @@ evmc::Result EvmCHost::call(evmc_message const& _msg) noexcept
     params.apparentValue = fromEvmC(_msg.value);
     params.valueTransfer = _msg.kind == EVMC_DELEGATECALL ? 0 : params.apparentValue;
     params.senderAddress = fromEvmC(_msg.sender);
-    params.codeAddress = fromEvmC(_msg.recipient);
+    params.codeAddress = fromEvmC(_msg.code_address);
     params.receiveAddress = _msg.kind == EVMC_CALL ? params.codeAddress : m_extVM.myAddress;
     params.data = {_msg.input_data, _msg.input_size};
     params.staticCall = (_msg.flags & EVMC_STATIC) != 0;
