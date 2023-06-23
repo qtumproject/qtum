@@ -2,6 +2,8 @@
 #include <libdevcore/CommonData.h>
 #include <pubkey.h>
 #include <util/convert.h>
+#include <util/system.h>
+#include <chainparams.h>
 
 using namespace dev;
 
@@ -36,4 +38,39 @@ bool qtumutils::btc_ecrecover(const dev::h256 &hash, const dev::u256 &v, const d
     }
 
     return false;
+}
+
+struct EthChainIdCache
+{
+    EthChainIdCache() {}
+    const CChainParams* pParams = 0;
+    int beforeShanghaiChainId = 0;
+    int afterShanghaiChainId = 0;
+};
+
+int qtumutils::eth_getChainId(int blockHeight, int shanghaiHeight)
+{
+    std::string chain = gArgs.GetChainName();
+    if (chain == CBaseChainParams::MAIN || blockHeight < shanghaiHeight)
+        return ChainIdType::MAINNET;
+
+    if (chain == CBaseChainParams::REGTEST || chain == CBaseChainParams::UNITTEST)
+        return ChainIdType::REGTEST;
+
+    return ChainIdType::TESTNET;
+}
+
+int qtumutils::eth_getChainId(int blockHeight)
+{
+    const CChainParams& params = Params();
+    int shanghaiHeight = params.GetConsensus().nShanghaiHeight;
+    static EthChainIdCache idCache;
+    if(idCache.pParams != &params)
+    {
+        idCache.pParams = &params;
+        idCache.beforeShanghaiChainId = eth_getChainId(0, shanghaiHeight);
+        idCache.afterShanghaiChainId = eth_getChainId(shanghaiHeight, shanghaiHeight);
+    }
+
+    return blockHeight < shanghaiHeight ? idCache.beforeShanghaiChainId : idCache.afterShanghaiChainId;
 }

@@ -62,6 +62,7 @@
 #include <libethcore/ABI.h>
 #include <univalue.h>
 #include <util/signstr.h>
+#include <qtum/qtumutils.h>
 
 #include <algorithm>
 #include <cassert>
@@ -2797,7 +2798,8 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
 dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     CBlockIndex* tip = pindex;
     dev::eth::BlockHeader header;
-    header.setNumber(tip->nHeight + 1);
+    int blockHeight = tip->nHeight + 1;
+    header.setNumber(blockHeight);
     header.setTimestamp(block.nTime);
     header.setDifficulty(dev::u256(block.nBits));
     header.setGasLimit(blockGasLimit);
@@ -2810,7 +2812,9 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
         header.setAuthor(EthAddrFromScript(block.vtx[0]->vout[0].scriptPubKey));
     }
     dev::u256 gasUsed;
-    dev::eth::EnvInfo env(header, lastHashes, gasUsed, globalSealEngine->chainParams().chainID);
+    int &chainID = const_cast<int&>(globalSealEngine->chainParams().chainID);
+    chainID = qtumutils::eth_getChainId(blockHeight);
+    dev::eth::EnvInfo env(header, lastHashes, gasUsed, chainID);
     return env;
 }
 
