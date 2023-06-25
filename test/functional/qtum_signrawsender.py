@@ -11,6 +11,9 @@ from test_framework.address import *
 from test_framework.qtum import *
 
 class QtumSignRawSenderTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.num_nodes = 2
         self.setup_clean_chain = True

@@ -20,6 +20,9 @@ from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 from test_framework.qtum import convert_btc_address_to_qtum, convert_btc_bech32_address_to_qtum
 
 class WalletLabelsTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1

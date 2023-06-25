@@ -28,6 +28,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.extra_args = [['-headerspamfilter=1']]*2
 
     def add_options(self, parser):
+        self.add_wallet_options(parser)
         parser.add_argument("--dos-same-height", dest="dos_same_height", default=False, action="store_true",
                             help="Run the DoS same height test")
         parser.add_argument("--dos-variable-height", dest="dos_variable_height", default=False, action="store_true",

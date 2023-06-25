@@ -16,6 +16,9 @@ from test_framework.util import (
 from test_framework.qtum import generatesynchronized, convert_btc_bech32_address_to_qtum 
 
 class WalletHDTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2

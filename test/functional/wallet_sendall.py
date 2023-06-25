@@ -25,6 +25,9 @@ def cleanup(func):
     return wrapper
 
 class SendallTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     # Setup and helpers
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()

@@ -11,6 +11,9 @@ from test_framework.qtum import *
  This test specifically tests that inputs to transactions in the mempool are not used in staking.
 """
 class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.num_nodes = 2
         self.setup_clean_chain = True

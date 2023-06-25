@@ -7,6 +7,9 @@ from test_framework.p2p import *
 from test_framework.address import *
 
 class QtumGlobalsStateChangerTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1

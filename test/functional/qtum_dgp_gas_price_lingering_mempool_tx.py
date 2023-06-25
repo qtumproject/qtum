@@ -13,6 +13,9 @@ from test_framework.blocktools import *
 Note, these tests do not test the functionality of the DGP template contract itself, for tests for the DGP template, see qtum-dgp.py
 """
 class QtumDGPGasPriceLingeringMempoolTxTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
