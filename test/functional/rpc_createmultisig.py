@@ -17,10 +17,7 @@ from test_framework.util import (
     assert_equal,
 )
 from test_framework.wallet_util import bytes_to_wif
-from test_framework.wallet import (
-    MiniWallet,
-    getnewdestination,
-)
+from test_framework.wallet import getnewdestination
 
 from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 class RpcCreateMultiSigTest(BitcoinTestFramework):
@@ -31,6 +28,9 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         if self.is_bdb_compiled():
             self.requires_wallet = True
         self.extra_args = [['-addresstype=bech32']] * 3
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def get_keys(self):
         self.pub = []
@@ -48,7 +48,6 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
     def run_test(self):
         node0, node1, node2 = self.nodes
-        self.wallet = MiniWallet(test_node=node0)
 
         if self.is_bdb_compiled():
             self.check_addmultisigaddress_errors()
@@ -75,32 +74,28 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         pk_obj.compressed = False
         pk2 = pk_obj.get_bytes().hex()
 
-        if self.is_bdb_compiled():
-            node0.createwallet(wallet_name='wmulti0', disable_private_keys=True)
-            wmulti0 = node0.get_wallet_rpc('wmulti0')
+        node0.createwallet(wallet_name='wmulti0', disable_private_keys=True)
+        wmulti0 = node0.get_wallet_rpc('wmulti0')
 
         # Check all permutations of keys because order matters apparently
         for keys in itertools.permutations([pk0, pk1, pk2]):
             # Results should be the same as this legacy one
             legacy_addr = wmulti0.createmultisig(2, keys, 'legacy')['address']
-
-            if self.is_bdb_compiled():
-                result = wmulti0.addmultisigaddress(2, keys, '', 'legacy')
-                assert_equal(legacy_addr, result['address'])
-                assert 'warnings' not in result
+            result = wmulti0.addmultisigaddress(2, keys, '', 'legacy')
+            assert_equal(legacy_addr, result['address'])
+            assert 'warnings' not in result
 
             # Generate addresses with the segwit types. These should all make legacy addresses
             err_msg = ["Unable to make chosen address type, please ensure no uncompressed public keys are present."]
 
             for addr_type in ['bech32', 'p2sh-segwit']:
-                result = self.nodes[0].createmultisig(nrequired=2, keys=keys, address_type=addr_type)
+                result = wmulti0.createmultisig(nrequired=2, keys=keys, address_type=addr_type)
                 assert_equal(legacy_addr, result['address'])
                 assert_equal(result['warnings'], err_msg)
 
-                if self.is_bdb_compiled():
-                    result = wmulti0.addmultisigaddress(nrequired=2, keys=keys, address_type=addr_type)
-                    assert_equal(legacy_addr, result['address'])
-                    assert_equal(result['warnings'], err_msg)
+                result = wmulti0.addmultisigaddress(nrequired=2, keys=keys, address_type=addr_type)
+                assert_equal(legacy_addr, result['address'])
+                assert_equal(result['warnings'], err_msg)
 
         self.log.info('Testing sortedmulti descriptors with BIP 67 test vectors')
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/rpc_bip67.json'), encoding='utf-8') as f:
@@ -141,14 +136,13 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         bal0 = node0.getbalance()
         bal1 = node1.getbalance()
         bal2 = node2.getbalance()
-        balw = self.wallet.get_balance()
 
         height = node0.getblockchaininfo()["blocks"]
         assert COINBASE_MATURITY + 50 < height < 2 * COINBASE_MATURITY + 100
         total = (height - COINBASE_MATURITY) * INITIAL_BLOCK_REWARD
         assert bal1 == 0
         assert bal2 == self.moved
-        assert_equal(bal0 + bal1 + bal2 + balw, total)
+        assert bal0 + bal1 + bal2 == total
 
     def do_multisig(self):
         node0, node1, node2 = self.nodes
@@ -194,8 +188,8 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             assert mredeemw == mredeem
             wmulti.unloadwallet()
 
-        spk = bytes.fromhex(node0.validateaddress(madd)["scriptPubKey"])
-        txid, _ = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=spk, amount=1300)
+        txid = node0.sendtoaddress(madd, 40)
+
         tx = node0.getrawtransaction(txid, True)
         vout = [v["n"] for v in tx["vout"] if madd == v["scriptPubKey"]["address"]]
         assert len(vout) == 1
@@ -245,6 +239,9 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
         txinfo = node0.getrawtransaction(tx, True, blk)
         self.log.info("n/m=%d/%d %s size=%d vsize=%d weight=%d" % (self.nsigs, self.nkeys, self.output_type, txinfo["size"], txinfo["vsize"], txinfo["weight"]))
+
+        if self.is_bdb_compiled():
+            wmulti.unloadwallet()
 
 
 if __name__ == '__main__':
