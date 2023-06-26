@@ -2,7 +2,6 @@
 #include <libdevcore/CommonData.h>
 #include <pubkey.h>
 #include <util/convert.h>
-#include <util/system.h>
 #include <chainparams.h>
 
 using namespace dev;
@@ -43,16 +42,15 @@ bool qtumutils::btc_ecrecover(const dev::h256 &hash, const dev::u256 &v, const d
 struct EthChainIdCache
 {
     EthChainIdCache() {}
-    const CChainParams* pParams = 0;
+    uint16_t nDefaultPort = 0;
     int beforeShanghaiChainId = 0;
     int afterShanghaiChainId = 0;
 };
 
-int qtumutils::eth_getChainId(int blockHeight, int shanghaiHeight)
+int qtumutils::eth_getChainId(int blockHeight, int shanghaiHeight, const std::string& chain)
 {
-    std::string chain = gArgs.GetChainName();
     if (chain == CBaseChainParams::MAIN || blockHeight < shanghaiHeight)
-        return ChainIdType::MAINNET;
+        return ChainIdType::MAIN;
 
     if (chain == CBaseChainParams::REGTEST || chain == CBaseChainParams::UNITTEST)
         return ChainIdType::REGTEST;
@@ -64,12 +62,14 @@ int qtumutils::eth_getChainId(int blockHeight)
 {
     const CChainParams& params = Params();
     int shanghaiHeight = params.GetConsensus().nShanghaiHeight;
+    uint16_t nDefaultPort = params.GetDefaultPort();
     static EthChainIdCache idCache;
-    if(idCache.pParams != &params)
+    if(idCache.nDefaultPort != nDefaultPort)
     {
-        idCache.pParams = &params;
-        idCache.beforeShanghaiChainId = eth_getChainId(0, shanghaiHeight);
-        idCache.afterShanghaiChainId = eth_getChainId(shanghaiHeight, shanghaiHeight);
+        std::string chain = params.NetworkIDString();
+        idCache.nDefaultPort = nDefaultPort;
+        idCache.beforeShanghaiChainId = eth_getChainId(0, shanghaiHeight, chain);
+        idCache.afterShanghaiChainId = eth_getChainId(shanghaiHeight, shanghaiHeight, chain);
     }
 
     return blockHeight < shanghaiHeight ? idCache.beforeShanghaiChainId : idCache.afterShanghaiChainId;

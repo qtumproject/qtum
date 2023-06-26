@@ -20,7 +20,7 @@ bool btc_ecrecover(dev::h256 const& hash, dev::u256 const& v, dev::h256 const& r
  */
 enum ChainIdType
 {
-    MAINNET = 81,
+    MAIN = 81,
     TESTNET = 8889,
     REGTEST = 8890,
 };
@@ -29,9 +29,10 @@ enum ChainIdType
  * @brief eth_getChainId Get eth chain id
  * @param blockHeight Block height
  * @param shanghaiHeight Shanghai fork height
+ * @param chain Network ID
  * @return chain id
  */
-int eth_getChainId(int blockHeight, int shanghaiHeight);
+int eth_getChainId(int blockHeight, int shanghaiHeight, const std::string& chain);
 
 /**
  * @brief eth_getChainId Get eth chain id and cache it

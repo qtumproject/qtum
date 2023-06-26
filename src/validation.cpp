@@ -2798,8 +2798,7 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
 dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     CBlockIndex* tip = pindex;
     dev::eth::BlockHeader header;
-    int blockHeight = tip->nHeight + 1;
-    header.setNumber(blockHeight);
+    header.setNumber(tip->nHeight + 1);
     header.setTimestamp(block.nTime);
     header.setDifficulty(dev::u256(block.nBits));
     header.setGasLimit(blockGasLimit);
@@ -2813,7 +2812,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     }
     dev::u256 gasUsed;
     int &chainID = const_cast<int&>(globalSealEngine->chainParams().chainID);
-    chainID = qtumutils::eth_getChainId(blockHeight);
+    chainID = qtumutils::eth_getChainId(tip->nHeight);
     dev::eth::EnvInfo env(header, lastHashes, gasUsed, chainID);
     return env;
 }
