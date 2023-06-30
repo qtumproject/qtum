@@ -23,7 +23,8 @@ constexpr size_t REDOWNLOAD_BUFFER_SIZE{741}; // 741/59 = ~12.6 commitments
 
 // Our memory analysis assumes 176 bytes for a CompressedHeader (so we should
 // re-calculate parameters if we compress further)
-static_assert(sizeof(CompressedHeader) == 176);
+// 160 bytes for a CompressedHeader is for ARM Linux
+static_assert(sizeof(CompressedHeader) == 176 || sizeof(CompressedHeader) == 160);
 
 HeadersSyncState::HeadersSyncState(NodeId id, const Consensus::Params& consensus_params,
         const CBlockIndex* chain_start, const arith_uint256& minimum_required_work) :
