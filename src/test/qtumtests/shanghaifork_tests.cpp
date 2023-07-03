@@ -22,12 +22,20 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("608060405234801561001057600080fd5b5060b58061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c80633408e47014602d575b600080fd5b60336047565b604051603e91906066565b60405180910390f35b600046905090565b6000819050919050565b606081604f565b82525050565b6000602082019050607960008301846059565b9291505056fea2646970667358221220aa82ea2e577edf0f5b49819ff1c0879014c07b8775b9ce5ad3c455daba68c4fd64736f6c63430008120033")),
     // getChainId()
     valtype(ParseHex("3408e470")),
-    // push0_1()
+    // push0_1_5f
     valtype(ParseHex("5f")),
-    // push0_1024()
+    // push0_1024_5f
     valtype(ParseHex("5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f")),
-    // push0_1025()
+    // push0_1025_5f
     valtype(ParseHex("5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f")),
+    // legacyCreate
+    valtype(ParseHex("61C00060006000f060005260206000F3")),
+    // create2_1
+    valtype(ParseHex("600061C00160006000f560005260206000F3")),
+    // create2_2
+    valtype(ParseHex("600061C00060006000f560005260206000F3")),
+    // create2_3
+    valtype(ParseHex("600061C00160006000f560005260206000F3")),
 };
 
 // Codes IDs used to check that london fork is present
@@ -38,6 +46,10 @@ enum class CodeID
     push0_1,
     push0_1024,
     push0_1025,
+    legacyCreate,
+    create2_1,
+    create2_2,
+    create2_3,
 };
 
 // Get the code identified by the ID
@@ -78,7 +90,7 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(shanghaifork_tests, TestChain100Setup)
 
-void checkChainid(ChainstateManager& chainman, const std::string& chain, const qtumutils::ChainIdType& chainId)
+void checkChainid(dev::h256& hashTx, ChainstateManager& chainman, const std::string& chain, const qtumutils::ChainIdType& chainId)
 {
     // Select params
     int nShanghaiHeight = Params().GetConsensus().nShanghaiHeight;
@@ -86,9 +98,8 @@ void checkChainid(ChainstateManager& chainman, const std::string& chain, const q
     UpdateShanghaiHeight(nShanghaiHeight);
 
     // Create contract
-    dev::h256 hashTx(HASHTX);
     std::vector<QtumTransaction> txs;
-    txs.push_back(createQtumTransaction(getCode(CodeID::chainIdcontract), 0, GASLIMIT, dev::u256(1), hashTx, dev::Address()));
+    txs.push_back(createQtumTransaction(getCode(CodeID::chainIdcontract), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
     executeBC(txs, chainman);
 
     {
@@ -104,7 +115,7 @@ void checkChainid(ChainstateManager& chainman, const std::string& chain, const q
     }
 }
 
-void checkPush0(dev::h256& hashTx, ChainstateManager& chainman, const CodeID& codeId, const dev::eth::TransactionException& excepted, const dev::u256& gasUsed)
+void checkOpCode(dev::h256& hashTx, ChainstateManager& chainman, const CodeID& codeId, const dev::eth::TransactionException& excepted, const dev::u256& gasUsed)
 {
     std::vector<QtumTransaction> txs;
     txs.push_back(createQtumTransaction(getCode(codeId), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
@@ -113,42 +124,46 @@ void checkPush0(dev::h256& hashTx, ChainstateManager& chainman, const CodeID& co
     BOOST_CHECK(result.first[0].execRes.gasUsed == gasUsed);
 }
 
-BOOST_AUTO_TEST_CASE(checking_chainid_shanghai_after_fork){
+BOOST_AUTO_TEST_CASE(checking_shanghai_after_fork){
     genesisLoading();
     createNewBlocks(this, 499);
+    dev::h256 hashTx(HASHTX);
 
-    checkChainid(*m_node.chainman, CBaseChainParams::MAIN, qtumutils::ChainIdType::MAIN);
-    checkChainid(*m_node.chainman, CBaseChainParams::TESTNET, qtumutils::ChainIdType::TESTNET);
-    checkChainid(*m_node.chainman, CBaseChainParams::REGTEST, qtumutils::ChainIdType::REGTEST);
+    // Check chainid after fork
+    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::MAIN, qtumutils::ChainIdType::MAIN);
+    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::TESTNET, qtumutils::ChainIdType::TESTNET);
+    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::REGTEST, qtumutils::ChainIdType::REGTEST);
+
+    // Check eip-3855 after fork
+    checkOpCode(hashTx, *m_node.chainman, CodeID::push0_1, dev::eth::TransactionException::None, 53018);
+    checkOpCode(hashTx, *m_node.chainman, CodeID::push0_1024, dev::eth::TransactionException::None, 71432);
+    checkOpCode(hashTx, *m_node.chainman, CodeID::push0_1025, dev::eth::TransactionException::OutOfStack, GASLIMIT);
+
+    // Check eip-3860 after fork
+    checkOpCode(hashTx, *m_node.chainman, CodeID::legacyCreate, dev::eth::TransactionException::None, 100833 + 3072);
+    checkOpCode(hashTx, *m_node.chainman, CodeID::create2_1, dev::eth::TransactionException::OutOfGas, GASLIMIT);
+    checkOpCode(hashTx, *m_node.chainman, CodeID::create2_2, dev::eth::TransactionException::None, 113144);
+    checkOpCode(hashTx, *m_node.chainman, CodeID::create2_3, dev::eth::TransactionException::OutOfGas, GASLIMIT);
 }
 
-BOOST_AUTO_TEST_CASE(checking_chainid_shanghai_before_fork){
+BOOST_AUTO_TEST_CASE(checking_shanghai_before_fork){
     genesisLoading();
     createNewBlocks(this, 498);
-
-    checkChainid(*m_node.chainman, CBaseChainParams::MAIN, qtumutils::ChainIdType::MAIN);
-    checkChainid(*m_node.chainman, CBaseChainParams::TESTNET, qtumutils::ChainIdType::MAIN);
-    checkChainid(*m_node.chainman, CBaseChainParams::REGTEST, qtumutils::ChainIdType::MAIN);
-}
-
-BOOST_AUTO_TEST_CASE(checking_push0_shanghai_after_fork){
-    genesisLoading();
-    createNewBlocks(this, 499);
-
     dev::h256 hashTx(HASHTX);
-    checkPush0(hashTx, *m_node.chainman, CodeID::push0_1, dev::eth::TransactionException::None, 53018);
-    checkPush0(hashTx, *m_node.chainman, CodeID::push0_1024, dev::eth::TransactionException::None, 71432);
-    checkPush0(hashTx, *m_node.chainman, CodeID::push0_1025, dev::eth::TransactionException::OutOfStack, GASLIMIT);
-}
 
-BOOST_AUTO_TEST_CASE(checking_push0_shanghai_before_fork){
-    genesisLoading();
-    createNewBlocks(this, 498);
+    // Check chainid before fork
+    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::MAIN, qtumutils::ChainIdType::MAIN);
+    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::TESTNET, qtumutils::ChainIdType::MAIN);
+    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::REGTEST, qtumutils::ChainIdType::MAIN);
 
-    dev::h256 hashTx(HASHTX);
-    checkPush0(hashTx, *m_node.chainman, CodeID::push0_1, dev::eth::TransactionException::BadInstruction, GASLIMIT);
-    checkPush0(hashTx, *m_node.chainman, CodeID::push0_1024, dev::eth::TransactionException::BadInstruction, GASLIMIT);
-    checkPush0(hashTx, *m_node.chainman, CodeID::push0_1025, dev::eth::TransactionException::BadInstruction, GASLIMIT);
+    // Check eip-3855 before fork
+    checkOpCode(hashTx, *m_node.chainman, CodeID::push0_1, dev::eth::TransactionException::BadInstruction, GASLIMIT);
+    checkOpCode(hashTx, *m_node.chainman, CodeID::push0_1024, dev::eth::TransactionException::BadInstruction, GASLIMIT);
+    checkOpCode(hashTx, *m_node.chainman, CodeID::push0_1025, dev::eth::TransactionException::BadInstruction, GASLIMIT);
+
+    // Check eip-3860 before fork
+    checkOpCode(hashTx, *m_node.chainman, CodeID::legacyCreate, dev::eth::TransactionException::None, 100833);
+    checkOpCode(hashTx, *m_node.chainman, CodeID::create2_1, dev::eth::TransactionException::None, 110099);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
