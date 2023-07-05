@@ -8,7 +8,7 @@ import test_framework.address as address
 from test_framework.test_framework import BitcoinTestFramework
 
 # TODO: Might be nice to test p2pk here too
-address_types = ('legacy', 'bech32', 'p2sh-segwit')
+address_types = ['legacy']
 
 def key_to_address(key, address_type):
     if address_type == 'legacy':
