@@ -43,6 +43,7 @@ from test_framework.messages import (
     ser_uint256,
     ser_vector,
     sha256,
+    tx_from_hex
 )
 from test_framework.p2p import (
     P2PInterface,
@@ -90,9 +91,7 @@ from test_framework.util import (
     bytes_to_hex_str,
     hex_str_to_bytes,
 )
-from test_framework.wallet import MiniWallet
 from test_framework.qtumconfig import *
-from test_framework.qtum import generatesynchronized
 from test_framework.messages import COIN
 
 MAX_SIGOP_COST = 80000 // FACTOR_REDUCED_BLOCK_TIME
@@ -243,6 +242,9 @@ class SegWitTest(BitcoinTestFramework):
         ]
         self.supports_cli = False
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     # Helper functions
 
     def build_next_block(self, version=4):
@@ -279,7 +281,6 @@ class SegWitTest(BitcoinTestFramework):
 
         self.log.info("Starting tests before segwit activation")
         self.segwit_active = False
-        self.wallet = MiniWallet(self.nodes[0])
 
         self.test_non_witness_transaction()
         self.test_v0_outputs_arent_spendable()
@@ -1454,7 +1455,7 @@ class SegWitTest(BitcoinTestFramework):
         spend_tx.rehash()
 
         # Now test a premature spend.
-        generatesynchronized(self.nodes[0], COINBASE_MATURITY-2, None, self.nodes)
+        self.generate(self.nodes[0], COINBASE_MATURITY - 2)
         block2 = self.build_next_block()
         self.update_witness_block_with_transactions(block2, [spend_tx])
         test_witness_block(self.nodes[0], self.test_node, block2, accepted=False, reason='bad-txns-premature-spend-of-coinbase')
@@ -2033,13 +2034,21 @@ class SegWitTest(BitcoinTestFramework):
             def serialize(self):
                 return serialize_with_bogus_witness(self.tx)
 
-        tx = self.wallet.create_self_transfer()['tx']
-        assert_raises_rpc_error(-22, "TX decode failed", self.nodes[0].decoderawtransaction, hexstring=serialize_with_bogus_witness(tx).hex(), iswitness=True)
-        with self.nodes[0].assert_debug_log(['Unknown transaction optional data']):
-            self.test_node.send_and_ping(msg_bogus_tx(tx))
-        tx.wit.vtxinwit = []  # drop witness
+        self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(address_type='bech32'), 5)
+        self.generate(self.nodes[0], 1)
+        unspent = next(u for u in self.nodes[0].listunspent() if u['spendable'] and u['address'].startswith('qcrt'))
+
+        raw = self.nodes[0].createrawtransaction([{"txid": unspent['txid'], "vout": unspent['vout']}], {self.nodes[0].getnewaddress(): 1})
+        tx = tx_from_hex(raw)
         assert_raises_rpc_error(-22, "TX decode failed", self.nodes[0].decoderawtransaction, hexstring=serialize_with_bogus_witness(tx).hex(), iswitness=True)
         with self.nodes[0].assert_debug_log(['Superfluous witness record']):
+            self.test_node.send_and_ping(msg_bogus_tx(tx))
+        raw = self.nodes[0].signrawtransactionwithwallet(raw)
+        assert raw['complete']
+        raw = raw['hex']
+        tx = tx_from_hex(raw)
+        assert_raises_rpc_error(-22, "TX decode failed", self.nodes[0].decoderawtransaction, hexstring=serialize_with_bogus_witness(tx).hex(), iswitness=True)
+        with self.nodes[0].assert_debug_log(['Unknown transaction optional data']):
             self.test_node.send_and_ping(msg_bogus_tx(tx))
 
     @subtest
