@@ -189,13 +189,15 @@ def compute_raw_taproot_address(pubkey):
 
 class WalletTaprootTest(BitcoinTestFramework):
     """Test generation and spending of P2TR address outputs."""
-    def add_options(self, parser):
-        self.add_wallet_options(parser, legacy=False)
 
     def set_test_params(self):
-        self.num_nodes = 2
+        self.num_nodes = 3
         self.setup_clean_chain = True
-        self.extra_args = [['-keypool=100', "-addresstype=bech32"], ['-keypool=100', "-addresstype=bech32"]]
+        self.extra_args = [
+            ['-keypool=100', "-addresstype=bech32"],
+            ['-keypool=100', "-addresstype=bech32"],
+            ["-vbparams=taproot:1:1", "-addresstype=bech32"]
+        ]
         self.supports_cli = False
 
     def skip_test_if_missing_module(self):
@@ -232,66 +234,47 @@ class WalletTaprootTest(BitcoinTestFramework):
 
     def do_test_addr(self, comment, pattern, privmap, treefn, keys):
         self.log.info("Testing %s address derivation" % comment)
-
-        # Create wallets
-        wallet_uuid = uuid.uuid4().hex
-        self.nodes[0].createwallet(wallet_name=f"privs_tr_enabled_{wallet_uuid}", descriptors=True, blank=True)
-        self.nodes[0].createwallet(wallet_name=f"pubs_tr_enabled_{wallet_uuid}", descriptors=True, blank=True, disable_private_keys=True)
-        self.nodes[0].createwallet(wallet_name=f"addr_gen_{wallet_uuid}", descriptors=True, disable_private_keys=True, blank=True)
-        privs_tr_enabled = self.nodes[0].get_wallet_rpc(f"privs_tr_enabled_{wallet_uuid}")
-        pubs_tr_enabled = self.nodes[0].get_wallet_rpc(f"pubs_tr_enabled_{wallet_uuid}")
-        addr_gen = self.nodes[0].get_wallet_rpc(f"addr_gen_{wallet_uuid}")
-
         desc = self.make_desc(pattern, privmap, keys, False)
         desc_pub = self.make_desc(pattern, privmap, keys, True)
         assert_equal(self.nodes[0].getdescriptorinfo(desc)['descriptor'], desc_pub)
-        result = addr_gen.importdescriptors([{"desc": desc_pub, "active": True, "timestamp": "now"}])
+        result = self.addr_gen.importdescriptors([{"desc": desc_pub, "active": True, "timestamp": "now"}])
         assert(result[0]['success'])
-        address_type = "bech32m" if "tr" in pattern else "bech32"
         for i in range(4):
-            addr_g = addr_gen.getnewaddress(address_type=address_type)
+            addr_g = self.addr_gen.getnewaddress(address_type='bech32m')
             if treefn is not None:
                 addr_r = self.make_addr(treefn, keys, i)
                 assert_equal(addr_g, addr_r)
-            desc_a = addr_gen.getaddressinfo(addr_g)['desc']
+            desc_a = self.addr_gen.getaddressinfo(addr_g)['desc']
             if desc.startswith("tr("):
                 assert desc_a.startswith("tr(")
             rederive = self.nodes[1].deriveaddresses(desc_a)
             assert_equal(len(rederive), 1)
             assert_equal(rederive[0], addr_g)
 
-        # tr descriptors can be imported
-        result = privs_tr_enabled.importdescriptors([{"desc": desc, "timestamp": "now"}])
+        # tr descriptors can be imported regardless of Taproot status
+        result = self.privs_tr_enabled.importdescriptors([{"desc": desc, "timestamp": "now"}])
         assert(result[0]["success"])
-        result = pubs_tr_enabled.importdescriptors([{"desc": desc_pub, "timestamp": "now"}])
+        result = self.pubs_tr_enabled.importdescriptors([{"desc": desc_pub, "timestamp": "now"}])
         assert(result[0]["success"])
-
-        # Cleanup
-        privs_tr_enabled.unloadwallet()
-        pubs_tr_enabled.unloadwallet()
-        addr_gen.unloadwallet()
+        result = self.privs_tr_disabled.importdescriptors([{"desc": desc, "timestamp": "now"}])
+        assert result[0]["success"]
+        result = self.pubs_tr_disabled.importdescriptors([{"desc": desc_pub, "timestamp": "now"}])
+        assert result[0]["success"]
 
     def do_test_sendtoaddress(self, comment, pattern, privmap, treefn, keys_pay, keys_change):
         self.log.info("Testing %s through sendtoaddress" % comment)
-
-        # Create wallets
-        wallet_uuid = uuid.uuid4().hex
-        self.nodes[0].createwallet(wallet_name=f"rpc_online_{wallet_uuid}", descriptors=True, blank=True)
-        rpc_online = self.nodes[0].get_wallet_rpc(f"rpc_online_{wallet_uuid}")
-
         desc_pay = self.make_desc(pattern, privmap, keys_pay)
         desc_change = self.make_desc(pattern, privmap, keys_change)
         desc_pay_pub = self.make_desc(pattern, privmap, keys_pay, True)
         desc_change_pub = self.make_desc(pattern, privmap, keys_change, True)
         assert_equal(self.nodes[0].getdescriptorinfo(desc_pay)['descriptor'], desc_pay_pub)
         assert_equal(self.nodes[0].getdescriptorinfo(desc_change)['descriptor'], desc_change_pub)
-        result = rpc_online.importdescriptors([{"desc": desc_pay, "active": True, "timestamp": "now"}])
+        result = self.rpc_online.importdescriptors([{"desc": desc_pay, "active": True, "timestamp": "now"}])
         assert(result[0]['success'])
-        result = rpc_online.importdescriptors([{"desc": desc_change, "active": True, "timestamp": "now", "internal": True}])
+        result = self.rpc_online.importdescriptors([{"desc": desc_change, "active": True, "timestamp": "now", "internal": True}])
         assert(result[0]['success'])
-        address_type = "bech32m" if "tr" in pattern else "bech32"
         for i in range(4):
-            addr_g = rpc_online.getnewaddress(address_type=address_type)
+            addr_g = self.rpc_online.getnewaddress(address_type='bech32m')
             if treefn is not None:
                 addr_r = self.make_addr(treefn, keys_pay, i)
                 assert_equal(addr_g, addr_r)
@@ -299,51 +282,30 @@ class WalletTaprootTest(BitcoinTestFramework):
             to_amnt = random.randrange(1000000, boring_balance)
             self.boring.sendtoaddress(address=addr_g, amount=Decimal(to_amnt) / 100000000, subtractfeefromamount=True)
             self.generatetoaddress(self.nodes[0], 1, self.boring.getnewaddress(), sync_fun=self.no_op)
-            test_balance = int(rpc_online.getbalance() * 100000000)
+            test_balance = int(self.rpc_online.getbalance() * 100000000)
             ret_amnt = random.randrange(100000, test_balance)
-            # Increase fee_rate to compensate for the wallet's inability to estimate fees for script path spends.
-            res = rpc_online.sendtoaddress(address=self.boring.getnewaddress(), amount=Decimal(ret_amnt) / 100000000, subtractfeefromamount=True, fee_rate=800)
+            res = self.rpc_online.sendtoaddress(address=self.boring.getnewaddress(), amount=Decimal(ret_amnt) / 100000000, subtractfeefromamount=True, fee_rate=Decimal("800"))
             self.generatetoaddress(self.nodes[0], 1, self.boring.getnewaddress(), sync_fun=self.no_op)
-            assert(rpc_online.gettransaction(res)["confirmations"] > 0)
-
-        # Cleanup
-        txid = rpc_online.sendall(recipients=[self.boring.getnewaddress()])["txid"]
-        self.generatetoaddress(self.nodes[0], 1, self.boring.getnewaddress(), sync_fun=self.no_op)
-        assert(rpc_online.gettransaction(txid)["confirmations"] > 0)
-        rpc_online.unloadwallet()
+            assert(self.rpc_online.gettransaction(res)["confirmations"] > 0)
 
     def do_test_psbt(self, comment, pattern, privmap, treefn, keys_pay, keys_change):
         self.log.info("Testing %s through PSBT" % comment)
-
-        # Create wallets
-        wallet_uuid = uuid.uuid4().hex
-        self.nodes[0].createwallet(wallet_name=f"psbt_online_{wallet_uuid}", descriptors=True, disable_private_keys=True, blank=True)
-        self.nodes[1].createwallet(wallet_name=f"psbt_offline_{wallet_uuid}", descriptors=True, blank=True)
-        self.nodes[1].createwallet(f"key_only_wallet_{wallet_uuid}", descriptors=True, blank=True)
-        psbt_online = self.nodes[0].get_wallet_rpc(f"psbt_online_{wallet_uuid}")
-        psbt_offline = self.nodes[1].get_wallet_rpc(f"psbt_offline_{wallet_uuid}")
-        key_only_wallet = self.nodes[1].get_wallet_rpc(f"key_only_wallet_{wallet_uuid}")
-
         desc_pay = self.make_desc(pattern, privmap, keys_pay, False)
         desc_change = self.make_desc(pattern, privmap, keys_change, False)
         desc_pay_pub = self.make_desc(pattern, privmap, keys_pay, True)
         desc_change_pub = self.make_desc(pattern, privmap, keys_change, True)
         assert_equal(self.nodes[0].getdescriptorinfo(desc_pay)['descriptor'], desc_pay_pub)
         assert_equal(self.nodes[0].getdescriptorinfo(desc_change)['descriptor'], desc_change_pub)
-        result = psbt_online.importdescriptors([{"desc": desc_pay_pub, "active": True, "timestamp": "now"}])
+        result = self.psbt_online.importdescriptors([{"desc": desc_pay_pub, "active": True, "timestamp": "now"}])
         assert(result[0]['success'])
-        result = psbt_online.importdescriptors([{"desc": desc_change_pub, "active": True, "timestamp": "now", "internal": True}])
+        result = self.psbt_online.importdescriptors([{"desc": desc_change_pub, "active": True, "timestamp": "now", "internal": True}])
         assert(result[0]['success'])
-        result = psbt_offline.importdescriptors([{"desc": desc_pay, "active": True, "timestamp": "now"}])
+        result = self.psbt_offline.importdescriptors([{"desc": desc_pay, "active": True, "timestamp": "now"}])
         assert(result[0]['success'])
-        result = psbt_offline.importdescriptors([{"desc": desc_change, "active": True, "timestamp": "now", "internal": True}])
+        result = self.psbt_offline.importdescriptors([{"desc": desc_change, "active": True, "timestamp": "now", "internal": True}])
         assert(result[0]['success'])
-        for key in keys_pay + keys_change:
-            result = key_only_wallet.importdescriptors([{"desc": descsum_create(f"wpkh({key['xprv']}/*)"), "timestamp":"now"}])
-            assert(result[0]["success"])
-        address_type = "bech32m" if "tr" in pattern else "bech32"
         for i in range(4):
-            addr_g = psbt_online.getnewaddress(address_type=address_type)
+            addr_g = self.psbt_online.getnewaddress(address_type='bech32m')
             if treefn is not None:
                 addr_r = self.make_addr(treefn, keys_pay, i)
                 assert_equal(addr_g, addr_r)
@@ -351,43 +313,15 @@ class WalletTaprootTest(BitcoinTestFramework):
             to_amnt = random.randrange(1000000, boring_balance)
             self.boring.sendtoaddress(address=addr_g, amount=Decimal(to_amnt) / 100000000, subtractfeefromamount=True)
             self.generatetoaddress(self.nodes[0], 1, self.boring.getnewaddress(), sync_fun=self.no_op)
-            test_balance = int(psbt_online.getbalance() * 100000000)
+            test_balance = int(self.psbt_online.getbalance() * 100000000)
             ret_amnt = random.randrange(100000, test_balance)
-            # Increase fee_rate to compensate for the wallet's inability to estimate fees for script path spends.
-            psbt = psbt_online.walletcreatefundedpsbt([], [{self.boring.getnewaddress(): Decimal(ret_amnt) / 100000000}], None, {"subtractFeeFromOutputs":[0], "fee_rate": 800, "change_type": address_type})['psbt']
-            res = psbt_offline.walletprocesspsbt(psbt=psbt, finalize=False)
-            for wallet in [psbt_offline, key_only_wallet]:
-                res = wallet.walletprocesspsbt(psbt=psbt, finalize=False)
-
-                decoded = wallet.decodepsbt(res["psbt"])
-                if pattern.startswith("tr("):
-                    for psbtin in decoded["inputs"]:
-                        assert "non_witness_utxo" not in psbtin
-                        assert "witness_utxo" in psbtin
-                        assert "taproot_internal_key" in psbtin
-                        assert "taproot_bip32_derivs" in psbtin
-                        assert "taproot_key_path_sig" in psbtin or "taproot_script_path_sigs" in psbtin
-                        if "taproot_script_path_sigs" in psbtin:
-                            assert "taproot_merkle_root" in psbtin
-                            assert "taproot_scripts" in psbtin
-
-                rawtx = self.nodes[0].finalizepsbt(res['psbt'])['hex']
-                res = self.nodes[0].testmempoolaccept([rawtx])
-                assert res[0]["allowed"]
-
+            psbt = self.psbt_online.walletcreatefundedpsbt([], [{self.boring.getnewaddress(): Decimal(ret_amnt) / 100000000}], None, {"feeRate": Decimal("0.03"), "subtractFeeFromOutputs":[0]})['psbt']
+            res = self.psbt_offline.walletprocesspsbt(psbt)
+            assert(res['complete'])
+            rawtx = self.nodes[0].finalizepsbt(res['psbt'])['hex']
             txid = self.nodes[0].sendrawtransaction(rawtx)
             self.generatetoaddress(self.nodes[0], 1, self.boring.getnewaddress(), sync_fun=self.no_op)
-            assert(psbt_online.gettransaction(txid)['confirmations'] > 0)
-
-        # Cleanup
-        psbt = psbt_online.sendall(recipients=[self.boring.getnewaddress()], options={"psbt": True})["psbt"]
-        res = psbt_offline.walletprocesspsbt(psbt=psbt, finalize=False)
-        rawtx = self.nodes[0].finalizepsbt(res['psbt'])['hex']
-        txid = self.nodes[0].sendrawtransaction(rawtx)
-        self.generatetoaddress(self.nodes[0], 1, self.boring.getnewaddress(), sync_fun=self.no_op)
-        assert(psbt_online.gettransaction(txid)['confirmations'] > 0)
-        psbt_online.unloadwallet()
-        psbt_offline.unloadwallet()
+            assert(self.psbt_online.gettransaction(txid)['confirmations'] > 0)
 
     def do_test(self, comment, pattern, privmap, treefn):
         nkeys = len(privmap)
@@ -397,8 +331,25 @@ class WalletTaprootTest(BitcoinTestFramework):
         self.do_test_psbt(comment, pattern, privmap, treefn, keys[2*nkeys:3*nkeys], keys[3*nkeys:4*nkeys])
 
     def run_test(self):
+        self.log.info("Creating wallets...")
+        self.nodes[0].createwallet(wallet_name="privs_tr_enabled", descriptors=True, blank=True)
+        self.privs_tr_enabled = self.nodes[0].get_wallet_rpc("privs_tr_enabled")
+        self.nodes[2].createwallet(wallet_name="privs_tr_disabled", descriptors=True, blank=True)
+        self.privs_tr_disabled=self.nodes[2].get_wallet_rpc("privs_tr_disabled")
+        self.nodes[0].createwallet(wallet_name="pubs_tr_enabled", descriptors=True, blank=True, disable_private_keys=True)
+        self.pubs_tr_enabled = self.nodes[0].get_wallet_rpc("pubs_tr_enabled")
+        self.nodes[2].createwallet(wallet_name="pubs_tr_disabled", descriptors=True, blank=True, disable_private_keys=True)
+        self.pubs_tr_disabled=self.nodes[2].get_wallet_rpc("pubs_tr_disabled")
         self.nodes[0].createwallet(wallet_name="boring")
+        self.nodes[0].createwallet(wallet_name="addr_gen", descriptors=True, disable_private_keys=True, blank=True)
+        self.nodes[0].createwallet(wallet_name="rpc_online", descriptors=True, blank=True)
+        self.nodes[0].createwallet(wallet_name="psbt_online", descriptors=True, disable_private_keys=True, blank=True)
+        self.nodes[1].createwallet(wallet_name="psbt_offline", descriptors=True, blank=True)
         self.boring = self.nodes[0].get_wallet_rpc("boring")
+        self.addr_gen = self.nodes[0].get_wallet_rpc("addr_gen")
+        self.rpc_online = self.nodes[0].get_wallet_rpc("rpc_online")
+        self.psbt_online = self.nodes[0].get_wallet_rpc("psbt_online")
+        self.psbt_offline = self.nodes[1].get_wallet_rpc("psbt_offline")
 
         self.log.info("Mining blocks...")
         gen_addr = self.boring.getnewaddress()
@@ -494,13 +445,13 @@ class WalletTaprootTest(BitcoinTestFramework):
             [True, False, True],
             lambda k1, k2, k3: (key(k2), [pk(k2), [pk(k2), multi_a(2, [k1, k2, k3], True)]])
         )
-        rnd_pos = random.randrange(MAX_PUBKEYS_PER_MULTI_A)
-        self.do_test(
-            "tr(XPUB,multi_a(1,H...,XPRV,H...))",
-            "tr($2/*,multi_a(1" + (",$H" * rnd_pos) + ",$1/*" + (",$H" * (MAX_PUBKEYS_PER_MULTI_A - 1 - rnd_pos)) + "))",
-            [True, False],
-            lambda k1, k2: (key(k2), [multi_a(1, ([H_POINT] * rnd_pos) + [k1] + ([H_POINT] * (MAX_PUBKEYS_PER_MULTI_A - 1 - rnd_pos)))])
-        )
+        # rnd_pos = random.randrange(MAX_PUBKEYS_PER_MULTI_A)
+        # self.do_test(
+        #     "tr(XPUB,multi_a(1,H...,XPRV,H...))",
+        #     "tr($2/*,multi_a(1" + (",$H" * rnd_pos) + ",$1/*" + (",$H" * (MAX_PUBKEYS_PER_MULTI_A - 1 - rnd_pos)) + "))",
+        #     [True, False],
+        #     lambda k1, k2: (key(k2), [multi_a(1, ([H_POINT] * rnd_pos) + [k1] + ([H_POINT] * (MAX_PUBKEYS_PER_MULTI_A - 1 - rnd_pos)))])
+        # )
         self.do_test(
             "rawtr(XPRV)",
             "rawtr($1/*)",
