@@ -174,6 +174,9 @@ struct result_with_carry
 inline constexpr result_with_carry<uint64_t> addc(
     uint64_t x, uint64_t y, bool carry = false) noexcept
 {
+#ifndef QTUM_BUILD
+// Disable the code for Qtum, due to __builtin_subcll having issue on OSX,
+// the code is similar to it so it might have problems on other OS
 #if __has_builtin(__builtin_addcll)
     if (!is_constant_evaluated())
     {
@@ -191,6 +194,7 @@ inline constexpr result_with_carry<uint64_t> addc(
         return {s, static_cast<bool>(carryout)};
     }
 #endif
+#endif
 
     const auto s = x + y;
     const auto carry1 = s < x;
@@ -203,6 +207,8 @@ inline constexpr result_with_carry<uint64_t> addc(
 inline constexpr result_with_carry<uint64_t> subc(
     uint64_t x, uint64_t y, bool carry = false) noexcept
 {
+#ifndef QTUM_BUILD
+// Disable the code for Qtum, due to __builtin_subcll having issue on OSX
 #if __has_builtin(__builtin_subcll)
     if (!is_constant_evaluated())
     {
@@ -219,6 +225,7 @@ inline constexpr result_with_carry<uint64_t> subc(
         const auto carryout = __builtin_ia32_sbb_u64(carry, x, y, &d);
         return {d, static_cast<bool>(carryout)};
     }
+#endif
 #endif
 
     const auto d = x - y;
