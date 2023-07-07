@@ -243,9 +243,6 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         txinfo = node0.getrawtransaction(tx, True, blk)
         self.log.info("n/m=%d/%d %s size=%d vsize=%d weight=%d" % (self.nsigs, self.nkeys, self.output_type, txinfo["size"], txinfo["vsize"], txinfo["weight"]))
 
-        if self.is_bdb_compiled():
-            wmulti.unloadwallet()
-
 
 if __name__ == '__main__':
     RpcCreateMultiSigTest().main()
