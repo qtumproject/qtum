@@ -27,7 +27,7 @@ def notify_outputname(walletname, txid):
 
 class NotificationsTest(BitcoinTestFramework):
     def add_options(self, parser):
-        self.add_wallet_options(parser)
+        self.add_wallet_options(parser, descriptors=False)
 
     def set_test_params(self):
         self.num_nodes = 2

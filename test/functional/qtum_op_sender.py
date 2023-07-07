@@ -124,7 +124,7 @@ HASHTYPES = [SIGHASH_ALL, SIGHASH_SINGLE, SIGHASH_NONE, SIGHASH_ANYONECANPAY]
 
 class QtumOpSenderTest(BitcoinTestFramework):
     def add_options(self, parser):
-        self.add_wallet_options(parser)
+        self.add_wallet_options(parser, descriptors=False)
 
     def set_test_params(self):
         self.setup_clean_chain = True
