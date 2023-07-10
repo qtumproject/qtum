@@ -15,19 +15,7 @@ static const int PROTOCOL_VERSION = 70021;
 static const int INIT_PROTO_VERSION = 209;
 
 //! disconnect from peers older than this proto version
-static const int MIN_PEER_PROTO_VERSION = 70016;
-
-//! disconnect from peers older than this proto version after QIP7
-static const int MIN_PEER_PROTO_VERSION_AFTER_QIP7 = 70017;
-
-//! disconnect from peers older than this proto version after offline stake
-static const int MIN_PEER_PROTO_VERSION_AFTER_OFFLINESTAKE = 70018;
-
-//! disconnect from peers older than this proto version after reduce block time
-static const int MIN_PEER_PROTO_VERSION_AFTER_REDUCEBLOCKTIME = 70019;
-
-//! disconnect from peers older than this proto version after evm London
-static const int MIN_PEER_PROTO_VERSION_AFTER_EVMLONDON = 70020;
+static const int MIN_PEER_PROTO_VERSION = 70020;
 
 //! disconnect from peers older than this proto version after evm Shanghai
 static const int MIN_PEER_PROTO_VERSION_AFTER_EVMSHANGHAI = 70021;
