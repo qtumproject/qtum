@@ -71,8 +71,6 @@ static inline void SeedInsecureRand(SeedRand seed = SeedRand::SEED)
     }
 }
 
-static constexpr CAmount CENT{1000000};
-
 /** Basic testing setup.
  * This just configures logging, data dir and chain parameters.
  */

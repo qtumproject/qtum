@@ -180,6 +180,17 @@ public:
         return (nValue == -1);
     }
 
+    void SetEmpty()
+    {
+        nValue = 0;
+        scriptPubKey.clear();
+    }
+
+    bool IsEmpty() const
+    {
+        return (nValue == 0 && scriptPubKey.empty());
+    }
+
     friend bool operator==(const CTxOut& a, const CTxOut& b)
     {
         return (a.nValue       == b.nValue &&
@@ -307,6 +318,14 @@ public:
     const int32_t nVersion;
     const uint32_t nLockTime;
 
+    // Operation codes
+    enum OpCode
+    {
+        OpNone = 0,
+        OpCall = 1,
+        OpCreate = 2
+    };
+
 private:
     /** Memory only. */
     const uint256 hash;
@@ -316,8 +335,11 @@ private:
     uint256 ComputeWitnessHash() const;
 
 public:
+    /** Construct a CTransaction that qualifies as IsNull() */
+    CTransaction();
+
     /** Convert a CMutableTransaction into a CTransaction. */
-    explicit CTransaction(const CMutableTransaction& tx);
+    CTransaction(const CMutableTransaction& tx);
     explicit CTransaction(CMutableTransaction&& tx);
 
     template <typename Stream>
@@ -347,9 +369,33 @@ public:
      */
     unsigned int GetTotalSize() const;
 
+//////////////////////////////////////// // qtum
+    bool HasCreateOrCall() const;
+    bool HasOpSpend() const;
+////////////////////////////////////////
+    bool HasOpCreate() const;
+    bool HasOpCall() const;
+    inline int GetCreateOrCall() const
+    {
+        return (HasOpCall() ? OpCode::OpCall : 0) + (HasOpCreate() ? OpCode::OpCreate : 0);
+    }
+    bool HasOpSender() const;
+
     bool IsCoinBase() const
     {
-        return (vin.size() == 1 && vin[0].prevout.IsNull());
+        return (vin.size() == 1 && vin[0].prevout.IsNull() && vout.size() >= 1);
+    }
+
+    bool IsCoinStake() const
+    {
+        // ppcoin: the coin stake transaction is marked with the first output empty
+        return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty());
+    }
+
+    bool IsNormalTx() const
+    {
+        // not coin base or coin stake transaction
+        return !IsCoinBase() && !IsCoinStake();
     }
 
     friend bool operator==(const CTransaction& a, const CTransaction& b)
@@ -406,6 +452,10 @@ struct CMutableTransaction
      * fly, as opposed to GetHash() in CTransaction, which uses a cached result.
      */
     uint256 GetHash() const;
+
+    bool HasOpCall() const;
+
+    bool HasOpSender() const;
 
     bool HasWitness() const
     {
