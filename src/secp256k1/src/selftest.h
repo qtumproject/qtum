@@ -7,7 +7,7 @@
 #ifndef SECP256K1_SELFTEST_H
 #define SECP256K1_SELFTEST_H
 
-#include "hash.h"
+#include "include/secp256k1_sha256.h"
 
 #include <string.h>
 
