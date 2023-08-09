@@ -2,7 +2,7 @@
 
 **Updated for OpenBSD [7.3](https://www.openbsd.org/73.html)**
 
-This guide describes how to build bitcoind, command-line utilities, and GUI on OpenBSD.
+This guide describes how to build qtumd, command-line utilities, and GUI on OpenBSD.
 
 ## Preparation
 
@@ -12,22 +12,22 @@ Run the following as root to install the base dependencies for building.
 ```bash
 pkg_add bash git gmake libevent libtool boost
 # Select the newest version of the following packages:
-pkg_add autoconf automake python
+pkg_add autoconf automake python gmp
 ```
 
 See [dependencies.md](dependencies.md) for a complete overview.
 
-### 2. Clone Bitcoin Repo
-Clone the Bitcoin Core repository to a directory. All build scripts and commands will run from this directory.
+### 2. Clone Qtum Repo
+Clone the Qtum Core repository to a directory. All build scripts and commands will run from this directory.
 ``` bash
-git clone https://github.com/bitcoin/bitcoin.git
+git clone https://github.com/qtumproject/qtum --recursive
 ```
 
 ### 3. Install Optional Dependencies
 
 #### Wallet Dependencies
 
-It is not necessary to build wallet functionality to run either `bitcoind` or `bitcoin-qt`.
+It is not necessary to build wallet functionality to run either `qtumd` or `qtum-qt`.
 
 ###### Descriptor Wallet Support
 
@@ -46,25 +46,25 @@ from ports. However you can build it yourself, [using depends](/depends).
 ```bash
 gmake -C depends NO_BOOST=1 NO_LIBEVENT=1 NO_QT=1 NO_SQLITE=1 NO_NATPMP=1 NO_UPNP=1 NO_ZMQ=1 NO_USDT=1
 ...
-to: /path/to/bitcoin/depends/x86_64-unknown-openbsd
+to: /path/to/qtum/depends/x86_64-unknown-openbsd
 ```
 
 Then set `BDB_PREFIX`:
 
 ```bash
-export BDB_PREFIX="/path/to/bitcoin/depends/x86_64-unknown-openbsd"
+export BDB_PREFIX="/path/to/qtum/depends/x86_64-unknown-openbsd"
 ```
 
 #### GUI Dependencies
 ###### Qt5
 
-Bitcoin Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, Qt 5 is required.
+Qtum Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, Qt 5 is required.
 
 ```bash
 pkg_add qt5
 ```
 
-## Building Bitcoin Core
+## Building Qtum Core
 
 **Important**: Use `gmake` (the non-GNU `make` will exit with an error).
 
@@ -80,7 +80,7 @@ export AUTOMAKE_VERSION=1.16
 
 ### 1. Configuration
 
-There are many ways to configure Bitcoin Core, here are a few common examples:
+There are many ways to configure Qtum Core, here are a few common examples:
 
 ##### Descriptor Wallet and GUI:
 This enables the GUI and descriptor wallet support, assuming `sqlite` and `qt5` are installed.
