@@ -159,6 +159,9 @@ constexpr bool IsPushdataOp(opcodetype opcode)
     return opcode > OP_FALSE && opcode <= OP_PUSHDATA4;
 }
 
+/** Check whether a CTxDestination can be used as contract sender address. */
+bool IsValidContractSenderAddress(const CTxDestination& dest);
+
 /**
  * Parse a scriptPubKey and identify script type for standard scripts. If
  * successful, returns script type and parsed pubkeys or hashes, depending on

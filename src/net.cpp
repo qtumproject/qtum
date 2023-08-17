@@ -743,8 +743,8 @@ int V1TransportDeserializer::readHeader(Span<const uint8_t> msg_bytes)
         return -1;
     }
 
-    // reject messages larger than MAX_SIZE or MAX_PROTOCOL_MESSAGE_LENGTH
-    if (hdr.nMessageSize > MAX_SIZE || hdr.nMessageSize > MAX_PROTOCOL_MESSAGE_LENGTH) {
+    // reject messages larger than MAX_SIZE or dgpMaxProtoMsgLength
+    if (hdr.nMessageSize > MAX_SIZE || hdr.nMessageSize > dgpMaxProtoMsgLength) {
         LogPrint(BCLog::NET, "Header error: Size too large (%s, %u bytes), peer=%d\n", SanitizeString(hdr.GetCommand()), hdr.nMessageSize, m_node_id);
         return -1;
     }
@@ -2737,7 +2737,7 @@ bool CConnman::OutboundTargetReached(bool historicalBlockServingLimit) const
     {
         // keep a large enough buffer to at least relay each block once
         const std::chrono::seconds timeLeftInCycle = GetMaxOutboundTimeLeftInCycle_();
-        const uint64_t buffer = timeLeftInCycle / std::chrono::minutes{10} * MAX_BLOCK_SERIALIZED_SIZE;
+        const uint64_t buffer = timeLeftInCycle / std::chrono::minutes{10} * dgpMaxBlockSerSize;
         if (buffer >= nMaxOutboundLimit || nMaxOutboundTotalBytesSentInCycle >= nMaxOutboundLimit - buffer)
             return true;
     }
