@@ -18,7 +18,7 @@ static void Logging(benchmark::Bench& bench, const std::vector<const char*>& ext
     LogInstance().DisableCategory(BCLog::LogFlags::ALL);
 
     TestingSetup test_setup{
-        CBaseChainParams::REGTEST,
+        CBaseChainParams::UNITTEST,
         extra_args,
     };
 

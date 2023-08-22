@@ -4295,4 +4295,8 @@ util::Result<MigrationResult> MigrateLegacyToDescriptor(const std::string& walle
     }
     return res;
 }
+
+void CWallet::StopStake()
+{
+}
 } // namespace wallet

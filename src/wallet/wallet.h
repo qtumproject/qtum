@@ -979,6 +979,9 @@ public:
 
     //! Whether the (external) signer performs R-value signature grinding
     bool CanGrindR() const;
+
+    /* Stop staking qtums */
+    void StopStake();
 };
 
 /**
