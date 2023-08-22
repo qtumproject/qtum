@@ -706,24 +706,32 @@ libbitcoin_common_a_SOURCES = \
   evmone/evmc/lib/instructions/instruction_names.c \
   evmone/evmc/include/evmc/evmc.h \
   evmone/evmc/include/evmc/evmc.hpp \
+  evmone/evmc/include/evmc/filter_iterator.hpp \
   evmone/evmc/include/evmc/helpers.h \
+  evmone/evmc/include/evmc/hex.hpp \
   evmone/evmc/include/evmc/instructions.h \
   evmone/evmc/include/evmc/loader.h \
+  evmone/evmc/include/evmc/mocked_host.hpp \
+  evmone/evmc/include/evmc/tooling.hpp \
   evmone/evmc/include/evmc/utils.h \
-  evmone/lib/evmone/analysis.cpp \
-  evmone/lib/evmone/analysis.hpp \
+  evmone/lib/evmone/advanced_analysis.cpp \
+  evmone/lib/evmone/advanced_analysis.hpp \
+  evmone/lib/evmone/advanced_execution.cpp \
+  evmone/lib/evmone/advanced_execution.hpp \
+  evmone/lib/evmone/advanced_instructions.cpp \
   evmone/lib/evmone/baseline.cpp \
   evmone/lib/evmone/baseline.hpp \
   evmone/lib/evmone/baseline_instruction_table.cpp \
   evmone/lib/evmone/baseline_instruction_table.hpp \
-  evmone/lib/evmone/execution.cpp \
-  evmone/lib/evmone/execution.hpp \
+  evmone/lib/evmone/eof.cpp \
+  evmone/lib/evmone/eof.hpp \
   evmone/lib/evmone/execution_state.hpp \
   evmone/lib/evmone/instructions_calls.cpp \
-  evmone/lib/evmone/instructions.cpp \
   evmone/lib/evmone/instructions.hpp \
-  evmone/lib/evmone/instruction_traits.hpp \
-  evmone/lib/evmone/limits.hpp \
+  evmone/lib/evmone/instructions_opcodes.hpp \
+  evmone/lib/evmone/instructions_storage.cpp \
+  evmone/lib/evmone/instructions_traits.hpp \
+  evmone/lib/evmone/instructions_xmacro.hpp \
   evmone/lib/evmone/opcodes_helpers.h \
   evmone/lib/evmone/tracing.cpp \
   evmone/lib/evmone/tracing.hpp \
@@ -850,7 +858,6 @@ libbitcoin_common_a_SOURCES = \
   eth_client/utils/ethash/lib/ethash/primes.h \
   eth_client/utils/ethash/lib/ethash/progpow.cpp \
   eth_client/utils/ethash/lib/ethash/support/attributes.h \
-  eth_client/utils/intx/int128.hpp \
   eth_client/utils/intx/intx.hpp \
   eth_client/utils/json_spirit/JsonSpiritHeaders.h \
   eth_client/utils/json_spirit/json_spirit.h \

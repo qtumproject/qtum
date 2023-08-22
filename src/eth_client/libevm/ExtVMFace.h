@@ -72,13 +72,14 @@ private:
 
 struct SubState
 {
-    std::set<Address> selfdestructs;  ///< Any accounts that have selfdestructed.
+    std::unordered_map<Address, std::vector<Address>> selfdestructs;  ///< Any accounts that have selfdestructed.
     LogEntries logs;                  ///< Any logs.
     int64_t refunds = 0;              ///< Refund counter for storage changes.
 
     SubState& operator+=(SubState const& _s)
     {
-        selfdestructs += _s.selfdestructs;
+        for (auto const& i: _s.selfdestructs)
+            selfdestructs[i.first] += i.second;
         refunds += _s.refunds;
         logs += _s.logs;
         return *this;
@@ -230,10 +231,11 @@ public:
     ///
     /// @param beneficiary  The address of the account which will receive ETH
     ///                     from the selfdestructed account.
-    virtual void selfdestruct(Address beneficiary)
+    virtual bool selfdestruct(Address beneficiary)
     {
-        (void)beneficiary;
-        sub.selfdestructs.insert(myAddress);
+        auto& beneficiaries = sub.selfdestructs[myAddress];
+        beneficiaries.emplace_back(beneficiary);
+        return beneficiaries.size() == 1;
     }
 
     /// Create a new (contract) account.
@@ -331,10 +333,10 @@ public:
     size_t copy_code(const evmc::address& _addr, size_t _codeOffset, uint8_t* _bufferData,
         size_t _bufferSize) const noexcept override;
 
-    void selfdestruct(
+    bool selfdestruct(
         const evmc::address& _addr, const evmc::address& _beneficiary) noexcept override;
 
-    evmc::result call(const evmc_message& _msg) noexcept override;
+    evmc::Result call(const evmc_message& _msg) noexcept override;
 
     evmc_tx_context get_tx_context() const noexcept override;
 
@@ -349,7 +351,7 @@ public:
                                       const evmc::bytes32& key) noexcept final;
 
 private:
-    evmc::result create(evmc_message const& _msg) noexcept;
+    evmc::Result create(evmc_message const& _msg) noexcept;
     void record_account_access(const evmc::address& addr) const;
 
 private:

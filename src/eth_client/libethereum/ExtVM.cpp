@@ -155,7 +155,7 @@ CreateResult ExtVM::create(u256 _endowment, u256& io_gas, bytesConstRef _code, I
     return {transactionExceptionToEvmcStatusCode(e.getException()), e.takeOutput(), e.newAddress()};
 }
 
-void ExtVM::selfdestruct(Address _a)
+bool ExtVM::selfdestruct(Address _a)
 {
     // Why transfer is not used here? That caused a consensus issue before (see Quirk #2 in
     // http://martin.swende.se/blog/Ethereum_quirks_and_vulns.html). There is one test case
@@ -165,7 +165,7 @@ void ExtVM::selfdestruct(Address _a)
         m_sealEngine.deleteAddresses.insert(_a);
     }
     m_s.transferBalance(myAddress, _a, m_s.balance(myAddress));
-    ExtVMFace::selfdestruct(_a);
+    return ExtVMFace::selfdestruct(_a);
 }
 
 h256 ExtVM::blockHash(u256 _number)
