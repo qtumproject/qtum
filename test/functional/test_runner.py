@@ -326,7 +326,7 @@ BASE_SCRIPTS = [
     'feature_anchors.py',
     'mempool_datacarrier.py',
     'feature_coinstatsindex.py',
-    'wallet_orphanedreward.py',
+    # 'wallet_orphanedreward.py', // N/A in Qtum due to rolling checkpoints 
     'wallet_timelock.py',
     'p2p_node_network_limited.py',
     'p2p_permissions.py',
