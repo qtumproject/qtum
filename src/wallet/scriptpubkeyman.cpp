@@ -199,8 +199,10 @@ IsMineResult IsMineInner(const LegacyScriptPubKeyMan& keystore, const CScript& s
         }
         break;
     }
-    } // no default case, so the compiler can warn about missing cases
 
+    default:
+        break;
+    }
     if (ret == IsMineResult::NO && keystore.HaveWatchOnly(scriptPubKey)) {
         ret = std::max(ret, IsMineResult::WATCH_ONLY);
     }
@@ -1094,12 +1096,12 @@ static void DeriveExtKey(CExtKey& key_in, unsigned int index, CExtKey& key_out) 
 
 void LegacyScriptPubKeyMan::DeriveNewChildKey(WalletBatch &batch, CKeyMetadata& metadata, CKey& secret, CHDChain& hd_chain, bool internal)
 {
-    // for now we use a fixed keypath scheme of m/0'/0'/k
+    // for now we use a fixed keypath scheme of m/88'/0'/k
     CKey seed;                     //seed (256bit)
     CExtKey masterKey;             //hd master key
-    CExtKey accountKey;            //key at m/0'
-    CExtKey chainChildKey;         //key at m/0'/0' (external) or m/0'/1' (internal)
-    CExtKey childKey;              //key at m/0'/0'/<n>'
+    CExtKey accountKey;            //key at m/88'
+    CExtKey chainChildKey;         //key at m/88'/0' (external) or m/88'/1' (internal)
+    CExtKey childKey;              //key at m/88'/0'/<n>'
 
     // try to get the seed
     if (!GetKey(hd_chain.seed_id, seed))
@@ -1111,7 +1113,7 @@ void LegacyScriptPubKeyMan::DeriveNewChildKey(WalletBatch &batch, CKeyMetadata& 
     // use hardened derivation (child keys >= 0x80000000 are hardened after bip32)
     DeriveExtKey(masterKey, BIP32_HARDENED_KEY_LIMIT, accountKey);
 
-    // derive m/0'/0' (external chain) OR m/0'/1' (internal chain)
+    // derive m/0'/0' (external chain) OR m/88'/1' (internal chain)
     assert(internal ? m_storage.CanSupportFeature(FEATURE_HD_SPLIT) : true);
     DeriveExtKey(accountKey, BIP32_HARDENED_KEY_LIMIT+(internal ? 1 : 0), chainChildKey);
 
@@ -1122,16 +1124,16 @@ void LegacyScriptPubKeyMan::DeriveNewChildKey(WalletBatch &batch, CKeyMetadata& 
         // example: 1 | BIP32_HARDENED_KEY_LIMIT == 0x80000001 == 2147483649
         if (internal) {
             DeriveExtKey(chainChildKey, hd_chain.nInternalChainCounter | BIP32_HARDENED_KEY_LIMIT, childKey);
-            metadata.hdKeypath = "m/0'/1'/" + ToString(hd_chain.nInternalChainCounter) + "'";
-            metadata.key_origin.path.push_back(0 | BIP32_HARDENED_KEY_LIMIT);
+            metadata.hdKeypath = "m/88'/1'/" + ToString(hd_chain.nInternalChainCounter) + "'";
+            metadata.key_origin.path.push_back(88 | BIP32_HARDENED_KEY_LIMIT);
             metadata.key_origin.path.push_back(1 | BIP32_HARDENED_KEY_LIMIT);
             metadata.key_origin.path.push_back(hd_chain.nInternalChainCounter | BIP32_HARDENED_KEY_LIMIT);
             hd_chain.nInternalChainCounter++;
         }
         else {
             DeriveExtKey(chainChildKey, hd_chain.nExternalChainCounter | BIP32_HARDENED_KEY_LIMIT, childKey);
-            metadata.hdKeypath = "m/0'/0'/" + ToString(hd_chain.nExternalChainCounter) + "'";
-            metadata.key_origin.path.push_back(0 | BIP32_HARDENED_KEY_LIMIT);
+            metadata.hdKeypath = "m/88'/0'/" + ToString(hd_chain.nExternalChainCounter) + "'";
+            metadata.key_origin.path.push_back(88 | BIP32_HARDENED_KEY_LIMIT);
             metadata.key_origin.path.push_back(0 | BIP32_HARDENED_KEY_LIMIT);
             metadata.key_origin.path.push_back(hd_chain.nExternalChainCounter | BIP32_HARDENED_KEY_LIMIT);
             hd_chain.nExternalChainCounter++;
@@ -2280,6 +2282,10 @@ bool DescriptorScriptPubKeyMan::SetupDescriptorGeneration(const CExtKey& master_
         desc_prefix = "tr(" + xpub  + "/86'";
         break;
     }
+    case OutputType::P2PK: {
+        desc_prefix = "pk(" + xpub + "/44'";
+        break;
+    }
     case OutputType::UNKNOWN: {
         // We should never have a DescriptorScriptPubKeyMan for an UNKNOWN OutputType,
         // so if we get to this point something is wrong
@@ -2290,9 +2296,9 @@ bool DescriptorScriptPubKeyMan::SetupDescriptorGeneration(const CExtKey& master_
 
     // Mainnet derives at 0', testnet and regtest derive at 1'
     if (Params().IsTestChain()) {
-        desc_prefix += "/1'";
+        desc_prefix += "/88'";
     } else {
-        desc_prefix += "/0'";
+        desc_prefix += "/88'";
     }
 
     std::string internal_path = internal ? "/1" : "/0";
@@ -2756,5 +2762,76 @@ bool DescriptorScriptPubKeyMan::CanUpdateToWalletDescriptor(const WalletDescript
     }
 
     return true;
+}
+
+bool LegacyScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, int sighash, std::map<int, std::string> &output_errors) const
+{
+    return ::SignTransactionOutput(tx, this, sighash, output_errors);
+}
+
+bool DescriptorScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, int sighash, std::map<int, std::string> &output_errors) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = std::make_unique<FlatSigningProvider>();
+    for (CTxOut& output : tx.vout)
+    {
+        if(output.scriptPubKey.HasOpSender())
+        {
+            CScript scriptPubKey;
+            if(GetSenderPubKey(output.scriptPubKey, scriptPubKey))
+            {
+                std::unique_ptr<FlatSigningProvider> coin_keys = GetSigningProvider(scriptPubKey, true);
+                if (!coin_keys) {
+                    return false;
+                }
+                keys->Merge(std::move(*coin_keys));
+            }
+        }
+    }
+
+    return ::SignTransactionOutput(tx, keys.get(), sighash, output_errors);
+}
+
+bool LegacyScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<CTxOut, unsigned int> > &coins) const
+{
+    return ::SignTransactionStake(tx, this, coins);
+}
+
+bool DescriptorScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<CTxOut, unsigned int> > &coins) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = std::make_unique<FlatSigningProvider>();
+    for (const auto& coin_pair : coins) {
+        std::unique_ptr<FlatSigningProvider> coin_keys = GetSigningProvider(coin_pair.first.scriptPubKey, true);
+        if (!coin_keys) {
+            continue;
+        }
+        keys->Merge(std::move(*coin_keys));
+    }
+
+    return ::SignTransactionStake(tx, keys.get(), coins);
+}
+
+bool LegacyScriptPubKeyMan::SignBlockStake(CBlock &block, const PKHash &pkhash, bool compact) const
+{
+    CKey key;
+    if (!GetKey(ToKeyID(pkhash), key)) {
+        return false;
+    }
+
+    return ::SignBlockStake(block, key, compact);
+}
+
+bool DescriptorScriptPubKeyMan::SignBlockStake(CBlock &block, const PKHash &pkhash, bool compact) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = GetSigningProvider(GetScriptForDestination(pkhash), true);
+    if (!keys) {
+        return false;
+    }
+
+    CKey key;
+    if (!keys->GetKey(ToKeyID(pkhash), key)) {
+        return false;
+    }
+
+    return ::SignBlockStake(block, key, compact);
 }
 } // namespace wallet

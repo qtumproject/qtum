@@ -819,3 +819,18 @@ bool SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, 
     }
     return input_errors.empty();
 }
+
+bool SignTransactionOutput(CMutableTransaction &mtx, const SigningProvider *provider, int nHashType, std::map<int, std::string>& output_errors)
+{
+    return {};
+}
+
+bool SignTransactionStake(CMutableTransaction &mtx, const SigningProvider *provider, const std::vector<std::pair<CTxOut, unsigned int> > &coins)
+{
+    return {};
+}
+
+bool SignBlockStake(CBlock &block, CKey &key, bool compact)
+{
+    return {};
+}

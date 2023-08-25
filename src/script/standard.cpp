@@ -656,3 +656,8 @@ bool IsValidContractSenderAddress(const CTxDestination &dest)
 {
     return std::holds_alternative<PKHash>(dest);
 }
+
+bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
+{
+    return {};
+}

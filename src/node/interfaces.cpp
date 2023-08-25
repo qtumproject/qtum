@@ -39,6 +39,7 @@
 #include <shutdown.h>
 #include <support/allocators/secure.h>
 #include <sync.h>
+#include <timedata.h>
 #include <txmempool.h>
 #include <uint256.h>
 #include <univalue.h>
@@ -718,6 +719,7 @@ public:
         return chainman().ActiveChainstate().IsInitialBlockDownload();
     }
     bool shutdownRequested() override { return ShutdownRequested(); }
+    int64_t getAdjustedTime() override { return TicksSinceEpoch<std::chrono::seconds>(GetAdjustedTime()); }
     void initMessage(const std::string& message) override { ::uiInterface.InitMessage(message); }
     void initWarning(const bilingual_str& message) override { InitWarning(message); }
     void initError(const bilingual_str& message) override { InitError(message); }

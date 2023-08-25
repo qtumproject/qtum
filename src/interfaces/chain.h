@@ -56,6 +56,8 @@ public:
     FoundBlock& time(int64_t& time) { m_time = &time; return *this; }
     FoundBlock& maxTime(int64_t& max_time) { m_max_time = &max_time; return *this; }
     FoundBlock& mtpTime(int64_t& mtp_time) { m_mtp_time = &mtp_time; return *this; }
+    //! Return whether block has delagation.
+    FoundBlock& hasDelegation(bool& has_delegation) { m_has_delegation = &has_delegation; return *this; }
     //! Return whether block is in the active (most-work) chain.
     FoundBlock& inActiveChain(bool& in_active_chain) { m_in_active_chain = &in_active_chain; return *this; }
     //! Return locator if block is in the active chain.
@@ -71,6 +73,7 @@ public:
     int64_t* m_time = nullptr;
     int64_t* m_max_time = nullptr;
     int64_t* m_mtp_time = nullptr;
+    bool* m_has_delegation = nullptr;
     bool* m_in_active_chain = nullptr;
     CBlockLocator* m_locator = nullptr;
     const FoundBlock* m_next_block = nullptr;
@@ -250,6 +253,9 @@ public:
 
     //! Check if shutdown requested.
     virtual bool shutdownRequested() = 0;
+
+    //! Get adjusted time.
+    virtual int64_t getAdjustedTime() = 0;
 
     //! Send init message.
     virtual void initMessage(const std::string& message) = 0;
