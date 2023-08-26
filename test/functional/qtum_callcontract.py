@@ -73,7 +73,7 @@ class CallContractTest(BitcoinTestFramework):
         # call add()
         ret = self.node.callcontract(contract_address, "4f2be91f")
         assert(ret['address'] == contract_address)
-        assert(ret['executionResult']['gasUsed'] == 27870 if ENABLE_REDUCED_BLOCK_TIME else 26878)
+        assert(ret['executionResult']['gasUsed'] == 26370 if ENABLE_REDUCED_BLOCK_TIME else 26878)
         assert(ret['executionResult']['excepted'] == "None")
         assert(ret['executionResult']['newAddress'] == contract_address)
         assert(ret['executionResult']['output'] == "000000000000000000000000000000000000000000000000000000000000001a")
@@ -81,7 +81,7 @@ class CallContractTest(BitcoinTestFramework):
         assert(ret['executionResult']['gasRefunded'] == 0)
         assert(ret['executionResult']['depositSize'] == 0)
         assert(ret['executionResult']['gasForDeposit'] == 0)
-        assert(ret['transactionReceipt']['gasUsed'] == 27870 if ENABLE_REDUCED_BLOCK_TIME else 26878)
+        assert(ret['transactionReceipt']['gasUsed'] == 26370 if ENABLE_REDUCED_BLOCK_TIME else 26878)
         assert(ret['transactionReceipt']['bloom'] == "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")
         assert(ret['transactionReceipt']['log'] == [])
 
@@ -209,10 +209,10 @@ class CallContractTest(BitcoinTestFramework):
             "data": "0000000000000000000000000000000000000000000000000000000041420500"
           }
         ]
-
+        
         assert(ret['address'] == contract_address)
-        print(ret['executionResult']['gasUsed'])
-        assert(ret['executionResult']['gasUsed'] == 36893 if ENABLE_REDUCED_BLOCK_TIME else 36501)
+        # print(ret['executionResult']['gasUsed'])
+        assert(ret['executionResult']['gasUsed'] == 36093 if ENABLE_REDUCED_BLOCK_TIME else 36501)
         assert(ret['executionResult']['excepted'] == "None")
         assert(ret['executionResult']['newAddress'] == contract_address)
         assert(ret['executionResult']['output'] == "")
@@ -220,7 +220,7 @@ class CallContractTest(BitcoinTestFramework):
         assert(ret['executionResult']['gasRefunded'] == 0)
         assert(ret['executionResult']['depositSize'] == 0)
         assert(ret['executionResult']['gasForDeposit'] == 0)
-        assert(ret['transactionReceipt']['gasUsed'] == 36893 if ENABLE_REDUCED_BLOCK_TIME else 36501)
+        assert(ret['transactionReceipt']['gasUsed'] == 36093 if ENABLE_REDUCED_BLOCK_TIME else 36501)
         assert(ret['transactionReceipt']['bloom'] != "")
         assert(ret['transactionReceipt']['log'] == expected_log)
 

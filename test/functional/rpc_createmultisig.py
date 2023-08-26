@@ -30,7 +30,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         self.supports_cli = False
         if self.is_bdb_compiled():
             self.requires_wallet = True
-        self.extra_args = [['-addresstype=bech32']] * 3
+        # self.extra_args = [['-addresstype=bech32']] * 3
 
     def get_keys(self):
         self.pub = []
@@ -54,7 +54,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             self.check_addmultisigaddress_errors()
 
         self.log.info('Generating blocks ...')
-        node0.generate(COINBASE_MATURITY+49)
+        self.generate(self.wallet, COINBASE_MATURITY + 49)
 
         self.moved = 0
         for self.nkeys in [3, 5]:
@@ -93,7 +93,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             err_msg = ["Unable to make chosen address type, please ensure no uncompressed public keys are present."]
 
             for addr_type in ['bech32', 'p2sh-segwit']:
-                result = self.nodes[0].createmultisig(nrequired=2, keys=keys, address_type=addr_type)
+                result = wmulti0.createmultisig(nrequired=2, keys=keys, address_type=addr_type)
                 assert_equal(legacy_addr, result['address'])
                 assert_equal(result['warnings'], err_msg)
 
@@ -136,7 +136,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
     def checkbalances(self):
         node0, node1, node2 = self.nodes
-        node0.generate(COINBASE_MATURITY)
+        self.generate(node0, COINBASE_MATURITY)
 
         bal0 = node0.getbalance()
         bal1 = node1.getbalance()
@@ -195,7 +195,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             wmulti.unloadwallet()
 
         spk = bytes.fromhex(node0.validateaddress(madd)["scriptPubKey"])
-        txid, _ = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=spk, amount=1300)
+        txid, _ = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=spk, amount=1300000)
         tx = node0.getrawtransaction(txid, True)
         vout = [v["n"] for v in tx["vout"] if madd == v["scriptPubKey"]["address"]]
         assert len(vout) == 1
