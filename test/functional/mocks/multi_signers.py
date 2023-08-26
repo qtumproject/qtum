@@ -12,6 +12,7 @@ def enumerate(args):
         {"fingerprint": "00000002", "type": "trezor", "model": "trezor_one"}]))
 
 parser = argparse.ArgumentParser(prog='./multi_signers.py', description='External multi-signer mock')
+parser.add_argument('--chain', default='main')
 
 subparsers = parser.add_subparsers(description='Commands', dest='command')
 subparsers.required = True
