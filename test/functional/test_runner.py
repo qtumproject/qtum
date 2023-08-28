@@ -81,6 +81,7 @@ EXTENDED_SCRIPTS = [
     # These tests are not run by default.
     # Longest test should go first, to favor running tests in parallel
     'qtum_evm_london_activation.py',
+    'qtum_evm_shanghai_activation.py',
     'feature_pruning.py',
     'feature_dbcrash.py'
 ]
