@@ -91,7 +91,7 @@ public:
         consensus.nReduceBlocktimeHeight = 845000;
         consensus.nMuirGlacierHeight = 845000;
         consensus.nLondonHeight = 2080512;
-        consensus.nShanghaiHeight = 0x7fffffff;
+        consensus.nShanghaiHeight = 3385122;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -250,7 +250,7 @@ public:
         consensus.nReduceBlocktimeHeight = 806600;
         consensus.nMuirGlacierHeight = 806600;
         consensus.nLondonHeight = 1967616;
-        consensus.nShanghaiHeight = 0x7fffffff;
+        consensus.nShanghaiHeight = 3298892;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
