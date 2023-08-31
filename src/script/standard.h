@@ -162,7 +162,12 @@ constexpr bool IsPushdataOp(opcodetype opcode)
 /** Check whether a CTxDestination can be used as contract sender address. */
 bool IsValidContractSenderAddress(const CTxDestination& dest);
 
+/** Parse a output public key for the sender public key and sender signature. */
+bool ExtractSenderData(const CScript& outputPubKey, CScript* senderPubKey, CScript* senderSig);
+
 bool GetSenderPubKey(const CScript& outputPubKey, CScript& senderPubKey);
+
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK = nullptr);
 
 /**
  * Parse a scriptPubKey and identify script type for standard scripts. If
@@ -181,7 +186,7 @@ TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned c
  * the addressRet parameter and returns true if successful. Currently only works for P2PK,
  * P2PKH, P2SH, P2WPKH, and P2WSH scripts.
  */
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet);
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL);
 
 /**
  * Generate a Bitcoin scriptPubKey for the given CTxDestination. Returns a P2PKH

@@ -234,7 +234,7 @@ TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned c
     return TxoutType::NONSTANDARD;
 }
 
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType *typeRet)
 {
     std::vector<valtype> vSolutions;
     TxoutType whichType = Solver(scriptPubKey, vSolutions);
@@ -657,7 +657,27 @@ bool IsValidContractSenderAddress(const CTxDestination &dest)
     return std::holds_alternative<PKHash>(dest);
 }
 
+bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScript *senderSig)
+{
+    return {};
+}
+
 bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
 {
     return {};
+}
+
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK)
+{
+    if(OK) *OK = false;
+    CTxDestination address;
+    TxoutType txType=TxoutType::NONSTANDARD;
+    if(ExtractDestination(scriptPubKey, address, &txType)){
+        if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
+            if(OK) *OK = true;
+            return std::get<PKHash>(address);
+        }
+    }
+
+    return PKHash();
 }
