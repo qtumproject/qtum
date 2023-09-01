@@ -6,6 +6,7 @@
 #ifndef BITCOIN_SCRIPT_STANDARD_H
 #define BITCOIN_SCRIPT_STANDARD_H
 
+#include <attributes.h>
 #include <pubkey.h>
 #include <script/interpreter.h>
 #include <uint256.h>
@@ -41,19 +42,10 @@ public:
 };
 
 /**
- * Default setting for nMaxDatacarrierBytes. 80 bytes of data, +1 for OP_RETURN,
+ * Default setting for -datacarriersize. 80 bytes of data, +1 for OP_RETURN,
  * +2 for the pushdata opcodes.
  */
 static const unsigned int MAX_OP_RETURN_RELAY = 83;
-
-/**
- * A data carrying output is an unspendable output containing data. The script
- * type is designated as TxoutType::NULL_DATA.
- */
-extern bool fAcceptDatacarrier;
-
-/** Maximum size of TxoutType::NULL_DATA scripts that this node considers standard. */
-extern unsigned nMaxDatacarrierBytes;
 
 /**
  * Mandatory script verification flags that all new blocks must comply with for
@@ -186,6 +178,11 @@ bool IsValidDestination(const CTxDestination& dest);
 /** Get the name of a TxoutType as a string */
 std::string GetTxnOutputType(TxoutType t);
 
+constexpr bool IsPushdataOp(opcodetype opcode)
+{
+    return opcode > OP_FALSE && opcode <= OP_PUSHDATA4;
+}
+
 /** Check whether a CTxDestination can be used as contract sender address. */
 bool IsValidContractSenderAddress(const CTxDestination& dest);
 
@@ -224,6 +221,10 @@ CScript GetScriptForDestination(const CTxDestination& dest);
 
 /** Generate a P2PK script for the given pubkey. */
 CScript GetScriptForRawPubKey(const CPubKey& pubkey);
+
+/** Determine if script is a "multi_a" script. Returns (threshold, keyspans) if so, and nullopt otherwise.
+ *  The keyspans refer to bytes in the passed script. */
+std::optional<std::pair<int, std::vector<Span<const unsigned char>>>> MatchMultiA(const CScript& script LIFETIMEBOUND);
 
 /** Generate a multisig script. */
 CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
@@ -346,6 +347,10 @@ public:
     static bool ValidDepths(const std::vector<int>& depths);
     /** Compute spending data (after Finalize()). */
     TaprootSpendData GetSpendData() const;
+    /** Returns a vector of tuples representing the depth, leaf version, and script */
+    std::vector<std::tuple<uint8_t, uint8_t, CScript>> GetTreeTuples() const;
+    /** Returns true if there are any tapscripts */
+    bool HasScripts() const { return !m_branch.empty(); }
 };
 
 /** Given a TaprootSpendData and the output key, reconstruct its script tree.

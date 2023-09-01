@@ -148,9 +148,9 @@ public:
     void updateEntry(const SuperStakerItemEntry &item, int status)
     {
         // Find super staker in model
-        QList<SuperStakerItemEntry>::iterator lower = qLowerBound(
+        QList<SuperStakerItemEntry>::iterator lower = std::lower_bound(
             cachedSuperStakerItem.begin(), cachedSuperStakerItem.end(), item, SuperStakerItemEntryLessThan());
-        QList<SuperStakerItemEntry>::iterator upper = qUpperBound(
+        QList<SuperStakerItemEntry>::iterator upper = std::upper_bound(
             cachedSuperStakerItem.begin(), cachedSuperStakerItem.end(), item, SuperStakerItemEntryLessThan());
         int lowerIndex = (lower - cachedSuperStakerItem.begin());
         int upperIndex = (upper - cachedSuperStakerItem.begin());

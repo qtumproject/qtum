@@ -55,7 +55,8 @@ enum class DBErrors
     EXTERNAL_SIGNER_SUPPORT_REQUIRED,
     LOAD_FAIL,
     NEED_REWRITE,
-    NEED_RESCAN
+    NEED_RESCAN,
+    UNKNOWN_DESCRIPTOR
 };
 
 namespace DBKeys {
@@ -93,6 +94,9 @@ extern const std::string TOKENTX;
 extern const std::string CONTRACTDATA;
 extern const std::string DELEGATION;
 extern const std::string SUPERSTAKER;
+
+// Keys in this set pertain only to the legacy wallet (LegacyScriptPubKeyMan) and are removed during migration from legacy to descriptors.
+extern const std::unordered_set<std::string> LEGACY_TYPES;
 } // namespace DBKeys
 
 /* simple HD chain data model */
@@ -302,6 +306,9 @@ public:
     //! write the hdchain model (external chain child index counter)
     bool WriteHDChain(const CHDChain& chain);
 
+    //! Delete records of the given types
+    bool EraseRecords(const std::unordered_set<std::string>& types);
+
     bool WriteWalletFlags(const uint64_t flags);
     //! Begin a new transaction
     bool TxnBegin();
@@ -327,6 +334,7 @@ bool ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue, st
 std::unique_ptr<WalletDatabase> CreateDummyWalletDatabase();
 
 /** Return object for accessing temporary in-memory database. */
+std::unique_ptr<WalletDatabase> CreateMockWalletDatabase(DatabaseOptions& options);
 std::unique_ptr<WalletDatabase> CreateMockWalletDatabase();
 } // namespace wallet
 

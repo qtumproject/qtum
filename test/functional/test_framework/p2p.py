@@ -47,6 +47,9 @@ from test_framework.messages import (
     msg_getaddr,
     msg_getblocks,
     msg_getblocktxn,
+    msg_getcfcheckpt,
+    msg_getcfheaders,
+    msg_getcfilters,
     msg_getdata,
     msg_getheaders,
     msg_headers,
@@ -82,7 +85,7 @@ logger = logging.getLogger("TestFramework.p2p")
 MIN_P2P_VERSION_SUPPORTED = 60001
 # The P2P version that this test framework implements and sends in its `version` message
 # Version 70020 supports wtxid relay
-P2P_VERSION = 70020
+P2P_VERSION = 70021
 # The services that this test framework offers in its `version` message
 P2P_SERVICES = NODE_NETWORK | NODE_WITNESS
 # The P2P user agent string that this test framework sends in its `version` message
@@ -108,6 +111,9 @@ MESSAGEMAP = {
     b"getaddr": msg_getaddr,
     b"getblocks": msg_getblocks,
     b"getblocktxn": msg_getblocktxn,
+    b"getcfcheckpt": msg_getcfcheckpt,
+    b"getcfheaders": msg_getcfheaders,
+    b"getcfilters": msg_getcfilters,
     b"getdata": msg_getdata,
     b"getheaders": msg_getheaders,
     b"headers": msg_headers,

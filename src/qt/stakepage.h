@@ -6,7 +6,8 @@
 #include <QWidget>
 #include <memory>
 
-class ClientModel;
+#include <qt/clientmodel.h>
+
 class TransactionFilterProxy;
 class PlatformStyle;
 class WalletModel;
@@ -34,7 +35,7 @@ public:
 
 public Q_SLOTS:
     void setBalance(const interfaces::WalletBalances& balances);
-    void numBlocksChanged(int count, const QDateTime& blockDate, double nVerificationProgress, bool headers);
+    void numBlocksChanged(int count, const QDateTime& blockDate, double nVerificationProgress, SyncType header, SynchronizationState sync_state);
     void updateEncryptionStatus();
     void askDeviceForStake();
 

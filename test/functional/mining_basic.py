@@ -51,7 +51,7 @@ class MiningTest(BitcoinTestFramework):
         self.num_nodes = 2
         self.setup_clean_chain = True
         self.supports_cli = False
-        self.requires_wallet = True
+        self.requires_wallet = True 
         
 
     def mine_chain(self):
@@ -199,7 +199,6 @@ class MiningTest(BitcoinTestFramework):
         bad_block.hashMerkleRoot += 1
         assert_template(node, bad_block, 'bad-txnmrklroot', False)
         assert_submitblock(bad_block, 'bad-txnmrklroot', 'bad-txnmrklroot')
-
         #self.log.info("getblocktemplate: Test bad timestamps")
         #bad_block = copy.deepcopy(block)
         #bad_block.nTime = 2**31 - 1
@@ -258,7 +257,6 @@ class MiningTest(BitcoinTestFramework):
         bad_block2.hashPrevBlock = bad_block_lock.sha256
         bad_block2.solve()
         assert_raises_rpc_error(-25, 'bad-prevblk', lambda: node.submitheader(hexdata=CBlockHeader(bad_block2).serialize().hex()))
-
         # Should reject invalid header right away, only applies to PoS blocks in qtum.
         #bad_block_time = copy.deepcopy(block)
         #bad_block_time.nTime = 1

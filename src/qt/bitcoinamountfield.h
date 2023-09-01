@@ -6,6 +6,7 @@
 #define BITCOIN_QT_BITCOINAMOUNTFIELD_H
 
 #include <consensus/amount.h>
+#include <qt/bitcoinunits.h>
 
 #include <QWidget>
 
@@ -24,12 +25,15 @@ class BitcoinAmountField: public QWidget
     // ugly hack: for some unknown reason CAmount (instead of qint64) does not work here as expected
     // discussion: https://github.com/bitcoin/bitcoin/pull/5117
     Q_PROPERTY(qint64 value READ value WRITE setValue NOTIFY valueChanged USER true)
-
+    Q_PROPERTY(QString valueText READ valueText WRITE setValueText NOTIFY valueChanged USER true)
 public:
     explicit BitcoinAmountField(QWidget *parent = nullptr);
 
     CAmount value(bool *value=nullptr) const;
     void setValue(const CAmount& value);
+
+    QString valueText(bool *value=nullptr) const;
+    void setValueText(const QString& value);
 
     /** If allow empty is set to false the field will be set to the minimum allowed value if left empty. **/
     void SetAllowEmpty(bool allow);
@@ -52,7 +56,7 @@ public:
     bool validate();
 
     /** Change unit used to display amount. */
-    void setDisplayUnit(int unit);
+    void setDisplayUnit(BitcoinUnit new_unit);
 
     /** Make field empty and ready for new input. */
     void clear();

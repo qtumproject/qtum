@@ -11,7 +11,7 @@ from test_framework.util import (
 from test_framework.blocktools import (
     TIME_GENESIS_BLOCK,
 )
-from test_framework.qtumconfig import COINBASE_MATURITY
+from test_framework.qtumconfig import COINBASE_MATURITY 
 
 
 class CreateTxWalletTest(BitcoinTestFramework):
@@ -42,7 +42,7 @@ class CreateTxWalletTest(BitcoinTestFramework):
         self.generate(self.nodes[0], 1)
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         tx = self.nodes[0].gettransaction(txid=txid, verbose=True)['decoded']
-        assert 0 < tx['locktime'] <= COINBASE_MATURITY+101
+        assert 0 < tx['locktime'] <= COINBASE_MATURITY+101 
 
     def test_tx_size_too_large(self):
         # More than 10kB of outputs, so that we hit -maxtxfee with a high feerate

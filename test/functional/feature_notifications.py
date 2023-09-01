@@ -11,7 +11,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
 )
-from test_framework.qtumconfig import *
+from test_framework.qtumconfig import * 
 from test_framework.qtum import generatesynchronized
 
 # Linux allow all characters other than \x00

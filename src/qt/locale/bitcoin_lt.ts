@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">Spustelėkite dešinįjį klavišą norint keisti adresą arba etiketę</translation>
+        <translation type="unfinished">Spustelėkite dešinįjį pelės klavišą norint keisti adresą arba etiketę </translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -70,6 +70,12 @@
         <translation type="unfinished">Tai yra jūsų Qtum adresai išeinantiems mokėjimams. Visada pasitikrinkite sumą ir gavėjo adresą prieš siunčiant lėšas.</translation>
     </message>
     <message>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">Tai jūsų Qtum mokėjimų gavimo adresai. Naudokite 'Sukurti naują gavimo adresą' mygtuką gavimų skirtuke kad sukurtumėte naujus adresus.
+Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">&amp;Kopijuoti adresą</translation>
     </message>
@@ -84,6 +90,11 @@
     <message>
         <source>Export Address List</source>
         <translation type="unfinished">Eksportuoti adresų sąrašą</translation>
+    </message>
+    <message>
+        <source>Comma separated file</source>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
+        <translation type="unfinished">Kableliais atskirtas failas</translation>
     </message>
     <message>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
@@ -190,7 +201,7 @@
     </message>
     <message>
         <source>Wallet encryption failed due to an internal error. Your wallet was not encrypted.</source>
-        <translation type="unfinished">Dėl vidinės klaidos nepavyko užšifruoti piniginę.Piniginė neužšifruota.</translation>
+        <translation type="unfinished">Dėl vidinės klaidos nepavyko užšifruoti piniginę. Piniginė neužšifruota.</translation>
     </message>
     <message>
         <source>The supplied passphrases do not match.</source>
@@ -227,6 +238,10 @@
 <context>
     <name>BitcoinApplication</name>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Nustatymų failas %1 galimai sugadintas arba klaidingas</translation>
+    </message>
+    <message>
         <source>Internal error</source>
         <translation type="unfinished">Vidinė klaida</translation>
     </message>
@@ -244,6 +259,10 @@
     <message>
         <source>Error: %1</source>
         <translation type="unfinished">Klaida: %1</translation>
+    </message>
+    <message>
+        <source>%1 didn't yet exit safely…</source>
+        <translation type="unfinished">%1 dar saugiai neužbaigė darbo...</translation>
     </message>
     <message>
         <source>unknown</source>
@@ -339,6 +358,14 @@
     </context>
 <context>
     <name>bitcoin-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Nustatymų failas negalėjo būti perskaitytas</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Nustatymų failas negalėjo būti parašytas</translation>
+    </message>
     <message>
         <source>The %s developers</source>
         <translation type="unfinished">%s kūrėjai</translation>
@@ -476,10 +503,6 @@
         <translation type="unfinished">Nežinomas adreso tipas '%s'</translation>
     </message>
     <message>
-        <source>Upgrading UTXO database</source>
-        <translation type="unfinished">UTXO duomenų bazės atnaujinimas</translation>
-    </message>
-    <message>
         <source>Verifying blocks…</source>
         <translation type="unfinished">Tikrinami blokai...</translation>
     </message>
@@ -539,6 +562,10 @@
         <translation type="unfinished">Sukurti naują piniginę</translation>
     </message>
     <message>
+        <source>&amp;Minimize</source>
+        <translation type="unfinished">&amp;Sumažinti</translation>
+    </message>
+    <message>
         <source>Wallet:</source>
         <translation type="unfinished">Piniginė</translation>
     </message>
@@ -554,7 +581,7 @@
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Siųsti monetas Qtum adresui</translation>
-    </message>
+   </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Daryti piniginės atsarginę kopiją</translation>
@@ -570,6 +597,10 @@
     <message>
         <source>&amp;Receive</source>
         <translation type="unfinished">&amp;Gauti</translation>
+    </message>
+    <message>
+        <source>&amp;Options…</source>
+        <translation type="unfinished">&amp;Nustatymai</translation>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
@@ -602,7 +633,7 @@
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Reikalauti mokėjimų (sukuria QR kodus ir qtum: URI)</translation>
-    </message>
+   </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Rodyti sąrašą panaudotų siuntimo adresų ir žymių</translation>
@@ -657,8 +688,8 @@
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">Užkraukite dalinai pasirašytas Qtum transakcijas iš iškarpinės...</translation>
-    </message>
+        <translation type="unfinished">Užkraukite dalinai pasirašytas Qtum transakcijas iš iškarpinės...</translation> 
+   </message>
     <message>
         <source>Node window</source>
         <translation type="unfinished">Mazgo langas</translation>
@@ -690,7 +721,7 @@
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Rodyti %1 pagalbos žinutę su Qtum pasirinkimo komandomis</translation>
-    </message>
+   </message>
     <message>
         <source>default wallet</source>
         <translation type="unfinished">numatyta piniginė</translation>
@@ -698,6 +729,11 @@
     <message>
         <source>No wallets available</source>
         <translation type="unfinished">Piniginių nėra</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">Piniginės Pavadinimas</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -716,7 +752,7 @@
         <translation type="unfinished">%1 klientas</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -1129,6 +1165,30 @@
 </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform>(reikalinga %n GB)</numerusform>
+            <numerusform>(reikalinga %n GB)</numerusform>
+            <numerusform>(reikalinga %n GB)</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
         <translation type="unfinished">Šiame kataloge bus saugomi bent %1 GB duomenų, kurie laikui bėgant didės.</translation>
@@ -1149,7 +1209,7 @@
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 bus atsisiųsta ir išsaugota Qtum blokų grandinės kopiją.</translation>
-    </message>
+   </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Piniginė taip pat bus saugojama šiame direktyve.</translation>
@@ -1173,10 +1233,6 @@
     <message>
         <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
         <translation type="unfinished">Kadangi tai yra pirmas kartas, kai programa paleidžiama, galite pasirinkti, kur %1 išsaugos savo duomenis.</translation>
-    </message>
-    <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation type="unfinished">Spustelėjus Gerai, %1 pradės atsisiųsti ir apdoroti visą %4 blokų grandinę (%2GB), pradedant nuo ankstesnių operacijų %3, kai iš pradžių buvo paleista %4.</translation>
     </message>
     <message>
         <source> GB</source>
@@ -1385,7 +1441,7 @@
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Prisijunkite prie „Qtum“ tinklo per SOCKS5 proxy.</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp; Prisijunkite per SOCKS5 proxy (numatytasis proxy):</translation>
@@ -1447,10 +1503,6 @@
         <translation type="unfinished">Rodyti monetų valdymo funkcijas, ar ne.</translation>
     </message>
     <message>
-        <source>Options set in this dialog are overridden by the command line or in the configuration file:</source>
-        <translation type="unfinished">Šiame dialogo lange nustatytos parinktys yra panaikintos komandų eilutėje arba konfigūracijos faile:</translation>
-    </message>
-    <message>
         <source>&amp;OK</source>
         <translation type="unfinished">&amp;Gerai</translation>
     </message>
@@ -1468,14 +1520,17 @@
     </message>
     <message>
         <source>Confirm options reset</source>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
         <translation type="unfinished">Patvirtinti nustatymų atstatymą</translation>
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
+        <extracomment>Text explaining that the settings changed will not come into effect until the client is restarted.</extracomment>
         <translation type="unfinished">Kliento perkrovimas reikalingas nustatymų aktyvavimui</translation>
     </message>
     <message>
         <source>Client will be shut down. Do you want to proceed?</source>
+        <extracomment>Text asking the user to confirm if they would like to proceed with a client shutdown.</extracomment>
         <translation type="unfinished">Klientas bus uždarytas. Ar norite testi?</translation>
     </message>
     <message>
@@ -1518,7 +1573,7 @@
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Rodoma informacija gali būti pasenusi. Piniginė automatiškai sinchronizuojasi su „Qtum“ tinklu po ryšio užmezgimo, tačiau šis procesas dar nebaigtas.</translation>
-    </message>
+   </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Tik stebėti</translation>
@@ -1624,11 +1679,11 @@
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">„qtum: //“ nėra galiojantis URI. Vietoj to naudokite „qtum:“.</translation>
-    </message>
+   </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">URI negalima perskaityti! Tai gali sukelti negaliojantys „Qtum“ adresas arba netinkami URI parametrai.</translation>
-    </message>
+   </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">Mokėjimo užklausos failų tvarkymas</translation>
@@ -2199,7 +2254,7 @@
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">Kai sandorių apimtis yra mažesnė nei erdvės blokuose, kasėjai ir perduodantys mazgai gali užtikrinti minimalų mokestį. Mokėti tik šį minimalų mokestį yra galima, tačiau atkreipkite dėmesį, kad dėl to gali atsirasti niekada nepatvirtinamas sandoris, kai bus daugiau paklausos qtum operacijoms, nei tinklas gali apdoroti.</translation>
-    </message>
+   </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
         <translation type="unfinished">Per mažas mokestis gali lemti niekada nepatvirtinamą sandorį (skaitykite tooltip)</translation>
@@ -2333,10 +2388,6 @@
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation type="unfinished">Mokestis, didesnis nei %1, laikomas absurdiškai aukštu mokesčiu.</translation>
     </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation type="unfinished">Mokėjimo prašymas pasibaigė</translation>
-    </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation type="unfinished">
@@ -2348,7 +2399,7 @@
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">Įspėjimas: neteisingas Qtum adresas</translation>
-    </message>
+   </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Įspėjimas: nežinomas keitimo adresas</translation>
@@ -2387,7 +2438,7 @@
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Qtum adresas, į kurį siunčiamas mokėjimas</translation>
-    </message>
+   </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Įvesti adresą iš mainų atminties</translation>
@@ -2413,28 +2464,12 @@
         <translation type="unfinished">Žinutė:</translation>
     </message>
     <message>
-        <source>This is an unauthenticated payment request.</source>
-        <translation type="unfinished">Tai yra nepatvirtinta mokėjimo užklausos suma</translation>
-    </message>
-    <message>
-        <source>This is an authenticated payment request.</source>
-        <translation type="unfinished">Tai yra patvirtintas mokėjimo prašymas.</translation>
-    </message>
-    <message>
         <source>Enter a label for this address to add it to the list of used addresses</source>
         <translation type="unfinished">Įveskite šio adreso etiketę, kad ją pridėtumėte prie naudojamų adresų sąrašo</translation>
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Pranešimas, kuris buvo pridėtas prie qtum: URI, kuris bus saugomas kartu su sandoriu jūsų nuoroda. Pastaba: šis pranešimas nebus išsiųstas per „Qtum“ tinklą.</translation>
-    </message>
-    <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">Mokėti gavėjui:</translation>
-    </message>
-    <message>
-        <source>Memo:</source>
-        <translation type="unfinished">Atmintinė:</translation>
     </message>
 </context>
 <context>
@@ -2501,7 +2536,7 @@
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">Qtum adresas, kuriuo buvo pasirašytas pranešimas</translation>
-    </message>
+   </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Patikrinkite žinutę, jog įsitikintumėte, kad ją pasirašė nurodytas Qtum adresas</translation>
@@ -2571,30 +2606,22 @@
     <name>TransactionDesc</name>
     <message>
         <source>conflicted with a transaction with %1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that conflicts with a confirmed transaction.</extracomment>
         <translation type="unfinished">prieštaravo sandoriui su %1 patvirtinimais</translation>
     </message>
     <message>
-        <source>0/unconfirmed, %1</source>
-        <translation type="unfinished">0/nepatvirtintas, %1</translation>
-    </message>
-    <message>
-        <source>in memory pool</source>
-        <translation type="unfinished">atminties talpykloje</translation>
-    </message>
-    <message>
-        <source>not in memory pool</source>
-        <translation type="unfinished">ne atminties talpykloje</translation>
-    </message>
-    <message>
         <source>abandoned</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an abandoned transaction.</extracomment>
         <translation type="unfinished">paliktas</translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/nepatvirtintas</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">%1 patvirtinimų</translation>
     </message>
     <message>
@@ -2881,6 +2908,11 @@
     <message>
         <source>Export Transaction History</source>
         <translation type="unfinished">Eksportuoti sandorių istoriją</translation>
+    </message>
+    <message>
+        <source>Comma separated file</source>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
+        <translation type="unfinished">Kableliais atskirtas failas</translation>
     </message>
     <message>
         <source>Confirmed</source>

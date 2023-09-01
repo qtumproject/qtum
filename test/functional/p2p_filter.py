@@ -34,6 +34,7 @@ from test_framework.wallet import (
     getnewdestination,
 )
 
+
 MAX_SCRIPT_ELEMENT_SIZE = 128000
 class P2PBloomFilter(P2PInterface):
     # This is a P2SH watch-only wallet

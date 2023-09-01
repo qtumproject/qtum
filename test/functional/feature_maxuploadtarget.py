@@ -13,10 +13,19 @@ if uploadtarget has been reached.
 from collections import defaultdict
 import time
 
-from test_framework.messages import CInv, MSG_BLOCK, msg_getdata
+from test_framework.messages import (
+    CInv,
+    MSG_BLOCK,
+    msg_getdata,
+)
 from test_framework.p2p import P2PInterface
 from test_framework.test_framework import BitcoinTestFramework
-from test_framework.util import assert_equal, mine_large_block
+from test_framework.util import (
+    assert_equal,
+    mine_large_block,
+)
+from test_framework.wallet import MiniWallet
+
 
 class TestP2PConn(P2PInterface):
     def __init__(self):
@@ -37,15 +46,9 @@ class MaxUploadTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [[
             "-maxuploadtarget=1350M",
-            "-acceptnonstdtxn=1",
+            "-datacarriersize=100000",
         ]]
         self.supports_cli = False
-
-        # Cache for utxos, as the listunspent may take a long time later in the test
-        self.utxo_cache = []
-
-    def skip_test_if_missing_module(self):
-        self.skip_if_no_wallet()
 
     def run_test(self):
         # Before we connect anything, we first set the time on the node
@@ -55,7 +58,8 @@ class MaxUploadTest(BitcoinTestFramework):
         self.nodes[0].setmocktime(old_time)
 
         # Generate some old blocks
-        self.nodes[0].generate(2030)
+        self.wallet = MiniWallet(self.nodes[0])
+        self.generate(self.wallet, 2030)
 
         # p2p_conns[0] will only request old blocks
         # p2p_conns[1] will only request new blocks
@@ -66,7 +70,7 @@ class MaxUploadTest(BitcoinTestFramework):
             p2p_conns.append(self.nodes[0].add_p2p_connection(TestP2PConn()))
 
         # Now mine a big block
-        mine_large_block(self, self.nodes[0], self.utxo_cache)
+        mine_large_block(self, self.wallet, self.nodes[0])
 
         # Store the hash; we'll request this later
         big_old_block = self.nodes[0].getbestblockhash()
@@ -77,7 +81,7 @@ class MaxUploadTest(BitcoinTestFramework):
         self.nodes[0].setmocktime(int(time.time()) - 2*60*60*24)
 
         # Mine one more block, so that the prior block looks old
-        mine_large_block(self, self.nodes[0], self.utxo_cache)
+        mine_large_block(self, self.wallet, self.nodes[0])
 
         # We'll be requesting this new block too
         big_new_block = self.nodes[0].getbestblockhash()
@@ -93,6 +97,7 @@ class MaxUploadTest(BitcoinTestFramework):
         daily_buffer = 2700 * 512000
         max_bytes_available = max_bytes_per_day - daily_buffer
         success_count = max_bytes_available // old_block_size
+
         # 576MB will be reserved for relaying new blocks, so expect this to
         # succeed for ~235 tries.
         for i in range(success_count):

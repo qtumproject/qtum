@@ -4,25 +4,20 @@
 //
 #include <sync.h>
 #include <test/util/setup_common.h>
-#include <txmempool.h>
 #include <validation.h>
 
 #include <boost/test/unit_test.hpp>
 
-using node::BlockManager;
-
-BOOST_FIXTURE_TEST_SUITE(validation_flush_tests, ChainTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(validation_flush_tests, TestingSetup)
 
 //! Test utilities for detecting when we need to flush the coins cache based
 //! on estimated memory usage.
 //!
-//! @sa CChainState::GetCoinsCacheSizeState()
+//! @sa Chainstate::GetCoinsCacheSizeState()
 //!
 BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
 {
-    CTxMemPool mempool;
-    BlockManager blockman{};
-    CChainState chainstate{&mempool, blockman, *Assert(m_node.chainman)};
+    Chainstate& chainstate{m_node.chainman->ActiveChainstate()};
     constexpr int CACHE_SIZE_BYTES = 1664;
     chainstate.InitCoinsDB(/*cache_size_bytes*/ CACHE_SIZE_BYTES, /*in_memory*/ true, /*should_wipe*/ false);
     WITH_LOCK(::cs_main, chainstate.InitCoinsCache(CACHE_SIZE_BYTES));

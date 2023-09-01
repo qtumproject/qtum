@@ -13,13 +13,17 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
-from test_framework.qtum import generatesynchronized, convert_btc_bech32_address_to_qtum
+from test_framework.qtum import generatesynchronized, convert_btc_bech32_address_to_qtum 
 
 class WalletHDTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
         self.extra_args = [[], ['-keypool=0']]
+        # whitelist peers to speed up tx relay / mempool sync
+        for args in self.extra_args:
+            args.append("-whitelist=noban@127.0.0.1")
+
         self.supports_cli = False
 
     def skip_test_if_missing_module(self):
@@ -36,7 +40,7 @@ class WalletHDTest(BitcoinTestFramework):
         if self.options.descriptors:
             assert_equal(change_addrV["hdkeypath"], "m/44'/88'/0'/1/0")
         else:
-            assert_equal(change_addrV["hdkeypath"], "m/88'/1'/0'")  #first internal child key
+            assert_equal(change_addrV["hdkeypath"], "m/88'/1'/0'")  #first internal child key 
 
         # Import a non-HD private key in the HD wallet
         non_hd_add = convert_btc_bech32_address_to_qtum('bcrt1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezwjksmt')
@@ -173,8 +177,8 @@ class WalletHDTest(BitcoinTestFramework):
             # Sethdseed parameter validity
             assert_raises_rpc_error(-1, 'sethdseed', self.nodes[0].sethdseed, False, new_seed, 0)
             assert_raises_rpc_error(-5, "Invalid private key", self.nodes[1].sethdseed, False, "not_wif")
-            assert_raises_rpc_error(-1, "JSON value is not a boolean as expected", self.nodes[1].sethdseed, "Not_bool")
-            assert_raises_rpc_error(-1, "JSON value is not a string as expected", self.nodes[1].sethdseed, False, True)
+            assert_raises_rpc_error(-1, "JSON value of type string is not of expected type bool", self.nodes[1].sethdseed, "Not_bool")
+            assert_raises_rpc_error(-1, "JSON value of type bool is not of expected type string", self.nodes[1].sethdseed, False, True)
             assert_raises_rpc_error(-5, "Already have this key", self.nodes[1].sethdseed, False, new_seed)
             assert_raises_rpc_error(-5, "Already have this key", self.nodes[1].sethdseed, False, self.nodes[1].dumpprivkey(self.nodes[1].getnewaddress()))
 

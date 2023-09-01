@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <bench/bench.h>
-#include <chainparams.h>
 #include <consensus/validation.h>
 #include <crypto/sha256.h>
 #include <test/util/mining.h>
@@ -12,7 +11,6 @@
 #include <test/util/wallet.h>
 #include <txmempool.h>
 #include <validation.h>
-#include <util/convert.h>
 
 
 #include <vector>
@@ -32,7 +30,7 @@ static void AssembleBlock(benchmark::Bench& bench)
         CMutableTransaction tx;
         tx.vin.push_back(MineBlock(test_setup->m_node, P2WSH_OP_TRUE));
         tx.vin.back().scriptWitness = witness;
-        tx.vout.emplace_back(1337, P2WSH_OP_TRUE);
+        tx.vout.emplace_back(101337, P2WSH_OP_TRUE);
         if (NUM_BLOCKS - b >= coinbaseMaturity)
             txs.at(b) = MakeTransactionRef(tx);
     }

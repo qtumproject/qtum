@@ -72,7 +72,6 @@ void ReceiveRequestDialog::setModel(WalletModel *_model)
 
     requestPaymentDialog->setModel(model);
 
-
     // update the display unit if necessary
     update();
 }

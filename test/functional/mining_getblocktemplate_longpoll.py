@@ -12,7 +12,7 @@ from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import get_rpc_proxy
 from test_framework.wallet import MiniWallet
-from test_framework.qtum import generatesynchronized
+from test_framework.qtum import generatesynchronized 
 
 class LongpollThread(threading.Thread):
     def __init__(self, node):
@@ -31,7 +31,7 @@ class GetBlockTemplateLPTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.supports_cli = False
-        self.requires_wallet = True
+        self.requires_wallet = True 
 
     def run_test(self):
         self.log.info("Warning: this test will take about 70 seconds in the best case. Be patient.")

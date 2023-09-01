@@ -33,6 +33,10 @@ class Node;
 class Wallet;
 } // namespace interfaces
 
+namespace fs {
+class path;
+}
+
 class AskPassphraseDialog;
 class CreateWalletActivity;
 class CreateWalletDialog;
@@ -126,7 +130,7 @@ Q_SIGNALS:
 
 private:
     void askPassphrase();
-    void askDevice();
+    void askDevice(); 
     void createWallet();
     void finish();
 
@@ -160,6 +164,22 @@ public:
     LoadWalletsActivity(WalletController* wallet_controller, QWidget* parent_widget);
 
     void load();
+};
+
+class RestoreWalletActivity : public WalletControllerActivity
+{
+    Q_OBJECT
+
+public:
+    RestoreWalletActivity(WalletController* wallet_controller, QWidget* parent_widget);
+
+    void restore(const fs::path& backup_file, const std::string& wallet_name);
+
+Q_SIGNALS:
+    void restored(WalletModel* wallet_model);
+
+private:
+    void finish();
 };
 
 #endif // BITCOIN_QT_WALLETCONTROLLER_H

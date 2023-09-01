@@ -28,7 +28,7 @@ class QtumDGP {
     
 public:
 
-    QtumDGP(QtumState* _state, CChainState& _chainstate, bool _dgpevm = true) : dgpevm(_dgpevm), state(_state), chainstate(_chainstate) { initDataSchedule(); }
+    QtumDGP(QtumState* _state, Chainstate& _chainstate, bool _dgpevm = true) : dgpevm(_dgpevm), state(_state), chainstate(_chainstate) { initDataSchedule(); }
 
     dev::eth::EVMSchedule getGasSchedule(int blockHeight);
 
@@ -76,7 +76,7 @@ private:
 
     const QtumState* state;
 
-    CChainState& chainstate;
+    Chainstate& chainstate;
 
     dev::Address templateContract;
 

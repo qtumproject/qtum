@@ -408,7 +408,7 @@ bool Executive::finalize()
     // Selfdestructs...
     if (m_ext)
         for (auto a: m_ext->sub.selfdestructs)
-            m_s.kill(a);
+            m_s.kill(a.first);
 
     // Logs...
     if (m_ext)

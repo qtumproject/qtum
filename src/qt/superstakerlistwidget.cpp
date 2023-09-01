@@ -49,6 +49,12 @@ void SuperStakerListWidget::setModel(WalletModel *_model)
         connect(m_superStakerModel, SIGNAL(layoutChanged()), this, SLOT(on_layoutChanged()));
         connect(m_superStakerModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(on_dataChanged(QModelIndex, QModelIndex)));
 
+        // Set model rows
+        for(SuperStakerItemWidget* p_row : m_rows)
+        {
+            p_row->setModel(m_model);
+        }
+
         // Add items
         on_rowsInserted(QModelIndex(), 0, m_superStakerModel->rowCount() - 1);
     }
@@ -57,6 +63,15 @@ void SuperStakerListWidget::setModel(WalletModel *_model)
 void SuperStakerListWidget::setClientModel(ClientModel *_clientModel)
 {
     m_clientModel = _clientModel;
+
+    // Set client rows
+    if(m_clientModel)
+    {
+        for(SuperStakerItemWidget* p_row : m_rows)
+        {
+            p_row->setClientModel(m_clientModel);
+        }
+    }
 }
 
 void SuperStakerListWidget::on_rowsInserted(const QModelIndex &, int start, int end)

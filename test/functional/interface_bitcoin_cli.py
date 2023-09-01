@@ -7,7 +7,7 @@
 from decimal import Decimal
 import re
 
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD, COINBASE_MATURITY
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD, COINBASE_MATURITY 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,

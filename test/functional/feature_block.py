@@ -130,8 +130,7 @@ class FullBlockTest(BitcoinTestFramework):
         blocks = []
         for i in range(NUM_BUFFER_BLOCKS_TO_GENERATE):
             blocks.append(self.next_block(f"maturitybuffer.{i}"))
-            self.save_spendable_output()
-        
+            self.save_spendable_output()        
         for i in range(0, len(blocks), 100):
             self.send_blocks(blocks[i:i+100])
         self.send_blocks(blocks[i:])

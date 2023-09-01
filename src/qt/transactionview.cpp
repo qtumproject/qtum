@@ -18,7 +18,7 @@
 #include <qt/walletmodel.h>
 #include <qt/styleSheet.h>
 
-#include <node/ui_interface.h>
+#include <node/interface_ui.h>
 
 #include <chrono>
 #include <optional>
@@ -121,7 +121,6 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
 
     transactionView = new QTableView(this);
     transactionView->setObjectName("transactionView");
-
     if(hideFilter)
     {
         createDateRangeWidget();
@@ -560,7 +559,7 @@ void TransactionView::openThirdPartyTxUrl(QString url)
 QWidget *TransactionView::createDateRangeWidget()
 {
     dateRangeWidget = new QFrame();
-    dateRangeWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    dateRangeWidget->setFrameStyle(static_cast<int>(QFrame::Panel) | static_cast<int>(QFrame::Raised));
     dateRangeWidget->setContentsMargins(1,1,1,8);
     QHBoxLayout *layout = new QHBoxLayout(dateRangeWidget);
     layout->setContentsMargins(0,0,0,0);

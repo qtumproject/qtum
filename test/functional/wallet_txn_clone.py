@@ -49,7 +49,7 @@ class TxnMallTest(BitcoinTestFramework):
             output_type = "legacy"
 
         # All nodes should start with 1,250 BTC:
-        starting_balance = 25*INITIAL_BLOCK_REWARD
+        starting_balance = 25*INITIAL_BLOCK_REWARD 
         for i in range(3):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
 
@@ -103,7 +103,7 @@ class TxnMallTest(BitcoinTestFramework):
         # matured block, minus tx1 and tx2 amounts, and minus transaction fees:
         expected = starting_balance + node0_tx1["fee"] + node0_tx2["fee"]
         if self.options.mine_block:
-            expected += INITIAL_BLOCK_REWARD
+            expected += INITIAL_BLOCK_REWARD 
         expected += tx1["amount"] + tx1["fee"]
         expected += tx2["amount"] + tx2["fee"]
         assert_equal(self.nodes[0].getbalance(), expected)
@@ -143,9 +143,9 @@ class TxnMallTest(BitcoinTestFramework):
 
         # Check node0's total balance; should be same as before the clone, + 100 BTC for 2 matured,
         # less possible orphaned matured subsidy
-        expected += 2*INITIAL_BLOCK_REWARD
+        expected += 2*INITIAL_BLOCK_REWARD 
         if (self.options.mine_block):
-            expected -= INITIAL_BLOCK_REWARD
+            expected -= INITIAL_BLOCK_REWARD 
         assert_equal(self.nodes[0].getbalance(), expected)
 
 

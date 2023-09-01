@@ -27,7 +27,7 @@ static const unsigned int DEFAULT_MAX_ORPHAN_BLOCKS = 40;
 /** Default for -headerspamfilter, use header spam filter */
 static const bool DEFAULT_HEADER_SPAM_FILTER = true;
 /** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */
-static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE = 500;
+static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE = 2000;
 /** Default for -headerspamfiltermaxavg, maximum average size of an index occurrence in the header spam filter */
 static const unsigned int DEFAULT_HEADER_SPAM_FILTER_MAX_AVG = 10;
 /** Default for -headerspamfilterignoreport, ignore the port in the ip address when looking for header spam,
@@ -44,15 +44,19 @@ struct CNodeStateStats {
     int m_starting_height = -1;
     std::chrono::microseconds m_ping_wait;
     std::vector<int> vHeightInFlight;
+    bool m_relay_txs;
+    CAmount m_fee_filter_received;
     uint64_t m_addr_processed = 0;
     uint64_t m_addr_rate_limited = 0;
     bool m_addr_relay_enabled{false};
+    ServiceFlags their_services;
+    int64_t presync_height{-1};
 };
 
 class PeerManager : public CValidationInterface, public NetEventsInterface
 {
 public:
-    static std::unique_ptr<PeerManager> make(const CChainParams& chainparams, CConnman& connman, AddrMan& addrman,
+    static std::unique_ptr<PeerManager> make(CConnman& connman, AddrMan& addrman,
                                              BanMan* banman, ChainstateManager& chainman,
                                              CTxMemPool& pool, bool ignore_incoming_txs);
     virtual ~PeerManager() { }
@@ -84,12 +88,8 @@ public:
     /** Set the best height */
     virtual void SetBestHeight(int height) = 0;
 
-    /**
-     * Increment peer's misbehavior score. If the new value >= DISCOURAGEMENT_THRESHOLD, mark the node
-     * to be discouraged, meaning the peer might be disconnected and added to the discouragement filter.
-     * Public for unit testing.
-     */
-    virtual void Misbehaving(const NodeId pnode, const int howmuch, const std::string& message) = 0;
+    /* Public for unit testing. */
+    virtual void UnitTestMisbehaving(NodeId peer_id, int howmuch) = 0;
 
     /**
      * Evict extra outbound peers. If we think our tip may be stale, connect to an extra outbound.
@@ -100,6 +100,9 @@ public:
     /** Process a single message from a peer. Public for fuzz testing */
     virtual void ProcessMessage(CNode& pfrom, const std::string& msg_type, CDataStream& vRecv,
                                 const std::chrono::microseconds time_received, const std::atomic<bool>& interruptMsgProc) = 0;
+
+    /** This function is used for testing the stale tip eviction logic, see denialofservice_tests.cpp */
+    virtual void UpdateLastBlockAnnounceTime(NodeId node, int64_t time_in_seconds) = 0;
 
     /** Initialize clean block index */
     virtual void InitCleanBlockIndex() = 0;

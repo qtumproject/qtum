@@ -22,7 +22,7 @@ from test_framework.script import (
 )
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.descriptors import descsum_create
-from test_framework.qtumconfig import *
+from test_framework.qtumconfig import * 
 from test_framework.util import (
     assert_equal,
     assert_greater_than,
@@ -33,7 +33,7 @@ from test_framework.wallet_util import (
     get_multisig,
     test_address,
 )
-from test_framework.qtum import convert_btc_bech32_address_to_qtum, convert_btc_address_to_qtum
+from test_framework.qtum import convert_btc_bech32_address_to_qtum, convert_btc_address_to_qtum 
 
 class ImportMultiTest(BitcoinTestFramework):
     def set_test_params(self):

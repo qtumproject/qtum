@@ -47,7 +47,7 @@ public:
     /// parameter interaction/setup based on rules
     void parameterSetup();
     /// Create options model
-    void createOptionsModel(bool resetSettings);
+    [[nodiscard]] bool createOptionsModel(bool resetSettings);
     /// Initialize prune setting
     void InitPruneSetting(int64_t prune_MiB);
     /// Create main window
@@ -118,7 +118,7 @@ private:
     std::unique_ptr<interfaces::Node> m_node;
 
     void startThread();
-    void restart(const QString& commandLine);
+    void restart(const QString &program, const QStringList &arguments);
 
     QString restorePath;
     QString restoreParam;

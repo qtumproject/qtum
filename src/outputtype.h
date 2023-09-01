@@ -6,7 +6,6 @@
 #ifndef BITCOIN_OUTPUTTYPE_H
 #define BITCOIN_OUTPUTTYPE_H
 
-#include <attributes.h>
 #include <script/signingprovider.h>
 #include <script/standard.h>
 
@@ -21,6 +20,7 @@ enum class OutputType {
     BECH32,
     BECH32M,
     P2PK,
+    UNKNOWN,
 };
 
 static constexpr auto OUTPUT_TYPES = std::array{

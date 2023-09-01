@@ -62,7 +62,7 @@ class QtumRPCWaitforlogs(BitcoinTestFramework):
         assert_equal(ret['entries'][0]['transactionIndex'], 1)
         assert_equal(ret['entries'][0]['from'], send_result[0]['hash160'])
         assert_equal(ret['entries'][0]['to'], contract_addresses[0])
-        assert_equal(ret['entries'][0]['gasUsed'], 30183)
+        assert_equal(ret['entries'][0]['gasUsed'], 27283)
         assert_equal(ret['entries'][0]['contractAddress'], contract_addresses[0])
         assert_equal(ret['entries'][0]['topics'], ["c5c442325655248f6bccf5c6181738f8755524172cea2a8bd1e38e43f833e7f2"])
         assert_equal(ret['entries'][0]['data'], "000000000000000000000000000000000000000000000000000000000000000d000000000000000000000000000000000000000000000000000000000000000d0000000000000000000000000000000000000000000000000000000000000000")
@@ -88,7 +88,7 @@ class QtumRPCWaitforlogs(BitcoinTestFramework):
         assert_equal(ret['entries'][0]['transactionIndex'], 1)
         assert_equal(ret['entries'][0]['from'], send_result[1]['hash160'])
         assert_equal(ret['entries'][0]['to'], contract_addresses[1])
-        assert_equal(ret['entries'][0]['gasUsed'], 44071)
+        assert_equal(ret['entries'][0]['gasUsed'], 45371)
         assert_equal(ret['entries'][0]['contractAddress'], contract_addresses[1])
         assert_equal(ret['entries'][0]['topics'], ["746f706963203100000000000000000000000000000000000000000000000000","746f706963203200000000000000000000000000000000000000000000000000"
                                                 ,"746f706963203300000000000000000000000000000000000000000000000000","746f706963203400000000000000000000000000000000000000000000000000"])

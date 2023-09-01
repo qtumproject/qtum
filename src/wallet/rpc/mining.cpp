@@ -26,11 +26,26 @@ RPCHelpMan getmininginfo()
                         {RPCResult::Type::NUM, "blocks", "The current block"},
                         {RPCResult::Type::NUM, "currentblockweight", /*optional=*/true, "The block weight of the last assembled block (only present if a block was ever assembled)"},
                         {RPCResult::Type::NUM, "currentblocktx", /*optional=*/true, "The number of block transactions of the last assembled block (only present if a block was ever assembled)"},
-                        {RPCResult::Type::NUM, "difficulty", "The current difficulty"},
+                        {RPCResult::Type::OBJ, "difficulty", "The current difficulty",
+                        {
+                            {RPCResult::Type::NUM, "proof-of-work", "Coinbase difficulty"},
+                            {RPCResult::Type::NUM, "proof-of-stake", "Coinstake difficulty"},
+                            {RPCResult::Type::NUM, "search-interval", "The search interval"},
+                        }},
                         {RPCResult::Type::NUM, "networkhashps", "The network hashes per second"},
                         {RPCResult::Type::NUM, "pooledtx", "The size of the mempool"},
                         {RPCResult::Type::STR, "chain", "current network name (main, test, signet, regtest)"},
                         {RPCResult::Type::STR, "warnings", "any network and blockchain warnings"},
+                        {RPCResult::Type::NUM, "blockvalue", "The block subsidy"},
+                        {RPCResult::Type::NUM, "netmhashps", "Network PoW hash power"},
+                        {RPCResult::Type::NUM, "netstakeweight", "Network stake weight"},
+                        {RPCResult::Type::STR, "errors", "Error messages"},
+                        {RPCResult::Type::OBJ, "stakeweight", "The stake weight",
+                        {
+                            {RPCResult::Type::NUM, "minimum", "The minimum stake weight"},
+                            {RPCResult::Type::NUM, "maximum", "The maximum stake weight"},
+                            {RPCResult::Type::NUM, "combined", "The combined stake weight"},
+                        }},
                     }},
                 RPCExamples{
                     HelpExampleCli("getmininginfo", "")
@@ -64,8 +79,8 @@ RPCHelpMan getmininginfo()
     if (BlockAssembler::m_last_block_weight) obj.pushKV("currentblockweight", *BlockAssembler::m_last_block_weight);
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
 
-    diff.pushKV("proof-of-work",   GetDifficulty(GetLastBlockIndex(pindexBestHeader, false)));
-    diff.pushKV("proof-of-stake",  GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
+    diff.pushKV("proof-of-work",   GetDifficulty(GetLastBlockIndex(chainman.m_best_header, false)));
+    diff.pushKV("proof-of-stake",  GetDifficulty(GetLastBlockIndex(chainman.m_best_header, true)));
     diff.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
     obj.pushKV("difficulty",       diff);
 
@@ -73,7 +88,7 @@ RPCHelpMan getmininginfo()
     obj.pushKV("blockvalue",    (uint64_t)GetBlockSubsidy(active_chain.Height(), consensusParams));
 
     obj.pushKV("netmhashps",       GetPoWMHashPS(chainman));
-    obj.pushKV("netstakeweight",   GetPoSKernelPS());
+    obj.pushKV("netstakeweight",   GetPoSKernelPS(chainman));
     obj.pushKV("errors",           GetWarnings("statusbar").original);
     obj.pushKV("networkhashps",    GetReqNetworkHashPS(request, chainman));
     obj.pushKV("pooledtx",         (uint64_t)mempool.size());
@@ -100,11 +115,13 @@ RPCHelpMan getstakinginfo()
                     {
                         {RPCResult::Type::BOOL, "enabled", "'true' if staking is enabled"},
                         {RPCResult::Type::BOOL, "staking", "'true' if wallet is currently staking"},
-                        {RPCResult::Type::STR, "errors", "error messages"},
+                        {RPCResult::Type::STR, "errors", "Error messages"},
+                        {RPCResult::Type::NUM, "currentblocktx", /*optional=*/true, "The number of block transactions of the last assembled block (only present if a block was ever assembled)"},
                         {RPCResult::Type::NUM, "pooledtx", "The size of the mempool"},
                         {RPCResult::Type::NUM, "difficulty", "The current difficulty"},
                         {RPCResult::Type::NUM, "search-interval", "The staker search interval"},
                         {RPCResult::Type::NUM, "weight", "The staker weight"},
+                        {RPCResult::Type::NUM, "delegateweight", "Delegate weight"},
                         {RPCResult::Type::NUM, "netstakeweight", "Network stake weight"},
                         {RPCResult::Type::NUM, "expectedtime", "Expected time to earn reward"},
                     }
@@ -117,6 +134,9 @@ RPCHelpMan getstakinginfo()
 {
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
+
+    const CTxMemPool& mempool = pwallet->chain().mempool();
+    ChainstateManager& chainman = pwallet->chain().chainman();
 
     uint64_t nWeight = 0;
     uint64_t nStakerWeight = 0;
@@ -131,12 +151,10 @@ RPCHelpMan getstakinginfo()
     }
 
     LOCK(cs_main);
-    const CTxMemPool& mempool = pwallet->chain().mempool();
-
-    uint64_t nNetworkWeight = GetPoSKernelPS();
+    uint64_t nNetworkWeight = GetPoSKernelPS(chainman);
     bool staking = lastCoinStakeSearchInterval && nWeight;
     const Consensus::Params& consensusParams = Params().GetConsensus();
-    int64_t nTargetSpacing = consensusParams.TargetSpacing(pindexBestHeader->nHeight);
+    int64_t nTargetSpacing = consensusParams.TargetSpacing(chainman.m_best_header->nHeight);
     uint64_t nExpectedTime = staking ? (nTargetSpacing * nNetworkWeight / nWeight) : 0;
 
     UniValue obj(UniValue::VOBJ);
@@ -148,7 +166,7 @@ RPCHelpMan getstakinginfo()
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
     obj.pushKV("pooledtx", (uint64_t)mempool.size());
 
-    obj.pushKV("difficulty", GetDifficulty(GetLastBlockIndex(pindexBestHeader, true)));
+    obj.pushKV("difficulty", GetDifficulty(GetLastBlockIndex(chainman.m_best_header, true)));
     obj.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
 
     obj.pushKV("weight", (uint64_t)nStakerWeight);

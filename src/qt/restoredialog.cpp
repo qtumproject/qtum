@@ -92,6 +92,7 @@ void RestoreDialog::on_btnBoxRestore_accepted()
         {
             if(model->restoreWallet(filename, param))
             {
+                qApp->setQuitOnLastWindowClosed(true);
                 qApp->closeAllWindows();
             }
         }

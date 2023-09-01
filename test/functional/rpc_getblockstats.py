@@ -13,7 +13,7 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
-from test_framework.qtumconfig import *
+from test_framework.qtumconfig import * 
 import json
 import os
 
@@ -21,7 +21,7 @@ TESTSDIR = os.path.dirname(os.path.realpath(__file__))
 
 class GetblockstatsTest(BitcoinTestFramework):
 
-    start_height = COINBASE_MATURITY+1
+    start_height = COINBASE_MATURITY+1 
     max_stat_pos = 2
 
     def add_options(self, parser):

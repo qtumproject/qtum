@@ -592,8 +592,6 @@ public:
         allowed_syscalls.insert(__NR_getcwd);          // get current working directory
         allowed_syscalls.insert(__NR_getdents);        // get directory entries
         allowed_syscalls.insert(__NR_getdents64);      // get directory entries
-        allowed_syscalls.insert(__NR_inotify_rm_watch);// remove an existing watch from an inotify instance
-        allowed_syscalls.insert(__NR_linkat);          // create relative to a directory file descriptor
         allowed_syscalls.insert(__NR_lstat);           // get file status
         allowed_syscalls.insert(__NR_mkdir);           // create a directory
         allowed_syscalls.insert(__NR_newfstatat);      // get file status
@@ -740,6 +738,7 @@ public:
         allowed_syscalls.insert(__NR_sched_getscheduler); // get scheduling policy/parameters
         allowed_syscalls.insert(__NR_sched_setscheduler); // set scheduling policy/parameters
         allowed_syscalls.insert(__NR_sched_yield);        // yield the processor
+        allowed_syscalls.insert(__NR_setpriority);        // set thread priority
     }
 
     void AllowSignalHandling()
@@ -823,7 +822,6 @@ bool SetupSyscallSandbox(bool log_syscall_violation_before_terminating)
             return false;
         }
     }
-    SetSyscallSandboxPolicy(SyscallSandboxPolicy::INITIALIZATION);
     return true;
 }
 

@@ -137,6 +137,8 @@ public:
     bool HasHardwareWalletSupport() const { return fHasHardwareWalletSupport; }
     void UpdateLondonHeight(int nHeight);
     void UpdateTaprootHeight(int nHeight);
+    void UpdateShanghaiHeight(int nHeight);
+
     //! Get allowed assumeutxo configuration.
     //! @see ChainstateManager
     const MapAssumeutxo& Assumeutxo() const { return m_assumeutxo_data; }
@@ -258,5 +260,10 @@ void UpdateLondonHeight(int nHeight);
  * Allows modifying the taproot block height regtest parameter.
  */
 void UpdateTaprootHeight(int nHeight);
+
+/**
+ * Allows modifying the shanghai block height regtest parameter.
+ */
+void UpdateShanghaiHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H

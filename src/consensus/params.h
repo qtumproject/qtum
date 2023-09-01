@@ -7,7 +7,10 @@
 #define BITCOIN_CONSENSUS_PARAMS_H
 
 #include <uint256.h>
+
+#include <chrono>
 #include <limits>
+#include <map>
 
 namespace Consensus {
 
@@ -38,11 +41,11 @@ constexpr bool ValidDeployment(DeploymentPos dep) { return dep < MAX_VERSION_BIT
  */
 struct BIP9Deployment {
     /** Bit position to select the particular bit in nVersion. */
-    int bit;
+    int bit{28};
     /** Start MedianTime for version bits miner confirmation. Can be a date in the past */
-    int64_t nStartTime;
+    int64_t nStartTime{NEVER_ACTIVE};
     /** Timeout/expiry MedianTime for the deployment attempt. */
-    int64_t nTimeout;
+    int64_t nTimeout{NEVER_ACTIVE};
     /** If lock in occurs, delay activation until at least this block
      *  height.  Note that activation will only occur on a retarget
      *  boundary.
@@ -71,8 +74,13 @@ struct Params {
     uint256 hashGenesisBlock;
     int nSubsidyHalvingInterval;
     int nSubsidyHalvingIntervalV2;
-    /* Block hash that is excepted from BIP16 enforcement */
-    uint256 BIP16Exception;
+    /**
+     * Hashes of blocks that
+     * - are known to be consensus valid, and
+     * - buried in the chain, and
+     * - fail if the default script verify flags are applied.
+     */
+    std::map<uint256, uint32_t> script_flag_exceptions;
     /** Block height and hash at which BIP34 becomes active */
     int BIP34Height;
     uint256 BIP34Hash;
@@ -105,6 +113,8 @@ struct Params {
     int nMuirGlacierHeight;
     /** Block height at which EVM London fork becomes active */
     int nLondonHeight;
+    /** Block height at which EVM Shanghai fork becomes active */
+    int nShanghaiHeight;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
@@ -126,6 +136,10 @@ struct Params {
     int64_t nPowTargetTimespan;
     int64_t nPowTargetTimespanV2;
     int64_t nRBTPowTargetTimespan;
+    std::chrono::seconds TargetSpacingChrono(int height) const
+    {
+        return std::chrono::seconds{TargetSpacing(height)};
+    }
     int64_t DifficultyAdjustmentInterval(int height) const
     {
         int64_t targetTimespan = TargetTimespan(height);
@@ -181,6 +195,10 @@ struct Params {
     int64_t StakeTimestampMask(int height) const
     {
         return height < nReduceBlocktimeHeight ? nStakeTimestampMask : nRBTStakeTimestampMask;
+    }
+    int64_t MinStakeTimestampMask() const
+    {
+        return nRBTStakeTimestampMask;
     }
     int SubsidyHalvingInterval(int height) const
     {

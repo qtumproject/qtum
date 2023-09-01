@@ -5,7 +5,6 @@
 #ifndef BITCOIN_NODE_TRANSACTION_H
 #define BITCOIN_NODE_TRANSACTION_H
 
-#include <attributes.h>
 #include <policy/feerate.h>
 #include <primitives/transaction.h>
 #include <util/error.h>
@@ -15,7 +14,7 @@ class CTxMemPool;
 namespace Consensus {
 struct Params;
 }
-class CChainState;
+class Chainstate;
 
 namespace node {
 struct NodeContext;
@@ -59,7 +58,7 @@ static const CFeeRate DEFAULT_MAX_RAW_TX_FEE_RATE{1 * COIN};
  * @param[out] hashBlock       The block hash, if the tx was found via -txindex or block_index
  * @returns                    The tx if found, otherwise nullptr
  */
-CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, const Consensus::Params& consensusParams, uint256& hashBlock, CChainState* chainstate = nullptr);
+CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, const Consensus::Params& consensusParams, uint256& hashBlock, Chainstate* chainstate = nullptr);
 } // namespace node
 
 #endif // BITCOIN_NODE_TRANSACTION_H

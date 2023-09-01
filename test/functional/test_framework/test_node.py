@@ -120,6 +120,8 @@ class TestNode():
             self.args.append("-logthreadnames")
         if self.version_is_at_least(219900):
             self.args.append("-logsourcelocations")
+        if self.version_is_at_least(239000):
+            self.args.append("-loglevel=trace")
 
         self.cli = TestNodeCLI(bitcoin_cli, self.datadir)
         self.use_cli = use_cli
@@ -208,8 +210,7 @@ class TestNode():
         delete_cookie_file(self.datadir, self.chain)
 
         # add environment variable LIBC_FATAL_STDERR_=1 so that libc errors are written to stderr and not the terminal
-        subp_env = dict(os.environ, LIBC_FATAL_STDERR_="1")
-        
+        subp_env = dict(os.environ, LIBC_FATAL_STDERR_="1")    
         if not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
             
@@ -431,7 +432,7 @@ class TestNode():
         self._raise_assertion_error('Expected messages "{}" does not partially match log:\n\n{}\n\n'.format(str(expected_msgs), print_log))
 
     @contextlib.contextmanager
-    def wait_for_debug_log(self, expected_msgs, timeout=60, ignore_case=False):
+    def wait_for_debug_log(self, expected_msgs, timeout=60):
         """
         Block until we see a particular debug log message fragment or until we exceed the timeout.
         Return:
@@ -439,18 +440,17 @@ class TestNode():
         """
         time_end = time.time() + timeout * self.timeout_factor
         prev_size = self.debug_log_bytes()
-        re_flags = re.MULTILINE | (re.IGNORECASE if ignore_case else 0)
 
         yield
 
         while True:
             found = True
-            with open(self.debug_log_path, encoding='utf-8') as dl:
+            with open(self.debug_log_path, "rb") as dl:
                 dl.seek(prev_size)
                 log = dl.read()
 
             for expected_msg in expected_msgs:
-                if re.search(re.escape(expected_msg), log, flags=re_flags) is None:
+                if expected_msg not in log:
                     found = False
 
             if found:
@@ -553,6 +553,7 @@ class TestNode():
 
         Will throw if bitcoind starts without an error.
         Will throw if an expected_msg is provided and it does not match bitcoind's stdout."""
+        assert not self.running
         with tempfile.NamedTemporaryFile(dir=self.stderr_dir, delete=False) as log_stderr, \
              tempfile.NamedTemporaryFile(dir=self.stdout_dir, delete=False) as log_stdout:
             try:

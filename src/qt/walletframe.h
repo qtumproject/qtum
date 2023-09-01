@@ -66,7 +66,6 @@ private:
     TitleBar* m_title_bar = 0;
 
     void setTabBarInfo(QObject* into);
-
 public:
     WalletView* currentWalletView() const;
     WalletModel* currentWalletModel() const;

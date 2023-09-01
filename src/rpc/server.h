@@ -210,7 +210,7 @@ bool IsDeprecatedRPCEnabled(const std::string& method);
 extern CRPCTable tableRPC;
 
 extern double GetPoWMHashPS(ChainstateManager& chainman);
-extern double GetPoSKernelPS();
+extern double GetPoSKernelPS(ChainstateManager& chainman);
 extern double GetEstimatedAnnualROI(ChainstateManager& chainman);
 
 void StartRPC();
