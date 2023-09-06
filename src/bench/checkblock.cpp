@@ -8,6 +8,7 @@
 #include <chainparams.h>
 #include <consensus/validation.h>
 #include <streams.h>
+#include <util/system.h>
 #include <validation.h>
 #include <test/util/setup_common.h>
 
@@ -18,8 +19,8 @@
 static void DeserializeBlockTest(benchmark::Bench& bench)
 {
     CDataStream stream(benchmark::data::blockbench, SER_NETWORK, PROTOCOL_VERSION);
-    char a = '\0';
-    stream.write(&a, 1); // Prevent compaction
+    std::byte a{0};
+    stream.write({&a, 1}); // Prevent compaction
 
     bench.unit("block").run([&] {
         CBlock block;
@@ -32,13 +33,13 @@ static void DeserializeBlockTest(benchmark::Bench& bench)
 static void DeserializeAndCheckBlockTest(benchmark::Bench& bench)
 {
     CDataStream stream(benchmark::data::blockbench, SER_NETWORK, PROTOCOL_VERSION);
-    char a = '\0';
-    stream.write(&a, 1); // Prevent compaction
+    std::byte a{0};
+    stream.write({&a, 1}); // Prevent compaction
 
     ArgsManager bench_args;
     const auto chainParams = CreateChainParams(bench_args, CBaseChainParams::MAIN);
     const auto testing_setup = MakeNoLogFileContext<const TestingSetup>(CBaseChainParams::MAIN);
-    CChainState& chainstate = testing_setup->m_node.chainman->ActiveChainstate();
+    Chainstate& chainstate = testing_setup->m_node.chainman->ActiveChainstate();
 
     bench.unit("block").run([&] {
         CBlock block; // Note that CBlock caches its checked state, so we need to recreate it here

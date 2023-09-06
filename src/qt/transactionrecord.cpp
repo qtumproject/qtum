@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,13 +14,16 @@
 
 #include <QDateTime>
 
+using wallet::ISMINE_SPENDABLE;
+using wallet::ISMINE_WATCH_ONLY;
+using wallet::isminetype;
+
 /* Convert the keyid into hash160 string for contract.
  */
 std::string toStringHash160(const CKeyID& keyid)
 {
     return HexStr(valtype(keyid.begin(),keyid.end()));
 }
-
 /* Return positive answer if transaction should be shown in list.
  */
 bool TransactionRecord::showTransaction(const interfaces::WalletTx& wtx)
@@ -155,7 +158,6 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
 
                 if(wtx.has_create_or_call)
                     break;
-
                 if (!std::get_if<CNoDestination>(&wtx.txout_address[nOut]))
                 {
                     // Sent to Bitcoin Address
@@ -220,21 +222,8 @@ void TransactionRecord::updateStatus(const interfaces::WalletTxStatus& wtx, cons
     status.depth = wtx.depth_in_main_chain;
     status.m_cur_block_hash = block_hash;
 
-    const bool up_to_date = ((int64_t)QDateTime::currentMSecsSinceEpoch() / 1000 - block_time < MAX_BLOCK_TIME_GAP);
-    if (up_to_date && !wtx.is_final) {
-        if (wtx.lock_time < LOCKTIME_THRESHOLD) {
-            status.status = TransactionStatus::OpenUntilBlock;
-            status.open_for = wtx.lock_time - numBlocks;
-        }
-        else
-        {
-            status.status = TransactionStatus::OpenUntilDate;
-            status.open_for = wtx.lock_time;
-        }
-    }
     // For generated transactions, determine maturity
-    else if(type == TransactionRecord::Generated)
-    {
+    if (type == TransactionRecord::Generated) {
         if (wtx.blocks_to_maturity > 0)
         {
             status.status = TransactionStatus::Immature;

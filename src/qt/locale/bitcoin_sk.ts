@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>Create a new address</source>
-        <translation>Vytvoriť novú adresu</translation>
+        <translation type="unfinished">Vytvoriť novú adresu</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>Zkopírovať práve zvolenú adresu</translation>
+        <translation type="unfinished">Zkopírovať práve zvolenú adresu</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -27,7 +27,7 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation>Vymazať vybranú adresu zo zoznamu</translation>
+        <translation type="unfinished">Vymazať vybranú adresu zo zoznamu</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
@@ -35,15 +35,15 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>Exportovať dáta v aktuálnej karte do súboru</translation>
+        <translation type="unfinished">Exportovať dáta v aktuálnej karte do súboru</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>&amp;Exportovať...</translation>
+        <translation type="unfinished">&amp;Exportovať...</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Zmazať</translation>
+        <translation type="unfinished">&amp;Zmazať</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -92,7 +92,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
         <translation type="unfinished">Čiarkou oddelený súbor</translation>
     </message>
     <message>
@@ -124,19 +124,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>AskPassphraseDialog</name>
     <message>
         <source>Passphrase Dialog</source>
-        <translation>Dialóg hesla</translation>
+        <translation type="unfinished">Dialóg hesla</translation>
     </message>
     <message>
         <source>Enter passphrase</source>
-        <translation>Zadajte heslo</translation>
+        <translation type="unfinished">Zadajte heslo</translation>
     </message>
     <message>
         <source>New passphrase</source>
-        <translation>Nové heslo</translation>
+        <translation type="unfinished">Nové heslo</translation>
     </message>
     <message>
         <source>Repeat new passphrase</source>
-        <translation>Zopakujte nové heslo</translation>
+        <translation type="unfinished">Zopakujte nové heslo</translation>
     </message>
     <message>
         <source>Show passphrase</source>
@@ -165,7 +165,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Varovanie: Ak zašifrujete peňaženku a stratíte heslo, &lt;b&gt;STRATÍTE VŠETKY VAŠE QTUMY&lt;/b&gt;!</translation>
-    </message>
+  </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Ste si istí, že si želáte zašifrovať peňaženku?</translation>
@@ -243,7 +243,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>QtumApplication</name>
+    <name>BitcoinApplication</name>
+    <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">Nezachytená výnimka</translation>
+    </message>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Kritická chyba. %1  nemôže ďalej bezpečne pokračovať a ukončí sa.</translation>
@@ -252,9 +256,23 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Internal error</source>
         <translation type="unfinished">Interná chyba</translation>
     </message>
-    </context>
+    <message>
+        <source>An internal error occurred. %1 will attempt to continue safely. This is an unexpected bug which can be reported as described below.</source>
+        <translation type="unfinished">Nastala interná chyba. %1 sa pokúsi bezpečne pokračovať. Toto je neočakávaná chyba, ktorú môžete nahlásiť podľa postupu nižšie.</translation>
+    </message>
+</context>
 <context>
     <name>QObject</name>
+    <message>
+        <source>Do you want to reset settings to default values, or to abort without making changes?</source>
+        <extracomment>Explanatory text shown on startup when the settings file cannot be read. Prompts user to make a choice between resetting or aborting.</extracomment>
+        <translation type="unfinished">Chcete vrátiť nastavenia na predvolené hodnoty alebo ukončiť bez vykonania zmien?</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. Check that settings file is writable, or try running with -nosettings.</source>
+        <extracomment>Explanatory text shown on startup when the settings file could not be written. Prompts user to check that we have the ability to write to the file. Explains that the user has the option of running without a settings file.</extracomment>
+        <translation type="unfinished">Nastala kritická chyba. Skontrolujte, že je možné zapisovať do súboru nastavení alebo skúste spustiť s parametrom -nosettings.</translation>
+    </message>
     <message>
         <source>Error: Specified data directory "%1" does not exist.</source>
         <translation type="unfinished">Chyba: Zadaný adresár pre dáta „%1“ neexistuje.</translation>
@@ -266,6 +284,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Error: %1</source>
         <translation type="unfinished">Chyba: %1</translation>
+    </message>
+    <message>
+        <source>%1 didn't yet exit safely…</source>
+        <translation type="unfinished">%1 ešte nebol bezpečne ukončený…</translation>
     </message>
     <message>
         <source>unknown</source>
@@ -280,12 +302,42 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Zadajte qtum adresu (napr. %1)</translation>
     </message>
     <message>
+        <source>Unroutable</source>
+        <translation type="unfinished">Nesmerovateľné</translation>
+    </message>
+    <message>
+        <source>Internal</source>
+        <translation type="unfinished">Interné</translation>
+    </message>
+    <message>
         <source>Inbound</source>
+        <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
         <translation type="unfinished">Prichádzajúce</translation>
     </message>
     <message>
         <source>Outbound</source>
+        <extracomment>An outbound connection to a peer. An outbound connection is a connection initiated by us.</extracomment>
         <translation type="unfinished">Odchádzajúce</translation>
+    </message>
+    <message>
+        <source>Full Relay</source>
+        <extracomment>Peer connection type that relays all network information.</extracomment>
+        <translation type="unfinished">Plné preposielanie</translation>
+    </message>
+    <message>
+        <source>Block Relay</source>
+        <extracomment>Peer connection type that relays network information about blocks and not transactions or addresses.</extracomment>
+        <translation type="unfinished">Preposielanie blokov</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <extracomment>Peer connection type established manually through one of several methods.</extracomment>
+        <translation type="unfinished">Manuálne</translation>
+    </message>
+    <message>
+        <source>Address Fetch</source>
+        <extracomment>Short-lived peer connection type that solicits known addresses from a peer.</extracomment>
+        <translation type="unfinished">Získanie adries</translation>
     </message>
     <message>
         <source>None</source>
@@ -297,42 +349,42 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>%n second(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
+        <translation type="unfinished">
+            <numerusform>%n sekunda</numerusform>
+            <numerusform>%n sekundy</numerusform>
+            <numerusform>%n sekúnd</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
+        <translation type="unfinished">
+            <numerusform>%n minúta</numerusform>
+            <numerusform>%n minúty</numerusform>
+            <numerusform>%n minút</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-            <numerusform />
+            <numerusform>%n hodina</numerusform>
+            <numerusform>%n hodiny</numerusform>
+            <numerusform>%n hodín</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n day(s)</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-            <numerusform />
+            <numerusform>%n deň</numerusform>
+            <numerusform>%n dni</numerusform>
+            <numerusform>%n dní</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n week(s)</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-            <numerusform />
+            <numerusform>%n týždeň</numerusform>
+            <numerusform>%n týždne</numerusform>
+            <numerusform>%n týždňov</numerusform>
         </translation>
     </message>
     <message>
@@ -342,37 +394,688 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>%n year(s)</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-            <numerusform />
+            <numerusform>%n rok</numerusform>
+            <numerusform>%n roky</numerusform>
+            <numerusform>%n rokov</numerusform>
         </translation>
     </message>
     </context>
 <context>
-    <name>QtumGUI</name>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Súbor nastavení nemohol byť prečítaný</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Súbor nastavení nemohol byť zapísaný</translation>
+    </message>
+    <message>
+        <source>The %s developers</source>
+        <translation type="unfinished">Vývojári %s</translation>
+    </message>
+    <message>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s je poškodený. Skúste použiť nástroj peňaženky qtum-wallet na záchranu alebo obnovu zálohy.</translation>
+    </message>
+    <message>
+        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
+        <translation type="unfinished">-maxtxfee je nastavené veľmi vysoko! Takto vysoký poplatok môže byť zaplatebý v jednej transakcii.</translation>
+    </message>
+    <message>
+        <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
+        <translation type="unfinished">Nie je možné degradovať peňaženku z verzie %i na verziu %i. Verzia peňaženky nebola zmenená.</translation>
+    </message>
+    <message>
+        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
+        <translation type="unfinished">Nemožné uzamknúť zložku %s. %s pravdepodobne už beží.</translation>
+    </message>
+    <message>
+        <source>Cannot upgrade a non HD split wallet from version %i to version %i without upgrading to support pre-split keypool. Please use version %i or no version specified.</source>
+        <translation type="unfinished">Nie je možné vylepšiť peňaženku bez rozdelenia HD z verzie %i na verziu %i bez upgradovania na podporu kľúčov pred rozdelením. Prosím použite verziu %i alebo nezadávajte verziu.</translation>
+    </message>
+    <message>
+        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
+        <translation type="unfinished">Distribuované pod softvérovou licenciou MIT, pozri sprievodný súbor %s alebo %s</translation>
+    </message>
+    <message>
+        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
+        <translation type="unfinished">Nastala chyba pri čítaní súboru %s! Všetkz kľúče sa prečítali správne, ale dáta o transakcíách alebo záznamy v adresári môžu chýbať alebo byť nesprávne.</translation>
+    </message>
+    <message>
+        <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
+        <translation type="unfinished">Chyba pri čítaní %s! Transakčné údaje môžu chýbať alebo sú chybné. Znovu prečítam peňaženku.</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile format record is incorrect. Got "%s", expected "format".</source>
+        <translation type="unfinished">Chyba: Formát záznamu v súbore dumpu je nesprávny. Obdržaný "%s", očakávaný "format".</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile identifier record is incorrect. Got "%s", expected "%s".</source>
+        <translation type="unfinished">Chyba: Záznam identifikátora v súbore dumpu je nesprávny. Obdržaný "%s", očakávaný "%s".</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Chyba: Verzia súboru dumpu nie je podporovaná. Táto verzia peňaženky qtum podporuje iba súbory dumpu verzie 1. Obdržal som súbor s verziou %s</translation>
+    </message>
+    <message>
+        <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
+        <translation type="unfinished">Chyba: Staršie peňaženky podporujú len adresy typu "legacy", "p2sh-segwit", a "bech32"</translation>
+    </message>
+    <message>
+        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
+        <translation type="unfinished">Odhad poplatku sa nepodaril. Fallbackfee je zakázaný. Počkajte niekoľko blokov alebo povoľte -fallbackfee.</translation>
+    </message>
+    <message>
+        <source>File %s already exists. If you are sure this is what you want, move it out of the way first.</source>
+        <translation type="unfinished">Súbor %s už existuje. Ak si nie ste istý, že toto chcete, presuňte ho najprv preč.</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
+        <translation type="unfinished">Neplatná suma pre -maxtxfee=&lt;amount&gt;: '%s' (aby sa transakcia nezasekla, minimálny prenosový poplatok musí byť aspoň %s)</translation>
+    </message>
+    <message>
+        <source>Invalid or corrupt peers.dat (%s). If you believe this is a bug, please report it to %s. As a workaround, you can move the file (%s) out of the way (rename, move, or delete) to have a new one created on the next start.</source>
+        <translation type="unfinished">Chybný alebo poškodený súbor peers.dat (%s). Ak si myslíte, že ide o chybu, prosím nahláste to na %s. Ako dočasné riešenie môžete súbor odsunúť (%s) z umiestnenia (premenovať, presunúť, vymazať), aby sa pri ďalšom spustení vytvoril nový.</translation>
+    </message>
+    <message>
+        <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
+        <translation type="unfinished">K dispozícii je viac ako jedna adresa onion. Použitie %s pre automaticky vytvorenú službu Tor.</translation>
+    </message>
+    <message>
+        <source>No dump file provided. To use createfromdump, -dumpfile=&lt;filename&gt; must be provided.</source>
+        <translation type="unfinished">Nezadaný žiadny súbor dumpu. Pre použitie createfromdump musíte zadať -dumpfile=&lt;filename&gt;.</translation>
+    </message>
+    <message>
+        <source>No dump file provided. To use dump, -dumpfile=&lt;filename&gt; must be provided.</source>
+        <translation type="unfinished">Nezadaný žiadny súbor dumpu. Pre použitie dump musíte zadať -dumpfile=&lt;filename&gt;.</translation>
+    </message>
+    <message>
+        <source>No wallet file format provided. To use createfromdump, -format=&lt;format&gt; must be provided.</source>
+        <translation type="unfinished">Nezadaný formát súboru peňaženky. Pre použitie createfromdump musíte zadať -format=&lt;format&gt;.</translation>
+    </message>
+    <message>
+        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
+        <translation type="unfinished">Prosím skontrolujte systémový čas a dátum. Keď je váš čas nesprávny, %s nebude fungovať správne.</translation>
+    </message>
+    <message>
+        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
+        <translation type="unfinished">Keď si myslíte, že %s je užitočný, podporte nás. Pre viac informácií o software navštívte %s.</translation>
+    </message>
+    <message>
+        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
+        <translation type="unfinished">Redukcia nastavená pod minimálnu hodnotu %d MiB. Prosím použite vyššiu hodnotu.</translation>
+    </message>
+    <message>
+        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
+        <translation type="unfinished">Redukovanie: posledná synchronizácia peňaženky prebehla pred časmi blokov v redukovaných dátach. Je potrebné vykonať -reindex (v prípade redukovaného režimu stiahne znovu celý reťazec blokov)</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
+        <translation type="unfinished">SQLiteDatabase: Neznáma verzia schémy peňaženky sqlite %d. Podporovaná je iba verzia %d</translation>
+    </message>
+    <message>
+        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
+        <translation type="unfinished">Databáza blokov obsahuje blok, ktorý vyzerá byť z budúcnosti. Toto môže byť spôsobené nesprávnym systémovým časom vášho počítača. Obnovujte databázu blokov len keď ste si istý, že systémový čas je nastavený správne.</translation>
+    </message>
+    <message>
+        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
+        <translation type="unfinished">Databáza indexov blokov obsahuje 'txindex' staršieho typu. Pre uvoľnenie obsadeného miesta spustite s parametrom -reindex, inak môžete ignorovať túto chybu. Táto správa sa už nabudúce nezobrazí.</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to send after the fee has been deducted</source>
+        <translation type="unfinished">Suma je príliš malá pre odoslanie transakcie</translation>
+    </message>
+    <message>
+        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
+        <translation type="unfinished">K tejto chybe môže dôjsť, ak nebola táto peňaženka správne vypnutá a bola naposledy načítaná pomocou zostavy s novšou verziou Berkeley DB. Ak je to tak, použite softvér, ktorý naposledy načítal túto peňaženku</translation>
+    </message>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation type="unfinished">Toto je predbežná testovacia zostava - používate na vlastné riziko - nepoužívajte na ťaženie alebo obchodné aplikácie</translation>
+    </message>
+    <message>
+        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
+        <translation type="unfinished">Toto je maximálny transakčný poplatok, ktorý zaplatíte (okrem bežného poplatku), aby ste uprednostnili čiastočné vyhýbanie sa výdavkom pred pravidelným výberom mincí.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
+        <translation type="unfinished">Toto je transakčný poplatok, ktorý môžete škrtnúť, ak je zmena na tejto úrovni menšia ako prach</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
+        <translation type="unfinished">Toto je poplatok za transakciu keď odhad poplatkov ešte nie je k dispozícii.</translation>
+    </message>
+    <message>
+        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
+        <translation type="unfinished">Celková dĺžka verzie sieťového reťazca (%i) prekračuje maximálnu dĺžku (%i). Znížte počet a veľkosť komentárov.</translation>
+    </message>
+    <message>
+        <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
+        <translation type="unfinished">Nedarí sa znovu aplikovať bloky. Budete musieť prestavať databázu použitím -reindex-chainstate.</translation>
+    </message>
+    <message>
+        <source>Unknown wallet file format "%s" provided. Please provide one of "bdb" or "sqlite".</source>
+        <translation type="unfinished">Poskytnutý neznámy formát peňaženky "%s". Prosím použite "bdb" alebo "sqlite".</translation>
+    </message>
+    <message>
+        <source>Warning: Dumpfile wallet format "%s" does not match command line specified format "%s".</source>
+        <translation type="unfinished">Varovanie: Formát peňaženky súboru dumpu "%s" nesúhlasí s formátom zadaným na príkazovom riadku "%s".</translation>
+    </message>
+    <message>
+        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
+        <translation type="unfinished">Upozornenie: Boli zistené súkromné kľúče v peňaženke {%s} so zakázanými súkromnými kľúčmi.</translation>
+    </message>
+    <message>
+        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
+        <translation type="unfinished">Varovanie: Zjavne sa úplne nezhodujeme s našimi peer-mi! Možno potrebujete prejsť na novšiu verziu alebo ostatné uzly potrebujú vyššiu verziu.</translation>
+    </message>
+    <message>
+        <source>Witness data for blocks after height %d requires validation. Please restart with -reindex.</source>
+        <translation type="unfinished">Svedecké údaje pre bloky za výškou %d vyžadujú overenie. Prosím reštartujte s parametrom -reindex.</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
+        <translation type="unfinished">K návratu k neredukovanému režimu je potrebné prestavať databázu použitím -reindex. Tiež sa znova stiahne celý reťazec blokov</translation>
+    </message>
+    <message>
+        <source>%s is set very high!</source>
+        <translation type="unfinished">Hodnota %s je nastavená veľmi vysoko!</translation>
+    </message>
+    <message>
+        <source>-maxmempool must be at least %d MB</source>
+        <translation type="unfinished">-maxmempool musí byť najmenej %d MB</translation>
+    </message>
+    <message>
+        <source>A fatal internal error occurred, see debug.log for details</source>
+        <translation type="unfinished">Nastala fatálna interná chyba, pre viac informácií pozrite debug.log</translation>
+    </message>
+    <message>
+        <source>Cannot resolve -%s address: '%s'</source>
+        <translation type="unfinished">Nedá preložiť -%s adresu: '%s'</translation>
+    </message>
+    <message>
+        <source>Cannot set -forcednsseed to true when setting -dnsseed to false.</source>
+        <translation type="unfinished">Nie je možné zapnúť -forcednsseed keď je -dnsseed vypnuté.</translation>
+    </message>
+    <message>
+        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
+        <translation type="unfinished">Nepodarilo sa určiť -peerblockfilters bez -blockfilterindex.</translation>
+    </message>
+    <message>
+        <source>Cannot write to data directory '%s'; check permissions.</source>
+        <translation type="unfinished">Nie je možné zapísať do adresára ' %s'. Skontrolujte povolenia.</translation>
+    </message>
+    <message>
+        <source>The -txindex upgrade started by a previous version cannot be completed. Restart with the previous version or run a full -reindex.</source>
+        <translation type="unfinished">Upgrade -txindex spustený predchádzajúcou verziou nemôže byť dokončený. Reštartujte s prechdádzajúcou verziou programu alebo spustite s parametrom -reindex.</translation>
+    </message>
+    <message>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Qtum Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">Požiadavka %s na počúvanie na porte %u. Tento port je považovaný za "zlý" preto je nepravdepodobné, že sa naň pripojí nejaký Qtum Core partner. Pozrite doc/p2p-bad-ports.md pre detaily a celý zoznam.</translation>
+    </message>
+    <message>
+        <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
+        <translation type="unfinished">Nie je možné zadať špecifické spojenia a zároveň nechať addrman hľadať odchádzajúce spojenia.</translation>
+    </message>
+    <message>
+        <source>Error loading %s: External signer wallet being loaded without external signer support compiled</source>
+        <translation type="unfinished">Chyba pri načítaní %s: Načíta sa peňaženka s externým podpisovaním, ale podpora pre externé podpisovanie nebola začlenená do programu</translation>
+    </message>
+    <message>
+        <source>Failed to rename invalid peers.dat file. Please move or delete it and try again.</source>
+        <translation type="unfinished">Nepodarilo sa premenovať chybný súbor peers.dat. Prosím presuňte ho alebo vymažte a skúste znovu.</translation>
+    </message>
+    <message>
+        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
+        <translation type="unfinished">Nastavenie konfigurácie pre %s platí iba v sieti %s a v sekcii [%s].</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">Zistená poškodená databáza blokov</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation type="unfinished">Nepodarilo sa nájsť asmap súbor %s</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation type="unfinished">Nepodarilo sa analyzovať asmap súbor %s</translation>
+    </message>
+    <message>
+        <source>Disk space is too low!</source>
+        <translation type="unfinished">Nedostatok miesta na disku!</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">Chcete znovu zostaviť databázu blokov?</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Dokončené načítavanie</translation>
+    </message>
+    <message>
+        <source>Dump file %s does not exist.</source>
+        <translation type="unfinished">Súbor dumpu %s neexistuje.</translation>
+    </message>
+    <message>
+        <source>Error creating %s</source>
+        <translation type="unfinished">Chyba pri vytváraní %s</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">Chyba inicializácie databázy blokov</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">Chyba spustenia databázového prostredia peňaženky %s!</translation>
+    </message>
+    <message>
+        <source>Error loading %s</source>
+        <translation type="unfinished">Chyba načítania %s</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Private keys can only be disabled during creation</source>
+        <translation type="unfinished">Chyba pri načítaní %s: Súkromné kľúče môžu byť zakázané len počas vytvárania</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation type="unfinished">Chyba načítania %s: Peňaženka je poškodená</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation type="unfinished">Chyba načítania %s: Peňaženka vyžaduje novšiu verziu %s</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Chyba načítania databázy blokov</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">Chyba otvárania databázy blokov</translation>
+    </message>
+    <message>
+        <source>Error reading from database, shutting down.</source>
+        <translation type="unfinished">Chyba pri načítaní z databázy, ukončuje sa.</translation>
+    </message>
+    <message>
+        <source>Error reading next record from wallet database</source>
+        <translation type="unfinished">Chyba pri čítaní ďalšieho záznamu z databázy peňaženky</translation>
+    </message>
+    <message>
+        <source>Error: Couldn't create cursor into database</source>
+        <translation type="unfinished">Chyba: Nepodarilo sa vytvoriť kurzor do databázy</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is low for %s</source>
+        <translation type="unfinished">Chyba: Málo miesta na disku pre %s</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile checksum does not match. Computed %s, expected %s</source>
+        <translation type="unfinished">Chyba: Kontrolný súčet súboru dumpu nesúhlasí. Vypočítaný %s, očakávaný %s</translation>
+    </message>
+    <message>
+        <source>Error: Got key that was not hex: %s</source>
+        <translation type="unfinished">Chyba: Obdržaný kľúč nebol v hex tvare: %s</translation>
+    </message>
+    <message>
+        <source>Error: Got value that was not hex: %s</source>
+        <translation type="unfinished">Chyba: Obdržaná hodnota nebola v hex tvare: : %s</translation>
+    </message>
+    <message>
+        <source>Error: Keypool ran out, please call keypoolrefill first</source>
+        <translation type="unfinished">Chyba: Keypool došiel, zavolajte najskôr keypoolrefill</translation>
+    </message>
+    <message>
+        <source>Error: Missing checksum</source>
+        <translation type="unfinished">Chyba: Chýba kontrolný súčet</translation>
+    </message>
+    <message>
+        <source>Error: No %s addresses available.</source>
+        <translation type="unfinished">Chyba: Žiadne adresy %s.</translation>
+    </message>
+    <message>
+        <source>Error: Unable to parse version %u as a uint32_t</source>
+        <translation type="unfinished">Chyba: Nepodarilo sa prečítať verziu %u ako uint32_t</translation>
+    </message>
+    <message>
+        <source>Error: Unable to write record to new wallet</source>
+        <translation type="unfinished">Chyba: Nepodarilo sa zapísať záznam do novej peňaženky</translation>
+    </message>
+    <message>
+        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
+        <translation type="unfinished">Chyba počúvania na ktoromkoľvek porte. Použi -listen=0 ak toto chcete.</translation>
+    </message>
+    <message>
+        <source>Failed to rescan the wallet during initialization</source>
+        <translation type="unfinished">Počas inicializácie sa nepodarila pre-skenovať peňaženka</translation>
+    </message>
+    <message>
+        <source>Failed to verify database</source>
+        <translation type="unfinished">Nepodarilo sa overiť databázu</translation>
+    </message>
+    <message>
+        <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
+        <translation type="unfinished">Zvolený poplatok (%s)  je nižší ako nastavený minimálny poplatok (%s)</translation>
+    </message>
+    <message>
+        <source>Ignoring duplicate -wallet %s.</source>
+        <translation type="unfinished">Ignorujú sa duplikátne -wallet %s.</translation>
+    </message>
+    <message>
+        <source>Importing…</source>
+        <translation type="unfinished">Prebieha import…</translation>
+    </message>
+    <message>
+        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
+        <translation type="unfinished">Nesprávny alebo žiadny genesis blok nájdený. Nesprávny dátový priečinok alebo sieť?</translation>
+    </message>
+    <message>
+        <source>Initialization sanity check failed. %s is shutting down.</source>
+        <translation type="unfinished">Kontrola čistoty pri inicializácií zlyhala. %s sa vypína.</translation>
+    </message>
+    <message>
+        <source>Input not found or already spent</source>
+        <translation type="unfinished">Vstup nenájdený alebo už minutý</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Nedostatok prostriedkov</translation>
+    </message>
+    <message>
+        <source>Invalid -i2psam address or hostname: '%s'</source>
+        <translation type="unfinished">Neplatná adresa alebo názov počítača pre -i2psam: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid -onion address or hostname: '%s'</source>
+        <translation type="unfinished">Neplatná -onion adresa alebo hostiteľ: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid -proxy address or hostname: '%s'</source>
+        <translation type="unfinished">Neplatná -proxy adresa alebo hostiteľ: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid P2P permission: '%s'</source>
+        <translation type="unfinished">Neplatné oprávnenie P2P: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">Neplatná suma pre -%s=&lt;amount&gt;: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">Neplatná čiastka pre -discardfee=&lt;čiastka&gt;: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">Neplatná suma pre -fallbackfee=&lt;amount&gt;: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -paytxfee=&lt;amount&gt;: '%s' (must be at least %s)</source>
+        <translation type="unfinished">Neplatná suma pre -paytxfee=&lt;amount&gt;: '%s' (musí byť aspoň %s)</translation>
+    </message>
+    <message>
+        <source>Invalid netmask specified in -whitelist: '%s'</source>
+        <translation type="unfinished">Nadaná neplatná netmask vo -whitelist: '%s'</translation>
+    </message>
+    <message>
+        <source>Loading P2P addresses…</source>
+        <translation type="unfinished">Načítavam P2P adresy…</translation>
+    </message>
+    <message>
+        <source>Loading banlist…</source>
+        <translation type="unfinished">Načítavam zoznam zákazov…</translation>
+    </message>
+    <message>
+        <source>Loading block index…</source>
+        <translation type="unfinished">Načítavam zoznam blokov…</translation>
+    </message>
+    <message>
+        <source>Loading wallet…</source>
+        <translation type="unfinished">Načítavam peňaženku…</translation>
+    </message>
+    <message>
+        <source>Missing amount</source>
+        <translation type="unfinished">Chýba suma</translation>
+    </message>
+    <message>
+        <source>Missing solving data for estimating transaction size</source>
+        <translation type="unfinished">Chýbajú údaje pre odhad veľkosti transakcie</translation>
+    </message>
+    <message>
+        <source>Need to specify a port with -whitebind: '%s'</source>
+        <translation type="unfinished">Je potrebné zadať port s -whitebind: '%s'</translation>
+    </message>
+    <message>
+        <source>No addresses available</source>
+        <translation type="unfinished">Nie sú dostupné žiadne adresy</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation type="unfinished">Nedostatok kľúčových slov súboru.</translation>
+    </message>
+    <message>
+        <source>Prune cannot be configured with a negative value.</source>
+        <translation type="unfinished">Redukovanie nemôže byť nastavené na zápornú hodnotu.</translation>
+    </message>
+    <message>
+        <source>Prune mode is incompatible with -txindex.</source>
+        <translation type="unfinished">Režim redukovania je nekompatibilný s -txindex.</translation>
+    </message>
+    <message>
+        <source>Pruning blockstore…</source>
+        <translation type="unfinished">Redukuje sa úložisko blokov…</translation>
+    </message>
+    <message>
+        <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
+        <translation type="unfinished">Obmedzuje sa -maxconnections z %d na %d kvôli systémovým obmedzeniam.</translation>
+    </message>
+    <message>
+        <source>Replaying blocks…</source>
+        <translation type="unfinished">Preposielam bloky…</translation>
+    </message>
+    <message>
+        <source>Rescanning…</source>
+        <translation type="unfinished">Nové prehľadávanie…</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Nepodarilo sa vykonať príkaz na overenie databázy: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Nepodarilo sa pripraviť príkaz na overenie databázy: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to read database verification error: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Nepodarilo sa prečítať chybu overenia databázy: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
+        <translation type="unfinished">SQLiteDatabase: Neočakávané ID aplikácie: %u. Očakávané:  %u</translation>
+    </message>
+    <message>
+        <source>Section [%s] is not recognized.</source>
+        <translation type="unfinished">Sekcia [%s] nie je rozpoznaná.</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Podpísanie správy zlyhalo</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" does not exist</source>
+        <translation type="unfinished">Uvedená -walletdir "%s" neexistuje</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is a relative path</source>
+        <translation type="unfinished">Uvedená -walletdir "%s" je relatívna cesta</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is not a directory</source>
+        <translation type="unfinished">Uvedený -walletdir "%s" nie je priečinok</translation>
+    </message>
+    <message>
+        <source>Specified blocks directory "%s" does not exist.</source>
+        <translation type="unfinished">Zadaný adresár blokov "%s" neexistuje.</translation>
+    </message>
+    <message>
+        <source>Starting network threads…</source>
+        <translation type="unfinished">Spúšťajú sa sieťové vlákna…</translation>
+    </message>
+    <message>
+        <source>The source code is available from %s.</source>
+        <translation type="unfinished">Zdrojový kód je dostupný z %s</translation>
+    </message>
+    <message>
+        <source>The specified config file %s does not exist</source>
+        <translation type="unfinished">Zadaný konfiguračný súbor %s neexistuje</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to pay the fee</source>
+        <translation type="unfinished">Suma transakcie je príliš malá na zaplatenie poplatku</translation>
+    </message>
+    <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation type="unfinished">Peňaženka zabráni zaplateniu menšej sumy ako je minimálny poplatok.</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">Toto je experimentálny softvér.</translation>
+    </message>
+    <message>
+        <source>This is the minimum transaction fee you pay on every transaction.</source>
+        <translation type="unfinished">Toto je minimálny poplatok za transakciu pri každej transakcii.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation type="unfinished">Toto je poplatok za transakciu pri odoslaní transakcie.</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Suma transakcie príliš malá</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation type="unfinished">Sumy transakcií nesmú byť záporné</translation>
+    </message>
+    <message>
+        <source>Transaction change output index out of range</source>
+        <translation type="unfinished">Výstupný index transakcie zmeny je mimo rozsahu</translation>
+    </message>
+    <message>
+        <source>Transaction has too long of a mempool chain</source>
+        <translation type="unfinished">Transakcia má v transakčnom zásobníku príliš dlhý reťazec</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation type="unfinished">Transakcia musí mať aspoň jedného príjemcu</translation>
+    </message>
+    <message>
+        <source>Transaction needs a change address, but we can't generate it.</source>
+        <translation type="unfinished">Transakcia potrebuje adresu na zmenu, ale nemôžeme ju vygenerovať.</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Transakcia príliš veľká</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
+        <translation type="unfinished">Na tomto počítači sa nedá vytvoriť väzba %s (vytvorenie väzby vrátilo chybu %s)</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
+        <translation type="unfinished">Nemožné pripojiť k %s na tomto počíťači. %s už pravdepodobne beží.</translation>
+    </message>
+    <message>
+        <source>Unable to create the PID file '%s': %s</source>
+        <translation type="unfinished">Nepodarilo sa vytvoriť súbor PID '%s': %s</translation>
+    </message>
+    <message>
+        <source>Unable to generate initial keys</source>
+        <translation type="unfinished">Nepodarilo sa vygenerovať úvodné kľúče</translation>
+    </message>
+    <message>
+        <source>Unable to generate keys</source>
+        <translation type="unfinished">Nepodarilo sa vygenerovať kľúče</translation>
+    </message>
+    <message>
+        <source>Unable to open %s for writing</source>
+        <translation type="unfinished">Nepodarilo sa otvoriť %s pre zapisovanie</translation>
+    </message>
+    <message>
+        <source>Unable to parse -maxuploadtarget: '%s'</source>
+        <translation type="unfinished">Nepodarilo sa prečítať -maxuploadtarget: '%s'</translation>
+    </message>
+    <message>
+        <source>Unable to start HTTP server. See debug log for details.</source>
+        <translation type="unfinished">Nepodarilo sa spustiť HTTP server. Pre viac detailov zobrazte debug log.</translation>
+    </message>
+    <message>
+        <source>Unknown -blockfilterindex value %s.</source>
+        <translation type="unfinished">Neznáma -blockfilterindex hodnota %s.</translation>
+    </message>
+    <message>
+        <source>Unknown address type '%s'</source>
+        <translation type="unfinished">Neznámy typ adresy '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown change type '%s'</source>
+        <translation type="unfinished">Neznámy typ zmeny '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">Neznáma sieť upresnená v -onlynet: '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown new rules activated (versionbit %i)</source>
+        <translation type="unfinished">Aktivované neznáme nové pravidlá (bit verzie %i)</translation>
+    </message>
+    <message>
+        <source>Unsupported logging category %s=%s.</source>
+        <translation type="unfinished">Nepodporovaná logovacia kategória %s=%s.</translation>
+    </message>
+    <message>
+        <source>User Agent comment (%s) contains unsafe characters.</source>
+        <translation type="unfinished">Komentár u typu klienta (%s) obsahuje riskantné znaky.</translation>
+    </message>
+    <message>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">Overujem bloky…</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">Kontrolujem peňaženku(y)…</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation type="unfinished">Peňaženka musí byť prepísaná: pre dokončenie reštartujte %s</translation>
+    </message>
+</context>
+<context>
+    <name>BitcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
-        <translation>&amp;Prehľad</translation>
+        <translation type="unfinished">&amp;Prehľad</translation>
     </message>
     <message>
         <source>Show general overview of wallet</source>
-        <translation>Zobraziť celkový prehľad o peňaženke</translation>
+        <translation type="unfinished">Zobraziť celkový prehľad o peňaženke</translation>
     </message>
     <message>
         <source>&amp;Transactions</source>
-        <translation>&amp;Transakcie</translation>
+        <translation type="unfinished">&amp;Transakcie</translation>
     </message>
     <message>
         <source>Browse transaction history</source>
-        <translation>Prechádzať históriu transakcií</translation>
+        <translation type="unfinished">Prechádzať históriu transakcií</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation>U&amp;končiť</translation>
+        <translation type="unfinished">U&amp;končiť</translation>
     </message>
     <message>
         <source>Quit application</source>
-        <translation>Ukončiť program</translation>
+        <translation type="unfinished">Ukončiť program</translation>
     </message>
     <message>
         <source>&amp;About %1</source>
@@ -384,11 +1087,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>About &amp;Qt</source>
-        <translation>O &amp;Qt</translation>
+        <translation type="unfinished">O &amp;Qt</translation>
     </message>
     <message>
         <source>Show information about Qt</source>
-        <translation>Zobrazit informácie o Qt</translation>
+        <translation type="unfinished">Zobrazit informácie o Qt</translation>
     </message>
     <message>
         <source>Modify configuration options for %1</source>
@@ -397,6 +1100,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Create a new wallet</source>
         <translation type="unfinished">Vytvoriť novú peňaženku</translation>
+    </message>
+    <message>
+        <source>&amp;Minimize</source>
+        <translation type="unfinished">&amp;Minimalizovať</translation>
     </message>
     <message>
         <source>Wallet:</source>
@@ -413,43 +1120,67 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation>Poslať qtums na adresu</translation>
+        <translation type="unfinished">Poslať qtums na adresu</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
-        <translation>Zálohovať peňaženku na iné miesto</translation>
+        <translation type="unfinished">Zálohovať peňaženku na iné miesto</translation>
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
-        <translation>Zmeniť heslo použité na šifrovanie peňaženky</translation>
+        <translation type="unfinished">Zmeniť heslo použité na šifrovanie peňaženky</translation>
     </message>
     <message>
         <source>&amp;Send</source>
-        <translation>&amp;Odoslať</translation>
+        <translation type="unfinished">&amp;Odoslať</translation>
     </message>
     <message>
         <source>&amp;Receive</source>
-        <translation>&amp;Prijať</translation>
+        <translation type="unfinished">&amp;Prijať</translation>
     </message>
     <message>
-        <source>&amp;Show / Hide</source>
-        <translation>&amp;Zobraziť / Skryť</translation>
+        <source>&amp;Options…</source>
+        <translation type="unfinished">M&amp;ožnosti…</translation>
     </message>
     <message>
-        <source>Show or hide the main Window</source>
-        <translation>Zobraziť alebo skryť hlavné okno</translation>
+        <source>&amp;Encrypt Wallet…</source>
+        <translation type="unfinished">Zašifrovať p&amp;eňaženku…</translation>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Zašifruj súkromné kľúče ktoré patria do vašej peňaženky</translation>
+        <translation type="unfinished">Zašifruj súkromné kľúče ktoré patria do vašej peňaženky</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet…</source>
+        <translation type="unfinished">&amp;Zálohovať peňaženku…</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase…</source>
+        <translation type="unfinished">&amp;Zmeniť heslo…</translation>
+    </message>
+    <message>
+        <source>Sign &amp;message…</source>
+        <translation type="unfinished">Podpísať &amp;správu…</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation>Podpísať správu s vašou Qtum adresou, aby ste preukázali, že ju vlastníte</translation>
+        <translation type="unfinished">Podpísať správu s vašou Qtum adresou, aby ste preukázali, že ju vlastníte</translation>
+    </message>
+    <message>
+        <source>&amp;Verify message…</source>
+        <translation type="unfinished">O&amp;veriť správu…</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation>Overiť, či boli správy podpísané uvedenou Qtum adresou</translation>
+        <translation type="unfinished">Overiť, či boli správy podpísané uvedenou Qtum adresou</translation>
+    </message>
+    <message>
+        <source>&amp;Load PSBT from file…</source>
+        <translation type="unfinished">&amp;Načítať PSBT zo súboru…</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI…</source>
+        <translation type="unfinished">Otvoriť &amp;URI…</translation>
     </message>
     <message>
         <source>Close Wallet…</source>
@@ -465,19 +1196,43 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation>&amp;Súbor</translation>
+        <translation type="unfinished">&amp;Súbor</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
-        <translation>&amp;Nastavenia</translation>
+        <translation type="unfinished">&amp;Nastavenia</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>&amp;Pomoc</translation>
+        <translation type="unfinished">&amp;Pomoc</translation>
     </message>
     <message>
         <source>Tabs toolbar</source>
-        <translation>Lišta nástrojov</translation>
+        <translation type="unfinished">Lišta nástrojov</translation>
+    </message>
+    <message>
+        <source>Syncing Headers (%1%)…</source>
+        <translation type="unfinished">Synchronizujú sa hlavičky (%1%)…</translation>
+    </message>
+    <message>
+        <source>Synchronizing with network…</source>
+        <translation type="unfinished">Synchronizácia so sieťou…</translation>
+    </message>
+    <message>
+        <source>Indexing blocks on disk…</source>
+        <translation type="unfinished">Indexujem bloky na disku…</translation>
+    </message>
+    <message>
+        <source>Processing blocks on disk…</source>
+        <translation type="unfinished">Spracovávam bloky na disku…</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk…</source>
+        <translation type="unfinished">Pre-indexujem bloky na disku…</translation>
+    </message>
+    <message>
+        <source>Connecting to peers…</source>
+        <translation type="unfinished">Pripája sa k partnerom…</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
@@ -497,43 +1252,51 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
+        <translation type="unfinished">
+            <numerusform>Spracovaný %n blok transakčnej histórie.</numerusform>
+            <numerusform>Spracované %n bloky transakčnej histórie.</numerusform>
+            <numerusform>Spracovaných %n blokov transakčnej histórie.</numerusform>
         </translation>
     </message>
     <message>
         <source>%1 behind</source>
-        <translation>%1 pozadu</translation>
+        <translation type="unfinished">%1 pozadu</translation>
+    </message>
+    <message>
+        <source>Catching up…</source>
+        <translation type="unfinished">Sťahujem…</translation>
     </message>
     <message>
         <source>Last received block was generated %1 ago.</source>
-        <translation>Posledný prijatý blok bol vygenerovaný pred: %1.</translation>
+        <translation type="unfinished">Posledný prijatý blok bol vygenerovaný pred: %1.</translation>
     </message>
     <message>
         <source>Transactions after this will not yet be visible.</source>
-        <translation>Transakcie po tomto čase ešte nebudú viditeľné.</translation>
+        <translation type="unfinished">Transakcie po tomto čase ešte nebudú viditeľné.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Chyba</translation>
+        <translation type="unfinished">Chyba</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>Upozornenie</translation>
+        <translation type="unfinished">Upozornenie</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>Informácie</translation>
+        <translation type="unfinished">Informácie</translation>
     </message>
     <message>
         <source>Up to date</source>
-        <translation>Aktualizovaný</translation>
+        <translation type="unfinished">Aktualizovaný</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Načítať sčasti podpísanú Qtum transakciu</translation>
+    </message>
+    <message>
+        <source>Load PSBT from &amp;clipboard…</source>
+        <translation type="unfinished">Načítať PSBT zo s&amp;chránky…</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
@@ -596,12 +1359,18 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Nie je dostupná žiadna peňaženka</translation>
     </message>
     <message>
-        <source>&amp;Window</source>
-        <translation type="unfinished">&amp;Okno</translation>
+        <source>Wallet Data</source>
+        <extracomment>Name of the wallet data file format.</extracomment>
+        <translation type="unfinished">Dáta peňaženky</translation>
     </message>
     <message>
-        <source>Minimize</source>
-        <translation type="unfinished">Minimalizovať</translation>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">Názov peňaženky</translation>
+    </message>
+    <message>
+        <source>&amp;Window</source>
+        <translation type="unfinished">&amp;Okno</translation>
     </message>
     <message>
         <source>Zoom</source>
@@ -615,14 +1384,42 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%1 client</source>
         <translation type="unfinished">%1 klient</translation>
     </message>
+    <message>
+        <source>&amp;Hide</source>
+        <translation type="unfinished">&amp;Skryť</translation>
+    </message>
+    <message>
+        <source>S&amp;how</source>
+        <translation type="unfinished">Z&amp;obraziť</translation>
+    </message>
     <message numerus="yes">
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-            <numerusform />
+            <numerusform>%n aktívne pripojenie do siete Qtum</numerusform>
+            <numerusform>%n aktívne pripojenia do siete Qtum</numerusform>
+            <numerusform>%n aktívnych pripojení do siete Qtum</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Click for more actions.</source>
+        <extracomment>A substring of the tooltip. "More actions" are available via the context menu.</extracomment>
+        <translation type="unfinished">Kliknite pre viac akcií.</translation>
+    </message>
+    <message>
+        <source>Show Peers tab</source>
+        <extracomment>A context menu item. The "Peers tab" is an element of the "Node window".</extracomment>
+        <translation type="unfinished">Zobraziť kartu Partneri</translation>
+    </message>
+    <message>
+        <source>Disable network activity</source>
+        <extracomment>A context menu item.</extracomment>
+        <translation type="unfinished">Zakázať sieťovú aktivitu</translation>
+    </message>
+    <message>
+        <source>Enable network activity</source>
+        <extracomment>A context menu item. The network activity was disabled previously.</extracomment>
+        <translation type="unfinished">Povoliť sieťovú aktivitu</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -670,11 +1467,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Sent transaction</source>
-        <translation>Odoslané transakcie</translation>
+        <translation type="unfinished">Odoslané transakcie</translation>
     </message>
     <message>
         <source>Incoming transaction</source>
-        <translation>Prijatá transakcia</translation>
+        <translation type="unfinished">Prijatá transakcia</translation>
     </message>
     <message>
         <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
@@ -690,11 +1487,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>Peňaženka je &lt;b&gt;zašifrovaná&lt;/b&gt; a momentálne &lt;b&gt;odomknutá&lt;/b&gt;</translation>
+        <translation type="unfinished">Peňaženka je &lt;b&gt;zašifrovaná&lt;/b&gt; a momentálne &lt;b&gt;odomknutá&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Peňaženka je &lt;b&gt;zašifrovaná&lt;/b&gt; a momentálne &lt;b&gt;zamknutá&lt;/b&gt;</translation>
+        <translation type="unfinished">Peňaženka je &lt;b&gt;zašifrovaná&lt;/b&gt; a momentálne &lt;b&gt;zamknutá&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Original message:</source>
@@ -783,6 +1580,30 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Kopírovať sumu</translation>
     </message>
     <message>
+        <source>&amp;Copy address</source>
+        <translation type="unfinished">&amp;Kopírovať adresu</translation>
+    </message>
+    <message>
+        <source>Copy &amp;label</source>
+        <translation type="unfinished">Kopírovať &amp;popis</translation>
+    </message>
+    <message>
+        <source>Copy &amp;amount</source>
+        <translation type="unfinished">Kopírovať &amp;sumu</translation>
+    </message>
+    <message>
+        <source>Copy transaction &amp;ID and output index</source>
+        <translation type="unfinished">Skopírovať &amp;ID transakcie a výstupný index</translation>
+    </message>
+    <message>
+        <source>L&amp;ock unspent</source>
+        <translation type="unfinished">U&amp;zamknúť neminuté</translation>
+    </message>
+    <message>
+        <source>&amp;Unlock unspent</source>
+        <translation type="unfinished">&amp;Odomknúť neminuté</translation>
+    </message>
+    <message>
         <source>Copy quantity</source>
         <translation type="unfinished">Kopírovať množstvo</translation>
     </message>
@@ -842,6 +1663,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>CreateWalletActivity</name>
     <message>
+        <source>Create Wallet</source>
+        <extracomment>Title of window indicating the progress of creation of a new wallet.</extracomment>
+        <translation type="unfinished">Vytvoriť peňaženku</translation>
+    </message>
+    <message>
+        <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the create wallet progress window which indicates to the user which wallet is currently being created.</extracomment>
+        <translation type="unfinished">Vytvára sa peňaženka &lt;b&gt;%1&lt;/b&gt;…</translation>
+    </message>
+    <message>
         <source>Create wallet failed</source>
         <translation type="unfinished">Vytvorenie peňaženky zlyhalo</translation>
     </message>
@@ -849,7 +1680,24 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Create wallet warning</source>
         <translation type="unfinished">Varovanie vytvárania peňaženky</translation>
     </message>
+    <message>
+        <source>Can't list signers</source>
+        <translation type="unfinished">Nemôžem zobraziť podpisovateľov</translation>
+    </message>
     </context>
+<context>
+    <name>LoadWalletsActivity</name>
+    <message>
+        <source>Load Wallets</source>
+        <extracomment>Title of progress window which is displayed when wallets are being loaded.</extracomment>
+        <translation type="unfinished">Načítať peňaženky</translation>
+    </message>
+    <message>
+        <source>Loading wallets…</source>
+        <extracomment>Descriptive text of the load wallets progress window which indicates to the user that wallets are currently being loaded.</extracomment>
+        <translation type="unfinished">Načítavam peňaženky…</translation>
+    </message>
+</context>
 <context>
     <name>OpenWalletActivity</name>
     <message>
@@ -864,7 +1712,17 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>default wallet</source>
         <translation type="unfinished">predvolená peňaženka</translation>
     </message>
-    </context>
+    <message>
+        <source>Open Wallet</source>
+        <extracomment>Title of window indicating the progress of opening of a wallet.</extracomment>
+        <translation type="unfinished">Otvoriť peňaženku</translation>
+    </message>
+    <message>
+        <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the open wallet progress window which indicates to the user which wallet is currently being opened.</extracomment>
+        <translation type="unfinished">Otvára sa peňaženka &lt;b&gt;%1&lt;/b&gt;…</translation>
+    </message>
+</context>
 <context>
     <name>WalletController</name>
     <message>
@@ -931,19 +1789,44 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Vytvoriť prázdnu peňaženku</translation>
     </message>
     <message>
+        <source>Use descriptors for scriptPubKey management</source>
+        <translation type="unfinished">Na správu scriptPubKey používajte deskriptory</translation>
+    </message>
+    <message>
+        <source>Descriptor Wallet</source>
+        <translation type="unfinished">Peňaženka deskriptora</translation>
+    </message>
+    <message>
+        <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
+        <translation type="unfinished">Použiť externé podpisovacie zariadenie ako napr. hardvérová peňaženka. Nastavte najprv externý skript podpisovateľa v nastaveniach peňaženky.</translation>
+    </message>
+    <message>
+        <source>External signer</source>
+        <translation type="unfinished">Externý podpisovateľ</translation>
+    </message>
+    <message>
         <source>Create</source>
         <translation type="unfinished">Vytvoriť</translation>
     </message>
-    </context>
+    <message>
+        <source>Compiled without sqlite support (required for descriptor wallets)</source>
+        <translation type="unfinished">Zostavené bez podpory sqlite (povinné pre peňaženky deskriptorov)</translation>
+    </message>
+    <message>
+        <source>Compiled without external signing support (required for external signing)</source>
+        <extracomment>"External signing" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Skompilované bez podpory externého podpisovania (potrebné pre externé podpisovanie)</translation>
+    </message>
+</context>
 <context>
     <name>EditAddressDialog</name>
     <message>
         <source>Edit Address</source>
-        <translation>Upraviť adresu</translation>
+        <translation type="unfinished">Upraviť adresu</translation>
     </message>
     <message>
         <source>&amp;Label</source>
-        <translation>&amp;Popis</translation>
+        <translation type="unfinished">&amp;Popis</translation>
     </message>
     <message>
         <source>The label associated with this address list entry</source>
@@ -955,7 +1838,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation>&amp;Adresa</translation>
+        <translation type="unfinished">&amp;Adresa</translation>
     </message>
     <message>
         <source>New sending address</source>
@@ -994,27 +1877,51 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>FreespaceChecker</name>
     <message>
         <source>A new data directory will be created.</source>
-        <translation>Bude vytvorený nový dátový adresár.</translation>
+        <translation type="unfinished">Bude vytvorený nový dátový adresár.</translation>
     </message>
     <message>
         <source>name</source>
-        <translation>názov</translation>
+        <translation type="unfinished">názov</translation>
     </message>
     <message>
         <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Priečinok už existuje. Pridajte "%1", ak tu chcete vytvoriť nový priečinok.</translation>
+        <translation type="unfinished">Priečinok už existuje. Pridajte "%1", ak tu chcete vytvoriť nový priečinok.</translation>
     </message>
     <message>
         <source>Path already exists, and is not a directory.</source>
-        <translation>Cesta už existuje a nie je to adresár.</translation>
+        <translation type="unfinished">Cesta už existuje a nie je to adresár.</translation>
     </message>
     <message>
         <source>Cannot create data directory here.</source>
-        <translation>Tu nemôžem vytvoriť dátový adresár.</translation>
+        <translation type="unfinished">Tu nemôžem vytvoriť dátový adresár.</translation>
     </message>
 </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform>(z %n GB potrebného)</numerusform>
+            <numerusform>(z %n GB potrebných)</numerusform>
+            <numerusform>(z %n GB potrebných)</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform>(%n GB potrebný pre plný reťazec)</numerusform>
+            <numerusform>(%n GB potrebné pre plný reťazec)</numerusform>
+            <numerusform>(%n GB potrebných pre plný reťazec)</numerusform>
+        </translation>
+    </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
         <translation type="unfinished">V tejto zložke bude uložených aspoň %1 GB dát a postupom času sa bude zväčšovať.</translation>
@@ -1027,9 +1934,9 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-            <numerusform />
+            <numerusform>(dostatočné pre obnovenie záloh %n deň starých)</numerusform>
+            <numerusform>(dostatočné pre obnovenie záloh %n dni starých)</numerusform>
+            <numerusform>(dostatočné pre obnovenie záloh %n dní starých)</numerusform>
         </translation>
     </message>
     <message>
@@ -1046,11 +1953,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Error</source>
-        <translation>Chyba</translation>
+        <translation type="unfinished">Chyba</translation>
     </message>
     <message>
         <source>Welcome</source>
-        <translation>Vitajte</translation>
+        <translation type="unfinished">Vitajte</translation>
     </message>
     <message>
         <source>Welcome to %1.</source>
@@ -1061,12 +1968,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Keďže toto je prvé spustenie programu, môžete si vybrať, kam %1 bude ukladať vaše údaje.</translation>
     </message>
     <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation type="unfinished">Hneď po stlačení OK, začne %1 sťahovať a spracovávať celý %4 blockchain (%2G B), začínajúc najaktuálnejšími transakciami z roku %3, kedy bol %4 spustený.</translation>
+        <source>Limit block chain storage to</source>
+        <translation type="unfinished">Obmedziť veľkosť reťazca blokov na</translation>
     </message>
     <message>
         <source>Reverting this setting requires re-downloading the entire blockchain. It is faster to download the full chain first and prune it later. Disables some advanced features.</source>
-        <translation type="unfinished">Zvrátenie tohto nastavenia vyžaduje opätovné stiahnutie celého blockchainu. Je rýchlejšie najprv stiahnuť celý reťazec blokov a potom ho redukovať neskôr. Vypne niektoré pokročilé funkcie.</translation>
+        <translation type="unfinished">Zvrátenie tohto nastavenia vyžaduje opätovné stiahnutie celého reťazca blokov. Je rýchlejšie najprv stiahnuť celý reťazec blokov a potom ho redukovať neskôr. Vypne niektoré pokročilé funkcie.</translation>
     </message>
     <message>
         <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
@@ -1074,15 +1981,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>If you have chosen to limit block chain storage (pruning), the historical data must still be downloaded and processed, but will be deleted afterward to keep your disk usage low.</source>
-        <translation type="unfinished">Ak ste ombedzili úložný priestor pre reťazec blokov (tj. povolil prepezávanie), tak sa historické dáta sice stiahnu a zpracujú, ale následne sa zasa zzažú, aby nezaberala na disku miesto.</translation>
+        <translation type="unfinished">Ak ste obmedzili úložný priestor pre reťazec blokov (t.j. redukovanie), tak sa historické dáta síce stiahnu a spracujú, ale následne sa zasa zmažú, aby nezaberali na disku miesto.</translation>
     </message>
     <message>
         <source>Use the default data directory</source>
-        <translation>Použiť predvolený dátový adresár</translation>
+        <translation type="unfinished">Použiť predvolený dátový adresár</translation>
     </message>
     <message>
         <source>Use a custom data directory:</source>
-        <translation>Použiť vlastný dátový adresár:</translation>
+        <translation type="unfinished">Použiť vlastný dátový adresár:</translation>
     </message>
 </context>
 <context>
@@ -1102,6 +2009,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>ShutdownWindow</name>
+    <message>
+        <source>%1 is shutting down…</source>
+        <translation type="unfinished">%1 sa vypína…</translation>
+    </message>
     <message>
         <source>Do not shut down the computer until this window disappears.</source>
         <translation type="unfinished">Nevypínajte počítač kým toto okno nezmizne.</translation>
@@ -1124,6 +2035,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Počet zostávajúcich blokov</translation>
+    </message>
+    <message>
+        <source>Unknown…</source>
+        <translation type="unfinished">Neznámy…</translation>
+    </message>
+    <message>
+        <source>calculating…</source>
+        <translation type="unfinished">počíta sa…</translation>
     </message>
     <message>
         <source>Last block time</source>
@@ -1151,7 +2070,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
-        <translation type="unfinished">%1 sa práve synchronizuje. Sťahujú sa hlavičky a bloky od peerov. Tie sa budú sa overovať až sa kompletne overí celý reťazec blokov - blockchain.</translation>
+        <translation type="unfinished">%1 sa práve synchronizuje. Sťahujú sa hlavičky a bloky od partnerov. Tie sa budú sa overovať až sa kompletne overí celý reťazec blokov (blockchain).</translation>
+    </message>
+    <message>
+        <source>Unknown. Syncing Headers (%1, %2%)…</source>
+        <translation type="unfinished">Neznámy. Synchronizujú sa hlavičky (%1, %2%)…</translation>
     </message>
     </context>
 <context>
@@ -1160,16 +2083,21 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Open qtum URI</source>
         <translation type="unfinished">Otvoriť qtum URI</translation>
     </message>
-    </context>
+    <message>
+        <source>Paste address from clipboard</source>
+        <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
+        <translation type="unfinished">Vložiť adresu zo schránky</translation>
+    </message>
+</context>
 <context>
     <name>OptionsDialog</name>
     <message>
         <source>Options</source>
-        <translation>Možnosti</translation>
+        <translation type="unfinished">Možnosti</translation>
     </message>
     <message>
         <source>&amp;Main</source>
-        <translation>&amp;Hlavné</translation>
+        <translation type="unfinished">&amp;Hlavné</translation>
     </message>
     <message>
         <source>Automatically start %1 after logging in to the system.</source>
@@ -1178,6 +2106,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>&amp;Start %1 on system login</source>
         <translation type="unfinished">&amp;Spustiť %1 pri prihlásení</translation>
+    </message>
+    <message>
+        <source>Enabling pruning significantly reduces the disk space required to store transactions. All blocks are still fully validated. Reverting this setting requires re-downloading the entire blockchain.</source>
+        <translation type="unfinished">Zapnutie redukovania rapídne zníži priestor potrebný pre uloženie transakcií. Všetky bloky sú plne overované. Zvrátenie tohto nastavenia vyžaduje následné stiahnutie celého reťazca blokov.</translation>
     </message>
     <message>
         <source>Size of &amp;database cache</source>
@@ -1200,10 +2132,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Minimalizovať namiesto ukončenia aplikácie keď sa okno zavrie. Keď je zvolená táto možnosť, aplikácia sa zavrie len po zvolení Ukončiť v menu.</translation>
     </message>
     <message>
-        <source>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
-        <translation type="unfinished">URL tretích strán (napr. prehliadač blockchain) ktoré sa zobrazujú v záložke transakcií ako položky kontextového menu. %s v URL je nahradené hash-om transakcie. Viaceré URL sú oddelené zvislou čiarou |.</translation>
-    </message>
-    <message>
         <source>Open the %1 configuration file from the working directory.</source>
         <translation type="unfinished">Otvorte konfiguračný súbor %1 s pracovného adresára.</translation>
     </message>
@@ -1213,15 +2141,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Reset all client options to default.</source>
-        <translation>Vynulovať všetky voľby klienta na predvolené.</translation>
+        <translation type="unfinished">Vynulovať všetky voľby klienta na predvolené.</translation>
     </message>
     <message>
         <source>&amp;Reset Options</source>
-        <translation>&amp;Vynulovať voľby</translation>
+        <translation type="unfinished">&amp;Vynulovať voľby</translation>
     </message>
     <message>
         <source>&amp;Network</source>
-        <translation>&amp;Sieť</translation>
+        <translation type="unfinished">&amp;Sieť</translation>
     </message>
     <message>
         <source>Prune &amp;block storage to</source>
@@ -1232,12 +2160,42 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Obnovenie tohto nastavenia vyžaduje opätovné stiahnutie celého blockchainu.</translation>
     </message>
     <message>
+        <source>Maximum database cache size. A larger cache can contribute to faster sync, after which the benefit is less pronounced for most use cases. Lowering the cache size will reduce memory usage. Unused mempool memory is shared for this cache.</source>
+        <extracomment>Tooltip text for Options window setting that sets the size of the database cache. Explains the corresponding effects of increasing/decreasing this value.</extracomment>
+        <translation type="unfinished">Maximálna veľkosť vyrovnávacej pamäte databázy. Väčšia pamäť môže urýchliť synchronizáciu, ale pri ďalšom používaní už nemá efekt. Zmenšenie vyrovnávacej pamäte zníži použitie pamäte. Nevyužitá pamäť mempool je zdieľaná pre túto vyrovnávaciu pamäť.</translation>
+    </message>
+    <message>
+        <source>Set the number of script verification threads. Negative values correspond to the number of cores you want to leave free to the system.</source>
+        <extracomment>Tooltip text for Options window setting that sets the number of script verification threads. Explains that negative values mean to leave these many cores free to the system.</extracomment>
+        <translation type="unfinished">Nastaví počet vlákien na overenie skriptov. Záporné hodnoty zodpovedajú počtu jadier procesora, ktoré chcete nechať voľné pre systém.</translation>
+    </message>
+    <message>
         <source>(0 = auto, &lt;0 = leave that many cores free)</source>
         <translation type="unfinished">(0 = auto, &lt;0 = toľko jadier nechať  voľných)</translation>
     </message>
     <message>
+        <source>This allows you or a third party tool to communicate with the node through command-line and JSON-RPC commands.</source>
+        <extracomment>Tooltip text for Options window setting that enables the RPC server.</extracomment>
+        <translation type="unfinished">Toto umožňuje vám alebo nástroju tretej strany komunikovať s uzlom pomocou príkazov z príkazového riadka alebo JSON-RPC.</translation>
+    </message>
+    <message>
+        <source>Enable R&amp;PC server</source>
+        <extracomment>An Options window setting to enable the RPC server.</extracomment>
+        <translation type="unfinished">Povoliť server R&amp;PC</translation>
+    </message>
+    <message>
         <source>W&amp;allet</source>
         <translation type="unfinished">&amp;Peňaženka</translation>
+    </message>
+    <message>
+        <source>Whether to set subtract fee from amount as default or not.</source>
+        <extracomment>Tooltip text for Options window setting that sets subtracting the fee from a sending amount as default.</extracomment>
+        <translation type="unfinished">Nastaviť predvolenie odpočítavania poplatku zo sumy.</translation>
+    </message>
+    <message>
+        <source>Subtract &amp;fee from amount by default</source>
+        <extracomment>An Options window setting to set subtracting the fee from a sending amount as default.</extracomment>
+        <translation type="unfinished">Predvolene odpočítavať &amp;poplatok zo sumy</translation>
     </message>
     <message>
         <source>Enable coin &amp;control features</source>
@@ -1252,12 +2210,42 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Minúť nepotvrdený výdavok</translation>
     </message>
     <message>
+        <source>Enable &amp;PSBT controls</source>
+        <extracomment>An options window setting to enable PSBT controls.</extracomment>
+        <translation type="unfinished">Povoliť ovládanie &amp;PSBT</translation>
+    </message>
+    <message>
+        <source>Whether to show PSBT controls.</source>
+        <extracomment>Tooltip text for options window setting that enables PSBT controls.</extracomment>
+        <translation type="unfinished">Zobrazenie ovládania PSBT.</translation>
+    </message>
+    <message>
+        <source>External Signer (e.g. hardware wallet)</source>
+        <translation type="unfinished">Externý podpisovateľ (napr. hardvérová peňaženka)</translation>
+    </message>
+    <message>
+        <source>&amp;External signer script path</source>
+        <translation type="unfinished">Cesta k &amp;externému skriptu podpisovateľa</translation>
+    </message>
+    <message>
+        <source>Full path to a Qtum Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
+        <translation type="unfinished">Plná cesta k skriptu kompatibilnému s Qtum Core (napr. C:\Downloads\hwi.exe alebo /Users/Vy/Stahovania/hwi.py). Pozor: škodlivé programy môžu ukradnúť vaše mince!</translation>
+    </message>
+    <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automaticky otvorit port pre Qtum na routeri. Toto funguje len ak router podporuje UPnP a je táto podpora aktivovaná.</translation>
+        <translation type="unfinished">Automaticky otvoriť port pre Qtum na routeri. Toto funguje len ak router podporuje UPnP a je táto podpora aktivovaná.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
-        <translation>Mapovať port pomocou &amp;UPnP</translation>
+        <translation type="unfinished">Mapovať port pomocou &amp;UPnP</translation>
+    </message>
+    <message>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation type="unfinished">Automaticky otvoriť port pre Qtum na routeri. Toto funguje len ak router podporuje NAT-PMP a je táto podpora aktivovaná. Externý port môže byť náhodný.</translation>
+    </message>
+    <message>
+        <source>Map port using NA&amp;T-PMP</source>
+        <translation type="unfinished">Mapovať port pomocou NA&amp;T-PMP</translation>
     </message>
     <message>
         <source>Accept connections from outside.</source>
@@ -1277,7 +2265,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Port of the proxy (e.g. 9050)</source>
-        <translation>Port proxy (napr. 9050)</translation>
+        <translation type="unfinished">Port proxy (napr. 9050)</translation>
     </message>
     <message>
         <source>Used for reaching peers via:</source>
@@ -1285,27 +2273,35 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation>&amp;Okno</translation>
+        <translation type="unfinished">&amp;Okno</translation>
+    </message>
+    <message>
+        <source>Show the icon in the system tray.</source>
+        <translation type="unfinished">Zobraziť ikonu v systémovej lište.</translation>
+    </message>
+    <message>
+        <source>&amp;Show tray icon</source>
+        <translation type="unfinished">Zobraziť ikonu v obla&amp;sti oznámení</translation>
     </message>
     <message>
         <source>Show only a tray icon after minimizing the window.</source>
-        <translation>Zobraziť len ikonu na lište po minimalizovaní okna.</translation>
+        <translation type="unfinished">Zobraziť len ikonu na lište po minimalizovaní okna.</translation>
     </message>
     <message>
         <source>&amp;Minimize to the tray instead of the taskbar</source>
-        <translation>&amp;Zobraziť len ikonu na lište po minimalizovaní okna.</translation>
+        <translation type="unfinished">&amp;Zobraziť len ikonu na lište po minimalizovaní okna.</translation>
     </message>
     <message>
         <source>M&amp;inimize on close</source>
-        <translation>M&amp;inimalizovať pri zatvorení</translation>
+        <translation type="unfinished">M&amp;inimalizovať pri zatvorení</translation>
     </message>
     <message>
         <source>&amp;Display</source>
-        <translation>&amp;Zobrazenie</translation>
+        <translation type="unfinished">&amp;Zobrazenie</translation>
     </message>
     <message>
         <source>User Interface &amp;language:</source>
-        <translation>&amp;Jazyk užívateľského rozhrania:</translation>
+        <translation type="unfinished">&amp;Jazyk užívateľského rozhrania:</translation>
     </message>
     <message>
         <source>The user interface language can be set here. This setting will take effect after restarting %1.</source>
@@ -1313,11 +2309,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Unit to show amounts in:</source>
-        <translation>&amp;Zobrazovať hodnoty v jednotkách:</translation>
+        <translation type="unfinished">&amp;Zobrazovať hodnoty v jednotkách:</translation>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>Zvoľte ako deliť qtum pri zobrazovaní pri platbách a užívateľskom rozhraní.</translation>
+        <translation type="unfinished">Zvoľte ako deliť qtum pri zobrazovaní pri platbách a užívateľskom rozhraní.</translation>
+    </message>
+    <message>
+        <source>Third-party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
+        <translation type="unfinished">URL tretích strán (napr. prehliadač blokov), ktoré sa zobrazujú v záložke transakcií ako položky kontextového menu. %s v URL je nahradené hash-om transakcie. Viaceré URL sú oddelené zvislou čiarou |.</translation>
+    </message>
+    <message>
+        <source>&amp;Third-party transaction URLs</source>
+        <translation type="unfinished">URL &amp;transakcií tretích strán</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -1332,20 +2336,29 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Použiť samostatný SOCKS&amp;5 proxy server na nadviazanie spojenia s peer-mi cez službu Tor:</translation>
     </message>
     <message>
-        <source>&amp;Third party transaction URLs</source>
-        <translation type="unfinished">URL transakcií tretích strán</translation>
+        <source>Monospaced font in the Overview tab:</source>
+        <translation type="unfinished">Písmo s pevnou šírkou na karte Prehľad:</translation>
     </message>
     <message>
-        <source>Options set in this dialog are overridden by the command line or in the configuration file:</source>
-        <translation type="unfinished">Voľby nastavené v tomto dialógovom okne sú prepísané príkazovým riadkom alebo v konfiguračným súborom:</translation>
+        <source>embedded "%1"</source>
+        <translation type="unfinished">zabudovaný "%1"</translation>
+    </message>
+    <message>
+        <source>closest matching "%1"</source>
+        <translation type="unfinished">najbližší zodpovedajúci "%1"</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Zrušiť</translation>
+        <translation type="unfinished">&amp;Zrušiť</translation>
+    </message>
+    <message>
+        <source>Compiled without external signing support (required for external signing)</source>
+        <extracomment>"External signing" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Skompilované bez podpory externého podpisovania (potrebné pre externé podpisovanie)</translation>
     </message>
     <message>
         <source>default</source>
-        <translation>predvolené</translation>
+        <translation type="unfinished">predvolené</translation>
     </message>
     <message>
         <source>none</source>
@@ -1353,23 +2366,36 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Confirm options reset</source>
-        <translation>Potvrdiť obnovenie možností</translation>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
+        <translation type="unfinished">Potvrdiť obnovenie možností</translation>
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
+        <extracomment>Text explaining that the settings changed will not come into effect until the client is restarted.</extracomment>
         <translation type="unfinished">Reštart klienta potrebný pre aktivovanie zmien.</translation>
     </message>
     <message>
         <source>Client will be shut down. Do you want to proceed?</source>
+        <extracomment>Text asking the user to confirm if they would like to proceed with a client shutdown.</extracomment>
         <translation type="unfinished">Klient bude vypnutý, chcete pokračovať?</translation>
     </message>
     <message>
         <source>Configuration options</source>
+        <extracomment>Window title text of pop-up box that allows opening up of configuration file.</extracomment>
         <translation type="unfinished">Možnosti nastavenia</translation>
     </message>
     <message>
         <source>The configuration file is used to specify advanced user options which override GUI settings. Additionally, any command-line options will override this configuration file.</source>
-        <translation type="unfinished">Konfiguračný súbor slúží k nastavovaniu užívateľsky pokročilých možností, ktoré majú prednosť pred konfiguráciou z GUI. Parametre z príkazovej riadky však majú pred konfiguračným súborom prednosť.</translation>
+        <extracomment>Explanatory text about the priority order of instructions considered by client. The order from high to low being: command-line, configuration file, GUI settings.</extracomment>
+        <translation type="unfinished">Konfiguračný súbor slúži k nastavovaniu užívateľsky pokročilých možností, ktoré majú prednosť pred konfiguráciou z grafického rozhrania. Parametre z príkazového riadka však majú pred konfiguračným súborom prednosť.</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation type="unfinished">Pokračovať</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Zrušiť</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1385,18 +2411,18 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>The supplied proxy address is invalid.</source>
-        <translation>Zadaná proxy adresa je neplatná.</translation>
+        <translation type="unfinished">Zadaná proxy adresa je neplatná.</translation>
     </message>
 </context>
 <context>
     <name>OverviewPage</name>
     <message>
         <source>Form</source>
-        <translation>Formulár</translation>
+        <translation type="unfinished">Formulár</translation>
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation>Zobrazené informácie môžu byť neaktuálne. Vaša peňaženka sa automaticky synchronizuje so sieťou Qtum po nadviazaní spojenia, ale tento proces ešte nie je ukončený.</translation>
+        <translation type="unfinished">Zobrazené informácie môžu byť neaktuálne. Vaša peňaženka sa automaticky synchronizuje so sieťou Qtum po nadviazaní spojenia, ale tento proces ešte nie je ukončený.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1408,7 +2434,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Your current spendable balance</source>
-        <translation>Váš aktuálny disponibilný zostatok</translation>
+        <translation type="unfinished">Váš aktuálny disponibilný zostatok</translation>
     </message>
     <message>
         <source>Pending:</source>
@@ -1416,15 +2442,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Suma transakcií ktoré ešte neboli potvrdené a ešte sa nepočítajú do disponibilného zostatku</translation>
+        <translation type="unfinished">Suma transakcií ktoré ešte neboli potvrdené a ešte sa nepočítajú do disponibilného zostatku</translation>
     </message>
     <message>
         <source>Immature:</source>
-        <translation>Nezrelé:</translation>
+        <translation type="unfinished">Nezrelé:</translation>
     </message>
     <message>
         <source>Mined balance that has not yet matured</source>
-        <translation>Vytvorený zostatok ktorý ešte nedosiahol zrelosť</translation>
+        <translation type="unfinished">Vytvorený zostatok ktorý ešte nedosiahol zrelosť</translation>
     </message>
     <message>
         <source>Balances</source>
@@ -1432,11 +2458,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Total:</source>
-        <translation>Celkovo:</translation>
+        <translation type="unfinished">Celkovo:</translation>
     </message>
     <message>
         <source>Your current total balance</source>
-        <translation>Váš súčasný celkový zostatok</translation>
+        <translation type="unfinished">Váš súčasný celkový zostatok</translation>
     </message>
     <message>
         <source>Your current balance in watch-only addresses</source>
@@ -1486,6 +2512,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Skopírovať</translation>
     </message>
     <message>
+        <source>Save…</source>
+        <translation type="unfinished">Uložiť…</translation>
+    </message>
+    <message>
         <source>Close</source>
         <translation type="unfinished">Zatvoriť</translation>
     </message>
@@ -1496,6 +2526,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Failed to sign transaction: %1</source>
         <translation type="unfinished">Nepodarilo sa podpísať transakciu: %1</translation>
+    </message>
+    <message>
+        <source>Cannot sign inputs while wallet is locked.</source>
+        <translation type="unfinished">Nemôžem podpísať vstupy kým je peňaženka zamknutá.</translation>
     </message>
     <message>
         <source>Could not sign any more inputs.</source>
@@ -1571,6 +2605,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Transakcii stále chýbajú podpis(y).</translation>
     </message>
     <message>
+        <source>(But no wallet is loaded.)</source>
+        <translation type="unfinished">(Ale nie je načítaná žiadna peňaženka.)</translation>
+    </message>
+    <message>
         <source>(But this wallet cannot sign transactions.)</source>
         <translation type="unfinished">(Ale táto peňaženka nemôže podpisovať transakcie)</translation>
     </message>
@@ -1604,6 +2642,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' je neplatná URI. Použite 'qtum:'</translation>
+   </message>
+    <message>
+        <source>Cannot process payment request because BIP70 is not supported.
+Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
+If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
+        <translation type="unfinished">Nemôžem spracovať platbu pretože BIP70 nie je podporovaný.
+Kvôli bezpečnostným chybám v BIP70 sa odporúča ignorovať pokyny obchodníka na prepnutie peňaženky.
+Ak ste dostali túto chybu mali by ste požiadať obchodníka o URI kompatibilné s BIP21.</translation>
     </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
@@ -1625,6 +2671,21 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Ping</source>
         <extracomment>Title of Peers Table column which indicates the current latency of the connection with the peer.</extracomment>
         <translation type="unfinished">Odozva</translation>
+    </message>
+    <message>
+        <source>Peer</source>
+        <extracomment>Title of Peers Table column which contains a unique number used to identify a connection.</extracomment>
+        <translation type="unfinished">Partneri</translation>
+    </message>
+    <message>
+        <source>Age</source>
+        <extracomment>Title of Peers Table column which indicates the duration (length of time) since the peer connection started.</extracomment>
+        <translation type="unfinished">Vek</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <extracomment>Title of Peers Table column which indicates the direction the peer connection was initiated from.</extracomment>
+        <translation type="unfinished">Smer</translation>
     </message>
     <message>
         <source>Sent</source>
@@ -1651,9 +2712,23 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <extracomment>Title of Peers Table column which states the network the peer connected through.</extracomment>
         <translation type="unfinished">Sieť</translation>
     </message>
+    <message>
+        <source>Inbound</source>
+        <extracomment>An Inbound Connection from a Peer.</extracomment>
+        <translation type="unfinished">Prichádzajúce</translation>
+    </message>
+    <message>
+        <source>Outbound</source>
+        <extracomment>An Outbound Connection to a Peer.</extracomment>
+        <translation type="unfinished">Odchádzajúce</translation>
+    </message>
 </context>
 <context>
     <name>QRImageWidget</name>
+    <message>
+        <source>&amp;Save Image…</source>
+        <translation type="unfinished">&amp;Uložiť obrázok…</translation>
+    </message>
     <message>
         <source>&amp;Copy Image</source>
         <translation type="unfinished">&amp;Kopírovať obrázok</translation>
@@ -1676,7 +2751,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>PNG Image</source>
-        <extracomment>Expanded name of the PNG file format. See https://en.wikipedia.org/wiki/Portable_Network_Graphics</extracomment>
+        <extracomment>Expanded name of the PNG file format. See: https://en.wikipedia.org/wiki/Portable_Network_Graphics.</extracomment>
         <translation type="unfinished">PNG obrázok</translation>
     </message>
 </context>
@@ -1684,15 +2759,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>RPCConsole</name>
     <message>
         <source>N/A</source>
-        <translation>nie je k dispozícii</translation>
+        <translation type="unfinished">nie je k dispozícii</translation>
     </message>
     <message>
         <source>Client version</source>
-        <translation>Verzia klienta</translation>
+        <translation type="unfinished">Verzia klienta</translation>
     </message>
     <message>
         <source>&amp;Information</source>
-        <translation>&amp;Informácie</translation>
+        <translation type="unfinished">&amp;Informácie</translation>
     </message>
     <message>
         <source>General</source>
@@ -1716,11 +2791,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Startup time</source>
-        <translation>Čas spustenia</translation>
+        <translation type="unfinished">Čas spustenia</translation>
     </message>
     <message>
         <source>Network</source>
-        <translation>Sieť</translation>
+        <translation type="unfinished">Sieť</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1728,11 +2803,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Number of connections</source>
-        <translation>Počet pripojení</translation>
+        <translation type="unfinished">Počet pripojení</translation>
     </message>
     <message>
         <source>Block chain</source>
-        <translation>Reťazec blokov</translation>
+        <translation type="unfinished">Reťazec blokov</translation>
     </message>
     <message>
         <source>Memory Pool</source>
@@ -1772,11 +2847,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Banned peers</source>
-        <translation type="unfinished">Zablokované spojenia</translation>
+        <translation type="unfinished">Zablokovaní partneri</translation>
     </message>
     <message>
         <source>Select a peer to view detailed information.</source>
-        <translation type="unfinished">Vyberte počítač pre zobrazenie podrobností.</translation>
+        <translation type="unfinished">Vyberte počítač partnera pre zobrazenie podrobností.</translation>
     </message>
     <message>
         <source>Version</source>
@@ -1795,12 +2870,36 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Zosynchronizované bloky</translation>
     </message>
     <message>
+        <source>Last Transaction</source>
+        <translation type="unfinished">Posledná transakcia</translation>
+    </message>
+    <message>
         <source>The mapped Autonomous System used for diversifying peer selection.</source>
         <translation type="unfinished">Mapovaný nezávislý - Autonómny Systém používaný na rozšírenie vzájomného výberu peerov.</translation>
     </message>
     <message>
         <source>Mapped AS</source>
         <translation type="unfinished">Mapovaný AS</translation>
+    </message>
+    <message>
+        <source>Whether we relay addresses to this peer.</source>
+        <extracomment>Tooltip text for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
+        <translation type="unfinished">Postupovanie adries tomuto partnerovi.</translation>
+    </message>
+    <message>
+        <source>Address Relay</source>
+        <extracomment>Text title for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
+        <translation type="unfinished">Postupovanie adries</translation>
+    </message>
+    <message>
+        <source>Addresses Processed</source>
+        <extracomment>Text title for the Addresses Processed field in the peer details area, which displays the total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</extracomment>
+        <translation type="unfinished">Spracované adresy</translation>
+    </message>
+    <message>
+        <source>Addresses Rate-Limited</source>
+        <extracomment>Text title for the Addresses Rate-Limited field in the peer details area, which displays the total number of addresses received from this peer that were dropped (not processed) due to rate-limiting.</extracomment>
+        <translation type="unfinished">Obmedzené adresy</translation>
     </message>
     <message>
         <source>User Agent</source>
@@ -1831,24 +2930,53 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Povolenia</translation>
     </message>
     <message>
+        <source>The direction and type of peer connection: %1</source>
+        <translation type="unfinished">Smer a typ spojenia s partnerom: %1</translation>
+    </message>
+    <message>
         <source>Direction/Type</source>
-        <translation type="unfinished">Cesta/Typ</translation>
+        <translation type="unfinished">Smer/Typ</translation>
+    </message>
+    <message>
+        <source>The network protocol this peer is connected through: IPv4, IPv6, Onion, I2P, or CJDNS.</source>
+        <translation type="unfinished">Sieťový protokol, ktorým je pripojený tento partner: IPv4, IPv6, Onion, I2P, alebo CJDNS.</translation>
     </message>
     <message>
         <source>Services</source>
         <translation type="unfinished">Služby</translation>
     </message>
     <message>
+        <source>Whether the peer requested us to relay transactions.</source>
+        <translation type="unfinished">Či nás partner požiadal o preposielanie transakcií.</translation>
+    </message>
+    <message>
+        <source>Wants Tx Relay</source>
+        <translation type="unfinished">Požaduje preposielanie transakcií</translation>
+    </message>
+    <message>
+        <source>High bandwidth BIP152 compact block relay: %1</source>
+        <translation type="unfinished">Preposielanie kompaktných blokov vysokou rýchlosťou podľa BIP152: %1</translation>
+    </message>
+    <message>
+        <source>High Bandwidth</source>
+        <translation type="unfinished">Vysoká rýchlosť</translation>
+    </message>
+    <message>
         <source>Connection Time</source>
         <translation type="unfinished">Dĺžka spojenia</translation>
+    </message>
+    <message>
+        <source>Elapsed time since a novel block passing initial validity checks was received from this peer.</source>
+        <translation type="unfinished">Uplynutý čas odkedy bol od tohto partnera prijatý nový blok s overenou platnosťou.</translation>
     </message>
     <message>
         <source>Last Block</source>
         <translation type="unfinished">Posledný blok</translation>
     </message>
     <message>
-        <source>Last Tx</source>
-        <translation type="unfinished">Posledná transakcia</translation>
+        <source>Elapsed time since a novel transaction accepted into our mempool was received from this peer.</source>
+        <extracomment>Tooltip text for the Last Transaction field in the peer details area.</extracomment>
+        <translation type="unfinished">Uplynutý čas odkedy bola od tohto partnera prijatá nová transakcia do pamäte.</translation>
     </message>
     <message>
         <source>Last Send</source>
@@ -1880,15 +3008,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Last block time</source>
-        <translation>Čas posledného bloku</translation>
+        <translation type="unfinished">Čas posledného bloku</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation>&amp;Otvoriť</translation>
+        <translation type="unfinished">&amp;Otvoriť</translation>
     </message>
     <message>
         <source>&amp;Console</source>
-        <translation>&amp;Konzola</translation>
+        <translation type="unfinished">&amp;Konzola</translation>
     </message>
     <message>
         <source>&amp;Network Traffic</source>
@@ -1900,11 +3028,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Debug log file</source>
-        <translation>Súbor záznamu ladenia</translation>
+        <translation type="unfinished">Súbor záznamu ladenia</translation>
     </message>
     <message>
         <source>Clear console</source>
-        <translation>Vymazať konzolu</translation>
+        <translation type="unfinished">Vymazať konzolu</translation>
     </message>
     <message>
         <source>In:</source>
@@ -1915,6 +3043,53 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Von:</translation>
     </message>
     <message>
+        <source>Inbound: initiated by peer</source>
+        <extracomment>Explanatory text for an inbound peer connection.</extracomment>
+        <translation type="unfinished">Prichádzajúce: iniciované partnerom</translation>
+    </message>
+    <message>
+        <source>Outbound Full Relay: default</source>
+        <extracomment>Explanatory text for an outbound peer connection that relays all network information. This is the default behavior for outbound connections.</extracomment>
+        <translation type="unfinished">Odchádzajúce plné preposielanie: predvolené</translation>
+    </message>
+    <message>
+        <source>Outbound Block Relay: does not relay transactions or addresses</source>
+        <extracomment>Explanatory text for an outbound peer connection that relays network information about blocks and not transactions or addresses.</extracomment>
+        <translation type="unfinished">Odchádzajúce preposielanie blokov: nepreposiela transakcie alebo adresy</translation>
+    </message>
+    <message>
+        <source>Outbound Manual: added using RPC %1 or %2/%3 configuration options</source>
+        <extracomment>Explanatory text for an outbound peer connection that was established manually through one of several methods. The numbered arguments are stand-ins for the methods available to establish manual connections.</extracomment>
+        <translation type="unfinished">Odchádzajúce manuálne: pridané pomocou RPC %1 alebo konfiguračnými voľbami %2/%3</translation>
+    </message>
+    <message>
+        <source>Outbound Feeler: short-lived, for testing addresses</source>
+        <extracomment>Explanatory text for a short-lived outbound peer connection that is used to test the aliveness of known addresses.</extracomment>
+        <translation type="unfinished">Odchádzajúci Feeler: krátkodobé, pre testovanie adries</translation>
+    </message>
+    <message>
+        <source>Outbound Address Fetch: short-lived, for soliciting addresses</source>
+        <extracomment>Explanatory text for a short-lived outbound peer connection that is used to request addresses from a peer.</extracomment>
+        <translation type="unfinished">Odchádzajúce získavanie adries: krátkodobé, pre dohodnutie adries</translation>
+    </message>
+    <message>
+        <source>we selected the peer for high bandwidth relay</source>
+        <translation type="unfinished">zvolili sme partnera pre rýchle preposielanie</translation>
+    </message>
+    <message>
+        <source>the peer selected us for high bandwidth relay</source>
+        <translation type="unfinished">partner nás zvolil pre rýchle preposielanie</translation>
+    </message>
+    <message>
+        <source>no high bandwidth relay selected</source>
+        <translation type="unfinished">nebolo zvolené rýchle preposielanie</translation>
+    </message>
+    <message>
+        <source>&amp;Copy address</source>
+        <extracomment>Context menu action to copy the address of a peer.</extracomment>
+        <translation type="unfinished">&amp;Kopírovať adresu</translation>
+    </message>
+    <message>
         <source>&amp;Disconnect</source>
         <translation type="unfinished">&amp;Odpojiť</translation>
     </message>
@@ -1923,12 +3098,21 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">1 &amp;hodinu</translation>
     </message>
     <message>
+        <source>1 d&amp;ay</source>
+        <translation type="unfinished">1 &amp;deň</translation>
+    </message>
+    <message>
         <source>1 &amp;week</source>
         <translation type="unfinished">1 &amp;týždeň</translation>
     </message>
     <message>
         <source>1 &amp;year</source>
         <translation type="unfinished">1 &amp;rok</translation>
+    </message>
+    <message>
+        <source>&amp;Copy IP/Netmask</source>
+        <extracomment>Context menu action to copy the IP/Netmask of a banned peer. IP/Netmask is the combination of a peer's IP address and its Netmask. For IP address, see: https://en.wikipedia.org/wiki/IP_address.</extracomment>
+        <translation type="unfinished">&amp;Kopírovať IP/Masku siete</translation>
     </message>
     <message>
         <source>&amp;Unban</source>
@@ -1945,6 +3129,32 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Executing command using "%1" wallet</source>
         <translation type="unfinished">Príkaz sa vykonáva s použitím peňaženky "%1"</translation>
+    </message>
+    <message>
+        <source>Welcome to the %1 RPC console.
+Use up and down arrows to navigate history, and %2 to clear screen.
+Use %3 and %4 to increase or decrease the font size.
+Type %5 for an overview of available commands.
+For more information on using this console, type %6.
+
+%7WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.%8</source>
+        <extracomment>RPC console welcome message. Placeholders %7 and %8 are style tags for the warning content, and they are not space separated from the rest of the text intentionally.</extracomment>
+        <translation type="unfinished">Vitajte v RPC konzole %1.
+Použite šípky hore a dolu pre posun v histórii, a %2 pre výmaz obrazovky.
+Použite %3 a %4 pre zväčenie alebo zmenšenie veľkosti písma.
+Napíšte %5 pre prehľad dostupných príkazov.
+Pre viac informácií o používaní tejto konzoly napíšte %6.
+
+%7Varovanie: Podvodníci sú aktívni, nabádajú používateľov písať sem príkazy, čím ukradnú obsah ich peňaženky. Nepoužívajte túto konzolu ak plne nerozumiete dôsledkom príslušného príkazu.%8</translation>
+    </message>
+    <message>
+        <source>Executing…</source>
+        <extracomment>A console message indicating an entered command is currently being executed.</extracomment>
+        <translation type="unfinished">Vykonáva sa…</translation>
+    </message>
+    <message>
+        <source>(peer: %1)</source>
+        <translation type="unfinished">(partner: %1)</translation>
     </message>
     <message>
         <source>via %1</source>
@@ -1995,8 +3205,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">Pridať voliteľnú správu k výzve na zaplatenie, ktorá sa zobrazí keď bude výzva otvorená. Poznámka: Správa nebude poslaná s platbou cez sieť Qtum.</translation>
-    </message>
+        <translation type="unfinished">Pridať voliteľnú správu k výzve na zaplatenie, ktorá sa zobrazí keď bude výzva otvorená. Poznámka: Správa nebude poslaná s platbou cez sieť Qtum.</translation> 
+   </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Voliteľný popis ktorý sa pridá k tejto novej prijímajúcej adrese.</translation>
@@ -2030,14 +3240,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Vyčistiť</translation>
     </message>
     <message>
-        <source>Native segwit addresses (aka Bech32 or BIP-173) reduce your transaction fees later on and offer better protection against typos, but old wallets don't support them. When unchecked, an address compatible with older wallets will be created instead.</source>
-        <translation type="unfinished">Natívne segwit adresy (Bech32 or BIP-173) znižujú Vaše budúce transakčné poplatky a ponúkajú lepšiu ochranu pred preklepmi, avšak staré peňaženky ich nepodporujú. Ak je toto pole nezaškrtnuté, bude vytvorená adresa kompatibilná so staršími peňaženkami.</translation>
-    </message>
-    <message>
-        <source>Generate native segwit (Bech32) address</source>
-        <translation type="unfinished">Generovať natívnu segwit adresu (Bech32)</translation>
-    </message>
-    <message>
         <source>Requested payments history</source>
         <translation type="unfinished">História vyžiadaných platieb</translation>
     </message>
@@ -2062,6 +3264,22 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Kopírovať &amp;URI</translation>
     </message>
     <message>
+        <source>&amp;Copy address</source>
+        <translation type="unfinished">&amp;Kopírovať adresu</translation>
+    </message>
+    <message>
+        <source>Copy &amp;label</source>
+        <translation type="unfinished">Kopírovať &amp;popis</translation>
+    </message>
+    <message>
+        <source>Copy &amp;message</source>
+        <translation type="unfinished">Kopírovať &amp;správu</translation>
+    </message>
+    <message>
+        <source>Copy &amp;amount</source>
+        <translation type="unfinished">Kopírovať &amp;sumu</translation>
+    </message>
+    <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">Nepodarilo sa odomknúť peňaženku.</translation>
     </message>
@@ -2072,6 +3290,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>ReceiveRequestDialog</name>
+    <message>
+        <source>Request payment to …</source>
+        <translation type="unfinished">Požiadať o platbu pre …</translation>
+    </message>
     <message>
         <source>Address:</source>
         <translation type="unfinished">Adresa:</translation>
@@ -2099,6 +3321,18 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Copy &amp;Address</source>
         <translation type="unfinished">Kopírovať &amp;adresu</translation>
+    </message>
+    <message>
+        <source>&amp;Verify</source>
+        <translation type="unfinished">O&amp;veriť</translation>
+    </message>
+    <message>
+        <source>Verify this address on e.g. a hardware wallet screen</source>
+        <translation type="unfinished">Overiť túto adresu napr. na obrazovke hardvérovej peňaženky</translation>
+    </message>
+    <message>
+        <source>&amp;Save Image…</source>
+        <translation type="unfinished">&amp;Uložiť obrázok…</translation>
     </message>
     <message>
         <source>Payment information</source>
@@ -2144,7 +3378,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation>Poslať mince</translation>
+        <translation type="unfinished">Poslať mince</translation>
     </message>
     <message>
         <source>Coin Control Features</source>
@@ -2220,23 +3454,39 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Send to multiple recipients at once</source>
-        <translation>Poslať viacerým príjemcom naraz</translation>
+        <translation type="unfinished">Poslať viacerým príjemcom naraz</translation>
     </message>
     <message>
         <source>Add &amp;Recipient</source>
-        <translation>&amp;Pridať príjemcu</translation>
+        <translation type="unfinished">&amp;Pridať príjemcu</translation>
     </message>
     <message>
         <source>Clear all fields of the form.</source>
         <translation type="unfinished">Vyčistiť všetky polia formulára.</translation>
     </message>
     <message>
+        <source>Inputs…</source>
+        <translation type="unfinished">Vstupy…</translation>
+    </message>
+    <message>
         <source>Dust:</source>
         <translation type="unfinished">Prach:</translation>
     </message>
     <message>
+        <source>Choose…</source>
+        <translation type="unfinished">Zvoliť…</translation>
+    </message>
+    <message>
         <source>Hide transaction fee settings</source>
         <translation type="unfinished">Skryť nastavenie poplatkov transakcie</translation>
+    </message>
+    <message>
+        <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
+
+Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satoshis per kvB" for a transaction size of 500 virtual bytes (half of 1 kvB) would ultimately yield a fee of only 50 satoshis.</source>
+        <translation type="unfinished">Špecifikujte vlastný poplatok za kB (1000 bajtov) virtuálnej veľkosti transakcie.
+
+Poznámka: Keďže poplatok je počítaný za bajt, poplatok pri sadzbe "100 satoshi za kB" pri veľkosti transakcie 500 bajtov (polovica z 1 kB) by stál len 50 satoshi.</translation>
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
@@ -2245,6 +3495,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
         <translation type="unfinished">Príliš nízky poplatok môže mať za následok nikdy nepotvrdenú transakciu (prečítajte si popis)</translation>
+    </message>
+    <message>
+        <source>(Smart fee not initialized yet. This usually takes a few blocks…)</source>
+        <translation type="unfinished">(Smart poplatok ešte nie je inicializovaný. Toto zvyčajne vyžaduje niekoľko blokov…)</translation>
     </message>
     <message>
         <source>Confirmation time target:</source>
@@ -2260,19 +3514,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Clear &amp;All</source>
-        <translation>&amp;Zmazať všetko</translation>
+        <translation type="unfinished">&amp;Zmazať všetko</translation>
     </message>
     <message>
         <source>Balance:</source>
-        <translation>Zostatok:</translation>
+        <translation type="unfinished">Zostatok:</translation>
     </message>
     <message>
         <source>Confirm the send action</source>
-        <translation>Potvrďte odoslanie</translation>
+        <translation type="unfinished">Potvrďte odoslanie</translation>
     </message>
     <message>
         <source>S&amp;end</source>
-        <translation>&amp;Odoslať</translation>
+        <translation type="unfinished">&amp;Odoslať</translation>
     </message>
     <message>
         <source>Copy quantity</source>
@@ -2304,7 +3558,21 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>%1 (%2 blocks)</source>
-        <translation type="unfinished">%1 (%2 blokov)</translation>
+        <translation type="unfinished">%1 (%2 bloky(ov))</translation>
+    </message>
+    <message>
+        <source>Sign on device</source>
+        <extracomment>"device" usually means a hardware wallet.</extracomment>
+        <translation type="unfinished">Podpísať na zariadení</translation>
+    </message>
+    <message>
+        <source>Connect your hardware wallet first.</source>
+        <translation type="unfinished">Najprv pripojte hardvérovú peňaženku.</translation>
+    </message>
+    <message>
+        <source>Set external signer script path in Options -&gt; Wallet</source>
+        <extracomment>"External signer" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Nastavte cestu ku skriptu externého podpisovateľa v Možnosti -&gt; Peňaženka</translation>
     </message>
     <message>
         <source>Cr&amp;eate Unsigned</source>
@@ -2327,20 +3595,22 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 do %2</translation>
     </message>
     <message>
-        <source>Do you want to draft this transaction?</source>
-        <translation type="unfinished">Chcete naplánovať túto transakciu?</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to send?</source>
-        <translation type="unfinished">Určite chcete odoslať transakciu?</translation>
-    </message>
-    <message>
-        <source>Create Unsigned</source>
-        <translation type="unfinished">Vytvoriť bez podpisu</translation>
+        <source>To review recipient list click "Show Details…"</source>
+        <translation type="unfinished">Pre kontrolu zoznamu príjemcov kliknite "Zobraziť detaily…"</translation>
     </message>
     <message>
         <source>Sign failed</source>
         <translation type="unfinished">Podpisovanie neúspešné</translation>
+    </message>
+    <message>
+        <source>External signer not found</source>
+        <extracomment>"External signer" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Externý podpisovateľ sa nenašiel</translation>
+    </message>
+    <message>
+        <source>External signer failure</source>
+        <extracomment>"External signer" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Externý podpisovateľ zlyhal</translation>
     </message>
     <message>
         <source>Save Transaction Data</source>
@@ -2356,6 +3626,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">PSBT uložená</translation>
     </message>
     <message>
+        <source>External balance:</source>
+        <translation type="unfinished">Externý zostatok:</translation>
+    </message>
+    <message>
         <source>or</source>
         <translation type="unfinished">alebo</translation>
     </message>
@@ -2364,7 +3638,23 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Poplatok môžete navýšiť neskôr (vysiela sa "Replace-By-Fee" - nahradenie poplatkom, BIP-125).</translation>
     </message>
     <message>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
+        <translation type="unfinished">Prečítajte si prosím svoj návrh transakcie. Výsledkom bude čiastočne podpísaná qtumová transakcia (PSBT), ktorú môžete uložiť alebo skopírovať a potom podpísať napr. cez offline peňaženku %1 alebo hardvérovú peňaženku kompatibilnú s PSBT.</translation>
+    </message>
+    <message>
+        <source>Do you want to create this transaction?</source>
+        <extracomment>Message displayed when attempting to create a transaction. Cautionary text to prompt the user to verify that the displayed transaction details represent the transaction the user intends to create.</extracomment>
+        <translation type="unfinished">Chcete vytvoriť túto transakciu?</translation>
+    </message>
+    <message>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
+        <translation type="unfinished">Skontrolujte prosím svoj návrh transakcie. Môžete vytvoriť a odoslať túto transakciu alebo vytvoriť čiastočne podpísanú qtumovú transakciu (PSBT), ktorú môžete uložiť alebo skopírovať a potom podpísať napr. cez offline peňaženku %1 alebo hardvérovú peňaženku kompatibilnú s PSBT.</translation>
+    </message>
+    <message>
         <source>Please, review your transaction.</source>
+        <extracomment>Text to prompt a user to review the details of the transaction they are attempting to send.</extracomment>
         <translation type="unfinished">Prosím, skontrolujte Vašu transakciu.</translation>
     </message>
     <message>
@@ -2382,10 +3672,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Confirm send coins</source>
         <translation type="unfinished">Potvrďte odoslanie mincí</translation>
-    </message>
-    <message>
-        <source>Confirm transaction proposal</source>
-        <translation type="unfinished">Potvrdiť návrh transakcie</translation>
     </message>
     <message>
         <source>Watch-only balance:</source>
@@ -2419,16 +3705,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation type="unfinished">Poplatok vyšší ako %1 sa považuje za neprimerane vysoký.</translation>
     </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation type="unfinished">Vypršala platnosť požiadavky na platbu.</translation>
-    </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
+        <translation type="unfinished">
+            <numerusform>Odhadované potvrdenie o %n blok.</numerusform>
+            <numerusform>Odhadované potvrdenie o %n bloky.</numerusform>
+            <numerusform>Odhadované potvrdenie o %n blokov.</numerusform>
         </translation>
     </message>
     <message>
@@ -2456,15 +3738,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>SendCoinsEntry</name>
     <message>
         <source>A&amp;mount:</source>
-        <translation>Su&amp;ma:</translation>
+        <translation type="unfinished">Su&amp;ma:</translation>
     </message>
     <message>
         <source>Pay &amp;To:</source>
-        <translation>Zapla&amp;tiť:</translation>
+        <translation type="unfinished">Zapla&amp;tiť:</translation>
     </message>
     <message>
         <source>&amp;Label:</source>
-        <translation>&amp;Popis:</translation>
+        <translation type="unfinished">&amp;Popis:</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2476,7 +3758,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Paste address from clipboard</source>
-        <translation>Vložiť adresu zo schránky</translation>
+        <translation type="unfinished">Vložiť adresu zo schránky</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -2503,14 +3785,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Správa:</translation>
     </message>
     <message>
-        <source>This is an unauthenticated payment request.</source>
-        <translation type="unfinished">Toto je neoverená výzva k platbe.</translation>
-    </message>
-    <message>
-        <source>This is an authenticated payment request.</source>
-        <translation type="unfinished">Toto je overená výzva k platbe.</translation>
-    </message>
-    <message>
         <source>Enter a label for this address to add it to the list of used addresses</source>
         <translation type="unfinished">Vložte popis pre túto adresu aby sa uložila do zoznamu použitých adries</translation>
     </message>
@@ -2518,24 +3792,27 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Správa ktorá bola pripojená k qtum: URI a ktorá bude uložená s transakcou pre Vaše potreby. Poznámka: Táto správa nebude poslaná cez sieť Qtum.</translation>
     </message>
+</context>
+<context>
+    <name>SendConfirmationDialog</name>
     <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">Platba pre:</translation>
+        <source>Send</source>
+        <translation type="unfinished">Odoslať</translation>
     </message>
     <message>
-        <source>Memo:</source>
-        <translation type="unfinished">Poznámka:</translation>
+        <source>Create Unsigned</source>
+        <translation type="unfinished">Vytvoriť bez podpisu</translation>
     </message>
 </context>
 <context>
     <name>SignVerifyMessageDialog</name>
     <message>
         <source>Signatures - Sign / Verify a Message</source>
-        <translation>Podpisy - Podpísať / Overiť správu</translation>
+        <translation type="unfinished">Podpisy - Podpísať / Overiť správu</translation>
     </message>
     <message>
         <source>&amp;Sign Message</source>
-        <translation>&amp;Podpísať Správu</translation>
+        <translation type="unfinished">&amp;Podpísať Správu</translation>
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
@@ -2551,39 +3828,39 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Paste address from clipboard</source>
-        <translation>Vložiť adresu zo schránky</translation>
+        <translation type="unfinished">Vložiť adresu zo schránky</translation>
     </message>
     <message>
         <source>Enter the message you want to sign here</source>
-        <translation>Sem vložte správu ktorú chcete podpísať</translation>
+        <translation type="unfinished">Sem vložte správu ktorú chcete podpísať</translation>
     </message>
     <message>
         <source>Signature</source>
-        <translation>Podpis</translation>
+        <translation type="unfinished">Podpis</translation>
     </message>
     <message>
         <source>Copy the current signature to the system clipboard</source>
-        <translation>Kopírovať tento podpis do systémovej schránky</translation>
+        <translation type="unfinished">Kopírovať tento podpis do systémovej schránky</translation>
     </message>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
-        <translation>Podpíšte správu aby ste dokázali že vlastníte túto adresu</translation>
+        <translation type="unfinished">Podpíšte správu aby ste dokázali že vlastníte túto adresu</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
-        <translation>Podpísať &amp;správu</translation>
+        <translation type="unfinished">Podpísať &amp;správu</translation>
     </message>
     <message>
         <source>Reset all sign message fields</source>
-        <translation>Vynulovať všetky polia podpisu správy</translation>
+        <translation type="unfinished">Vynulovať všetky polia podpisu správy</translation>
     </message>
     <message>
         <source>Clear &amp;All</source>
-        <translation>&amp;Zmazať všetko</translation>
+        <translation type="unfinished">&amp;Zmazať všetko</translation>
     </message>
     <message>
         <source>&amp;Verify Message</source>
-        <translation>O&amp;veriť správu...</translation>
+        <translation type="unfinished">O&amp;veriť správu...</translation>
     </message>
     <message>
         <source>Enter the receiver's address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</source>
@@ -2603,15 +3880,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
-        <translation>Overím správy sa uistiť že bola podpísaná označenou Qtum adresou</translation>
+        <translation type="unfinished">Overím správy sa uistiť že bola podpísaná označenou Qtum adresou</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
-        <translation>&amp;Overiť správu</translation>
+        <translation type="unfinished">&amp;Overiť správu</translation>
     </message>
     <message>
         <source>Reset all verify message fields</source>
-        <translation>Obnoviť všetky polia v overiť správu</translation>
+        <translation type="unfinished">Obnoviť všetky polia v overiť správu</translation>
     </message>
     <message>
         <source>Click "Sign Message" to generate signature</source>
@@ -2671,45 +3948,36 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>TransactionDesc</name>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
-        </translation>
+    <name>SplashScreen</name>
+    <message>
+        <source>(press q to shutdown and continue later)</source>
+        <translation type="unfinished">(stlačte Q pre ukončenie a pokračovanie neskôr)</translation>
     </message>
     <message>
-        <source>Open until %1</source>
-        <translation type="unfinished">Otvorené do %1</translation>
+        <source>press q to shutdown</source>
+        <translation type="unfinished">stlačte q pre ukončenie</translation>
     </message>
+</context>
+<context>
+    <name>TransactionDesc</name>
     <message>
         <source>conflicted with a transaction with %1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that conflicts with a confirmed transaction.</extracomment>
         <translation type="unfinished">koliduje s transakciou s %1 potvrdeniami</translation>
     </message>
     <message>
-        <source>0/unconfirmed, %1</source>
-        <translation type="unfinished">0/nepotvrdené, %1</translation>
-    </message>
-    <message>
-        <source>in memory pool</source>
-        <translation type="unfinished">v transakčnom zásobníku</translation>
-    </message>
-    <message>
-        <source>not in memory pool</source>
-        <translation type="unfinished">nie je v transakčnom zásobníku</translation>
-    </message>
-    <message>
         <source>abandoned</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an abandoned transaction.</extracomment>
         <translation type="unfinished">zanechaná</translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/nepotvrdené</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">%1 potvrdení</translation>
     </message>
     <message>
@@ -2758,10 +4026,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
+        <translation type="unfinished">
+            <numerusform>dozrie o ďalší %n blok</numerusform>
+            <numerusform>dozrie o ďalšie %n bloky</numerusform>
+            <numerusform>dozrie o ďalších %n blokov</numerusform>
         </translation>
     </message>
     <message>
@@ -2853,7 +4121,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
-        <translation>Táto časť obrazovky zobrazuje detailný popis transakcie</translation>
+        <translation type="unfinished">Táto časť obrazovky zobrazuje detailný popis transakcie</translation>
     </message>
     <message>
         <source>Details for %1</source>
@@ -2873,18 +4141,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Label</source>
         <translation type="unfinished">Popis</translation>
-    </message>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    <message>
-        <source>Open until %1</source>
-        <translation type="unfinished">Otvorené do %1</translation>
     </message>
     <message>
         <source>Unconfirmed</source>
@@ -3022,12 +4278,61 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Minimálna suma</translation>
     </message>
     <message>
+        <source>Range…</source>
+        <translation type="unfinished">Rozsah…</translation>
+    </message>
+    <message>
+        <source>&amp;Copy address</source>
+        <translation type="unfinished">&amp;Kopírovať adresu</translation>
+    </message>
+    <message>
+        <source>Copy &amp;label</source>
+        <translation type="unfinished">Kopírovať &amp;popis</translation>
+    </message>
+    <message>
+        <source>Copy &amp;amount</source>
+        <translation type="unfinished">Kopírovať &amp;sumu</translation>
+    </message>
+    <message>
+        <source>Copy transaction &amp;ID</source>
+        <translation type="unfinished">Kopírovať &amp;ID transakcie</translation>
+    </message>
+    <message>
+        <source>Copy &amp;raw transaction</source>
+        <translation type="unfinished">Skopírovať neup&amp;ravenú transakciu</translation>
+    </message>
+    <message>
+        <source>Copy full transaction &amp;details</source>
+        <translation type="unfinished">Skopírovať plné &amp;detaily transakcie</translation>
+    </message>
+    <message>
+        <source>&amp;Show transaction details</source>
+        <translation type="unfinished">&amp;Zobraziť podrobnosti transakcie</translation>
+    </message>
+    <message>
+        <source>Increase transaction &amp;fee</source>
+        <translation type="unfinished">Zvýšiť transakčný &amp;poplatok</translation>
+    </message>
+    <message>
+        <source>A&amp;bandon transaction</source>
+        <translation type="unfinished">Z&amp;amietnuť transakciu</translation>
+    </message>
+    <message>
+        <source>&amp;Edit address label</source>
+        <translation type="unfinished">&amp;Upraviť popis transakcie</translation>
+    </message>
+    <message>
+        <source>Show in %1</source>
+        <extracomment>Transactions table context menu action to show the selected transaction in a third-party block explorer. %1 is a stand-in argument for the URL of the explorer.</extracomment>
+        <translation type="unfinished">Zobraziť v %1</translation>
+    </message>
+    <message>
         <source>Export Transaction History</source>
         <translation type="unfinished">Exportovať históriu transakcií</translation>
     </message>
     <message>
         <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
         <translation type="unfinished">Čiarkou oddelený súbor</translation>
     </message>
     <message>
@@ -3093,76 +4398,6 @@ Choďte do Súbor &gt; Otvoriť Peňaženku, pre načítanie peňaženky.
         <source>Create a new wallet</source>
         <translation type="unfinished">Vytvoriť novú peňaženku</translation>
     </message>
-</context>
-<context>
-    <name>WalletModel</name>
-    <message>
-        <source>Send Coins</source>
-        <translation type="unfinished">Poslať mince</translation>
-    </message>
-    <message>
-        <source>Fee bump error</source>
-        <translation type="unfinished">Chyba pri navyšovaní poplatku</translation>
-    </message>
-    <message>
-        <source>Increasing transaction fee failed</source>
-        <translation type="unfinished">Nepodarilo sa navýšiť poplatok</translation>
-    </message>
-    <message>
-        <source>Do you want to increase the fee?</source>
-        <translation type="unfinished">Chcete navýšiť poplatok?</translation>
-    </message>
-    <message>
-        <source>Do you want to draft a transaction with fee increase?</source>
-        <translation type="unfinished">Chcete naplánovať túto transakciu s navýšením poplatkov.</translation>
-    </message>
-    <message>
-        <source>Current fee:</source>
-        <translation type="unfinished">Momentálny poplatok:</translation>
-    </message>
-    <message>
-        <source>Increase:</source>
-        <translation type="unfinished">Navýšenie:</translation>
-    </message>
-    <message>
-        <source>New fee:</source>
-        <translation type="unfinished">Nový poplatok:</translation>
-    </message>
-    <message>
-        <source>Confirm fee bump</source>
-        <translation type="unfinished">Potvrď navýšenie poplatku</translation>
-    </message>
-    <message>
-        <source>Can't draft transaction.</source>
-        <translation type="unfinished">Nemožno naplánovať túto transakciu.</translation>
-    </message>
-    <message>
-        <source>PSBT copied</source>
-        <translation type="unfinished">PSBT skopírovaná</translation>
-    </message>
-    <message>
-        <source>Can't sign transaction.</source>
-        <translation type="unfinished">Nemôzeme podpíaať transakciu.</translation>
-    </message>
-    <message>
-        <source>Could not commit transaction</source>
-        <translation type="unfinished">Nemôzeme uložiť transakciu do peňaženky</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">predvolená peňaženka</translation>
-    </message>
-</context>
-<context>
-    <name>WalletView</name>
-    <message>
-        <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exportovať...</translation>
-    </message>
-    <message>
-        <source>Export the data in the current tab to a file</source>
-        <translation type="unfinished">Exportovať dáta v aktuálnej karte do súboru</translation>
-    </message>
     <message>
         <source>Error</source>
         <translation type="unfinished">Chyba</translation>
@@ -3186,6 +4421,81 @@ Choďte do Súbor &gt; Otvoriť Peňaženku, pre načítanie peňaženky.
     <message>
         <source>Unable to decode PSBT</source>
         <translation type="unfinished">Nepodarilo sa dekódovať PSBT</translation>
+    </message>
+</context>
+<context>
+    <name>WalletModel</name>
+    <message>
+        <source>Send Coins</source>
+        <translation type="unfinished">Poslať mince</translation>
+    </message>
+    <message>
+        <source>Fee bump error</source>
+        <translation type="unfinished">Chyba pri navyšovaní poplatku</translation>
+    </message>
+    <message>
+        <source>Increasing transaction fee failed</source>
+        <translation type="unfinished">Nepodarilo sa navýšiť poplatok</translation>
+    </message>
+    <message>
+        <source>Do you want to increase the fee?</source>
+        <extracomment>Asks a user if they would like to manually increase the fee of a transaction that has already been created.</extracomment>
+        <translation type="unfinished">Chcete navýšiť poplatok?</translation>
+    </message>
+    <message>
+        <source>Current fee:</source>
+        <translation type="unfinished">Momentálny poplatok:</translation>
+    </message>
+    <message>
+        <source>Increase:</source>
+        <translation type="unfinished">Navýšenie:</translation>
+    </message>
+    <message>
+        <source>New fee:</source>
+        <translation type="unfinished">Nový poplatok:</translation>
+    </message>
+    <message>
+        <source>Warning: This may pay the additional fee by reducing change outputs or adding inputs, when necessary. It may add a new change output if one does not already exist. These changes may potentially leak privacy.</source>
+        <translation type="unfinished">Varovanie: Toto môže zaplatiť ďalší poplatok znížením výstupov alebo pridaním vstupov, ak to bude potrebné. Môže pridať nový výstup ak ešte žiadny neexistuje. Tieto zmeny by mohli ohroziť súkromie.</translation>
+    </message>
+    <message>
+        <source>Confirm fee bump</source>
+        <translation type="unfinished">Potvrď navýšenie poplatku</translation>
+    </message>
+    <message>
+        <source>Can't draft transaction.</source>
+        <translation type="unfinished">Nemožno naplánovať túto transakciu.</translation>
+    </message>
+    <message>
+        <source>PSBT copied</source>
+        <translation type="unfinished">PSBT skopírovaná</translation>
+    </message>
+    <message>
+        <source>Can't sign transaction.</source>
+        <translation type="unfinished">Nemôzeme podpíaať transakciu.</translation>
+    </message>
+    <message>
+        <source>Could not commit transaction</source>
+        <translation type="unfinished">Nemôzeme uložiť transakciu do peňaženky</translation>
+    </message>
+    <message>
+        <source>Can't display address</source>
+        <translation type="unfinished">Nemôžem zobraziť adresu</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">predvolená peňaženka</translation>
+    </message>
+</context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">&amp;Exportovať...</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation type="unfinished">Exportovať dáta v aktuálnej karte do súboru</translation>
     </message>
     <message>
         <source>Backup Wallet</source>
@@ -3215,425 +4525,6 @@ Choďte do Súbor &gt; Otvoriť Peňaženku, pre načítanie peňaženky.
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Zrušiť</translation>
-    </message>
-</context>
-<context>
-    <name>qtum-core</name>
-    <message>
-        <source>The %s developers</source>
-        <translation type="unfinished">Vývojári %s</translation>
-    </message>
-    <message>
-        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
-        <translation type="unfinished">-maxtxfee je nastavené veľmi vysoko! Takto vysoký poplatok môže byť zaplatebý v jednej transakcii.</translation>
-    </message>
-    <message>
-        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
-        <translation type="unfinished">Nemožné uzamknúť zložku %s. %s pravdepodobne už beží.</translation>
-    </message>
-    <message>
-        <source>Cannot provide specific connections and have addrman find outgoing connections at the same.</source>
-        <translation type="unfinished">Nemôžete zadať konkrétne spojenia a zároveň mať nastavený addrman pre hľadanie odchádzajúcich spojení.</translation>
-    </message>
-    <message>
-        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
-        <translation type="unfinished">Distribuované pod softvérovou licenciou MIT, pozri sprievodný súbor %s alebo %s</translation>
-    </message>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Nastala chyba pri čítaní súboru %s! Všetkz kľúče sa prečítali správne, ale dáta o transakcíách alebo záznamy v adresári môžu chýbať alebo byť nesprávne.</translation>
-    </message>
-    <message>
-        <source>Error: Listening for incoming connections failed (listen returned error %s)</source>
-        <translation type="unfinished">Chyba: Počúvanie prichádzajúcich spojení zlyhalo (vrátená chyba je %s)</translation>
-    </message>
-    <message>
-        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
-        <translation type="unfinished">Odhad poplatku sa nepodaril. Fallbackfee je zakázaný. Počkajte niekoľko blokov alebo povoľte -fallbackfee.</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
-        <translation type="unfinished">Neplatná suma pre -maxtxfee=&lt;amount&gt;: '%s' (aby sa transakcia nezasekla, minimálny prenosový poplatok musí byť aspoň %s)</translation>
-    </message>
-    <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">Prosím skontrolujte systémový čas a dátum. Keď je váš čas nesprávny, %s nebude fungovať správne.</translation>
-    </message>
-    <message>
-        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
-        <translation type="unfinished">Keď si myslíte, že %s je užitočný, podporte nás. Pre viac informácií o software navštívte %s.</translation>
-    </message>
-    <message>
-        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
-        <translation type="unfinished">Redukcia nastavená pod minimálnu hodnotu %d MiB. Prosím použite vyššiu hodnotu.</translation>
-    </message>
-    <message>
-        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
-        <translation type="unfinished">Redukovanie: posledná synchronizácia peňaženky prebehla pred časmi blokov v redukovaných dátach. Je potrebné vykonať -reindex (v prípade redukovaného režimu stiahne znovu celý blockchain)</translation>
-    </message>
-    <message>
-        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
-        <translation type="unfinished">Databáza blokov obsahuje blok, ktorý vyzerá byť z budúcnosti. Toto môže byť spôsobené nesprávnym systémovým časom vášho počítača. Obnovujte databázu blokov len keď ste si istý, že systémový čas je nastavený správne.</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to send after the fee has been deducted</source>
-        <translation type="unfinished">Suma je príliš malá pre odoslanie transakcie</translation>
-    </message>
-    <message>
-        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation type="unfinished">Toto je predbežná testovacia zostava - používate na vlastné riziko - nepoužívajte na ťaženie alebo obchodné aplikácie</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
-        <translation type="unfinished">Toto je transakčný poplatok, ktorý môžete škrtnúť, ak je zmena na tejto úrovni menšia ako prach</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
-        <translation type="unfinished">Toto je poplatok za transakciu keď odhad poplatkov ešte nie je k dispozícii.</translation>
-    </message>
-    <message>
-        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
-        <translation type="unfinished">Celková dĺžka verzie sieťového reťazca (%i) prekračuje maximálnu dĺžku (%i). Znížte počet a veľkosť komentárov.</translation>
-    </message>
-    <message>
-        <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
-        <translation type="unfinished">Nedarí sa znovu aplikovať bloky. Budete musieť prestavať databázu použitím -reindex-chainstate.</translation>
-    </message>
-    <message>
-        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
-        <translation type="unfinished">Upozornenie: Boli zistené súkromné kľúče v peňaženke {%s} so zakázanými súkromnými kľúčmi.</translation>
-    </message>
-    <message>
-        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation type="unfinished">Varovanie: Zjavne sa úplne nezhodujeme s našimi peer-mi! Možno potrebujete prejsť na novšiu verziu alebo ostatné uzly potrebujú vyššiu verziu.</translation>
-    </message>
-    <message>
-        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
-        <translation type="unfinished">K návratu k neredukovanému režimu je potrebné prestavať databázu použitím -reindex. Tiež sa znova stiahne celý blockchain</translation>
-    </message>
-    <message>
-        <source>%s is set very high!</source>
-        <translation type="unfinished">Hodnota %s je nastavená veľmi vysoko!</translation>
-    </message>
-    <message>
-        <source>-maxmempool must be at least %d MB</source>
-        <translation type="unfinished">-maxmempool musí byť najmenej %d MB</translation>
-    </message>
-    <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">Nastala fatálna interná chyba, pre viac informácií pozrite debug.log</translation>
-    </message>
-    <message>
-        <source>Cannot resolve -%s address: '%s'</source>
-        <translation type="unfinished">Nedá preložiť -%s adresu: '%s'</translation>
-    </message>
-    <message>
-        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
-        <translation type="unfinished">Nepodarilo sa určiť -peerblockfilters bez -blockfilterindex.</translation>
-    </message>
-    <message>
-        <source>Cannot write to data directory '%s'; check permissions.</source>
-        <translation type="unfinished">Nie je možné zapísať do adresára ' %s'. Skontrolujte povolenia.</translation>
-    </message>
-    <message>
-        <source>Change index out of range</source>
-        <translation type="unfinished">Menný index mimo rozsah</translation>
-    </message>
-    <message>
-        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
-        <translation type="unfinished">Nastavenie konfigurácie pre %s platí iba v sieti %s a v sekcii [%s].</translation>
-    </message>
-    <message>
-        <source>Corrupted block database detected</source>
-        <translation type="unfinished">Zistená poškodená databáza blokov</translation>
-    </message>
-    <message>
-        <source>Could not find asmap file %s</source>
-        <translation type="unfinished">Nepodarilo sa nájsť asmap súbor %s</translation>
-    </message>
-    <message>
-        <source>Could not parse asmap file %s</source>
-        <translation type="unfinished">Nepodarilo sa analyzovať asmap súbor %s</translation>
-    </message>
-    <message>
-        <source>Disk space is too low!</source>
-        <translation type="unfinished">Nedostatok miesta na disku!</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Chcete znovu zostaviť databázu blokov?</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Dokončené načítavanie</translation>
-    </message>
-    <message>
-        <source>Error creating %s</source>
-        <translation type="unfinished">Chyba pri vytváraní %s</translation>
-    </message>
-    <message>
-        <source>Error initializing block database</source>
-        <translation type="unfinished">Chyba inicializácie databázy blokov</translation>
-    </message>
-    <message>
-        <source>Error initializing wallet database environment %s!</source>
-        <translation type="unfinished">Chyba spustenia databázového prostredia peňaženky %s!</translation>
-    </message>
-    <message>
-        <source>Error loading %s</source>
-        <translation type="unfinished">Chyba načítania %s</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">Chyba pri načítaní %s: Súkromné kľúče môžu byť zakázané len počas vytvárania</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet corrupted</source>
-        <translation type="unfinished">Chyba načítania %s: Peňaženka je poškodená</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet requires newer version of %s</source>
-        <translation type="unfinished">Chyba načítania %s: Peňaženka vyžaduje novšiu verziu %s</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Chyba načítania databázy blokov</translation>
-    </message>
-    <message>
-        <source>Error opening block database</source>
-        <translation type="unfinished">Chyba otvárania databázy blokov</translation>
-    </message>
-    <message>
-        <source>Error reading from database, shutting down.</source>
-        <translation type="unfinished">Chyba pri načítaní z databázy, ukončuje sa.</translation>
-    </message>
-    <message>
-        <source>Error upgrading chainstate database</source>
-        <translation type="unfinished">Chyba pri vylepšení databáze reťzcov blokov</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is low for %s</source>
-        <translation type="unfinished">Chyba: Málo miesta na disku pre %s</translation>
-    </message>
-    <message>
-        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
-        <translation type="unfinished">Chyba počúvania na ktoromkoľvek porte. Použi -listen=0 ak toto chcete.</translation>
-    </message>
-    <message>
-        <source>Failed to rescan the wallet during initialization</source>
-        <translation type="unfinished">Počas inicializácie sa nepodarila pre-skenovať peňaženka</translation>
-    </message>
-    <message>
-        <source>Failed to verify database</source>
-        <translation type="unfinished">Nepodarilo sa overiť databázu</translation>
-    </message>
-    <message>
-        <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
-        <translation type="unfinished">Zvolený poplatok (%s)  je nižší ako nastavený minimálny poplatok (%s)</translation>
-    </message>
-    <message>
-        <source>Ignoring duplicate -wallet %s.</source>
-        <translation type="unfinished">Ignorujú sa duplikátne -wallet %s.</translation>
-    </message>
-    <message>
-        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
-        <translation type="unfinished">Nesprávny alebo žiadny genesis blok nájdený. Nesprávny dátový priečinok alebo sieť?</translation>
-    </message>
-    <message>
-        <source>Initialization sanity check failed. %s is shutting down.</source>
-        <translation type="unfinished">Kontrola čistoty pri inicializácií zlyhala. %s sa vypína.</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Nedostatok prostriedkov</translation>
-    </message>
-    <message>
-        <source>Invalid -onion address or hostname: '%s'</source>
-        <translation type="unfinished">Neplatná -onion adresa alebo hostiteľ: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid -proxy address or hostname: '%s'</source>
-        <translation type="unfinished">Neplatná -proxy adresa alebo hostiteľ: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid P2P permission: '%s'</source>
-        <translation type="unfinished">Neplatné oprávnenie P2P: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">Neplatná suma pre -%s=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">Neplatná čiastka pre -discardfee=&lt;čiastka&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">Neplatná suma pre -fallbackfee=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -paytxfee=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation type="unfinished">Neplatná suma pre -paytxfee=&lt;amount&gt;: '%s' (musí byť aspoň %s)</translation>
-    </message>
-    <message>
-        <source>Invalid netmask specified in -whitelist: '%s'</source>
-        <translation type="unfinished">Nadaná neplatná netmask vo -whitelist: '%s'</translation>
-    </message>
-    <message>
-        <source>Need to specify a port with -whitebind: '%s'</source>
-        <translation type="unfinished">Je potrebné zadať port s -whitebind: '%s'</translation>
-    </message>
-    <message>
-        <source>No proxy server specified. Use -proxy=&lt;ip&gt; or -proxy=&lt;ip:port&gt;.</source>
-        <translation type="unfinished">Nie je špecifikovaný proxy server. Použite -proxy=&lt;ip&gt; alebo -proxy=&lt;ip:port&gt;.</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">Nedostatok kľúčových slov súboru.</translation>
-    </message>
-    <message>
-        <source>Prune cannot be configured with a negative value.</source>
-        <translation type="unfinished">Redukovanie nemôže byť nastavené na zápornú hodnotu.</translation>
-    </message>
-    <message>
-        <source>Prune mode is incompatible with -txindex.</source>
-        <translation type="unfinished">Redukovanie je nekompatibilné s -txindex.</translation>
-    </message>
-    <message>
-        <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
-        <translation type="unfinished">Obmedzuje sa -maxconnections z %d na %d kvôli systémovým obmedzeniam.</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
-        <translation type="unfinished">SQLiteDatabase: Neočakávané ID aplikácie: %u. Očakávané:  %u</translation>
-    </message>
-    <message>
-        <source>Section [%s] is not recognized.</source>
-        <translation type="unfinished">Sekcia [%s] nie je rozpoznaná.</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Podpísanie správy zlyhalo</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" does not exist</source>
-        <translation type="unfinished">Uvedená -walletdir "%s" neexistuje</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" is a relative path</source>
-        <translation type="unfinished">Uvedená -walletdir "%s" je relatívna cesta</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" is not a directory</source>
-        <translation type="unfinished">Uvedený -walletdir "%s" nie je priečinok</translation>
-    </message>
-    <message>
-        <source>Specified blocks directory "%s" does not exist.</source>
-        <translation type="unfinished">Zadaný adresár blokov "%s" neexistuje.</translation>
-    </message>
-    <message>
-        <source>The source code is available from %s.</source>
-        <translation type="unfinished">Zdrojový kód je dostupný z %s</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to pay the fee</source>
-        <translation type="unfinished">Suma transakcie je príliš malá na zaplatenie poplatku</translation>
-    </message>
-    <message>
-        <source>The wallet will avoid paying less than the minimum relay fee.</source>
-        <translation type="unfinished">Peňaženka zabráni zaplateniu menšej sumy ako je minimálny poplatok.</translation>
-    </message>
-    <message>
-        <source>This is experimental software.</source>
-        <translation type="unfinished">Toto je experimentálny softvér.</translation>
-    </message>
-    <message>
-        <source>This is the minimum transaction fee you pay on every transaction.</source>
-        <translation type="unfinished">Toto je minimálny poplatok za transakciu pri každej transakcii.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">Toto je poplatok za transakciu pri odoslaní transakcie.</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">Suma transakcie príliš malá</translation>
-    </message>
-    <message>
-        <source>Transaction amounts must not be negative</source>
-        <translation type="unfinished">Sumy transakcií nesmú byť záporné</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">Transakcia má v transakčnom zásobníku príliš dlhý reťazec</translation>
-    </message>
-    <message>
-        <source>Transaction must have at least one recipient</source>
-        <translation type="unfinished">Transakcia musí mať aspoň jedného príjemcu</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Transakcia príliš veľká</translation>
-    </message>
-    <message>
-        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
-        <translation type="unfinished">Na tomto počítači sa nedá vytvoriť väzba %s (vytvorenie väzby vrátilo chybu %s)</translation>
-    </message>
-    <message>
-        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
-        <translation type="unfinished">Nemožné pripojiť k %s na tomto počíťači. %s už pravdepodobne beží.</translation>
-    </message>
-    <message>
-        <source>Unable to create the PID file '%s': %s</source>
-        <translation type="unfinished">Nepodarilo sa vytvoriť súbor PID '%s': %s</translation>
-    </message>
-    <message>
-        <source>Unable to generate initial keys</source>
-        <translation type="unfinished">Nepodarilo sa vygenerovať úvodné kľúče</translation>
-    </message>
-    <message>
-        <source>Unable to generate keys</source>
-        <translation type="unfinished">Nepodarilo sa vygenerovať kľúče</translation>
-    </message>
-    <message>
-        <source>Unable to start HTTP server. See debug log for details.</source>
-        <translation type="unfinished">Nepodarilo sa spustiť HTTP server. Pre viac detailov zobrazte debug log.</translation>
-    </message>
-    <message>
-        <source>Unknown -blockfilterindex value %s.</source>
-        <translation type="unfinished">Neznáma -blockfilterindex hodnota %s.</translation>
-    </message>
-    <message>
-        <source>Unknown address type '%s'</source>
-        <translation type="unfinished">Neznámy typ adresy '%s'</translation>
-    </message>
-    <message>
-        <source>Unknown change type '%s'</source>
-        <translation type="unfinished">Neznámy typ zmeny '%s'</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">Neznáma sieť upresnená v -onlynet: '%s'</translation>
-    </message>
-    <message>
-        <source>Unsupported logging category %s=%s.</source>
-        <translation type="unfinished">Nepodporovaná logovacia kategória %s=%s.</translation>
-    </message>
-    <message>
-        <source>Upgrading UTXO database</source>
-        <translation type="unfinished">Vylepšuje sa databáza neminutých výstupov (UTXO)</translation>
-    </message>
-    <message>
-        <source>Upgrading txindex database</source>
-        <translation type="unfinished">Inovuje sa txindex databáza</translation>
-    </message>
-    <message>
-        <source>User Agent comment (%s) contains unsafe characters.</source>
-        <translation type="unfinished">Komentár u typu klienta (%s) obsahuje riskantné znaky.</translation>
-    </message>
-    <message>
-        <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation type="unfinished">Peňaženka musí byť prepísaná: pre dokončenie reštartujte %s</translation>
     </message>
 </context>
 </TS>

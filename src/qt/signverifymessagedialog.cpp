@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -26,7 +26,6 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
-
     ui->addressBookButton_SM->setIcon(platformStyle->MultiStatesIcon(":/icons/address-book", PlatformStyle::PushButtonIcon));
     ui->pasteButton_SM->setIcon(platformStyle->MultiStatesIcon(":/icons/editpaste", PlatformStyle::PushButtonIcon));
     ui->copySignatureButton_SM->setIcon(platformStyle->MultiStatesIcon(":/icons/editcopy", PlatformStyle::PushButtonIcon));
@@ -35,7 +34,6 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     ui->addressBookButton_VM->setIcon(platformStyle->MultiStatesIcon(":/icons/address-book", PlatformStyle::PushButtonIcon));
     ui->verifyMessageButton_VM->setIcon(platformStyle->MultiStatesIcon(":/icons/transaction_0", PlatformStyle::PushButton));
     ui->clearButton_VM->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButtonLight));
-
     SetObjectStyleSheet(ui->clearButton_SM, StyleSheetNames::ButtonLight);
     SetObjectStyleSheet(ui->clearButton_VM, StyleSheetNames::ButtonLight);
     SetObjectStyleSheet(ui->signMessageButton_SM, StyleSheetNames::ButtonGray);
@@ -44,6 +42,7 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     SetObjectStyleSheet(ui->pasteButton_SM, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->copySignatureButton_SM, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->addressBookButton_VM, StyleSheetNames::ButtonTransparent);
+
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);
     GUIUtil::setupAddressWidget(ui->addressIn_VM, this);
@@ -101,7 +100,7 @@ void SignVerifyMessageDialog::on_addressBookButton_SM_clicked()
 {
     if (model && model->getAddressTableModel())
     {
-        model->refresh(/* pk_hash_only */ true);
+        model->refresh(/*pk_hash_only=*/true);
         AddressBookPage dlg(platformStyle, AddressBookPage::ForSelection, AddressBookPage::ReceivingTab, this);
         dlg.setModel(model->getAddressTableModel());
         if (dlg.exec())

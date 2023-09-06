@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>Create a new address</source>
-        <translation>Zrychtuj nowõ adresã</translation>
+        <translation type="unfinished">Zrychtuj nowõ adresã</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>Skopiyruj aktualnie ôbranõ adresã do skrytki</translation>
+        <translation type="unfinished">Skopiyruj aktualnie ôbranõ adresã do skrytki</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -27,7 +27,7 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation>Wychrōń zaznaczōnõ adresã z brify</translation>
+        <translation type="unfinished">Wychrōń zaznaczōnõ adresã z brify</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
@@ -35,15 +35,15 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>Eksportuj dane z aktywnyj szkarty do zbioru</translation>
+        <translation type="unfinished">Eksportuj dane z aktywnyj szkarty do zbioru</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>&amp;Eksportuj</translation>
+        <translation type="unfinished">&amp;Eksportuj</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Wychrōń</translation>
+        <translation type="unfinished">&amp;Wychrōń</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -114,19 +114,19 @@
     <name>AskPassphraseDialog</name>
     <message>
         <source>Passphrase Dialog</source>
-        <translation>Ôkiynko Hasła</translation>
+        <translation type="unfinished">Ôkiynko Hasła</translation>
     </message>
     <message>
         <source>Enter passphrase</source>
-        <translation>Wkludź hasło</translation>
+        <translation type="unfinished">Wkludź hasło</translation>
     </message>
     <message>
         <source>New passphrase</source>
-        <translation>Nowe hasło</translation>
+        <translation type="unfinished">Nowe hasło</translation>
     </message>
     <message>
         <source>Repeat new passphrase</source>
-        <translation>Powtōrz nowe hasło</translation>
+        <translation type="unfinished">Powtōrz nowe hasło</translation>
     </message>
     <message>
         <source>Encrypt wallet</source>
@@ -224,21 +224,23 @@
     </message>
     <message>
         <source>Inbound</source>
+        <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
         <translation type="unfinished">Wchodowy</translation>
     </message>
     <message>
         <source>Outbound</source>
+        <extracomment>An outbound connection to a peer. An outbound connection is a connection initiated by us.</extracomment>
         <translation type="unfinished">Wychodowy</translation>
     </message>
     <message numerus="yes">
         <source>%n second(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
         </translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
         </translation>
     </message>
@@ -268,30 +270,93 @@
     </message>
     </context>
 <context>
-    <name>QtumGUI</name>
+    <name>bitcoin-core</name>
+    <message>
+        <source>The %s developers</source>
+        <translation type="unfinished">Twōrcy %s</translation>
+    </message>
+    <message>
+        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
+        <translation type="unfinished">Imyntnŏ dugość kety wersyje (%i) przekrŏczŏ maksymalnõ dopuszczalnõ dugość (%i). Zmyńsz wielość abo miara parametra uacomment.</translation>
+    </message>
+    <message>
+        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
+        <translation type="unfinished">Pozōr: Wykryto było klucze prywatne w portmanyju {%s} kery mŏ zastawiōne klucze prywatne</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Wgrŏwanie zakōńczōne</translation>
+    </message>
+    <message>
+        <source>Error loading %s</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ %s</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Private keys can only be disabled during creation</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ %s: Klucze prywatne mogōm być zastawiōne ino w czasie tworzyniŏ</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ %s: Portmanyj poprzniōny</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ %s: Portmanyj fołdruje nowszyj wersyje %s</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ bazy blokōw</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is low for %s</source>
+        <translation type="unfinished">Feler: Za mało wolnego placu na dysku dlŏ %s</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Szkryftniyńcie transakcyji niy podarziło sie</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">To je eksperymyntalny softwer.</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Transakcyjŏ za srogŏ</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">Niyznōmy nec ôkryślōny w -onlynet: '%s'</translation>
+    </message>
+    <message>
+        <source>Unsupported logging category %s=%s.</source>
+        <translation type="unfinished">Niypodpiyranŏ kategoryjŏ registrowaniŏ %s=%s.</translation>
+    </message>
+    </context>
+<context>
+    <name>BitcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
-        <translation>&amp;Podsumowanie</translation>
+        <translation type="unfinished">&amp;Podsumowanie</translation>
     </message>
     <message>
         <source>Show general overview of wallet</source>
-        <translation>Pokazuje ôgōlny widok portmanyja</translation>
+        <translation type="unfinished">Pokazuje ôgōlny widok portmanyja</translation>
     </message>
     <message>
         <source>&amp;Transactions</source>
-        <translation>&amp;Transakcyje</translation>
+        <translation type="unfinished">&amp;Transakcyje</translation>
     </message>
     <message>
         <source>Browse transaction history</source>
-        <translation>Przeglōndej historyjõ transakcyji</translation>
+        <translation type="unfinished">Przeglōndej historyjõ transakcyji</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation>&amp;Zakōńcz</translation>
+        <translation type="unfinished">&amp;Zakōńcz</translation>
     </message>
     <message>
         <source>Quit application</source>
-        <translation>Zawrzij aplikacyjõ</translation>
+        <translation type="unfinished">Zawrzij aplikacyjõ</translation>
     </message>
     <message>
         <source>&amp;About %1</source>
@@ -303,11 +368,11 @@
     </message>
     <message>
         <source>About &amp;Qt</source>
-        <translation>Ô &amp;Qt</translation>
+        <translation type="unfinished">Ô &amp;Qt</translation>
     </message>
     <message>
         <source>Show information about Qt</source>
-        <translation>Pokŏż informacyje ô Qt</translation>
+        <translation type="unfinished">Pokŏż informacyje ô Qt</translation>
     </message>
     <message>
         <source>Modify configuration options for %1</source>
@@ -328,64 +393,56 @@
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation>Poślij mōnety na adresã Qtum</translation>
+        <translation type="unfinished">Poślij mōnety na adresã Qtum</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
-        <translation>Ibryczny portmanyj w inkszyj lokalizacyje</translation>
+        <translation type="unfinished">Ibryczny portmanyj w inkszyj lokalizacyje</translation>
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
-        <translation>Pōmiyń hasło użyte do szyfrowaniŏ portmanyja</translation>
+        <translation type="unfinished">Pōmiyń hasło użyte do szyfrowaniŏ portmanyja</translation>
     </message>
     <message>
         <source>&amp;Send</source>
-        <translation>&amp;Poślij</translation>
+        <translation type="unfinished">&amp;Poślij</translation>
     </message>
     <message>
         <source>&amp;Receive</source>
-        <translation>Ôd&amp;bier</translation>
-    </message>
-    <message>
-        <source>&amp;Show / Hide</source>
-        <translation>Pokŏż / &amp;Skryj</translation>
-    </message>
-    <message>
-        <source>Show or hide the main Window</source>
-        <translation>Pokazuje abo skrywŏ bazowe ôkno</translation>
+        <translation type="unfinished">Ôd&amp;bier</translation>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Szyfruj klucze prywatne, kere sōm we twojim portmanyju</translation>
+        <translation type="unfinished">Szyfruj klucze prywatne, kere sōm we twojim portmanyju</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation>Podpisz wiadōmości swojōm adresōm coby dowiyść jejich posiadanie</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source> 
+        <translation type="unfinished">Podpisz wiadōmości swojōm adresōm coby dowiyść jejich posiadanie</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation>Zweryfikuj wiadōmość, coby wejzdrzeć sie, iże ôstała podpisanŏ podanōm adresōm Qtum.</translation>
+        <translation type="unfinished">Zweryfikuj wiadōmość, coby wejzdrzeć sie, iże ôstała podpisanŏ podanōm adresōm Qtum.</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation>&amp;Zbiōr</translation>
+        <translation type="unfinished">&amp;Zbiōr</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
-        <translation>&amp;Nasztalowania</translation>
+        <translation type="unfinished">&amp;Nasztalowania</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>Pō&amp;moc</translation>
+        <translation type="unfinished">Pō&amp;moc</translation>
     </message>
     <message>
         <source>Tabs toolbar</source>
-        <translation>Lajsta szkart</translation>
+        <translation type="unfinished">Lajsta szkart</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Żōndej płatu (gyneruje kod QR jak tyż URI qtum:)</translation>
-    </message>
+   </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Pokŏż wykŏz adres i etyket użytych do posyłaniŏ</translation>
@@ -400,44 +457,44 @@
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
         </translation>
     </message>
     <message>
         <source>%1 behind</source>
-        <translation>%1 za</translation>
+        <translation type="unfinished">%1 za</translation>
     </message>
     <message>
         <source>Last received block was generated %1 ago.</source>
-        <translation>Ôstatni dostany blok ôstoł wygynerowany %1 tymu.</translation>
+        <translation type="unfinished">Ôstatni dostany blok ôstoł wygynerowany %1 tymu.</translation>
     </message>
     <message>
         <source>Transactions after this will not yet be visible.</source>
-        <translation>Transakcyje po tym mōmyncie niy bydōm jeszcze widzialne.</translation>
+        <translation type="unfinished">Transakcyje po tym mōmyncie niy bydōm jeszcze widzialne.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Feler</translation>
+        <translation type="unfinished">Feler</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>Pozōr</translation>
+        <translation type="unfinished">Pozōr</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>Informacyjŏ</translation>
+        <translation type="unfinished">Informacyjŏ</translation>
     </message>
     <message>
         <source>Up to date</source>
-        <translation>Terŏźny</translation>
+        <translation type="unfinished">Terŏźny</translation>
     </message>
     <message>
         <source>&amp;Sending addresses</source>
         <translation type="unfinished">&amp;Adresy posyłaniŏ</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source> 
         <translation type="unfinished">Pokŏż pōmoc %1 coby zobŏczyć wykŏz wszyjskich ôpcyji piski nakŏzań.</translation>
     </message>
     <message>
@@ -453,7 +510,7 @@
         <translation type="unfinished">%1 klijynt</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -501,11 +558,11 @@
     </message>
     <message>
         <source>Sent transaction</source>
-        <translation>Transakcyjŏ wysłanŏ</translation>
+        <translation type="unfinished">Transakcyjŏ wysłanŏ</translation>
     </message>
     <message>
         <source>Incoming transaction</source>
-        <translation>Transakcyjŏ przichodzōncŏ</translation>
+        <translation type="unfinished">Transakcyjŏ przichodzōncŏ</translation>
     </message>
     <message>
         <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
@@ -517,11 +574,11 @@
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>Portmanyj je &lt;b&gt;zaszyfrowany&lt;/b&gt; i terŏźnie &lt;b&gt;ôdszperowany&lt;/b&gt;</translation>
+        <translation type="unfinished">Portmanyj je &lt;b&gt;zaszyfrowany&lt;/b&gt; i terŏźnie &lt;b&gt;ôdszperowany&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Portmanyj je &lt;b&gt;zaszyfrowany&lt;/b&gt; i terŏźnie &lt;b&gt;zaszperowany&lt;/b&gt;</translation>
+        <translation type="unfinished">Portmanyj je &lt;b&gt;zaszyfrowany&lt;/b&gt; i terŏźnie &lt;b&gt;zaszperowany&lt;/b&gt;</translation>
     </message>
     </context>
 <context>
@@ -673,11 +730,11 @@
     <name>EditAddressDialog</name>
     <message>
         <source>Edit Address</source>
-        <translation>Edytuj adresã</translation>
+        <translation type="unfinished">Edytuj adresã</translation>
     </message>
     <message>
         <source>&amp;Label</source>
-        <translation>&amp;Etyketa</translation>
+        <translation type="unfinished">&amp;Etyketa</translation>
     </message>
     <message>
         <source>The label associated with this address list entry</source>
@@ -689,7 +746,7 @@
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation>&amp;Adresa</translation>
+        <translation type="unfinished">&amp;Adresa</translation>
     </message>
     <message>
         <source>New sending address</source>
@@ -705,8 +762,8 @@
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">Wkludzōnŏ adresa "%1" niyma nŏleżnōm adresōm Qtum.</translation>
-    </message>
+        <translation type="unfinished">Wkludzōnŏ adresa "%1" niyma nŏleżnōm adresōm Qtum.</translation>  
+  </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Adresa "%1" już je za adresã ôdbiorczõ z etyketōm "%2" i bez to niy idzie jeji przidać za adresã nadŏwcy.</translation>
@@ -728,23 +785,41 @@
     <name>FreespaceChecker</name>
     <message>
         <source>A new data directory will be created.</source>
-        <translation>Bydzie zrychtowany nowy folder danych.</translation>
+        <translation type="unfinished">Bydzie zrychtowany nowy folder danych.</translation>
     </message>
     <message>
         <source>name</source>
-        <translation>miano</translation>
+        <translation type="unfinished">miano</translation>
     </message>
     <message>
         <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Katalog już je. Przidej %1 jeźli mŏsz zastrojynie zrychtować tukej nowy katalog.</translation>
+        <translation type="unfinished">Katalog już je. Przidej %1 jeźli mŏsz zastrojynie zrychtować tukej nowy katalog.</translation>
     </message>
     <message>
         <source>Cannot create data directory here.</source>
-        <translation>Niy idzie było tukej zrychtować folderu datōw.</translation>
+        <translation type="unfinished">Niy idzie było tukej zrychtować folderu datōw.</translation>
     </message>
 </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform>(z %n GB przidajnego)</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
         <translation type="unfinished">Co nojmynij %1 GB datōw ôstanie spamiyntane w tym katalogu, daty te bydōm z czasym corŏz srogsze.</translation>
@@ -763,7 +838,7 @@
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 sebiere i spamiyntŏ kopijõ kety blokōw Qtum.</translation>
-    </message>
+   </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Portmanyj tyż ôstanie spamiyntany w tym katalogu.</translation>
@@ -774,11 +849,11 @@
     </message>
     <message>
         <source>Error</source>
-        <translation>Feler</translation>
+        <translation type="unfinished">Feler</translation>
     </message>
     <message>
         <source>Welcome</source>
-        <translation>Witej</translation>
+        <translation type="unfinished">Witej</translation>
     </message>
     <message>
         <source>Welcome to %1.</source>
@@ -787,10 +862,6 @@
     <message>
         <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
         <translation type="unfinished">Pōniywŏż je to piyrsze sztartniyńcie programu, możesz ôbrać kaj %1 bydzie spamiyntować swoje daty.</translation>
-    </message>
-    <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation type="unfinished">Kej naciśniesz OK, %1 zacznie pobiyrać i przetwŏrzać cołkõ %4 keta blokōw (%2GB) przi zaczynaniu ôd piyrszych transakcyji w %3 kej %4 ôstoł sztartniynty.</translation>
     </message>
     <message>
         <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
@@ -802,11 +873,11 @@
     </message>
     <message>
         <source>Use the default data directory</source>
-        <translation>Użyj wychodnego folderu datōw</translation>
+        <translation type="unfinished">Użyj wychodnego folderu datōw</translation>
     </message>
     <message>
         <source>Use a custom data directory:</source>
-        <translation>Użyj ôbranego folderu datōw</translation>
+        <translation type="unfinished">Użyj ôbranego folderu datōw</translation>
     </message>
 </context>
 <context>
@@ -833,11 +904,11 @@
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Świyże transakcyje mogōm niy być jeszcze widzialne, a tedyć saldo portmanyja może być niynŏleżne. Te detale bydōm nŏleżne, kej portmanyj zakōńczy synchrōnizacyjõ z necym qtum, zgodnie z miyniōnym ôpisym.</translation>
-    </message>
+  </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Prōba wydaniŏ qtumōw kere niy sōm jeszcze wyświytlōne za transakcyjŏ ôstanie ôdciepniyntŏ bez nec.</translation>
-    </message>
+   </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Ôstało blokōw</translation>
@@ -867,11 +938,11 @@
     <name>OptionsDialog</name>
     <message>
         <source>Options</source>
-        <translation>Ôpcyje</translation>
+        <translation type="unfinished">Ôpcyje</translation>
     </message>
     <message>
         <source>&amp;Main</source>
-        <translation>&amp;Bazowe</translation>
+        <translation type="unfinished">&amp;Bazowe</translation>
     </message>
     <message>
         <source>Automatically start %1 after logging in to the system.</source>
@@ -907,15 +978,15 @@
     </message>
     <message>
         <source>Reset all client options to default.</source>
-        <translation>Prziwrōć wszyjske wychodne ustawiyniŏ klijynta.</translation>
+        <translation type="unfinished">Prziwrōć wszyjske wychodne ustawiyniŏ klijynta.</translation>
     </message>
     <message>
         <source>&amp;Reset Options</source>
-        <translation>&amp;Resetuj Ôpcyje</translation>
+        <translation type="unfinished">&amp;Resetuj Ôpcyje</translation>
     </message>
     <message>
         <source>&amp;Network</source>
-        <translation>&amp;Nec</translation>
+        <translation type="unfinished">&amp;Nec</translation>
     </message>
     <message>
         <source>Prune &amp;block storage to</source>
@@ -951,11 +1022,11 @@
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Autōmatycznie ôdewrzij port klijynta Qtum na routerze. Ta ôpcyjŏ funguje ino jeźli twōj router podpiyrŏ UPnP i je ôno zapuszczone.</translation>
-    </message>
+        <translation type="unfinished">Autōmatycznie ôdewrzij port klijynta Qtum na routerze. Ta ôpcyjŏ funguje ino jeźli twōj router podpiyrŏ UPnP i je ôno zapuszczone.</translation>
+   </message>
     <message>
         <source>Map port using &amp;UPnP</source>
-        <translation>Mapuj port przi używaniu &amp;UPnP</translation>
+        <translation type="unfinished">Mapuj port przi używaniu &amp;UPnP</translation>
     </message>
     <message>
         <source>Accept connections from outside.</source>
@@ -968,22 +1039,22 @@
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Skupluj sie z necym Qtum bez SOCKS5 proxy.</translation>
-    </message>
+   </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Skupluj bez proxy SOCKS5 (wychodne proxy):</translation>
     </message>
     <message>
         <source>Port of the proxy (e.g. 9050)</source>
-        <translation>Port ôd proxy (bp. 9050)</translation>
+        <translation type="unfinished">Port ôd proxy (bp. 9050)</translation>
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation>Ô&amp;kno</translation>
+        <translation type="unfinished">Ô&amp;kno</translation>
     </message>
     <message>
         <source>User Interface &amp;language:</source>
-        <translation>Gŏdka &amp;używŏcza:</translation>
+        <translation type="unfinished">Gŏdka &amp;używŏcza:</translation>
     </message>
     <message>
         <source>The user interface language can be set here. This setting will take effect after restarting %1.</source>
@@ -991,11 +1062,11 @@
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Pociep</translation>
+        <translation type="unfinished">&amp;Pociep</translation>
     </message>
     <message>
         <source>default</source>
-        <translation>wychodny</translation>
+        <translation type="unfinished">wychodny</translation>
     </message>
     <message>
         <source>none</source>
@@ -1003,7 +1074,12 @@
     </message>
     <message>
         <source>Configuration options</source>
+        <extracomment>Window title text of pop-up box that allows opening up of configuration file.</extracomment>
         <translation type="unfinished">Ôpcyje kōnfiguracyje</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Pociep</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1014,12 +1090,12 @@
     <name>OverviewPage</name>
     <message>
         <source>Form</source>
-        <translation>Formular</translation>
+        <translation type="unfinished">Formular</translation>
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation>Wyświytlanŏ informacyjŏ może być niyterŏźnŏ. Twōj portmanyj synchrōnizuje sie autōmatycznie z necym qtum zarŏz po tym, jak zrychtowane je skuplowanie, ale proces tyn niy ôstoł jeszcze skōńczōny.</translation>
-    </message>
+        <translation type="unfinished">Wyświytlanŏ informacyjŏ może być niyterŏźnŏ. Twōj portmanyj synchrōnizuje sie autōmatycznie z necym qtum zarŏz po tym, jak zrychtowane je skuplowanie, ale proces tyn niy ôstoł jeszcze skōńczōny.</translation>
+   </message>
     <message>
         <source>Available:</source>
         <translation type="unfinished">Dostympne:</translation>
@@ -1034,11 +1110,11 @@
     </message>
     <message>
         <source>Total:</source>
-        <translation>Cuzamyn:</translation>
+        <translation type="unfinished">Cuzamyn:</translation>
     </message>
     <message>
         <source>Your current total balance</source>
-        <translation>Twoje terŏźne saldo</translation>
+        <translation type="unfinished">Twoje terŏźne saldo</translation>
     </message>
     </context>
 <context>
@@ -1061,7 +1137,7 @@
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' to niyma nŏleżne URI. Użyj 'qtum:'.</translation>
-    </message>
+   </message>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -1069,6 +1145,11 @@
         <source>User Agent</source>
         <extracomment>Title of Peers Table column which contains the peer's User Agent string.</extracomment>
         <translation type="unfinished">Agynt Używŏcza</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <extracomment>Title of Peers Table column which indicates the direction the peer connection was initiated from.</extracomment>
+        <translation type="unfinished">Richtōng</translation>
     </message>
     <message>
         <source>Received</source>
@@ -1090,6 +1171,16 @@
         <extracomment>Title of Peers Table column which states the network the peer connected through.</extracomment>
         <translation type="unfinished">Nec</translation>
     </message>
+    <message>
+        <source>Inbound</source>
+        <extracomment>An Inbound Connection from a Peer.</extracomment>
+        <translation type="unfinished">Wchodowy</translation>
+    </message>
+    <message>
+        <source>Outbound</source>
+        <extracomment>An Outbound Connection to a Peer.</extracomment>
+        <translation type="unfinished">Wychodowy</translation>
+    </message>
 </context>
 <context>
     <name>QRImageWidget</name>
@@ -1106,7 +1197,7 @@
     <name>RPCConsole</name>
     <message>
         <source>Client version</source>
-        <translation>Wersyjŏ klijynta</translation>
+        <translation type="unfinished">Wersyjŏ klijynta</translation>
     </message>
     <message>
         <source>Datadir</source>
@@ -1114,11 +1205,11 @@
     </message>
     <message>
         <source>Startup time</source>
-        <translation>Czŏs sztartniyńciŏ</translation>
+        <translation type="unfinished">Czŏs sztartniyńciŏ</translation>
     </message>
     <message>
         <source>Network</source>
-        <translation>Nec</translation>
+        <translation type="unfinished">Nec</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1126,11 +1217,11 @@
     </message>
     <message>
         <source>Number of connections</source>
-        <translation>Wielość skuplowań</translation>
+        <translation type="unfinished">Wielość skuplowań</translation>
     </message>
     <message>
         <source>Block chain</source>
-        <translation>Keta blokōw</translation>
+        <translation type="unfinished">Keta blokōw</translation>
     </message>
     <message>
         <source>Current number of transactions</source>
@@ -1162,11 +1253,11 @@
     </message>
     <message>
         <source>Last block time</source>
-        <translation>Czas ôstatnigo bloku</translation>
+        <translation type="unfinished">Czas ôstatnigo bloku</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation>Ô&amp;dewrzij</translation>
+        <translation type="unfinished">Ô&amp;dewrzij</translation>
     </message>
     <message>
         <source>&amp;Network Traffic</source>
@@ -1213,15 +1304,11 @@
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">Ôpcyjōnalnŏ wiadōmość do prziwstōniŏ do żōndaniŏ płatu, kerŏ bydzie wyświytlanŏ, kej żōndanie ôstanie ôdewrzōne. Napōmniynie: wiadōmość ta niy ôstanie wysłanŏ z płatym w nec Qtum.</translation>
-    </message>
+        <translation type="unfinished">Ôpcyjōnalnŏ wiadōmość do prziwstōniŏ do żōndaniŏ płatu, kerŏ bydzie wyświytlanŏ, kej żōndanie ôstanie ôdewrzōne. Napōmniynie: wiadōmość ta niy ôstanie wysłanŏ z płatym w nec Qtum.</translation>  
+  </message>
     <message>
         <source>Clear</source>
         <translation type="unfinished">Wypucuj</translation>
-    </message>
-    <message>
-        <source>Native segwit addresses (aka Bech32 or BIP-173) reduce your transaction fees later on and offer better protection against typos, but old wallets don't support them. When unchecked, an address compatible with older wallets will be created instead.</source>
-        <translation type="unfinished">Natywne adresy segwit (aka Bech32 abo BIP-173) zmyńszajōm niyskorzij twoje ôpłŏcki za transakcyje i dadzōm lepsze zabezpieczynie przed chybami, ale stare portmanyje jejich niy podpiyrajōm. Jeźli ôdznaczōne, zrychtowanŏ ôstanie adresa kōmpatybilnŏ ze starszymi portmanyjami.</translation>
     </message>
     <message>
         <source>Show</source>
@@ -1290,7 +1377,7 @@
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation>Poślij mōnety</translation>
+        <translation type="unfinished">Poślij mōnety</translation>
     </message>
     <message>
         <source>Quantity:</source>
@@ -1342,7 +1429,7 @@
     </message>
     <message>
         <source>Balance:</source>
-        <translation>Saldo:</translation>
+        <translation type="unfinished">Saldo:</translation>
     </message>
     <message>
         <source>Copy quantity</source>
@@ -1386,7 +1473,7 @@
     </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
         </translation>
     </message>
@@ -1407,12 +1494,12 @@
     <name>SendCoinsEntry</name>
     <message>
         <source>&amp;Label:</source>
-        <translation>&amp;Etyketa:</translation>
+        <translation type="unfinished">&amp;Etyketa:</translation>
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Adresa Qtum, na kerõ chcesz posłać płat</translation>
-    </message>
+   </message>
     <message>
         <source>Use available balance</source>
         <translation type="unfinished">Użyj dostympnego salda</translation>
@@ -1423,26 +1510,26 @@
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">Wiadōmość, kerŏ ôstała prziwstōnŏ do URI qtum:, kerŏ bydzie przechowowanŏ z transakcyjōm w cylach informacyjnych. Napōmniynie: Ta wiadōmość niy bydzie rozszyrzowanŏ w necu Qtum.</translation>
-    </message>
+        <translation type="unfinished">Wiadōmość, kerŏ ôstała prziwstōnŏ do URI qtum:, kerŏ bydzie przechowowanŏ z transakcyjōm w cylach informacyjnych. Napōmniynie: Ta wiadōmość niy bydzie rozszyrzowanŏ w necu Qtum.</translation>  
+  </message>
     </context>
 <context>
     <name>SignVerifyMessageDialog</name>
     <message>
         <source>Signatures - Sign / Verify a Message</source>
-        <translation>Szkryfki - Podpisz / Zweryfikuj Wiadōmość</translation>
+        <translation type="unfinished">Szkryfki - Podpisz / Zweryfikuj Wiadōmość</translation>
     </message>
     <message>
         <source>&amp;Sign Message</source>
-        <translation>&amp;Szkryftnij Wiadōmość</translation>
+        <translation type="unfinished">&amp;Szkryftnij Wiadōmość</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
-        <translation>Szkryftnij &amp;Wiadōmość</translation>
+        <translation type="unfinished">Szkryftnij &amp;Wiadōmość</translation>
     </message>
     <message>
         <source>&amp;Verify Message</source>
-        <translation>&amp;Weryfikuj Wiadōmość</translation>
+        <translation type="unfinished">&amp;Weryfikuj Wiadōmość</translation>
     </message>
     <message>
         <source>Message signing failed.</source>
@@ -1459,12 +1546,6 @@
     </context>
 <context>
     <name>TransactionDesc</name>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-        </translation>
-    </message>
     <message>
         <source>Status</source>
         <translation type="unfinished">Sztatus</translation>
@@ -1495,7 +1576,7 @@
     </message>
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
         </translation>
     </message>
@@ -1529,12 +1610,6 @@
     <message>
         <source>Label</source>
         <translation type="unfinished">Etyketa</translation>
-    </message>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-        </translation>
     </message>
     <message>
         <source>Received with</source>
@@ -1605,6 +1680,13 @@
     </message>
 </context>
 <context>
+    <name>WalletFrame</name>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Feler</translation>
+    </message>
+    </context>
+<context>
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
@@ -1630,10 +1712,6 @@
         <translation type="unfinished">Eksportuj dane z aktywnyj szkarty do zbioru</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="unfinished">Feler</translation>
-    </message>
-    <message>
         <source>Backup Failed</source>
         <translation type="unfinished">Backup niy podarził sie</translation>
     </message>
@@ -1642,67 +1720,4 @@
         <translation type="unfinished">Pociep</translation>
     </message>
 </context>
-<context>
-    <name>qtum-core</name>
-    <message>
-        <source>The %s developers</source>
-        <translation type="unfinished">Twōrcy %s</translation>
-    </message>
-    <message>
-        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
-        <translation type="unfinished">Imyntnŏ dugość kety wersyje (%i) przekrŏczŏ maksymalnõ dopuszczalnõ dugość (%i). Zmyńsz wielość abo miara parametra uacomment.</translation>
-    </message>
-    <message>
-        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
-        <translation type="unfinished">Pozōr: Wykryto było klucze prywatne w portmanyju {%s} kery mŏ zastawiōne klucze prywatne</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Wgrŏwanie zakōńczōne</translation>
-    </message>
-    <message>
-        <source>Error loading %s</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ %s</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ %s: Klucze prywatne mogōm być zastawiōne ino w czasie tworzyniŏ</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet corrupted</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ %s: Portmanyj poprzniōny</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet requires newer version of %s</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ %s: Portmanyj fołdruje nowszyj wersyje %s</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ bazy blokōw</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is low for %s</source>
-        <translation type="unfinished">Feler: Za mało wolnego placu na dysku dlŏ %s</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Szkryftniyńcie transakcyji niy podarziło sie</translation>
-    </message>
-    <message>
-        <source>This is experimental software.</source>
-        <translation type="unfinished">To je eksperymyntalny softwer.</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Transakcyjŏ za srogŏ</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">Niyznōmy nec ôkryślōny w -onlynet: '%s'</translation>
-    </message>
-    <message>
-        <source>Unsupported logging category %s=%s.</source>
-        <translation type="unfinished">Niypodpiyranŏ kategoryjŏ registrowaniŏ %s=%s.</translation>
-    </message>
-    </context>
 </TS>

@@ -162,7 +162,7 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
 }
 
 // Check kernel hash target and coinstake signature
-bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, CChainState& chainstate)
+bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, Chainstate& chainstate)
 {
     if (!tx.IsCoinStake())
         return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
@@ -546,7 +546,7 @@ int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin, bool delegateOu
     return (nValueStaker * 100 + nReward - 1) / nReward;
 }
 
-bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, CChainState& chainstate)
+bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, Chainstate& chainstate)
 {
     Delegation delegation;
     QtumDelegation& qtumDelegation = GetQtumDelegation();
@@ -619,7 +619,7 @@ void AddToScriptCache(BlockScript script, CBlockIndex* pblockindex, int nHeight,
     scriptsMap.insert(std::pair<int, ScriptsElement>(nHeight, listElement));
 }
 
-bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
+bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const Consensus::Params &consensusParams, CChain& chain, node::BlockManager& blockman)
 {
     // Check if the block index exist into the active chain
     CBlockIndex* pblockindex = chain[nHeight];
@@ -639,7 +639,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
 
     // Read the block
     uint160 stakeAddress;
-    if(!pblocktree->ReadStakeIndex(nHeight, stakeAddress)){
+    if(!blockman.m_block_tree_db->ReadStakeIndex(nHeight, stakeAddress)){
         return false;
     }
 
@@ -661,7 +661,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
         {
             uint160 delegateAddress;
             uint8_t fee;
-            if(!pblocktree->ReadDelegateIndex(nHeight, delegateAddress, fee)){
+            if(!blockman.m_block_tree_db->ReadDelegateIndex(nHeight, delegateAddress, fee)){
                 return false;
             }
 
@@ -700,7 +700,7 @@ bool AddMPoSScript(std::vector<BlockScript> &mposScriptList, int nHeight, const 
     return true;
 }
 
-bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
+bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight, const Consensus::Params &consensusParams, CChain& chain, node::BlockManager& blockman)
 {
     bool ret = true;
     nHeight -= consensusParams.CoinbaseMaturity(nHeight + 1);
@@ -708,16 +708,16 @@ bool GetMPoSOutputScripts(std::vector<BlockScript>& mposScriptList, int nHeight,
     // Populate the list of scripts for the reward recipients
     for(int i = 0; (i < consensusParams.nMPoSRewardRecipients - 1) && ret; i++)
     {
-        ret &= AddMPoSScript(mposScriptList, nHeight - i, consensusParams, chain);
+        ret &= AddMPoSScript(mposScriptList, nHeight - i, consensusParams, chain, blockman);
     }
 
     return ret;
 }
 
-bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
+bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, CChain& chain, node::BlockManager& blockman)
 {
     std::vector<BlockScript> mposScriptList;
-    if(!GetMPoSOutputScripts(mposScriptList, nHeight, consensusParams, chain))
+    if(!GetMPoSOutputScripts(mposScriptList, nHeight, consensusParams, chain, blockman))
     {
         LogPrint(BCLog::COINSTAKE, "Fail to get the list of recipients\n");
         return false;
@@ -751,10 +751,10 @@ bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, i
     return true;
 }
 
-bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, CChain& chain)
+bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params &consensusParams, CChain& chain, node::BlockManager& blockman)
 {
     std::vector<CTxOut> mposOutputList;
-    if(!GetMPoSOutputs(mposOutputList, nRewardPiece, nHeight, consensusParams, chain))
+    if(!GetMPoSOutputs(mposOutputList, nRewardPiece, nHeight, consensusParams, chain, blockman))
     {
         return false;
     }

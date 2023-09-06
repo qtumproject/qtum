@@ -9,7 +9,7 @@
 
 #include <QAbstractTableModel>
 #include <QStringList>
-#include <QColor>
+#include <QColor> 
 
 #include <memory>
 
@@ -92,6 +92,7 @@ private:
     TransactionTablePriv *priv;
     bool fProcessingQueuedTransactions;
     const PlatformStyle *platformStyle;
+
     QColor color_unconfirmed;
     QColor color_negative;
     QColor color_bareaddress;

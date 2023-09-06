@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -47,7 +47,9 @@ public:
 
     enum ColumnIndex {
         NetNodeId = 0,
+        Age,
         Address,
+        Direction,
         ConnectionType,
         Network,
         Ping,
@@ -81,9 +83,15 @@ private:
         /*: Title of Peers Table column which contains a
             unique number used to identify a connection. */
         tr("Peer"),
+        /*: Title of Peers Table column which indicates the duration (length of time)
+            since the peer connection started. */
+        tr("Age"),
         /*: Title of Peers Table column which contains the
             IP/Onion/I2P address of the connected peer. */
         tr("Address"),
+        /*: Title of Peers Table column which indicates the direction
+            the peer connection was initiated from. */
+        tr("Direction"),
         /*: Title of Peers Table column which describes the type of
             peer connection. The "type" describes why the connection exists. */
         tr("Type"),

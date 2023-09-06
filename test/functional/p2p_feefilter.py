@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2020 The Bitcoin Core developers
+# Copyright (c) 2016-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test processing of feefilter messages."""
@@ -81,9 +81,9 @@ class FeeFilterTest(BitcoinTestFramework):
         node0 = self.nodes[0]
         miniwallet = MiniWallet(node1)
         # Add enough mature utxos to the wallet, so that all txs spend confirmed coins
-        miniwallet.generate(5)
+        self.generate(miniwallet, 5)
         for i in range(100):
-            node1.generate(COINBASE_MATURITY//100)
+            self.generate(node1, COINBASE_MATURITY//100)
             self.sync_blocks()
 
         conn = self.nodes[0].add_p2p_connection(TestP2PConn())
@@ -93,7 +93,7 @@ class FeeFilterTest(BitcoinTestFramework):
         conn.wait_for_invs_to_match(txids)
         conn.clear_invs()
 
-        # Set a fee filter of 15 sat/byte on test connection
+        # Set a fee filter of 0.15 sat/byte on test connection
         conn.send_and_ping(msg_feefilter(1500000))
 
         self.log.info("Test txs paying 15 sat/byte are received by test connection")

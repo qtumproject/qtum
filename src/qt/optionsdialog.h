@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,6 +8,7 @@
 #include <QDialog>
 #include <QValidator>
 
+class ClientModel;
 class OptionsModel;
 class QValidatedLineEdit;
 
@@ -45,6 +46,7 @@ public:
         TAB_NETWORK,
     };
 
+    void setClientModel(ClientModel* client_model);
     void setModel(OptionsModel *model);
     void setMapper();
     void setCurrentTab(OptionsDialog::Tab tab);
@@ -68,11 +70,15 @@ private Q_SLOTS:
     /* query the networks, for which the default proxy is used */
     void updateDefaultProxyNets();
 
+    void updateLogEvents(bool checked = false);
+
 Q_SIGNALS:
     void proxyIpChecks(QValidatedLineEdit *pUiProxyIp, uint16_t nProxyPort);
+    void quitOnReset();
 
 private:
     Ui::OptionsDialog *ui;
+    ClientModel* m_client_model{nullptr};
     OptionsModel *model;
     QDataWidgetMapper *mapper;
 };

@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>Create a new address</source>
-        <translation>يېڭى ئادرېس قۇر</translation>
+        <translation type="unfinished">يېڭى ئادرېس قۇر</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>نۆۋەتتە تاللىغان ئادرېسنى سىستېما چاپلاش تاختىسىغا كۆچۈرىدۇ</translation>
+        <translation type="unfinished">نۆۋەتتە تاللىغان ئادرېسنى سىستېما چاپلاش تاختىسىغا كۆچۈرىدۇ</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -27,7 +27,7 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation>نۆۋەتتە تاللانغان ئادرېسنى تىزىمدىن ئۆچۈرىدۇ</translation>
+        <translation type="unfinished">نۆۋەتتە تاللانغان ئادرېسنى تىزىمدىن ئۆچۈرىدۇ</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
@@ -35,15 +35,15 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>نۆۋەتتىكى بەتكۈچتىكى سانلىق مەلۇماتنى ھۆججەتكە چىقىرىدۇ</translation>
+        <translation type="unfinished">نۆۋەتتىكى بەتكۈچتىكى سانلىق مەلۇماتنى ھۆججەتكە چىقىرىدۇ</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>چىقار(&amp;E)</translation>
+        <translation type="unfinished">چىقار(&amp;E)</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>ئۆچۈر(&amp;D)</translation>
+        <translation type="unfinished">ئۆچۈر(&amp;D)</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -76,12 +76,24 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 پەقەت «ئەنئەنىۋى(legacy)» تىپتىكى ئادرېسلا ئىمزانى قوللايدۇ.</translation>
     </message>
     <message>
+        <source>&amp;Copy Address</source>
+        <translation type="unfinished">ئادرېس كۆچۈر(&amp;C)</translation>
+    </message>
+    <message>
+        <source>Copy &amp;Label</source>
+        <translation type="unfinished">بەلگىنى كۆچۈر(&amp;L)</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation type="unfinished">تەھرىر(&amp;E)</translation>
+    </message>
+    <message>
         <source>Export Address List</source>
         <translation type="unfinished">ئادرېس تىزىمىنى چىقار</translation>
     </message>
     <message>
         <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
         <translation type="unfinished">ھۆججەت پەش بىلەن ئايرىلىدۇ</translation>
     </message>
     <message>
@@ -110,17 +122,72 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
+    <name>AskPassphraseDialog</name>
+    <message>
+        <source>Passphrase Dialog</source>
+        <translation type="unfinished">ئىم ئىبارە سۆزلەشكۈسى</translation>
+    </message>
+    <message>
+        <source>Enter passphrase</source>
+        <translation type="unfinished">ئىم ئىبارە كىرگۈزۈڭ</translation>
+    </message>
+    <message>
+        <source>New passphrase</source>
+        <translation type="unfinished">يېڭى ئىم ئىبارە</translation>
+    </message>
+    <message>
+        <source>Repeat new passphrase</source>
+        <translation type="unfinished">يېڭى ئىم ئىبارەنى تەكرارلاڭ</translation>
+    </message>
+    <message>
+        <source>Show passphrase</source>
+        <translation type="unfinished">ئىم ئىبارە كۆرسەت</translation>
+    </message>
+    <message>
+        <source>Encrypt wallet</source>
+        <translation type="unfinished">ھەمياننى شىفىرلا</translation>
+    </message>
+    <message>
+        <source>This operation needs your wallet passphrase to unlock the wallet.</source>
+        <translation type="unfinished">بۇ مەشغۇلات ئۈچۈن ھەمياننى ئېچىشتا ھەميان ئىم ئىبارىسى كېرەك بولىدۇ.</translation>
+    </message>
+    <message>
+        <source>Unlock wallet</source>
+        <translation type="unfinished">ھەمياننى قۇلۇپىنى ئاچ</translation>
+    </message>
+    <message>
+        <source>Change passphrase</source>
+        <translation type="unfinished">ئىم ئىبارە ئۆزگەرت</translation>
+    </message>
+    <message>
+        <source>Confirm wallet encryption</source>
+        <translation type="unfinished">ھەميان شىفىرىنى جەزملە</translation>
+    </message>
+    <message>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">ئاگاھلاندۇرۇش: ئەگەر ھەميانىڭىزنى شىفىرلاپ ھەمدە ئىم ئىبارىسىنى يوقىتىپ قويسىڭىز، سىز &lt;b&gt;ھەممە بىت تەڭگىڭىزنى يوقىتىپ قويىسىز&lt;/b&gt;!</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to encrypt your wallet?</source>
+        <translation type="unfinished">سىز راستىنلا ھەميانىڭىزنى شىفىرلامسىز؟</translation>
+    </message>
+    <message>
+        <source>Wallet encrypted</source>
+        <translation type="unfinished">ھەميان شىفىرلاندى</translation>
+    </message>
+    </context>
+<context>
     <name>QObject</name>
     <message numerus="yes">
         <source>%n second(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
         </translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
         </translation>
@@ -155,16 +222,20 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>QtumGUI</name>
+    <name>BitcoinGUI</name>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
         </translation>
     </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">خاتالىق</translation>
+    </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -180,7 +251,35 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>&amp;Label</source>
+        <translation type="unfinished">&amp;خەتكۈچ</translation>
+    </message>
+    </context>
+<context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
     <message numerus="yes">
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
@@ -188,6 +287,17 @@ Signing is only possible with addresses of the type 'legacy'.</source>
             <numerusform />
             <numerusform />
         </translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">خاتالىق</translation>
+    </message>
+    </context>
+<context>
+    <name>OptionsDialog</name>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">خاتالىق</translation>
     </message>
     </context>
 <context>
@@ -213,7 +323,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>SendCoinsDialog</name>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
         </translation>
@@ -226,15 +336,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>TransactionDesc</name>
     <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>matures in %n more block(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
         </translation>
@@ -246,13 +349,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Label</source>
         <translation type="unfinished">بەلگە</translation>
     </message>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
     <message>
         <source>(no label)</source>
         <translation type="unfinished">(بەلگە يوق)</translation>
@@ -261,8 +357,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>TransactionView</name>
     <message>
+        <source>Other</source>
+        <translation type="unfinished">باشقىلىرى</translation>
+    </message>
+    <message>
         <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
         <translation type="unfinished">ھۆججەت پەش بىلەن ئايرىلىدۇ</translation>
     </message>
     <message>
@@ -276,6 +376,13 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Exporting Failed</source>
         <translation type="unfinished">چىقىرالمىدى</translation>
+    </message>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">خاتالىق</translation>
     </message>
     </context>
 <context>

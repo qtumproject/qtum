@@ -164,7 +164,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.start_p2p_connection()
 
         prevblock = self.node.getblock(self.node.getblockhash(self.node.getblockcount()-COINBASE_MATURITY))
-        t = prevblock['time'] & 0xfffffff0
+        t = (prevblock['time'] + 50) & 0xfffffff0
         for i in range((COINBASE_MATURITY+1)):
             block_header = self._create_pos_header(self.node, self.staking_prevouts, prevblock['hash'], nTime=t+0x10*i, nNonce=i)
             block_header.rehash()

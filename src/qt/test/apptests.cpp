@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 The Bitcoin Core developers
+// Copyright (c) 2018-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,7 +12,6 @@
 #include <qt/rpcconsole.h>
 #include <shutdown.h>
 #include <test/util/setup_common.h>
-#include <univalue.h>
 #include <validation.h>
 
 #if defined(HAVE_CONFIG_H)
@@ -21,8 +20,10 @@
 
 #include <QAction>
 #include <QLineEdit>
+#include <QRegularExpression>
 #include <QScopedPointer>
 #include <QSignalSpy>
+#include <QString>
 #include <QTest>
 #include <QTextEdit>
 #include <QtGlobal>
@@ -30,6 +31,13 @@
 #include <QtTest/QtTestGui>
 
 namespace {
+//! Regex find a string group inside of the console output
+QString FindInConsole(const QString& output, const QString& pattern)
+{
+    const QRegularExpression re(pattern);
+    return re.match(output).captured(1);
+}
+
 //! Call getblockchaininfo RPC and check first field of JSON output.
 void TestRpcCommand(RPCConsole* console)
 {
@@ -41,17 +49,16 @@ void TestRpcCommand(RPCConsole* console)
     QTest::keyClick(lineEdit, Qt::Key_Return);
     QVERIFY(mw_spy.wait(1000));
     QCOMPARE(mw_spy.count(), 4);
-    QString output = messagesWidget->toPlainText();
-    UniValue value;
-    value.read(output.right(output.size() - output.lastIndexOf(QChar::ObjectReplacementCharacter) - 1).toStdString());
-    QCOMPARE(value["chain"].get_str(), std::string("regtest"));
+    const QString output = messagesWidget->toPlainText();
+    const QString pattern = QStringLiteral("\"chain\": \"(\\w+)\"");
+    QCOMPARE(FindInConsole(output, pattern), QString("regtest"));
 }
 } // namespace
 
 //! Entry point for BitcoinApplication tests.
 void AppTests::appTests()
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (QApplication::platformName() == "minimal") {
         // Disable for mac on "minimal" platform to avoid crashes inside the Qt
         // framework when it tries to look up unimplemented cocoa functions,
@@ -63,14 +70,9 @@ void AppTests::appTests()
     }
 #endif
 
-    fs::create_directories([] {
-        BasicTestingSetup test{CBaseChainParams::UNITTEST}; // Create a temp data directory to backup the gui settings to
-        return gArgs.GetDataDirNet() / "blocks";
-    }());
-
     qRegisterMetaType<interfaces::BlockAndHeaderTipInfo>("interfaces::BlockAndHeaderTipInfo");
     m_app.parameterSetup();
-    m_app.createOptionsModel(true /* reset settings */);
+    QVERIFY(m_app.createOptionsModel(true /* reset settings */));
     QScopedPointer<const NetworkStyle> style(NetworkStyle::instantiate(Params().NetworkIDString()));
     m_app.setupPlatformStyle();
     m_app.createWindow(style.data());
@@ -112,6 +114,6 @@ AppTests::HandleCallback::~HandleCallback()
     assert(it != callbacks.end());
     callbacks.erase(it);
     if (callbacks.empty()) {
-        m_app_tests.m_app.quit();
+        m_app_tests.m_app.exit(0);
     }
 }

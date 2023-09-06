@@ -462,7 +462,7 @@ def create_unsigned_mpos_block(node, staking_prevouts, nTime=None, block_fees=0)
         mpos_block.vtx[1].vout.append(CTxOut(stake_per_participant, CScript([OP_DUP, OP_HASH160, hash160(participant_pubkey), OP_EQUALVERIFY, OP_CHECKSIG])))
 
     # the input value
-    txout = node.gettxout(hex(mpos_block.prevoutStake.hash)[2:], mpos_block.prevoutStake.n)
+    txout = node.gettxout(hex(mpos_block.prevoutStake.hash)[2:].zfill(64), mpos_block.prevoutStake.n)
 
     # Reward per output
     main_staker_reward = (int(float(str(txout['value']))*COIN) + stake_per_participant)

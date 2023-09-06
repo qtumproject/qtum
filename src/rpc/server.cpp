@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,37 +9,33 @@
 #include <shutdown.h>
 #include <sync.h>
 #include <util/strencodings.h>
+#include <util/string.h>
 #include <util/system.h>
+#include <util/time.h>
 #include <httpserver.h>
 
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/signals2/signal.hpp>
 
 #include <cassert>
-#include <memory> // for unique_ptr
+#include <chrono>
+#include <memory>
 #include <mutex>
 #include <unordered_map>
 
-static Mutex g_rpc_warmup_mutex;
-static std::atomic<bool> g_rpc_running{false};
+static GlobalMutex g_rpc_warmup_mutex;
 static bool fRPCInWarmup GUARDED_BY(g_rpc_warmup_mutex) = true;
 static std::string rpcWarmupStatus GUARDED_BY(g_rpc_warmup_mutex) = "RPC server started";
 /* Timer-creating functions */
 static RPCTimerInterface* timerInterface = nullptr;
 /* Map of name to timer. */
-static Mutex g_deadline_timers_mutex;
+static GlobalMutex g_deadline_timers_mutex;
 static std::map<std::string, std::unique_ptr<RPCTimerBase> > deadlineTimers GUARDED_BY(g_deadline_timers_mutex);
 static bool ExecuteCommand(const CRPCCommand& command, const JSONRPCRequest& request, UniValue& result, bool last_handler);
-
-Mutex cs_blockchange;
-std::condition_variable cond_blockchange;
-CUpdatedBlock latestblock;
 
 struct RPCCommandExecutionInfo
 {
     std::string method;
-    int64_t start;
+    SteadyClock::time_point start;
 };
 
 struct RPCServerInfo
@@ -56,7 +52,7 @@ struct RPCCommandExecution
     explicit RPCCommandExecution(const std::string& method)
     {
         LOCK(g_rpc_server_info.mutex);
-        it = g_rpc_server_info.active_commands.insert(g_rpc_server_info.active_commands.end(), {method, GetTimeMicros()});
+        it = g_rpc_server_info.active_commands.insert(g_rpc_server_info.active_commands.end(), {method, SteadyClock::now()});
     }
     ~RPCCommandExecution()
     {
@@ -172,7 +168,7 @@ static RPCHelpMan stop()
     // to the client (intended for testing)
                 "\nRequest a graceful shutdown of " PACKAGE_NAME ".",
                 {
-                    {"wait", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "how long to wait in ms", "", {}, /* hidden */ true},
+                    {"wait", RPCArg::Type::NUM, RPCArg::Optional::OMITTED_NAMED_ARG, "how long to wait in ms", "", {}, /*hidden=*/true},
                 },
                 RPCResult{RPCResult::Type::STR, "", "A string with the content '" + RESULT + "'"},
                 RPCExamples{""},
@@ -182,7 +178,7 @@ static RPCHelpMan stop()
     // this reply will get back to the client.
     StartShutdown();
     if (jsonRequest.params[0].isNum()) {
-        UninterruptibleSleep(std::chrono::milliseconds{jsonRequest.params[0].get_int()});
+        UninterruptibleSleep(std::chrono::milliseconds{jsonRequest.params[0].getInt<int>()});
     }
     return RESULT;
 },
@@ -237,14 +233,14 @@ static RPCHelpMan getrpcinfo()
     for (const RPCCommandExecutionInfo& info : g_rpc_server_info.active_commands) {
         UniValue entry(UniValue::VOBJ);
         entry.pushKV("method", info.method);
-        entry.pushKV("duration", GetTimeMicros() - info.start);
+        entry.pushKV("duration", int64_t{Ticks<std::chrono::microseconds>(SteadyClock::now() - info.start)});
         active_commands.push_back(entry);
     }
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("active_commands", active_commands);
 
-    const std::string path = LogInstance().m_file_path.string();
+    const std::string path = LogInstance().m_file_path.u8string();
     UniValue log_path(UniValue::VSTR, path);
     result.pushKV("logpath", log_path);
 
@@ -253,17 +249,13 @@ static RPCHelpMan getrpcinfo()
     };
 }
 
-// clang-format off
-static const CRPCCommand vRPCCommands[] =
-{ //  category               actor (function)
-  //  ---------------------  -----------------------
+static const CRPCCommand vRPCCommands[]{
     /* Overall control/query calls */
-    { "control",             &getrpcinfo,             },
-    { "control",             &help,                   },
-    { "control",             &stop,                   },
-    { "control",             &uptime,                 },
+    {"control", &getrpcinfo},
+    {"control", &help},
+    {"control", &stop},
+    {"control", &uptime},
 };
-// clang-format on
 
 CRPCTable::CRPCTable()
 {
@@ -321,11 +313,6 @@ void StopRPC()
         DeleteAuthCookie();
         g_rpcSignals.Stopped();
     });
-}
-
-bool IsRPCRunning()
-{
-    return g_rpc_running;
 }
 
 void RpcInterruptionPoint()
@@ -456,8 +443,7 @@ static inline JSONRPCRequest& transformNamedArguments(const JSONRPCRequest& _in,
     // Process expected parameters.
     int hole = 0;
     for (const std::string &argNamePattern: argNames) {
-        std::vector<std::string> vargNames;
-        boost::algorithm::split(vargNames, argNamePattern, boost::algorithm::is_any_of("|"));
+        std::vector<std::string> vargNames = SplitString(argNamePattern, '|');
         auto fr = argsIn.end();
         for (const std::string & argName : vargNames) {
             fr = argsIn.find(argName);
@@ -589,7 +575,7 @@ void RPCRunLater(const std::string& name, std::function<void()> func, int64_t nS
 int RPCSerializationFlags()
 {
     int flag = 0;
-    if (gArgs.GetArg("-rpcserialversion", DEFAULT_RPC_SERIALIZE_VERSION) == 0)
+    if (gArgs.GetIntArg("-rpcserialversion", DEFAULT_RPC_SERIALIZE_VERSION) == 0)
         flag |= SERIALIZE_TRANSACTION_NO_WITNESS;
     return flag;
 }

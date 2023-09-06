@@ -22,10 +22,13 @@ static RPCHelpMan enumeratesigners()
         RPCResult{
             RPCResult::Type::OBJ, "", "",
             {
-                {RPCResult::Type::ARR, "signers", /* optional */ false, "",
+                {RPCResult::Type::ARR, "signers", /*optional=*/false, "",
                 {
-                    {RPCResult::Type::STR_HEX, "masterkeyfingerprint", "Master key fingerprint"},
-                    {RPCResult::Type::STR, "name", "Device name"},
+                    {RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR_HEX, "fingerprint", "Master key fingerprint"},
+                        {RPCResult::Type::STR, "name", "Device name"},
+                    }},
                 },
                 }
             }
@@ -59,15 +62,11 @@ static RPCHelpMan enumeratesigners()
     };
 }
 
-void RegisterSignerRPCCommands(CRPCTable &t)
+void RegisterSignerRPCCommands(CRPCTable& t)
 {
-// clang-format off
-static const CRPCCommand commands[] =
-{ // category              actor (function)
-  // --------------------- ------------------------
-  { "signer",              &enumeratesigners,      },
-};
-// clang-format on
+    static const CRPCCommand commands[]{
+        {"signer", &enumeratesigners},
+    };
     for (const auto& c : commands) {
         t.appendCommand(c.name, &c);
     }

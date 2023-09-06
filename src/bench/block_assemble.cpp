@@ -1,9 +1,8 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <bench/bench.h>
-#include <chainparams.h>
 #include <consensus/validation.h>
 #include <crypto/sha256.h>
 #include <test/util/mining.h>
@@ -12,7 +11,6 @@
 #include <test/util/wallet.h>
 #include <txmempool.h>
 #include <validation.h>
-#include <util/convert.h>
 
 
 #include <vector>
@@ -32,15 +30,15 @@ static void AssembleBlock(benchmark::Bench& bench)
         CMutableTransaction tx;
         tx.vin.push_back(MineBlock(test_setup->m_node, P2WSH_OP_TRUE));
         tx.vin.back().scriptWitness = witness;
-        tx.vout.emplace_back(1337, P2WSH_OP_TRUE);
+        tx.vout.emplace_back(101337, P2WSH_OP_TRUE);
         if (NUM_BLOCKS - b >= coinbaseMaturity)
             txs.at(b) = MakeTransactionRef(tx);
     }
     {
-        LOCK(::cs_main); // Required for ::AcceptToMemoryPool.
+        LOCK(::cs_main);
 
         for (const auto& txr : txs) {
-            const MempoolAcceptResult res = ::AcceptToMemoryPool(test_setup->m_node.chainman->ActiveChainstate(), *test_setup->m_node.mempool, txr, false /* bypass_limits */);
+            const MempoolAcceptResult res = test_setup->m_node.chainman->ProcessTransaction(txr);
             assert(res.m_result_type == MempoolAcceptResult::ResultType::VALID);
         }
     }

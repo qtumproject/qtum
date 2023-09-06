@@ -1,8 +1,9 @@
-// Copyright (c) 2014-2020 The Bitcoin Core developers
+// Copyright (c) 2014-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainparams.h>
+#include <consensus/amount.h>
 #include <net.h>
 #include <signet.h>
 #include <uint256.h>
@@ -92,7 +93,7 @@ BOOST_AUTO_TEST_CASE(subsidy_limit_test)
         nSum += nSubsidy;
         BOOST_CHECK(MoneyRange(nSum));
     }
-    BOOST_CHECK_EQUAL(nSum, 10782240625000000ULL);
+    BOOST_CHECK_EQUAL(nSum, CAmount{10782240625000000});
 }
 
 BOOST_AUTO_TEST_CASE(signet_parse_tests)

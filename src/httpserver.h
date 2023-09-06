@@ -5,8 +5,9 @@
 #ifndef BITCOIN_HTTPSERVER_H
 #define BITCOIN_HTTPSERVER_H
 
-#include <string>
 #include <functional>
+#include <optional>
+#include <string>
 #include <mutex>
 #include <condition_variable>
 
@@ -33,9 +34,8 @@ void InterruptHTTPServer();
 /** Stop HTTP server */
 void StopHTTPServer();
 
-/** Change logging level for libevent. Removes BCLog::LIBEVENT from log categories if
- * libevent doesn't support debug logging.*/
-bool UpdateHTTPServerLogging(bool enable);
+/** Change logging level for libevent. */
+void UpdateHTTPServerLogging(bool enable);
 
 /** Handler for requests to a certain HTTP path */
 typedef std::function<bool(HTTPRequest* req, const std::string &)> HTTPRequestHandler;
@@ -97,6 +97,17 @@ public:
      */
     RequestMethod GetRequestMethod() const;
 
+    /** Get the query parameter value from request uri for a specified key, or std::nullopt if the
+     * key is not found.
+     *
+     * If the query string contains duplicate keys, the first value is returned. Many web frameworks
+     * would instead parse this as an array of values, but this is not (yet) implemented as it is
+     * currently not needed in any of the endpoints.
+     *
+     * @param[in] key represents the query parameter of which the value is returned
+     */
+    std::optional<std::string> GetQueryParameter(const std::string& key) const;
+
     /**
      * Get the request header specified by hdr, or an empty string.
      * Return a pair (isPresent,string).
@@ -143,6 +154,20 @@ public:
      */
     bool ReplySent();
 };
+
+/** Get the query parameter value from request uri for a specified key, or std::nullopt if the key
+ * is not found.
+ *
+ * If the query string contains duplicate keys, the first value is returned. Many web frameworks
+ * would instead parse this as an array of values, but this is not (yet) implemented as it is
+ * currently not needed in any of the endpoints.
+ *
+ * Helper function for HTTPRequest::GetQueryParameter.
+ *
+ * @param[in] uri is the entire request uri
+ * @param[in] key represents the query parameter of which the value is returned
+ */
+std::optional<std::string> GetQueryParameterFromUri(const char* uri, const std::string& key);
 
 /** Event handler closure.
  */

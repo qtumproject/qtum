@@ -20,7 +20,7 @@ git diff -U0 HEAD~1.. | ./contrib/devtools/clang-format-diff.py -p1 -i -v
 copyright\_header.py
 ====================
 
-Provides utilities for managing copyright headers of `The Bitcoin Core
+Provides utilities for managing copyright headers of `The Qtum Core
 developers` in repository source files. It has three subcommands:
 
 ```
@@ -39,31 +39,31 @@ Specifying `verbose` will list the full filenames of files of each category.
 
 copyright\_header.py update \<base\_directory\> [verbose]
 ---------------------------------------------------------
-Updates all the copyright headers of `The Bitcoin Core developers` which were
+Updates all the copyright headers of `The Qtum Core developers` which were
 changed in a year more recent than is listed. For example:
 ```
-// Copyright (c) <firstYear>-<lastYear> The Bitcoin Core developers
+// Copyright (c) <firstYear>-<lastYear> The Qtum Core developers
 ```
 will be updated to:
 ```
-// Copyright (c) <firstYear>-<lastModifiedYear> The Bitcoin Core developers
+// Copyright (c) <firstYear>-<lastModifiedYear> The Qtum Core developers
 ```
 where `<lastModifiedYear>` is obtained from the `git log` history.
 
 This subcommand also handles copyright headers that have only a single year. In
 those cases:
 ```
-// Copyright (c) <year> The Bitcoin Core developers
+// Copyright (c) <year> The Qtum Core developers
 ```
 will be updated to:
 ```
-// Copyright (c) <year>-<lastModifiedYear> The Bitcoin Core developers
+// Copyright (c) <year>-<lastModifiedYear> The Qtum Core developers
 ```
 where the update is appropriate.
 
 copyright\_header.py insert \<file\>
 ------------------------------------
-Inserts a copyright header for `The Bitcoin Core developers` at the top of the
+Inserts a copyright header for `The Qtum Core developers` at the top of the
 file in either Python or C++ style as determined by the file extension. If the
 file is a Python file and it has  `#!` starting the first line, the header is
 inserted in the line below it.
@@ -73,10 +73,10 @@ The copyright dates will be set to be `<year_introduced>-<current_year>` where
 `<year_introduced>` is equal to `<current_year>`, it will be set as a single
 year rather than two hyphenated years.
 
-If the file already has a copyright for `The Bitcoin Core developers`, the
+If the file already has a copyright for `The Qtum Core developers`, the
 script will exit.
 
-gen-manpages.sh
+gen-manpages.py
 ===============
 
 A small script to automatically create manpages in ../../doc/man by running the release binaries with the -help option.
@@ -87,7 +87,22 @@ repostitory. To use this tool with out-of-tree builds set `BUILDDIR`. For
 example:
 
 ```bash
-BUILDDIR=$PWD/build contrib/devtools/gen-manpages.sh
+BUILDDIR=$PWD/build contrib/devtools/gen-manpages.py
+```
+
+gen-bitcoin-conf.sh
+===================
+
+Generates a qtum.conf file in `share/examples/` by parsing the output from `qtumd --help`. This script is run during the
+release process to include a qtum.conf with the release binaries and can also be run by users to generate a file locally.
+When generating a file as part of the release process, make sure to commit the changes after running the script.
+
+With in-tree builds this tool can be run from any directory within the
+repository. To use this tool with out-of-tree builds set `BUILDDIR`. For
+example:
+
+```bash
+BUILDDIR=$PWD/build contrib/devtools/gen-bitcoin-conf.sh
 ```
 
 security-check.py and test-security-check.py
@@ -98,7 +113,7 @@ Perform basic security checks on a series of executables.
 symbol-check.py
 ===============
 
-A script to check that the executables produced by gitian only contain
+A script to check that release executables only contain
 certain symbols and are only linked against allowed libraries.
 
 For Linux this means checking for allowed gcc, glibc and libstdc++ version symbols.
@@ -106,18 +121,18 @@ This makes sure they are still compatible with the minimum supported distributio
 
 For macOS and Windows we check that the executables are only linked against libraries we allow.
 
-Example usage after a gitian build:
+Example usage:
 
-    find ../gitian-builder/build -type f -executable | xargs python3 contrib/devtools/symbol-check.py
+    find ../path/to/executables -type f -executable | xargs python3 contrib/devtools/symbol-check.py
 
 If no errors occur the return value will be 0 and the output will be empty.
 
 If there are any errors the return value will be 1 and output like this will be printed:
 
-    .../64/test_bitcoin: symbol memcpy from unsupported version GLIBC_2.14
-    .../64/test_bitcoin: symbol __fdelt_chk from unsupported version GLIBC_2.15
-    .../64/test_bitcoin: symbol std::out_of_range::~out_of_range() from unsupported version GLIBCXX_3.4.15
-    .../64/test_bitcoin: symbol _ZNSt8__detail15_List_nod from unsupported version GLIBCXX_3.4.15
+    .../64/test_qtum: symbol memcpy from unsupported version GLIBC_2.14
+    .../64/test_qtum: symbol __fdelt_chk from unsupported version GLIBC_2.15
+    .../64/test_qtum: symbol std::out_of_range::~out_of_range() from unsupported version GLIBCXX_3.4.15
+    .../64/test_qtum: symbol _ZNSt8__detail15_List_nod from unsupported version GLIBCXX_3.4.15
 
 circular-dependencies.py
 ========================

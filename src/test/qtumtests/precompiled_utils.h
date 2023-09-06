@@ -52,7 +52,7 @@ public:
                 std::string strInput = tv["Input"].get_str();
                 std::string strExpected = tv["Expected"].get_str();
                 std::string strName = tv["Name"].get_str();
-                int gas = tv["Gas"].get_int();
+                int gas = tv["Gas"].getInt<int>();
 
                 dev::bytes in = dev::fromHex(strInput);
                 dev::bytes expected = dev::fromHex(strExpected);

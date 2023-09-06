@@ -49,6 +49,12 @@ void DelegationListWidget::setModel(WalletModel *_model)
         connect(m_delegationModel, SIGNAL(layoutChanged()), this, SLOT(on_layoutChanged()));
         connect(m_delegationModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(on_dataChanged(QModelIndex, QModelIndex)));
 
+        // Set model rows
+        for(DelegationItemWidget* p_row : m_rows)
+        {
+            p_row->setModel(m_model);
+        }
+
         // Add items
         on_rowsInserted(QModelIndex(), 0, m_delegationModel->rowCount() - 1);
     }
@@ -57,6 +63,15 @@ void DelegationListWidget::setModel(WalletModel *_model)
 void DelegationListWidget::setClientModel(ClientModel *_clientModel)
 {
     m_clientModel = _clientModel;
+
+    // Set client rows
+    if(m_clientModel)
+    {
+        for(DelegationItemWidget* p_row : m_rows)
+        {
+            p_row->setClientModel(m_clientModel);
+        }
+    }
 }
 
 void DelegationListWidget::on_rowsInserted(const QModelIndex &, int start, int end)

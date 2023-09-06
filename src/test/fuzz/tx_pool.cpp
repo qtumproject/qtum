@@ -3,9 +3,12 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <consensus/validation.h>
-#include <miner.h>
+#include <node/context.h>
+#include <node/mempool_args.h>
+#include <node/miner.h>
 #include <test/fuzz/FuzzedDataProvider.h>
 #include <test/fuzz/fuzz.h>
+#include <test/fuzz/mempool_utils.h>
 #include <test/fuzz/util.h>
 #include <test/util/mining.h>
 #include <test/util/script.h>
@@ -13,6 +16,9 @@
 #include <util/rbf.h>
 #include <validation.h>
 #include <validationinterface.h>
+
+using node::BlockAssembler;
+using node::NodeContext;
 
 namespace {
 
@@ -80,30 +86,30 @@ void SetMempoolConstraints(ArgsManager& args, FuzzedDataProvider& fuzzed_data_pr
                      ToString(fuzzed_data_provider.ConsumeIntegralInRange<unsigned>(0, 999)));
 }
 
-void Finish(FuzzedDataProvider& fuzzed_data_provider, MockedTxPool& tx_pool, CChainState& chainstate)
+void Finish(FuzzedDataProvider& fuzzed_data_provider, MockedTxPool& tx_pool, Chainstate& chainstate)
 {
-    WITH_LOCK(::cs_main, tx_pool.check(chainstate));
+    WITH_LOCK(::cs_main, tx_pool.check(chainstate.CoinsTip(), chainstate.m_chain.Height() + 1));
     {
         BlockAssembler::Options options;
         options.nBlockMaxWeight = fuzzed_data_provider.ConsumeIntegralInRange(0U, dgpMaxBlockWeight);
-        options.blockMinFeeRate = CFeeRate{ConsumeMoney(fuzzed_data_provider, /* max */ COIN)};
-        auto assembler = BlockAssembler{chainstate, *static_cast<CTxMemPool*>(&tx_pool), ::Params(), options};
+        options.blockMinFeeRate = CFeeRate{ConsumeMoney(fuzzed_data_provider, /*max=*/COIN)};
+        auto assembler = BlockAssembler{chainstate, &tx_pool, options};
         auto block_template = assembler.CreateNewBlock(CScript{} << OP_TRUE);
         Assert(block_template->block.vtx.size() >= 1);
     }
     const auto info_all = tx_pool.infoAll();
     if (!info_all.empty()) {
         const auto& tx_to_remove = *PickValue(fuzzed_data_provider, info_all).tx;
-        WITH_LOCK(tx_pool.cs, tx_pool.removeRecursive(tx_to_remove, /* dummy */ MemPoolRemovalReason::BLOCK));
+        WITH_LOCK(tx_pool.cs, tx_pool.removeRecursive(tx_to_remove, MemPoolRemovalReason::BLOCK /* dummy */));
         std::vector<uint256> all_txids;
         tx_pool.queryHashes(all_txids);
         assert(all_txids.size() < info_all.size());
-        WITH_LOCK(::cs_main, tx_pool.check(chainstate));
+        WITH_LOCK(::cs_main, tx_pool.check(chainstate.CoinsTip(), chainstate.m_chain.Height() + 1));
     }
     SyncWithValidationInterfaceQueue();
 }
 
-void MockTime(FuzzedDataProvider& fuzzed_data_provider, const CChainState& chainstate)
+void MockTime(FuzzedDataProvider& fuzzed_data_provider, const Chainstate& chainstate)
 {
     const auto time = ConsumeTime(fuzzed_data_provider,
                                   chainstate.m_chain.Tip()->GetMedianTimePast() + 1,
@@ -111,14 +117,27 @@ void MockTime(FuzzedDataProvider& fuzzed_data_provider, const CChainState& chain
     SetMockTime(time);
 }
 
+CTxMemPool MakeMempool(FuzzedDataProvider& fuzzed_data_provider, const NodeContext& node)
+{
+    // Take the default options for tests...
+    CTxMemPool::Options mempool_opts{MemPoolOptionsForTest(node)};
+
+    // ...override specific options for this specific fuzz suite
+    mempool_opts.estimator = nullptr;
+    mempool_opts.check_ratio = 1;
+    mempool_opts.require_standard = fuzzed_data_provider.ConsumeBool();
+
+    // ...and construct a CTxMemPool from it
+    return CTxMemPool{mempool_opts};
+}
+
 FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
 {
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
     const auto& node = g_setup->m_node;
-    auto& chainstate = node.chainman->ActiveChainstate();
+    auto& chainstate{static_cast<DummyChainState&>(node.chainman->ActiveChainstate())};
 
     MockTime(fuzzed_data_provider, chainstate);
-    SetMempoolConstraints(*node.args, fuzzed_data_provider);
 
     // All RBF-spendable outpoints
     std::set<COutPoint> outpoints_rbf;
@@ -133,8 +152,11 @@ FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     const CAmount SUPPLY_TOTAL{coinbaseMaturity * 50 * COIN};
 
-    CTxMemPool tx_pool_{/* estimator */ nullptr, /* check_ratio */ 1};
+    SetMempoolConstraints(*node.args, fuzzed_data_provider);
+    CTxMemPool tx_pool_{MakeMempool(fuzzed_data_provider, node)};
     MockedTxPool& tx_pool = *static_cast<MockedTxPool*>(&tx_pool_);
+
+    chainstate.SetMempool(&tx_pool);
 
     // Helper to query an amount
     const CCoinsViewMemPool amount_view{WITH_LOCK(::cs_main, return &chainstate.CoinsTip()), tx_pool};
@@ -144,7 +166,8 @@ FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
         return c.out.nValue;
     };
 
-    while (fuzzed_data_provider.ConsumeBool()) {
+    LIMITED_WHILE(fuzzed_data_provider.ConsumeBool(), 300)
+    {
         {
             // Total supply is the mempool fee + all outpoints
             CAmount supply_now{WITH_LOCK(tx_pool.cs, return tx_pool.GetTotalFee())};
@@ -201,9 +224,6 @@ FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
             MockTime(fuzzed_data_provider, chainstate);
         }
         if (fuzzed_data_provider.ConsumeBool()) {
-            SetMempoolConstraints(*node.args, fuzzed_data_provider);
-        }
-        if (fuzzed_data_provider.ConsumeBool()) {
             tx_pool.RollingFeeUpdate();
         }
         if (fuzzed_data_provider.ConsumeBool()) {
@@ -220,18 +240,21 @@ FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
         auto txr = std::make_shared<TransactionsDelta>(removed, added);
         RegisterSharedValidationInterface(txr);
         const bool bypass_limits = fuzzed_data_provider.ConsumeBool();
-        ::fRequireStandard = fuzzed_data_provider.ConsumeBool();
 
-        // Make sure ProcessNewPackage on one transaction works and always fully validates the transaction.
+        // Make sure ProcessNewPackage on one transaction works.
         // The result is not guaranteed to be the same as what is returned by ATMP.
         const auto result_package = WITH_LOCK(::cs_main,
-                                    return ProcessNewPackage(node.chainman->ActiveChainstate(), tx_pool, {tx}, true));
-        auto it = result_package.m_tx_results.find(tx->GetWitnessHash());
-        Assert(it != result_package.m_tx_results.end());
-        Assert(it->second.m_result_type == MempoolAcceptResult::ResultType::VALID ||
-               it->second.m_result_type == MempoolAcceptResult::ResultType::INVALID);
+                                    return ProcessNewPackage(chainstate, tx_pool, {tx}, true));
+        // If something went wrong due to a package-specific policy, it might not return a
+        // validation result for the transaction.
+        if (result_package.m_state.GetResult() != PackageValidationResult::PCKG_POLICY) {
+            auto it = result_package.m_tx_results.find(tx->GetWitnessHash());
+            Assert(it != result_package.m_tx_results.end());
+            Assert(it->second.m_result_type == MempoolAcceptResult::ResultType::VALID ||
+                   it->second.m_result_type == MempoolAcceptResult::ResultType::INVALID);
+        }
 
-        const auto res = WITH_LOCK(::cs_main, return AcceptToMemoryPool(chainstate, tx_pool, tx, bypass_limits));
+        const auto res = WITH_LOCK(::cs_main, return AcceptToMemoryPool(chainstate, tx, GetTime(), bypass_limits, /*test_accept=*/false));
         const bool accepted = res.m_result_type == MempoolAcceptResult::ResultType::VALID;
         SyncWithValidationInterfaceQueue();
         UnregisterSharedValidationInterface(txr);
@@ -268,10 +291,10 @@ FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
             // Outpoints that no longer count toward the total supply
             std::set<COutPoint> consumed_supply;
             for (const auto& removed_tx : removed) {
-                insert_tx(/* created_by_tx */ {consumed_erased}, /* consumed_by_tx */ {outpoints_supply}, /* tx */ *removed_tx);
+                insert_tx(/*created_by_tx=*/{consumed_erased}, /*consumed_by_tx=*/{outpoints_supply}, /*tx=*/*removed_tx);
             }
             for (const auto& added_tx : added) {
-                insert_tx(/* created_by_tx */ {outpoints_supply, outpoints_rbf}, /* consumed_by_tx */ {consumed_supply}, /* tx */ *added_tx);
+                insert_tx(/*created_by_tx=*/{outpoints_supply, outpoints_rbf}, /*consumed_by_tx=*/{consumed_supply}, /*tx=*/*added_tx);
             }
             for (const auto& p : consumed_erased) {
                 Assert(outpoints_supply.erase(p) == 1);
@@ -292,7 +315,6 @@ FUZZ_TARGET_INIT(tx_pool, initialize_tx_pool)
     auto& chainstate = node.chainman->ActiveChainstate();
 
     MockTime(fuzzed_data_provider, chainstate);
-    SetMempoolConstraints(*node.args, fuzzed_data_provider);
 
     std::vector<uint256> txids;
     for (const auto& outpoint : g_outpoints_coinbase_init_mature) {
@@ -304,17 +326,16 @@ FUZZ_TARGET_INIT(tx_pool, initialize_tx_pool)
         txids.push_back(ConsumeUInt256(fuzzed_data_provider));
     }
 
-    CTxMemPool tx_pool_{/* estimator */ nullptr, /* check_ratio */ 1};
+    SetMempoolConstraints(*node.args, fuzzed_data_provider);
+    CTxMemPool tx_pool_{MakeMempool(fuzzed_data_provider, node)};
     MockedTxPool& tx_pool = *static_cast<MockedTxPool*>(&tx_pool_);
 
-    while (fuzzed_data_provider.ConsumeBool()) {
+    LIMITED_WHILE(fuzzed_data_provider.ConsumeBool(), 300)
+    {
         const auto mut_tx = ConsumeTransaction(fuzzed_data_provider, txids);
 
         if (fuzzed_data_provider.ConsumeBool()) {
             MockTime(fuzzed_data_provider, chainstate);
-        }
-        if (fuzzed_data_provider.ConsumeBool()) {
-            SetMempoolConstraints(*node.args, fuzzed_data_provider);
         }
         if (fuzzed_data_provider.ConsumeBool()) {
             tx_pool.RollingFeeUpdate();
@@ -329,8 +350,7 @@ FUZZ_TARGET_INIT(tx_pool, initialize_tx_pool)
 
         const auto tx = MakeTransactionRef(mut_tx);
         const bool bypass_limits = fuzzed_data_provider.ConsumeBool();
-        ::fRequireStandard = fuzzed_data_provider.ConsumeBool();
-        const auto res = WITH_LOCK(::cs_main, return AcceptToMemoryPool(node.chainman->ActiveChainstate(), tx_pool, tx, bypass_limits));
+        const auto res = WITH_LOCK(::cs_main, return AcceptToMemoryPool(chainstate, tx, GetTime(), bypass_limits, /*test_accept=*/false));
         const bool accepted = res.m_result_type == MempoolAcceptResult::ResultType::VALID;
         if (accepted) {
             txids.push_back(tx->GetHash());

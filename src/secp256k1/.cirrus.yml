@@ -1,21 +1,30 @@
 env:
-  WIDEMUL: auto
-  STATICPRECOMPUTATION: yes
+  ### compiler options
+  HOST:
+  # Specific warnings can be disabled with -Wno-error=foo.
+  # -pedantic-errors is not equivalent to -Werror=pedantic and thus not implied by -Werror according to the GCC manual.
+  WERROR_CFLAGS: -Werror -pedantic-errors
+  MAKEFLAGS: -j4
+  BUILD: check
+  ### secp256k1 config
+  ECMULTWINDOW: auto
   ECMULTGENPRECISION: auto
   ASM: no
-  BUILD: check
+  WIDEMUL: auto
   WITH_VALGRIND: yes
-  RUN_VALGRIND: no
   EXTRAFLAGS:
-  HOST:
+  ### secp256k1 modules
+  EXPERIMENTAL: no
   ECDH: no
   RECOVERY: no
   SCHNORRSIG: no
-  EXPERIMENTAL: no
-  CTIMETEST: yes
+  ### test options
+  SECP256K1_TEST_ITERS:
   BENCH: yes
-  ITERS: 2
-  MAKEFLAGS: -j2
+  SECP256K1_BENCH_ITERS: 2
+  CTIMETEST: yes
+  # Compile and run the tests
+  EXAMPLES: yes
 
 cat_logs_snippet: &CAT_LOGS
   always:
@@ -43,47 +52,32 @@ merge_base_script_snippet: &MERGE_BASE
     - git config --global user.name "ci"
     - git merge FETCH_HEAD  # Merge base to detect silent merge conflicts
 
-task:
-  name: "x86_64: Linux (Debian stable)"
+linux_container_snippet: &LINUX_CONTAINER
   container:
     dockerfile: ci/linux-debian.Dockerfile
     # Reduce number of CPUs to be able to do more builds in parallel.
     cpu: 1
+    # Gives us more CPUs for free if they're available.
+    greedy: true
     # More than enough for our scripts.
     memory: 1G
+
+task:
+  name: "x86_64: Linux (Debian stable)"
+  << : *LINUX_CONTAINER
   matrix: &ENV_MATRIX
     - env: {WIDEMUL:  int64,  RECOVERY: yes}
-    - env: {WIDEMUL:  int64,                 ECDH: yes, EXPERIMENTAL: yes, SCHNORRSIG: yes}
+    - env: {WIDEMUL:  int64,                 ECDH: yes, SCHNORRSIG: yes}
     - env: {WIDEMUL: int128}
-    - env: {WIDEMUL: int128,  RECOVERY: yes,            EXPERIMENTAL: yes, SCHNORRSIG: yes}
-    - env: {WIDEMUL: int128,                 ECDH: yes, EXPERIMENTAL: yes, SCHNORRSIG: yes}
+    - env: {WIDEMUL: int128,  RECOVERY: yes,            SCHNORRSIG: yes}
+    - env: {WIDEMUL: int128,                 ECDH: yes, SCHNORRSIG: yes}
     - env: {WIDEMUL: int128,  ASM: x86_64}
-    - env: {                  RECOVERY: yes,            EXPERIMENTAL: yes, SCHNORRSIG: yes}
-    - env: {                  STATICPRECOMPUTATION: no}
+    - env: {                  RECOVERY: yes,            SCHNORRSIG: yes}
     - env: {BUILD: distcheck, WITH_VALGRIND: no, CTIMETEST: no, BENCH: no}
     - env: {CPPFLAGS: -DDETERMINISTIC}
     - env: {CFLAGS: -O0, CTIMETEST: no}
-    - env:
-        CFLAGS:  "-fsanitize=undefined -fno-omit-frame-pointer"
-        LDFLAGS: "-fsanitize=undefined -fno-omit-frame-pointer"
-        UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
-        ASM: x86_64
-        ECDH: yes
-        RECOVERY: yes
-        EXPERIMENTAL: yes
-        SCHNORRSIG: yes
-        CTIMETEST: no
-    - env: { ECMULTGENPRECISION: 2 }
-    - env: { ECMULTGENPRECISION: 8 }
-    - env:
-        RUN_VALGRIND: yes
-        ASM: x86_64
-        ECDH: yes
-        RECOVERY: yes
-        EXPERIMENTAL: yes
-        SCHNORRSIG: yes
-        EXTRAFLAGS: "--disable-openssl-tests"
-        BUILD:
+    - env: { ECMULTGENPRECISION: 2, ECMULTWINDOW: 2 }
+    - env: { ECMULTGENPRECISION: 8, ECMULTWINDOW: 4 }
   matrix:
     - env:
         CC: gcc
@@ -96,21 +90,18 @@ task:
 
 task:
   name: "i686: Linux (Debian stable)"
-  container:
-    dockerfile: ci/linux-debian.Dockerfile
-    cpu: 1
-    memory: 1G
+  << : *LINUX_CONTAINER
   env:
     HOST: i686-linux-gnu
     ECDH: yes
     RECOVERY: yes
-    EXPERIMENTAL: yes
     SCHNORRSIG: yes
   matrix:
     - env:
         CC: i686-linux-gnu-gcc
     - env:
         CC: clang --target=i686-pc-linux-gnu -isystem /usr/i686-linux-gnu/include
+  << : *MERGE_BASE
   test_script:
     - ./ci/cirrus.sh
   << : *CAT_LOGS
@@ -145,8 +136,10 @@ task:
   ##   - rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress
   ##
   brew_valgrind_pre_script:
+    # Retry a few times because this tends to fail randomly.
+    - for i in {1..5}; do brew update && break || sleep 15; done
     - brew config
-    - brew tap --shallow LouisBrunner/valgrind
+    - brew tap LouisBrunner/valgrind
     # Fetch valgrind source but don't build it yet.
     - brew fetch --HEAD LouisBrunner/valgrind/valgrind
   brew_valgrind_cache:
@@ -176,18 +169,14 @@ task:
 
 task:
   name: "s390x (big-endian): Linux (Debian stable, QEMU)"
-  container:
-    dockerfile: ci/linux-debian.Dockerfile
-    cpu: 1
-    memory: 1G
+  << : *LINUX_CONTAINER
   env:
-    QEMU_CMD: qemu-s390x
+    WRAPPER_CMD: qemu-s390x
+    SECP256K1_TEST_ITERS: 16
     HOST: s390x-linux-gnu
-    BUILD:
     WITH_VALGRIND: no
     ECDH: yes
     RECOVERY: yes
-    EXPERIMENTAL: yes
     SCHNORRSIG: yes
     CTIMETEST: no
   << : *MERGE_BASE
@@ -196,3 +185,142 @@ task:
     - rm /etc/ld.so.cache
     - ./ci/cirrus.sh
   << : *CAT_LOGS
+
+task:
+  name: "ARM32: Linux (Debian stable, QEMU)"
+  << : *LINUX_CONTAINER
+  env:
+    WRAPPER_CMD: qemu-arm
+    SECP256K1_TEST_ITERS: 16
+    HOST: arm-linux-gnueabihf
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  matrix:
+    - env: {}
+    - env: {EXPERIMENTAL: yes, ASM: arm}
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
+
+task:
+  name: "ARM64: Linux (Debian stable, QEMU)"
+  << : *LINUX_CONTAINER
+  env:
+    WRAPPER_CMD: qemu-aarch64
+    SECP256K1_TEST_ITERS: 16
+    HOST: aarch64-linux-gnu
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
+
+task:
+  name: "ppc64le: Linux (Debian stable, QEMU)"
+  << : *LINUX_CONTAINER
+  env:
+    WRAPPER_CMD: qemu-ppc64le
+    SECP256K1_TEST_ITERS: 16
+    HOST: powerpc64le-linux-gnu
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
+
+task:
+  name: "x86_64 (mingw32-w64): Windows (Debian stable, Wine)"
+  << : *LINUX_CONTAINER
+  env:
+    WRAPPER_CMD: wine64-stable
+    SECP256K1_TEST_ITERS: 16
+    HOST: x86_64-w64-mingw32
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
+
+# Sanitizers
+task:
+  << : *LINUX_CONTAINER
+  env:
+    ECDH: yes
+    RECOVERY: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  matrix:
+    - name: "Valgrind (memcheck)"
+      container:
+        cpu: 2
+      env:
+        # The `--error-exitcode` is required to make the test fail if valgrind found errors, otherwise it'll return 0 (https://www.valgrind.org/docs/manual/manual-core.html)
+        WRAPPER_CMD: "valgrind --error-exitcode=42"
+        SECP256K1_TEST_ITERS: 2
+    - name: "UBSan, ASan, LSan"
+      container:
+        memory: 2G
+      env:
+        CFLAGS: "-fsanitize=undefined,address -g"
+        UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
+        ASAN_OPTIONS: "strict_string_checks=1:detect_stack_use_after_return=1:detect_leaks=1"
+        LSAN_OPTIONS: "use_unaligned=1"
+        SECP256K1_TEST_ITERS: 32
+  # Try to cover many configurations with just a tiny matrix.
+  matrix:
+    - env:
+        ASM: auto
+    - env:
+        ASM: no
+        ECMULTGENPRECISION: 2
+        ECMULTWINDOW: 2
+  matrix:
+    - env:
+        CC: clang
+    - env:
+        HOST: i686-linux-gnu
+        CC: i686-linux-gnu-gcc
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
+
+task:
+  name: "C++ -fpermissive"
+  << : *LINUX_CONTAINER
+  env:
+    # ./configure correctly errors out when given CC=g++.
+    # We hack around this by passing CC=g++ only to make.
+    CC: gcc
+    MAKEFLAGS: -j4 CC=g++ CFLAGS=-fpermissive\ -g
+    WERROR_CFLAGS:
+    ECDH: yes
+    RECOVERY: yes
+    SCHNORRSIG: yes
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
+
+task:
+  name: "sage prover"
+  << : *LINUX_CONTAINER
+  test_script:
+    - cd sage
+    - sage prove_group_implementations.sage

@@ -1,11 +1,11 @@
-22.0 Release Notes
+24.1 Release Notes
 ==================
 
-Bitcoin Core version 22.0 is now available from:
+Bitcoin Core version 24.1 is now available from:
 
-  <https://bitcoincore.org/bin/bitcoin-core-22.0/>
+  <https://bitcoincore.org/bin/bitcoin-core-24.1/>
 
-This release includes new features, various bug fixes and performance
+This release includes various bug fixes and performance
 improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
@@ -21,7 +21,7 @@ How to Upgrade
 
 If you are running an older version, shut it down. Wait until it has completely
 shut down (which might take a few minutes in some cases), then run the
-installer (on Windows) or just copy over `/Applications/Bitcoin-Qt` (on Mac)
+installer (on Windows) or just copy over `/Applications/Bitcoin-Qt` (on macOS)
 or `bitcoind`/`bitcoin-qt` (on Linux).
 
 Upgrading directly from a version of Bitcoin Core that has reached its EOL is
@@ -32,85 +32,68 @@ Compatibility
 ==============
 
 Bitcoin Core is supported and extensively tested on operating systems
-using the Linux kernel, macOS 10.14+, and Windows 7 and newer.  Bitcoin
+using the Linux kernel, macOS 10.15+, and Windows 7 and newer.  Bitcoin
 Core should also work on most other Unix-like systems but is not as
 frequently tested on them.  It is not recommended to use Bitcoin Core on
 unsupported systems.
 
-From Bitcoin Core 22.0 onwards, macOS versions earlier than 10.14 are no longer supported.
+### P2P
 
-Notable changes
-===============
-
-P2P and network changes
------------------------
-
-New and Updated RPCs
---------------------
-
-Build System
-------------
-
-Files
------
-
-New settings
-------------
-
-Updated settings
-----------------
-
-Tools and Utilities
--------------------
-
-Wallet
-------
-
-GUI changes
------------
-
-Low-level changes
-=================
-
-RPC
----
-
-Tests
------
-
-22.0 change log
-===============
-
-A detailed list of changes in this version follows. To keep the list to a manageable length, small refactors and typo fixes are not included, and similar changes are sometimes condensed into one line.
-
-### Consensus
-
-### Policy
-
-### Mining
-
-### Block and transaction handling
-
-### P2P protocol and network code
-
-### Wallet
+- #26878 I2P network optimizations
+- #26909 net: prevent peers.dat corruptions by only serializing once
+- #27608 p2p: Avoid prematurely clearing download state for other peers
+- #27610 Improve performance of p2p inv to send queues
 
 ### RPC and other APIs
 
-### GUI
+- #26515 rpc: Require NodeStateStats object in getpeerinfo
+- #27279 doc: fix/improve warning helps in {create,load,unload,restore}wallet
+- #27468 rest: avoid segfault for invalid URI
 
-### Build system
+### Build System
 
-### Tests and QA
+- #26944 depends: fix systemtap download URL
+- #27462 depends: fix compiling bdb with clang-16 on aarch64
+
+### Wallet
+
+- #26595 wallet: be able to specify a wallet name and passphrase to migratewallet
+- #26675 wallet: For feebump, ignore abandoned descendant spends
+- #26679 wallet: Skip rescanning if wallet is more recent than tip
+- #26761 wallet: fully migrate address book entries for watchonly/solvable wallets
+- #27053 wallet: reuse change dest when re-creating TX with avoidpartialspends
+- #27080 wallet: Zero out wallet master key upon locking so it doesn't persist in memory
+- #27473 wallet: Properly handle "unknown" Address Type
+
+### GUI changes
+
+- gui#687 Load PSBTs using istreambuf_iterator rather than istream_iterator
+- gui#704 Correctly limit overview transaction list
 
 ### Miscellaneous
 
-### Documentation
+- #26880 ci: replace Intel macOS CI job
+- #26924 refactor: Add missing includes to fix gcc-13 compile error
 
 Credits
 =======
 
 Thanks to everyone who directly contributed to this release:
+
+- Andrew Chow
+- Anthony Towns
+- Hennadii Stepanov
+- John Moffett
+- Jon Atack
+- Marco Falke
+- Martin Zumsande
+- Matthew Zipkin
+- Michael Ford
+- pablomartin4btc
+- Sebastian Falbesoner
+- Suhas Daftuar
+- Thomas Nguyen
+- Vasil Dimov
 
 As well as to everyone that helped with translations on
 [Transifex](https://www.transifex.com/bitcoin/bitcoin/).

@@ -168,7 +168,7 @@ QtumDelegation::~QtumDelegation()
     priv = 0;
 }
 
-bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegation, CChainState& chainstate) const
+bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegation, Chainstate& chainstate) const
 {
     // Contract exist check
     if(!ExistDelegationContract())
@@ -279,7 +279,7 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
     std::set<dev::h160> addresses;
     addresses.insert(priv->delegationsAddress);
     std::vector<std::vector<uint256>> hashesToBlock;
-    curheight = pblocktree->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses, chainman);
+    curheight = chainman.m_blockman.m_block_tree_db->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses, chainman);
 
     if (curheight == -1) {
         return error("Incorrect params");
@@ -459,9 +459,12 @@ bool QtumDelegation::SetSignedStaker(std::vector<unsigned char> &data, const std
     if(!IsAddBytecode(data))
         return false;
 
-    bool invalid = false;
-    std::string strPoD = DecodeBase64(base64PoD, &invalid);
-    if(invalid || strPoD.size() < CPubKey::COMPACT_SIGNATURE_SIZE)
+    std::vector<unsigned char> strPoD;
+    if(auto decodePoD = DecodeBase64(base64PoD))
+    {
+        strPoD = *decodePoD;
+    }
+    if(strPoD.size() < CPubKey::COMPACT_SIGNATURE_SIZE)
         return false;
 
     size_t offset = nPoDStartPosition + 1;

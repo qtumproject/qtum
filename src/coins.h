@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -97,7 +97,7 @@ public:
     //! whether containing transaction was a coinbase
     unsigned int fCoinBase : 1;
     unsigned int fCoinStake : 1;
-	
+
     //! at which height this containing transaction was included in the active block chain
     uint32_t nHeight : 30;
 
@@ -209,7 +209,6 @@ public:
 
     virtual bool GetKey(COutPoint &key) const = 0;
     virtual bool GetValue(Coin &coin) const = 0;
-    virtual unsigned int GetValueSize() const = 0;
 
     virtual bool Valid() const = 0;
     virtual void Next() = 0;

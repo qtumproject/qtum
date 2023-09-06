@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2020 The Bitcoin Core developers
+# Copyright (c) 2016-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test Hierarchical Deterministic wallet function."""
@@ -13,13 +13,17 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
-from test_framework.qtum import generatesynchronized, convert_btc_bech32_address_to_qtum
+from test_framework.qtum import generatesynchronized, convert_btc_bech32_address_to_qtum 
 
 class WalletHDTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
         self.extra_args = [[], ['-keypool=0']]
+        # whitelist peers to speed up tx relay / mempool sync
+        for args in self.extra_args:
+            args.append("-whitelist=noban@127.0.0.1")
+
         self.supports_cli = False
 
     def skip_test_if_missing_module(self):
@@ -36,7 +40,7 @@ class WalletHDTest(BitcoinTestFramework):
         if self.options.descriptors:
             assert_equal(change_addrV["hdkeypath"], "m/44'/88'/0'/1/0")
         else:
-            assert_equal(change_addrV["hdkeypath"], "m/88'/1'/0'")  #first internal child key
+            assert_equal(change_addrV["hdkeypath"], "m/88'/1'/0'")  #first internal child key 
 
         # Import a non-HD private key in the HD wallet
         non_hd_add = convert_btc_bech32_address_to_qtum('bcrt1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezwjksmt')
@@ -61,9 +65,9 @@ class WalletHDTest(BitcoinTestFramework):
                 assert_equal(hd_info["hdkeypath"], "m/88'/0'/" + str(i) + "'")
             assert_equal(hd_info["hdmasterfingerprint"], hd_fingerprint)
             self.nodes[0].sendtoaddress(hd_add, 1)
-            self.nodes[0].generate(1)
+            self.generate(self.nodes[0], 1)
         self.nodes[0].sendtoaddress(non_hd_add, 1)
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
 
         # create an internal key (again)
         change_addr = self.nodes[1].getrawchangeaddress()
@@ -103,7 +107,7 @@ class WalletHDTest(BitcoinTestFramework):
         self.sync_all()
 
         # Needs rescan
-        self.restart_node(1, extra_args=self.extra_args[1] + ['-rescan'])
+        self.nodes[1].rescanblockchain()
         assert_equal(self.nodes[1].getbalance(), NUM_HD_ADDS + 1)
 
         # Try a RPC based rescan
@@ -129,7 +133,7 @@ class WalletHDTest(BitcoinTestFramework):
 
         # send a tx and make sure its using the internal chain for the changeoutput
         txid = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), 1)
-        outs = self.nodes[1].decoderawtransaction(self.nodes[1].gettransaction(txid)['hex'])['vout']
+        outs = self.nodes[1].gettransaction(txid=txid, verbose=True)['decoded']['vout']
         keypath = ""
         for out in outs:
             if out['value'] != 1:
@@ -173,13 +177,13 @@ class WalletHDTest(BitcoinTestFramework):
             # Sethdseed parameter validity
             assert_raises_rpc_error(-1, 'sethdseed', self.nodes[0].sethdseed, False, new_seed, 0)
             assert_raises_rpc_error(-5, "Invalid private key", self.nodes[1].sethdseed, False, "not_wif")
-            assert_raises_rpc_error(-1, "JSON value is not a boolean as expected", self.nodes[1].sethdseed, "Not_bool")
-            assert_raises_rpc_error(-1, "JSON value is not a string as expected", self.nodes[1].sethdseed, False, True)
+            assert_raises_rpc_error(-1, "JSON value of type string is not of expected type bool", self.nodes[1].sethdseed, "Not_bool")
+            assert_raises_rpc_error(-1, "JSON value of type bool is not of expected type string", self.nodes[1].sethdseed, False, True)
             assert_raises_rpc_error(-5, "Already have this key", self.nodes[1].sethdseed, False, new_seed)
             assert_raises_rpc_error(-5, "Already have this key", self.nodes[1].sethdseed, False, self.nodes[1].dumpprivkey(self.nodes[1].getnewaddress()))
 
             self.log.info('Test sethdseed restoring with keys outside of the initial keypool')
-            self.nodes[0].generate(10)
+            self.generate(self.nodes[0], 10)
             # Restart node 1 with keypool of 3 and a different wallet
             self.nodes[1].createwallet(wallet_name='origin', blank=True)
             self.restart_node(1, extra_args=['-keypool=3', '-wallet=origin'])
@@ -228,8 +232,7 @@ class WalletHDTest(BitcoinTestFramework):
             # The wallet that has set a new seed (restore_rpc) should not detect this transaction.
             txid = self.nodes[0].sendtoaddress(addr, 1)
             origin_rpc.sendrawtransaction(self.nodes[0].gettransaction(txid)['hex'])
-            self.nodes[0].generate(1)
-            self.sync_blocks()
+            self.generate(self.nodes[0], 1)
             origin_rpc.gettransaction(txid)
             assert_raises_rpc_error(-5, 'Invalid or non-wallet transaction id', restore_rpc.gettransaction, txid)
             out_of_kp_txid = txid
@@ -239,8 +242,7 @@ class WalletHDTest(BitcoinTestFramework):
             # The previous transaction (out_of_kp_txid) should still not be detected as a rescan is required.
             txid = self.nodes[0].sendtoaddress(last_addr, 1)
             origin_rpc.sendrawtransaction(self.nodes[0].gettransaction(txid)['hex'])
-            self.nodes[0].generate(1)
-            self.sync_blocks()
+            self.generate(self.nodes[0], 1)
             origin_rpc.gettransaction(txid)
             restore_rpc.gettransaction(txid)
             assert_raises_rpc_error(-5, 'Invalid or non-wallet transaction id', restore_rpc.gettransaction, out_of_kp_txid)

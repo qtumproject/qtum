@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,6 +8,7 @@
 
 #include <coins.h>
 #include <dbwrapper.h>
+#include <sync.h>
 #include <chain.h>
 #include <primitives/block.h>
 #include <libdevcore/Common.h>
@@ -15,10 +16,12 @@
 #include <index/disktxpos.h>
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
+class CBlockFileInfo;
 class CBlockIndex;
 class CCoinsViewDBCursor;
 class uint256;
@@ -34,7 +37,10 @@ struct CTimestampIndexKey;
 struct CTimestampBlockIndexKey;
 struct CTimestampBlockIndexValue;
 ////////////////////////////////////
-
+namespace Consensus {
+struct Params;
+};
+struct bilingual_str;
 using valtype = std::vector<unsigned char>;
 
 //! Compensate for extra memory peak (x1.5-x1.9) at flush time.
@@ -83,8 +89,8 @@ public:
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
     std::unique_ptr<CCoinsViewCursor> Cursor() const override;
 
-    //! Attempt to update from an older database format. Returns whether an error occurred.
-    bool Upgrade();
+    //! Whether an unsupported database format is used.
+    bool NeedsUpgrade();
     size_t EstimateSize() const override;
 
     //! Dynamically alter the underlying leveldb cache size.
@@ -104,7 +110,8 @@ public:
     void ReadReindexing(bool &fReindexing);
     bool WriteFlag(const std::string &name, bool fValue);
     bool ReadFlag(const std::string &name, bool &fValue);
-    bool LoadBlockIndexGuts(const Consensus::Params& consensusParams, std::function<CBlockIndex*(const uint256&)> insertBlockIndex);
+    bool LoadBlockIndexGuts(const Consensus::Params& consensusParams, std::function<CBlockIndex*(const uint256&)> insertBlockIndex)
+        EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
 
     ////////////////////////////////////////////////////////////////////////////// // qtum
     bool WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const std::vector<uint256>& hash);
@@ -157,6 +164,8 @@ public:
 
     //////////////////////////////////////////////////////////////////////////////
 };
+
+std::optional<bilingual_str> CheckLegacyTxindex(CBlockTreeDB& block_tree_db);
 
 //////////////////////////////////////////////////////////// // qtum
 struct CHeightTxIndexIteratorKey {
@@ -343,7 +352,7 @@ struct CTimestampBlockIndexValue {
 };
 
 struct CAddressUnspentKey {
-    unsigned int type;
+    uint8_t type;
     uint256 hashBytes;
     uint256 txhash;
     size_t index;
@@ -417,7 +426,7 @@ struct CAddressUnspentValue {
 };
 
 struct CAddressIndexKey {
-    unsigned int type;
+    uint8_t type;
     uint256 hashBytes;
     int blockHeight;
     unsigned int txindex;
@@ -480,7 +489,7 @@ struct CAddressIndexKey {
 };
 
 struct CAddressIndexIteratorHeightKey {
-    unsigned int type;
+    uint8_t type;
     uint256 hashBytes;
     int blockHeight;
 
@@ -518,7 +527,7 @@ struct CAddressIndexIteratorHeightKey {
 };
 
 struct CAddressIndexIteratorKey {
-    unsigned int type;
+    uint8_t type;
     uint256 hashBytes;
 
     size_t GetSerializeSize(int nType, int nVersion) const {

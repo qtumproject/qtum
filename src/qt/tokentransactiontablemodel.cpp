@@ -102,9 +102,9 @@ public:
         qDebug() << "TokenTransactionTablePriv::updateWallet: " + QString::fromStdString(hash.ToString()) + " " + QString::number(status);
 
         // Find bounds of this transaction in model
-        QList<TokenTransactionRecord>::iterator lower = qLowerBound(
+        QList<TokenTransactionRecord>::iterator lower = std::lower_bound(
             cachedWallet.begin(), cachedWallet.end(), hash, TokenTxLessThan());
-        QList<TokenTransactionRecord>::iterator upper = qUpperBound(
+        QList<TokenTransactionRecord>::iterator upper = std::upper_bound(
             cachedWallet.begin(), cachedWallet.end(), hash, TokenTxLessThan());
         int lowerIndex = (lower - cachedWallet.begin());
         int upperIndex = (upper - cachedWallet.begin());

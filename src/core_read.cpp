@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,40 +14,47 @@
 #include <util/strencodings.h>
 #include <version.h>
 
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-
 #include <algorithm>
 #include <string>
 
 namespace {
-
-opcodetype ParseOpCode(const std::string& s)
+class OpCodeParser
 {
-    static std::map<std::string, opcodetype> mapOpNames;
+private:
+    std::map<std::string, opcodetype> mapOpNames;
 
-    if (mapOpNames.empty())
+public:
+    OpCodeParser()
     {
-        for (unsigned int op = 0; op <= MAX_OPCODE; op++)
-        {
+        for (unsigned int op = 0; op <= MAX_OPCODE; ++op) {
             // Allow OP_RESERVED to get into mapOpNames
-            if (op < OP_NOP && op != OP_RESERVED)
+            if (op < OP_NOP && op != OP_RESERVED) {
                 continue;
+            }
 
             std::string strName = GetOpName(static_cast<opcodetype>(op));
-            if (strName == "OP_UNKNOWN")
+            if (strName == "OP_UNKNOWN") {
                 continue;
+            }
             mapOpNames[strName] = static_cast<opcodetype>(op);
             // Convenience: OP_ADD and just ADD are both recognized:
-            if (strName.compare(0, 3, "OP_") == 0) {  // strName starts with "OP_"
+            if (strName.compare(0, 3, "OP_") == 0) { // strName starts with "OP_"
                 mapOpNames[strName.substr(3)] = static_cast<opcodetype>(op);
             }
         }
     }
+    opcodetype Parse(const std::string& s) const
+    {
+        auto it = mapOpNames.find(s);
+        if (it == mapOpNames.end()) throw std::runtime_error("script parse error: unknown opcode");
+        return it->second;
+    }
+};
 
-    auto it = mapOpNames.find(s);
-    if (it == mapOpNames.end()) throw std::runtime_error("script parse error: unknown opcode");
-    return it->second;
+opcodetype ParseOpCode(const std::string& s)
+{
+    static const OpCodeParser ocp;
+    return ocp.Parse(s);
 }
 
 } // namespace
@@ -56,47 +63,37 @@ CScript ParseScript(const std::string& s)
 {
     CScript result;
 
-    std::vector<std::string> words;
-    boost::algorithm::split(words, s, boost::algorithm::is_any_of(" \t\n"), boost::algorithm::token_compress_on);
+    std::vector<std::string> words = SplitString(s, " \t\n");
 
-    for (std::vector<std::string>::const_iterator w = words.begin(); w != words.end(); ++w)
-    {
-        if (w->empty())
-        {
-            // Empty string, ignore. (boost::split given '' will return one word)
-        }
-        else if (std::all_of(w->begin(), w->end(), ::IsDigit) ||
-            (w->front() == '-' && w->size() > 1 && std::all_of(w->begin()+1, w->end(), ::IsDigit)))
+    for (const std::string& w : words) {
+        if (w.empty()) {
+            // Empty string, ignore. (SplitString doesn't combine multiple separators)
+        } else if (std::all_of(w.begin(), w.end(), ::IsDigit) ||
+                   (w.front() == '-' && w.size() > 1 && std::all_of(w.begin() + 1, w.end(), ::IsDigit)))
         {
             // Number
-            int64_t n = atoi64(*w);
+            const auto num{ToIntegral<int64_t>(w)};
 
-            //limit the range of numbers ParseScript accepts in decimal
-            //since numbers outside -0xFFFFFFFF...0xFFFFFFFF are illegal in scripts
-            if (n > int64_t{0xffffffff} || n < -1 * int64_t{0xffffffff}) {
+            // limit the range of numbers ParseScript accepts in decimal
+            // since numbers outside -0xFFFFFFFF...0xFFFFFFFF are illegal in scripts
+            if (!num.has_value() || num > int64_t{0xffffffff} || num < -1 * int64_t{0xffffffff}) {
                 throw std::runtime_error("script parse error: decimal numeric value only allowed in the "
                                          "range -0xFFFFFFFF...0xFFFFFFFF");
             }
 
-            result << n;
-        }
-        else if (w->substr(0,2) == "0x" && w->size() > 2 && IsHex(std::string(w->begin()+2, w->end())))
-        {
+            result << num.value();
+        } else if (w.substr(0, 2) == "0x" && w.size() > 2 && IsHex(std::string(w.begin() + 2, w.end()))) {
             // Raw hex data, inserted NOT pushed onto stack:
-            std::vector<unsigned char> raw = ParseHex(std::string(w->begin()+2, w->end()));
+            std::vector<unsigned char> raw = ParseHex(std::string(w.begin() + 2, w.end()));
             result.insert(result.end(), raw.begin(), raw.end());
-        }
-        else if (w->size() >= 2 && w->front() == '\'' && w->back() == '\'')
-        {
+        } else if (w.size() >= 2 && w.front() == '\'' && w.back() == '\'') {
             // Single-quoted string, pushed as data. NOTE: this is poor-man's
             // parsing, spaces/tabs/newlines in single-quoted strings won't work.
-            std::vector<unsigned char> value(w->begin()+1, w->end()-1);
+            std::vector<unsigned char> value(w.begin() + 1, w.end() - 1);
             result << value;
-        }
-        else
-        {
+        } else {
             // opcode, e.g. OP_ADD or ADD:
-            result << ParseOpCode(*w);
+            result << ParseOpCode(w);
         }
     }
 
@@ -257,7 +254,7 @@ std::vector<unsigned char> ParseHexUV(const UniValue& v, const std::string& strN
 
 int ParseSighashString(const UniValue& sighash)
 {
-    int hash_type = SIGHASH_ALL;
+    int hash_type = SIGHASH_DEFAULT;
     if (!sighash.isNull()) {
         static std::map<std::string, int> map_sighash_values = {
             {std::string("DEFAULT"), int(SIGHASH_DEFAULT)},
@@ -268,7 +265,7 @@ int ParseSighashString(const UniValue& sighash)
             {std::string("SINGLE"), int(SIGHASH_SINGLE)},
             {std::string("SINGLE|ANYONECANPAY"), int(SIGHASH_SINGLE|SIGHASH_ANYONECANPAY)},
         };
-        std::string strHashType = sighash.get_str();
+        const std::string& strHashType = sighash.get_str();
         const auto& it = map_sighash_values.find(strHashType);
         if (it != map_sighash_values.end()) {
             hash_type = it->second;

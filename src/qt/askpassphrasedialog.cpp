@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,7 +14,7 @@
 #include <qt/walletmodel.h>
 #include <qt/styleSheet.h>
 #include <wallet/wallet.h>
-#include <miner.h>
+#include <node/miner.h>
 
 #include <support/allocators/secure.h>
 
@@ -177,7 +177,7 @@ void AskPassphraseDialog::accept()
                 if(UnlockStaking == mode)
                 {
                     // Start the staking if enabled on the machine
-                    bool staking = CanStake();
+                    bool staking = node::CanStake();
                     model->wallet().setEnabledStaking(staking);
                 }
                 QDialog::accept(); // Success

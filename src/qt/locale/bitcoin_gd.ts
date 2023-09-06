@@ -7,15 +7,15 @@
     </message>
     <message>
         <source>Create a new address</source>
-        <translation>Cruthaich seòladh ùr</translation>
+        <translation type="unfinished">Cruthaich seòladh ùr</translation>
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>Dèan lethbhreac den t-seòladh a chaidh a thaghadh an-dràsta gu cairt-bhòrd an t-siostaim</translation>
+        <translation type="unfinished">Dèan lethbhreac den t-seòladh a chaidh a thaghadh an-dràsta gu cairt-bhòrd an t-siostaim</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation>Thoir às an seòladh a chaidh a thaghadh an-dràsta bhon liosta</translation>
+        <translation type="unfinished">Thoir às an seòladh a chaidh a thaghadh an-dràsta bhon liosta</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -37,7 +37,7 @@
     <name>QObject</name>
     <message numerus="yes">
         <source>%n second(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -46,7 +46,7 @@
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -91,10 +91,10 @@
     </message>
     </context>
 <context>
-    <name>QtumGUI</name>
+    <name>BitcoinGUI</name>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -103,18 +103,23 @@
     </message>
     <message>
         <source>Error</source>
-        <translation>Mearachd</translation>
+        <translation type="unfinished">Mearachd</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>Rabhadh</translation>
+        <translation type="unfinished">Rabhadh</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>Fiosrachadh</translation>
+        <translation type="unfinished">Fiosrachadh</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">Ainm Wallet</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -135,11 +140,38 @@
     <name>FreespaceChecker</name>
     <message>
         <source>name</source>
-        <translation>ainm</translation>
+        <translation type="unfinished">ainm</translation>
     </message>
     </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
     <message numerus="yes">
         <source>(sufficient to restore backups %n day(s) old)</source>
         <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
@@ -152,7 +184,7 @@
     </message>
     <message>
         <source>Error</source>
-        <translation>Mearachd</translation>
+        <translation type="unfinished">Mearachd</translation>
     </message>
     </context>
 <context>
@@ -173,7 +205,7 @@
     <name>OverviewPage</name>
     <message>
         <source>Form</source>
-        <translation>Fhoirm</translation>
+        <translation type="unfinished">Fhoirm</translation>
     </message>
     </context>
 <context>
@@ -188,7 +220,7 @@
     <name>SendCoinsDialog</name>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -199,29 +231,8 @@
 <context>
     <name>TransactionDesc</name>
     <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>matures in %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    </context>
-<context>
-    <name>TransactionTableModel</name>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -237,7 +248,7 @@
     </message>
     </context>
 <context>
-    <name>WalletView</name>
+    <name>WalletFrame</name>
     <message>
         <source>Error</source>
         <translation type="unfinished">Mearachd</translation>

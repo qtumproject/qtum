@@ -3,7 +3,6 @@
 
 #include <qt/delegationstakeritemmodel.h>
 
-#include <amount.h>
 #include <QDateTime>
 #include <QSortFilterProxyModel>
 

@@ -34,6 +34,9 @@ evmc::bytes32 EvmCHost::get_storage(evmc::address const& _addr, evmc::bytes32 co
 evmc_storage_status EvmCHost::set_storage(
     evmc::address const& _addr, evmc::bytes32 const& _key, evmc::bytes32 const& _value) noexcept
 {
+    // Follow the EIP-2200 specification
+    // https://eips.ethereum.org/EIPS/eip-2200
+
     assert(fromEvmC(_addr) == m_extVM.myAddress);
     record_account_access(_addr);
     u256 const index = fromEvmC(_key);
@@ -41,7 +44,7 @@ evmc_storage_status EvmCHost::set_storage(
     u256 const currentValue = m_extVM.store(index);
 
     if (newValue == currentValue)
-        return EVMC_STORAGE_UNCHANGED;
+        return EVMC_STORAGE_ASSIGNED;
 
     EVMSchedule const& schedule = m_extVM.evmSchedule();
     auto status = EVMC_STORAGE_MODIFIED;
@@ -58,7 +61,88 @@ evmc_storage_status EvmCHost::set_storage(
     }
     else
     {
-        status = EVMC_STORAGE_MODIFIED_AGAIN;
+        status = EVMC_STORAGE_ASSIGNED;
+
+        //////////////////////////////////////////////////////////////////////////////////
+        // Modification beck ported from mocked_host.hpp
+
+        // Because we need to apply "both following clauses"
+        // we first collect information which clause is triggered
+        // then assign status code to combination of these clauses.
+        enum
+        {
+            None = 0,
+            RemoveClearsSchedule = 1 << 0,
+            AddClearsSchedule = 1 << 1,
+            RestoredBySet = 1 << 2,
+            RestoredByReset = 1 << 3,
+        };
+        int triggered_clauses = None;
+
+        // "If original value is not 0"
+        if (originalValue != 0)
+        {
+            // "If current value is 0"
+            if (currentValue == 0)
+            {
+                // "(also means that new value is not 0)"
+                assert(newValue != 0);
+                // "remove SSTORE_CLEARS_SCHEDULE gas from refund counter"
+                triggered_clauses |= RemoveClearsSchedule;
+            }
+            // "If new value is 0"
+            if (newValue == 0)
+            {
+                // "(also means that current value is not 0)"
+                assert(currentValue != 0);
+                // "add SSTORE_CLEARS_SCHEDULE gas to refund counter"
+                triggered_clauses |= AddClearsSchedule;
+            }
+        }
+
+        // "If original value equals new value (this storage slot is reset)"
+        // Except: we use term 'storage slot restored'.
+        if (originalValue == newValue)
+        {
+            // "If original value is 0"
+            if (originalValue == 0)
+            {
+                // "add SSTORE_SET_GAS - SLOAD_GAS to refund counter"
+                triggered_clauses |= RestoredBySet;
+            }
+            // "Otherwise"
+            else
+            {
+                // "add SSTORE_RESET_GAS - SLOAD_GAS gas to refund counter"
+                triggered_clauses |= RestoredByReset;
+            }
+        }
+
+        switch (triggered_clauses)
+        {
+        case RemoveClearsSchedule:
+            status = EVMC_STORAGE_DELETED_ADDED;
+            break;
+        case AddClearsSchedule:
+            status = EVMC_STORAGE_MODIFIED_DELETED;
+            break;
+        case RemoveClearsSchedule | RestoredByReset:
+            status = EVMC_STORAGE_DELETED_RESTORED;
+            break;
+        case RestoredBySet:
+            status = EVMC_STORAGE_ADDED_DELETED;
+            break;
+        case RestoredByReset:
+            status = EVMC_STORAGE_MODIFIED_RESTORED;
+            break;
+        case None:
+            status = EVMC_STORAGE_ASSIGNED;
+            break;
+        default:
+            assert(false);
+        }
+        //////////////////////////////////////////////////////////////////////////////////
+
         if (originalValue != 0)
         {
             if (currentValue == 0)
@@ -115,11 +199,11 @@ size_t EvmCHost::copy_code(evmc::address const& _addr, size_t _codeOffset, byte*
     return numToCopy;
 }
 
-void EvmCHost::selfdestruct(evmc::address const& _addr, evmc::address const& _beneficiary) noexcept
+bool EvmCHost::selfdestruct(evmc::address const& _addr, evmc::address const& _beneficiary) noexcept
 {
     assert(fromEvmC(_addr) == m_extVM.myAddress);
     record_account_access(_addr);
-    m_extVM.selfdestruct(fromEvmC(_beneficiary));
+    return m_extVM.selfdestruct(fromEvmC(_beneficiary));
 }
 
 
@@ -173,7 +257,7 @@ evmc_tx_context EvmCHost::get_tx_context() const noexcept
     result.block_number = envInfo.number();
     result.block_timestamp = envInfo.timestamp();
     result.block_gas_limit = static_cast<int64_t>(envInfo.gasLimit());
-    result.block_difficulty = toEvmC(envInfo.difficulty());
+    result.block_prev_randao = toEvmC(envInfo.difficulty());
     result.chain_id = toEvmC(envInfo.chainID());
     return result;
 }
@@ -183,7 +267,7 @@ evmc::bytes32 EvmCHost::get_block_hash(int64_t _number) const noexcept
     return toEvmC(m_extVM.blockHash(_number));
 }
 
-evmc::result EvmCHost::create(evmc_message const& _msg) noexcept
+evmc::Result EvmCHost::create(evmc_message const& _msg) noexcept
 {
     u256 gas = _msg.gas;
     u256 value = fromEvmC(_msg.value);
@@ -224,15 +308,15 @@ evmc::result EvmCHost::create(evmc_message const& _msg) noexcept
             output.~bytes();
         };
     }
-    return evmc::result{evmcResult};
+    return evmc::Result{evmcResult};
 }
 
-evmc::result EvmCHost::call(evmc_message const& _msg) noexcept
+evmc::Result EvmCHost::call(evmc_message const& _msg) noexcept
 {
     assert(_msg.gas >= 0 && "Invalid gas value");
     assert(_msg.depth == static_cast<int>(m_extVM.depth) + 1);
 
-    record_account_access(_msg.destination);
+    record_account_access(_msg.recipient);
 
     // Handle CREATE separately.
     if (_msg.kind == EVMC_CREATE || _msg.kind == EVMC_CREATE2)
@@ -243,7 +327,7 @@ evmc::result EvmCHost::call(evmc_message const& _msg) noexcept
     params.apparentValue = fromEvmC(_msg.value);
     params.valueTransfer = _msg.kind == EVMC_DELEGATECALL ? 0 : params.apparentValue;
     params.senderAddress = fromEvmC(_msg.sender);
-    params.codeAddress = fromEvmC(_msg.destination);
+    params.codeAddress = fromEvmC(_msg.code_address);
     params.receiveAddress = _msg.kind == EVMC_CALL ? params.codeAddress : m_extVM.myAddress;
     params.data = {_msg.input_data, _msg.input_size};
     params.staticCall = (_msg.flags & EVMC_STATIC) != 0;
@@ -274,7 +358,7 @@ evmc::result EvmCHost::call(evmc_message const& _msg) noexcept
         // This is normal pattern when placement new operator is used.
         output.~bytes();
     };
-    return evmc::result{evmcResult};
+    return evmc::Result{evmcResult};
 }
 
 ExtVMFace::ExtVMFace(EnvInfo const& _envInfo, Address _myAddress, Address _caller, Address _origin,

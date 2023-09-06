@@ -2,7 +2,6 @@
 #include <qt/forms/ui_stakepage.h>
 
 #include <qt/bitcoinunits.h>
-#include <qt/clientmodel.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
@@ -16,9 +15,9 @@
 #include <qt/styleSheet.h>
 #include <qt/transactionview.h>
 #include <qt/hardwaresigntx.h>
-#include <amount.h>
+#include <consensus/amount.h>
 
-#include <miner.h>
+#include <node/miner.h>
 
 #include <QSortFilterProxyModel>
 #include <QTimer>
@@ -37,7 +36,7 @@ StakePage::StakePage(const PlatformStyle *_platformStyle, QWidget *parent) :
     m_expectedAnnualROI(0)
 {
     ui->setupUi(this);
-    ui->checkStake->setEnabled(CanStake());
+    ui->checkStake->setEnabled(node::CanStake());
     transactionView = new TransactionView(platformStyle, this, true);
     ui->frameStakeRecords->layout()->addWidget(transactionView);
 }
@@ -87,7 +86,7 @@ void StakePage::setWalletModel(WalletModel *model)
 
 void StakePage::setBalance(const interfaces::WalletBalances& balances)
 {
-    int unit = walletModel->getOptionsModel()->getDisplayUnit();
+    BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
     m_balances = balances;
     CAmount balance = balances.balance;
     CAmount stake = balances.stake;
@@ -136,9 +135,9 @@ void StakePage::updateDisplayUnit()
     }
 }
 
-void StakePage::numBlocksChanged(int count, const QDateTime &, double, bool headers)
+void StakePage::numBlocksChanged(int count, const QDateTime& blockDate, double nVerificationProgress, SyncType header, SynchronizationState sync_state)
 {
-    if(!headers && clientModel && walletModel)
+    if(header==SyncType::BLOCK_SYNC && clientModel && walletModel)
     {
         ui->labelHeight->setText(BitcoinUnits::formatInt(count));
         m_subsidy = clientModel->node().getBlockSubsidy(count);
@@ -152,7 +151,7 @@ void StakePage::numBlocksChanged(int count, const QDateTime &, double, bool head
 
 void StakePage::updateSubsidy()
 {
-    int unit = walletModel->getOptionsModel()->getDisplayUnit();
+    BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
     QString strSubsidy = BitcoinUnits::formatWithUnit(unit, m_subsidy, false, BitcoinUnits::SeparatorStyle::ALWAYS) + "/Block";
     ui->labelReward->setText(strSubsidy);
 }

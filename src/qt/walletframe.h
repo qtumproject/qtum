@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -36,7 +36,7 @@ public:
 
     void setClientModel(ClientModel *clientModel);
 
-    bool addWallet(WalletModel* walletModel, WalletView* walletView);
+    bool addView(WalletView* walletView);
     void setCurrentWallet(WalletModel* wallet_model);
     void removeWallet(WalletModel* wallet_model);
     void removeAllWallets();
@@ -49,6 +49,8 @@ public:
 
 Q_SIGNALS:
     void createWalletButtonClicked();
+    void message(const QString& title, const QString& message, unsigned int style);
+    void currentWalletSet();
 
 private:
     QStackedWidget *walletStack;
@@ -64,7 +66,6 @@ private:
     TitleBar* m_title_bar = 0;
 
     void setTabBarInfo(QObject* into);
-
 public:
     WalletView* currentWalletView() const;
     WalletModel* currentWalletModel() const;
@@ -94,7 +95,6 @@ public Q_SLOTS:
     void gotoDelegationPage();
     /** Switch to super staker page */
     void gotoSuperStakerPage();
-
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
@@ -117,12 +117,10 @@ public Q_SLOTS:
     void lockWallet();
     /** Sign transaction with hardware wallet*/
     void signTxHardware(const QString& tx = "");
-
     /** Show used sending addresses */
     void usedSendingAddresses();
     /** Show used receiving addresses */
     void usedReceivingAddresses();
-
     void pageChanged(int index);
 };
 

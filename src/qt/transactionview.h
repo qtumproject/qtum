@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -23,7 +23,7 @@ class QFrame;
 class QLineEdit;
 class QMenu;
 class QModelIndex;
-class QSpacerItem;
+class QSpacerItem; 
 class QTableView;
 QT_END_NAMESPACE
 
@@ -35,7 +35,7 @@ class TransactionView : public QWidget
     Q_OBJECT
 
 public:
-    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = nullptr, bool hideFilter = false);
+    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = nullptr, bool hideFilter = false); 
     ~TransactionView();
 
     void setModel(WalletModel *model);
@@ -74,7 +74,7 @@ private:
     QComboBox *watchOnlyWidget;
     QLineEdit *search_widget;
     QLineEdit *amountWidget;
-    QSpacerItem *hSpacer;
+    QSpacerItem *hSpacer; 
 
     QMenu *contextMenu;
 
@@ -91,7 +91,6 @@ private:
     GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer{nullptr};
 
     virtual void resizeEvent(QResizeEvent* event) override;
-
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     const PlatformStyle* m_platform_style;

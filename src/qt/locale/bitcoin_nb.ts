@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>Create a new address</source>
-        <translation>Opprett en ny adresse</translation>
+        <translation type="unfinished">Opprett en ny adresse</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>Kopier den valgte adressen til utklippstavlen</translation>
+        <translation type="unfinished">Kopier den valgte adressen til utklippstavlen</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -27,7 +27,7 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation>Slett den valgte adressen fra listen</translation>
+        <translation type="unfinished">Slett den valgte adressen fra listen</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
@@ -35,15 +35,15 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>Eksporter data i den valgte fliken til en fil</translation>
+        <translation type="unfinished">Eksporter data i den valgte fliken til en fil</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>&amp;Eksport</translation>
+        <translation type="unfinished">&amp;Eksport</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>&amp;Slett</translation>
+        <translation type="unfinished">&amp;Slett</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -84,7 +84,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Edit</source>
-        <translation type="unfinished">R&amp;ediger</translation>
+        <translation type="unfinished">&amp;Rediger</translation>
     </message>
     <message>
         <source>Export Address List</source>
@@ -92,17 +92,17 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
         <translation type="unfinished">Kommaseparert fil</translation>
     </message>
     <message>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
         <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
-        <translation type="unfinished">Fet oppstod en feil ved lagring av adresselisten til %1. Vennligst prøv igjen.</translation>
+        <translation type="unfinished">Det oppstod en feil ved lagring av adresselisten til %1. Vennligst prøv igjen.</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
-        <translation type="unfinished">Eksporten feilet</translation>
+        <translation type="unfinished">Eksportering feilet</translation>
     </message>
 </context>
 <context>
@@ -124,19 +124,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>AskPassphraseDialog</name>
     <message>
         <source>Passphrase Dialog</source>
-        <translation>Passord dialog</translation>
+        <translation type="unfinished">Passord dialog</translation>
     </message>
     <message>
         <source>Enter passphrase</source>
-        <translation>Oppgi passordfrase</translation>
+        <translation type="unfinished">Oppgi passordfrase</translation>
     </message>
     <message>
         <source>New passphrase</source>
-        <translation>Ny passordfrase</translation>
+        <translation type="unfinished">Ny passordfrase</translation>
     </message>
     <message>
         <source>Repeat new passphrase</source>
-        <translation>Repeter passordfrasen</translation>
+        <translation type="unfinished">Repeter passordfrasen</translation>
     </message>
     <message>
         <source>Show passphrase</source>
@@ -165,7 +165,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Advarsel: Dersom du krypterer lommeboken og mister passordfrasen vil du &lt;b&gt;MISTE ALLE DINE QTUM&lt;/b&gt;!</translation>
-    </message>
+   </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Er du sikker på at du vil kryptere lommeboken?</translation>
@@ -176,7 +176,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
-        <translation type="unfinished">Angi den nye passordfrasen for lommeboken.&lt;br/&gt; Vennglist du bruker en passordfrase &lt;b&gt; ti eller tilfeldige tegn &lt;/b&gt;, eller &lt;b&gt; åtte eller flere ord.</translation>
+        <translation type="unfinished">Angi den nye passordfrasen for lommeboken.&lt;br/&gt; Vennglist bruk en passordfrase med &lt;b&gt; ti eller flere tilfeldige tegn &lt;/b&gt;, eller &lt;b&gt; åtte eller flere ord.</translation>
     </message>
     <message>
         <source>Enter the old passphrase and new passphrase for the wallet.</source>
@@ -243,7 +243,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>QtumApplication</name>
+    <name>BitcoinApplication</name>
+    <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">Løpsk unntak</translation>
+    </message>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">En fatal feil har skjedd. %1 kan ikke lenger trygt fortsette og kommer til å avslutte.</translation>
@@ -252,9 +256,23 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Internal error</source>
         <translation type="unfinished">Intern feil</translation>
     </message>
-    </context>
+    <message>
+        <source>An internal error occurred. %1 will attempt to continue safely. This is an unexpected bug which can be reported as described below.</source>
+        <translation type="unfinished">En intern feil har oppstått. %1 vil forsøke å fortsette trygt. Dette er en uventet feil som kan bli rapportert som forklart nedenfor.</translation>
+    </message>
+</context>
 <context>
     <name>QObject</name>
+    <message>
+        <source>Do you want to reset settings to default values, or to abort without making changes?</source>
+        <extracomment>Explanatory text shown on startup when the settings file cannot be read. Prompts user to make a choice between resetting or aborting.</extracomment>
+        <translation type="unfinished">Vil du tilbakestille innstillingene til utgangsverdiene, eller vil du avbryte uten å gjøre endringer?</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. Check that settings file is writable, or try running with -nosettings.</source>
+        <extracomment>Explanatory text shown on startup when the settings file could not be written. Prompts user to check that we have the ability to write to the file. Explains that the user has the option of running without a settings file.</extracomment>
+        <translation type="unfinished">En fatal feil har oppstått. Sjekk at filen med innstillinger er skrivbar eller prøv å kjøre med -nosettings.</translation>
+    </message>
     <message>
         <source>Error: Specified data directory "%1" does not exist.</source>
         <translation type="unfinished">Feil: Den spesifiserte datamappen "%1" finnes ikke.</translation>
@@ -262,10 +280,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Error: %1</source>
         <translation type="unfinished">Feil: %1</translation>
-    </message>
-    <message>
-        <source>Error initializing settings: %1</source>
-        <translation type="unfinished">Initialisering av innstillinger feilet: %1</translation>
     </message>
     <message>
         <source>%1 didn't yet exit safely…</source>
@@ -284,16 +298,47 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Oppgi en Qtum-adresse (f.eks. %1)</translation>
     </message>
     <message>
+        <source>Unroutable</source>
+        <translation type="unfinished">Ikke-rutbar</translation>
+    </message>
+    <message>
         <source>Internal</source>
         <translation type="unfinished">Intern</translation>
     </message>
     <message>
         <source>Inbound</source>
+        <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
         <translation type="unfinished">Innkommende</translation>
     </message>
     <message>
         <source>Outbound</source>
+        <extracomment>An outbound connection to a peer. An outbound connection is a connection initiated by us.</extracomment>
         <translation type="unfinished">Utgående</translation>
+    </message>
+    <message>
+        <source>Full Relay</source>
+        <extracomment>Peer connection type that relays all network information.</extracomment>
+        <translation type="unfinished">Fullrelé</translation>
+    </message>
+    <message>
+        <source>Block Relay</source>
+        <extracomment>Peer connection type that relays network information about blocks and not transactions or addresses.</extracomment>
+        <translation type="unfinished">Blokkrelé</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <extracomment>Peer connection type established manually through one of several methods.</extracomment>
+        <translation type="unfinished">Håndbok</translation>
+    </message>
+    <message>
+        <source>Feeler</source>
+        <extracomment>Short-lived peer connection type that tests the aliveness of known addresses.</extracomment>
+        <translation type="unfinished">Føler</translation>
+    </message>
+    <message>
+        <source>Address Fetch</source>
+        <extracomment>Short-lived peer connection type that solicits known addresses from a peer.</extracomment>
+        <translation type="unfinished">Adressehenting</translation>
     </message>
     <message>
         <source>%1 h</source>
@@ -309,14 +354,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>%n second(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform>%n sekund</numerusform>
             <numerusform>%n sekunder</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform>%n minutt</numerusform>
             <numerusform>%n minutter</numerusform>
         </translation>
@@ -355,30 +400,588 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>QtumGUI</name>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Filen med innstillinger kunne ikke lese</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Filen med innstillinger kunne ikke skrives</translation>
+    </message>
+    <message>
+        <source>The %s developers</source>
+        <translation type="unfinished">%s-utviklerne</translation>
+    </message>
+    <message>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s korrupt. Prøv å bruk lommebokverktøyet qtum-wallet til å fikse det eller laste en backup.</translation>
+   </message>
+    <message>
+        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
+        <translation type="unfinished">-maxtxfee er satt veldig høyt! Så stort gebyr kan bli betalt ved en enkelt transaksjon.</translation>
+    </message>
+    <message>
+        <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
+        <translation type="unfinished">Kan ikke nedgradere lommebok fra versjon %i til versjon %i. Lommebokversjon er uforandret.</translation>
+    </message>
+    <message>
+        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
+        <translation type="unfinished">Kan ikke låse datamappen %s. %s kjører antagelig allerede.</translation>
+    </message>
+    <message>
+        <source>Cannot upgrade a non HD split wallet from version %i to version %i without upgrading to support pre-split keypool. Please use version %i or no version specified.</source>
+        <translation type="unfinished">Kan ikke oppgradere en ikke-HD delt lommebok fra versjon %i til versjon %i uten å først oppgradere for å få støtte for forhåndsdelt keypool. Vennligst bruk versjon %i eller ingen versjon spesifisert.</translation>
+    </message>
+    <message>
+        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
+        <translation type="unfinished">Lisensiert MIT. Se tilhørende fil %s eller %s</translation>
+    </message>
+    <message>
+        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
+        <translation type="unfinished">Feil under lesing av %s! Alle nøkler har blitt lest rett, men transaksjonsdata eller adressebokoppføringer kan mangle eller være uriktige.</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile format record is incorrect. Got "%s", expected "format".</source>
+        <translation type="unfinished">Feil: Dumpfil formatoppføring stemmer ikke. Fikk "%s", forventet "format".</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile identifier record is incorrect. Got "%s", expected "%s".</source>
+        <translation type="unfinished">Feil: Dumpfil identifiseringsoppføring stemmer ikke. Fikk "%s", forventet "%s".</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Feil: Dumpfil versjon er ikke støttet. Denne versjonen av qtum-lommebok støtter kun versjon 1 dumpfiler. Fikk dumpfil med versjon %s</translation>
+    </message>
+    <message>
+        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
+        <translation type="unfinished">Avgiftsberegning mislyktes. Fallbackfee er deaktivert. Vent et par blokker eller aktiver -fallbackfee.</translation>
+    </message>
+    <message>
+        <source>File %s already exists. If you are sure this is what you want, move it out of the way first.</source>
+        <translation type="unfinished">Filen %s eksisterer allerede. Hvis du er sikker på at det er dette du vil, flytt den vekk først.</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
+        <translation type="unfinished">Ugyldig beløp for -maxtxfee=&lt;amount&gt;: '%s' (et minrelay gebyr på minimum %s kreves for å forhindre fastlåste transaksjoner)</translation>
+    </message>
+    <message>
+        <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
+        <translation type="unfinished">Mer enn en onion adresse har blitt gitt. Bruker %s for den automatisk lagde Tor onion tjenesten.</translation>
+    </message>
+    <message>
+        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
+        <translation type="unfinished">Sjekk at din datamaskins dato og klokke er stilt rett! Hvis klokka er feil, vil ikke %s fungere ordentlig.</translation>
+    </message>
+    <message>
+        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
+        <translation type="unfinished">Bidra hvis du finner %s nyttig. Besøk %s for mer informasjon om programvaren.</translation>
+    </message>
+    <message>
+        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
+        <translation type="unfinished">Beskjæringsmodus er konfigurert under minimum på %d MiB. Vennligst bruk et høyere nummer.</translation>
+    </message>
+    <message>
+        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
+        <translation type="unfinished">Beskjæring: siste lommeboksynkronisering går utenfor beskjærte data. Du må bruke -reindex (laster ned hele blokkjeden igjen for beskjærte noder)</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
+        <translation type="unfinished">SQLiteDatabase: Ukjent sqlite lommebokskjemaversjon %d. Kun versjon %d er støttet</translation>
+    </message>
+    <message>
+        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
+        <translation type="unfinished">Blokkdatabasen inneholder en blokk som ser ut til å være fra fremtiden. Dette kan være fordi dato og tid på din datamaskin er satt feil. Gjenopprett kun blokkdatabasen når du er sikker på at dato og tid er satt riktig.</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to send after the fee has been deducted</source>
+        <translation type="unfinished">Transaksjonsbeløpet er for lite til å sendes etter at gebyret er fratrukket</translation>
+    </message>
+    <message>
+        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
+        <translation type="unfinished">Denne feilen kan oppstå hvis denne lommeboken ikke ble avsluttet skikkelig og var sist lastet med en build som hadde en nyere versjon av Berkeley DB. Hvis det har skjedd, vær så snill å bruk softwaren som sist lastet denne lommeboken.</translation>
+    </message>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation type="unfinished">Dette er en testversjon i påvente av utgivelse - bruk på egen risiko - ikke for bruk til blokkutvinning eller i forretningsøyemed</translation>
+    </message>
+    <message>
+        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
+        <translation type="unfinished">Dette er maksimum transaksjonsavgift du betaler (i tillegg til den normale avgiften) for å prioritere delvis betaling unngåelse over normal mynt seleksjon.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
+        <translation type="unfinished">Dette er transaksjonsgebyret du kan se bort fra hvis vekslepengene utgjør mindre enn støv på dette nivået</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
+        <translation type="unfinished">Dette er transaksjonsgebyret du kan betale når gebyranslag ikke er tilgjengelige.</translation>
+    </message>
+    <message>
+        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
+        <translation type="unfinished">Total lengde av nettverks-versionstreng (%i) er over maks lengde (%i). Reduser tallet eller størrelsen av uacomments.</translation>
+    </message>
+    <message>
+        <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
+        <translation type="unfinished">Kan ikke spille av blokker igjen. Du må bygge opp igjen databasen ved bruk av -reindex-chainstate.</translation>
+    </message>
+    <message>
+        <source>Warning: Dumpfile wallet format "%s" does not match command line specified format "%s".</source>
+        <translation type="unfinished">Advarsel: Dumpfil lommebokformat "%s" stemmer ikke med format "%s" spesifisert i kommandolinje.</translation>
+    </message>
+    <message>
+        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
+        <translation type="unfinished">Advarsel: Vi ser ikke ut til å være i full overenstemmelse med våre likemenn! Du kan trenge å oppgradere, eller andre noder kan trenge å oppgradere.</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
+        <translation type="unfinished">Du må gjenoppbygge databasen ved hjelp av -reindex for å gå tilbake til ubeskåret modus. Dette vil laste ned hele blokkjeden på nytt.</translation>
+    </message>
+    <message>
+        <source>%s is set very high!</source>
+        <translation type="unfinished">%s er satt veldig høyt!</translation>
+    </message>
+    <message>
+        <source>-maxmempool must be at least %d MB</source>
+        <translation type="unfinished">-maxmempool må være minst %d MB</translation>
+    </message>
+    <message>
+        <source>A fatal internal error occurred, see debug.log for details</source>
+        <translation type="unfinished">En fatal intern feil oppstod, se debug.log for detaljer.</translation>
+    </message>
+    <message>
+        <source>Cannot resolve -%s address: '%s'</source>
+        <translation type="unfinished">Kunne ikke slå opp -%s-adresse: "%s"</translation>
+    </message>
+    <message>
+        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
+        <translation type="unfinished">Kan ikke sette -peerblockfilters uten -blockfilterindex</translation>
+    </message>
+    <message>
+        <source>
+Unable to restore backup of wallet.</source>
+        <translation type="unfinished">
+Kunne ikke gjenopprette sikkerhetskopi av lommebok.</translation>
+    </message>
+    <message>
+        <source>Copyright (C) %i-%i</source>
+        <translation type="unfinished">Kopirett © %i-%i</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">Oppdaget korrupt blokkdatabase</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation type="unfinished">Kunne ikke finne asmap filen %s</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation type="unfinished">Kunne ikke analysere asmap filen %s</translation>
+    </message>
+    <message>
+        <source>Disk space is too low!</source>
+        <translation type="unfinished">For lite diskplass!</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">Ønsker du å gjenopprette blokkdatabasen nå?</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Ferdig med lasting</translation>
+    </message>
+    <message>
+        <source>Dump file %s does not exist.</source>
+        <translation type="unfinished">Dump fil %s eksisterer ikke.</translation>
+    </message>
+    <message>
+        <source>Error creating %s</source>
+        <translation type="unfinished">Feil under opprettelse av %s</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">Feil under initialisering av blokkdatabase</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">Feil under oppstart av lommeboken sitt databasemiljø %s!</translation>
+    </message>
+    <message>
+        <source>Error loading %s</source>
+        <translation type="unfinished">Feil ved lasting av %s</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation type="unfinished">Feil under innlasting av %s: Skadet lommebok</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation type="unfinished">Feil under innlasting av %s: Lommeboka krever nyere versjon av %s</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Feil ved lasting av blokkdatabase</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">Feil under åpning av blokkdatabase</translation>
+    </message>
+    <message>
+        <source>Error reading from database, shutting down.</source>
+        <translation type="unfinished">Feil ved lesing fra database, stenger ned.</translation>
+    </message>
+    <message>
+        <source>Error reading next record from wallet database</source>
+        <translation type="unfinished">Feil ved lesing av neste oppføring fra lommebokdatabase</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is low for %s</source>
+        <translation type="unfinished">Feil: Ikke nok ledig diskplass for %s</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile checksum does not match. Computed %s, expected %s</source>
+        <translation type="unfinished">Feil: Dumpfil sjekksum samsvarer ikke. Beregnet %s, forventet %s</translation>
+    </message>
+    <message>
+        <source>Error: Got key that was not hex: %s</source>
+        <translation type="unfinished">Feil: Fikk nøkkel som ikke var hex: %s</translation>
+    </message>
+    <message>
+        <source>Error: Got value that was not hex: %s</source>
+        <translation type="unfinished">Feil: Fikk verdi som ikke var hex: %s</translation>
+    </message>
+    <message>
+        <source>Error: Keypool ran out, please call keypoolrefill first</source>
+        <translation type="unfinished">Feil: Keypool gikk tom, kall keypoolrefill først.</translation>
+    </message>
+    <message>
+        <source>Error: Missing checksum</source>
+        <translation type="unfinished">Feil: Manglende sjekksum</translation>
+    </message>
+    <message>
+        <source>Error: No %s addresses available.</source>
+        <translation type="unfinished">Feil: Ingen %s adresser tilgjengelige.</translation>
+    </message>
+    <message>
+        <source>Error: Unable to write record to new wallet</source>
+        <translation type="unfinished">Feil: Kan ikke skrive rekord til ny lommebok</translation>
+    </message>
+    <message>
+        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
+        <translation type="unfinished">Kunne ikke lytte på noen port. Bruk -listen=0 hvis det er dette du vil.</translation>
+    </message>
+    <message>
+        <source>Failed to rescan the wallet during initialization</source>
+        <translation type="unfinished">Klarte ikke gå igjennom lommeboken under oppstart</translation>
+    </message>
+    <message>
+        <source>Failed to verify database</source>
+        <translation type="unfinished">Verifisering av database feilet</translation>
+    </message>
+    <message>
+        <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
+        <translation type="unfinished">Avgiftsrate (%s) er lavere enn den minimume avgiftsrate innstillingen (%s)</translation>
+    </message>
+    <message>
+        <source>Ignoring duplicate -wallet %s.</source>
+        <translation type="unfinished">Ignorerer dupliserte -wallet %s.</translation>
+    </message>
+    <message>
+        <source>Importing…</source>
+        <translation type="unfinished">Importerer...</translation>
+    </message>
+    <message>
+        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
+        <translation type="unfinished">Ugyldig eller ingen skaperblokk funnet. Feil datamappe for nettverk?</translation>
+    </message>
+    <message>
+        <source>Initialization sanity check failed. %s is shutting down.</source>
+        <translation type="unfinished">Sunnhetssjekk ved oppstart mislyktes. %s skrus av.</translation>
+    </message>
+    <message>
+        <source>Input not found or already spent</source>
+        <translation type="unfinished">Finner ikke data eller er allerede brukt</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Utilstrekkelige midler</translation>
+    </message>
+    <message>
+        <source>Invalid -onion address or hostname: '%s'</source>
+        <translation type="unfinished">Ugyldig -onion adresse eller vertsnavn: "%s"</translation>
+    </message>
+    <message>
+        <source>Invalid -proxy address or hostname: '%s'</source>
+        <translation type="unfinished">Ugyldig -mellomtjeneradresse eller vertsnavn: "%s"</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">Ugyldig beløp for -%s=&lt;amount&gt;: "%s"</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">Ugyldig beløp for -discardfee=&lt;amount&gt;: "%s"</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">Ugyldig beløp for -fallbackfee=&lt;amount&gt;: "%s"</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -paytxfee=&lt;amount&gt;: '%s' (must be at least %s)</source>
+        <translation type="unfinished">Ugyldig beløp for -paytxfee=&lt;amount&gt;: '%s' (må være minst %s)</translation>
+    </message>
+    <message>
+        <source>Invalid netmask specified in -whitelist: '%s'</source>
+        <translation type="unfinished">Ugyldig nettmaske spesifisert i -whitelist: '%s'</translation>
+    </message>
+    <message>
+        <source>Loading P2P addresses…</source>
+        <translation type="unfinished">Laster P2P-adresser...</translation>
+    </message>
+    <message>
+        <source>Loading banlist…</source>
+        <translation type="unfinished">Laster inn bannlysningsliste…</translation>
+    </message>
+    <message>
+        <source>Loading block index…</source>
+        <translation type="unfinished">Laster blokkindeks...</translation>
+    </message>
+    <message>
+        <source>Loading wallet…</source>
+        <translation type="unfinished">Laster lommebok...</translation>
+    </message>
+    <message>
+        <source>Missing amount</source>
+        <translation type="unfinished">Mangler beløp</translation>
+    </message>
+    <message>
+        <source>Missing solving data for estimating transaction size</source>
+        <translation type="unfinished"> 
+Mangler løsningsdata for å estimere transaksjonsstørrelse</translation>
+    </message>
+    <message>
+        <source>Need to specify a port with -whitebind: '%s'</source>
+        <translation type="unfinished">Må oppgi en port med -whitebind: '%s'</translation>
+    </message>
+    <message>
+        <source>No addresses available</source>
+        <translation type="unfinished">Ingen adresser tilgjengelig</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation type="unfinished">For få fildeskriptorer tilgjengelig.</translation>
+    </message>
+    <message>
+        <source>Prune cannot be configured with a negative value.</source>
+        <translation type="unfinished">Beskjæringsmodus kan ikke konfigureres med en negativ verdi.</translation>
+    </message>
+    <message>
+        <source>Prune mode is incompatible with -txindex.</source>
+        <translation type="unfinished">Beskjæringsmodus er inkompatibel med -txindex.</translation>
+    </message>
+    <message>
+        <source>Pruning blockstore…</source>
+        <translation type="unfinished">Beskjærer blokklageret...</translation>
+    </message>
+    <message>
+        <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
+        <translation type="unfinished">Reduserer -maxconnections fra %d til %d, pga. systembegrensninger.</translation>
+    </message>
+    <message>
+        <source>Replaying blocks…</source>
+        <translation type="unfinished">Spiller av blokker på nytt …</translation>
+    </message>
+    <message>
+        <source>Rescanning…</source>
+        <translation type="unfinished">Leser gjennom igjen...</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Kunne ikke utføre uttrykk for å verifisere database: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
+        <translation type="unfinished">SQLiteDataBase: Kunne ikke forberede uttrykk for å verifisere database: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to read database verification error: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Kunne ikke lese databaseverifikasjonsfeil: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
+        <translation type="unfinished">SQLiteDatabase: Uventet applikasjonsid. Forventet %u, fikk %u</translation>
+    </message>
+    <message>
+        <source>Section [%s] is not recognized.</source>
+        <translation type="unfinished">Avsnitt [%s] gjenkjennes ikke.</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Signering av transaksjon feilet</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" does not exist</source>
+        <translation type="unfinished">Oppgitt -walletdir "%s" eksisterer ikke</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is a relative path</source>
+        <translation type="unfinished">Oppgitt -walletdir "%s" er en relativ sti</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is not a directory</source>
+        <translation type="unfinished">Oppgitt -walletdir "%s" er ikke en katalog</translation>
+    </message>
+    <message>
+        <source>Specified blocks directory "%s" does not exist.</source>
+        <translation type="unfinished">Spesifisert blokkeringskatalog "%s" eksisterer ikke.</translation>
+    </message>
+    <message>
+        <source>Starting network threads…</source>
+        <translation type="unfinished">Starter nettverkstråder…</translation>
+    </message>
+    <message>
+        <source>The source code is available from %s.</source>
+        <translation type="unfinished">Kildekoden er tilgjengelig fra %s.</translation>
+    </message>
+    <message>
+        <source>The specified config file %s does not exist</source>
+        <translation type="unfinished">Konfigurasjonsfilen %s eksisterer ikke</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to pay the fee</source>
+        <translation type="unfinished">Transaksjonsbeløpet er for lite til å betale gebyr</translation>
+    </message>
+    <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation type="unfinished">Lommeboka vil unngå å betale mindre enn minimumsstafettgebyret.</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">Dette er eksperimentell programvare.</translation>
+    </message>
+    <message>
+        <source>This is the minimum transaction fee you pay on every transaction.</source>
+        <translation type="unfinished">Dette er minimumsgebyret du betaler for hver transaksjon.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation type="unfinished">Dette er transaksjonsgebyret du betaler som forsender av transaksjon.</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Transaksjonen er for liten</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation type="unfinished">Transaksjonsbeløpet kan ikke være negativt</translation>
+    </message>
+    <message>
+        <source>Transaction has too long of a mempool chain</source>
+        <translation type="unfinished">Transaksjonen har for lang minnepoolkjede</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation type="unfinished">Transaksjonen må ha minst én mottaker</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Transaksjonen er for stor</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
+        <translation type="unfinished">Kan ikke binde til %s på denne datamaskinen (binding returnerte feilen %s)</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
+        <translation type="unfinished">Kan ikke binde til %s på denne datamaskinen. Sannsynligvis kjører %s allerede.</translation>
+    </message>
+    <message>
+        <source>Unable to generate initial keys</source>
+        <translation type="unfinished">Klarte ikke lage første nøkkel</translation>
+    </message>
+    <message>
+        <source>Unable to generate keys</source>
+        <translation type="unfinished">Klarte ikke å lage nøkkel</translation>
+    </message>
+    <message>
+        <source>Unable to open %s for writing</source>
+        <translation type="unfinished">Kan ikke åpne %s for skriving</translation>
+    </message>
+    <message>
+        <source>Unable to start HTTP server. See debug log for details.</source>
+        <translation type="unfinished">Kunne ikke starte HTTP-tjener. Se feilrettingslogg for detaljer.</translation>
+    </message>
+    <message>
+        <source>Unable to unload the wallet before migrating</source>
+        <translation type="unfinished">Kan ikke laste ut lommeboken før migrering</translation>
+    </message>
+    <message>
+        <source>Unknown -blockfilterindex value %s.</source>
+        <translation type="unfinished">Ukjent -blokkfilterindex-verdi 1 %s.</translation>
+    </message>
+    <message>
+        <source>Unknown address type '%s'</source>
+        <translation type="unfinished">Ukjent adressetype  '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown change type '%s'</source>
+        <translation type="unfinished">Ukjent endringstype '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">Ukjent nettverk angitt i -onlynet '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown new rules activated (versionbit %i)</source>
+        <translation type="unfinished">Ukjente nye regler aktivert (versionbit %i)</translation>
+    </message>
+    <message>
+        <source>Unsupported logging category %s=%s.</source>
+        <translation type="unfinished">Ustøttet loggingskategori %s=%s.</translation>
+    </message>
+    <message>
+        <source>User Agent comment (%s) contains unsafe characters.</source>
+        <translation type="unfinished">User Agent kommentar (%s) inneholder utrygge tegn.</translation>
+    </message>
+    <message>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">Verifiserer blokker...</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">Verifiserer lommebøker...</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation type="unfinished">Lommeboka må skrives om: Start %s på nytt for å fullføre</translation>
+    </message>
+</context>
+<context>
+    <name>BitcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
-        <translation>&amp;Oversikt</translation>
+        <translation type="unfinished">&amp;Oversikt</translation>
     </message>
     <message>
         <source>Show general overview of wallet</source>
-        <translation>Vis generell oversikt over lommeboken</translation>
+        <translation type="unfinished">Vis generell oversikt over lommeboken</translation>
     </message>
     <message>
         <source>&amp;Transactions</source>
-        <translation>&amp;Transaksjoner</translation>
+        <translation type="unfinished">&amp;Transaksjoner</translation>
     </message>
     <message>
         <source>Browse transaction history</source>
-        <translation>Bla gjennom transaksjoner</translation>
+        <translation type="unfinished">Bla gjennom transaksjoner</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation>&amp;Avslutt</translation>
+        <translation type="unfinished">&amp;Avslutt</translation>
     </message>
     <message>
         <source>Quit application</source>
-        <translation>Avslutt program</translation>
+        <translation type="unfinished">Avslutt program</translation>
     </message>
     <message>
         <source>&amp;About %1</source>
@@ -390,11 +993,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>About &amp;Qt</source>
-        <translation>Om &amp;Qt</translation>
+        <translation type="unfinished">Om &amp;Qt</translation>
     </message>
     <message>
         <source>Show information about Qt</source>
-        <translation>Vis informasjon om Qt</translation>
+        <translation type="unfinished">Vis informasjon om Qt</translation>
     </message>
     <message>
         <source>Modify configuration options for %1</source>
@@ -419,35 +1022,27 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation>Send mynter til en Qtum adresse</translation>
+        <translation type="unfinished">Send mynter til en Qtum adresse</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
-        <translation>Sikkerhetskopier lommeboken til en annen lokasjon</translation>
+        <translation type="unfinished">Sikkerhetskopier lommeboken til en annen lokasjon</translation>
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
-        <translation>Endre passordfrasen for kryptering av lommeboken</translation>
+        <translation type="unfinished">Endre passordfrasen for kryptering av lommeboken</translation>
     </message>
     <message>
         <source>&amp;Send</source>
-        <translation>&amp;Sende</translation>
+        <translation type="unfinished">&amp;Sende</translation>
     </message>
     <message>
         <source>&amp;Receive</source>
-        <translation>&amp;Motta</translation>
+        <translation type="unfinished">&amp;Motta</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
         <translation type="unfinished">&amp;Innstillinger...</translation>
-    </message>
-    <message>
-        <source>&amp;Show / Hide</source>
-        <translation>Vi&amp;s / Skjul</translation>
-    </message>
-    <message>
-        <source>Show or hide the main Window</source>
-        <translation>Vis, eller skjul, hovedvinduet</translation>
     </message>
     <message>
         <source>&amp;Encrypt Wallet…</source>
@@ -455,7 +1050,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Krypter de private nøklene som tilhører lommeboken din</translation>
+        <translation type="unfinished">Krypter de private nøklene som tilhører lommeboken din</translation>
     </message>
     <message>
         <source>&amp;Backup Wallet…</source>
@@ -471,7 +1066,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation>Signer meldingene med Qtum adresse for å bevise at diu eier dem</translation>
+        <translation type="unfinished">Signer meldingene med Qtum adresse for å bevise at diu eier dem</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
@@ -479,15 +1074,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation>Verifiser meldinger for å sikre at de ble signert med en angitt Qtum adresse</translation>
+        <translation type="unfinished">Verifiser meldinger for å sikre at de ble signert med en angitt Qtum adresse</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">&amp;Last PSBT fra fil...</translation>
-    </message>
-    <message>
-        <source>Load PSBT from clipboard…</source>
-        <translation type="unfinished">Last PSBT fra utklippstavlen...</translation>
     </message>
     <message>
         <source>Open &amp;URI…</source>
@@ -507,19 +1098,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation>&amp;Fil</translation>
+        <translation type="unfinished">&amp;Fil</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
-        <translation>Inn&amp;stillinger</translation>
+        <translation type="unfinished">Inn&amp;stillinger</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>&amp;Hjelp</translation>
+        <translation type="unfinished">&amp;Hjelp</translation>
     </message>
     <message>
         <source>Tabs toolbar</source>
-        <translation>Hjelpelinje for fliker</translation>
+        <translation type="unfinished">Hjelpelinje for fliker</translation>
     </message>
     <message>
         <source>Syncing Headers (%1%)…</source>
@@ -563,14 +1154,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
-        <translation>
-            <numerusform>%n blokk med transaksjonshistorikk er prosessert.</numerusform>
-            <numerusform>%n blokker med transaksjonshistorikk er prosessert.</numerusform>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
         </translation>
     </message>
     <message>
         <source>%1 behind</source>
-        <translation>%1 bak</translation>
+        <translation type="unfinished">%1 bak</translation>
     </message>
     <message>
         <source>Catching up…</source>
@@ -578,27 +1169,27 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Last received block was generated %1 ago.</source>
-        <translation>Siste mottatte blokk ble generert for %1 siden.</translation>
+        <translation type="unfinished">Siste mottatte blokk ble generert for %1 siden.</translation>
     </message>
     <message>
         <source>Transactions after this will not yet be visible.</source>
-        <translation>Transaksjoner etter dette vil ikke være synlige ennå.</translation>
+        <translation type="unfinished">Transaksjoner etter dette vil ikke være synlige ennå.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Feilmelding</translation>
+        <translation type="unfinished">Feilmelding</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>Advarsel</translation>
+        <translation type="unfinished">Advarsel</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>Informasjon</translation>
+        <translation type="unfinished">Informasjon</translation>
     </message>
     <message>
         <source>Up to date</source>
-        <translation>Oppdatert</translation>
+        <translation type="unfinished">Oppdatert</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
@@ -641,6 +1232,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Lukk lommebok</translation>
     </message>
     <message>
+        <source>Restore Wallet…</source>
+        <extracomment>Name of the menu item that restores wallet from a backup file.</extracomment>
+        <translation type="unfinished">Gjenopprett lommebok...</translation>
+    </message>
+    <message>
+        <source>Restore a wallet from a backup file</source>
+        <extracomment>Status tip for Restore Wallet menu item</extracomment>
+        <translation type="unfinished">Gjenopprett en lommebok fra en sikkerhetskopi</translation>
+    </message>
+    <message>
         <source>Close all wallets</source>
         <translation type="unfinished">Lukk alle lommebøker</translation>
     </message>
@@ -665,12 +1266,28 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Ingen lommebøker tilgjengelig</translation>
     </message>
     <message>
-        <source>&amp;Window</source>
-        <translation type="unfinished">&amp;Vindu</translation>
+        <source>Wallet Data</source>
+        <extracomment>Name of the wallet data file format.</extracomment>
+        <translation type="unfinished">Lommebokdata</translation>
     </message>
     <message>
-        <source>Minimize</source>
-        <translation type="unfinished">Minimer</translation>
+        <source>Load Wallet Backup</source>
+        <extracomment>The title for Restore Wallet File Windows</extracomment>
+        <translation type="unfinished">Last lommebok sikkerhetskopi</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">Gjenopprett lommebok</translation>
+    </message>
+    <message>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">Lommeboknavn</translation>
+    </message>
+    <message>
+        <source>&amp;Window</source>
+        <translation type="unfinished">&amp;Vindu</translation>
     </message>
     <message>
         <source>Main Window</source>
@@ -707,6 +1324,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Enable network activity</source>
         <extracomment>A context menu item. The network activity was disabled previously.</extracomment>
         <translation type="unfinished">Klikk for å aktivere nettverksaktivitet.</translation>
+    </message>
+    <message>
+        <source>Pre-syncing Headers (%1%)…</source>
+        <translation type="unfinished">Synkroniserer blokkhoder (%1%)...</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -748,11 +1369,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Sent transaction</source>
-        <translation>Sendt transaksjon</translation>
+        <translation type="unfinished">Sendt transaksjon</translation>
     </message>
     <message>
         <source>Incoming transaction</source>
-        <translation>Innkommende transaksjon</translation>
+        <translation type="unfinished">Innkommende transaksjon</translation>
     </message>
     <message>
         <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
@@ -768,11 +1389,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation>Lommeboken er &lt;b&gt;kryptert&lt;/b&gt; og for tiden &lt;b&gt;låst opp&lt;/b&gt;</translation>
+        <translation type="unfinished">Lommeboken er &lt;b&gt;kryptert&lt;/b&gt; og for tiden &lt;b&gt;låst opp&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Lommeboken er &lt;b&gt;kryptert&lt;/b&gt; og for tiden &lt;b&gt;låst&lt;/b&gt;</translation>
+        <translation type="unfinished">Lommeboken er &lt;b&gt;kryptert&lt;/b&gt; og for tiden &lt;b&gt;låst&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Original message:</source>
@@ -936,7 +1557,13 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>CreateWalletActivity</name>
     <message>
+        <source>Create Wallet</source>
+        <extracomment>Title of window indicating the progress of creation of a new wallet.</extracomment>
+        <translation type="unfinished">Lag lommebok</translation>
+    </message>
+    <message>
         <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the create wallet progress window which indicates to the user which wallet is currently being created.</extracomment>
         <translation type="unfinished">Lager lommebok &lt;b&gt;%1&lt;b&gt;...</translation>
     </message>
     <message>
@@ -947,7 +1574,24 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Create wallet warning</source>
         <translation type="unfinished">Lag lommebokvarsel</translation>
     </message>
+    <message>
+        <source>Can't list signers</source>
+        <translation type="unfinished">Kan ikke vise liste over undertegnere</translation>
+    </message>
     </context>
+<context>
+    <name>LoadWalletsActivity</name>
+    <message>
+        <source>Load Wallets</source>
+        <extracomment>Title of progress window which is displayed when wallets are being loaded.</extracomment>
+        <translation type="unfinished">Last inn lommebøker</translation>
+    </message>
+    <message>
+        <source>Loading wallets…</source>
+        <extracomment>Descriptive text of the load wallets progress window which indicates to the user that wallets are currently being loaded.</extracomment>
+        <translation type="unfinished">Laster inn lommebøker...</translation>
+    </message>
+</context>
 <context>
     <name>OpenWalletActivity</name>
     <message>
@@ -963,10 +1607,24 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">standard lommebok</translation>
     </message>
     <message>
+        <source>Open Wallet</source>
+        <extracomment>Title of window indicating the progress of opening of a wallet.</extracomment>
+        <translation type="unfinished">Åpne Lommebok</translation>
+    </message>
+    <message>
         <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the open wallet progress window which indicates to the user which wallet is currently being opened.</extracomment>
         <translation type="unfinished">Åpner lommebok &lt;b&gt;%1&lt;/b&gt;...</translation>
     </message>
 </context>
+<context>
+    <name>RestoreWalletActivity</name>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">Gjenopprett lommebok</translation>
+    </message>
+    </context>
 <context>
     <name>WalletController</name>
     <message>
@@ -1037,6 +1695,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Deskriptor lommebok</translation>
     </message>
     <message>
+        <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
+        <translation type="unfinished">Bruk en ekstern undertegningsenhet, som en fysisk lommebok. Konfigurer det eksterne undertegningskriptet i lommebokinnstillingene først.</translation>
+    </message>
+    <message>
+        <source>External signer</source>
+        <translation type="unfinished">Ekstern undertegner</translation>
+    </message>
+    <message>
         <source>Create</source>
         <translation type="unfinished">Opprett</translation>
     </message>
@@ -1044,16 +1710,21 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Compiled without sqlite support (required for descriptor wallets)</source>
         <translation type="unfinished">Kompilert uten sqlite støtte (kreves for deskriptor lommebok)</translation>
     </message>
-    </context>
+    <message>
+        <source>Compiled without external signing support (required for external signing)</source>
+        <extracomment>"External signing" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Kompilert uten støtte for ekstern undertegning (kreves for ekstern undertegning)</translation>
+    </message>
+</context>
 <context>
     <name>EditAddressDialog</name>
     <message>
         <source>Edit Address</source>
-        <translation>Rediger adresse</translation>
+        <translation type="unfinished">Rediger adresse</translation>
     </message>
     <message>
         <source>&amp;Label</source>
-        <translation>&amp;Merkelapp</translation>
+        <translation type="unfinished">&amp;Merkelapp</translation>
     </message>
     <message>
         <source>The label associated with this address list entry</source>
@@ -1065,7 +1736,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation>&amp;Adresse</translation>
+        <translation type="unfinished">&amp;Adresse</translation>
     </message>
     <message>
         <source>New sending address</source>
@@ -1104,38 +1775,47 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>FreespaceChecker</name>
     <message>
         <source>A new data directory will be created.</source>
-        <translation>En ny datamappe vil bli laget.</translation>
+        <translation type="unfinished">En ny datamappe vil bli laget.</translation>
     </message>
     <message>
         <source>name</source>
-        <translation>navn</translation>
+        <translation type="unfinished">navn</translation>
     </message>
     <message>
         <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Mappe finnes allerede. Legg til %1 hvis du vil lage en ny mappe her.</translation>
+        <translation type="unfinished">Mappe finnes allerede. Legg til %1 hvis du vil lage en ny mappe her.</translation>
     </message>
     <message>
         <source>Path already exists, and is not a directory.</source>
-        <translation>Snarvei finnes allerede, og er ikke en mappe.</translation>
+        <translation type="unfinished">Snarvei finnes allerede, og er ikke en mappe.</translation>
     </message>
     <message>
         <source>Cannot create data directory here.</source>
-        <translation>Kan ikke lage datamappe her.</translation>
+        <translation type="unfinished">Kan ikke lage datamappe her.</translation>
     </message>
 </context>
 <context>
     <name>Intro</name>
-    <message>
-        <source>%1 GB of free space available</source>
-        <translation type="unfinished">%1 GB med ledig lagringsplass</translation>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
-    <message>
-        <source>(of %1 GB needed)</source>
-        <translation type="unfinished">(av %1 GB som trengs)</translation>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform>(av %n GB som trengs)</numerusform>
+            <numerusform>(av %n GB som trengs)</numerusform>
+        </translation>
     </message>
-    <message>
-        <source>(%1 GB needed for full chain)</source>
-        <translation type="unfinished">(%1 GB kreves for hele kjeden)</translation>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform>(%n GB kreves for hele kjeden)</numerusform>
+            <numerusform>(%n GB kreves for hele kjeden)</numerusform>
+        </translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -1167,11 +1847,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Error</source>
-        <translation>Feilmelding</translation>
+        <translation type="unfinished">Feilmelding</translation>
     </message>
     <message>
         <source>Welcome</source>
-        <translation>Velkommen</translation>
+        <translation type="unfinished">Velkommen</translation>
     </message>
     <message>
         <source>Welcome to %1.</source>
@@ -1180,10 +1860,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>As this is the first time the program is launched, you can choose where %1 will store its data.</source>
         <translation type="unfinished">Siden dette er første gang programmet starter, kan du nå velge hvor %1 skal lagre sine data.</translation>
-    </message>
-    <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation type="unfinished">Når du klikker OK, vil %1 starte nedlasting og behandle hele den %4 blokkjeden (%2GB) fra de eldste transaksjonene i %3 når %4 først startet.</translation>
     </message>
     <message>
         <source>Limit block chain storage to</source>
@@ -1207,11 +1883,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Use the default data directory</source>
-        <translation>Bruk standard datamappe</translation>
+        <translation type="unfinished">Bruk standard datamappe</translation>
     </message>
     <message>
         <source>Use a custom data directory:</source>
-        <translation>Bruk en egendefinert datamappe:</translation>
+        <translation type="unfinished">Bruk en egendefinert datamappe:</translation>
     </message>
 </context>
 <context>
@@ -1252,7 +1928,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Forsøk på å bruke qtum som er påvirket av transaksjoner som ikke er vist enda godtas ikke av nettverket.</translation>
+        <translation type="unfinished">Forsøk på å bruke qtums som er påvirket av transaksjoner som ikke er vist enda godtas ikke av nettverket.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1290,23 +1966,32 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%1 is currently syncing.  It will download headers and blocks from peers and validate them until reaching the tip of the block chain.</source>
         <translation type="unfinished">%1 synkroniseres for øyeblikket. Den vil laste ned blokkhoder og blokker fra likemenn og  validere dem til de når enden av blokkjeden.</translation>
     </message>
-    </context>
+    <message>
+        <source>Unknown. Pre-syncing Headers (%1, %2%)…</source>
+        <translation type="unfinished">Ukjent.Synkroniser blokkhoder (%1,%2%)...</translation>
+    </message>
+</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">Åpne qtum URI</translation>
     </message>
-    </context>
+    <message>
+        <source>Paste address from clipboard</source>
+        <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
+        <translation type="unfinished">Lim inn adresse fra utklippstavlen</translation>
+    </message>
+</context>
 <context>
     <name>OptionsDialog</name>
     <message>
         <source>Options</source>
-        <translation>Innstillinger</translation>
+        <translation type="unfinished">Innstillinger</translation>
     </message>
     <message>
         <source>&amp;Main</source>
-        <translation>&amp;Hoved</translation>
+        <translation type="unfinished">&amp;Hoved</translation>
     </message>
     <message>
         <source>Automatically start %1 after logging in to the system.</source>
@@ -1337,8 +2022,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Minimer i stedet for å avslutte applikasjonen når vinduet lukkes. Når dette er valgt, vil applikasjonen avsluttes kun etter at Avslutte er valgt i menyen.</translation>
     </message>
     <message>
-        <source>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
-        <translation type="unfinished">Tredjepart URLer (f. eks. en blokkutforsker) som dukker opp i transaksjonsfanen som kontekst meny elementer. %s i URLen er erstattet med transaksjonen sin hash. Flere URLer er separert av en vertikal linje |.</translation>
+        <source>Options set in this dialog are overridden by the command line:</source>
+        <translation type="unfinished">Alternativer som er satt i denne dialogboksen overstyres av kommandolinjen:</translation>
     </message>
     <message>
         <source>Open the %1 configuration file from the working directory.</source>
@@ -1350,15 +2035,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Reset all client options to default.</source>
-        <translation>Tilbakestill alle klient valg til standard</translation>
+        <translation type="unfinished">Tilbakestill alle klient valg til standard</translation>
     </message>
     <message>
         <source>&amp;Reset Options</source>
-        <translation>&amp;Tilbakestill Instillinger</translation>
+        <translation type="unfinished">&amp;Tilbakestill Instillinger</translation>
     </message>
     <message>
         <source>&amp;Network</source>
-        <translation>&amp;Nettverk</translation>
+        <translation type="unfinished">&amp;Nettverk</translation>
     </message>
     <message>
         <source>Prune &amp;block storage to</source>
@@ -1393,12 +2078,24 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Bruk ubekreftet veksel</translation>
     </message>
     <message>
+        <source>External Signer (e.g. hardware wallet)</source>
+        <translation type="unfinished">Ekstern undertegner (f.eks. fysisk lommebok)</translation>
+    </message>
+    <message>
+        <source>&amp;External signer script path</source>
+        <translation type="unfinished">&amp;Ekstern undertegner skriptsti</translation>
+    </message>
+    <message>
+        <source>Full path to a Qtum Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
+        <translation type="unfinished">Fullstendig sti til et Qtum Core-kompatibelt skript (f.eks. C:\Downloads\hwi.exe eller /Users/you/Downloads/hwi.py). Advarsel: skadevare kan stjele myntene dine!</translation>
+    </message>
+    <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Åpne automatisk Qtum klientporten på ruteren. Dette virker kun om din ruter støtter UPnP og dette er påslått.</translation>
+        <translation type="unfinished">Åpne automatisk Qtum klientporten på ruteren. Dette virker kun om din ruter støtter UPnP og dette er påslått.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
-        <translation>Sett opp port ved hjelp av &amp;UPnP</translation>
+        <translation type="unfinished">Sett opp port ved hjelp av &amp;UPnP</translation>
     </message>
     <message>
         <source>Accept connections from outside.</source>
@@ -1418,7 +2115,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Port of the proxy (e.g. 9050)</source>
-        <translation>Proxyens port (f.eks. 9050)</translation>
+        <translation type="unfinished">Proxyens port (f.eks. 9050)</translation>
     </message>
     <message>
         <source>Used for reaching peers via:</source>
@@ -1426,7 +2123,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation>&amp;Vindu</translation>
+        <translation type="unfinished">&amp;Vindu</translation>
     </message>
     <message>
         <source>Show the icon in the system tray.</source>
@@ -1438,23 +2135,23 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Show only a tray icon after minimizing the window.</source>
-        <translation>Vis kun ikon i systemkurv etter minimering av vinduet.</translation>
+        <translation type="unfinished">Vis kun ikon i systemkurv etter minimering av vinduet.</translation>
     </message>
     <message>
         <source>&amp;Minimize to the tray instead of the taskbar</source>
-        <translation>&amp;Minimer til systemkurv istedenfor oppgavelinjen</translation>
+        <translation type="unfinished">&amp;Minimer til systemkurv istedenfor oppgavelinjen</translation>
     </message>
     <message>
         <source>M&amp;inimize on close</source>
-        <translation>M&amp;inimer ved lukking</translation>
+        <translation type="unfinished">M&amp;inimer ved lukking</translation>
     </message>
     <message>
         <source>&amp;Display</source>
-        <translation>&amp;Visning</translation>
+        <translation type="unfinished">&amp;Visning</translation>
     </message>
     <message>
         <source>User Interface &amp;language:</source>
-        <translation>&amp;Språk for brukergrensesnitt</translation>
+        <translation type="unfinished">&amp;Språk for brukergrensesnitt</translation>
     </message>
     <message>
         <source>The user interface language can be set here. This setting will take effect after restarting %1.</source>
@@ -1462,11 +2159,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Unit to show amounts in:</source>
-        <translation>&amp;Enhet for visning av beløper:</translation>
+        <translation type="unfinished">&amp;Enhet for visning av beløper:</translation>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation>Velg standard delt enhet for visning i grensesnittet og for sending av qtums.</translation>
+        <translation type="unfinished">Velg standard delt enhet for visning i grensesnittet og for sending av qtums.</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -1481,24 +2178,25 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Bruk separate SOCKS&amp;5 proxy for å nå peers via Tor onion tjenester:</translation>
     </message>
     <message>
-        <source>&amp;Third party transaction URLs</source>
-        <translation type="unfinished">Tredjepart transaksjon URLer</translation>
-    </message>
-    <message>
         <source>embedded "%1"</source>
         <translation type="unfinished">Innebygd "%1"</translation>
     </message>
     <message>
-        <source>Options set in this dialog are overridden by the command line or in the configuration file:</source>
-        <translation type="unfinished">Alternativer som er satt i denne dialogboksen overstyres av kommandolinjen eller i konfigurasjonsfilen:</translation>
+        <source>closest matching "%1"</source>
+        <translation type="unfinished">nærmeste treff "%1"</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Avbryt</translation>
+        <translation type="unfinished">&amp;Avbryt</translation>
+    </message>
+    <message>
+        <source>Compiled without external signing support (required for external signing)</source>
+        <extracomment>"External signing" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Kompilert uten støtte for ekstern undertegning (kreves for ekstern undertegning)</translation>
     </message>
     <message>
         <source>default</source>
-        <translation>standardverdi</translation>
+        <translation type="unfinished">standardverdi</translation>
     </message>
     <message>
         <source>none</source>
@@ -1506,23 +2204,36 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Confirm options reset</source>
-        <translation>Bekreft tilbakestilling av innstillinger</translation>
+        <extracomment>Window title text of pop-up window shown when the user has chosen to reset options.</extracomment>
+        <translation type="unfinished">Bekreft tilbakestilling av innstillinger</translation>
     </message>
     <message>
         <source>Client restart required to activate changes.</source>
+        <extracomment>Text explaining that the settings changed will not come into effect until the client is restarted.</extracomment>
         <translation type="unfinished">Omstart av klienten er nødvendig for å aktivere endringene.</translation>
     </message>
     <message>
         <source>Client will be shut down. Do you want to proceed?</source>
+        <extracomment>Text asking the user to confirm if they would like to proceed with a client shutdown.</extracomment>
         <translation type="unfinished">Klienten vil bli lukket. Ønsker du å gå videre?</translation>
     </message>
     <message>
         <source>Configuration options</source>
+        <extracomment>Window title text of pop-up box that allows opening up of configuration file.</extracomment>
         <translation type="unfinished">Oppsettsvalg</translation>
     </message>
     <message>
         <source>The configuration file is used to specify advanced user options which override GUI settings. Additionally, any command-line options will override this configuration file.</source>
+        <extracomment>Explanatory text about the priority order of instructions considered by client. The order from high to low being: command-line, configuration file, GUI settings.</extracomment>
         <translation type="unfinished">Oppsettsfil brukt for å angi avanserte brukervalg som overstyrer innstillinger gjort i grafisk brukergrensesnitt. I tillegg vil enhver handling utført på kommandolinjen overstyre denne oppsettsfila.</translation>
+    </message>
+    <message>
+        <source>Continue</source>
+        <translation type="unfinished">Fortsett</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Avbryt</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1538,18 +2249,18 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>The supplied proxy address is invalid.</source>
-        <translation>Angitt proxyadresse er ugyldig.</translation>
+        <translation type="unfinished">Angitt proxyadresse er ugyldig.</translation>
     </message>
 </context>
 <context>
     <name>OverviewPage</name>
     <message>
         <source>Form</source>
-        <translation>Skjema</translation>
+        <translation type="unfinished">Skjema</translation>
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation>Informasjonen som vises kan være foreldet. Din lommebok synkroniseres automatisk med Qtum-nettverket etter at tilkobling er opprettet, men denne prosessen er ikke ferdig enda.</translation>
+        <translation type="unfinished">Informasjonen som vises kan være foreldet. Din lommebok synkroniseres automatisk med Qtum-nettverket etter at tilkobling er opprettet, men denne prosessen er ikke ferdig enda.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1561,7 +2272,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Your current spendable balance</source>
-        <translation>Din nåværende saldo</translation>
+        <translation type="unfinished">Din nåværende saldo</translation>
     </message>
     <message>
         <source>Pending:</source>
@@ -1569,15 +2280,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Total of transactions that have yet to be confirmed, and do not yet count toward the spendable balance</source>
-        <translation>Totalt antall ubekreftede transaksjoner som ikke teller med i saldo</translation>
+        <translation type="unfinished">Totalt antall ubekreftede transaksjoner som ikke teller med i saldo</translation>
     </message>
     <message>
         <source>Immature:</source>
-        <translation>Umoden:</translation>
+        <translation type="unfinished">Umoden:</translation>
     </message>
     <message>
         <source>Mined balance that has not yet matured</source>
-        <translation>Minet saldo har ikke modnet enda</translation>
+        <translation type="unfinished">Minet saldo har ikke modnet enda</translation>
     </message>
     <message>
         <source>Balances</source>
@@ -1585,11 +2296,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Total:</source>
-        <translation>Totalt:</translation>
+        <translation type="unfinished">Totalt:</translation>
     </message>
     <message>
         <source>Your current total balance</source>
-        <translation>Din nåværende saldo</translation>
+        <translation type="unfinished">Din nåværende saldo</translation>
     </message>
     <message>
         <source>Your current balance in watch-only addresses</source>
@@ -1724,6 +2435,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Transaksjonen trenger signatur(er).</translation>
     </message>
     <message>
+        <source>(But no wallet is loaded.)</source>
+        <translation type="unfinished">(Men ingen lommebok er lastet.)</translation>
+    </message>
+    <message>
         <source>(But this wallet cannot sign transactions.)</source>
         <translation type="unfinished">(Men denne lommeboken kan ikke signere transaksjoner.)</translation>
     </message>
@@ -1768,7 +2483,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
-        <translation type="unfinished">URI kan ikke fortolkes! Dette kan være forårsaket av en ugyldig qtum-adresse eller feilformede URI-parametre.</translation>
+        <translation type="unfinished">URI kan ikke fortolkes! Dette kan være forårsaket av en ugyldig Qtum-adresse eller feilformede URI-parametre.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -1793,6 +2508,16 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Likemann</translation>
     </message>
     <message>
+        <source>Age</source>
+        <extracomment>Title of Peers Table column which indicates the duration (length of time) since the peer connection started.</extracomment>
+        <translation type="unfinished">Alder</translation>
+    </message>
+    <message>
+        <source>Direction</source>
+        <extracomment>Title of Peers Table column which indicates the direction the peer connection was initiated from.</extracomment>
+        <translation type="unfinished">Retning</translation>
+    </message>
+    <message>
         <source>Sent</source>
         <extracomment>Title of Peers Table column which indicates the total amount of network information we have sent to the peer.</extracomment>
         <translation type="unfinished">Sendt</translation>
@@ -1811,6 +2536,16 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <source>Network</source>
         <extracomment>Title of Peers Table column which states the network the peer connected through.</extracomment>
         <translation type="unfinished">Nettverk</translation>
+    </message>
+    <message>
+        <source>Inbound</source>
+        <extracomment>An Inbound Connection from a Peer.</extracomment>
+        <translation type="unfinished">Innkommende</translation>
+    </message>
+    <message>
+        <source>Outbound</source>
+        <extracomment>An Outbound Connection to a Peer.</extracomment>
+        <translation type="unfinished">Utgående</translation>
     </message>
 </context>
 <context>
@@ -1841,7 +2576,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>PNG Image</source>
-        <extracomment>Expanded name of the PNG file format. See https://en.wikipedia.org/wiki/Portable_Network_Graphics</extracomment>
+        <extracomment>Expanded name of the PNG file format. See: https://en.wikipedia.org/wiki/Portable_Network_Graphics.</extracomment>
         <translation type="unfinished">PNG-bilde</translation>
     </message>
 </context>
@@ -1849,15 +2584,15 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <name>RPCConsole</name>
     <message>
         <source>N/A</source>
-        <translation>-</translation>
+        <translation type="unfinished">-</translation>
     </message>
     <message>
         <source>Client version</source>
-        <translation>Klientversjon</translation>
+        <translation type="unfinished">Klientversjon</translation>
     </message>
     <message>
         <source>&amp;Information</source>
-        <translation>&amp;Informasjon</translation>
+        <translation type="unfinished">&amp;Informasjon</translation>
     </message>
     <message>
         <source>General</source>
@@ -1869,11 +2604,11 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Startup time</source>
-        <translation>Oppstartstidspunkt</translation>
+        <translation type="unfinished">Oppstartstidspunkt</translation>
     </message>
     <message>
         <source>Network</source>
-        <translation>Nettverk</translation>
+        <translation type="unfinished">Nettverk</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1881,11 +2616,11 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Number of connections</source>
-        <translation>Antall tilkoblinger</translation>
+        <translation type="unfinished">Antall tilkoblinger</translation>
     </message>
     <message>
         <source>Block chain</source>
-        <translation>Blokkjeden</translation>
+        <translation type="unfinished">Blokkjeden</translation>
     </message>
     <message>
         <source>Memory Pool</source>
@@ -1948,12 +2683,21 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Synkroniserte Blokker</translation>
     </message>
     <message>
+        <source>Last Transaction</source>
+        <translation type="unfinished">Siste transaksjon</translation>
+    </message>
+    <message>
         <source>The mapped Autonomous System used for diversifying peer selection.</source>
         <translation type="unfinished">Det kartlagte Autonome Systemet som brukes til å diversifisere valg av likemenn.</translation>
     </message>
     <message>
         <source>Mapped AS</source>
         <translation type="unfinished">Kartlagt AS</translation>
+    </message>
+    <message>
+        <source>Addresses Processed</source>
+        <extracomment>Text title for the Addresses Processed field in the peer details area, which displays the total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</extracomment>
+        <translation type="unfinished">Adresser Prosessert</translation>
     </message>
     <message>
         <source>User Agent</source>
@@ -2004,6 +2748,10 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Hvorvidt likemannen ba oss om å videresende transaksjoner.</translation>
     </message>
     <message>
+        <source>Wants Tx Relay</source>
+        <translation type="unfinished">Ønsker Tx Relé</translation>
+    </message>
+    <message>
         <source>High Bandwidth</source>
         <translation type="unfinished">Høy Båndbredde</translation>
     </message>
@@ -2012,16 +2760,17 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Tilkoblingstid</translation>
     </message>
     <message>
+        <source>Elapsed time since a novel block passing initial validity checks was received from this peer.</source>
+        <translation type="unfinished">Forløpt tid siden en ny blokk som passerte de initielle validitetskontrollene ble mottatt fra denne likemannen.</translation>
+    </message>
+    <message>
         <source>Last Block</source>
         <translation type="unfinished">Siste blokk</translation>
     </message>
     <message>
         <source>Elapsed time since a novel transaction accepted into our mempool was received from this peer.</source>
+        <extracomment>Tooltip text for the Last Transaction field in the peer details area.</extracomment>
         <translation type="unfinished">Tid som har passert siden en ny transaksjon akseptert inn i vår minnepool ble mottatt fra denne likemann.</translation>
-    </message>
-    <message>
-        <source>Last Tx</source>
-        <translation type="unfinished">Siste Tx</translation>
     </message>
     <message>
         <source>Last Send</source>
@@ -2053,15 +2802,15 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Last block time</source>
-        <translation>Tidspunkt for siste blokk</translation>
+        <translation type="unfinished">Tidspunkt for siste blokk</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation>&amp;Åpne</translation>
+        <translation type="unfinished">&amp;Åpne</translation>
     </message>
     <message>
         <source>&amp;Console</source>
-        <translation>&amp;Konsoll</translation>
+        <translation type="unfinished">&amp;Konsoll</translation>
     </message>
     <message>
         <source>&amp;Network Traffic</source>
@@ -2073,11 +2822,11 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Debug log file</source>
-        <translation>Loggfil for feilsøk</translation>
+        <translation type="unfinished">Loggfil for feilsøk</translation>
     </message>
     <message>
         <source>Clear console</source>
-        <translation>Tøm konsoll</translation>
+        <translation type="unfinished">Tøm konsoll</translation>
     </message>
     <message>
         <source>In:</source>
@@ -2089,12 +2838,50 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Inbound: initiated by peer</source>
+        <extracomment>Explanatory text for an inbound peer connection.</extracomment>
         <translation type="unfinished">Innkommende: initiert av likemann</translation>
+    </message>
+    <message>
+        <source>Outbound Full Relay: default</source>
+        <extracomment>Explanatory text for an outbound peer connection that relays all network information. This is the default behavior for outbound connections.</extracomment>
+        <translation type="unfinished">Utgående Fullrelé: standard</translation>
+    </message>
+    <message>
+        <source>Outbound Block Relay: does not relay transactions or addresses</source>
+        <extracomment>Explanatory text for an outbound peer connection that relays network information about blocks and not transactions or addresses.</extracomment>
+        <translation type="unfinished">Utgående Blokkrelé: videresender ikke transaksjoner eller adresser</translation>
+    </message>
+    <message>
+        <source>Outbound Feeler: short-lived, for testing addresses</source>
+        <extracomment>Explanatory text for a short-lived outbound peer connection that is used to test the aliveness of known addresses.</extracomment>
+        <translation type="unfinished">Utgående Føler: kortlevd, til testing av adresser</translation>
+    </message>
+    <message>
+        <source>Outbound Address Fetch: short-lived, for soliciting addresses</source>
+        <extracomment>Explanatory text for a short-lived outbound peer connection that is used to request addresses from a peer.</extracomment>
+        <translation type="unfinished">Utgående Adressehenting: kortlevd, for å hente adresser</translation>
+    </message>
+    <message>
+        <source>we selected the peer for high bandwidth relay</source>
+        <translation type="unfinished">vi valgte likemannen for høy båndbredderelé</translation>
+    </message>
+    <message>
+        <source>the peer selected us for high bandwidth relay</source>
+        <translation type="unfinished">likemannen valgte oss for høy båndbredderelé</translation>
+    </message>
+    <message>
+        <source>no high bandwidth relay selected</source>
+        <translation type="unfinished">intet høy båndbredderelé valgt</translation>
     </message>
     <message>
         <source>Ctrl+=</source>
         <extracomment>Secondary shortcut to increase the RPC console font size.</extracomment>
         <translation type="unfinished">Cltr+=</translation>
+    </message>
+    <message>
+        <source>&amp;Copy address</source>
+        <extracomment>Context menu action to copy the address of a peer.</extracomment>
+        <translation type="unfinished">&amp;Kopier adresse</translation>
     </message>
     <message>
         <source>&amp;Disconnect</source>
@@ -2103,6 +2890,10 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>1 &amp;hour</source>
         <translation type="unfinished">1 &amp;time</translation>
+    </message>
+    <message>
+        <source>1 d&amp;ay</source>
+        <translation type="unfinished">1 &amp;dag</translation>
     </message>
     <message>
         <source>1 &amp;week</source>
@@ -2127,6 +2918,11 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>Executing command using "%1" wallet</source>
         <translation type="unfinished">Utfør kommando med lommebok "%1"</translation>
+    </message>
+    <message>
+        <source>Executing…</source>
+        <extracomment>A console message indicating an entered command is currently being executed.</extracomment>
+        <translation type="unfinished">Utfører...</translation>
     </message>
     <message>
         <source>(peer: %1)</source>
@@ -2210,14 +3006,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>Clear</source>
         <translation type="unfinished">Fjern</translation>
-    </message>
-    <message>
-        <source>Native segwit addresses (aka Bech32 or BIP-173) reduce your transaction fees later on and offer better protection against typos, but old wallets don't support them. When unchecked, an address compatible with older wallets will be created instead.</source>
-        <translation type="unfinished">Innfødte segwit-adresser (også kalt Bech32 eller BIP-173) reduserer transaksjonsgebyrene senere og gir bedre beskyttelse mot skrivefeil, men gamle lommebøker støtter dem ikke. Når du ikke har merket av, opprettes en adresse som er kompatibel med eldre lommebøker.</translation>
-    </message>
-    <message>
-        <source>Generate native segwit (Bech32) address</source>
-        <translation type="unfinished">Generer nativ segwit (Bech32) adresse</translation>
     </message>
     <message>
         <source>Requested payments history</source>
@@ -2307,6 +3095,10 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">&amp;Verifiser</translation>
     </message>
     <message>
+        <source>Verify this address on e.g. a hardware wallet screen</source>
+        <translation type="unfinished">Verifiser denne adressen på f.eks. en fysisk lommebokskjerm</translation>
+    </message>
+    <message>
         <source>&amp;Save Image…</source>
         <translation type="unfinished">&amp;Lagre Bilde...</translation>
     </message>
@@ -2354,7 +3146,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation>Send Qtums</translation>
+        <translation type="unfinished">Send Qtums</translation>
     </message>
     <message>
         <source>Coin Control Features</source>
@@ -2422,15 +3214,19 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Send to multiple recipients at once</source>
-        <translation>Send til flere enn en mottaker</translation>
+        <translation type="unfinished">Send til flere enn en mottaker</translation>
     </message>
     <message>
         <source>Add &amp;Recipient</source>
-        <translation>Legg til &amp;Mottaker</translation>
+        <translation type="unfinished">Legg til &amp;Mottaker</translation>
     </message>
     <message>
         <source>Clear all fields of the form.</source>
         <translation type="unfinished">Fjern alle felter fra skjemaet.</translation>
+    </message>
+    <message>
+        <source>Inputs…</source>
+        <translation type="unfinished">Inputs...</translation>
     </message>
     <message>
         <source>Dust:</source>
@@ -2453,6 +3249,10 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">For lavt gebyr kan føre til en transaksjon som aldri bekreftes (les verktøytips)</translation>
     </message>
     <message>
+        <source>(Smart fee not initialized yet. This usually takes a few blocks…)</source>
+        <translation type="unfinished">(Smartgebyr er ikke initialisert ennå. Dette tar vanligvis noen få blokker...)</translation>
+    </message>
+    <message>
         <source>Confirmation time target:</source>
         <translation type="unfinished">Bekreftelsestidsmål:</translation>
     </message>
@@ -2466,15 +3266,15 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Clear &amp;All</source>
-        <translation>Fjern &amp;Alt</translation>
+        <translation type="unfinished">Fjern &amp;Alt</translation>
     </message>
     <message>
         <source>Balance:</source>
-        <translation>Saldo:</translation>
+        <translation type="unfinished">Saldo:</translation>
     </message>
     <message>
         <source>Confirm the send action</source>
-        <translation>Bekreft sending</translation>
+        <translation type="unfinished">Bekreft sending</translation>
     </message>
     <message>
         <source>Copy quantity</source>
@@ -2510,7 +3310,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Sign on device</source>
-        <extracomment>"device" usually means a hardware wallet</extracomment>
+        <extracomment>"device" usually means a hardware wallet.</extracomment>
         <translation type="unfinished">Signer på enhet</translation>
     </message>
     <message>
@@ -2526,24 +3326,18 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">%1 til %2</translation>
     </message>
     <message>
-        <source>Do you want to draft this transaction?</source>
-        <translation type="unfinished">Vil du utarbeide denne transaksjonen?</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to send?</source>
-        <translation type="unfinished">Er du sikker på at du vil sende?</translation>
-    </message>
-    <message>
-        <source>Create Unsigned</source>
-        <translation type="unfinished">Lag usignert</translation>
-    </message>
-    <message>
-        <source>Sign and send</source>
-        <translation type="unfinished">Signer og send</translation>
-    </message>
-    <message>
         <source>Sign failed</source>
         <translation type="unfinished">Signering feilet</translation>
+    </message>
+    <message>
+        <source>External signer not found</source>
+        <extracomment>"External signer" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Ekstern undertegner ikke funnet</translation>
+    </message>
+    <message>
+        <source>External signer failure</source>
+        <extracomment>"External signer" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Ekstern undertegnerfeil</translation>
     </message>
     <message>
         <source>Save Transaction Data</source>
@@ -2559,6 +3353,10 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">PSBT lagret</translation>
     </message>
     <message>
+        <source>External balance:</source>
+        <translation type="unfinished">Ekstern saldo:</translation>
+    </message>
+    <message>
         <source>or</source>
         <translation type="unfinished">eller</translation>
     </message>
@@ -2568,10 +3366,17 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Se over ditt transaksjonsforslag. Dette kommer til å produsere en Delvis Signert Qtum Transaksjon (PSBT) som du kan lagre eller kopiere og så signere med f.eks. en offline %1 lommebok, eller en PSBT kompatibel hardware lommebok.</translation>
     </message>
     <message>
+        <source>Do you want to create this transaction?</source>
+        <extracomment>Message displayed when attempting to create a transaction. Cautionary text to prompt the user to verify that the displayed transaction details represent the transaction the user intends to create.</extracomment>
+        <translation type="unfinished">Vil du lage denne transaksjonen?</translation>
+    </message>
+    <message>
         <source>Please, review your transaction.</source>
+        <extracomment>Text to prompt a user to review the details of the transaction they are attempting to send.</extracomment>
         <translation type="unfinished">Vennligst se over transaksjonen din.</translation>
     </message>
     <message>
@@ -2589,10 +3394,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>Confirm send coins</source>
         <translation type="unfinished">Bekreft forsendelse av mynter</translation>
-    </message>
-    <message>
-        <source>Confirm transaction proposal</source>
-        <translation type="unfinished">Bekreft transaksjonsforslaget</translation>
     </message>
     <message>
         <source>Watch-only balance:</source>
@@ -2626,20 +3427,16 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <source>A fee higher than %1 is considered an absurdly high fee.</source>
         <translation type="unfinished">Et gebyr høyere enn %1 anses som absurd høyt.</translation>
     </message>
-    <message>
-        <source>Payment request expired.</source>
-        <translation type="unfinished">Tidsavbrudd for betalingsforespørsel</translation>
-    </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
         </translation>
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
-        <translation type="unfinished">Advarsel Ugyldig qtum-adresse</translation>
+        <translation type="unfinished">Advarsel Ugyldig Qtum-adresse</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2662,15 +3459,15 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <name>SendCoinsEntry</name>
     <message>
         <source>A&amp;mount:</source>
-        <translation>&amp;Beløp:</translation>
+        <translation type="unfinished">&amp;Beløp:</translation>
     </message>
     <message>
         <source>Pay &amp;To:</source>
-        <translation>Betal &amp;Til:</translation>
+        <translation type="unfinished">Betal &amp;Til:</translation>
     </message>
     <message>
         <source>&amp;Label:</source>
-        <translation>&amp;Merkelapp:</translation>
+        <translation type="unfinished">&amp;Merkelapp:</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2682,7 +3479,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Paste address from clipboard</source>
-        <translation>Lim inn adresse fra utklippstavlen</translation>
+        <translation type="unfinished">Lim inn adresse fra utklippstavlen</translation>
     </message>
     <message>
         <source>Remove this entry</source>
@@ -2709,14 +3506,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Melding:</translation>
     </message>
     <message>
-        <source>This is an unauthenticated payment request.</source>
-        <translation type="unfinished">Dette er en uautorisert betalingsetterspørring.</translation>
-    </message>
-    <message>
-        <source>This is an authenticated payment request.</source>
-        <translation type="unfinished">Dette er en autorisert betalingsetterspørring.</translation>
-    </message>
-    <message>
         <source>Enter a label for this address to add it to the list of used addresses</source>
         <translation type="unfinished">Skriv inn en merkelapp for denne adressen for å legge den til listen av brukte adresser</translation>
     </message>
@@ -2724,20 +3513,23 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">En melding som var tilknyttet qtumen: URI vil bli lagret med transaksjonen for din oversikt. Denne meldingen vil ikke bli sendt over Qtum-nettverket.</translation>
     </message>
+</context>
+<context>
+    <name>SendConfirmationDialog</name>
     <message>
-        <source>Pay To:</source>
-        <translation type="unfinished">Betal Til:</translation>
+        <source>Create Unsigned</source>
+        <translation type="unfinished">Lag usignert</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>SignVerifyMessageDialog</name>
     <message>
         <source>Signatures - Sign / Verify a Message</source>
-        <translation>Signaturer - Signer / Verifiser en Melding</translation>
+        <translation type="unfinished">Signaturer - Signer / Verifiser en Melding</translation>
     </message>
     <message>
         <source>&amp;Sign Message</source>
-        <translation>&amp;Signer Melding</translation>
+        <translation type="unfinished">&amp;Signer Melding</translation>
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
@@ -2753,39 +3545,39 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Paste address from clipboard</source>
-        <translation>Lim inn adresse fra utklippstavlen</translation>
+        <translation type="unfinished">Lim inn adresse fra utklippstavlen</translation>
     </message>
     <message>
         <source>Enter the message you want to sign here</source>
-        <translation>Skriv inn meldingen du vil signere her</translation>
+        <translation type="unfinished">Skriv inn meldingen du vil signere her</translation>
     </message>
     <message>
         <source>Signature</source>
-        <translation>Signatur</translation>
+        <translation type="unfinished">Signatur</translation>
     </message>
     <message>
         <source>Copy the current signature to the system clipboard</source>
-        <translation>Kopier valgt signatur til utklippstavle</translation>
+        <translation type="unfinished">Kopier valgt signatur til utklippstavle</translation>
     </message>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
-        <translation>Signer meldingen for å bevise at du eier denne Qtum-adressen</translation>
+        <translation type="unfinished">Signer meldingen for å bevise at du eier denne Qtum-adressen</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
-        <translation>Signer &amp;Melding</translation>
+        <translation type="unfinished">Signer &amp;Melding</translation>
     </message>
     <message>
         <source>Reset all sign message fields</source>
-        <translation>Tilbakestill alle felter for meldingssignering</translation>
+        <translation type="unfinished">Tilbakestill alle felter for meldingssignering</translation>
     </message>
     <message>
         <source>Clear &amp;All</source>
-        <translation>Fjern &amp;Alt</translation>
+        <translation type="unfinished">Fjern &amp;Alt</translation>
     </message>
     <message>
         <source>&amp;Verify Message</source>
-        <translation>&amp;Verifiser Melding</translation>
+        <translation type="unfinished">&amp;Verifiser Melding</translation>
     </message>
     <message>
         <source>Enter the receiver's address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack. Note that this only proves the signing party receives with the address, it cannot prove sendership of any transaction!</source>
@@ -2805,15 +3597,15 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
-        <translation>Verifiser meldingen for å være sikker på at den ble signert av den angitte Qtum-adressen</translation>
+        <translation type="unfinished">Verifiser meldingen for å være sikker på at den ble signert av den angitte Qtum-adressen</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
-        <translation>Verifiser &amp;Melding</translation>
+        <translation type="unfinished">Verifiser &amp;Melding</translation>
     </message>
     <message>
         <source>Reset all verify message fields</source>
-        <translation>Tilbakestill alle felter for meldingsverifikasjon</translation>
+        <translation type="unfinished">Tilbakestill alle felter for meldingsverifikasjon</translation>
     </message>
     <message>
         <source>Click "Sign Message" to generate signature</source>
@@ -2873,44 +3665,36 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
 </context>
 <context>
-    <name>TransactionDesc</name>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
+    <name>SplashScreen</name>
+    <message>
+        <source>(press q to shutdown and continue later)</source>
+        <translation type="unfinished">(trykk q for å skru av og fortsette senere)</translation>
     </message>
     <message>
-        <source>Open until %1</source>
-        <translation type="unfinished">Åpen til %1</translation>
+        <source>press q to shutdown</source>
+        <translation type="unfinished">trykk på q for å slå av</translation>
     </message>
+</context>
+<context>
+    <name>TransactionDesc</name>
     <message>
         <source>conflicted with a transaction with %1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that conflicts with a confirmed transaction.</extracomment>
         <translation type="unfinished">gikk ikke overens med en transaksjon med %1 bekreftelser</translation>
     </message>
     <message>
-        <source>0/unconfirmed, %1</source>
-        <translation type="unfinished">0/ubekreftet, %1</translation>
-    </message>
-    <message>
-        <source>in memory pool</source>
-        <translation type="unfinished">i minnepool</translation>
-    </message>
-    <message>
-        <source>not in memory pool</source>
-        <translation type="unfinished">ikke i minnepool</translation>
-    </message>
-    <message>
         <source>abandoned</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an abandoned transaction.</extracomment>
         <translation type="unfinished">forlatt</translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in at least one block, but less than 6 blocks.</extracomment>
         <translation type="unfinished">%1/ubekreftet</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents a transaction confirmed in 6 or more blocks.</extracomment>
         <translation type="unfinished">%1 bekreftelser</translation>
     </message>
     <message>
@@ -2955,9 +3739,9 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
+        <translation type="unfinished">
+            <numerusform>modner om %n blokk</numerusform>
+            <numerusform>modner om %n blokker</numerusform>
         </translation>
     </message>
     <message>
@@ -3006,7 +3790,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Output index</source>
-        <translation type="unfinished">Utdatainndeks</translation>
+        <translation type="unfinished">Outputindeks</translation>
     </message>
     <message>
         <source> (Certificate was not verified)</source>
@@ -3029,10 +3813,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Transaksjon</translation>
     </message>
     <message>
-        <source>Inputs</source>
-        <translation type="unfinished">Inndata</translation>
-    </message>
-    <message>
         <source>Amount</source>
         <translation type="unfinished">Beløp</translation>
     </message>
@@ -3049,7 +3829,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <name>TransactionDescDialog</name>
     <message>
         <source>This pane shows a detailed description of the transaction</source>
-        <translation>Her vises en detaljert beskrivelse av transaksjonen</translation>
+        <translation type="unfinished">Her vises en detaljert beskrivelse av transaksjonen</translation>
     </message>
     <message>
         <source>Details for %1</source>
@@ -3065,17 +3845,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>Label</source>
         <translation type="unfinished">Beskrivelse</translation>
-    </message>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    <message>
-        <source>Open until %1</source>
-        <translation type="unfinished">Åpen til %1</translation>
     </message>
     <message>
         <source>Unconfirmed</source>
@@ -3128,10 +3897,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>watch-only</source>
         <translation type="unfinished">kun oppsyn</translation>
-    </message>
-    <message>
-        <source>(n/a)</source>
-        <translation type="unfinished">(i/t)</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -3217,6 +3982,10 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Minimumsbeløp</translation>
     </message>
     <message>
+        <source>Range…</source>
+        <translation type="unfinished">Intervall...</translation>
+    </message>
+    <message>
         <source>&amp;Copy address</source>
         <translation type="unfinished">&amp;Kopier adresse</translation>
     </message>
@@ -3229,8 +3998,24 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Kopier &amp;beløp</translation>
     </message>
     <message>
+        <source>Copy transaction &amp;ID</source>
+        <translation type="unfinished">Kopier transaksjons&amp;ID</translation>
+    </message>
+    <message>
         <source>Copy full transaction &amp;details</source>
         <translation type="unfinished">Kopier komplette transaksjons&amp;detaljer</translation>
+    </message>
+    <message>
+        <source>&amp;Show transaction details</source>
+        <translation type="unfinished">&amp;Vis transaksjonsdetaljer</translation>
+    </message>
+    <message>
+        <source>Increase transaction &amp;fee</source>
+        <translation type="unfinished">Øk transaksjons&amp;gebyr</translation>
+    </message>
+    <message>
+        <source>&amp;Edit address label</source>
+        <translation type="unfinished">&amp;Rediger merkelapp</translation>
     </message>
     <message>
         <source>Export Transaction History</source>
@@ -3238,7 +4023,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
         <translation type="unfinished">Kommaseparert fil</translation>
     </message>
     <message>
@@ -3263,7 +4048,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Exporting Failed</source>
-        <translation type="unfinished">Eksporten feilet</translation>
+        <translation type="unfinished">Eksportering feilet</translation>
     </message>
     <message>
         <source>There was an error trying to save the transaction history to %1.</source>
@@ -3300,6 +4085,30 @@ Gå til Fil &gt; Åpne lommebok for å laste en lommebok.
         <source>Create a new wallet</source>
         <translation type="unfinished">Lag en ny lommebok</translation>
     </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Feilmelding</translation>
+    </message>
+    <message>
+        <source>Unable to decode PSBT from clipboard (invalid base64)</source>
+        <translation type="unfinished">Klarte ikke å dekode PSBT fra utklippstavle (ugyldig base64)</translation>
+    </message>
+    <message>
+        <source>Load Transaction Data</source>
+        <translation type="unfinished">Last transaksjonsdata</translation>
+    </message>
+    <message>
+        <source>Partially Signed Transaction (*.psbt)</source>
+        <translation type="unfinished">Delvis signert transaksjon (*.psbt)</translation>
+    </message>
+    <message>
+        <source>PSBT file must be smaller than 100 MiB</source>
+        <translation type="unfinished">PSBT-fil må være mindre enn 100 MiB</translation>
+    </message>
+    <message>
+        <source>Unable to decode PSBT</source>
+        <translation type="unfinished">Klarte ikke å dekode PSBT</translation>
+    </message>
 </context>
 <context>
     <name>WalletModel</name>
@@ -3317,11 +4126,8 @@ Gå til Fil &gt; Åpne lommebok for å laste en lommebok.
     </message>
     <message>
         <source>Do you want to increase the fee?</source>
+        <extracomment>Asks a user if they would like to manually increase the fee of a transaction that has already been created.</extracomment>
         <translation type="unfinished">Ønsker du å øke gebyret?</translation>
-    </message>
-    <message>
-        <source>Do you want to draft a transaction with fee increase?</source>
-        <translation type="unfinished">Vil du utarbeide en transaksjon med gebyrøkning?</translation>
     </message>
     <message>
         <source>Current fee:</source>
@@ -3334,6 +4140,10 @@ Gå til Fil &gt; Åpne lommebok for å laste en lommebok.
     <message>
         <source>New fee:</source>
         <translation type="unfinished">Nytt gebyr:</translation>
+    </message>
+    <message>
+        <source>Warning: This may pay the additional fee by reducing change outputs or adding inputs, when necessary. It may add a new change output if one does not already exist. These changes may potentially leak privacy.</source>
+        <translation type="unfinished">Advarsel: Dette kan betale tilleggsgebyret ved å redusere endringsoutput eller legge til input, ved behov. Det kan legge til en ny endringsoutput hvis en ikke allerede eksisterer. Disse endringene kan potensielt lekke privatinformasjon.</translation>
     </message>
     <message>
         <source>Confirm fee bump</source>
@@ -3375,30 +4185,6 @@ Gå til Fil &gt; Åpne lommebok for å laste en lommebok.
         <translation type="unfinished">Eksporter data i den valgte fliken til en fil</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="unfinished">Feilmelding</translation>
-    </message>
-    <message>
-        <source>Unable to decode PSBT from clipboard (invalid base64)</source>
-        <translation type="unfinished">Klarte ikke å dekode PSBT fra utklippstavle (ugyldig base64)</translation>
-    </message>
-    <message>
-        <source>Load Transaction Data</source>
-        <translation type="unfinished">Last transaksjonsdata</translation>
-    </message>
-    <message>
-        <source>Partially Signed Transaction (*.psbt)</source>
-        <translation type="unfinished">Delvis signert transaksjon (*.psbt)</translation>
-    </message>
-    <message>
-        <source>PSBT file must be smaller than 100 MiB</source>
-        <translation type="unfinished">PSBT-fil må være mindre enn 100 MiB</translation>
-    </message>
-    <message>
-        <source>Unable to decode PSBT</source>
-        <translation type="unfinished">Klarte ikke å dekode PSBT</translation>
-    </message>
-    <message>
         <source>Backup Wallet</source>
         <translation type="unfinished">Sikkerhetskopier lommebok</translation>
     </message>
@@ -3426,449 +4212,6 @@ Gå til Fil &gt; Åpne lommebok for å laste en lommebok.
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Avbryt</translation>
-    </message>
-</context>
-<context>
-    <name>qtum-core</name>
-    <message>
-        <source>The %s developers</source>
-        <translation type="unfinished">%s-utviklerne</translation>
-    </message>
-    <message>
-        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s korrupt. Prøv å bruk lommebokverktøyet qtum-wallet til å fikse det eller laste en backup.</translation>
-    </message>
-    <message>
-        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
-        <translation type="unfinished">-maxtxfee er satt veldig høyt! Så stort gebyr kan bli betalt ved en enkelt transaksjon.</translation>
-    </message>
-    <message>
-        <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
-        <translation type="unfinished">Kan ikke nedgradere lommebok fra versjon %i til versjon %i. Lommebokversjon er uforandret.</translation>
-    </message>
-    <message>
-        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
-        <translation type="unfinished">Kan ikke låse datamappen %s. %s kjører antagelig allerede.</translation>
-    </message>
-    <message>
-        <source>Cannot provide specific connections and have addrman find outgoing connections at the same.</source>
-        <translation type="unfinished">Kan ikke angi spesifikke tilkoblinger og ha addrman til å finne utgående tilkoblinger samtidig.</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet from version %i to version %i without upgrading to support pre-split keypool. Please use version %i or no version specified.</source>
-        <translation type="unfinished">Kan ikke oppgradere en ikke-HD delt lommebok fra versjon %i til versjon %i uten å først oppgradere for å få støtte for forhåndsdelt keypool. Vennligst bruk versjon %i eller ingen versjon spesifisert.</translation>
-    </message>
-    <message>
-        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
-        <translation type="unfinished">Lisensiert MIT. Se tilhørende fil %s eller %s</translation>
-    </message>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Feil under lesing av %s! Alle nøkler har blitt lest rett, men transaksjonsdata eller adressebokoppføringer kan mangle eller være uriktige.</translation>
-    </message>
-    <message>
-        <source>Error: Listening for incoming connections failed (listen returned error %s)</source>
-        <translation type="unfinished">Feil: Lytting etter innkommende tilkoblinger feilet (lytting returnerte feil %s)</translation>
-    </message>
-    <message>
-        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
-        <translation type="unfinished">Avgiftsberegning mislyktes. Fallbackfee er deaktivert. Vent et par blokker eller aktiver -fallbackfee.</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
-        <translation type="unfinished">Ugyldig beløp for -maxtxfee=&lt;amount&gt;: '%s' (et minrelay gebyr på minimum %s kreves for å forhindre fastlåste transaksjoner)</translation>
-    </message>
-    <message>
-        <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
-        <translation type="unfinished">Mer enn en onion adresse har blitt gitt. Bruker %s for den automatisk lagde Tor onion tjenesten.</translation>
-    </message>
-    <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">Sjekk at din datamaskins dato og klokke er stilt rett! Hvis klokka er feil, vil ikke %s fungere ordentlig.</translation>
-    </message>
-    <message>
-        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
-        <translation type="unfinished">Bidra hvis du finner %s nyttig. Besøk %s for mer informasjon om programvaren.</translation>
-    </message>
-    <message>
-        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
-        <translation type="unfinished">Beskjæringsmodus er konfigurert under minimum på %d MiB. Vennligst bruk et høyere nummer.</translation>
-    </message>
-    <message>
-        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
-        <translation type="unfinished">Beskjæring: siste lommeboksynkronisering går utenfor beskjærte data. Du må bruke -reindex (laster ned hele blokkjeden igjen for beskjærte noder)</translation>
-    </message>
-    <message>
-        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
-        <translation type="unfinished">Blokkdatabasen inneholder en blokk som ser ut til å være fra fremtiden. Dette kan være fordi dato og tid på din datamaskin er satt feil. Gjenopprett kun blokkdatabasen når du er sikker på at dato og tid er satt riktig.</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to send after the fee has been deducted</source>
-        <translation type="unfinished">Transaksjonsbeløpet er for lite til å sendes etter at gebyret er fratrukket</translation>
-    </message>
-    <message>
-        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
-        <translation type="unfinished">Denne feilen kan oppstå hvis denne lommeboken ikke ble avsluttet skikkelig og var sist lastet med en build som hadde en nyere versjon av Berkeley DB. Hvis det har skjedd, vær så snill å bruk softwaren som sist lastet denne lommeboken.</translation>
-    </message>
-    <message>
-        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation type="unfinished">Dette er en testversjon i påvente av utgivelse - bruk på egen risiko - ikke for bruk til blokkutvinning eller i forretningsøyemed</translation>
-    </message>
-    <message>
-        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
-        <translation type="unfinished">Dette er maksimum transaksjonsavgift du betaler (i tillegg til den normale avgiften) for å prioritere delvis betaling unngåelse over normal mynt seleksjon.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
-        <translation type="unfinished">Dette er transaksjonsgebyret du kan se bort fra hvis vekslepengene utgjør mindre enn støv på dette nivået</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
-        <translation type="unfinished">Dette er transaksjonsgebyret du kan betale når gebyranslag ikke er tilgjengelige.</translation>
-    </message>
-    <message>
-        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
-        <translation type="unfinished">Total lengde av nettverks-versionstreng (%i) er over maks lengde (%i). Reduser tallet eller størrelsen av uacomments.</translation>
-    </message>
-    <message>
-        <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
-        <translation type="unfinished">Kan ikke spille av blokker igjen. Du må bygge opp igjen databasen ved bruk av -reindex-chainstate.</translation>
-    </message>
-    <message>
-        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation type="unfinished">Advarsel: Vi ser ikke ut til å være i full overenstemmelse med våre likemenn! Du kan trenge å oppgradere, eller andre noder kan trenge å oppgradere.</translation>
-    </message>
-    <message>
-        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
-        <translation type="unfinished">Du må gjenoppbygge databasen ved hjelp av -reindex for å gå tilbake til ubeskåret modus. Dette vil laste ned hele blokkjeden på nytt.</translation>
-    </message>
-    <message>
-        <source>%s is set very high!</source>
-        <translation type="unfinished">%s er satt veldig høyt!</translation>
-    </message>
-    <message>
-        <source>-maxmempool must be at least %d MB</source>
-        <translation type="unfinished">-maxmempool må være minst %d MB</translation>
-    </message>
-    <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">En fatal intern feil oppstod, se debug.log for detaljer.</translation>
-    </message>
-    <message>
-        <source>Cannot resolve -%s address: '%s'</source>
-        <translation type="unfinished">Kunne ikke slå opp -%s-adresse: "%s"</translation>
-    </message>
-    <message>
-        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
-        <translation type="unfinished">Kan ikke sette -peerblockfilters uten -blockfilterindex</translation>
-    </message>
-    <message>
-        <source>Change index out of range</source>
-        <translation type="unfinished">Kjedeindeks utenfor rekkevidde</translation>
-    </message>
-    <message>
-        <source>Copyright (C) %i-%i</source>
-        <translation type="unfinished">Kopirett © %i-%i</translation>
-    </message>
-    <message>
-        <source>Corrupted block database detected</source>
-        <translation type="unfinished">Oppdaget korrupt blokkdatabase</translation>
-    </message>
-    <message>
-        <source>Could not find asmap file %s</source>
-        <translation type="unfinished">Kunne ikke finne asmap filen %s</translation>
-    </message>
-    <message>
-        <source>Could not parse asmap file %s</source>
-        <translation type="unfinished">Kunne ikke analysere asmap filen %s</translation>
-    </message>
-    <message>
-        <source>Disk space is too low!</source>
-        <translation type="unfinished">For lite diskplass!</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Ønsker du å gjenopprette blokkdatabasen nå?</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Ferdig med lasting</translation>
-    </message>
-    <message>
-        <source>Error creating %s</source>
-        <translation type="unfinished">Feil under opprettelse av %s</translation>
-    </message>
-    <message>
-        <source>Error initializing block database</source>
-        <translation type="unfinished">Feil under initialisering av blokkdatabase</translation>
-    </message>
-    <message>
-        <source>Error initializing wallet database environment %s!</source>
-        <translation type="unfinished">Feil under oppstart av lommeboken sitt databasemiljø %s!</translation>
-    </message>
-    <message>
-        <source>Error loading %s</source>
-        <translation type="unfinished">Feil ved lasting av %s</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet corrupted</source>
-        <translation type="unfinished">Feil under innlasting av %s: Skadet lommebok</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet requires newer version of %s</source>
-        <translation type="unfinished">Feil under innlasting av %s: Lommeboka krever nyere versjon av %s</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Feil ved lasting av blokkdatabase</translation>
-    </message>
-    <message>
-        <source>Error opening block database</source>
-        <translation type="unfinished">Feil under åpning av blokkdatabase</translation>
-    </message>
-    <message>
-        <source>Error reading from database, shutting down.</source>
-        <translation type="unfinished">Feil ved lesing fra database, stenger ned.</translation>
-    </message>
-    <message>
-        <source>Error upgrading chainstate database</source>
-        <translation type="unfinished">Feil ved oppgradering av kjedetilstandsdatabase</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is low for %s</source>
-        <translation type="unfinished">Feil: Ikke nok ledig diskplass for %s</translation>
-    </message>
-    <message>
-        <source>Error: Dumpfile checksum does not match. Computed %s, expected %s</source>
-        <translation type="unfinished">Feil: Dumpfil sjekksum samsvarer ikke. Beregnet %s, forventet %s</translation>
-    </message>
-    <message>
-        <source>Error: Keypool ran out, please call keypoolrefill first</source>
-        <translation type="unfinished">Feil: Keypool gikk tom, kall keypoolrefill først.</translation>
-    </message>
-    <message>
-        <source>Error: Missing checksum</source>
-        <translation type="unfinished">Feil: Manglende sjekksum</translation>
-    </message>
-    <message>
-        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
-        <translation type="unfinished">Kunne ikke lytte på noen port. Bruk -listen=0 hvis det er dette du vil.</translation>
-    </message>
-    <message>
-        <source>Failed to rescan the wallet during initialization</source>
-        <translation type="unfinished">Klarte ikke gå igjennom lommeboken under oppstart</translation>
-    </message>
-    <message>
-        <source>Failed to verify database</source>
-        <translation type="unfinished">Verifisering av database feilet</translation>
-    </message>
-    <message>
-        <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
-        <translation type="unfinished">Avgiftsrate (%s) er lavere enn den minimume avgiftsrate innstillingen (%s)</translation>
-    </message>
-    <message>
-        <source>Ignoring duplicate -wallet %s.</source>
-        <translation type="unfinished">Ignorerer dupliserte -wallet %s.</translation>
-    </message>
-    <message>
-        <source>Importing…</source>
-        <translation type="unfinished">Importerer...</translation>
-    </message>
-    <message>
-        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
-        <translation type="unfinished">Ugyldig eller ingen skaperblokk funnet. Feil datamappe for nettverk?</translation>
-    </message>
-    <message>
-        <source>Initialization sanity check failed. %s is shutting down.</source>
-        <translation type="unfinished">Sunnhetssjekk ved oppstart mislyktes. %s skrus av.</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Utilstrekkelige midler</translation>
-    </message>
-    <message>
-        <source>Invalid -onion address or hostname: '%s'</source>
-        <translation type="unfinished">Ugyldig -onion adresse eller vertsnavn: "%s"</translation>
-    </message>
-    <message>
-        <source>Invalid -proxy address or hostname: '%s'</source>
-        <translation type="unfinished">Ugyldig -mellomtjeneradresse eller vertsnavn: "%s"</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">Ugyldig beløp for -%s=&lt;amount&gt;: "%s"</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">Ugyldig beløp for -discardfee=&lt;amount&gt;: "%s"</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">Ugyldig beløp for -fallbackfee=&lt;amount&gt;: "%s"</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -paytxfee=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation type="unfinished">Ugyldig beløp for -paytxfee=&lt;amount&gt;: '%s' (må være minst %s)</translation>
-    </message>
-    <message>
-        <source>Invalid netmask specified in -whitelist: '%s'</source>
-        <translation type="unfinished">Ugyldig nettmaske spesifisert i -whitelist: '%s'</translation>
-    </message>
-    <message>
-        <source>Loading wallet…</source>
-        <translation type="unfinished">Laster lommebok...</translation>
-    </message>
-    <message>
-        <source>Need to specify a port with -whitebind: '%s'</source>
-        <translation type="unfinished">Må oppgi en port med -whitebind: '%s'</translation>
-    </message>
-    <message>
-        <source>No proxy server specified. Use -proxy=&lt;ip&gt; or -proxy=&lt;ip:port&gt;.</source>
-        <translation type="unfinished">Ingen proxyserver er spesifisert. Bruk -proxy=&lt;ip&gt; eller -proxy=&lt;ip:port&gt;.</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">For få fildeskriptorer tilgjengelig.</translation>
-    </message>
-    <message>
-        <source>Prune cannot be configured with a negative value.</source>
-        <translation type="unfinished">Beskjæringsmodus kan ikke konfigureres med en negativ verdi.</translation>
-    </message>
-    <message>
-        <source>Prune mode is incompatible with -txindex.</source>
-        <translation type="unfinished">Beskjæringsmodus er ikke kompatibel med -txindex.</translation>
-    </message>
-    <message>
-        <source>Pruning blockstore…</source>
-        <translation type="unfinished">Beskjærer blokklageret...</translation>
-    </message>
-    <message>
-        <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
-        <translation type="unfinished">Reduserer -maxconnections fra %d til %d, pga. systembegrensninger.</translation>
-    </message>
-    <message>
-        <source>Rescanning…</source>
-        <translation type="unfinished">Leser gjennom igjen...</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Signering av transaksjon feilet</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" does not exist</source>
-        <translation type="unfinished">Oppgitt -walletdir "%s" eksisterer ikke</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" is a relative path</source>
-        <translation type="unfinished">Oppgitt -walletdir "%s" er en relativ sti</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" is not a directory</source>
-        <translation type="unfinished">Oppgitt -walletdir "%s" er ikke en katalog</translation>
-    </message>
-    <message>
-        <source>Starting network threads…</source>
-        <translation type="unfinished">Starter nettverkstråder…</translation>
-    </message>
-    <message>
-        <source>The source code is available from %s.</source>
-        <translation type="unfinished">Kildekoden er tilgjengelig fra %s.</translation>
-    </message>
-    <message>
-        <source>The specified config file %s does not exist</source>
-        <translation type="unfinished">Konfigurasjonsfilen %s eksisterer ikke</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to pay the fee</source>
-        <translation type="unfinished">Transaksjonsbeløpet er for lite til å betale gebyr</translation>
-    </message>
-    <message>
-        <source>The wallet will avoid paying less than the minimum relay fee.</source>
-        <translation type="unfinished">Lommeboka vil unngå å betale mindre enn minimumsstafettgebyret.</translation>
-    </message>
-    <message>
-        <source>This is experimental software.</source>
-        <translation type="unfinished">Dette er eksperimentell programvare.</translation>
-    </message>
-    <message>
-        <source>This is the minimum transaction fee you pay on every transaction.</source>
-        <translation type="unfinished">Dette er minimumsgebyret du betaler for hver transaksjon.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">Dette er transaksjonsgebyret du betaler som forsender av transaksjon.</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">Transaksjonen er for liten</translation>
-    </message>
-    <message>
-        <source>Transaction amounts must not be negative</source>
-        <translation type="unfinished">Transaksjonsbeløpet kan ikke være negativt</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">Transaksjonen har for lang minnepoolkjede</translation>
-    </message>
-    <message>
-        <source>Transaction must have at least one recipient</source>
-        <translation type="unfinished">Transaksjonen må ha minst én mottaker</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Transaksjonen er for stor</translation>
-    </message>
-    <message>
-        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
-        <translation type="unfinished">Kan ikke binde til %s på denne datamaskinen (binding returnerte feilen %s)</translation>
-    </message>
-    <message>
-        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
-        <translation type="unfinished">Kan ikke binde til %s på denne datamaskinen. Sannsynligvis kjører %s allerede.</translation>
-    </message>
-    <message>
-        <source>Unable to generate initial keys</source>
-        <translation type="unfinished">Klarte ikke lage første nøkkel</translation>
-    </message>
-    <message>
-        <source>Unable to generate keys</source>
-        <translation type="unfinished">Klarte ikke å lage nøkkel</translation>
-    </message>
-    <message>
-        <source>Unable to start HTTP server. See debug log for details.</source>
-        <translation type="unfinished">Kunne ikke starte HTTP-tjener. Se feilrettingslogg for detaljer.</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">Ukjent nettverk angitt i -onlynet '%s'</translation>
-    </message>
-    <message>
-        <source>Unsupported logging category %s=%s.</source>
-        <translation type="unfinished">Ustøttet loggingskategori %s=%s.</translation>
-    </message>
-    <message>
-        <source>Upgrading UTXO database</source>
-        <translation type="unfinished">Oppgraderer UTXO-database</translation>
-    </message>
-    <message>
-        <source>Upgrading txindex database</source>
-        <translation type="unfinished">Oppgraderer txindex databasen</translation>
-    </message>
-    <message>
-        <source>User Agent comment (%s) contains unsafe characters.</source>
-        <translation type="unfinished">User Agent kommentar (%s) inneholder utrygge tegn.</translation>
-    </message>
-    <message>
-        <source>Verifying blocks…</source>
-        <translation type="unfinished">Verifiserer blokker...</translation>
-    </message>
-    <message>
-        <source>Verifying wallet(s)…</source>
-        <translation type="unfinished">Verifiserer lommebøker...</translation>
-    </message>
-    <message>
-        <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation type="unfinished">Lommeboka må skrives om: Start %s på nytt for å fullføre</translation>
     </message>
 </context>
 </TS>

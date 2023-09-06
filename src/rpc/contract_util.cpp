@@ -83,7 +83,7 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
     }
     uint64_t gasLimit=0;
     if(!params[3].isNull()){
-        gasLimit = params[3].get_int64();
+        gasLimit = params[3].getInt<int64_t>();
     }
 
     CAmount nAmount = 0;
@@ -97,7 +97,7 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
     int blockNum;
     if (params.size() >= 6) {
         if (params[5].isNum()) {
-            blockNum = params[5].get_int();
+            blockNum = params[5].getInt<int>();
             if ((blockNum < 0 && blockNum != -1) || blockNum > active_chain.Height())
                 throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
             if (blockNum != -1) {
@@ -197,7 +197,7 @@ size_t parseUInt(const UniValue& val, size_t defaultVal) {
     if (val.isNull()) {
         return defaultVal;
     } else {
-        int n = val.get_int();
+        int n = val.getInt<int>();
         if (n < 0) {
             throw JSONRPCError(RPC_INVALID_PARAMS, "Expects unsigned integer");
         }
@@ -218,7 +218,7 @@ int parseBlockHeight(const UniValue& val) {
     }
 
     if (val.isNum()) {
-        int blockHeight = val.get_int();
+        int blockHeight = val.getInt<int>();
 
         if (blockHeight < 0) {
             return latestblock.height;
@@ -364,7 +364,7 @@ UniValue SearchLogs(const UniValue& _params, ChainstateManager &chainman)
 
     std::vector<std::vector<uint256>> hashesToBlock;
 
-    curheight = pblocktree->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses, chainman);
+    curheight = chainman.m_blockman.m_block_tree_db->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf, hashesToBlock, params.addresses, chainman);
 
     if (curheight == -1) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
@@ -547,7 +547,7 @@ bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, con
                 ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
             }
             tokenEvent.blockHash = uint256S(eventMap["blockHash"].get_str());
-            tokenEvent.blockNumber = eventMap["blockNumber"].get_int64();
+            tokenEvent.blockNumber = eventMap["blockNumber"].getInt<int64_t>();
             tokenEvent.transactionHash = uint256S(eventMap["transactionHash"].get_str());
 
             // Parse data

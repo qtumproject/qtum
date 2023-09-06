@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>Create a new address</source>
-        <translation>Napravite novu adresu</translation>
+        <translation type="unfinished">Napravite novu adresu</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>Kopirajte trenutno odabranu adresu u sistemski meduspremnik</translation>
+        <translation type="unfinished">Kopirajte trenutno odabranu adresu u sistemski meduspremnik</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -27,7 +27,7 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation>Izbrišite trenutno odabranu odresu sa liste</translation>
+        <translation type="unfinished">Izbrišite trenutno odabranu odresu sa liste</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
@@ -35,15 +35,15 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>Izvezite podatke trenutne kartice u datoteku</translation>
+        <translation type="unfinished">Izvezite podatke trenutne kartice u datoteku</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>&amp;Izvezite</translation>
+        <translation type="unfinished">&amp;Izvezite</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>Iz&amp;brišite</translation>
+        <translation type="unfinished">Iz&amp;brišite</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -72,7 +72,7 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Ovo su vaše Qtum adrese za primanje uplata. Upotrijebite dugme 'Stvori novu adresu prijema' na kartici primanja da biste kreirali nove adrese. Potpisivanje je moguće samo s adresama tipa 'legacy'.</translation>
+        <translation type="unfinished">Ovo su vaše Qtum adrese za primanje uplata. Upotrijebite dugme 'Stvori novu adresu prijema' na kartici primanja da biste kreirali nove adrese. Potpisivanje je moguće samo s adresama tipa 'legacy'.</translation> 
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -92,7 +92,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
         <translation type="unfinished">Datoteka odvojena zarezom</translation>
     </message>
     <message>
@@ -124,19 +124,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>AskPassphraseDialog</name>
     <message>
         <source>Passphrase Dialog</source>
-        <translation>Dijalog Lozinke</translation>
+        <translation type="unfinished">Dijalog Lozinke</translation>
     </message>
     <message>
         <source>Enter passphrase</source>
-        <translation>Unesi lozinku</translation>
+        <translation type="unfinished">Unesi lozinku</translation>
     </message>
     <message>
         <source>New passphrase</source>
-        <translation>Nova lozinka</translation>
+        <translation type="unfinished">Nova lozinka</translation>
     </message>
     <message>
         <source>Repeat new passphrase</source>
-        <translation>Ponovi novu lozinku</translation>
+        <translation type="unfinished">Ponovi novu lozinku</translation>
     </message>
     <message>
         <source>Show passphrase</source>
@@ -163,7 +163,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Potvrdite šifriranje novčanika</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source> 
         <translation type="unfinished">Upozorenje: Ako šifrirate novčanik i izgubite lozinku, &lt;b&gt;IZGUBIT ĆETE SVE SVOJE BITKOINE!&lt;/b&gt;</translation>
     </message>
     <message>
@@ -239,7 +239,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>QtumApplication</name>
+    <name>BitcoinApplication</name>
+    <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Datoteka postavki %1 je možda oštećena ili nevažeća.</translation>
+    </message>
+    <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">Odbegli izuzetak</translation>
+    </message>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Dogodila se fatalna greška. %1 više ne može sigurno nastaviti i prestat će raditi.</translation>
@@ -256,6 +264,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>QObject</name>
     <message>
+        <source>Do you want to reset settings to default values, or to abort without making changes?</source>
+        <extracomment>Explanatory text shown on startup when the settings file cannot be read. Prompts user to make a choice between resetting or aborting.</extracomment>
+        <translation type="unfinished">Želite li resetirati postavke na zadane vrijednosti ili prekinuti bez unošenja promjena?</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. Check that settings file is writable, or try running with -nosettings.</source>
+        <extracomment>Explanatory text shown on startup when the settings file could not be written. Prompts user to check that we have the ability to write to the file. Explains that the user has the option of running without a settings file.</extracomment>
+        <translation type="unfinished">Došlo je do fatalne greške. Provjerite da li se u datoteku postavki može pisati ili pokušajte pokrenuti s -nosettings.</translation>
+    </message>
+    <message>
         <source>Error: Specified data directory "%1" does not exist.</source>
         <translation type="unfinished">Greška: Navedeni direktorij podataka "%1" ne postoji.</translation>
     </message>
@@ -268,8 +286,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Greška: %1</translation>
     </message>
     <message>
-        <source>Error initializing settings: %1</source>
-        <translation type="unfinished">Greška prilikom inicijalizacije postavki: %1</translation>
+        <source>%1 didn't yet exit safely…</source>
+        <translation type="unfinished">%1 još nije sigurno izašao...</translation>
     </message>
     <message>
         <source>unknown</source>
@@ -281,7 +299,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>%n second(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -289,7 +307,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -329,26 +347,209 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>QtumGUI</name>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Nije moguće pročitati fajl postavki</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Nije moguće upisati datoteku postavki</translation>
+    </message>
+    <message>
+        <source>Replaying blocks…</source>
+        <translation type="unfinished">Reprodukcija blokova…</translation>
+    </message>
+    <message>
+        <source>Rescanning…</source>
+        <translation type="unfinished">Ponovno skeniranje…</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Izvršenje naredbe za provjeru baze podataka nije uspjelo: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Nije uspjela priprema naredbe za provjeru baze podataka: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to read database verification error: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Neuspjelo čitanje greške verifikacije baze podataka: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
+        <translation type="unfinished">SQLiteDatabase: Neočekivani ID aplikacije. Ocekivao %u, dobio %u</translation>
+    </message>
+    <message>
+        <source>Section [%s] is not recognized.</source>
+        <translation type="unfinished">Odjeljak [%s] nije prepoznat.</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Potpisivanje transakcije nije uspjelo</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" does not exist</source>
+        <translation type="unfinished">Navedeni -walletdir "%s" ne postoji</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is a relative path</source>
+        <translation type="unfinished">Navedeni -walletdir "%s" je relativna putanja</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is not a directory</source>
+        <translation type="unfinished">Navedeni -walletdir "%s" nije direktorij</translation>
+    </message>
+    <message>
+        <source>Specified blocks directory "%s" does not exist.</source>
+        <translation type="unfinished">Navedeni direktorij blokova "%s" ne postoji.</translation>
+    </message>
+    <message>
+        <source>Starting network threads…</source>
+        <translation type="unfinished">Pokretanje mrežnih niti…</translation>
+    </message>
+    <message>
+        <source>The source code is available from %s.</source>
+        <translation type="unfinished">Izvorni kod je dostupan od %s.</translation>
+    </message>
+    <message>
+        <source>The specified config file %s does not exist</source>
+        <translation type="unfinished">Navedena konfiguracijska datoteka %s ne postoji</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to pay the fee</source>
+        <translation type="unfinished">Iznos transakcije je premali za plaćanje naknade</translation>
+    </message>
+    <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation type="unfinished">Novčanik će izbjeći plaćanje manje od minimalne relejne naknade.</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">Ovo je eksperimentalni softver.</translation>
+    </message>
+    <message>
+        <source>This is the minimum transaction fee you pay on every transaction.</source>
+        <translation type="unfinished">Ovo je minimalna naknada za transakciju koju plaćate za svaku transakciju.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation type="unfinished">Ovo je naknada za transakciju koju ćete platiti ako pošaljete transakciju.</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Iznos transakcije je premali</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation type="unfinished">Iznosi transakcija ne smiju biti negativni</translation>
+    </message>
+    <message>
+        <source>Transaction has too long of a mempool chain</source>
+        <translation type="unfinished">Transakcija ima predugačak mempool lanac </translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation type="unfinished">Transakcija mora imati najmanje jednog primaoca</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Transakcija je prevelika</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
+        <translation type="unfinished">Nije moguće povezati se na %s na ovom računaru (povezivanje je vratilo grešku %s)</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
+        <translation type="unfinished">Nije moguće povezati se na %s na ovom računaru. %s vjerovatno već radi.</translation>
+    </message>
+    <message>
+        <source>Unable to create the PID file '%s': %s</source>
+        <translation type="unfinished">Nije moguće kreirati PID fajl '%s': %s</translation>
+    </message>
+    <message>
+        <source>Unable to generate initial keys</source>
+        <translation type="unfinished">Nije moguće generirati početne ključeve</translation>
+    </message>
+    <message>
+        <source>Unable to generate keys</source>
+        <translation type="unfinished">Nije moguće generirati ključeve</translation>
+    </message>
+    <message>
+        <source>Unable to open %s for writing</source>
+        <translation type="unfinished">Nije moguće otvoriti %s za pisanje</translation>
+    </message>
+    <message>
+        <source>Unable to start HTTP server. See debug log for details.</source>
+        <translation type="unfinished">Nije moguće pokrenuti HTTP server. Pogledajte dnevnik otklanjanja grešaka za detalje.</translation>
+    </message>
+    <message>
+        <source>Unknown -blockfilterindex value %s.</source>
+        <translation type="unfinished">Nepoznata vrijednost -blockfilterindex %s.</translation>
+    </message>
+    <message>
+        <source>Unknown address type '%s'</source>
+        <translation type="unfinished">Nepoznata vrsta adrese '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown change type '%s'</source>
+        <translation type="unfinished">Nepoznata vrsta promjene '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">Nepoznata mreža navedena u -onlynet: '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown new rules activated (versionbit %i)</source>
+        <translation type="unfinished">Nepoznata nova pravila aktivirana (versionbit %i)</translation>
+    </message>
+    <message>
+        <source>Unsupported logging category %s=%s.</source>
+        <translation type="unfinished">Nepodržana kategorija logivanja %s=%s.</translation>
+    </message>
+    <message>
+        <source>User Agent comment (%s) contains unsafe characters.</source>
+        <translation type="unfinished">Komentar korisničkog agenta (%s) sadrži nesigurne znakove.</translation>
+    </message>
+    <message>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">Provjera blokova…</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">Provjera novčanika…</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation type="unfinished">Novčanik je trebao biti prepisan: ponovo pokrenite %s da biste završili</translation>
+    </message>
+</context>
+<context>
+    <name>BitcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
-        <translation>&amp;Pregled</translation>
+        <translation type="unfinished">&amp;Pregled</translation>
     </message>
     <message>
         <source>Show general overview of wallet</source>
-        <translation>Prikaži opšti pregled novčanika</translation>
+        <translation type="unfinished">Prikaži opšti pregled novčanika</translation>
     </message>
     <message>
         <source>&amp;Transactions</source>
-        <translation>&amp;Transakcije</translation>
+        <translation type="unfinished">&amp;Transakcije</translation>
     </message>
     <message>
         <source>Browse transaction history</source>
-        <translation>Pregledajte historiju transakcija</translation>
+        <translation type="unfinished">Pregledajte historiju transakcija</translation>
+    </message>
+    <message>
+        <source>E&amp;xit</source>
+        <translation type="unfinished">&amp;Izlaz</translation>
     </message>
     <message>
         <source>Quit application</source>
-        <translation>Zatvori aplikaciju</translation>
+        <translation type="unfinished">Zatvori aplikaciju</translation>
     </message>
     <message>
         <source>&amp;About %1</source>
@@ -360,11 +561,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>About &amp;Qt</source>
-        <translation>O &amp;Qt</translation>
+        <translation type="unfinished">O &amp;Qt</translation>
     </message>
     <message>
         <source>Show information about Qt</source>
-        <translation>Prikaži informacije o Qt</translation>
+        <translation type="unfinished">Prikaži informacije o Qt</translation>
     </message>
     <message>
         <source>Modify configuration options for %1</source>
@@ -373,6 +574,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Create a new wallet</source>
         <translation type="unfinished">Kreirajte novi novčanik</translation>
+    </message>
+    <message>
+        <source>&amp;Minimize</source>
+        <translation type="unfinished">&amp;Minimiziraj</translation>
     </message>
     <message>
         <source>Wallet:</source>
@@ -389,59 +594,99 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation>Pošaljite kovanice na Qtum adresu</translation>
+        <translation type="unfinished">Pošaljite kovanice na Qtum adresu</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
-        <translation>Izradite sigurnosnu kopiju novčanika na drugoj lokaciji</translation>
+        <translation type="unfinished">Izradite sigurnosnu kopiju novčanika na drugoj lokaciji</translation>
     </message>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
-        <translation>Promijenite lozinku koja se koristi za šifriranje novčanika</translation>
+        <translation type="unfinished">Promijenite lozinku koja se koristi za šifriranje novčanika</translation>
     </message>
     <message>
         <source>&amp;Send</source>
-        <translation>&amp;Pošalji</translation>
+        <translation type="unfinished">&amp;Pošalji</translation>
     </message>
     <message>
         <source>&amp;Receive</source>
-        <translation>&amp;Primite</translation>
+        <translation type="unfinished">&amp;Primite</translation>
     </message>
     <message>
-        <source>&amp;Show / Hide</source>
-        <translation>&amp;Prikaži / Sakrij</translation>
-    </message>
-    <message>
-        <source>Show or hide the main Window</source>
-        <translation>Prikažite ili sakrijte glavni prozor</translation>
+        <source>&amp;Options…</source>
+        <translation type="unfinished">&amp;Opcije…</translation>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
-        <translation>Šifrirajte privatne ključeve koji pripadaju vašem novčaniku</translation>
+        <translation type="unfinished">Šifrirajte privatne ključeve koji pripadaju vašem novčaniku</translation>
+    </message>
+    <message>
+        <source>Sign &amp;message…</source>
+        <translation type="unfinished">Potpiši &amp;poruku…</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation>Potpišite poruke sa svojim Qtum adresama da biste dokazali da ste njihov vlasnik</translation>
+        <translation type="unfinished">Potpišite poruke sa svojim Qtum adresama da biste dokazali da ste njihov vlasnik</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation>Potvrdite poruke kako biste bili sigurni da su potpisane navedenim Qtum adresama</translation>
+        <translation type="unfinished">Potvrdite poruke kako biste bili sigurni da su potpisane navedenim Qtum adresama</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI…</source>
+        <translation type="unfinished">Otvori &amp;URI…</translation>
+    </message>
+    <message>
+        <source>Close Wallet…</source>
+        <translation type="unfinished">Zatvori novčanik...</translation>
+    </message>
+    <message>
+        <source>Create Wallet…</source>
+        <translation type="unfinished">Napravi novčanik...</translation>
+    </message>
+    <message>
+        <source>Close All Wallets…</source>
+        <translation type="unfinished">Zatvori sve novčanike...</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation>&amp;Datoteka</translation>
+        <translation type="unfinished">&amp;Datoteka</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
-        <translation>&amp;Postavke</translation>
+        <translation type="unfinished">&amp;Postavke</translation>
     </message>
     <message>
         <source>&amp;Help</source>
-        <translation>&amp;Pomoć</translation>
+        <translation type="unfinished">&amp;Pomoć</translation>
     </message>
     <message>
         <source>Tabs toolbar</source>
-        <translation>Alatna traka kartica</translation>
+        <translation type="unfinished">Alatna traka kartica</translation>
+    </message>
+    <message>
+        <source>Syncing Headers (%1%)…</source>
+        <translation type="unfinished">Sinhroniziranje zaglavlja (%1%)…</translation>
+    </message>
+    <message>
+        <source>Synchronizing with network…</source>
+        <translation type="unfinished">Sinhronizacija sa mrežom...</translation>
+    </message>
+    <message>
+        <source>Indexing blocks on disk…</source>
+        <translation type="unfinished">Indeksiraju se blokovi na disku...</translation>
+    </message>
+    <message>
+        <source>Processing blocks on disk…</source>
+        <translation type="unfinished">Procesuiraju se blokovi na disku...</translation>
+    </message>
+    <message>
+        <source>Reindexing blocks on disk…</source>
+        <translation type="unfinished">Reindekiraju se blokovi na disku...</translation>
+    </message>
+    <message>
+        <source>Connecting to peers…</source>
+        <translation type="unfinished">Povezivanje sa kolegama…</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
@@ -461,7 +706,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -469,31 +714,31 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>%1 behind</source>
-        <translation>%1 iza</translation>
+        <translation type="unfinished">%1 iza</translation>
     </message>
     <message>
         <source>Last received block was generated %1 ago.</source>
-        <translation>Posljednji primljeni blok generiran je prije %1.</translation>
+        <translation type="unfinished">Posljednji primljeni blok generiran je prije %1.</translation>
     </message>
     <message>
         <source>Transactions after this will not yet be visible.</source>
-        <translation>Transakcije nakon ovoga još neće biti vidljive.</translation>
+        <translation type="unfinished">Transakcije nakon ovoga još neće biti vidljive.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Greška</translation>
+        <translation type="unfinished">Greška</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>Upozorenje</translation>
+        <translation type="unfinished">Upozorenje</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation>Informacije</translation>
+        <translation type="unfinished">Informacije</translation>
     </message>
     <message>
         <source>Up to date</source>
-        <translation>U toku</translation>
+        <translation type="unfinished">U toku</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
@@ -560,12 +805,13 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Nema dostupnih novčanika</translation>
     </message>
     <message>
-        <source>&amp;Window</source>
-        <translation type="unfinished">&amp;Prozor</translation>
+        <source>Wallet Name</source>
+        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
+        <translation type="unfinished">Ime Novčanika</translation>
     </message>
     <message>
-        <source>Minimize</source>
-        <translation type="unfinished">Minimizirajte</translation>
+        <source>&amp;Window</source>
+        <translation type="unfinished">&amp;Prozor</translation>
     </message>
     <message>
         <source>Main Window</source>
@@ -576,13 +822,23 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 klijent</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
         </translation>
+    </message>
+    <message>
+        <source>Click for more actions.</source>
+        <extracomment>A substring of the tooltip. "More actions" are available via the context menu.</extracomment>
+        <translation type="unfinished">Klikni za još radnji</translation>
+    </message>
+    <message>
+        <source>Disable network activity</source>
+        <extracomment>A context menu item.</extracomment>
+        <translation type="unfinished">Onemogući rad mreže</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -630,11 +886,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Sent transaction</source>
-        <translation>Pošalji transakciju</translation>
+        <translation type="unfinished">Pošalji transakciju</translation>
     </message>
     <message>
         <source>Incoming transaction</source>
-        <translation>Dolazna transakcija</translation>
+        <translation type="unfinished">Dolazna transakcija</translation>
     </message>
     <message>
         <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
@@ -650,7 +906,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Novčanik je &lt;b&gt;šifriran&lt;/b&gt; i trenutno je &lt;b&gt;zaključan&lt;/b&gt;</translation>
+        <translation type="unfinished">Novčanik je &lt;b&gt;šifriran&lt;/b&gt; i trenutno je &lt;b&gt;zaključan&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Original message:</source>
@@ -779,6 +1035,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Ova naljepnica postaje crvena ako bilo koji primatelj primi količinu manju od trenutnog praga prašine.</translation>
     </message>
     <message>
+        <source>Can vary +/- %1 satoshi(s) per input.</source>
+        <translation type="unfinished">Može varirati +/- %1 satoshi (a) po upisu vrijednosti.</translation>
+    </message>
+    <message>
         <source>(no label)</source>
         <translation type="unfinished">(nema oznake)</translation>
     </message>
@@ -794,6 +1054,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>CreateWalletActivity</name>
     <message>
+        <source>Create Wallet</source>
+        <extracomment>Title of window indicating the progress of creation of a new wallet.</extracomment>
+        <translation type="unfinished">Kreirajte Novčanik</translation>
+    </message>
+    <message>
         <source>Create wallet failed</source>
         <translation type="unfinished">Izrada novčanika nije uspjela</translation>
     </message>
@@ -807,6 +1072,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>default wallet</source>
         <translation type="unfinished">zadani novčanik</translation>
+    </message>
+    <message>
+        <source>Open Wallet</source>
+        <extracomment>Title of window indicating the progress of opening of a wallet.</extracomment>
+        <translation type="unfinished">Otvorite Novčanik</translation>
     </message>
     </context>
 <context>
@@ -883,11 +1153,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>EditAddressDialog</name>
     <message>
         <source>Edit Address</source>
-        <translation>Uredi Adresu</translation>
+        <translation type="unfinished">Uredi Adresu</translation>
     </message>
     <message>
         <source>&amp;Label</source>
-        <translation>&amp;Oznaka</translation>
+        <translation type="unfinished">&amp;Oznaka</translation>
     </message>
     <message>
         <source>The label associated with this address list entry</source>
@@ -899,7 +1169,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation>&amp;Adresa</translation>
+        <translation type="unfinished">&amp;Adresa</translation>
     </message>
     <message>
         <source>New sending address</source>
@@ -938,27 +1208,51 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>FreespaceChecker</name>
     <message>
         <source>A new data directory will be created.</source>
-        <translation>Stvorit će se novi direktorij podataka.</translation>
+        <translation type="unfinished">Stvorit će se novi direktorij podataka.</translation>
     </message>
     <message>
         <source>name</source>
-        <translation>ime</translation>
+        <translation type="unfinished">ime</translation>
     </message>
     <message>
         <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation>Direktorij već postoji. Dodajte %1 ako ovdje namjeravate stvoriti novi direktorij.</translation>
+        <translation type="unfinished">Direktorij već postoji. Dodajte %1 ako ovdje namjeravate stvoriti novi direktorij.</translation>
     </message>
     <message>
         <source>Path already exists, and is not a directory.</source>
-        <translation>Put već postoji i nije direktorij.</translation>
+        <translation type="unfinished">Put već postoji i nije direktorij.</translation>
     </message>
     <message>
         <source>Cannot create data directory here.</source>
-        <translation>Ovdje nije moguće stvoriti direktorij podataka.</translation>
+        <translation type="unfinished">Ovdje nije moguće stvoriti direktorij podataka.</translation>
     </message>
 </context>
 <context>
     <name>Intro</name>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>(%n GB needed for full chain)</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
         <translation type="unfinished">Najmanje %1 GB podataka bit će pohranjeno u ovom direktoriju i vremenom će rasti.</translation>
@@ -990,11 +1284,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Error</source>
-        <translation>Greška</translation>
+        <translation type="unfinished">Greška</translation>
     </message>
     <message>
         <source>Welcome</source>
-        <translation>Dobrodošli</translation>
+        <translation type="unfinished">Dobrodošli</translation>
     </message>
     <message>
         <source>Welcome to %1.</source>
@@ -1005,12 +1299,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Zato što je ovo prvi put da se program pokreće, možete odabrati gdje će %1 čuvati svoje podatke.</translation>
     </message>
     <message>
-        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
-        <translation type="unfinished">Kada kliknete OK, %1 će početi preuzimati i obrađivati ​​puni lanac blokova %4 (%2GB), počevši od najranijih transakcija u %3 kada je %4 prvi put pokrenut.</translation>
-    </message>
-    <message>
         <source>Reverting this setting requires re-downloading the entire blockchain. It is faster to download the full chain first and prune it later. Disables some advanced features.</source>
         <translation type="unfinished">Vraćanje ove postavke zahtijeva ponovno preuzimanje cijelog lanca blokova. Brže je prvo preuzeti čitav lanac i kasnije ga obrezati. Onemogućava neke napredne funkcije.</translation>
+    </message>
+    <message>
+        <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
+        <translation type="unfinished">Ova početna sihronizacija je veoma zahtjevna,i moze razotkriti hardverske probleme na vašem kompjuteru a niste ih prije primijetili.Svki put kad koristite %1, nastavice download gdje je stao.</translation>
     </message>
     <message>
         <source>If you have chosen to limit block chain storage (pruning), the historical data must still be downloaded and processed, but will be deleted afterward to keep your disk usage low.</source>
@@ -1018,11 +1312,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Use the default data directory</source>
-        <translation>Koristite zadani direktorij podataka</translation>
+        <translation type="unfinished">Koristite zadani direktorij podataka</translation>
     </message>
     <message>
         <source>Use a custom data directory:</source>
-        <translation>Koristite prilagođeni direktorij podataka:</translation>
+        <translation type="unfinished">Koristite prilagođeni direktorij podataka:</translation>
     </message>
 </context>
 <context>
@@ -1101,11 +1395,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>OptionsDialog</name>
     <message>
         <source>Options</source>
-        <translation>Opcije</translation>
+        <translation type="unfinished">Opcije</translation>
     </message>
     <message>
         <source>&amp;Main</source>
-        <translation>&amp;Glavno</translation>
+        <translation type="unfinished">&amp;Glavno</translation>
     </message>
     <message>
         <source>Automatically start %1 after logging in to the system.</source>
@@ -1136,10 +1430,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Smanjite, umjesto da izađete iz aplikacije kada je prozor zatvoren. Kada je ova opcija omogućena, aplikacija će se zatvoriti tek nakon odabira Izlaz u izborniku.</translation>
     </message>
     <message>
-        <source>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
-        <translation type="unfinished">URL-ovi trećih strana (npr. Istraživač blokova) koji se na kartici transakcija pojavljuju kao stavke kontekstnog izbornika.%s u URL-u se zamjenjuje hešom transakcije. Više URL-ova odvojeno je okomitom trakom |.</translation>
-    </message>
-    <message>
         <source>Open the %1 configuration file from the working directory.</source>
         <translation type="unfinished">Otvorite datoteku konfiguracije %1 iz radnog direktorija.</translation>
     </message>
@@ -1149,15 +1439,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Reset all client options to default.</source>
-        <translation>Vratite sve opcije klijenta na zadane.</translation>
+        <translation type="unfinished">Vratite sve opcije klijenta na zadane.</translation>
     </message>
     <message>
         <source>&amp;Reset Options</source>
-        <translation>&amp;Resetiraj Opcije</translation>
+        <translation type="unfinished">&amp;Resetiraj Opcije</translation>
     </message>
     <message>
         <source>&amp;Network</source>
-        <translation>&amp;Mreža</translation>
+        <translation type="unfinished">&amp;Mreža</translation>
     </message>
     <message>
         <source>Reverting this setting requires re-downloading the entire blockchain.</source>
@@ -1177,11 +1467,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automatski otvorite port Qtum klijenta na ruteru. Ovo radi samo kada vaš ruter podržava UPnP i ako je omogućen.</translation>
+        <translation type="unfinished">Automatski otvorite port Qtum klijenta na ruteru. Ovo radi samo kada vaš ruter podržava UPnP i ako je omogućen.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
-        <translation>Map port koristi &amp;UPnP</translation>
+        <translation type="unfinished">Map port koristi &amp;UPnP</translation>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
@@ -1197,7 +1487,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Port of the proxy (e.g. 9050)</source>
-        <translation>Port proxyja (npr. 9050)</translation>
+        <translation type="unfinished">Port proxyja (npr. 9050)</translation>
     </message>
     <message>
         <source>Used for reaching peers via:</source>
@@ -1205,7 +1495,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation>&amp;Prozor</translation>
+        <translation type="unfinished">&amp;Prozor</translation>
     </message>
     <message>
         <source>Show the icon in the system tray.</source>
@@ -1213,7 +1503,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Show only a tray icon after minimizing the window.</source>
-        <translation>Prikažite samo ikonu ladice nakon umanjivanja prozora.</translation>
+        <translation type="unfinished">Prikažite samo ikonu ladice nakon umanjivanja prozora.</translation>
     </message>
     <message>
         <source>The user interface language can be set here. This setting will take effect after restarting %1.</source>
@@ -1232,11 +1522,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>OverviewPage</name>
     <message>
         <source>Form</source>
-        <translation>Obrazac</translation>
+        <translation type="unfinished">Obrazac</translation>
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation>Moguće je da su prikazane informacije zastarjele.Vaš novčanik se automatski sinhronizira sa Qtum mrežom nakon što je konekcija uspostavljena, ali proces nije još uvijek dovršen.</translation>
+        <translation type="unfinished">Moguće je da su prikazane informacije zastarjele.Vaš novčanik se automatski sinhronizira sa Qtum mrežom nakon što je konekcija uspostavljena, ali proces nije još uvijek dovršen.</translation>
     </message>
     <message>
         <source>Recent transactions</source>
@@ -1259,7 +1549,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Last block time</source>
-        <translation>Vrijeme zadnjeg bloka</translation>
+        <translation type="unfinished">Vrijeme zadnjeg bloka</translation>
     </message>
     </context>
 <context>
@@ -1359,7 +1649,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -1372,14 +1662,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>TransactionDesc</name>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
     <message>
         <source>Date</source>
         <translation type="unfinished">Datum</translation>
@@ -1390,7 +1672,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
-        <translation>
+        <translation type="unfinished">
             <numerusform />
             <numerusform />
             <numerusform />
@@ -1410,14 +1692,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Label</source>
         <translation type="unfinished">Oznaka</translation>
-    </message>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-            <numerusform />
-        </translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -1448,7 +1722,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See https://en.wikipedia.org/wiki/Comma-separated_values</extracomment>
+        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
         <translation type="unfinished">Datoteka odvojena zarezom</translation>
     </message>
     <message>
@@ -1478,7 +1752,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Create a new wallet</source>
         <translation type="unfinished">Kreirajte novi novčanik</translation>
     </message>
-</context>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Greška</translation>
+    </message>
+    </context>
 <context>
     <name>WalletModel</name>
     <message>
@@ -1495,10 +1773,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">Izvezite podatke trenutne kartice u datoteku</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">Greška</translation>
     </message>
     </context>
 </TS>

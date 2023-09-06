@@ -5,47 +5,15 @@
 #include <map>
 #include <stdint.h>
 #include <uint256.h>
+#include <qtum/posutils.h>
 
 class QtumDelegationPriv;
 class ContractABI;
 class ChainstateManager;
-class CChainState;
+class Chainstate;
 
 extern const std::string strDelegationsABI;
 const ContractABI &DelegationABI();
-
-struct Delegation
-{
-    Delegation():
-        fee(0),
-        blockHeight(0) {}
-
-    bool IsNull() const
-    {
-        return staker == uint160() &&
-                fee == 0 &&
-                blockHeight == 0 &&
-                PoD == std::vector<unsigned char>();
-    }
-
-    uint160 staker;
-    uint8_t fee;
-    uint32_t blockHeight;
-    std::vector<unsigned char> PoD; //Proof Of Delegation
-};
-
-inline bool operator==(const Delegation& lhs, const Delegation& rhs)
-{
-    return lhs.staker == rhs.staker &&
-           lhs.fee == rhs.fee &&
-           lhs.blockHeight == rhs.blockHeight &&
-           lhs.PoD == rhs.PoD;
-}
-
-inline bool operator!=(const Delegation& lhs, const Delegation& rhs)
-{
-    return !(lhs == rhs);
-}
 
 struct DelegationItem : public Delegation
 {
@@ -109,7 +77,7 @@ public:
      * @param delegation Delegation information for an address
      * @return true/false
      */
-    bool GetDelegation(const uint160& address, Delegation& delegation, CChainState& chainstate) const;
+    bool GetDelegation(const uint160& address, Delegation& delegation, Chainstate& chainstate) const;
 
     /**
      * @brief VerifyDelegation Verify delegation for an address

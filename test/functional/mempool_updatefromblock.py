@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020 The Bitcoin Core developers
+# Copyright (c) 2020-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test mempool descendants/ancestors information update.
@@ -12,15 +12,23 @@ import time
 from decimal import Decimal
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.address import key_to_p2pkh
+from test_framework.wallet_util import bytes_to_wif
+from test_framework.key import ECKey
 
 
 class MempoolUpdateFromBlockTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
-        self.extra_args = [['-limitdescendantsize=1000', '-limitancestorsize=1000']]
+        self.extra_args = [['-limitdescendantsize=1000', '-limitancestorsize=1000', '-limitancestorcount=100']]
 
-    def skip_test_if_missing_module(self):
-        self.skip_if_no_wallet()
+    def get_new_address(self):
+        key = ECKey()
+        key.generate()
+        pubkey = key.get_pubkey().get_bytes()
+        address = key_to_p2pkh(pubkey)
+        self.priv_keys.append(bytes_to_wif(key.get_bytes()))
+        return address
 
     def transaction_graph_test(self, size, n_tx_to_mine=None, start_input_txid='', end_address='', fee=Decimal(0.40000000)):
         """Create an acyclic tournament (a type of directed graph) of transactions and use it for testing.
@@ -38,11 +46,12 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
         More details: https://en.wikipedia.org/wiki/Tournament_(graph_theory)
         """
 
+        self.priv_keys = [self.nodes[0].get_deterministic_priv_key().key]
         if not start_input_txid:
             start_input_txid = self.nodes[0].getblock(self.nodes[0].getblockhash(1))['tx'][0]
 
         if not end_address:
-            end_address = self.nodes[0].getnewaddress()
+            end_address = self.get_new_address()
 
         first_block_hash = ''
         tx_id = []
@@ -74,7 +83,7 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
                 output_value = ((inputs_value - fee) / Decimal(n_outputs)).quantize(Decimal('0.00000001'))
                 outputs = {}
                 for _ in range(n_outputs):
-                    outputs[self.nodes[0].getnewaddress()] = output_value
+                    outputs[self.get_new_address()] = output_value
             else:
                 output_value = (inputs_value - fee).quantize(Decimal('0.00000001'))
                 outputs = {end_address: output_value}
@@ -84,14 +93,14 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
 
             # Create a new transaction.
             unsigned_raw_tx = self.nodes[0].createrawtransaction(inputs, outputs)
-            signed_raw_tx = self.nodes[0].signrawtransactionwithwallet(unsigned_raw_tx)
+            signed_raw_tx = self.nodes[0].signrawtransactionwithkey(unsigned_raw_tx, self.priv_keys)
             tx_id.append(self.nodes[0].sendrawtransaction(signed_raw_tx['hex']))
-            tx_size.append(self.nodes[0].getrawmempool(True)[tx_id[-1]]['vsize'])
+            tx_size.append(self.nodes[0].getmempoolentry(tx_id[-1])['vsize'])
 
             if tx_count in n_tx_to_mine:
                 # The created transactions are mined into blocks by batches.
                 self.log.info('The batch of {} transactions has been accepted into the mempool.'.format(len(self.nodes[0].getrawmempool())))
-                block_hash = self.nodes[0].generate(1)[0]
+                block_hash = self.generate(self.nodes[0], 1)[0]
                 if not first_block_hash:
                     first_block_hash = block_hash
                 assert_equal(len(self.nodes[0].getrawmempool()), 0)
@@ -109,10 +118,11 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
         self.log.info('Checking descendants/ancestors properties of all of the in-mempool transactions...')
         for k, tx in enumerate(tx_id):
             self.log.debug('Check transaction #{}.'.format(k))
-            assert_equal(self.nodes[0].getrawmempool(True)[tx]['descendantcount'], size - k)
-            assert_equal(self.nodes[0].getrawmempool(True)[tx]['descendantsize'], sum(tx_size[k:size]))
-            assert_equal(self.nodes[0].getrawmempool(True)[tx]['ancestorcount'], k + 1)
-            assert_equal(self.nodes[0].getrawmempool(True)[tx]['ancestorsize'], sum(tx_size[0:(k + 1)]))
+            entry = self.nodes[0].getmempoolentry(tx)
+            assert_equal(entry['descendantcount'], size - k)
+            assert_equal(entry['descendantsize'], sum(tx_size[k:size]))
+            assert_equal(entry['ancestorcount'], k + 1)
+            assert_equal(entry['ancestorsize'], sum(tx_size[0:(k + 1)]))
 
     def run_test(self):
         # Use batch size limited by DEFAULT_ANCESTOR_LIMIT = 25 to not fire "too many unconfirmed parents" error.

@@ -2,7 +2,7 @@
 #include <test/util/setup_common.h>
 #include <consensus/merkle.h>
 #include <chainparams.h>
-#include <miner.h>
+#include <node/miner.h>
 #include <validation.h>
 #include <util/convert.h>
 
@@ -43,7 +43,7 @@ void checkResult(bool isCreation, std::vector<QtumTransaction> results, uint256 
     }
 }
 
-void runTest(CChainState& chainstate, CTxMemPool& mempool, bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
+void runTest(Chainstate& chainstate, CTxMemPool& mempool, bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
     LOCK(::cs_main);
     LOCK(mempool.cs);
     mempool.clear();
@@ -79,7 +79,7 @@ void runTest(CChainState& chainstate, CTxMemPool& mempool, bool isCreation, size
     checkResult(isCreation, result, tx2.GetHash());
 }
 
-void runFailingTest(CChainState& chainstate, CTxMemPool& mempool, bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
+void runFailingTest(Chainstate& chainstate, CTxMemPool& mempool, bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
     LOCK(::cs_main);
     LOCK(mempool.cs);
     mempool.clear();

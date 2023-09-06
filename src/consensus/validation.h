@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -53,6 +53,7 @@ enum class TxValidationResult {
      */
     TX_CONFLICT,
     TX_MEMPOOL_POLICY,        //!< violated mempool's fee/size/descendant/RBF/etc limits
+    TX_NO_MEMPOOL,            //!< this node does not have a mempool so can't validate the transaction
     TX_INVALID_SENDER_SCRIPT, //!< invalid contract sender script, used in the mempool
     TX_GAS_EXCEEDS_LIMIT,     //!< transaction gas exceeds block gas limit
 };
@@ -80,6 +81,7 @@ enum class BlockValidationResult {
     BLOCK_INVALID_PREV,      //!< A block this one builds on is invalid
     BLOCK_TIME_FUTURE,       //!< block timestamp was > 2 hours in the future (or our clock is bad)
     BLOCK_CHECKPOINT,        //!< the block failed to meet one of our checkpoints
+    BLOCK_HEADER_LOW_WORK,   //!< the block header may be on a too-little-work chain
     BLOCK_HEADER_SPAM,       //!< reject block header from the spam filter
     BLOCK_HEADER_REJECT,     //!< reject only the block header, but not ban the node
     BLOCK_HEADER_SYNC,       //!< reject the block header due to synchronization problems, used to punish the node less

@@ -107,28 +107,41 @@ void HardwareSignTx::setPsbt(const QString &_psbt)
     complete = false;
 }
 
-bool HardwareSignTx::process(QWidget *widget, WalletModel *model, const QString &psbt, QVariantMap &result)
+bool HardwareSignTx::process(QWidget *widget, WalletModel *model, const QString &psbt, QVariantMap &result, bool send)
 {
-    // Process transaction
+    // Sign transaction
     HardwareSignTx tool(widget);
     tool.setModel(model);
     tool.setPsbt(psbt);
     bool ret = tool.sign();
-    QVariantMap resultTool;
-    if(ret) ret &= tool.send(resultTool);
 
-    // Process result
-    if(ret)
+    if(send)
     {
-        result["txid"] = resultTool["txid"];
-        if(resultTool.contains("contracts"))
+        // Send transaction
+        QVariantMap resultTool;
+        if(ret) ret &= tool.send(resultTool);
+
+        // Process result
+        if(ret)
         {
-            QList<QVariant> contracts = resultTool["contracts"].toList();
-            for(QVariant contract : contracts)
+            result["txid"] = resultTool["txid"];
+            if(resultTool.contains("contracts"))
             {
-                result["address"] = contract.toMap()["address"];
-                break;
+                QList<QVariant> contracts = resultTool["contracts"].toList();
+                for(QVariant contract : contracts)
+                {
+                    result["address"] = contract.toMap()["address"];
+                    break;
+                }
             }
+        }
+    }
+    else
+    {
+        // Process result
+        if(ret)
+        {
+            result["hextx"] = tool.hexTx;
         }
     }
 

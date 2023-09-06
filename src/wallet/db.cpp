@@ -1,42 +1,45 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainparams.h>
 #include <fs.h>
 #include <logging.h>
+#include <util/system.h>
 #include <wallet/db.h>
 
+#include <exception>
+#include <fstream>
 #include <string>
+#include <system_error>
+#include <vector>
 
+namespace wallet {
 std::vector<fs::path> ListDatabases(const fs::path& wallet_dir)
 {
-    const size_t offset = wallet_dir.string().size() + (wallet_dir == wallet_dir.root_name() ? 0 : 1);
     std::vector<fs::path> paths;
-    boost::system::error_code ec;
+    std::error_code ec;
 
     for (auto it = fs::recursive_directory_iterator(wallet_dir, ec); it != fs::recursive_directory_iterator(); it.increment(ec)) {
         if (ec) {
             if (fs::is_directory(*it)) {
-                it.no_push();
-                LogPrintf("%s: %s %s -- skipping.\n", __func__, ec.message(), it->path().string());
+                it.disable_recursion_pending();
+                LogPrintf("%s: %s %s -- skipping.\n", __func__, ec.message(), fs::PathToString(it->path()));
             } else {
-                LogPrintf("%s: %s %s\n", __func__, ec.message(), it->path().string());
+                LogPrintf("%s: %s %s\n", __func__, ec.message(), fs::PathToString(it->path()));
             }
             continue;
         }
 
         try {
-            // Get wallet path relative to walletdir by removing walletdir from the wallet path.
-            // This can be replaced by boost::filesystem::lexically_relative once boost is bumped to 1.60.
-            const fs::path path = it->path().string().substr(offset);
+            const fs::path path{it->path().lexically_relative(wallet_dir)};
 
-            if (it->status().type() == fs::directory_file &&
+            if (it->status().type() == fs::file_type::directory &&
                 (IsBDBFile(BDBDataFile(it->path())) || IsSQLiteFile(SQLiteDataFile(it->path())))) {
                 // Found a directory which contains wallet.dat btree file, add it as a wallet.
                 paths.emplace_back(path);
-            } else if (it.level() == 0 && it->symlink_status().type() == fs::regular_file && IsBDBFile(it->path())) {
+            } else if (it.depth() == 0 && it->symlink_status().type() == fs::file_type::regular && IsBDBFile(it->path())) {
                 if (it->path().filename() == "wallet.dat") {
                     // Found top-level wallet.dat btree file, add top level directory ""
                     // as a wallet.
@@ -50,8 +53,8 @@ std::vector<fs::path> ListDatabases(const fs::path& wallet_dir)
                 }
             }
         } catch (const std::exception& e) {
-            LogPrintf("%s: Error scanning %s: %s\n", __func__, it->path().string(), e.what());
-            it.no_push();
+            LogPrintf("%s: Error scanning %s: %s\n", __func__, fs::PathToString(it->path()), e.what());
+            it.disable_recursion_pending();
         }
     }
 
@@ -83,12 +86,12 @@ bool IsBDBFile(const fs::path& path)
 
     // A Berkeley DB Btree file has at least 4K.
     // This check also prevents opening lock files.
-    boost::system::error_code ec;
+    std::error_code ec;
     auto size = fs::file_size(path, ec);
-    if (ec) LogPrintf("%s: %s %s\n", __func__, ec.message(), path.string());
+    if (ec) LogPrintf("%s: %s %s\n", __func__, ec.message(), fs::PathToString(path));
     if (size < 4096) return false;
 
-    fsbridge::ifstream file(path, std::ios::binary);
+    std::ifstream file{path, std::ios::binary};
     if (!file.is_open()) return false;
 
     file.seekg(12, std::ios::beg); // Magic bytes start at offset 12
@@ -107,12 +110,12 @@ bool IsSQLiteFile(const fs::path& path)
     if (!fs::exists(path)) return false;
 
     // A SQLite Database file is at least 512 bytes.
-    boost::system::error_code ec;
+    std::error_code ec;
     auto size = fs::file_size(path, ec);
-    if (ec) LogPrintf("%s: %s %s\n", __func__, ec.message(), path.string());
+    if (ec) LogPrintf("%s: %s %s\n", __func__, ec.message(), fs::PathToString(path));
     if (size < 512) return false;
 
-    fsbridge::ifstream file(path, std::ios::binary);
+    std::ifstream file{path, std::ios::binary};
     if (!file.is_open()) return false;
 
     // Magic is at beginning and is 16 bytes long
@@ -135,3 +138,13 @@ bool IsSQLiteFile(const fs::path& path)
     // Check the application id matches our network magic
     return memcmp(Params().MessageStart(), app_id, 4) == 0;
 }
+
+void ReadDatabaseArgs(const ArgsManager& args, DatabaseOptions& options)
+{
+    // Override current options with args values, if any were specified
+    options.use_unsafe_sync = args.GetBoolArg("-unsafesqlitesync", options.use_unsafe_sync);
+    options.use_shared_memory = !args.GetBoolArg("-privdb", !options.use_shared_memory);
+    options.max_log_mb = args.GetIntArg("-dblogsize", options.max_log_mb);
+}
+
+} // namespace wallet

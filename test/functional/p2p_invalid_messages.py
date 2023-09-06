@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2020 The Bitcoin Core developers
+# Copyright (c) 2015-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test node responses to invalid network messages."""
@@ -12,7 +12,6 @@ from test_framework.messages import (
     CInv,
     MAX_HEADERS_RESULTS,
     MAX_INV_SIZE,
-
     msg_getdata,
     msg_headers,
     msg_inv,
@@ -28,10 +27,9 @@ from test_framework.p2p import (
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
-    hex_str_to_bytes,
 )
 
-MAX_PROTOCOL_MESSAGE_LENGTH = 2000000
+MAX_PROTOCOL_MESSAGE_LENGTH = 2000000 
 VALID_DATA_LIMIT = MAX_PROTOCOL_MESSAGE_LENGTH - 5  # Account for the 5-byte length prefix
 
 
@@ -132,7 +130,7 @@ class InvalidMessagesTest(BitcoinTestFramework):
     def test_size(self):
         self.log.info("Test message with oversized payload disconnects peer")
         conn = self.nodes[0].add_p2p_connection(P2PDataStore())
-        with self.nodes[0].assert_debug_log(['Header error: Size too large (badmsg, 2000001 bytes)']):
+        with self.nodes[0].assert_debug_log(['Header error: Size too large (badmsg, 2000001 bytes)']): 
             msg = msg_unrecognized(str_data="d" * (VALID_DATA_LIMIT + 1))
             msg = conn.build_message(msg)
             conn.send_raw_message(msg)
@@ -188,7 +186,7 @@ class InvalidMessagesTest(BitcoinTestFramework):
             [
                 'received: addrv2 (1 bytes)',
             ],
-            hex_str_to_bytes('00'))
+            bytes.fromhex('00'))
 
     def test_addrv2_too_long_address(self):
         self.test_addrv2('too long address',
@@ -197,7 +195,7 @@ class InvalidMessagesTest(BitcoinTestFramework):
                 'ProcessMessages(addrv2, 525 bytes): Exception',
                 'Address too long: 513 > 512',
             ],
-            hex_str_to_bytes(
+            bytes.fromhex(
                 '01' +       # number of entries
                 '61bc6649' + # time, Fri Jan  9 02:54:25 UTC 2009
                 '00' +       # service flags, COMPACTSIZE(NODE_NONE)
@@ -211,10 +209,10 @@ class InvalidMessagesTest(BitcoinTestFramework):
         self.test_addrv2('unrecognized network',
             [
                 'received: addrv2 (25 bytes)',
-                'IP 9.9.9.9 mapped',
+                '9.9.9.9:8333 mapped',
                 'Added 1 addresses',
             ],
-            hex_str_to_bytes(
+            bytes.fromhex(
                 '02' +     # number of entries
                 # this should be ignored without impeding acceptance of subsequent ones
                 now_hex +  # time

@@ -14,6 +14,8 @@ namespace
 {
 evmc_revision toRevision(EVMSchedule const& _schedule) noexcept
 {
+    if (_schedule.eip6049Mode)
+        return EVMC_SHANGHAI;
     if (_schedule.eip1559Mode)
         return EVMC_LONDON;
     if (_schedule.eip2929Mode)
@@ -84,7 +86,7 @@ owning_bytes_ref EVMC::exec(u256& io_gas, ExtVMFace& _ext, const OnOpFunc& _onOp
     assert(flags != EVMC_STATIC || kind == EVMC_CALL);  // STATIC implies a CALL.
     evmc_message msg = {kind, flags, static_cast<int32_t>(_ext.depth), gas, toEvmC(_ext.myAddress),
         toEvmC(_ext.caller), _ext.data.data(), _ext.data.size(), toEvmC(_ext.value),
-        toEvmC(0x0_cppui256)};
+        toEvmC(0x0_cppui256), toEvmC(_ext.myAddress)};
     EvmCHost host{_ext};
     auto r = execute(host, mode, msg, _ext.code.data(), _ext.code.size());
     // FIXME: Copy the output for now, but copyless version possible.

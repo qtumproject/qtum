@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019-2020 The Bitcoin Core developers
+# Copyright (c) 2019-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """
@@ -24,7 +24,7 @@ from test_framework.util import (
     assert_equal,
 )
 from test_framework.address import ADDRESS_BCRT1_UNSPENDABLE
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD 
 
 import time
 

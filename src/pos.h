@@ -15,13 +15,7 @@
 #include <chainparams.h>
 #include <script/sign.h>
 #include <consensus/consensus.h>
-
-struct CStakeCache{
-    CStakeCache(uint32_t blockFromTime_, CAmount amount_) : blockFromTime(blockFromTime_), amount(amount_){
-    }
-    uint32_t blockFromTime;
-    CAmount amount;
-};
+#include <qtum/posutils.h>
 
 void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevout, CBlockIndex* pindexPrev, CCoinsViewCache& view);
 
@@ -34,7 +28,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
 
 // Check kernel hash target and coinstake signature
 // Sets hashProofOfStake on success return
-bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, CChainState& chainstate);
+bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, Chainstate& chainstate);
 
 // Check whether the coinstake timestamp meets protocol
 bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params& consensusParams);
@@ -63,14 +57,14 @@ bool IsDelegateOutputExist(int inFee);
 
 int GetDelegationFeeTx(const CTransaction& tx, const Coin& coin, bool delegateOutputExist);
 
-bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, CChainState& chainstate);
+bool GetDelegationFeeFromContract(const uint160& address, uint8_t& fee, Chainstate& chainstate);
 
 unsigned int GetStakeSplitOutputs();
 
 int64_t GetStakeSplitThreshold();
 
-bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams, CChain& chain);
+bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams, CChain& chain, node::BlockManager& blockman);
 
-bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams, CChain& chain);
+bool CreateMPoSOutputs(CMutableTransaction& txNew, int64_t nRewardPiece, int nHeight, const Consensus::Params& consensusParams, CChain& chain, node::BlockManager& blockman);
 
 #endif // QUANTUM_POS_H

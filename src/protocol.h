@@ -1,11 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
-#ifndef __cplusplus
-#error This header can only be compiled as C++.
-#endif
 
 #ifndef BITCOIN_PROTOCOL_H
 #define BITCOIN_PROTOCOL_H
@@ -15,10 +11,10 @@
 #include <serialize.h>
 #include <streams.h>
 #include <uint256.h>
-#include <version.h>
+#include <util/time.h>
 
+#include <cstdint>
 #include <limits>
-#include <stdint.h>
 #include <string>
 
 /** Message header.
@@ -357,7 +353,7 @@ static inline bool MayHaveUsefulAddressDB(ServiceFlags services)
 /** A CService with information about it as peer */
 class CAddress : public CService
 {
-    static constexpr uint32_t TIME_INIT{100000000};
+    static constexpr std::chrono::seconds TIME_INIT{100000000};
 
     /** Historically, CAddress disk serialization stored the CLIENT_VERSION, optionally OR'ed with
      *  the ADDRV2_FORMAT flag to indicate V2 serialization. The first field has since been
@@ -387,7 +383,7 @@ class CAddress : public CService
 public:
     CAddress() : CService{} {};
     CAddress(CService ipIn, ServiceFlags nServicesIn) : CService{ipIn}, nServices{nServicesIn} {};
-    CAddress(CService ipIn, ServiceFlags nServicesIn, uint32_t nTimeIn) : CService{ipIn}, nTime{nTimeIn}, nServices{nServicesIn} {};
+    CAddress(CService ipIn, ServiceFlags nServicesIn, NodeSeconds time) : CService{ipIn}, nTime{time}, nServices{nServicesIn} {};
 
     SERIALIZE_METHODS(CAddress, obj)
     {
@@ -396,7 +392,6 @@ public:
         // ambiguous what that would mean. Make sure no code relying on that is introduced:
         assert(!(s.GetType() & SER_GETHASH));
         bool use_v2;
-        bool store_time;
         if (s.GetType() & SER_DISK) {
             // In the disk serialization format, the encoding (v1 or v2) is determined by a flag version
             // that's part of the serialization itself. ADDRV2_FORMAT in the stream version only determines
@@ -413,24 +408,15 @@ public:
             } else {
                 throw std::ios_base::failure("Unsupported CAddress disk format version");
             }
-            store_time = true;
         } else {
             // In the network serialization format, the encoding (v1 or v2) is determined directly by
             // the value of ADDRV2_FORMAT in the stream version, as no explicitly encoded version
             // exists in the stream.
             assert(s.GetType() & SER_NETWORK);
             use_v2 = s.GetVersion() & ADDRV2_FORMAT;
-            // The only time we serialize a CAddress object without nTime is in
-            // the initial VERSION messages which contain two CAddress records.
-            // At that point, the serialization version is INIT_PROTO_VERSION.
-            // After the version handshake, serialization version is >=
-            // MIN_PEER_PROTO_VERSION and all ADDR messages are serialized with
-            // nTime.
-            store_time = s.GetVersion() != INIT_PROTO_VERSION;
         }
 
-        SER_READ(obj, obj.nTime = TIME_INIT);
-        if (store_time) READWRITE(obj.nTime);
+        READWRITE(Using<LossyChronoFormatter<uint32_t>>(obj.nTime));
         // nServices is serialized as CompactSize in V2; as uint64_t in V1.
         if (use_v2) {
             uint64_t services_tmp;
@@ -445,8 +431,8 @@ public:
         SerReadWriteMany(os, ser_action, ReadWriteAsHelper<CService>(obj));
     }
 
-    //! Always included in serialization, except in the network format on INIT_PROTO_VERSION.
-    uint32_t nTime{TIME_INIT};
+    //! Always included in serialization. The behavior is unspecified if the value is not representable as uint32_t.
+    NodeSeconds nTime{TIME_INIT};
     //! Serialized as uint64_t in V1, and as CompactSize in V2.
     ServiceFlags nServices{NODE_NONE};
 

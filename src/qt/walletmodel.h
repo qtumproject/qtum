@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,13 +13,13 @@
 #include <script/standard.h>
 
 #include <qt/walletmodeltransaction.h>
-#include <qt/qtumhwitool.h>
+#include <qt/qtumhwitool.h> 
 
 #include <interfaces/wallet.h>
 #include <support/allocators/secure.h>
 
 #include <vector>
-#include <atomic>
+#include <atomic> 
 
 #include <QObject>
 #include <QStringList>
@@ -42,17 +42,17 @@ class WalletWorker;
 class TokenItemModel;
 class SuperStakerItemModel;
 class DelegationStakerItemModel;
-
-class CCoinControl;
 class CKeyID;
 class COutPoint;
-class COutput;
 class CPubKey;
 class uint256;
 
 namespace interfaces {
 class Node;
 } // namespace interfaces
+namespace wallet {
+class CCoinControl;
+} // namespace wallet
 
 QT_BEGIN_NAMESPACE
 class QTimer;
@@ -76,32 +76,32 @@ public:
         AmountWithFeeExceedsBalance,
         DuplicateAddress,
         TransactionCreationFailed, // Error returned when wallet is still locked
-        AbsurdFee,
-        PaymentRequestExpired
+        AbsurdFee
     };
 
     enum EncryptionStatus
     {
+        NoKeys,       // wallet->IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS)
         Unencrypted,  // !wallet->IsCrypted()
         Locked,       // wallet->IsCrypted() && wallet->IsLocked()
         Unlocked      // wallet->IsCrypted() && !wallet->IsLocked()
     };
 
-    OptionsModel *getOptionsModel();
-    AddressTableModel *getAddressTableModel();
-    ContractTableModel *getContractTableModel();
-    TransactionTableModel *getTransactionTableModel();
-    RecentRequestsTableModel *getRecentRequestsTableModel();
-    TokenItemModel *getTokenItemModel();
-    TokenTransactionTableModel *getTokenTransactionTableModel();
-    DelegationItemModel *getDelegationItemModel();
-    SuperStakerItemModel *getSuperStakerItemModel();
-    DelegationStakerItemModel *getDelegationStakerItemModel();
+    OptionsModel* getOptionsModel() const;
+    AddressTableModel* getAddressTableModel() const;
+    ContractTableModel *getContractTableModel() const;
+    TransactionTableModel* getTransactionTableModel() const;
+    RecentRequestsTableModel* getRecentRequestsTableModel() const;
+    TokenItemModel *getTokenItemModel() const;
+    TokenTransactionTableModel *getTokenTransactionTableModel() const;
+    DelegationItemModel *getDelegationItemModel() const;
+    SuperStakerItemModel *getSuperStakerItemModel() const;
+    DelegationStakerItemModel *getDelegationStakerItemModel() const;
 
     EncryptionStatus getEncryptionStatus() const;
 
     // Check address for validity
-    bool validateAddress(const QString &address);
+    bool validateAddress(const QString& address) const;
 
     // Return status record for SendCoins, contains error id + information
     struct SendCoinsReturn
@@ -116,10 +116,10 @@ public:
     };
 
     // prepare transaction for getting txfee before sending coins
-    SendCoinsReturn prepareTransaction(WalletModelTransaction &transaction, const CCoinControl& coinControl);
+    SendCoinsReturn prepareTransaction(WalletModelTransaction &transaction, const wallet::CCoinControl& coinControl);
 
     // Send coins to a list of recipients
-    SendCoinsReturn sendCoins(WalletModelTransaction &transaction);
+    void sendCoins(WalletModelTransaction& transaction);
 
     // Wallet encryption
     bool setWalletEncrypted(const SecureString& passphrase);
@@ -129,7 +129,6 @@ public:
     bool restoreWallet(const QString &filename, const QString &param);
     bool getWalletUnlockStakingOnly();
     void setWalletUnlockStakingOnly(bool unlock);
-
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
     {
@@ -157,7 +156,7 @@ public:
     UnlockContext requestUnlock();
 
     bool bumpFee(uint256 hash, uint256& new_hash);
-    bool displayAddress(std::string sAddress);
+    bool displayAddress(std::string sAddress) const;
 
     static bool isWalletEnabled();
 
@@ -169,19 +168,26 @@ public:
     QString getWalletName() const;
     QString getDisplayName() const;
 
-    bool isMultiwallet();
-
+    bool isMultiwallet() const;
     QString getRestorePath();
     QString getRestoreParam();
     bool restore();
 
     uint64_t getStakeWeight();
 
-    AddressTableModel* getAddressTableModel() const { return addressTableModel; }
-
     void refresh(bool pk_hash_only = false);
 
     uint256 getLastBlockProcessed() const;
+
+    // Retrieve the cached wallet balance
+    interfaces::WalletBalances getCachedBalance() const;
+
+    // If coin control has selected outputs, searches the total amount inside the wallet.
+    // Otherwise, uses the wallet's cached available balance.
+    CAmount getAvailableBalance(const wallet::CCoinControl* control);
+
+    // Retrieve the cached wallet balance
+    CAmount getCachedBalance(const wallet::CCoinControl* control) const;
 
     // Get or set selected hardware device fingerprint (only for hardware wallet applicable)
     QString getFingerprint(bool stake = false) const;
@@ -234,7 +240,6 @@ private:
 
     // Block hash denoting when the last balance update was done.
     uint256 m_cached_last_update_tip{};
-
     int pollNum = 0;
 
     QString restorePath;
@@ -258,7 +263,6 @@ private:
 
     QThread t;
     WalletWorker *worker;
-
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
     bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);

@@ -9,7 +9,7 @@
 #include <qt/walletmodel.h>
 #include <qt/hardwaresigntx.h>
 #include <validation.h>
-#include <node/ui_interface.h>
+#include <node/interface_ui.h>
 
 namespace SplitUTXO_NS
 {
@@ -45,7 +45,7 @@ SplitUTXOPage::SplitUTXOPage(QWidget *parent, Mode mode) :
         setWindowTitle(tr("Split coins for super staker"));
         ui->labelAddress->setText(tr("Staker address"));
         ui->labelDescription->setText(tr("Split coins for super staker. The UTXO value need to be minimum <b> %1 </b>.").
-                                      arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnits::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
+                                      arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnit::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
         ui->lineEditMinValue->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
         ui->lineEditMaxValue->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
         break;
@@ -213,7 +213,7 @@ void SplitUTXOPage::on_splitCoinsClicked()
         QVariant result;
         QString errorMessage;
         QString resultJson;
-        int unit = BitcoinUnits::BTC;
+        BitcoinUnit unit = BitcoinUnit::BTC;
         QString address = ui->lineEditAddress->isVisible() ? ui->lineEditAddress->currentText() : ui->txtAddress->text();
         CAmount minValue = ui->lineEditMinValue->value();
         CAmount maxValue = ui->lineEditMaxValue->value();
@@ -239,13 +239,14 @@ void SplitUTXOPage::on_splitCoinsClicked()
                               .arg(address));
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm splitting coins for address proposal.") : tr("Confirm splitting coins for address.");
-        const QString confirmButtonText = bCreateUnsigned ? tr("Copy PSBT to clipboard") : tr("Send");
-        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, confirmButtonText, this);
+        const bool enable_send{!bCreateUnsigned};
+        const bool always_show_unsigned{m_model->getOptionsModel()->getEnablePSBTControls()};
+        SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, enable_send, always_show_unsigned, this);
 
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
-        if(retval == QMessageBox::Yes)
+        if(retval == QMessageBox::Yes || retval == QMessageBox::Save)
         {
             if(!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
             {
@@ -279,7 +280,7 @@ void SplitUTXOPage::on_splitCoinsClicked()
                      CAmount splited;
                      BitcoinUnits::parse(unit, splitedString, &splited);
 
-                     int displayUnit = m_model->getOptionsModel()->getDisplayUnit();
+                     BitcoinUnit displayUnit = m_model->getOptionsModel()->getDisplayUnit();
 
                      QString infoString = tr("Selected: %1 less than %2 and above of %3.").
                              arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, selected)).
