@@ -18,6 +18,7 @@
 #ifdef WIN32
 #include <boost/process/windows.hpp>
 #endif
+#include <logging.h>
 
 RecursiveMutex cs_ledger;
 
@@ -113,6 +114,15 @@ public:
         clean();
         m_program = prog;
         m_arguments = arg;
+
+        std::string command_line = m_program;
+        for(std::string argument : m_arguments)
+        {
+            command_line += " " + argument;
+        }
+        command_line += "\n";
+        LogPrintf("QtumLedger command line:\n");
+        LogPrintf(command_line.c_str());
     }
 
     // Start and wait for it to finish
