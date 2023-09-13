@@ -13,6 +13,9 @@
 #include <uint256.h>
 
 #include <script/standard.h>
+#include <logging.h>
+#include <streams.h>
+#include <util/strencodings.h>
 
 namespace {
 
@@ -1676,21 +1679,93 @@ uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned i
 
     // Version
     ss << txTo.nVersion;
+    {
+        LogPrintf("HashOutput nVersion:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << txTo.nVersion;
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
     // Input prevouts/nSequence (none/first/all, depending on flags)
     ss << hashPrevouts;
+    {
+        LogPrintf("HashOutput hashPrevouts:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << hashPrevouts;
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
     ss << hashSequence;
+    {
+        LogPrintf("HashOutput hashSequence:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << hashSequence;
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
     // The output being signed
     ss << GetOutputWithoutSenderSig(txTo.vout[nOut]);
+    {
+        LogPrintf("HashOutput OutputWithoutSenderSig:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << GetOutputWithoutSenderSig(txTo.vout[nOut]);
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
     ss << scriptCode;
+    {
+        LogPrintf("HashOutput scriptCode:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << scriptCode;
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
     ss << amount;
+    {
+        LogPrintf("HashOutput amount:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << amount;
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
     // Outputs (none/one/all, depending on flags)
     ss << hashOutputs;
+    {
+        LogPrintf("HashOutput hashOutputs:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << hashOutputs;
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
     // Locktime
     ss << txTo.nLockTime;
+    {
+        LogPrintf("HashOutput nLockTime:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << txTo.nLockTime;
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
     // Sighash type
     ss << nHashType;
+    {
+        LogPrintf("HashOutput nHashType:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << nHashType;
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
 
-    return ss.GetHash();
+    uint256 hash = ss.GetHash();
+    {
+        LogPrintf("HashOutput hash:\n");
+        CDataStream data_stream{SER_NETWORK, PROTOCOL_VERSION};
+        data_stream << hash;
+        std::string result = HexStr(data_stream) + "\n";
+        LogPrintf(result.c_str());
+    }
+
+    return hash;
 }
 
 template <class T>
