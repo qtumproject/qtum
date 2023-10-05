@@ -439,6 +439,12 @@ public:
     //! Get staker address balance.
     virtual bool getStakerAddressBalance(const std::string& staker, CAmount& balance, CAmount& stake, CAmount& weight) = 0;
 
+    //! Get add delegation data to sign.
+    virtual bool getAddDelegationData(const std::string& psbt, std::map<int, SignDelegation>& signData, std::string& error) = 0;
+
+    //! Set signed add delegation data.
+    virtual bool setAddDelegationData(std::string& psbt, const std::map<int, SignDelegation>& signData, std::string& error) = 0;
+
     //! Set staker ledger id.
     virtual void setStakerLedgerId(const std::string& ledgerId) = 0;
 

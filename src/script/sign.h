@@ -14,6 +14,8 @@
 #include <script/keyorigin.h>
 #include <script/standard.h>
 #include <uint256.h>
+#include <streams.h>
+#include <coins.h>
 
 class CKey;
 class CKeyID;
@@ -48,6 +50,21 @@ class MutableTransactionSignatureCreator : public BaseSignatureCreator
 public:
     MutableTransactionSignatureCreator(const CMutableTransaction& tx LIFETIMEBOUND, unsigned int input_idx, const CAmount& amount, int hash_type);
     MutableTransactionSignatureCreator(const CMutableTransaction& tx LIFETIMEBOUND, unsigned int input_idx, const CAmount& amount, const PrecomputedTransactionData* txdata, int hash_type);
+    const BaseSignatureChecker& Checker() const override { return checker; }
+    bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override;
+    bool CreateSchnorrSig(const SigningProvider& provider, std::vector<unsigned char>& sig, const XOnlyPubKey& pubkey, const uint256* leaf_hash, const uint256* merkle_root, SigVersion sigversion) const override;
+};
+
+/** A signature creator for transactions outputs. */
+class MutableTransactionSignatureOutputCreator : public BaseSignatureCreator {
+    const CMutableTransaction& m_txto;
+    unsigned int nOut;
+    int nHashType;
+    CAmount amount;
+    const MutableTransactionSignatureOutputChecker checker;
+
+public:
+    MutableTransactionSignatureOutputCreator(const CMutableTransaction& txToIn LIFETIMEBOUND, unsigned int nOutIn, const CAmount& amountIn, int nHashTypeIn = SIGHASH_ALL);
     const BaseSignatureChecker& Checker() const override { return checker; }
     bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override;
     bool CreateSchnorrSig(const SigningProvider& provider, std::vector<unsigned char>& sig, const XOnlyPubKey& pubkey, const uint256* leaf_hash, const uint256* merkle_root, SigVersion sigversion) const override;
@@ -114,10 +131,14 @@ bool SignSignature(const SigningProvider &provider, const CScript& fromPubKey, C
                    unsigned int nIn, const CAmount& amount, int nHashType, SignatureData& sig_data);
 bool SignSignature(const SigningProvider &provider, const CTransaction& txFrom, CMutableTransaction& txTo,
                    unsigned int nIn, int nHashType, SignatureData& sig_data);
+bool VerifySignature(const Coin& coin, uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags);
+bool VerifySignature(const CScript& fromPubKey, uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags);
 
 /** Extract signature data from a transaction input, and insert it. */
 SignatureData DataFromTransaction(const CMutableTransaction& tx, unsigned int nIn, const CTxOut& txout);
 void UpdateInput(CTxIn& input, const SignatureData& data);
+
+bool UpdateOutput(CTxOut& output, const SignatureData& data);
 
 /** Check whether a scriptPubKey is known to be segwit. */
 bool IsSegWitOutput(const SigningProvider& provider, const CScript& script);
