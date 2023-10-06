@@ -83,6 +83,7 @@ private:
     const int64_t sigOpCost;        //!< Total sigop cost
     CAmount m_modified_fee;         //!< Used for determining the priority of the transaction for mining in a block
     LockPoints lockPoints;          //!< Track the height and time at which tx was final
+    CAmount nMinGasPrice{0};   //!< The minimum gas price among the contract outputs of the tx
 
     // Information about descendants of this transaction that are in the
     // mempool; if we remove this transaction we must remove all of these
@@ -101,7 +102,7 @@ public:
     CTxMemPoolEntry(const CTransactionRef& tx, CAmount fee,
                     int64_t time, unsigned int entry_height,
                     bool spends_coinbase,
-                    int64_t sigops_cost, LockPoints lp)
+                    int64_t sigops_cost, LockPoints lp, CAmount min_gas_price = 0)
         : tx{tx},
           nFee{fee},
           nTxWeight(GetTransactionWeight(*tx)),
@@ -112,6 +113,7 @@ public:
           sigOpCost{sigops_cost},
           m_modified_fee{nFee},
           lockPoints{lp},
+          nMinGasPrice{min_gas_price},
           nSizeWithDescendants{GetTxSize()},
           nModFeesWithDescendants{nFee},
           nSizeWithAncestors{GetTxSize()},
@@ -132,6 +134,7 @@ public:
     CAmount GetModifiedFee() const { return m_modified_fee; }
     size_t DynamicMemoryUsage() const { return nUsageSize; }
     const LockPoints& GetLockPoints() const { return lockPoints; }
+    const CAmount& GetMinGasPrice() const { return nMinGasPrice; }
 
     // Adjusts the descendant state.
     void UpdateDescendantState(int64_t modifySize, CAmount modifyFee, int64_t modifyCount);
