@@ -57,6 +57,8 @@ void ReceiveRequestDialog::setModel(WalletModel *_model)
 
         // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.
         ui->btnRefreshAddress->setEnabled(model->wallet().canGetAddresses());
+        ui->btnDisplayAddress->setVisible(model->wallet().privateKeysDisabled());
+        ui->btnDisplayAddress->setEnabled(model->wallet().canGetAddresses());
 
         // Enable/disable the receive button if the wallet is now able/unable to give out new addresses.
         connect(model, &WalletModel::canGetAddressesChanged, [this] {
@@ -66,6 +68,10 @@ void ReceiveRequestDialog::setModel(WalletModel *_model)
             if(getDefault && getDefaultAddress())
             {
                 update();
+            }
+            if(ui->btnDisplayAddress->isVisible())
+            {
+                ui->btnDisplayAddress->setEnabled(canGetAddresses);
             }
         });
     }
