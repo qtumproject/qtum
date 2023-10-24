@@ -108,4 +108,7 @@ public:
     virtual void InitCleanBlockIndex() = 0;
 };
 
+/** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */
+unsigned int GefaultHeaderSpamFilterMaxSize();
+
 #endif // BITCOIN_NET_PROCESSING_H

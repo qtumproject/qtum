@@ -137,6 +137,10 @@ struct Params {
     int64_t nPowTargetTimespan;
     int64_t nPowTargetTimespanV2;
     int64_t nRBTPowTargetTimespan;
+    std::chrono::seconds TargetSpacingChrono(int height) const
+    {
+        return std::chrono::seconds{TargetSpacing(height)};
+    }
     std::chrono::seconds PowTargetSpacing() const
     {
         return std::chrono::seconds{nPowTargetSpacing};
