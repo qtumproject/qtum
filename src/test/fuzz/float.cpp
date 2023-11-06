@@ -19,7 +19,7 @@ FUZZ_TARGET(float)
 
     {
         const double d{[&] {
-            double tmp;
+            double tmp = 0;
             CallOneOf(
                 fuzzed_data_provider,
                 // an actual number

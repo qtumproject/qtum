@@ -185,7 +185,7 @@ struct SnapshotTestSetup : TestChain100Setup {
         }
 
         size_t initial_size;
-        size_t initial_total_coins{100};
+        size_t initial_total_coins{2000};
 
         // Make some initial assertions about the contents of the chainstate.
         {
@@ -213,7 +213,7 @@ struct SnapshotTestSetup : TestChain100Setup {
 
         // Mine 10 more blocks, putting at us height 110 where a valid assumeutxo value can
         // be found.
-        constexpr int snapshot_height = 110;
+        constexpr int snapshot_height = 2010;
         mineBlocks(10);
         initial_size += 10;
         initial_total_coins += 10;
@@ -318,7 +318,7 @@ struct SnapshotTestSetup : TestChain100Setup {
         }
 
         // Mine some new blocks on top of the activated snapshot chainstate.
-        constexpr size_t new_coins{100};
+        constexpr size_t new_coins{2000};
         mineBlocks(new_coins);  // Defined in TestChain100Setup.
 
         {

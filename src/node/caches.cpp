@@ -7,6 +7,7 @@
 #include <index/txindex.h>
 #include <txdb.h>
 #include <util/system.h>
+#include <validation.h>
 
 namespace node {
 CacheSizes CalculateCacheSizes(const ArgsManager& args, size_t n_indexes)
@@ -16,6 +17,10 @@ CacheSizes CalculateCacheSizes(const ArgsManager& args, size_t n_indexes)
     nTotalCache = std::min(nTotalCache, nMaxDbCache << 20); // total cache cannot be greater than nMaxDbcache
     CacheSizes sizes;
     sizes.block_tree_db = std::min(nTotalCache / 8, nMaxBlockDBCache << 20);
+    if (args.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX)) {
+        // enable 3/4 of the cache if addressindex and/or spentindex is enabled
+        sizes.block_tree_db = nTotalCache * 3 / 4;
+    }
     nTotalCache -= sizes.block_tree_db;
     sizes.tx_index = std::min(nTotalCache / 8, args.GetBoolArg("-txindex", DEFAULT_TXINDEX) ? nMaxTxIndexCache << 20 : 0);
     nTotalCache -= sizes.tx_index;
