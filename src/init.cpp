@@ -339,6 +339,9 @@ void Shutdown(NodeContext& node)
                 chainstate->ResetCoinsViews();
             }
         }
+        pstorageresult.reset();
+        globalState.reset();
+        globalSealEngine.reset();
     }
     for (const auto& client : node.chain_clients) {
         client->stop();
