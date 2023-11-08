@@ -31,7 +31,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
 bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, Chainstate& chainstate);
 
 // Check whether the coinstake timestamp meets protocol
-bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params &consensusParams)
+inline bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params &consensusParams)
 {
     return (nTimeBlock & consensusParams.StakeTimestampMask(nHeight)) == 0;
 }

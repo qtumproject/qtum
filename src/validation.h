@@ -381,6 +381,11 @@ public:
 bool GetAddressUnspent(uint256 addressHash, int type,
                        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs, node::BlockManager& blockman);
 
+bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight, node::BlockManager& blockman);
+
+std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman);
+/////////////////////////////////////////////////////////////////
+
 bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
 
 /** Functions for validating blocks and updating the block tree */

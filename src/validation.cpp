@@ -10,6 +10,7 @@
 
 #include <arith_uint256.h>
 #include <chain.h>
+#include <chainparams.h>
 #include <checkqueue.h>
 #include <consensus/amount.h>
 #include <consensus/consensus.h>
@@ -5915,3 +5916,57 @@ bool ChainstateManager::ValidatedSnapshotCleanup()
     }
     return true;
 }
+
+bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight, node::BlockManager& blockman)
+{
+    nWeight = 0;
+
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    // Get address utxos
+    std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
+    if (!GetAddressUnspent(addressHash, type, unspentOutputs, blockman)) {
+        throw error("No information available for address");
+    }
+
+    // Add the utxos to the list if they are mature
+	const Consensus::Params& consensusParams = Params().GetConsensus();
+    for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
+
+        int nDepth = nHeight - i->second.blockHeight + 1;
+        if (nDepth < consensusParams.CoinbaseMaturity(nHeight + 1))
+            continue;
+
+        if(i->second.satoshis < 0)
+            continue;
+
+        COutPoint prevout = COutPoint(i->first.txhash, i->first.index);
+        if(immatureStakes.find(prevout) == immatureStakes.end())
+        {
+            nWeight+= i->second.satoshis;
+        }
+    }
+
+    return true;
+}
+
+std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman)
+{
+    std::map<COutPoint, uint32_t> immatureStakes;
+    int height = chainman.ActiveChain().Height();
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(height + 1);
+    for(int i = 0; i < coinbaseMaturity -1; i++) {
+        CBlockIndex* block = chainman.ActiveChain()[height - i];
+        if(block)
+        {
+            immatureStakes[block->prevoutStake] = block->nTime;
+        }
+        else
+        {
+            break;
+        }
+    }
+    return immatureStakes;
+}
+//////////////////////////////////////////////////////////////////////////////////
