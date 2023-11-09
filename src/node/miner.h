@@ -22,6 +22,9 @@ class ChainstateManager;
 class CBlockIndex;
 class CChainParams;
 class CScript;
+#ifdef ENABLE_WALLET
+namespace wallet { class CWallet; };
+#endif
 
 namespace Consensus { struct Params; };
 
@@ -231,6 +234,12 @@ private:
     /** Sort the package in an order that is valid to appear in a block */
     void SortForBlock(const CTxMemPool::setEntries& package, std::vector<CTxMemPool::txiter>& sortedEntries);
 };
+
+#ifdef ENABLE_WALLET
+/** Generate a new block, without valid proof-of-work */
+void StakeQtums(bool fStake, wallet::CWallet *pwallet);
+void RefreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates);
+#endif
 
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
 

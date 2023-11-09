@@ -5728,17 +5728,6 @@ ChainstateManager::~ChainstateManager()
     }
 }
 
-bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs, node::BlockManager& blockman)
-{
-    if (!fAddressIndex)
-        return error("address index not enabled");
-
-    if (!blockman.m_block_tree_db->ReadAddressUnspentIndex(addressHash, type, unspentOutputs))
-        return error("unable to get txids for address");
-
-    return true;
-}
-
 bool ChainstateManager::DetectSnapshotChainstate(CTxMemPool* mempool)
 {
     assert(!m_snapshot_chainstate);
@@ -5917,6 +5906,54 @@ bool ChainstateManager::ValidatedSnapshotCleanup()
     return true;
 }
 
+////////////////////////////////////////////////////////////////////////////////// // qtum
+bool GetAddressIndex(uint256 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, node::BlockManager& blockman, int start, int end)
+{
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    if (!blockman.m_block_tree_db->ReadAddressIndex(addressHash, type, addressIndex, start, end))
+        return error("unable to get txids for address");
+
+    return true;
+}
+
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool, node::BlockManager& blockman)
+{
+    if (!fAddressIndex)
+        return false;
+
+    if (mempool.getSpentIndex(key, value))
+        return true;
+
+    if (!blockman.m_block_tree_db->ReadSpentIndex(key, value))
+        return false;
+
+    return true;
+}
+
+bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs, node::BlockManager& blockman)
+{
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    if (!blockman.m_block_tree_db->ReadAddressUnspentIndex(addressHash, type, unspentOutputs))
+        return error("unable to get txids for address");
+
+    return true;
+}
+
+bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes, ChainstateManager& chainman)
+{
+    if (!fAddressIndex)
+        return error("Timestamp index not enabled");
+
+    if (!chainman.m_blockman.m_block_tree_db->ReadTimestampIndex(high, low, fActiveOnly, hashes, chainman))
+        return error("Unable to get hashes for timestamps");
+
+    return true;
+}
+
 bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight, node::BlockManager& blockman)
 {
     nWeight = 0;
@@ -5970,3 +6007,4 @@ std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman)
     return immatureStakes;
 }
 //////////////////////////////////////////////////////////////////////////////////
+

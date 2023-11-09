@@ -427,4 +427,14 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         nDescendantsUpdated += UpdatePackagesForAdded(mempool, ancestors, mapModifiedTx);
     }
 }
+
+#ifdef ENABLE_WALLET
+void StakeQtums(bool fStake, wallet::CWallet *pwallet)
+{
+}
+
+void RefreshDelegates(wallet::CWallet *pwallet, bool refreshMyDelegates, bool refreshStakerDelegates)
+{
+}
+#endif
 } // namespace node
