@@ -248,6 +248,9 @@ void RegenerateCommitments(CBlock& block, ChainstateManager& chainman);
 
 /** Apply -blockmintxfee and -blockmaxweight options from ArgsManager to BlockAssembler options. */
 void ApplyArgsManOptions(const ArgsManager& gArgs, BlockAssembler::Options& options);
+
+/** Check if staking is enabled */
+bool CanStake();
 } // namespace node
 
 #endif // BITCOIN_NODE_MINER_H

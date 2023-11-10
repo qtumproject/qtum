@@ -5954,6 +5954,11 @@ bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const 
     return true;
 }
 
+CAmount GetTxGasFee(const CMutableTransaction& _tx, const CTxMemPool& mempool, Chainstate& active_chainstate)
+{
+    return {};
+}
+
 bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight, node::BlockManager& blockman)
 {
     nWeight = 0;

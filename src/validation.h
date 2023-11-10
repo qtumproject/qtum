@@ -1258,6 +1258,9 @@ bool DeploymentEnabled(const ChainstateManager& chainman, DEP dep)
     return DeploymentEnabled(chainman.GetConsensus(), dep);
 }
 
+//! Get transaction gas fee
+CAmount GetTxGasFee(const CMutableTransaction& tx, const CTxMemPool& mempool, Chainstate& active_chainstate);
+
 /**
  * Return the expected assumeutxo value for a given height, if one exists.
  *
