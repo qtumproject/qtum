@@ -1558,6 +1558,10 @@ PackageMempoolAcceptResult ProcessNewPackage(Chainstate& active_chainstate, CTxM
     return result;
 }
 
+bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams, Chainstate& chainstate){
+    return {};
+}
+
 bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams)
 {
     // Get the hash of the proof
@@ -3789,6 +3793,11 @@ void Chainstate::ReceivedBlockTransactions(const CBlock& block, CBlockIndex* pin
             m_blockman.m_blocks_unlinked.insert(std::make_pair(pindexNew->pprev, pindexNew));
         }
     }
+}
+
+bool CheckFirstCoinstakeOutput(const CBlock& block)
+{
+    return {};
 }
 
 static bool CheckBlockHeader(const CBlockHeader& block, BlockValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true)

@@ -160,6 +160,9 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex* pin
 /** Prune block files up to a given height */
 void PruneBlockFilesManual(Chainstate& active_chainstate, int nManualPruneHeight);
 
+/** Check if the header proof is valid */
+bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams, Chainstate& chainstate);
+
 /**
 * Validation result for a single transaction mempool acceptance.
 */
@@ -406,6 +409,7 @@ bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensu
 
 /** Context-independent validity checks */
 bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, Chainstate& chainstate, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool fCheckSig=true);
+bool CheckFirstCoinstakeOutput(const CBlock& block);
 bool CheckCanonicalBlockSignature(const CBlockHeader* pblock);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block) */
