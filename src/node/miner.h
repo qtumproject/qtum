@@ -254,7 +254,7 @@ private:
 public:
     struct Options {
         // Configuration parameters for the block size
-        size_t nBlockMaxWeight{DEFAULT_BLOCK_MAX_WEIGHT};
+        mutable size_t nBlockMaxWeight{DEFAULT_BLOCK_MAX_WEIGHT};
         CFeeRate blockMinFeeRate{DEFAULT_BLOCK_MIN_TX_FEE};
         // Whether to call TestBlockValidity() at the end of CreateNewBlock().
         bool test_block_validity{true};

@@ -208,15 +208,17 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         pblock->nVersion = gArgs.GetIntArg("-blockversion", pblock->nVersion);
     }
 
-    pblock->nTime = TicksSinceEpoch<std::chrono::seconds>(GetAdjustedTime());
-    m_lock_time_cutoff = pindexPrev->GetMedianTimePast();
-
-    int nPackagesSelected = 0;
-    int nDescendantsUpdated = 0;
-    if (m_mempool) {
-        LOCK(m_mempool->cs);
-        addPackageTxs(*m_mempool, nPackagesSelected, nDescendantsUpdated, minGasPrice, pblock);
+    if(txProofTime == 0) {
+        txProofTime = GetAdjustedTimeSeconds();
     }
+    if(fProofOfStake)
+        txProofTime &= ~chainparams.GetConsensus().StakeTimestampMask(nHeight);
+    pblock->nTime = txProofTime;
+    if (!fProofOfStake)
+        UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
+    pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus(),fProofOfStake);
+
+    m_lock_time_cutoff = pindexPrev->GetMedianTimePast();
 
     const auto time_1{SteadyClock::now()};
 
@@ -228,24 +230,91 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
-    coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    if (fProofOfStake)
+    {
+        // Make the coinbase tx empty in case of proof of stake
+        coinbaseTx.vout[0].SetEmpty();
+    }
+    else
+    {
+        coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
+        coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    originalRewardTx = coinbaseTx;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
-    pblocktemplate->vchCoinbaseCommitment = m_chainstate.m_chainman.GenerateCoinbaseCommitment(*pblock, pindexPrev);
+
+    // Create coinstake transaction.
+    if(fProofOfStake)
+    {
+        CMutableTransaction coinstakeTx;
+        coinstakeTx.vout.resize(2);
+        coinstakeTx.vout[0].SetEmpty();
+        coinstakeTx.vout[1].scriptPubKey = scriptPubKeyIn;
+        originalRewardTx = coinstakeTx;
+        pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
+
+        //this just makes CBlock::IsProofOfStake to return true
+        //real prevoutstake info is filled in later in SignBlock
+        pblock->prevoutStake.n=0;
+
+    }
+
+    //////////////////////////////////////////////////////// qtum
+    QtumDGP qtumDGP(globalState.get(), m_chainstate, fGettingValuesDGP);
+    globalSealEngine->setQtumSchedule(qtumDGP.getGasSchedule(nHeight));
+    uint32_t blockSizeDGP = qtumDGP.getBlockSize(nHeight);
+    minGasPrice = qtumDGP.getMinGasPrice(nHeight);
+    if(gArgs.IsArgSet("-staker-min-tx-gas-price")) {
+        std::optional<CAmount> stakerMinGasPrice = ParseMoney(gArgs.GetArg("-staker-min-tx-gas-price", ""));
+        minGasPrice = std::max(minGasPrice, (uint64_t)(stakerMinGasPrice.value_or(0)));
+    }
+    hardBlockGasLimit = qtumDGP.getBlockGasLimit(nHeight);
+    softBlockGasLimit = gArgs.GetIntArg("-staker-soft-block-gas-limit", hardBlockGasLimit);
+    softBlockGasLimit = std::min(softBlockGasLimit, hardBlockGasLimit);
+    txGasLimit = gArgs.GetIntArg("-staker-max-tx-gas-limit", softBlockGasLimit);
+
+    m_options.nBlockMaxWeight = blockSizeDGP ? blockSizeDGP * WITNESS_SCALE_FACTOR : m_options.nBlockMaxWeight;
+    
+    dev::h256 oldHashStateRoot(globalState->rootHash());
+    dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
+    ////////////////////////////////////////////////// deploy offline staking contract
+    if(nHeight == chainparams.GetConsensus().nOfflineStakeHeight){
+        globalState->deployDelegationsContract();
+    }
+    /////////////////////////////////////////////////
+    int nPackagesSelected = 0;
+    int nDescendantsUpdated = 0;
+    if (m_mempool) {
+        LOCK(m_mempool->cs);
+        addPackageTxs(*m_mempool, nPackagesSelected, nDescendantsUpdated, minGasPrice, pblock);
+    }
+    pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
+    pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
+    globalState->setRoot(oldHashStateRoot);
+    globalState->setRootUTXO(oldHashUTXORoot);
+
+    //this should already be populated by AddBlock in case of contracts, but if no contracts
+    //then it won't get populated
+    RebuildRefundTransaction(pblock);
+    ////////////////////////////////////////////////////////
+
+    pblocktemplate->vchCoinbaseCommitment = m_chainstate.m_chainman.GenerateCoinbaseCommitment(*pblock, pindexPrev, fProofOfStake);
     pblocktemplate->vTxFees[0] = -nFees;
 
     LogPrintf("CreateNewBlock(): block weight: %u txs: %u fees: %ld sigops %d\n", GetBlockWeight(*pblock), nBlockTx, nFees, nBlockSigOpsCost);
 
+    // The total fee is the Fees minus the Refund
+    if (pTotalFees)
+        *pTotalFees = nFees - bceResult.refundSender;
+
     // Fill in header
     pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
-    UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
-    pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
     pblock->nNonce         = 0;
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
     BlockValidationState state;
-    if (m_options.test_block_validity && !TestBlockValidity(state, chainparams, m_chainstate, *pblock, pindexPrev,
+    if (!fProofOfStake && m_options.test_block_validity && !TestBlockValidity(state, chainparams, m_chainstate, *pblock, pindexPrev,
                                                   GetAdjustedTime, /*fCheckPOW=*/false, /*fCheckMerkleRoot=*/false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, state.ToString()));
     }
@@ -360,7 +429,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
     BlockValidationState state;
-    if (!fProofOfStake && !TestBlockValidity(state, chainparams, m_chainstate, *pblock, pindexPrev, GetAdjustedTime, false, false)) {
+    if (!fProofOfStake && m_options.test_block_validity && !TestBlockValidity(state, chainparams, m_chainstate, *pblock, pindexPrev, GetAdjustedTime, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, state.ToString()));
     }
 
