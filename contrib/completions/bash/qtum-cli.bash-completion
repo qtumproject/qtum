@@ -17,7 +17,7 @@ _qtum_rpc() {
     $qtum_cli "${rpcargs[@]}" "$@"
 }
 
-_bitcoin_cli() {
+_qtum_cli() {
     local cur prev words=() cword
     local qtum_cli
 
