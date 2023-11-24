@@ -70,8 +70,9 @@ private:
     std::unique_ptr<wallet::CCoinControl> m_coin_control;
     std::unique_ptr<WalletModelTransaction> m_current_transaction;
     bool fNewRecipientAllowed{true};
-    bool fFeeMinimized{true};
     const PlatformStyle *platformStyle;
+    int64_t targetSpacing;
+    bool bCreateUnsigned = false;
 
     // Copy PSBT to clipboard and offer to save it.
     void presentPSBT(PartiallySignedTransaction& psbt);
@@ -79,7 +80,6 @@ private:
     // of a message and message flags for use in Q_EMIT message().
     // Additional parameter msgArg can be used via .arg(msgArg).
     void processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg = QString());
-    void minimizeFeeSection(bool fMinimize);
     // Format confirmation message
     bool PrepareSendText(QString& question_string, QString& informative_text, QString& detailed_text);
     /* Sign PSBT using external signer.
@@ -91,13 +91,12 @@ private:
      * @returns false if any failure occurred, which may include the user rejection of a transaction on the device.
      */
     bool signWithExternalSigner(PartiallySignedTransaction& psbt, CMutableTransaction& mtx, bool& complete);
-    void updateFeeMinimizedLabel();
     void updateCoinControlState();
+    // Update the target selector item text
+    QString targetSelectorItemText(const int n);
 
 private Q_SLOTS:
     void sendButtonClicked(bool checked);
-    void on_buttonChooseFee_clicked();
-    void on_buttonMinimizeFee_clicked();
     void removeEntry(SendCoinsEntry* entry);
     void useAvailableBalance(SendCoinsEntry* entry);
     void refreshBalance();

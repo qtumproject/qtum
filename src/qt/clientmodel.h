@@ -33,7 +33,7 @@ QT_END_NAMESPACE
 enum class BlockSource {
     NONE,
     DISK,
-    NETWORK,
+    NETWORK
 };
 
 enum class SyncType {
@@ -92,6 +92,7 @@ public:
 
     Mutex m_cached_tip_mutex;
     uint256 m_cached_tip_blocks GUARDED_BY(m_cached_tip_mutex){};
+    bool fBatchProcessingMode;
 
 private:
     interfaces::Node& m_node;
@@ -121,12 +122,16 @@ Q_SIGNALS:
     void networkActiveChanged(bool networkActive);
     void alertsChanged(const QString &warnings);
     void bytesChanged(quint64 totalBytesIn, quint64 totalBytesOut);
+    void tipChanged();
+    void gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
 
     //! Fired when a message should be reported to the user
     void message(const QString &title, const QString &message, unsigned int style);
 
     // Show progress dialog e.g. for verifychain
     void showProgress(const QString &title, int nProgress);
+public Q_SLOTS:
+    void updateTip();
 };
 
 #endif // BITCOIN_QT_CLIENTMODEL_H
