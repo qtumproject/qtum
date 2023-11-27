@@ -149,6 +149,7 @@ Usa el boton "Crear nueva direccion de recibimiento" en la pestaña de recibir p
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Advertencia: Si encriptas la billetera y pierdes tu frase de contraseña, ¡&lt;b&gt;PERDERÁS TODOS TUS QTUMS&lt;/b&gt;!</translation>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">¿Esta seguro que quieres cifrar tu monedero?</translation>
@@ -470,11 +471,8 @@ Usa el boton "Crear nueva direccion de recibimiento" en la pestaña de recibir p
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">Solicitar pagos (genera código QR y URI's de Qtum)</translation>
-
-
-
-Solicitar pagos (genera códigos QR y bitcoin: URI)
+        <translation type="unfinished"> 
+Solicitar pagos (genera códigos QR y qtum: URI)
  </translation>
     </message>
     <message>
@@ -1189,6 +1187,7 @@ Solicitar pagos (genera códigos QR y bitcoin: URI)
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Es posible que las transacciones recientes aún no sean visibles y, por lo tanto, el saldo de la billetera podría ser incorrecto. Esta información será correcta una vez que la billetera haya terminado de sincronizarse con la red de Qtum, como se detalla abajo.</translation>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Numero de bloques pendientes</translation>
@@ -1536,6 +1535,7 @@ Solicitar pagos (genera códigos QR y bitcoin: URI)
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">La información mostrada puede estar desactualizada. Su monedero se sincroniza automáticamente con la red Qtum después de que se haya establecido una conexión, pero este proceso aún no se ha completado.</translation>
+    </message>
     <message>
         <source>Available:</source>
         <translation type="unfinished">Disponible:</translation>
@@ -1702,6 +1702,7 @@ Solicitar pagos (genera códigos QR y bitcoin: URI)
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">"qtum://" no es un URI válido. Use "qtum:" en su lugar.</translation>
+    </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
@@ -2734,6 +2735,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Un mensaje que se adjuntó al Qtum: URI que se almacenará con la transacción a modo de referencia. Nota: Este mensaje no se enviará por la red de Qtum.</translation>
+    </message>
 </context>
 <context>
     <name>SendConfirmationDialog</name>

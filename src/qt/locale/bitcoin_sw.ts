@@ -52,6 +52,7 @@
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Hizi ndizo anwani zako za kutuma malipo ya sarafu ya Qtum. Hakikisha kila wakati kiwango na anwani ya kupokea kabla ya kutuma sarafu.</translation>
+    </message>
     <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">Nakili &amp;anwani</translation>

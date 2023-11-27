@@ -1141,6 +1141,7 @@ Això és ideal per a carteres de mode només lectura.</translation>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">L'adreça introduïda «%1» no és una adreça de Qtum vàlida.</translation>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">L'adreça "%1" ja existeix com una adreça per a rebre amb l'etiqueta "%2" i per tant no pot ésser afegida com adreça per a enviar.</translation>

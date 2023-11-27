@@ -1676,6 +1676,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">SOCKS5 プロキシ経由で Qtum ネットワークに接続する。</translation>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">SOCKS5 プロキシ経由で接続する（デフォルトプロキシ）(&amp;C):</translation>
@@ -3250,9 +3251,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">あなたが所有しているアドレスでメッセージや契約書に署名をすることで、それらのアドレスへ送られた Qtum を受け取ることができることを証明できます。フィッシング攻撃者があなたを騙して、あなたの身分情報に署名させようとしている可能性があるため、よくわからないものやランダムな文字列に対して署名しないでください。あなたが同意した、よく詳細の記された文言にのみ署名するようにしてください。</translation>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">メッセージの署名に使用する Qtum アドレス</translation>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">これまでに使用したことがあるアドレスから選択</translation>

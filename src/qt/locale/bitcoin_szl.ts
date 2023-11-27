@@ -221,6 +221,7 @@
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Wkludź adresã Qtum (bp. %1)</translation>
+    </message>
     <message>
         <source>Inbound</source>
         <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
@@ -378,6 +379,7 @@
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Żōndej płatu (gyneruje kod QR jak tyż URI qtum:)</translation>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Pokŏż wykŏz adres i etyket użytych do posyłaniŏ</translation>
@@ -698,6 +700,7 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Wkludzōnŏ adresa "%1" niyma nŏleżnōm adresōm Qtum.</translation>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Adresa "%1" już je za adresã ôdbiorczõ z etyketōm "%2" i bez to niy idzie jeji przidać za adresã nadŏwcy.</translation>
@@ -772,6 +775,7 @@
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 sebiere i spamiyntŏ kopijõ kety blokōw Qtum.</translation>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Portmanyj tyż ôstanie spamiyntany w tym katalogu.</translation>
@@ -841,6 +845,7 @@
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Prōba wydaniŏ qtumōw kere niy sōm jeszcze wyświytlōne za transakcyjŏ ôstanie ôdciepniyntŏ bez nec.</translation>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Ôstało blokōw</translation>
@@ -971,6 +976,7 @@
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Skupluj sie z necym Qtum bez SOCKS5 proxy.</translation>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Skupluj bez proxy SOCKS5 (wychodne proxy):</translation>
@@ -1442,6 +1448,7 @@
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Wiadōmość, kerŏ ôstała prziwstōnŏ do URI qtum:, kerŏ bydzie przechowowanŏ z transakcyjōm w cylach informacyjnych. Napōmniynie: Ta wiadōmość niy bydzie rozszyrzowanŏ w necu Qtum.</translation>
+    </message>
     </context>
 <context>
     <name>SignVerifyMessageDialog</name>

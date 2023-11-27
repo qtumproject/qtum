@@ -1454,6 +1454,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">顯示的資訊可能是過期的。跟 Qtum 網路的連線建立後，你的錢包會自動和網路同步，但是這個步驟還沒完成。</translation>
+    </message>
     <message>
         <source>Available:</source>
         <translation type="unfinished">可用金額:</translation>

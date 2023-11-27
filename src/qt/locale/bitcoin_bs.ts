@@ -552,6 +552,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Učitajte Djelomično Potpisanu Qtum Transakciju</translation>
+    </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Učitajte djelomično potpisanu qtum transakciju iz međuspremnika</translation>
@@ -595,6 +596,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Pokažite %1 poruku za pomoć da biste dobili listu s mogućim opcijama Qtum naredbenog retka</translation>
+    </message>
     <message>
         <source>&amp;Mask values</source>
         <translation type="unfinished">&amp;Vrijednosti maske</translation>
@@ -1190,7 +1192,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open qtum URI</source>//
+        <source>Open qtum URI</source>
         <translation type="unfinished">Otvorite qtum URI</translation>
     </message>
     </context>

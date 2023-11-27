@@ -1788,6 +1788,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">La información mostrada puede estar desactualizada. La billetera se sincroniza automáticamente con la red de Qtum después de establecer una conexión, pero este proceso aún no se ha completado.</translation>
+    </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Solo lectura:</translation>
@@ -2946,6 +2947,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">Crea una transacción de Qtum parcialmente firmada (PSBT) para usarla, por ejemplo, con una billetera %1 sin conexión o una billetera de hardware compatible con PSBT.</translation>
+    </message>
     <message>
         <source> from wallet '%1'</source>
         <translation type="unfinished">desde la billetera '%1'</translation>
@@ -3199,6 +3201,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">La dirección de Qtum con la que se firmará el mensaje</translation>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">Seleccionar dirección usada anteriormente</translation>

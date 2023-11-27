@@ -1484,6 +1484,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">Abrir um Qtum URI</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -3183,6 +3184,7 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">A taxa será deduzida ao valor que está a ser enviado. O destinatário irá receber menos qtums do que as que inseridas no campo do valor. Se estiverem selecionados múltiplos destinatários, a taxa será repartida equitativamente.</translation>
+    </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">S&amp;ubtrair a taxa ao montante</translation>

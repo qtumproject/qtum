@@ -1284,6 +1284,7 @@ Firmar solo es posible con direcciones del tipo «Legacy».</translation>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 descargará y almacenará una copia de la cadena de bloques de Qtum.</translation>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">El monedero también se almacenará en este directorio.</translation>
@@ -1364,6 +1365,7 @@ Firmar solo es posible con direcciones del tipo «Legacy».</translation>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Es posible que las transacciones recientes aún no estén visibles y por lo tanto, el saldo de su monedero podría ser incorrecto. Esta información será correcta una vez que su monedero haya terminado de sincronizarse con la red qtum, como se detalla a continuación.</translation>
+    </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">La red no aceptará intentar gastar qtums que se vean afectados por transacciones aún no mostradas.</translation>

@@ -2192,6 +2192,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Mensahe na nakalakip sa qtum: URI na kung saan maiimbak kasama ang transaksyon para sa iyong sanggunian. Tandaan: Ang mensaheng ito ay hindi ipapadala sa network ng Qtum.</translation>
+    </message>
 </context>
 <context>
     <name>SendConfirmationDialog</name>
@@ -2269,6 +2270,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Tiyakin ang katotohanan ng mensahe upang siguruhin na ito'y napirmahan ng tinukoy na Qtum address</translation>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Tiyakin ang Katotohanan ng Mensahe</translation>

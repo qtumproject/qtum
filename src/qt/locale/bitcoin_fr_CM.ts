@@ -73,6 +73,7 @@
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Il s'agit de vos adresses Qtum pour la réception des paiements. Utilisez le bouton "Créer une nouvelle adresse de réception" dans l'onglet "Recevoir" pour créer de nouvelles adresses.
+La signature n'est possible qu'avec les adresses de type "patrimoine".</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -1387,6 +1388,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Toute tentative de dépense de qtums affectés par des transactions qui ne sont pas encore affichées ne sera pas acceptée par le réseau.</translation>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Nombre de blocs restants</translation>
@@ -2001,6 +2003,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Impossible de démarrer le gestionnaire de cliquer-pour-payer qtum:</translation>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Gestion des URI</translation>

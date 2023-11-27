@@ -506,6 +506,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <location line="+1"/>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation>Verify messages to ensure they were signed with specified Qtum addresses</translation>
+    </message>
     <message>
         <location line="+1"/>
         <source>&amp;Load PSBT from file…</source>
@@ -2123,6 +2124,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <location line="+335"/>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</translation>
+    </message>
     <message>
         <location line="-127"/>
         <source>Watch-only:</source>

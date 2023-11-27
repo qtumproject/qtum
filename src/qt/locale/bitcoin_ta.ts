@@ -1265,6 +1265,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">ரூட்டரில் Qtum கிளையன்ட் போர்ட் தானாக திறக்க. இது உங்கள் திசைவி UPnP ஐ ஆதரிக்கும் போது மட்டுமே இயங்குகிறது.</translation>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">&amp; UPnP ஐப் பயன்படுத்தி வரைபடம் துறைமுகம்</translation>
@@ -1280,6 +1281,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Qtum பிணையத்துடன் SOCKS5 ப்ராக்ஸி மூலம் இணைக்கவும்.</translation>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp; SOCKS5 ப்ராக்ஸி மூலம் இணைக்கவும் (இயல்புநிலை ப்ராக்ஸி):</translation>

@@ -1619,6 +1619,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Se connecter au réseau Qtum par un mandataire SOCKS5.</translation>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">Se &amp;connecter par un mandataire SOCKS5 (mandataire par défaut) :</translation>
@@ -2002,6 +2003,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Impossible de démarrer le gestionnaire de cliquer-pour-payer qtum:</translation>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Gestion des URI</translation>

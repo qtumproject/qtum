@@ -71,6 +71,7 @@
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Estes são seus endereços Bitcoin para receber pagamentos. Use o botão 'Criar novo endereço de recebimento' na barra receber para criar novos endereços.
 Só é possível assinar com endereços do tipo 'legado'.</translation>
     </message>
@@ -483,7 +484,8 @@ Só é possível assinar com endereços do tipo 'legado'.</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Assine mensagens com seus endereços Qtum para provar que você é dono delas</translation> 
+        <translation type="unfinished">Assine mensagens com seus endereços Qtum para provar que você é dono delas</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verificar mensagem</translation>
@@ -664,6 +666,7 @@ Só é possível assinar com endereços do tipo 'legado'.</translation>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Mostrar a mensagem de ajuda do %1 para obter uma lista com possíveis opções de linha de comando Qtum</translation>
+    </message>
     <message>
         <source>&amp;Mask values</source>
         <translation type="unfinished">&amp;Mascarar valores</translation>
@@ -1376,6 +1379,7 @@ Só é possível assinar com endereços do tipo 'legado'.</translation>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Tentar gastar qtums que estão em transações ainda não exibidas, não vão ser aceitos pela rede.</translation>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Número de blocos restantes</translation>
@@ -1570,6 +1574,7 @@ Só é possível assinar com endereços do tipo 'legado'.</translation>
         <source>Whether to show PSBT controls.</source>
         <extracomment>Tooltip text for options window setting that enables PSBT controls.</extracomment>
         <translation type="unfinished">Mostrar os controles de PSBT (Transação de Qtum Parcialmente Assinada).</translation>
+    </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Abrir automaticamente no roteador as portas do cliente Qtum. Isto só funcionará se seu roteador suportar UPnP e esta função estiver habilitada.</translation>
@@ -1589,6 +1594,7 @@ Só é possível assinar com endereços do tipo 'legado'.</translation>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Conectar na rede Qtum através de um proxy SOCKS5.</translation>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Conectar usando proxy SOCKS5 (proxy pradrão):</translation>
@@ -2787,6 +2793,7 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">Cria uma Transação de Qtum Parcialmente Assinada (PSBT) para usar com, por exemplo, uma carteira %1 offline ou uma carteira física compatível com PSBTs.</translation>
+    </message>
     <message>
         <source> from wallet '%1'</source>
         <translation type="unfinished">da carteira '%1'</translation>
@@ -3045,6 +3052,7 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Assinar mensagem para provar que você é dono deste endereço Qtum</translation>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Assinar &amp;Mensagem</translation>

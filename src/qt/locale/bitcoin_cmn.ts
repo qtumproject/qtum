@@ -2405,6 +2405,7 @@ For more information on using this console, type %6.
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">附加在 Qtum 付款協議的資源識別碼(URI)中的訊息，會和交易內容一起存起來，給你自己做參考。注意: 這個訊息不會送到 Qtum 網路上。</translation>
+    </message>
 </context>
 <context>
     <name>SendConfirmationDialog</name>

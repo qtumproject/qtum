@@ -68,6 +68,7 @@
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Need on sinu Qtum aadressid maksete saatmiseks. Ennem müntide saatmist kontrolli alati summat ja makse saaja aadressi.</translation>
+    </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
@@ -452,6 +453,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Loo maksepäring (genereerib QR koodid ja qtumi: URId)</translation>
+    </message>
     <message>
         <source>&amp;Command-line options</source>
         <translation type="unfinished">&amp;Käsurea valikud</translation>
@@ -1472,6 +1474,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Kinnita sõnum tõestamaks selle allkirjastatust määratud Qtumi aadressiga.</translation>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Kinnita &amp;Sõnum</translation>

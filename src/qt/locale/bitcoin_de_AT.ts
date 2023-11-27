@@ -48,6 +48,7 @@
     <message>
         <source>Choose the address to send coins to</source>
         <translation type="unfinished">Wählen Sie die Adresse aus, an die Sie Qtums senden möchten</translation>
+    </message>
     <message>
         <source>Choose the address to receive coins with</source>
         <translation type="unfinished">Wählen Sie die Adresse aus, mit der Sie Qtums empfangen wollen</translation>
@@ -165,6 +166,7 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Warnung: Wenn Sie Ihre Wallet verschlüsseln und Ihre Passphrase verlieren, werden Sie &lt;b&gt;ALLE IHRE QTUMS VERLIEREN&lt;/b&gt;!</translation>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Sind Sie sich sicher, dass Sie Ihre Wallet verschlüsseln möchten?</translation>
@@ -1136,6 +1138,7 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 wird eine Kopie der Qtum-Blockchain herunterladen und speichern.</translation>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Die Wallet wird ebenfalls in diesem Verzeichnis gespeichert.</translation>
@@ -3364,6 +3367,7 @@ Hinweis: Da die Gebühr auf Basis der Bytes berechnet wird, führt eine Gebühre
     <message>
         <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to "not accepted" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
         <translation type="unfinished">Erzeugte Qtums müssen %1 Blöcke lang reifen, bevor sie ausgegeben werden können. Als Sie diesen Block erzeugten, wurde er an das Netzwerk übertragen, um ihn der Blockchain hinzuzufügen. Falls dies fehlschlägt wird der Status in "nicht angenommen" geändert und Sie werden keine Qtums gutgeschrieben bekommen. Das kann gelegentlich passieren, wenn ein anderer Knoten einen Block fast zeitgleich erzeugt.</translation>
+    </message>
     <message>
         <source>Debug information</source>
         <translation type="unfinished">Debug-Informationen</translation>

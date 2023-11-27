@@ -1890,6 +1890,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Kan ikke starte qtum: Klikk-og-betal håndterer</translation>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">URI-håndtering</translation>
@@ -2952,6 +2953,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Du kan signere meldinger/avtaler med adresser for å bevise at du kan motta qtums sendt til dem. Vær forsiktig med å signere noe vagt eller tilfeldig, siden phishing-angrep kan prøve å lure deg til å signere din identitet over til dem. Bare signer fullt detaljerte utsagn som du er enig i.</translation>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Qtum-adressen meldingen skal signeres med</translation>
@@ -3015,6 +3017,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verifiser meldingen for å være sikker på at den ble signert av den angitte Qtum-adressen</translation>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Verifiser &amp;Melding</translation>
@@ -3219,6 +3222,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to "not accepted" and it won't be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
         <translation type="unfinished">Genererte qtums må modne %1 blokker før de kan brukes. Da du genererte denne blokken ble den kringkastet på nettverket for å bli lagt til i kjeden av blokker. Hvis den ikke kommer med i kjeden vil den endre seg til "ikke akseptert", og vil ikke kunne brukes. Dette vil noen ganger skje hvis en annen node genererer en blokk innen noen sekunder av din.</translation>
+    </message>
     <message>
         <source>Debug information</source>
         <translation type="unfinished">Feilrettingsinformasjon</translation>

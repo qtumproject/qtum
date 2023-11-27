@@ -444,6 +444,7 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Inscriptio inserta "%1" non valida inscriptio Qtum est.</translation>
+    </message>
     <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">Non potuisse cassidile reserare</translation>
@@ -920,6 +921,7 @@
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Signa nuntium ut demonstres hanc inscriptionem Qtum a te possessa esse</translation>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Signa &amp;Nuntium</translation>
@@ -939,6 +941,8 @@
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verifica nuntium ut cures signatum esse cum specifica inscriptione Qtum</translation>
+    </message>
+    <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Verifica &amp;Nuntium</translation>
     </message>

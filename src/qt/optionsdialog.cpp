@@ -262,7 +262,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->externalSignerPath, &QLineEdit::textChanged, [this]{ showRestartWarning(); });
     connect(ui->logEvents, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->superStaking, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
-    connect(ui->threadsScriptVerif, qOverload<int>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning)
+    connect(ui->threadsScriptVerif, qOverload<int>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
     connect(ui->reserveBalance, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
     connect(ui->txtHWIToolPath, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
     connect(ui->txtStakeLedgerId, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));

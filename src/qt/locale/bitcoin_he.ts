@@ -2140,6 +2140,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">הודעת רשות לצירוף לבקשת התשלום שתוצג בעת פתיחת הבקשה. לתשומת לבך: ההודעה לא תישלח עם התשלום ברשת קטום.</translation>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">תווית רשות לשיוך עם כתובת הקבלה החדשה.</translation>
@@ -2448,6 +2449,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">יוצר עסקת קטום חתומה חלקית (PSBT) לשימוש עם ארנק %1 לא מחובר למשל, או עם PSBT ארנק חומרה תואם.</translation>
+    </message>
     <message>
         <source> from wallet '%1'</source>
         <translation type="unfinished">מתוך ארנק "%1"</translation>

@@ -411,6 +411,7 @@
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Хатқа Qtum мекенжайларын қосып, олар сізге тиесілі екенін дәлелдеу</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Хат тексеру…</translation>

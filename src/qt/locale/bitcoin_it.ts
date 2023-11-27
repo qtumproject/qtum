@@ -68,6 +68,7 @@
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Questi sono i tuoi indirizzi Qtum per l'invio di pagamenti. Controlla sempre l'importo e l'indirizzo del beneficiario prima di inviare qtum.</translation>
+    </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
@@ -165,6 +166,7 @@ E' possibile firmare solo con indirizzi di tipo "legacy".</translation>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Attenzione: Se si cifra il portafoglio e si perde la passphrase &lt;b&gt;TUTTI I PROPRI QTUM ANDRANNO PERSI&lt;/b&gt;!</translation>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Sei sicuro di voler cifrare il portafoglio?</translation>
@@ -507,6 +509,7 @@ E' possibile firmare solo con indirizzi di tipo "legacy".</translation>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Firma messaggi con i tuoi indirizzi Qtum per dimostrarne il possesso</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verifica messaggio</translation>
@@ -653,6 +656,7 @@ E' possibile firmare solo con indirizzi di tipo "legacy".</translation>
     <message>
         <source>Open a qtum: URI</source>
         <translation type="unfinished">Apri un qtum: URI</translation>
+    </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Apri Portafoglio</translation>
@@ -1460,6 +1464,7 @@ E' possibile firmare solo con indirizzi di tipo "legacy".</translation>
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">Apri un URI qtum</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -3073,6 +3078,7 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">Attenzione: Indirizzo Qtum non valido</translation>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Attenzione: Indirizzo per il resto sconosciuto</translation>
@@ -3127,6 +3133,7 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">La commissione sarà sottratta dall'importo che si sta inviando. Il beneficiario riceverà un totale di qtum inferiore al valore digitato. Nel caso in cui siano stati selezionati più beneficiari la commissione sarà suddivisa in parti uguali.</translation>
+    </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">S&amp;ottrae la commissione dall'importo</translation>
@@ -3176,6 +3183,7 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Indirizzo Qtum da utilizzare per firmare il messaggio</translation>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">Scegli un indirizzo usato precedentemente</translation>
@@ -3199,6 +3207,7 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Firma un messaggio per dimostrare di possedere questo indirizzo Qtum</translation>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Firma &amp;Messaggio</translation>
@@ -3222,6 +3231,7 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">L'indirizzo Qtum con cui è stato contrassegnato il messaggio</translation>
+    </message>
     <message>
         <source>The signed message to verify</source>
         <translation type="unfinished">Il messaggio firmato da verificare</translation>

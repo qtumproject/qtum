@@ -148,6 +148,7 @@ public:
         WalletModel *wallet;
         const bool valid;
         const bool relock;
+        bool stakingOnly;
     };
 
     UnlockContext requestUnlock();

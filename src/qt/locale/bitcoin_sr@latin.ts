@@ -507,6 +507,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Potpišite poruke sa svojim Qtum adresama da biste dokazali njihovo vlasništvo</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Верификуј поруку</translation>
@@ -570,6 +571,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Zatražite plaćanje (generiše QR kodove i qtum: URI-e)</translation>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Прегледајте листу коришћених адреса и етикета за слање уплата</translation>

@@ -345,6 +345,7 @@
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Pārbaudīt ziņojumus lai pārliecinātos, ka tie tika parakstīti ar norādītajām Qtum adresēm</translation>
+    </message>
     <message>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;Fails</translation>
@@ -1159,6 +1160,7 @@
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Parakstīt ziņojumu lai pierādītu, ka esi šīs Qtum adreses īpašnieks.</translation>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Parakstīt &amp;Ziņojumu</translation>

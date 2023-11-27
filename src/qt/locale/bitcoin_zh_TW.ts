@@ -1376,6 +1376,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">最近的交易可能還看不到，因此錢包餘額可能不正確。在錢包軟體完成跟 qtum 網路的同步後，這裡的資訊就會正確。詳情請見下面。</translation>
+    </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">使用還沒顯示出來的交易所影響到的 qtum 可能會不被網路所接受。</translation>

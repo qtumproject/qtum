@@ -1474,6 +1474,7 @@ Försök igen.</translation>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Anslut till Qtum-nätverket genom en SOCKS5-proxy.</translation>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Anslut genom SOCKS5-proxy (förvald proxy):</translation>
@@ -2196,6 +2197,7 @@ Försök igen.</translation>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Ett valfritt meddelande att bifoga betalningsbegäran, vilket visas när begäran öppnas. Obs: Meddelandet kommer inte att sändas med betalningen över Qtum-nätverket.</translation>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">En valfri etikett att associera med den nya mottagaradressen.</translation>
@@ -2727,6 +2729,7 @@ Försök igen.</translation>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Du kan signera meddelanden/avtal med dina adresser för att bevisa att du kan ta emot qtum som skickats till dem. Var försiktig så du inte signerar något oklart eller konstigt, eftersom phishing-angrepp kan försöka få dig att signera över din identitet till dem. Signera endast väldetaljerade meddelanden som du godkänner.</translation>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Qtum-adress att signera meddelandet med</translation> 
@@ -2754,6 +2757,7 @@ Försök igen.</translation>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Signera meddelandet för att bevisa att du äger denna Qtum-adress</translation>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Signera &amp;meddelande</translation>

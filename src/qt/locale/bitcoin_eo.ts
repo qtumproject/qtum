@@ -963,6 +963,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">Malfermi na la URI de qtumo</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -1022,6 +1023,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Aŭtomate malfermi la kursilan pordon por Qtumo. Tio funkcias nur se via kursilo havas la UPnP-funkcion, kaj se tiu ĉi estas ŝaltita.</translation>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapigi pordon per &amp;UPnP</translation>
@@ -1068,7 +1070,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation type="unfinished">Elekti la defaŭltan manieron por montri qtumajn sumojn en la interfaco, kaj kiam vi sendos qtumon.</translation> 
+        <translation type="unfinished">Elekti la defaŭltan manieron por montri qtumajn sumojn en la interfaco, kaj kiam vi sendos qtumon.</translation>
+    </message>
     <message>
         <source>Whether to show coin control features or not.</source>
         <translation type="unfinished">Ĉu montri detalan adres-regilon, aŭ ne.</translation>
@@ -1597,6 +1600,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Confirm send coins</source>
         <translation type="unfinished">Konfirmi sendon de qtumo</translation> 
+    </message>
     <message>
         <source>The amount to pay must be larger than 0.</source>
         <translation type="unfinished">La pagenda sumo devas esti pli ol 0.</translation>
@@ -1724,6 +1728,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Kontroli la mesaĝon por pravigi, ke ĝi ja estas subskribita per la specifa Qtum-adreso</translation>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Kontroli &amp;Mesaĝon</translation>

@@ -15,7 +15,7 @@
 #include <QPropertyAnimation>
 #include <QResizeEvent>
 
-ModalOverlay::ModalOverlay(bool enable_wallet, QWidget *parent, OverlayType _type) :
+ModalOverlay::ModalOverlay(bool enable_wallet, QWidget *parent, OverlayType _type)
     : QWidget(parent),
       ui(new Ui::ModalOverlay),
       bestHeaderDate(QDateTime()),
@@ -29,7 +29,7 @@ ModalOverlay::ModalOverlay(bool enable_wallet, QWidget *parent, OverlayType _typ
     ui->warningIcon->setIcon(PlatformStyle::SingleColorIcon(":/icons/warning", warningIconColor));
     ui->warningIconBackup->setIcon(PlatformStyle::SingleColorIcon(":/icons/backup_wallet", warningIconColor));
     connect(ui->closeButton, &QPushButton::clicked, this, &ModalOverlay::closeClicked);
-    connect(ui->walletBackupButton, &QPushButton::clicked, this, &ModalOverlay::backupWalletClicked);//QTUM_INSERT_LINE
+    connect(ui->walletBackupButton, &QPushButton::clicked, this, &ModalOverlay::backupWalletClicked);
     if (parent) {
         parent->installEventFilter(this);
         raise();

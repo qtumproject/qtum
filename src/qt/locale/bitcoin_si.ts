@@ -503,6 +503,7 @@
         <translation type="unfinished">
             <numerusform>%n active connection(s) to Qtum network.</numerusform>
             <numerusform>%n active connection(s) to Qtum network.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Click for more actions.</source>

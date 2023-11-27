@@ -466,6 +466,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Reikalauti mokėjimų (sukuria QR kodus ir qtum: URI)</translation>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Rodyti sąrašą panaudotų siuntimo adresų ir žymių</translation>
@@ -553,6 +554,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Rodyti %1 pagalbos žinutę su Qtum pasirinkimo komandomis</translation>
+    </message>
     <message>
         <source>default wallet</source>
         <translation type="unfinished">numatyta piniginė</translation>
@@ -953,6 +955,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Įvestas adresas „%1“ nėra galiojantis Qtum adresas.</translation>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Adresas „%1“  jau yra kaip gavėjo adresas su etikete „%2“, todėl jo negalima pridėti kaip siuntimo adresą.</translation>
@@ -1039,6 +1042,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 bus atsisiųsta ir išsaugota Qtum blokų grandinės kopiją.</translation>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Piniginė taip pat bus saugojama šiame direktyve.</translation>
@@ -1254,6 +1258,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Automatiškai atidaryti Qtum kliento prievadą maršrutizatoriuje. Tai veikia tik tada, kai jūsų maršrutizatorius palaiko UPnP ir ji įjungta.</translation>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Persiųsti prievadą naudojant &amp;UPnP</translation>

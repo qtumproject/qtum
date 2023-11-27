@@ -448,6 +448,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Bir Qtum adresine Qtum yolla</translation>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Cüzdanı diğer bir konumda yedekle</translation>
@@ -1677,6 +1678,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Görüntülenen bilgiler güncel olmayabilir. Bağlantı kurulduğunda cüzdanınız otomatik olarak Qtum ağı ile senkronize olur ancak bu işlem henüz tamamlanmamıştır.</translation>
+    </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Sadece-izlenen:</translation>
@@ -1862,9 +1864,11 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' geçerli bir URI değil. Onun yerine 'qtum:' kullanın.</translation>
+    </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">URI ayrıştırılamıyor! Bunun nedeni geçersiz bir Qtum adresi veya hatalı biçimlendirilmiş URI değişkenleri olabilir.</translation>
+    </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">Ödeme talebi dosyası yönetimi</translation>
@@ -2770,6 +2774,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Referans için qtum: URI'siyle iliştirilmiş işlemle birlikte depolanacak bir ileti. Not: Bu mesaj Qtum ağı üzerinden gönderilmeyecektir.</translation>
+    </message>
 </context>
 <context>
     <name>SendConfirmationDialog</name>

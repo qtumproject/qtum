@@ -1617,6 +1617,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Кўрсатилган маълумот эскирган бўлиши мумкин. Ҳамёнингиз алоқа ўрнатилгандан сўнг Qtum тармоқ билан автоматик тарзда синхронланади, аммо жараён ҳалигача тугалланмади.</translation>
+    </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Фақат кўришга</translation>
