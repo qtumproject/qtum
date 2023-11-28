@@ -121,7 +121,7 @@ Make sure to check out these resources as well for more information and to keep 
 *	@Qtum on Twitter https://twitter.com/qtum
 * Qtum blog https://blog.qtum.org/
 *	Qtum Telegram Group https://t.me/qtumofficial, other languages available
-* Qtum Discord https://discordapp.com/invite/wRfmkQ9
+* Qtum Discord https://discord.com/invite/DCPGvUCms5
 *	/r/Qtum on Reddit https://www.reddit.com/r/Qtum/
 *	Qtum.org https://qtum.org
 *	Qtum on Facebook https://www.facebook.com/QtumOfficial/
