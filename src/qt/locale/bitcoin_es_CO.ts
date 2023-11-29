@@ -256,7 +256,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
 </context>
 <context>
-    <name>QtumApplication</name>
+    <name>BitcoinApplication</name>
     <message>
         <source>Settings file %1 might be corrupt or invalid.</source>
         <translation type="unfinished">El archivo de configuración %1 puede estar corrupto o no ser válido.</translation>
@@ -459,7 +459,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">Enviar monedas a una dirección de Qtum</translation>
+        <translation type="unfinished">Enviar monedas a una dirección qtum</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -499,7 +499,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Firma mensajes con direcciones de Qtum para demostrar que te pertenecen</translation>
+        <translation type="unfinished">Firmar un mensaje para provar que usted es dueño de esta dirección</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
@@ -507,7 +507,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Verifica mensajes para asegurarte de que estén firmados con direcciones de Qtum concretas</translation>
+        <translation type="unfinished">Verificar mensajes comprobando que están firmados con direcciones Qtum concretas</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -567,7 +567,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">Solicitar pagos (genera códigos QR y URI de tipo "qtum:")</translation>
+        <translation type="unfinished">Pide pagos (genera codigos QR and qtum: URls)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -626,7 +626,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">Cargar una transacción de Qtum parcialmente firmada desde el portapapeles</translation>
+        <translation type="unfinished">Cargar una transacción de Qtum parcialmente firmada desde el Portapapeles</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -646,7 +646,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">Abrir un URI de tipo "qtum:"</translation>
+        <translation type="unfinished">Abrir un qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -676,7 +676,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation type="unfinished">Mostrar el mensaje de ayuda %1 para obtener una lista de las posibles opciones de línea de comandos de Qtum</translation>
+        <translation type="unfinished">Mostrar el mensaje de ayuda %1 para obtener una lista de los posibles comandos de Qtum</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -1211,7 +1211,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">La dirección ingresada "%1" no es una dirección de Qtum válida.</translation>
+        <translation type="unfinished">La dirección introducida "%1" no es una dirección Qtum valida.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -1290,7 +1290,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 descargará y almacenará una copia de la cadena de bloques de Qtum.</translation>
+        <translation type="unfinished">%1 descargará y almacenará una copia del blockchain de Qtum.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1371,11 +1371,11 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Es posible que las transacciones recientes aún no sean visibles y, por lo tanto, el saldo de la billetera podría ser incorrecto. Esta información será correcta una vez que la billetera haya terminado de sincronizarse con la red de Qtum, como se detalla abajo.</translation>
+        <translation type="unfinished">Las transacciones recientes aún no pueden ser visibles, y por lo tanto el saldo de su monedero podría ser incorrecto. Esta información será correcta cuando su monedero haya terminado de sincronizarse con la red de qtum, como se detalla abajo.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">La red no aceptará el intentar gastar bitcoins que están afectados por transacciones aún no mostradas.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">La red no aceptará el intentar gastar qtums que están afectados por transacciones aún no mostradas.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -3007,7 +3007,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     <message>
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Revisa la propuesta de transacción. Esto producirá una transacción de Qtum parcialmente firmada (PSBT) que puedes guardar o copiar y, luego, firmar; por ejemplo, una billetera %1 sin conexión o una billetera de hardware compatible con PSBT.</translation>
+        <translation type="unfinished">Revisa por favor la propuesta de transacción. Esto producirá una transacción de Qtum parcialmente firmada (TBPF) que puedes guardar o copiar y, luego, firmar; por ejemplo, una billetera %1 fuera de línea o una billetera de hardware compatible con TBPF.</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>
@@ -3932,8 +3932,8 @@ Ir a "Archivo &gt; Abrir billetera" para cargar una.
         <translation type="unfinished">Los desarrolladores de %s</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s dañado. Trata de usar la herramienta de la billetera de Bitcoin para rescatar o restaurar una copia de seguridad.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s dañado. Trata de usar la herramienta de la billetera de Qtum para rescatar o restaurar una copia de seguridad.</translation>
     </message>
     <message>
         <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
@@ -3980,8 +3980,8 @@ Ir a "Archivo &gt; Abrir billetera" para cargar una.
         <translation type="unfinished">Error: El registro del identificador del archivo de volcado es incorrecto. Se obtuvo "%s", mientras que se esperaba "%s".</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Error: La versión del archivo volcado no es compatible. Esta versión de la billetera de Bitcoin solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Error: La versión del archivo volcado no es compatible. Esta versión de la billetera de Qtum solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

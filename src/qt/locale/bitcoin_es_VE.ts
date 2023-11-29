@@ -72,7 +72,8 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Lista de tus direcciones de Qtum para recibir pagos. Para la  creacion de  una nueva direccion seleccione en la pestana "recibir" la opcion "Crear nueva direccion"</translation>
+        <translation type="unfinished">Lista de tus direcciones de Qtum para recibir pagos. Para la  creacion de  una nueva direccion seleccione en la pestana "recibir" la opcion "Crear nueva direccion" 
+Registrarse solo es posible utilizando  una direccion tipo "Legal"</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -584,8 +585,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Cargar PSBT desde el &amp;portapapeles...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">Cargar una transacción de Bitcoin parcialmente firmada desde el portapapeles</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation type="unfinished">Cargar una transacción de Qtum parcialmente firmada desde el portapapeles</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -605,7 +606,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">Abrir un qtum: URI</translation>
+        <translation type="unfinished">Qtum: abrir URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -1216,8 +1217,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 descargará y almacenará una copia de la cadena de bloques de Bitcoin.</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 descargará y almacenará una copia de la cadena de bloques de Qtum.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1283,7 +1284,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Es posible que las transacciones recientes aún no sean visibles y, por lo tanto, el saldo de la billetera podría ser incorrecto. Esta información será correcta una vez que la billetera haya terminado de sincronizarse con la red de Qtum, como se detalla abajo.</translation>
+        <translation type="unfinished">Es posible que las transacciones recientes aún no estén visibles y por lo tanto, el saldo de su monedero podría ser incorrecto. Esta información será correcta una vez que su monedero haya terminado de sincronizarse con la red qtum, como se detalla a continuación.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1465,8 +1466,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Ruta al script del firmante externo</translation>
     </message>
     <message>
-        <source>Full path to a Qtum Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
-        <translation type="unfinished">Ruta completa a un script compatible con Qtum Core (p. ej., C:\Descargas\hwi.exe o /Usuarios/SuUsuario/Descargas/hwi.py). Advertencia: ¡El malware podría robarle sus monedas!</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation type="unfinished">Abrir automáticamente el puerto del cliente Qtum en el router. Esta opción solo funciona si el router admite UPnP y está activado.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -1474,7 +1475,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">Abre automáticamente el puerto del cliente de Qtum en el router. Esto solo funciona cuando el router es compatible con NAT-PMP y está activo. El puerto externo podría ser aleatorio</translation>
+        <translation type="unfinished">Abrir automáticamente el puerto del cliente de Qtum en el router. Esto solo funciona cuando el router es compatible con NAT-PMP y está activo. El puerto externo podría ser aleatorio</translation>
     </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
@@ -2923,7 +2924,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">Un mensaje que se adjuntó al Qtum: URI que se almacenará con la transacción a modo de referencia. Nota: Este mensaje no se enviará por la red de Qtum.</translation>
+        <translation type="unfinished">Mensaje que se agrgará al URI de Qtum, el cuál será almacenado con la transacción para su referencia. Nota: Este mensaje no será enviado a través de la red de Qtum.</translation>
     </message>
 </context>
 <context>
@@ -2949,7 +2950,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Puedes firmar mensajes o acuerdos con tus direcciones para demostrar que puedes recibir los qtums que se envíen a ellas. Ten cuidado de no firmar cosas confusas o al azar, ya que los ataques de phishing pueden tratar de engañarte para que les envíes la firma con tu identidad. Firma solo declaraciones totalmente detalladas con las que estés de acuerdo.</translation>
+        <translation type="unfinished">Puedes firmar los mensajes con tus direcciones para demostrar que las posees. Ten cuidado de no firmar cualquier cosa vaga, ya que los ataques de phishing pueden tratar de engañarte firmando tu identidad a través de ellos. Firma solo declaraciones totalmente detalladas con las que estés de acuerdo.</translation>
     </message>
     <message>
         <source>The Qtum address to sign the message with</source>
@@ -3584,8 +3585,8 @@ Ir a Archivo &gt; Abrir billetera para cargar una.
         <translation type="unfinished">Los desarrolladores de %s</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s corrupto. Intenta utilizar la herramienta de la billetera de bitcoin para rescatar o restaurar una copia de seguridad.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s corrupto. Intenta utilizar la herramienta de la billetera de qtum para rescatar o restaurar una copia de seguridad.</translation>
     </message>
     <message>
         <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
@@ -3628,8 +3629,8 @@ Ir a Archivo &gt; Abrir billetera para cargar una.
         <translation type="unfinished">Error: el registro del identificador del archivo de volcado es incorrecto. Se obtuvo "%s"; se esperaba "%s".</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Error: la versión del archivo volcado no es compatible. Esta versión de la billetera de bitcoin solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Error: la versión del archivo volcado no es compatible. Esta versión de la billetera de qtum solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

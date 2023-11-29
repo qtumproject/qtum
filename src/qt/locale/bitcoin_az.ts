@@ -510,7 +510,7 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">Ödəmə tələbi (QR-kodlar və qtum URI-ləri yaradılır):</translation>
+        <translation type="unfinished">Ödəmə tələbi (QR-kodlar və Qtum URI-ləri yaradılır)^</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -686,7 +686,7 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
         <translation type="unfinished">&amp;Göstərin</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>Qtum şəbəkəsinə %n aktiv bağlantı.</numerusform>

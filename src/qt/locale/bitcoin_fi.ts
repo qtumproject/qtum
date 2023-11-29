@@ -3699,8 +3699,8 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">%s kehittäjät</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s on vioittunut. Yritä käyttää lompakkotyökalua bitcoin-wallet pelastaaksesi sen tai palauttaa varmuuskopio.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s on vioittunut. Yritä käyttää lompakkotyökalua qtum-wallet pelastaaksesi sen tai palauttaa varmuuskopio.</translation>
     </message>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
@@ -3719,8 +3719,8 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Virhe luettaessa %s! Avaimet luetttiin oikein, mutta rahansiirtotiedot tai osoitekirjan sisältö saattavat olla puutteellisia tai vääriä.</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Virhe: Dump-tiedoston versio ei ole tuettu. Tämä bitcoin-lompakon versio tukee vain version 1 dump-tiedostoja. Annetun dump-tiedoston versio %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Virhe: Dump-tiedoston versio ei ole tuettu. Tämä qtum-lompakon versio tukee vain version 1 dump-tiedostoja. Annetun dump-tiedoston versio %s</translation>
     </message>
     <message>
         <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>

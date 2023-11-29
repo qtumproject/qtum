@@ -192,9 +192,9 @@
         <translation type="unfinished">Conectando a pares...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished"> 
-Solicitar pagos (genera códigos QR y bitcoin: URI)
+Solicitar pagos (genera códigos QR y qtum: URI)
  </translation>
     </message>
     <message>
@@ -1152,8 +1152,8 @@ Para obtener más información sobre cómo usar esta consola, escribe %6.
         <translation type="unfinished">Error: el registro del identificador del archivo de volcado es incorrecto. Se obtuvo "%s"; se esperaba "%s".</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Error: la versión del archivo volcado no es compatible. Esta versión de la billetera de bitcoin solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Error: la versión del archivo volcado no es compatible. Esta versión de la billetera de qtum solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

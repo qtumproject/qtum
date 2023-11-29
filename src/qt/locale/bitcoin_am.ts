@@ -66,11 +66,11 @@
         <translation type="unfinished">የመቀበያ አድራሻዎች</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">እነኚህ የቢትኮይን ክፍያ የመላኪያ አድራሻዎችዎ ናቸው:: ገንዘብ/ኮይኖች ከመላክዎ በፊት መጠኑን እና የመቀበያ አድራሻውን ሁልጊዜ ያረጋግጡ::</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">እነኚህ የቢትኮይን አድራሻዎች የክፍያ መቀበያ አድራሻዎችዎ ናችው። "ተቀበል" በሚለው መደብ ውስጥ ያለውን "አዲስ የመቀበያ አድራሻ ይፍጠሩ" የሚለውን አዝራር ይጠቀሙ።
 መፈረም የሚቻለው "ሌጋሲ" በሚል ምድብ ስር በተመደቡ አድራሻዎች ብቻ ነው።</translation>
@@ -164,7 +164,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">የቢትኮይን ቦርሳዎን ማመስጠር ያረጋግጡ</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">ማስጠንቀቂያ: የቢትኮይን ቦርሳዎን አመስጥረው የይለፍ-ሐረግዎን ካጡት&lt;b&gt;ቢትኮይኖቾን በሙሉ ያጣሉ&lt;/b&gt;!</translation>
     </message>
     <message>

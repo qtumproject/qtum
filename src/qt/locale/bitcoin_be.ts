@@ -66,7 +66,7 @@
         <translation type="unfinished">адрасы Прымання</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source> 
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Тут знаходзяцца Біткойн-адрасы для высылання плацяжоў. Заўсёды спраўджвайце колькасць і адрас прызначэння перад здзяйсненнем транзакцыі.</translation>
     </message>
     <message>
@@ -295,7 +295,7 @@
         <translation type="unfinished">Паказаць інфармацыю аб Qt</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source> 
+        <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Даслаць манеты на Біткойн-адрас</translation>
     </message>
     <message>
@@ -319,11 +319,11 @@
         <translation type="unfinished">Зашыфраваць прыватныя ключы, якия належаць вашаму гаманцу</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source> 
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Падпісаць паведамленне з дапамогай Біткойн-адраса каб даказаць, што яно належыць вам</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source> 
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Спраўдзіць паведамленне з дапамогай Біткойн-адраса каб даказаць, што яно належыць вам</translation>
     </message>
     <message>
@@ -339,7 +339,7 @@
         <translation type="unfinished">Дапамога</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source> 
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Запатрабаваць плацёж (генеруецца QR-код для біткойн URI)</translation>
     </message>
     <message>
@@ -605,7 +605,7 @@
 <context>
     <name>Intro</name>
     <message>
-        <source>Qtum</source> 
+        <source>Qtum</source>
         <translation type="unfinished">Біткойн</translation>
     </message>
     <message numerus="yes">

@@ -519,6 +519,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Podepiš zprávy svými qtumovými adresami, čímž prokážeš, že jsi jejich vlastníkem</translation>
+
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Ověř zprávu...</translation>
     </message>
@@ -1348,7 +1349,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 bude stahovat kopii blockchainu.</translation>
     </message>
     <message>
@@ -4009,8 +4010,8 @@ Přejděte do Soubor &gt; Otevřít peněženku pro načtení peněženky.
         <translation type="unfinished">Vývojáři %s</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">Soubor %s je poškozen. Zkus použít bitcoin-wallet pro opravu nebo obnov zálohu.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">Soubor %s je poškozen. Zkus použít qtum-wallet pro opravu nebo obnov zálohu.</translation>
     </message>
     <message>
         <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
@@ -4058,8 +4059,8 @@ Ověřuji peněženku.</translation>
         <translation type="unfinished">Chyba: záznam identifikátoru souboru výpisu je nesprávný. Získáno "%s", očekáváno "%s".</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Chyba: verze souboru výpisu není podporována. Tato verze peněženky Bitcoin podporuje pouze soubory výpisu verze 1. Získán soubor výpisu verze %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Chyba: verze souboru výpisu není podporována. Tato verze peněženky Qtum podporuje pouze soubory výpisu verze 1. Získán soubor výpisu verze %s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

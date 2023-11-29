@@ -549,7 +549,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پیام تایید</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">بارگیری PSBT از پرونده</translation>
     </message>
@@ -3632,7 +3631,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">خطا: رکورد شناسه Dumpfile نادرست است. دریافت "%s"، انتظار می رود "%s".</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
         <translation type="unfinished">خطا: نسخه Dumpfile پشتیبانی نمی شود.  این نسخه کیف پول بیت کوین فقط از فایل های dumpfiles نسخه 1 پشتیبانی می کند.  Dumpfile با نسخه %s دریافت شد</translation>
     </message>
     <message>

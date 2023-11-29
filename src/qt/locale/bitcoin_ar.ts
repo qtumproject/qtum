@@ -573,7 +573,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">وقَع الرسائل بواسطة ال: Bitcoin الخاص بك لإثبات امتلاكك لهم</translation>
+        <translation type="unfinished">وقَع الرسائل بواسطة ال: Qtum الخاص بك لإثبات امتلاكك لهم</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
@@ -581,7 +581,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">تحقق من الرسائل للتأكد من أنَها وُقعت برسائل Bitcoin محدَدة</translation>
+        <translation type="unfinished">تحقق من الرسائل للتأكد من أنَها وُقعت برسائل Qtum محدَدة</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -1702,10 +1702,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>&amp;External signer script path</source>
         <translation type="unfinished">&amp; مسار البرنامج النصي للموقّع الخارجي</translation>
-    </message>
-    <message>
-        <source>Full path to a Qtum Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
-        <translation type="unfinished">‫مثال لمسار كامل متوافق مع البتكوين الأساسي Qtum Core (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). احذر: يمكن أن تسرق البرمجيات الضارة عملاتك!‬</translation>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
@@ -4024,7 +4020,7 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">%s المبرمجون</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
         <translation type="unfinished">‫‫%s مشكل. حاول استخدام أداة محفظة البتكوين للاصلاح أو استعادة نسخة احتياطية.‬</translation>
     </message>
     <message>

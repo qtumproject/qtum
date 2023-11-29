@@ -256,7 +256,7 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
     </message>
 </context>
 <context>
-    <name>QtumApplication</name>
+    <name>BitcoinApplication</name>
     <message>
         <source>Settings file %1 might be corrupt or invalid.</source>
         <translation type="unfinished">Die Einstellungsdatei %1 ist möglicherweise beschädigt oder ungültig.</translation>
@@ -1321,7 +1321,7 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
     </message>
     <message>
         <source>Full path to a %1 compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
-        <translation type="unfinished">Vollständiger Pfad zu %1 einem Bitcoin Core kompatibelen Script (z.B.: C:\Downloads\hwi.exe oder /Users/you/Downloads/hwi.py). Achtung: Malware kann Bitcoins stehlen!</translation>
+        <translation type="unfinished">Vollständiger Pfad zu %1 einem Qtum Core kompatibelen Script (z.B.: C:\Downloads\hwi.exe oder /Users/you/Downloads/hwi.py). Achtung: Malware kann Qtums stehlen!</translation>
     </message>
     <message>
         <source>IP address of the proxy (e.g. IPv4: 127.0.0.1 / IPv6: ::1)</source>
@@ -1857,7 +1857,7 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
     </message>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
-        <translation type="unfinished">Kann Qtum nicht starten: Klicken-zum-Bezahlen-Handler</translation>
+        <translation type="unfinished">Kann Qtum nicht starten: Klicken-zum-Bezahlen-Verarbeiter</translation>
     </message>
     <message>
         <source>URI handling</source>
@@ -2898,7 +2898,7 @@ Hinweis: Da die Gebühr auf Basis der Bytes berechnet wird, führt eine Gebühre
     <message>
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Überprüfen Sie bitte Ihr Transaktionsvorhaben. Dadurch wird eine teilweise signierte Qtum-Transaktion (TSBT) erstellt, die Sie speichern oder kopieren und dann z. B. mit einer Offline-Brieftasche %1 oder einer TSBT-kompatible Hardware-Brieftasche nutzen können.</translation>
+        <translation type="unfinished">Überprüfen Sie bitte Ihr Transaktionsvorhaben. Dadurch wird eine Partiell Signierte Qtum-Transaktion (PSBT) erstellt, die Sie speichern oder kopieren und dann z. B. mit einer Offline-Wallet %1 oder einer PSBT-kompatible Hardware-Wallet nutzen können.</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>
@@ -2908,7 +2908,7 @@ Hinweis: Da die Gebühr auf Basis der Bytes berechnet wird, führt eine Gebühre
     <message>
         <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">Bitte überprüfen Sie Ihre Transaktion. Sie können diese Transaktion erstellen und versenden oder eine Partially Signed Qtum Transaction (PSBT) erstellen, die Sie speichern oder kopieren und dann z.B. mit einer offline %1 Wallet oder einer PSBT-kompatiblen Hardware-Wallet signieren können.</translation>
+        <translation type="unfinished">Bitte überprüfen Sie Ihre Transaktion. Sie können diese Transaktion erstellen und versenden oder eine Partiell Signierte Qtum Transaction (PSBT) erstellen, die Sie speichern oder kopieren und dann z.B. mit einer offline %1 Wallet oder einer PSBT-kompatiblen Hardware-Wallet signieren können.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3819,12 +3819,12 @@ Gehen Sie zu Datei &gt; Wallet Öffnen, um eine Wallet zu laden.
         <translation type="unfinished">Die %s-Entwickler</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s korrupt. Versuche mit dem Wallet-Werkzeug bitcoin-wallet zu retten, oder eine Sicherung wiederherzustellen.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s korrupt. Versuche mit dem Wallet-Werkzeug qtum-wallet zu retten, oder eine Sicherung wiederherzustellen.</translation>
     </message>
     <message>
         <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">%s Aufforderung, auf Port %u zu lauschen. Dieser Port wird als "schlecht" eingeschätzt und es ist daher unwahrscheinlich, dass sich Bitcoin Core Gegenstellen mit ihm verbinden. Siehe doc/p2p-bad-ports.md für Details und eine vollständige Liste.</translation>
+        <translation type="unfinished">%s Aufforderung, auf Port %u zu lauschen. Dieser Port wird als "schlecht" eingeschätzt und es ist daher unwahrscheinlich, dass sich Qtum Core Gegenstellen mit ihm verbinden. Siehe doc/p2p-bad-ports.md für Details und eine vollständige Liste.</translation>
     </message>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
@@ -3867,8 +3867,8 @@ Gehen Sie zu Datei &gt; Wallet Öffnen, um eine Wallet zu laden.
         <translation type="unfinished">Fehler: Dumpdatei Identifikationseintrag ist ungültig. Habe "%s" bekommen, aber "%s" erwartet.</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Fehler: Die Version der Speicherauszugsdatei ist %s und wird nicht unterstützt. Diese Version von bitcoin-wallet unterstützt nur Speicherauszugsdateien der Version 1.</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Fehler: Die Version der Speicherauszugsdatei ist %s und wird nicht unterstützt. Diese Version von qtum-wallet unterstützt nur Speicherauszugsdateien der Version 1.</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

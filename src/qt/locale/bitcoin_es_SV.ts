@@ -272,11 +272,6 @@ Usa el boton "Crear nueva direccion de recibimiento" en la pestaña de recibir p
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Ingresa una dirección de Qtum (Ejemplo: %1)</translation>
-
-
-
-
-
     </message>
     <message>
         <source>Unroutable</source>
@@ -415,7 +410,7 @@ Usa el boton "Crear nueva direccion de recibimiento" en la pestaña de recibir p
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Verificar mensajes comprobando que están firmados con direcciones Qtum concretas</translation>
+        <translation type="unfinished">Verificar un mensaje para comprobar que fue firmado con la dirección Qtum indicada</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -523,8 +518,8 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation type="unfinished">Cargar PSBT desde el &amp;portapapeles...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">Cargar una transacción de Bitcoin parcialmente firmada desde el portapapeles</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation type="unfinished">Cargar una transacción de Qtum parcialmente firmada desde el portapapeles</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -544,7 +539,7 @@ Solicitar pagos (genera códigos QR y qtum: URI)
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">Abrir un qtum: URI</translation>
+        <translation type="unfinished">Qtum: abrir URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -620,8 +615,8 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n conexiones activas con la red Qtum</numerusform>
-            <numerusform>%n conexiones activas con la red Qtum </numerusform>
+            <numerusform>%n conexión activa con la red de Qtum.</numerusform>
+            <numerusform>%n conexiónes activas con la red de Qtum.</numerusform>
         </translation>
     </message>
     <message>
@@ -1127,8 +1122,8 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 descargará y almacenará una copia de la cadena de bloques de Bitcoin.</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 descargará y almacenará una copia de la cadena de bloques de Qtum.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1186,7 +1181,7 @@ Solicitar pagos (genera códigos QR y qtum: URI)
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Es posible que las transacciones recientes aún no sean visibles y, por lo tanto, el saldo de la billetera podría ser incorrecto. Esta información será correcta una vez que la billetera haya terminado de sincronizarse con la red de Qtum, como se detalla abajo.</translation>
+        <translation type="unfinished">Es posible que las transacciones recientes aún no estén visibles y por lo tanto, el saldo de su monedero podría ser incorrecto. Esta información será correcta una vez que su monedero haya terminado de sincronizarse con la red qtum, como se detalla a continuación.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1360,12 +1355,12 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <translation type="unfinished">&amp;Ruta al script del firmante externo</translation>
     </message>
     <message>
-        <source>Full path to a Qtum Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
-        <translation type="unfinished">Ruta completa a un script compatible con Qtum Core (p. ej., C:\Descargas\hwi.exe o /Usuarios/SuUsuario/Descargas/hwi.py). Advertencia: ¡El malware podría robarle sus monedas!</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation type="unfinished">Abrir automáticamente el puerto del cliente Qtum en el router. Esta opción solo funciona cuando el router admite UPnP y está activado.</translation>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">Abre automáticamente el puerto del cliente de Qtum en el router. Esto solo funciona cuando el router es compatible con NAT-PMP y está activo. El puerto externo podría ser aleatorio</translation>
+        <translation type="unfinished">Abrir automáticamente el puerto del cliente de Qtum en el router. Esto solo funciona cuando el router es compatible con NAT-PMP y está activo. El puerto externo podría ser aleatorio</translation>
     </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
@@ -2461,7 +2456,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
-        <translation type="unfinished">Cuando hay menos volumen de transacciones que espacio en los bloques, los mineros y los nodos de retransmisión pueden aplicar una comisión mínima. Está bien pagar solo esta comisión mínima, pero ten en cuenta que esto puede ocasionar que una transacción nunca se confirme una vez que haya más demanda de transacciones de Qtum de la que puede procesar la red.</translation>
+        <translation type="unfinished">Cuando hay menos volumen de transacciones que espacio en los bloques, los mineros y los nodos de retransmisión pueden imponer una comisión mínima. Pagar solo esta comisión mínima está bien, pero tenga en cuenta que esto puede resultar en una transacción nunca confirmada una vez que haya más demanda de transacciones de Qtum de la que la red puede procesar.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -2734,7 +2729,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">Un mensaje que se adjuntó al Qtum: URI que se almacenará con la transacción a modo de referencia. Nota: Este mensaje no se enviará por la red de Qtum.</translation>
+        <translation type="unfinished">Mensaje que se agrgará al URI de Qtum, el cuál será almacenado con la transacción para su referencia. Nota: Este mensaje no será enviado a través de la red de Qtum.</translation>
     </message>
 </context>
 <context>
@@ -2760,11 +2755,11 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Puedes firmar mensajes o acuerdos con tus direcciones para demostrar que puedes recibir los qtums que se envíen a ellas. Ten cuidado de no firmar cosas confusas o al azar, ya que los ataques de phishing pueden tratar de engañarte para que les envíes la firma con tu identidad. Firma solo declaraciones totalmente detalladas con las que estés de acuerdo.</translation>
+        <translation type="unfinished">Puedes firmar los mensajes con tus direcciones para demostrar que las posees. Ten cuidado de no firmar cualquier cosa vaga, ya que los ataques de phishing pueden tratar de engañarte firmando tu identidad a través de ellos. Firma solo declaraciones totalmente detalladas con las que estés de acuerdo.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation type="unfinished">La dirección Bitcoin con la que se firmó el mensaje</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation type="unfinished">La dirección Qtum con la que se firmó el mensaje</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -3367,8 +3362,8 @@ Ir a Archivo &gt; Abrir billetera para cargar una.
         <translation type="unfinished">Los desarrolladores de %s</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s corrupto. Intenta utilizar la herramienta del monedero bitcoin-monedero para salvar o restaurar una copia de seguridad.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s corrupto. Intenta utilizar la herramienta del monedero qtum-monedero para salvar o restaurar una copia de seguridad.</translation>
     </message>
     <message>
         <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
@@ -3403,8 +3398,8 @@ Ir a Archivo &gt; Abrir billetera para cargar una.
         <translation type="unfinished">Error: el registro del identificador del archivo de volcado es incorrecto. Se obtuvo «%s» se esperaba «%s».</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Error: la versión del archivo volcado no es compatible. Esta versión de la billetera de bitcoin solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Error: la versión del archivo volcado no es compatible. Esta versión de la billetera de qtum solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
