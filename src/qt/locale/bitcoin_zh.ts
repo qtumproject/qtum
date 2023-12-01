@@ -410,10 +410,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">從備份檔案中恢復錢包</translation>
     </message>
     <message>
-         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">显示%1帮助消息以获得可能包含Qtum命令行选项的列表</translation>
-
-
     </message>
     <message>
         <source>default wallet</source>

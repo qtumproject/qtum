@@ -243,7 +243,7 @@
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Onderteken berichten met uw Qtumadressen om te bewijzen dat u deze adressen bezit</translation>
+        <translation type="unfinished">Onderteken berichten met uw Qtum adressen om te bewijzen dat u deze adressen bezit</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
@@ -251,7 +251,7 @@
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Verifiëer handtekeningen om zeker te zijn dat de berichten zijn ondertekend met de gespecificeerde Qtumadressen</translation>
+        <translation type="unfinished">Verifiëer handtekeningen om zeker te zijn dat de berichten zijn ondertekend met de gespecificeerde Qtum adressen</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -366,7 +366,7 @@
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">Laad gedeeltelijk ondertekende Qtum transactie</translation>
+        <translation type="unfinished">Laad gedeeltelijk ondertekende Qtum-transactie</translation>
    </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -467,8 +467,8 @@
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n actieve verbinding(en) met het Qtum-netwerk.</numerusform>
-            <numerusform>%n actieve verbinding(en) met het Qtum-netwerk.</numerusform> 
+            <numerusform>%n actieve verbinding(en) met het Qtum netwerk.</numerusform>
+            <numerusform>%n actieve verbinding(en) met het Qtum netwerk.</numerusform> 
       </translation>
     </message>
     <message>
@@ -3500,8 +3500,8 @@ Ga naar Bestand &gt; Wallet openen om een wallet te laden.
         <translation type="unfinished">De %s ontwikkelaars</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s beschadigd. Probeer de wallet tool bitcoin-wallet voor herstel of een backup terug te zetten.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s beschadigd. Probeer de wallet tool qtum-wallet voor herstel of een backup terug te zetten.</translation>
     </message>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
@@ -3536,8 +3536,8 @@ Ga naar Bestand &gt; Wallet openen om een wallet te laden.
         <translation type="unfinished">Fout: Identificatierecord van dumpbestand is onjuist. Gekregen "%s", verwacht "%s".</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Fout: Dumpbestandsversie wordt niet ondersteund. Deze versie bitcoinwallet ondersteunt alleen versie 1 dumpbestanden. Dumpbestand met versie %s gekregen</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Fout: Dumpbestandsversie wordt niet ondersteund. Deze versie qtumwallet ondersteunt alleen versie 1 dumpbestanden. Dumpbestand met versie %s gekregen</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

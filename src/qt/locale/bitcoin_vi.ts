@@ -339,8 +339,8 @@
         <translation type="unfinished">Proxy là &lt;b&gt; cho phép &lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation type="unfinished">Gửi coin đến một địa chỉ Bitcoin</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">Gửi coin đến một địa chỉ Qtum</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -433,8 +433,8 @@
         </translation>
     </message>
     <message>
-       <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">Kết nối với mạng Qtum thông qua một proxy SOCKS5 riêng cho các dịch vụ Tor hành.</translation>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation type="unfinished">Tải một phần giao dịch Qtum đã ký</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -491,8 +491,8 @@
         <translation type="unfinished">Đóng tất cả ví</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">Hiển thị %1 tin nhắn hỗ trợ để nhận được danh sách Bitcoin command-line khả dụng</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="unfinished">Hiển thị %1 tin nhắn hỗ trợ để nhận được danh sách Qtum command-line khả dụng</translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -1075,6 +1075,20 @@
         <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
         <translation type="unfinished">Vui lòng xem lại giao dịch của bạn. Bạn có thể tạo và gửi giao dịch này hoặc tạo Giao dịch Qtum được ký một phần (PSBT), bạn có thể lưu hoặc sao chép và sau đó ký bằng, ví dụ: ví %1 ngoại tuyến hoặc ví phần cứng tương thích với PSBT.</translation>
+    </message>
+    <message>
+        <source>Unsigned Transaction</source>
+        <comment>PSBT copied</comment>
+        <extracomment>Caption of "PSBT has been copied" messagebox</extracomment>
+        <translation type="unfinished">Giao dịch chưa được ký</translation>
+    </message>
+    <message>
+        <source>The PSBT has been copied to the clipboard. You can also save it.</source>
+        <translation type="unfinished">PSBT đã được sao chép vào bảng tạm. Bạn cũng có thế lưu nó lại.</translation>
+    </message>
+    <message>
+        <source>PSBT saved to disk</source>
+        <translation type="unfinished">PSBT đã được lưu vào ổ đĩa.</translation>
     </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
