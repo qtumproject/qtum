@@ -57,6 +57,7 @@ CoinControlDialog::CoinControlDialog(CCoinControl& coin_control, WalletModel* _m
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonSelectAll, StyleSheetNames::ButtonDark);
     SetObjectStyleSheet(ui->treeWidget, StyleSheetNames::TreeView);
+
     // context menu
     contextMenu = new QMenu(this);
     contextMenu->addAction(tr("&Copy address"), this, &CoinControlDialog::copyAddress);

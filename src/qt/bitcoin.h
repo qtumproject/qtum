@@ -121,7 +121,7 @@ private:
     QString restorePath;
     QString restoreParam;
     QString restoreName;
-    bool restartApp;
+    bool restartApp{false};
     QStringList parameters;
 };
 

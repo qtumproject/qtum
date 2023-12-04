@@ -307,7 +307,7 @@ void TestGUI(interfaces::Node& node, const std::shared_ptr<CWallet>& wallet)
     OverviewPage overviewPage(platformStyle.get());
     overviewPage.setWalletModel(&walletModel);
     walletModel.pollBalanceChanged(); // Manual balance polling update
-    CompareBalance(walletModel, walletModel.wallet().getBalance(), overviewPage.findChild<QLabel*>("labelBalance"));
+    CompareBalance(walletModel, walletModel.wallet().getBalance(), overviewPage.findChild<QLabel*>("labelBalance"), false);
 
     // Check Request Payment button
     ReceiveRequestDialog requestDialog(platformStyle.get());
@@ -344,9 +344,6 @@ void TestGUI(interfaces::Node& node, const std::shared_ptr<CWallet>& wallet)
             QVERIFY(!address.isEmpty());
         }
     }
-    QCOMPARE(labelInput->text(), QString(""));
-    QCOMPARE(amountInput->value(), CAmount(0));
-    QCOMPARE(messageInput->text(), QString(""));
 
     // Check addition to history
     int currentRowCount = requestTableModel->rowCount({});

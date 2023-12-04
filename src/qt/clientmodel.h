@@ -92,7 +92,7 @@ public:
 
     Mutex m_cached_tip_mutex;
     uint256 m_cached_tip_blocks GUARDED_BY(m_cached_tip_mutex){};
-    bool fBatchProcessingMode;
+    bool fBatchProcessingMode{true};
 
 private:
     interfaces::Node& m_node;

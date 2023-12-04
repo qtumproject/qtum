@@ -60,7 +60,6 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     // move timer to thread so that polling doesn't disturb main event loop
     timer->moveToThread(m_thread);
     m_thread->start();
-    fBatchProcessingMode = true;
     QTimer::singleShot(0, timer, []() {
         util::ThreadRename("qt-clientmodl");
     });

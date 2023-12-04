@@ -45,12 +45,10 @@
         <file alias="tx_inout">res/icons/tx_inout.png</file>
         <file alias="lock_closed">res/icons/lock_closed.png</file>
         <file alias="lock_open">res/icons/lock_open.png</file>
-
         <file alias="lock_staking">res/icons/lock_staking.png</file>
         <file alias="logo">res/icons/logo.png</file>
         <file alias="filesave">res/icons/filesave.png</file>
         <file alias="verify">res/icons/verify.png</file>
-
         <file alias="warning">res/icons/warning.png</file>
         <file alias="fontbigger">res/icons/fontbigger.png</file>
         <file alias="fontsmaller">res/icons/fontsmaller.png</file>
@@ -60,7 +58,6 @@
         <file alias="hd_disabled">res/icons/hd_disabled.png</file>
         <file alias="network_disabled">res/icons/network_disabled.png</file>
         <file alias="proxy">res/icons/proxy.png</file>
-
         <file alias="staking_on">res/icons/staking_on.png</file>
         <file alias="staking_off">res/icons/staking_off.png</file>
         <file alias="contract_input">res/icons/contract_input.png</file>
@@ -77,7 +74,6 @@
         <file alias="superstake">res/icons/superstake.png</file>
         <file alias="ledger_on">res/icons/ledger_on.png</file>
         <file alias="ledger_off">res/icons/ledger_off.png</file>
-
     </qresource>
     <qresource prefix="/animation">
         <file alias="spinner-000">res/animation/spinner-000.png</file>
@@ -118,7 +114,6 @@
         <file alias="spinner-035">res/animation/spinner-035.png</file>
     </qresource>
     <qresource prefix="/fonts">
-
         <file alias="monospace">res/fonts/RobotoMono-Regular.ttf</file>
     </qresource>
     <qresource prefix="/tokens">
@@ -250,6 +245,5 @@
         <file alias="down_arrow_unit">res/styles/theme3/app-icons/down_arrow_unit.png</file>
         <file alias="bg">res/styles/theme3/app-icons/bg.png</file>
         <file alias="splash_bg">res/styles/theme3/app-icons/splash_bg.png</file>
-
     </qresource>
 </RCC>
