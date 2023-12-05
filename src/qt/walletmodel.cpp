@@ -78,17 +78,7 @@ WalletModel::WalletModel(std::unique_ptr<interfaces::Wallet> wallet, ClientModel
     m_client_model(&client_model),
     m_node(client_model.node()),
     optionsModel(client_model.getOptionsModel()),
-    contractTableModel(nullptr),
-    tokenItemModel(nullptr),
-    tokenTransactionTableModel(nullptr),
-    delegationItemModel(nullptr),
-    superStakerItemModel(nullptr),
-    delegationStakerItemModel(nullptr),
-    timer(new QTimer(this)),
-    nWeight(0),
-    updateStakeWeight(true),
-    updateCoinAddresses(true),
-    worker(0)
+    timer(new QTimer(this))
 {
     fHaveWatchOnly = m_wallet->haveWatchOnly();
     addressTableModel = new AddressTableModel(this);

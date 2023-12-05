@@ -222,14 +222,14 @@ private:
     OptionsModel *optionsModel;
 
     AddressTableModel* addressTableModel{nullptr};
-    ContractTableModel *contractTableModel;
+    ContractTableModel* contractTableModel{nullptr};
     TransactionTableModel* transactionTableModel{nullptr};
     RecentRequestsTableModel* recentRequestsTableModel{nullptr};
-    TokenItemModel *tokenItemModel;
-    TokenTransactionTableModel *tokenTransactionTableModel;
-    DelegationItemModel *delegationItemModel;
-    SuperStakerItemModel *superStakerItemModel;
-    DelegationStakerItemModel *delegationStakerItemModel;
+    TokenItemModel* tokenItemModel{nullptr};
+    TokenTransactionTableModel* tokenTransactionTableModel{nullptr};
+    DelegationItemModel* delegationItemModel{nullptr};
+    SuperStakerItemModel* superStakerItemModel{nullptr};
+    DelegationStakerItemModel* delegationStakerItemModel{nullptr};
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;
@@ -243,9 +243,9 @@ private:
     QString restorePath;
     QString restoreParam;
 
-    uint64_t nWeight;
-    std::atomic<bool> updateStakeWeight;
-    std::atomic<bool> updateCoinAddresses;
+    uint64_t nWeight{0};
+    std::atomic<bool> updateStakeWeight{true};
+    std::atomic<bool> updateCoinAddresses{true};
 
     QString fingerprint;
     std::atomic<bool> hardwareWalletInitRequired{false};
@@ -260,7 +260,7 @@ private:
     int64_t deviceTime = 0;
 
     QThread t;
-    WalletWorker *worker;
+    WalletWorker *worker{nullptr};
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
     bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);
