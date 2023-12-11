@@ -85,8 +85,8 @@ logger = logging.getLogger("TestFramework.p2p")
 # The minimum P2P version that this test framework supports
 MIN_P2P_VERSION_SUPPORTED = 60001
 # The P2P version that this test framework implements and sends in its `version` message
-# Version 70016 supports wtxid relay
-P2P_VERSION = 70016
+# Version 70020 supports wtxid relay
+P2P_VERSION = 70020
 # The services that this test framework offers in its `version` message
 P2P_SERVICES = NODE_NETWORK | NODE_WITNESS
 # The P2P user agent string that this test framework sends in its `version` message
@@ -137,7 +137,7 @@ MESSAGEMAP = {
 MAGIC_BYTES = {
     "mainnet": b"\xf9\xbe\xb4\xd9",   # mainnet
     "testnet3": b"\x0b\x11\x09\x07",  # testnet3
-    "regtest": b"\xfa\xbf\xb5\xda",   # regtest
+    "regtest": b"\xfd\xdd\xc6\xe1",   # regtest
     "signet": b"\x0a\x03\xcf\x40",    # signet
 }
 

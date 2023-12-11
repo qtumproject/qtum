@@ -131,9 +131,9 @@ class EstimateFeeTest(BitcoinTestFramework):
         self.num_nodes = 3
         # Force fSendTrickle to true (via whitelist.noban)
         self.extra_args = [
-            ["-whitelist=noban@127.0.0.1"],
-            ["-whitelist=noban@127.0.0.1", "-blockmaxweight=68000"],
-            ["-whitelist=noban@127.0.0.1", "-blockmaxweight=32000"],
+            ["-whitelist=noban@127.0.0.1", "-dustrelayfee=0"],
+            ["-whitelist=noban@127.0.0.1", "-blockmaxweight=68000", "-dustrelayfee=0"],
+            ["-whitelist=noban@127.0.0.1", "-blockmaxweight=32000", "-dustrelayfee=0"],
         ]
 
     def setup_network(self):
@@ -151,7 +151,7 @@ class EstimateFeeTest(BitcoinTestFramework):
         # produces too small blocks (room for only 55 or so transactions)
 
     def transact_and_mine(self, numblocks, mining_node):
-        min_fee = Decimal("0.00001")
+        min_fee = Decimal("0.0009")
         # We will now mine numblocks blocks generating on average 100 transactions between each block
         # We shuffle our confirmed txout set before each set of transactions
         # small_txpuzzle_randfee will use the transactions that have inputs already in the chain when possible
@@ -166,7 +166,7 @@ class EstimateFeeTest(BitcoinTestFramework):
                     self.nodes[from_index],
                     self.confutxo,
                     self.memutxo,
-                    Decimal("0.005"),
+                    Decimal("0.5"),
                     min_fee,
                     min_fee,
                     batch_sendtx_reqs,
@@ -241,8 +241,8 @@ class EstimateFeeTest(BitcoinTestFramework):
         node = self.nodes[0]
         miner = self.nodes[1]
         # In sat/vb
-        low_feerate = 1
-        high_feerate = 10
+        low_feerate = 1200
+        high_feerate = 10000
         # Cache the utxos of which to replace the spender after it failed to get
         # confirmed
         utxos_to_respend = []

@@ -75,6 +75,7 @@ class NULLDUMMYTest(BitcoinTestFramework):
         eckey.generate()
         self.privkey = bytes_to_wif(eckey.get_bytes())
         self.pubkey = eckey.get_pubkey().get_bytes().hex()
+        self.nodes[0].createwallet(wallet_name="multisig")
         cms = self.nodes[0].createmultisig(1, [self.pubkey])
         wms = self.nodes[0].createmultisig(1, [self.pubkey], 'p2sh-segwit')
         self.ms_address = cms["address"]

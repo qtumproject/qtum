@@ -27,6 +27,7 @@ VB_PATTERN = re.compile("Unknown new rules activated.*versionbit")
 class VersionBitsWarningTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
+        self.requires_wallet = True 
         self.num_nodes = 1
         # The experimental syscall sandbox feature (-sandbox) is not compatible with -alertnotify
         # (which invokes execve).

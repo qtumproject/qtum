@@ -39,7 +39,7 @@ class StartupNotifyTest(BitcoinTestFramework):
         assert_equal(get_count(), 1)
 
         self.log.info("Test node is fully started")
-        assert_equal(self.nodes[0].getblockcount(), 200)
+        assert_equal(self.nodes[0].getblockcount(), 2100)
 
 
 if __name__ == '__main__':

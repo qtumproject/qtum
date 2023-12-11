@@ -5,6 +5,7 @@
 """Helpful routines for regression testing."""
 
 from base64 import b64encode
+from binascii import unhexlify, hexlify
 from decimal import Decimal, ROUND_DOWN
 from subprocess import CalledProcessError
 import hashlib
@@ -21,6 +22,7 @@ from . import coverage
 from .authproxy import AuthServiceProxy, JSONRPCException
 from typing import Callable, Optional
 
+from .qtumconfig import COINBASE_MATURITY
 logger = logging.getLogger("TestFramework.utils")
 
 # Assert functions
@@ -219,6 +221,12 @@ def EncodeDecimal(o):
 def count_bytes(hex_string):
     return len(bytearray.fromhex(hex_string))
 
+def hex_str_to_bytes(hex_str):
+    return unhexlify(hex_str.encode('ascii'))
+
+
+def bytes_to_hex_str(byte_str):
+    return hexlify(byte_str).decode('ascii')
 
 def str_to_b64str(string):
     return b64encode(string.encode('utf-8')).decode('ascii')
@@ -256,7 +264,7 @@ def wait_until_helper(predicate, *, attempts=float('inf'), timeout=float('inf'),
     `p2p.py` has a preset lock.
     """
     if attempts == float('inf') and timeout == float('inf'):
-        timeout = 60
+        timeout = 180
     timeout = timeout * timeout_factor
     attempt = 0
     time_end = time.time() + timeout
@@ -369,7 +377,7 @@ def initialize_datadir(dirname, n, chain, disable_autoconnect=True):
     datadir = get_datadir_path(dirname, n)
     if not os.path.isdir(datadir):
         os.makedirs(datadir)
-    write_config(os.path.join(datadir, "bitcoin.conf"), n=n, chain=chain, disable_autoconnect=disable_autoconnect)
+    write_config(os.path.join(datadir, "qtum.conf"), n=n, chain=chain, disable_autoconnect=disable_autoconnect)
     os.makedirs(os.path.join(datadir, 'stderr'), exist_ok=True)
     os.makedirs(os.path.join(datadir, 'stdout'), exist_ok=True)
     return datadir
@@ -421,7 +429,7 @@ def get_datadir_path(dirname, n):
 
 
 def append_config(datadir, options):
-    with open(os.path.join(datadir, "bitcoin.conf"), 'a', encoding='utf8') as f:
+    with open(os.path.join(datadir, "qtum.conf"), 'a', encoding='utf8') as f:
         for option in options:
             f.write(option + "\n")
 
@@ -429,8 +437,8 @@ def append_config(datadir, options):
 def get_auth_cookie(datadir, chain):
     user = None
     password = None
-    if os.path.isfile(os.path.join(datadir, "bitcoin.conf")):
-        with open(os.path.join(datadir, "bitcoin.conf"), 'r', encoding='utf8') as f:
+    if os.path.isfile(os.path.join(datadir, "qtum.conf")):
+        with open(os.path.join(datadir, "qtum.conf"), 'r', encoding='utf8') as f:
             for line in f:
                 if line.startswith("rpcuser="):
                     assert user is None  # Ensure that there is only one rpcuser line
@@ -489,6 +497,24 @@ def find_output(node, txid, amount, *, blockhash=None):
             return i
     raise RuntimeError("find_output txid %s : %s not found" % (txid, str(amount)))
 
+def sync_blocks(rpc_connections, *, wait=1, timeout=60):
+    """
+    Wait until everybody has the same tip.
+
+    sync_blocks needs to be called with an rpc_connections set that has least
+    one node already synced to the latest, stable tip, otherwise there's a
+    chance it might return before all nodes are stably synced.
+    """
+    stop_time = time.time() + timeout
+    while time.time() <= stop_time:
+        best_hash = [x.getbestblockhash() for x in rpc_connections]
+        if best_hash.count(best_hash[0]) == len(rpc_connections):
+            return
+        # Check that each peer has at least one connection
+        assert (all([len(x.getpeerinfo()) for x in rpc_connections]))
+        time.sleep(wait)
+    raise AssertionError("Block sync timed out:{}".format("".join("\n  {!r}".format(b) for b in best_hash)))
+
 
 # Create large OP_RETURN txouts that can be appended to a transaction
 # to make it large (helper for constructing large transactions). The
@@ -520,7 +546,7 @@ def create_lots_of_big_transactions(mini_wallet, node, fee, tx_batch_size, txout
 
 def mine_large_block(test_framework, mini_wallet, node):
     # generate a 66k transaction,
-    # and 14 of them is close to the 1MB block limit
+    # and 28 of them is close to the 1MB block limit
     txouts = gen_return_txouts()
     fee = 100 * node.getnetworkinfo()["relayfee"]
     create_lots_of_big_transactions(mini_wallet, node, fee, 14, txouts)
