@@ -82,9 +82,9 @@ TEST_FRAMEWORK_MODULES = [
 EXTENDED_SCRIPTS = [
     # These tests are not run by default.
     # Longest test should go first, to favor running tests in parallel
+    'qtum_evm_london_activation.py',
     'feature_pruning.py',
     'feature_dbcrash.py',
-    'feature_index_prune.py',
     'wallet_pruning.py --legacy-wallet',
 ]
 
@@ -138,7 +138,7 @@ BASE_SCRIPTS = [
     'rpc_bind.py --nonloopback',
     'p2p_headers_sync_with_minchainwork.py',
     'p2p_feefilter.py',
-    'feature_csv_activation.py',
+    #'feature_csv_activation.py',
     'p2p_sendheaders.py',
     'wallet_listtransactions.py --legacy-wallet',
     'wallet_listtransactions.py --descriptors',
@@ -286,7 +286,7 @@ BASE_SCRIPTS = [
     'wallet_encryption.py --legacy-wallet',
     'wallet_encryption.py --descriptors',
     'feature_dersig.py',
-    'feature_cltv.py',
+    #'feature_cltv.py',
     'rpc_uptime.py',
     'feature_discover.py',
     'wallet_resendwallettransactions.py --legacy-wallet',
@@ -312,7 +312,7 @@ BASE_SCRIPTS = [
     'wallet_coinbase_category.py --descriptors',
     'feature_filelock.py',
     'feature_loadblock.py',
-    'p2p_dos_header_tree.py',
+    #'p2p_dos_header_tree.py',
     'p2p_add_connections.py',
     'feature_bind_port_discover.py',
     'p2p_unrequested_blocks.py',
@@ -358,8 +358,79 @@ BASE_SCRIPTS = [
     'feature_shutdown.py',
     'wallet_migration.py',
     'p2p_ibd_txrelay.py',
+    'feature_index_prune.py',
     # Don't append tests at the end to avoid merge conflicts
     # Put them in a random line within the section that fits their approximate run-time
+    # qtum
+    'qtum_evm_london_gas_usage.py',
+    'qtum_dgp.py',
+    'qtum_pos.py',
+    'qtum_opcall.py',
+    'qtum_opcreate.py',
+    'qtum_8mb_block.py',
+    'qtum_gas_limit.py',
+    'qtum_searchlog.py',
+    'qtum_pos_segwit.py',
+    'qtum_state_root.py',
+    'qtum_evm_globals.py',
+    'qtum_null_sender.py',
+    'qtum_waitforlogs.py',
+    'qtum_block_header.py',
+    'qtum_callcontract.py',
+    'qtum_spend_op_call.py',
+    'qtum_condensing_txs.py',
+    'qtum_createcontract.py',
+    'qtum_sendtocontract.py',
+    'qtum_identical_refunds.py',
+    'qtum_create_eth_op_code.py',
+    'qtum_gas_limit_overflow.py',
+    'qtum_call_empty_contract.py',
+    'qtum_dgp_block_size_sync.py',
+    'qtum_pos_conflicting_txs.py',
+    'qtum_globals_state_changer.py',
+    'qtum_no_exec_call_disabled.py',
+    'qtum_soft_block_gas_limits.py',
+    'qtum_dgp_block_size_restart.py',
+    'qtum_searchlog_restart_node.py',
+    'qtum_immature_coinstake_spend.py',
+    'qtum_transaction_prioritization.py',
+    'qtum_assign_mpos_fees_to_gas_refund.py',
+    'qtum_ignore_mpos_participant_reward.py',
+    'qtum_evm_constantinople_activation.py',
+    'qtum_many_value_refunds_from_same_tx.py',
+    'qtum_combined_outputs_exceed_gas_limit.py',
+    'qtum_dgp_gas_price_lingering_mempool_tx.py',
+    'qtum_dgp_gas_schedule.py',
+    'qtum_header_spam.py --dos-same-height',
+    'qtum_header_spam.py --dos-variable-height',
+    'qtum_header_spam.py --run-standard-tests',
+    'qtum_divergence_dos.py',
+    'qtum_prioritize_create_over_call.py',
+    'qtum_callcontract_timestamp.py',
+    'qtum_transaction_receipt_origin_contract_address.py',
+    'qtum_block_number_corruption.py',
+    'qtum_duplicate_stake.py',
+    'qtum_rpc_bitcore.py',
+    'qtum_faulty_header_chain.py',
+    'qtum_signrawsender.py',
+    'qtum_op_sender.py',
+    'qtum_evm_revert.py',
+    'qtum_evm_create2.py',
+    'qtum_evm_staticcall.py',
+    'qtum_evm_constantinople_precompiles.py',
+    'qtum_evm_constantinople_opcodes.py',
+    'qtum_block_index_cleanup.py',
+    'qtum_pod.py',
+    'qtum_simple_delegation_contract.py',
+    'qtum_delegation_contract.py',
+    'qtum_qrc20.py'
+]
+# scripts irreleveant for Qtum
+DISABLED_SCRIPTS = [
+      'wallet_orphanedreward.py',
+      'feature_cltv.py',
+      'feature_csv_activation.py',
+      'p2p_dos_header_tree.py'
 ]
 
 # Place EXTENDED_SCRIPTS first since it has the 3 longest running tests
@@ -759,7 +830,7 @@ class TestResult():
 def check_script_prefixes():
     """Check that test scripts start with one of the allowed name prefixes."""
 
-    good_prefixes_re = re.compile("^(example|feature|interface|mempool|mining|p2p|rpc|wallet|tool)_")
+    good_prefixes_re = re.compile("^(example|feature|interface|mempool|mining|p2p|rpc|wallet|tool|qtum)_")
     bad_script_names = [script for script in ALL_SCRIPTS if good_prefixes_re.match(script) is None]
 
     if bad_script_names:
@@ -775,7 +846,7 @@ def check_script_list(*, src_dir, fail_on_warn):
     not being run by pull-tester.py."""
     script_dir = src_dir + '/test/functional/'
     python_files = set([test_file for test_file in os.listdir(script_dir) if test_file.endswith(".py")])
-    missed_tests = list(python_files - set(map(lambda x: x.split()[0], ALL_SCRIPTS + NON_SCRIPTS)))
+    missed_tests = list(python_files - set(map(lambda x: x.split()[0], ALL_SCRIPTS + NON_SCRIPTS + DISABLED_SCRIPTS)))
     if len(missed_tests) != 0:
         print("%sWARNING!%s The following scripts are not being run: %s. Check the test lists in test_runner.py." % (BOLD[1], BOLD[0], str(missed_tests)))
         if fail_on_warn:
