@@ -14,6 +14,8 @@ from test_framework.util import (
     assert_equal,
 )
 
+from test_framework.qtumconfig import MAX_BLOCK_SIGOPS
+from test_framework.qtum import generatesynchronized
 
 class WalletGroupTest(BitcoinTestFramework):
     def add_options(self, parser):
@@ -26,13 +28,13 @@ class WalletGroupTest(BitcoinTestFramework):
             [],
             [],
             ["-avoidpartialspends"],
-            ["-maxapsfee=0.00002719"],
-            ["-maxapsfee=0.00002720"],
+            ["-maxapsfee=0.00271900"],
+            ["-maxapsfee=0.00271900"],
         ]
 
         for args in self.extra_args:
             args.append("-whitelist=noban@127.0.0.1")   # whitelist peers to speed up tx relay / mempool sync
-            args.append(f"-paytxfee={20 * 1e3 / 1e8}")  # apply feerate of 20 sats/vB across all nodes
+            args.append(f"-paytxfee={400 * 1e3 / 1e8}")  # apply feerate of 20 sats/vB across all nodes
 
         self.rpc_timeout = 480
 
@@ -47,7 +49,7 @@ class WalletGroupTest(BitcoinTestFramework):
         #  node0 <-- node1 <-- node2 <-- node3 <-- node4 <-- node5)
         self.connect_nodes(0, self.num_nodes - 1)
         # Mine some coins
-        self.generate(self.nodes[0], COINBASE_MATURITY + 1)
+        self.nodes[0].generate(10+COINBASE_MATURITY + 1)
 
         # Get some addresses from the two nodes
         addr1 = [self.nodes[1].getnewaddress() for _ in range(3)]
@@ -74,7 +76,7 @@ class WalletGroupTest(BitcoinTestFramework):
         v = [vout["value"] for vout in tx1["vout"]]
         v.sort()
         assert_approx(v[0], vexp=0.2, vspan=0.0001)
-        assert_approx(v[1], vexp=0.3, vspan=0.0001)
+        assert_approx(v[1], vexp=0.3, vspan=0.01)
 
         txid2 = self.nodes[2].sendtoaddress(self.nodes[0].getnewaddress(), 0.2)
         tx2 = self.nodes[2].getrawtransaction(txid2, True)
@@ -85,7 +87,7 @@ class WalletGroupTest(BitcoinTestFramework):
         v = [vout["value"] for vout in tx2["vout"]]
         v.sort()
         assert_approx(v[0], vexp=0.2, vspan=0.0001)
-        assert_approx(v[1], vexp=1.3, vspan=0.0001)
+        assert_approx(v[1], vexp=1.3, vspan=0.01)
 
         self.log.info("Test avoiding partial spends if warranted, even if avoidpartialspends is disabled")
         self.sync_all()
@@ -98,8 +100,8 @@ class WalletGroupTest(BitcoinTestFramework):
         # - C0 1.0      - E1 0.5
         # - C1 0.5      - F  ~1.3
         # - D ~0.3
-        assert_approx(self.nodes[1].getbalance(), vexp=4.3, vspan=0.0001)
-        assert_approx(self.nodes[2].getbalance(), vexp=4.3, vspan=0.0001)
+        assert_approx(self.nodes[1].getbalance(), vexp=4.3, vspan=0.01)
+        assert_approx(self.nodes[2].getbalance(), vexp=4.3, vspan=0.01)
         # Sending 1.4 btc should pick one 1.0 + one more. For node #1,
         # this could be (A / B0 / C0) + (B1 / C1 / D). We ensure that it is
         # B0 + B1 or C0 + C1, because this avoids partial spends while not being
@@ -113,18 +115,19 @@ class WalletGroupTest(BitcoinTestFramework):
         # ~0.1 and 1.4 and should come from the same destination
         values = [vout["value"] for vout in tx3["vout"]]
         values.sort()
-        assert_approx(values[0], vexp=0.1, vspan=0.0001)
-        assert_approx(values[1], vexp=1.4, vspan=0.0001)
+        assert_approx(values[0], vexp=0.1, vspan=0.01)
+        assert_approx(values[1], vexp=1.4, vspan=0.01)
 
         input_txids = [vin["txid"] for vin in tx3["vin"]]
         input_addrs = [self.nodes[1].gettransaction(txid)['details'][0]['address'] for txid in input_txids]
         assert_equal(input_addrs[0], input_addrs[1])
         # Node 2 enforces avoidpartialspends so needs no checking here
 
-        tx4_ungrouped_fee = 2820
-        tx4_grouped_fee = 4160
-        tx5_6_ungrouped_fee = 5520
-        tx5_6_grouped_fee = 8240
+        tx4_ungrouped_fee = 90000
+        tx4_grouped_fee = 148800
+        tx5_6_ungrouped_fee = 207600
+        tx5_6_grouped_fee = 5911200
+        tx5_6_grouped_fee2 = 325200
 
         self.log.info("Test wallet option maxapsfee")
         addr_aps = self.nodes[3].getnewaddress()
@@ -140,7 +143,7 @@ class WalletGroupTest(BitcoinTestFramework):
         assert_equal(2, len(tx4["vout"]))
 
         addr_aps2 = self.nodes[3].getnewaddress()
-        [self.nodes[0].sendtoaddress(addr_aps2, 1.0) for _ in range(5)]
+        [self.nodes[0].sendtoaddress(addr_aps2, 1.0) for _ in range(100)]
         self.generate(self.nodes[0], 1)
         with self.nodes[3].assert_debug_log([f'Fee non-grouped = {tx5_6_ungrouped_fee}, grouped = {tx5_6_grouped_fee}, using non-grouped']):
             txid5 = self.nodes[3].sendtoaddress(self.nodes[0].getnewaddress(), 2.95)
@@ -155,7 +158,7 @@ class WalletGroupTest(BitcoinTestFramework):
         addr_aps3 = self.nodes[4].getnewaddress()
         [self.nodes[0].sendtoaddress(addr_aps3, 1.0) for _ in range(5)]
         self.generate(self.nodes[0], 1)
-        with self.nodes[4].assert_debug_log([f'Fee non-grouped = {tx5_6_ungrouped_fee}, grouped = {tx5_6_grouped_fee}, using grouped']):
+        with self.nodes[4].assert_debug_log([f'Fee non-grouped = {tx5_6_ungrouped_fee}, grouped = {tx5_6_grouped_fee2}, using grouped']):
             txid6 = self.nodes[4].sendtoaddress(self.nodes[0].getnewaddress(), 2.95)
         tx6 = self.nodes[4].getrawtransaction(txid6, True)
         # tx6 should have 5 inputs and 2 outputs
@@ -168,11 +171,11 @@ class WalletGroupTest(BitcoinTestFramework):
         self.generate(self.nodes[0], 1)
 
         self.log.info("Fill a wallet with 10,000 outputs corresponding to the same scriptPubKey")
-        for _ in range(5):
-            raw_tx = self.nodes[0].createrawtransaction([{"txid":"0"*64, "vout":0}], [{addr2[0]: 0.05}])
+        for _ in range(10):
+            raw_tx = self.nodes[0].createrawtransaction([{"txid":"0"*64, "vout":0}], [{addr2[0]: 10/(MAX_BLOCK_SIGOPS//10)}])
             tx = tx_from_hex(raw_tx)
             tx.vin = []
-            tx.vout = [tx.vout[0]] * 2000
+            tx.vout = [tx.vout[0]] * (MAX_BLOCK_SIGOPS//10)
             funded_tx = self.nodes[0].fundrawtransaction(tx.serialize().hex())
             signed_tx = self.nodes[0].signrawtransactionwithwallet(funded_tx['hex'])
             self.nodes[0].sendrawtransaction(signed_tx['hex'])

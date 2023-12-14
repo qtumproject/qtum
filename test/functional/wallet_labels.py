@@ -16,6 +16,8 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet_util import test_address
 
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import convert_btc_address_to_qtum, convert_btc_bech32_address_to_qtum
 
 class WalletLabelsTest(BitcoinTestFramework):
     def add_options(self, parser):
@@ -79,7 +81,7 @@ class WalletLabelsTest(BitcoinTestFramework):
         # the same address, so we call twice to get two addresses w/50 each
         self.generatetoaddress(node, nblocks=1, address=node.getnewaddress(label='coinbase'))
         self.generatetoaddress(node, nblocks=COINBASE_MATURITY + 1, address=node.getnewaddress(label='coinbase'))
-        assert_equal(node.getbalance(), 100)
+        assert_equal(node.getbalance(), 2*INITIAL_BLOCK_REWARD)
 
         # there should be 2 address groups
         # each with 1 address with a balance of 50 Bitcoins
@@ -91,14 +93,14 @@ class WalletLabelsTest(BitcoinTestFramework):
         for address_group in address_groups:
             assert_equal(len(address_group), 1)
             assert_equal(len(address_group[0]), 3)
-            assert_equal(address_group[0][1], 50)
+            assert_equal(address_group[0][1], INITIAL_BLOCK_REWARD)
             assert_equal(address_group[0][2], 'coinbase')
             linked_addresses.add(address_group[0][0])
 
         # send 50 from each address to a third address not in this wallet
-        common_address = "msf4WtN1YQKXvNtvdFYt9JBnUD2FB41kjr"
+        common_address = convert_btc_address_to_qtum("msf4WtN1YQKXvNtvdFYt9JBnUD2FB41kjr")
         node.sendmany(
-            amounts={common_address: 100},
+            amounts={common_address: 2*INITIAL_BLOCK_REWARD},
             subtractfeefrom=[common_address],
             minconf=1,
         )
@@ -157,6 +159,7 @@ class WalletLabelsTest(BitcoinTestFramework):
             assert_equal(node.getreceivedbylabel(label.name), 2)
             label.verify(node)
         self.generate(node, COINBASE_MATURITY + 1)
+        expected_account_balances = {"": 504*INITIAL_BLOCK_REWARD}
 
         # Check that setlabel can assign a label to a new unused address.
         for label in labels:
@@ -194,13 +197,13 @@ class WalletLabelsTest(BitcoinTestFramework):
             node.createwallet(wallet_name='watch_only', disable_private_keys=True)
             wallet_watch_only = node.get_wallet_rpc('watch_only')
             BECH32_VALID = {
-                '✔️_VER15_PROG40': 'bcrt10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxkg7fn',
-                '✔️_VER16_PROG03': 'bcrt1sqqqqq8uhdgr',
-                '✔️_VER16_PROB02': 'bcrt1sqqqq4wstyw',
+                '✔️_VER15_PROG40': convert_btc_bech32_address_to_qtum('bcrt10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxkg7fn'),
+                '✔️_VER16_PROG03': convert_btc_bech32_address_to_qtum('bcrt1sqqqqq8uhdgr'),
+                '✔️_VER16_PROB02': convert_btc_bech32_address_to_qtum('bcrt1sqqqq4wstyw'),
             }
             BECH32_INVALID = {
-                '❌_VER15_PROG41': 'bcrt1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
-                '❌_VER16_PROB01': 'bcrt1sqq5r4036',
+                '❌_VER15_PROG41': convert_btc_bech32_address_to_qtum('bcrt1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8'),
+                '❌_VER16_PROB01': convert_btc_bech32_address_to_qtum('bcrt1sqq5r4036'),
             }
             for l in BECH32_VALID:
                 ad = BECH32_VALID[l]
@@ -212,7 +215,7 @@ class WalletLabelsTest(BitcoinTestFramework):
                 ad = BECH32_INVALID[l]
                 assert_raises_rpc_error(
                     -5,
-                    "Address is not valid" if self.options.descriptors else "Invalid Bitcoin address or script",
+                    "Address is not valid" if self.options.descriptors else "Invalid Qtum address or script",
                     lambda: wallet_watch_only.importaddress(label=l, rescan=False, address=ad),
                 )
 

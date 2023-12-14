@@ -130,7 +130,7 @@ class AddressInputTypeGrouping(BitcoinTestFramework):
         self.skip_if_no_sqlite()
 
     def make_payment(self, A, B, v, addr_type):
-        fee_rate = random.randint(1, 20)
+        fee_rate = random.randint(400, 420)
         self.log.debug(f"Making payment of {v} BTC at fee_rate {fee_rate}")
         tx = B.sendtoaddress(
             address=A.getnewaddress(address_type=addr_type),

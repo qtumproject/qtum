@@ -9,7 +9,6 @@ import json
 import os
 
 from test_framework.address import address_to_scriptpubkey
-from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.authproxy import JSONRPCException
 from test_framework.descriptors import descsum_create, drop_origins
 from test_framework.key import ECPubKey, ECKey
@@ -24,6 +23,7 @@ from test_framework.wallet import (
     getnewdestination,
 )
 
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 class RpcCreateMultiSigTest(BitcoinTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
@@ -32,6 +32,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 3
         self.supports_cli = False
+        self.extra_args = [['-addresstype=bech32']] * 3
 
     def get_keys(self):
         self.pub = []
@@ -56,7 +57,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             self.check_addmultisigaddress_errors()
 
         self.log.info('Generating blocks ...')
-        self.generate(self.wallet, 149)
+        node0.generate(COINBASE_MATURITY+49)
 
         self.moved = 0
         for self.nkeys in [3, 5]:
@@ -84,7 +85,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         # Check all permutations of keys because order matters apparently
         for keys in itertools.permutations([pk0, pk1, pk2]):
             # Results should be the same as this legacy one
-            legacy_addr = node0.createmultisig(2, keys, 'legacy')['address']
+            legacy_addr = wmulti0.createmultisig(2, keys, 'legacy')['address']
 
             if self.is_bdb_compiled():
                 result = wmulti0.addmultisigaddress(2, keys, '', 'legacy')
@@ -116,8 +117,10 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             sorted_key_desc = descsum_create('sh(multi(2,{}))'.format(sorted_key_str))
             assert_equal(self.nodes[0].deriveaddresses(sorted_key_desc)[0], t['address'])
 
+        node0.createwallet(wallet_name='wmulti1', disable_private_keys=False)
+        wmulti1 = node0.get_wallet_rpc('wmulti1')
         # Check that bech32m is currently not allowed
-        assert_raises_rpc_error(-5, "createmultisig cannot create bech32m multisig addresses", self.nodes[0].createmultisig, 2, self.pub, "bech32m")
+        assert_raises_rpc_error(-5, "createmultisig cannot create bech32m multisig addresses", wmulti1.createmultisig, 2, self.pub, "bech32m")
 
     def check_addmultisigaddress_errors(self):
         if self.options.descriptors:
@@ -136,7 +139,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
     def checkbalances(self):
         node0, node1, node2 = self.nodes
-        self.generate(node0, COINBASE_MATURITY)
+        node0.generate(COINBASE_MATURITY)
 
         bal0 = node0.getbalance()
         bal1 = node1.getbalance()
@@ -144,8 +147,8 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         balw = self.wallet.get_balance()
 
         height = node0.getblockchaininfo()["blocks"]
-        assert 150 < height < 350
-        total = 149 * 50 + (height - 149 - 100) * 25
+        assert COINBASE_MATURITY + 50 < height < 2 * COINBASE_MATURITY + 100
+        total = (height - COINBASE_MATURITY) * INITIAL_BLOCK_REWARD
         assert bal1 == 0
         assert bal2 == self.moved
         assert_equal(bal0 + bal1 + bal2 + balw, total)
@@ -181,7 +184,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         mredeem = msig["redeemScript"]
         assert_equal(desc, msig['descriptor'])
         if self.output_type == 'bech32':
-            assert madd[0:4] == "bcrt"  # actually a bech32 address
+            assert madd[0:4] == "qcrt"  # actually a bech32 address
 
         if self.is_bdb_compiled():
             # compare against addmultisigaddress
@@ -206,7 +209,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
 
         self.generate(node0, 1)
 
-        outval = value - decimal.Decimal("0.00001000")
+        outval = value - decimal.Decimal("0.01000000")
         rawtx = node2.createrawtransaction([{"txid": txid, "vout": vout}], [{self.final: outval}])
 
         prevtx_err = dict(prevtxs[0])
