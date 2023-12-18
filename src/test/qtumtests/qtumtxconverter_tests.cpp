@@ -1,11 +1,13 @@
 #include <boost/test/unit_test.hpp>
 #include <test/util/setup_common.h>
+#include <test/util/txmempool.h>
 #include <consensus/merkle.h>
 #include <chainparams.h>
 #include <node/miner.h>
 #include <validation.h>
 #include <util/convert.h>
 
+namespace qtumtxconverter_tests {
 //Tests data
 const CAmount value(5000000000LL - 1000);
 const dev::u256 gasPrice(3);
@@ -46,13 +48,12 @@ void checkResult(bool isCreation, std::vector<QtumTransaction> results, uint256 
 void runTest(Chainstate& chainstate, CTxMemPool& mempool, bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
     LOCK(::cs_main);
     LOCK(mempool.cs);
-    mempool.clear();
     TestMemPoolEntryHelper entry;
     CMutableTransaction tx1, tx2;
     std::vector<CTxOut> outs1 = {CTxOut(value, CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG)};
     tx1 = createTX(outs1);
     uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
-    mempool.addUnchecked(entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+    mempool.addUnchecked(entry.Fee(1000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx1));
     std::vector<CTxOut> outs2;
     for(size_t i = 0; i < n; i++){
         if(script2 == CScript()){
@@ -82,13 +83,12 @@ void runTest(Chainstate& chainstate, CTxMemPool& mempool, bool isCreation, size_
 void runFailingTest(Chainstate& chainstate, CTxMemPool& mempool, bool isCreation, size_t n, CScript& script1, CScript script2 = CScript()){
     LOCK(::cs_main);
     LOCK(mempool.cs);
-    mempool.clear();
     TestMemPoolEntryHelper entry;
     CMutableTransaction tx1, tx2;
     std::vector<CTxOut> outs1 = {CTxOut(value, CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG)};
     tx1 = createTX(outs1);
     uint256 hashParentTx = tx1.GetHash(); // save this txid for later use
-    mempool.addUnchecked(entry.Fee(1000).Time(GetTime()).SpendsCoinbase(true).FromTx(tx1));
+    mempool.addUnchecked(entry.Fee(1000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx1));
     std::vector<CTxOut> outs2;
     for(size_t i = 0; i < n; i++){
         if(script2 == CScript()){
@@ -108,67 +108,76 @@ void runFailingTest(Chainstate& chainstate, CTxMemPool& mempool, bool isCreation
     BOOST_CHECK(!converter.extractionQtumTransactions(qtumTx));
 }
 
+CTxMemPool& MakeMempool(node::NodeContext& node)
+{
+    node.mempool.reset();
+    node.mempool = std::make_unique<CTxMemPool>(MemPoolOptionsForTest(node));
+    return *node.mempool;
+}
+}
+using namespace qtumtxconverter_tests;
+
 BOOST_FIXTURE_TEST_SUITE(qtumtxconverter_tests, TestingSetup)
 
 BOOST_AUTO_TEST_CASE(parse_txcreate){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
-    runTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, true, 1, script1);
+    runTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), true, 1, script1);
 }
 
 BOOST_AUTO_TEST_CASE(parse_txcall){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
-    runTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, false, 1, script1);
+    runTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), false, 1, script1);
 }
 
 BOOST_AUTO_TEST_CASE(parse_txcall_mixed){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
     CScript script2 = CScript() << OP_TRUE;
-    runTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, false, 1, script1, script2);
+    runTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), false, 1, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_txcreate_many_vout){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
-    runTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, true, 120, script1);
+    runTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), true, 120, script1);
 }
 BOOST_AUTO_TEST_CASE(parse_txcreate_many_vout_mixed){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
     CScript script2 = CScript() << OP_TRUE;
-    runTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, true, 120, script1, script2);
+    runTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), true, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_txcall_many_vout){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
-    runTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, false, 120, script1);
+    runTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), false, 120, script1);
 }
 
 BOOST_AUTO_TEST_CASE(parse_incorrect_txcreate_many){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
     CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CREATE;
-    runFailingTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, true, 120, script1, script2);
+    runFailingTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), true, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_incorrect_txcreate_few){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CREATE;
     CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << OP_CREATE;
-    runFailingTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, true, 120, script1, script2);
+    runFailingTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), true, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_many){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
     CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << address << OP_CALL;
-    runFailingTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, false, 120, script1, script2);
+    runFailingTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), false, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_few){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
     CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << OP_CALL;
-    runFailingTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, false, 120, script1, script2);
+    runFailingTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), false, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_CASE(parse_incorrect_txcall_overflow){
     CScript script1 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(gasLimit)) << CScriptNum(int64_t(gasPrice)) << data << address << OP_CALL;
     CScript script2 = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(int64_t(0x80841e0000000000)) << CScriptNum(int64_t(0x0100000000000000)) << data << address << OP_CALL;
-    runFailingTest(m_node.chainman->ActiveChainstate(), *m_node.mempool, false, 120, script1, script2);
+    runFailingTest(m_node.chainman->ActiveChainstate(), MakeMempool(m_node), false, 120, script1, script2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

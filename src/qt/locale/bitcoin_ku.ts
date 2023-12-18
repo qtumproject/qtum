@@ -27,7 +27,7 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation type="unfinished">Navnîşana hilbijartî ji lîsteyê rake</translation>
+        <translation type="unfinished">Navnîşana hilbijartî ji lîsteyê jê bibe</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
@@ -39,15 +39,15 @@
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">Derxîne</translation>
+        <translation type="unfinished">&amp;Derxîne</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">Jê bibe</translation>
+        <translation type="unfinished">&amp;Jê bibe</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
-        <translation type="unfinished">Navnîşana ku ew ê koîn were şandin, hilbijêre</translation>
+        <translation type="unfinished">Navnîşana ku ew ê koîn werin şandin, hilbijêre</translation>
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
@@ -229,45 +229,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">تکایە بپشکنە کە بەروار و کاتی کۆمپیوتەرەکەت ڕاستە! ئەگەر کاژێرەکەت هەڵە بوو، %s بە دروستی کار ناکات.</translation>
-    </message>
-    <message>
-        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
-        <translation type="unfinished">تکایە بەشداری بکە ئەگەر %s بەسوودت دۆزیەوە. سەردانی %s بکە بۆ زانیاری زیاتر دەربارەی نەرمواڵەکە.</translation>
-    </message>
-    <message>
-        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
-        <translation type="unfinished">پڕە لە خوارەوەی کەمترین %d MiB شێوەبەند کراوە.  تکایە ژمارەیەکی بەرزتر بەکاربێنە.</translation>
-    </message>
-    <message>
-        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
-        <translation type="unfinished">پرە: دوایین هاودەمکردنی جزدان لە داتای بەپێز دەچێت. پێویستە دووبارە -ئیندێکس بکەیتەوە (هەموو بەربەستەکە دابەزێنە دووبارە لە حاڵەتی گرێی هەڵکراو)</translation>
-    </message>
-    <message>
-        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
-        <translation type="unfinished">ئەم هەڵەیە لەوانەیە ڕووبدات ئەگەر ئەم جزدانە بە خاوێنی دانەبەزێنرابێت و دواجار بارکرا بێت بە بەکارهێنانی بنیاتێک بە وەشانێکی نوێتری بێرکلی DB. ئەگەر وایە، تکایە ئەو سۆفتوێرە بەکاربهێنە کە دواجار ئەم جزدانە بارکرا بوو</translation>
-    </message>
-    <message>
-        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
-        <translation type="unfinished">پێویستە بنکەی زانیارییەکان دروست بکەیتەوە بە بەکارهێنانی -دووبارە ئیندێکس بۆ گەڕانەوە بۆ دۆخی نەپڕاو.  ئەمە هەموو بەربەستەکە دائەبەزێنێت</translation>
-    </message>
-    <message>
-        <source>Copyright (C) %i-%i</source>
-        <translation type="unfinished">مافی چاپ (C) %i-%i</translation>
-    </message>
-    <message>
-        <source>Could not find asmap file %s</source>
-        <translation type="unfinished">ئاسماپ بدۆزرێتەوە %s نەتوانرا فایلی</translation>
-    </message>
-    <message>
-        <source>Error: Keypool ran out, please call keypoolrefill first</source>
-        <translation type="unfinished">هەڵە: کلیلی پوول ڕایکرد، تکایە سەرەتا پەیوەندی بکە بە پڕکردنەوەی کلیل</translation>
-    </message>
-    </context>
-<context>
     <name>BitcoinGUI</name>
     <message>
         <source>&amp;About %1</source>
@@ -283,11 +244,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation type="unfinished">&amp;پەرگە</translation>
+        <translation type="unfinished">&amp;فایل</translation>
     </message>
     <message>
         <source>&amp;Settings</source>
-        <translation type="unfinished">&amp;سازکارییەکان</translation>
+        <translation type="unfinished">&amp;ڕێکخستنەکان</translation>
     </message>
     <message>
         <source>&amp;Help</source>
@@ -310,7 +271,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished">Agahî</translation>
+        <translation type="unfinished">زانیاری</translation>
     </message>
     <message numerus="yes">
         <source>%n active connection(s) to Qtum network.</source>
@@ -859,11 +820,50 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">Derxîne</translation>
+        <translation type="unfinished">&amp;Derxîne</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">Daneya di hilpekîna niha de bi rêya dosyayekê derxîne</translation>
+    </message>
+    </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
+        <translation type="unfinished">تکایە بپشکنە کە بەروار و کاتی کۆمپیوتەرەکەت ڕاستە! ئەگەر کاژێرەکەت هەڵە بوو، %s بە دروستی کار ناکات.</translation>
+    </message>
+    <message>
+        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
+        <translation type="unfinished">تکایە بەشداری بکە ئەگەر %s بەسوودت دۆزیەوە. سەردانی %s بکە بۆ زانیاری زیاتر دەربارەی نەرمواڵەکە.</translation>
+    </message>
+    <message>
+        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
+        <translation type="unfinished">پڕە لە خوارەوەی کەمترین %d MiB شێوەبەند کراوە.  تکایە ژمارەیەکی بەرزتر بەکاربێنە.</translation>
+    </message>
+    <message>
+        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
+        <translation type="unfinished">پرە: دوایین هاودەمکردنی جزدان لە داتای بەپێز دەچێت. پێویستە دووبارە -ئیندێکس بکەیتەوە (هەموو بەربەستەکە دابەزێنە دووبارە لە حاڵەتی گرێی هەڵکراو)</translation>
+    </message>
+    <message>
+        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
+        <translation type="unfinished">ئەم هەڵەیە لەوانەیە ڕووبدات ئەگەر ئەم جزدانە بە خاوێنی دانەبەزێنرابێت و دواجار بارکرا بێت بە بەکارهێنانی بنیاتێک بە وەشانێکی نوێتری بێرکلی DB. ئەگەر وایە، تکایە ئەو سۆفتوێرە بەکاربهێنە کە دواجار ئەم جزدانە بارکرا بوو</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
+        <translation type="unfinished">پێویستە بنکەی زانیارییەکان دروست بکەیتەوە بە بەکارهێنانی -دووبارە ئیندێکس بۆ گەڕانەوە بۆ دۆخی نەپڕاو.  ئەمە هەموو بەربەستەکە دائەبەزێنێت</translation>
+    </message>
+    <message>
+        <source>Copyright (C) %i-%i</source>
+        <translation type="unfinished">مافی چاپ (C) %i-%i</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation type="unfinished">ئاسماپ بدۆزرێتەوە %s نەتوانرا فایلی</translation>
+    </message>
+    <message>
+        <source>Error: Keypool ran out, please call keypoolrefill first</source>
+        <translation type="unfinished">هەڵە: کلیلی پوول ڕایکرد، تکایە سەرەتا پەیوەندی بکە بە پڕکردنەوەی کلیل</translation>
     </message>
     </context>
 </TS>

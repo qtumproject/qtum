@@ -42,6 +42,7 @@ QT_TS = \
   qt/locale/bitcoin_ha.ts \
   qt/locale/bitcoin_hak.ts \
   qt/locale/bitcoin_he.ts \
+  qt/locale/bitcoin_hi.ts \
   qt/locale/bitcoin_hr.ts \
   qt/locale/bitcoin_hu.ts \
   qt/locale/bitcoin_id.ts \

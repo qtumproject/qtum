@@ -90,7 +90,7 @@ private:
     std::unique_ptr<interfaces::Handler> m_handler_show_progress;
     QStringList columns;
     TransactionTablePriv *priv;
-    bool fProcessingQueuedTransactions;
+    bool fProcessingQueuedTransactions{false};
     const PlatformStyle *platformStyle;
 
     QColor color_unconfirmed;
@@ -99,7 +99,6 @@ private:
     QColor color_tx_status_openuntildate;
     QColor color_tx_status_danger;
     QColor color_black;
-
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
 

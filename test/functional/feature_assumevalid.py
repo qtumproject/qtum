@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2021 The Bitcoin Core developers
+# Copyright (c) 2014-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test logic for skipping signature validation on old blocks.
@@ -104,8 +104,6 @@ class AssumeValidTest(BitcoinTestFramework):
             timeout = timeout - 0.25
 
     def run_test(self):
-        p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
-
         # Build the blockchain
         self.tip = int(self.nodes[0].getbestblockhash(), 16)
         self.block_time = self.nodes[0].getblock(self.nodes[0].getbestblockhash())['time'] + 1
@@ -160,41 +158,37 @@ class AssumeValidTest(BitcoinTestFramework):
             self.block_time += 1
             height += 1
 
-        self.nodes[0].disconnect_p2ps()
-
         # Start node1 and node2 with assumevalid so they accept a block with a bad signature.
         self.start_node(1, extra_args=["-assumevalid=" + hex(block102.sha256)[2:]])
         self.start_node(2, extra_args=["-assumevalid=" + hex(block102.sha256)[2:]])
 
         p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
-        p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
-        p2p2 = self.nodes[2].add_p2p_connection(BaseNode())
-
-        # send header lists to all three nodes
         p2p0.send_header_for_blocks(self.blocks[0:2000])
         p2p0.send_header_for_blocks(self.blocks[2000:4000])
         p2p0.send_header_for_blocks(self.blocks[4000:6000])
         p2p0.send_header_for_blocks(self.blocks[6000:8000])
         p2p0.send_header_for_blocks(self.blocks[8000:10000])
         p2p0.send_header_for_blocks(self.blocks[10000:])
-        p2p1.send_header_for_blocks(self.blocks[0:2000])
-        p2p1.send_header_for_blocks(self.blocks[2000:4000])
-        p2p1.send_header_for_blocks(self.blocks[4000:6000])
 
-        p2p1.send_header_for_blocks(self.blocks[6000:8000])
-        p2p1.send_header_for_blocks(self.blocks[8000:10000])
-        p2p1.send_header_for_blocks(self.blocks[10000:])
-
-        p2p2.send_header_for_blocks(self.blocks[0:600])
         # Send blocks to node0. Block 102 will be rejected.
         self.send_blocks_until_disconnected(p2p0)
         self.assert_blockchain_height(self.nodes[0], COINBASE_MATURITY+1)
+
+        p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
+        p2p1.send_header_for_blocks(self.blocks[0:2000])
+        p2p1.send_header_for_blocks(self.blocks[2000:4000])
+        p2p1.send_header_for_blocks(self.blocks[4000:6000])
+        p2p1.send_header_for_blocks(self.blocks[6000:8000])
+        p2p1.send_header_for_blocks(self.blocks[8000:10000])
+        p2p1.send_header_for_blocks(self.blocks[10000:])
+        p2p2.send_header_for_blocks(self.blocks[0:600])
 
         # Send all blocks to node1. All blocks will be accepted.
         # Send only a subset to speed this up
         p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
         for i in range(1000):
             p2p1.send_message(msg_block(self.blocks[i]))
+
         # Syncing 2200 blocks can take a while on slow systems. Give it plenty of time to sync.
         timeout = time.time() + 200
         while time.time() < timeout:
@@ -202,8 +196,10 @@ class AssumeValidTest(BitcoinTestFramework):
                 break
         assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 1000)
 
-        # Send blocks to node2. Block 102 will be rejected.
         p2p2 = self.nodes[2].add_p2p_connection(BaseNode())
+        p2p2.send_header_for_blocks(self.blocks[0:200])
+
+        # Send blocks to node2. Block 102 will be rejected.
         self.send_blocks_until_disconnected(p2p2)
         self.assert_blockchain_height(self.nodes[2], COINBASE_MATURITY+1)
 

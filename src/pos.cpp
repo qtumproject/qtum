@@ -267,12 +267,6 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
     return true;
 }
 
-// Check whether the coinstake timestamp meets protocol
-bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params &consensusParams)
-{
-    return (nTimeBlock & consensusParams.StakeTimestampMask(nHeight)) == 0;
-}
-
 bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCache& view, bool delegateOutputExist) {
 
     Coin coinIn;

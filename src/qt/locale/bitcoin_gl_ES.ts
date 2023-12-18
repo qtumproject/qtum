@@ -161,7 +161,7 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Aviso: Si encriptas a túa carteira e perdes a túa frase contrasinal, &lt;b&gt;PERDERÁS TODOS OS TEUS QTUMS&lt;/b&gt;!</translation>
-   </message>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">¿Seguro que queres encriptar a túa carteira?</translation>
@@ -250,10 +250,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Amount</source>
         <translation type="unfinished">Cantidade</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation type="unfinished">Interno</translation>
     </message>
     <message numerus="yes">
         <source>%n second(s)</source>

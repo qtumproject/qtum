@@ -67,12 +67,12 @@
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Tölegleri ibermek üçin siziň Bitkoin salgylaryňyz şulardyr. Teňňeleri ibermezden ozal hemişe möçberi we kabul edýän salgyny barlaň.</translation>
+        <translation type="unfinished">Tölegleri ibermek üçin siziň Qtum salgylaryňyz şulardyr. Teňňeleri ibermezden ozal hemişe möçberi we kabul edýän salgyny barlaň.</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Tölegleri kabul etmek üçin siziň Bitkoin salgylaryňyz şulardyr. Täze salgylary döretmek üçin kabul etmek bölüminde "Täze kabul ediji salgyny döret" düwmesini ulan.
+        <translation type="unfinished">Tölegleri kabul etmek üçin siziň Qtum salgylaryňyz şulardyr. Täze salgylary döretmek üçin kabul etmek bölüminde "Täze kabul ediji salgyny döret" düwmesini ulan.
 Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
@@ -165,7 +165,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source> 
-        <translation type="unfinished">Duýduryş: Eger gapjygyňy şifrleseň we parol sözlemiňi ýitirseň, sen &lt;b&gt;ÄHLI BITKOINLERIŇI ÝITIRERSIŇ&lt;/b&gt;!</translation>
+        <translation type="unfinished">Duýduryş: Eger gapjygyňy şifrleseň we parol sözlemiňi ýitirseň, sen &lt;b&gt;ÄHLI QTUMLERIŇI ÝITIRERSIŇ&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -185,7 +185,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source> 
-        <translation type="unfinished">Gapjygyňy şifrlemek kompýuteriňe zyýanly programma ýokuşmak arkaly bitkoinleriň ogurlanmagyndan doly gorap bilmejekdigini ýatdan çykarma.</translation>
+        <translation type="unfinished">Gapjygyňy şifrlemek kompýuteriňe zyýanly programma ýokuşmak arkaly qtumleriň ogurlanmagyndan doly gorap bilmejekdigini ýatdan çykarma.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -271,14 +271,6 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Ýowuz ýalňyşlyk ýüze çykdy. Sazlamalar faýlyna ýazmak mümkinçiliginiň bardygyny ýa-da ýokdugyny barla, bolmasa -nosettings bilen işletmäge çalyş.</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation type="unfinished">Ýalňyşlyk: Görkezilen maglumatlar katalogy "%1" ýok.</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation type="unfinished">Ýalňyşlyk: %1 konfigurasiýa faýlyny derňäp bolanok.</translation>
-    </message>
-    <message>
         <source>Error: %1</source>
         <translation type="unfinished">Ýalňyşlyk: %1</translation>
     </message>
@@ -334,17 +326,6 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">Sazlamalar faýlyny okap bolanok</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">Sazlamalar faýlyny ýazdyryp bolanok</translation>
-    </message>
-    </context>
-<context>
     <name>BitcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
@@ -356,11 +337,11 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>&amp;Transactions</source>
-        <translation type="unfinished">&amp;Geleşikler</translation>
+        <translation type="unfinished">&amp;Amallar</translation>
     </message>
     <message>
         <source>Browse transaction history</source>
-        <translation type="unfinished">Geleşikleriň geçmişine göz aýla</translation>
+        <translation type="unfinished">Amallaryň geçmişine göz aýla</translation>
     </message>
     <message>
         <source>E&amp;xit</source>
@@ -405,15 +386,15 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     <message>
         <source>Network activity disabled.</source>
         <extracomment>A substring of the tooltip.</extracomment>
-        <translation type="unfinished">Ulgamyň işleýşi ýapyk.</translation>
+        <translation type="unfinished">Tor işleýşi ýapyk.</translation>
     </message>
     <message>
         <source>Proxy is &lt;b&gt;enabled&lt;/b&gt;: %1</source>
         <translation type="unfinished">Proksi &lt;b&gt;işleýär&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source> 
-        <translation type="unfinished">Bitkoin salgysyna teňňeleri iber</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">Qtum salgysyna teňňeleri iber</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -457,7 +438,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source> 
-        <translation type="unfinished">Bitkoin salgylarynyň eýesidigini subut etmek üçin habarlara öz Bitkoin salgylaryň bilen gol çek</translation>
+        <translation type="unfinished">Qtum salgylarynyň eýesidigini subut etmek üçin habarlara öz Qtum salgylaryň bilen gol çek</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
@@ -465,7 +446,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source> 
-        <translation type="unfinished">Habarlaryň görkezilen Bitkoin salgylary bilen gol çekilendigini kepillendirmek üçin habarlary tassykla</translation>
+        <translation type="unfinished">Habarlaryň görkezilen Qtum salgylary bilen gol çekilendigini kepillendirmek üçin habarlary tassykla</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -509,7 +490,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>Synchronizing with network…</source>
-        <translation type="unfinished">Ulgam bilen utgaşdyrmak...</translation>
+        <translation type="unfinished">Tor bilen sinhronlaşdyrmak...</translation>
     </message>
     <message>
         <source>Indexing blocks on disk…</source>
@@ -520,16 +501,12 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Diskde bloklar işlenýär...</translation>
     </message>
     <message>
-        <source>Reindexing blocks on disk…</source>
-        <translation type="unfinished">Diskde bloklar gaýtadan indekslenýär...</translation>
-    </message>
-    <message>
         <source>Connecting to peers…</source>
         <translation type="unfinished">Deňdeşlere baglanylýar...</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source> 
-        <translation type="unfinished">Tölegleri sora (QR kodlary we bitkoin: URIleri döredýär)</translation>
+        <translation type="unfinished">Tölegleri sora (QR kodlary we qtum: URIleri döredýär)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -584,7 +561,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">Bölekleýýin gol çekilen bitkoin geleşigini ýükle</translation>
+        <translation type="unfinished">Bölekleýýin gol çekilen qtum amalyny (BGÇBA) ýükle</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -592,7 +569,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">Bölekleýin gol çekilen bitkoin geleşigini alyş-çalyş panelinden ýükle</translation>
+        <translation type="unfinished">Bölekleýin gol çekilen qtum amalyny alyş-çalyş panelinden ýükle</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -611,8 +588,8 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">&amp;Kabul edýän salgylar</translation>
     </message>
     <message>
-        <source>Open a Qtum: URI</source>
-        <translation type="unfinished">Bitkoin aç: URI</translation>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">Qtum aç: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -632,7 +609,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation type="unfinished">Mümkin bolan Bitkoin buýruk setiri opsiýalarynyň sanawyny görmek üçin %1 goldaw habaryny görkez</translation>
+        <translation type="unfinished">Mümkin bolan Qtum buýruk setiri opsiýalarynyň sanawyny görmek üçin %1 goldaw habaryny görkez</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -683,8 +660,8 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>Bitkoin toruna %n işjeň arabaglanyşyk.</numerusform>
-            <numerusform>Bitkoin ulgamyna %n işjeň arabaglanyşyk.</numerusform>
+            <numerusform>Qtum toruna %n işjeň arabaglanyşyk.</numerusform>
+            <numerusform>Qtum ulgamyna %n işjeň arabaglanyşyk.</numerusform>
         </translation>
     </message>
     <message>
@@ -1127,7 +1104,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source> 
-        <translation type="unfinished">Ýazylan salgy %1 ýaly Bitkoin salgysy ýok.</translation>
+        <translation type="unfinished">Ýazylan salgy %1 ýaly Qtum salgysy ýok.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1173,7 +1150,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     <name>Intro</name>
     <message>
         <source>Qtum</source>
-        <translation type="unfinished">Bitkoin</translation>
+        <translation type="unfinished">Qtum</translation>
     </message>
     <message numerus="yes">
         <source>%n GB of space available</source>
@@ -1214,7 +1191,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 Bitkoin blok zynjyrynyň nusgasyny ýükläp alar we göçürer.</translation>
+        <translation type="unfinished">%1 Qtum blok zynjyrynyň nusgasyny ýükläp alar we göçürer.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1303,11 +1280,11 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Soňky geleşikler entek görünmän biler, şonuň üçin gapjygyňyzdaky galyndy nädogry bolup biler. Bu maglumat aşakda beýan edilişi ýaly gapjygyňyz bitkoin tory bilen utgaşmagy tamamlanda dogry bolar.</translation>
+        <translation type="unfinished">Soňky geleşikler entek görünmän biler, şonuň üçin gapjygyňyzdaky galyndy nädogry bolup biler. Bu maglumat aşakda beýan edilişi ýaly gapjygyňyz qtum tory bilen utgaşmagy tamamlanda dogry bolar.</translation>
     </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Entek görkezilmedik geleşikleriň täsirine düşen bitkoinleri sarp etmek synanyşygy ulgam tarapyndan kabul edilmez.</translation>
+        <translation type="unfinished">Entek görkezilmedik geleşikleriň täsirine düşen qtumleri sarp etmek synanyşygy ulgam tarapyndan kabul edilmez.</translation>
     </message>
     </context>
 <context>
@@ -1574,4 +1551,15 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Häzirki bellikdäki maglumaty faýla geçir</translation>
     </message>
     </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Sazlamalar faýlyny okap bolanok</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Sazlamalar faýlyny ýazdyryp bolanok</translation>
+    </message>
+</context>
 </TS>

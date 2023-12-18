@@ -35,7 +35,7 @@
     </message>
     <message>
         <source>Choose the address to send coins to</source>
-        <translation type="unfinished">Chagua anwani ya mpokeaji sarafu</translation>
+        <translation type="unfinished">Chagua anwani ya kutuma sarafu</translation>
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
@@ -136,7 +136,7 @@
     </message>
     <message>
         <source>yes</source>
-        <translation type="unfinished">hapana</translation>
+        <translation type="unfinished">ndio</translation>
     </message>
     <message>
         <source>no</source>

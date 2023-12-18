@@ -151,7 +151,7 @@
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Viðvörun: Ef þú dulkóðar veskið og týnir lykilsetningunn þá munt þú &lt;b&gt;TAPA ALLRI ÞINNI QTUM MYNT&lt;/b&gt;!</translation>
-   </message>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Ertu viss um að þú viljir dulkóða veskið þitt?</translation>
@@ -258,13 +258,6 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Villa við lestur %s! Allir lyklar fóru inn á réttan hátt, en færslugögn eða færslugildi gætu verið röng eða horfin.</translation>
-    </message>
-    </context>
-<context>
     <name>BitcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
@@ -366,7 +359,7 @@
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Óska eftir greiðslum (býr til QR kóða og qtum: URI)</translation>
-   </message>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Sýna lista yfir færslugildi sem notuð hafa verið til sendingar og merkingar þeirra</translation>
@@ -417,7 +410,7 @@
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Sýna %1 hjálparskilaboðin til að fá lista yfir valkosti Qtum aðgerðir í skipanalínu</translation>
-   </message>
+    </message>
     <message>
         <source>%1 client</source>
         <translation type="unfinished">%1 biðlarar</translation>
@@ -596,7 +589,7 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Færslugildið sem slegið var inn "%1" er ekki leyfilegt Qtum færslugildi.</translation>
-   </message>
+    </message>
     </context>
 <context>
     <name>Intro</name>
@@ -863,6 +856,13 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">Flytja gögn í flipanum í skrá</translation>
+    </message>
+    </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
+        <translation type="unfinished">Villa við lestur %s! Allir lyklar fóru inn á réttan hátt, en færslugögn eða færslugildi gætu verið röng eða horfin.</translation>
     </message>
     </context>
 </TS>

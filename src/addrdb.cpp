@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2021 The Bitcoin Core developers
+// Copyright (c) 2009-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,8 +9,8 @@
 #include <chainparams.h>
 #include <clientversion.h>
 #include <cstdint>
-#include <fs.h>
 #include <hash.h>
+#include <logging.h>
 #include <logging/timer.h>
 #include <netbase.h>
 #include <netgroup.h>
@@ -18,6 +18,8 @@
 #include <streams.h>
 #include <tinyformat.h>
 #include <univalue.h>
+#include <util/fs.h>
+#include <util/fs_helpers.h>
 #include <util/settings.h>
 #include <util/system.h>
 #include <util/translation.h>
@@ -190,7 +192,7 @@ std::optional<bilingual_str> LoadAddrman(const NetGroupManager& netgroupman, con
     const auto path_addr{args.GetDataDirNet() / "peers.dat"};
     try {
         DeserializeFileDB(path_addr, *addrman, CLIENT_VERSION);
-        LogPrintf("Loaded %i addresses from peers.dat  %dms\n", addrman->size(), Ticks<std::chrono::milliseconds>(SteadyClock::now() - start));
+        LogPrintf("Loaded %i addresses from peers.dat  %dms\n", addrman->Size(), Ticks<std::chrono::milliseconds>(SteadyClock::now() - start));
     } catch (const DbNotFoundError&) {
         // Addrman can be in an inconsistent state after failure, reset it
         addrman = std::make_unique<AddrMan>(netgroupman, /*deterministic=*/false, /*consistency_check_ratio=*/check_addrman);

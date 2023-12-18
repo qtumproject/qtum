@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -43,7 +43,6 @@
 
 WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platformStyle, QWidget* parent)
     : QStackedWidget(parent),
-      clientModel(nullptr),
       walletModel(wallet_model),
       platformStyle(_platformStyle),
       walletFrame(qobject_cast<WalletFrame*>(parent))
@@ -146,6 +145,7 @@ WalletView::WalletView(WalletModel* wallet_model, const PlatformStyle* _platform
     connect(superStakerPage, &SuperStakerPage::message, this, &WalletView::message);
 
     connect(this, &WalletView::setPrivacy, overviewPage, &OverviewPage::setPrivacy);
+    connect(this, &WalletView::setPrivacy, this, &WalletView::disableTransactionView);
 
     // Receive and pass through messages from wallet model
     connect(walletModel, &WalletModel::message, this, &WalletView::message);
@@ -455,3 +455,7 @@ void WalletView::signTxHardware(const QString &tx)
     dlg.exec();
 }
 
+void WalletView::disableTransactionView(bool disable)
+{
+    transactionView->setDisabled(disable);
+}

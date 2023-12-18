@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2021 The Bitcoin Core developers
+// Copyright (c) 2016-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,17 +15,13 @@
 #include <QPropertyAnimation>
 #include <QResizeEvent>
 
-ModalOverlay::ModalOverlay(bool enable_wallet, QWidget *parent, OverlayType _type) :
-QWidget(parent),
-ui(new Ui::ModalOverlay),
-bestHeaderHeight(0),
-bestHeaderDate(QDateTime()),
-layerIsVisible(false),
-userClosed(false),
-type(_type)
+ModalOverlay::ModalOverlay(bool enable_wallet, QWidget *parent, OverlayType _type)
+    : QWidget(parent),
+      ui(new Ui::ModalOverlay),
+      bestHeaderDate(QDateTime()),
+      type(_type)
 {
     ui->setupUi(this);
-
     // Set stylesheet
     SetObjectStyleSheet(ui->warningIcon, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->warningIconBackup, StyleSheetNames::ButtonTransparent);
@@ -158,7 +154,7 @@ void ModalOverlay::tipUpdate(int count, const QDateTime& blockDate, double nVeri
         // not syncing
         return;
 
-    // estimate the number of headers left based on TargetSpacing
+    // estimate the number of headers left based on TargetSpacing 
     // and check if the gui is not aware of the best header (happens rarely)
     int estimateNumHeadersLeft = GUIUtil::estimateNumberHeadersLeft(bestHeaderDate.secsTo(currentDate), bestHeaderHeight);
     bool hasBestHeader = bestHeaderHeight >= count;
@@ -211,7 +207,6 @@ void ModalOverlay::closeClicked()
     showHide(true);
     userClosed = true;
 }
-
 void ModalOverlay::backupWalletClicked()
 {
     Q_EMIT backupWallet();

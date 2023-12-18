@@ -199,10 +199,6 @@
 <context>
     <name>QObject</name>
     <message>
-        <source>unknown</source>
-        <translation type="unfinished">थाहा नभयेको</translation>
-    </message>
-    <message>
         <source>Amount</source>
         <translation type="unfinished">रकम</translation>
     </message>
@@ -253,73 +249,6 @@
         </translation>
     </message>
     </context>
-<context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">सेटिङ फाइल पढ्न सकिएन</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">सेटिङ फाइल लेख्न सकिएन</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
-        <translation type="unfinished">maxtxfee=&amp;lt;रकम&amp;gt;: का लागि अमान्य रकम &amp;apos;%s&amp;apos; (कारोबारलाई अड्कन नदिन अनिवार्य रूपमा कम्तिमा %s को न्यूनतम रिले शुल्क हुनु पर्छ)</translation>
-    </message>
-    <message>
-        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
-        <translation type="unfinished">ब्लक डाटाबेसमा भविष्यबाट आए जस्तो देखिने एउटा ब्लक हुन्छ । तपाईंको कम्प्युटरको मिति र समय गलत तरिकाले सेट गरिएकाले यस्तो हुन सक्छ । तपाईं आफ्नो कम्प्युटरको मिति र समय सही छ भनेर पक्का हुनुहुन्छ भने मात्र ब्लक डाटाबेस पुनर्निर्माण गर्नुहोस् ।</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to send after the fee has been deducted</source>
-        <translation type="unfinished">कारोबार रकम शुल्क कटौती गरेपछि पठाउँदा धेरै नै सानो हुन्छ</translation>
-    </message>
-    <message>
-        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation type="unfinished">यो जारी गर्नु पूर्वको परीक्षण संस्करण हो - आफ्नै जोखिममा प्रयोग गर्नुहोस् - खनन वा व्यापारीक प्रयोगको लागि प्रयोग नगर्नुहोस</translation>
-    </message>
-    <message>
-        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation type="unfinished">चेतावनी: हामी हाम्रा सहकर्मीहरूसँग पूर्णतया सहमत छैनौं जस्तो देखिन्छ! तपाईंले अपग्रेड गर्नु पर्ने हुनसक्छ वा अरू नोडहरूले अपग्रेड गर्नु पर्ने हुनसक्छ ।</translation>
-    </message>
-    <message>
-        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
-        <translation type="unfinished">तपाईंले काटछाँट नगरेको मोडमा जान पुनः सूचकांक प्रयोग गरेर डाटाबेस पुनर्निर्माण गर्नु पर्ने हुन्छ । यसले सम्पूर्ण ब्लकचेनलाई फेरि डाउनलोड गर्नेछ</translation>
-    </message>
-    <message>
-        <source>-maxmempool must be at least %d MB</source>
-        <translation type="unfinished">-maxmempool कम्तिमा %d MB को हुनुपर्छ ।</translation>
-    </message>
-    <message>
-        <source>Cannot resolve -%s address: '%s'</source>
-        <translation type="unfinished">-%s ठेगाना: &amp;apos;%s&amp;apos; निश्चय गर्न सकिँदैन</translation>
-    </message>
-    <message>
-        <source>Copyright (C) %i-%i</source>
-        <translation type="unfinished">सर्वाधिकार (C) %i-%i</translation>
-    </message>
-    <message>
-        <source>Corrupted block database detected</source>
-        <translation type="unfinished">क्षति पुगेको ब्लक डाटाबेस फेला पर</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">तपाईं अहिले ब्लक डेटाबेस पुनर्निर्माण गर्न चाहनुहुन्छ ?</translation>
-    </message>
-    <message>
-        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
-        <translation type="unfinished">यो कम्प्युटरको %s मा बाँध्न सकिएन । %s सम्भवित रूपमा पहिलैबाट चलिरहेको छ ।</translation>
-    </message>
-    <message>
-        <source>User Agent comment (%s) contains unsafe characters.</source>
-        <translation type="unfinished">प्रयोगकर्ता एजेन्टको टिप्पणी (%s) मा असुरक्षित अक्षरहरू छन् ।</translation>
-    </message>
-    <message>
-        <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation type="unfinished">वालेट फेरि लेख्नु आवश्यक छ: पूरा गर्न %s लाई पुन: सुरु गर्नुहोस्</translation>
-    </message>
-</context>
 <context>
     <name>BitcoinGUI</name>
     <message>
@@ -401,7 +330,7 @@
     </message>
     <message>
         <source>&amp;Receive</source>
-        <translation type="unfinished">प्राप्त गर्नुहोस्</translation>
+        <translation type="unfinished">&amp;प्राप्त गर्नुहोस्</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
@@ -519,33 +448,7 @@
     </message>
     </context>
 <context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation type="unfinished">ठेगाना जाँच गर्नुहोस्</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation type="unfinished">&amp;ठेगाना</translation>
-    </message>
-    <message>
-        <source>Could not unlock wallet.</source>
-        <translation type="unfinished">वालेट अनलक गर्न सकेन</translation>
-    </message>
-    </context>
-<context>
-    <name>FreespaceChecker</name>
-    <message>
-        <source>name</source>
-        <translation type="unfinished">नाम</translation>
-    </message>
-    </context>
-<context>
     <name>Intro</name>
-    <message>
-        <source>Qtum</source>
-        <translation type="unfinished">बिटकोइन</translation>
-    </message>
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
@@ -575,75 +478,16 @@
             <numerusform />
         </translation>
     </message>
-    <message>
-        <source>Welcome</source>
-        <translation type="unfinished">स्वागत छ</translation>
-    </message>
-    <message>
-        <source>Welcome to %1.</source>
-        <translation type="unfinished">स्वागत छ %1 .</translation>
-    </message>
-    </context>
-<context>
-    <name>ModalOverlay</name>
-    <message>
-        <source>Form</source>
-        <translation type="unfinished">फारम</translation>
-    </message>
-    <message>
-        <source>Number of blocks left</source>
-        <translation type="unfinished">बाँकी ब्लकहरूको संख्या</translation>
-    </message>
-    <message>
-        <source>Unknown…</source>
-        <translation type="unfinished">थाहा नभाको...</translation>
-    </message>
-    <message>
-        <source>calculating…</source>
-        <translation type="unfinished">हिसाब...</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="unfinished">प्रगति</translation>
-    </message>
-    <message>
-        <source>Progress increase per hour</source>
-        <translation type="unfinished">प्रति घण्टा प्रगति वृद्धि</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="unfinished">लुकाउनुहोस्</translation>
-    </message>
     </context>
 <context>
     <name>OptionsDialog</name>
     <message>
-        <source>Options</source>
-        <translation type="unfinished">विकल्प</translation>
-    </message>
-    <message>
-        <source>&amp;Main</source>
-        <translation type="unfinished">&amp;मुख्य</translation>
-    </message>
-    <message>
-        <source>&amp;Network</source>
-        <translation type="unfinished">&amp;नेटवर्क</translation>
-    </message>
-    <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
         <translation type="unfinished">इन्टरफेसमा र सिक्का पठाउँदा देखिने डिफल्ट उपविभाजन एकाइ चयन गर्नुहोस् ।</translation>
-    </message>
-    <message>
-        <source>&amp;OK</source>
-        <translation type="unfinished">&amp;ठिक छ</translation>
     </message>
     </context>
 <context>
     <name>OverviewPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="unfinished">फारम</translation>
-    </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">देखाइएको सूचना पूरानो हुन सक्छ । कनेक्सन स्थापित भएपछि, तपाईंको वालेट बिटकोइन नेटवर्कमा स्वचालित रूपमा समिकरण हुन्छ , तर यो प्रक्रिया अहिले सम्म पूरा भएको छैन ।</translation>
@@ -681,39 +525,12 @@
         <translation type="unfinished">ब्यालेन्सहरु</translation>
     </message>
     <message>
-        <source>Total:</source>
-        <translation type="unfinished">सम्पूर्ण:</translation>
-    </message>
-    <message>
-        <source>Your current total balance</source>
-        <translation type="unfinished">तपाईंको हालको सम्पूर्ण ब्यालेन्स</translation>
-    </message>
-    <message>
-        <source>Spendable:</source>
-        <translation type="unfinished">खर्च उपलब्ध:</translation>
-    </message>
-    <message>
-        <source>Recent transactions</source>
-        <translation type="unfinished">भर्खरको ट्राजेक्शनहरू</translation>
-    </message>
-    <message>
         <source>Mined balance in watch-only addresses that has not yet matured</source>
         <translation type="unfinished">अहिलेसम्म परिपक्व नभएको खनन गरिएको, हेर्ने-मात्र ठेगानामा रहेको ब्यालेन्स</translation>
     </message>
     <message>
         <source>Current total balance in watch-only addresses</source>
         <translation type="unfinished">हेर्ने-मात्र ठेगानामा रहेको हालको जम्मा ब्यालेन्स</translation>
-    </message>
-    </context>
-<context>
-    <name>PSBTOperationsDialog</name>
-    <message>
-        <source>Save…</source>
-        <translation type="unfinished">राख्नुहोस्...</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="unfinished">बन्द गर्नुहोस्</translation>
     </message>
     </context>
 <context>
@@ -741,13 +558,6 @@
     </message>
     </context>
 <context>
-    <name>ReceiveCoinsDialog</name>
-    <message>
-        <source>Could not unlock wallet.</source>
-        <translation type="unfinished">वालेट अनलक गर्न सकेन</translation>
-    </message>
-    </context>
-<context>
     <name>ReceiveRequestDialog</name>
     <message>
         <source>Wallet:</source>
@@ -767,10 +577,6 @@
     </context>
 <context>
     <name>SendCoinsDialog</name>
-    <message>
-        <source>Hide</source>
-        <translation type="unfinished">लुकाउनुहोस्</translation>
-    </message>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation type="unfinished">
@@ -803,7 +609,7 @@
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">आफ्नो ठेगानामा पठाइएको क्तुम प्राप्त गर्न सकिन्छ भनेर प्रमाणित गर्न तपाईंले ती ठेगानाले सन्देश/सम्झौताहरूमा हस्ताक्षर गर्न सक्नुहुन्छ । फिसिङ आक्रमणले तपाईंलाई छक्याएर अरूका लागि तपाईंको परिचयमा हस्ताक्षर गराउने प्रयास गर्न सक्ने भएकाले अस्पष्ट वा जथाभावीमा हस्ताक्षर गर्दा ध्यान दिनुहोस् । आफू सहमत भएको पूर्ण विस्तृत-कथनमा मात्र हस्ताक्षर गर्नुहोस् ।</translation>
-  </message>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">पहिला प्रयोग गरिएको ठेगाना प्रयोग गर्नुहोस्</translation>
@@ -822,10 +628,6 @@
     <message>
         <source>Date</source>
         <translation type="unfinished">मिति</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation type="unfinished">थाहा नभयेको</translation>
     </message>
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
@@ -896,4 +698,67 @@
         <translation type="unfinished">वर्तमान ट्याबको डाटालाई फाइलमा निर्यात गर्नुहोस्</translation>
     </message>
     </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
+        <translation type="unfinished">ब्लक डाटाबेसमा भविष्यबाट आए जस्तो देखिने एउटा ब्लक हुन्छ । तपाईंको कम्प्युटरको मिति र समय गलत तरिकाले सेट गरिएकाले यस्तो हुन सक्छ । तपाईं आफ्नो कम्प्युटरको मिति र समय सही छ भनेर पक्का हुनुहुन्छ भने मात्र ब्लक डाटाबेस पुनर्निर्माण गर्नुहोस् ।</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to send after the fee has been deducted</source>
+        <translation type="unfinished">कारोबार रकम शुल्क कटौती गरेपछि पठाउँदा धेरै नै सानो हुन्छ</translation>
+    </message>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation type="unfinished">यो जारी गर्नु पूर्वको परीक्षण संस्करण हो - आफ्नै जोखिममा प्रयोग गर्नुहोस् - खनन वा व्यापारीक प्रयोगको लागि प्रयोग नगर्नुहोस</translation>
+    </message>
+    <message>
+        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
+        <translation type="unfinished">चेतावनी: हामी हाम्रा सहकर्मीहरूसँग पूर्णतया सहमत छैनौं जस्तो देखिन्छ! तपाईंले अपग्रेड गर्नु पर्ने हुनसक्छ वा अरू नोडहरूले अपग्रेड गर्नु पर्ने हुनसक्छ ।</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
+        <translation type="unfinished">तपाईंले काटछाँट नगरेको मोडमा जान पुनः सूचकांक प्रयोग गरेर डाटाबेस पुनर्निर्माण गर्नु पर्ने हुन्छ । यसले सम्पूर्ण ब्लकचेनलाई फेरि डाउनलोड गर्नेछ</translation>
+    </message>
+    <message>
+        <source>-maxmempool must be at least %d MB</source>
+        <translation type="unfinished">-maxmempool कम्तिमा %d MB को हुनुपर्छ ।</translation>
+    </message>
+    <message>
+        <source>Cannot resolve -%s address: '%s'</source>
+        <translation type="unfinished">-%s ठेगाना: &amp;apos;%s&amp;apos; निश्चय गर्न सकिँदैन</translation>
+    </message>
+    <message>
+        <source>Copyright (C) %i-%i</source>
+        <translation type="unfinished">सर्वाधिकार (C) %i-%i</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">क्षति पुगेको ब्लक डाटाबेस फेला पर</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">तपाईं अहिले ब्लक डेटाबेस पुनर्निर्माण गर्न चाहनुहुन्छ ?</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
+        <translation type="unfinished">यो कम्प्युटरको %s मा बाँध्न सकिएन । %s सम्भवित रूपमा पहिलैबाट चलिरहेको छ ।</translation>
+    </message>
+    <message>
+        <source>User Agent comment (%s) contains unsafe characters.</source>
+        <translation type="unfinished">प्रयोगकर्ता एजेन्टको टिप्पणी (%s) मा असुरक्षित अक्षरहरू छन् ।</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation type="unfinished">वालेट फेरि लेख्नु आवश्यक छ: पूरा गर्न %s लाई पुन: सुरु गर्नुहोस्</translation>
+    </message>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">सेटिङ फाइल पढ्न सकिएन</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">सेटिङ फाइल लेख्न सकिएन</translation>
+    </message>
+</context>
 </TS>

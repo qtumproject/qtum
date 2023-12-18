@@ -14,6 +14,7 @@ src/qtum-wallet
 src/test/fuzz/fuzz
 src/test/test_qtum
 src/qt/test/test_qtum-qt
+src/bench/bench_qtum
 
 # autoreconf
 Makefile.in

@@ -6,7 +6,6 @@
 
 from decimal import Decimal
 
-from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.messages import MSG_TX, MSG_WTX, msg_feefilter
 from test_framework.p2p import P2PInterface, p2p_lock
 from test_framework.test_framework import BitcoinTestFramework
@@ -80,16 +79,11 @@ class FeeFilterTest(BitcoinTestFramework):
         node1 = self.nodes[1]
         node0 = self.nodes[0]
         miniwallet = MiniWallet(node1)
-        # Add enough mature utxos to the wallet, so that all txs spend confirmed coins
-        self.generate(miniwallet, 5)
-        for i in range(100):
-            self.generate(node1, COINBASE_MATURITY//100)
-            self.sync_blocks()
 
         conn = self.nodes[0].add_p2p_connection(TestP2PConn())
 
         self.log.info("Test txs paying 20 sat/byte are received by test connection")
-        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.02000000'), from_node=node1)['wtxid'] for _ in range(3)]
+        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.00000200'), from_node=node1)['wtxid'] for _ in range(3)]
         conn.wait_for_invs_to_match(txids)
         conn.clear_invs()
 

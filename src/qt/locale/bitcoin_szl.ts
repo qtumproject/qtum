@@ -270,69 +270,6 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>The %s developers</source>
-        <translation type="unfinished">Twōrcy %s</translation>
-    </message>
-    <message>
-        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
-        <translation type="unfinished">Imyntnŏ dugość kety wersyje (%i) przekrŏczŏ maksymalnõ dopuszczalnõ dugość (%i). Zmyńsz wielość abo miara parametra uacomment.</translation>
-    </message>
-    <message>
-        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
-        <translation type="unfinished">Pozōr: Wykryto było klucze prywatne w portmanyju {%s} kery mŏ zastawiōne klucze prywatne</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Wgrŏwanie zakōńczōne</translation>
-    </message>
-    <message>
-        <source>Error loading %s</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ %s</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ %s: Klucze prywatne mogōm być zastawiōne ino w czasie tworzyniŏ</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet corrupted</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ %s: Portmanyj poprzniōny</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet requires newer version of %s</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ %s: Portmanyj fołdruje nowszyj wersyje %s</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Feler wgrŏwaniŏ bazy blokōw</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is low for %s</source>
-        <translation type="unfinished">Feler: Za mało wolnego placu na dysku dlŏ %s</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Szkryftniyńcie transakcyji niy podarziło sie</translation>
-    </message>
-    <message>
-        <source>This is experimental software.</source>
-        <translation type="unfinished">To je eksperymyntalny softwer.</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Transakcyjŏ za srogŏ</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">Niyznōmy nec ôkryślōny w -onlynet: '%s'</translation>
-    </message>
-    <message>
-        <source>Unsupported logging category %s=%s.</source>
-        <translation type="unfinished">Niypodpiyranŏ kategoryjŏ registrowaniŏ %s=%s.</translation>
-    </message>
-    </context>
-<context>
     <name>BitcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
@@ -442,7 +379,7 @@
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Żōndej płatu (gyneruje kod QR jak tyż URI qtum:)</translation>
-   </message>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Pokŏż wykŏz adres i etyket użytych do posyłaniŏ</translation>
@@ -494,7 +431,7 @@
         <translation type="unfinished">&amp;Adresy posyłaniŏ</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source> 
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Pokŏż pōmoc %1 coby zobŏczyć wykŏz wszyjskich ôpcyji piski nakŏzań.</translation>
     </message>
     <message>
@@ -510,7 +447,7 @@
         <translation type="unfinished">%1 klijynt</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -762,8 +699,8 @@
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">Wkludzōnŏ adresa "%1" niyma nŏleżnōm adresōm Qtum.</translation>  
-  </message>
+        <translation type="unfinished">Wkludzōnŏ adresa "%1" niyma nŏleżnōm adresōm Qtum.</translation>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Adresa "%1" już je za adresã ôdbiorczõ z etyketōm "%2" i bez to niy idzie jeji przidać za adresã nadŏwcy.</translation>
@@ -838,7 +775,7 @@
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 sebiere i spamiyntŏ kopijõ kety blokōw Qtum.</translation>
-   </message>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Portmanyj tyż ôstanie spamiyntany w tym katalogu.</translation>
@@ -908,7 +845,7 @@
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Prōba wydaniŏ qtumōw kere niy sōm jeszcze wyświytlōne za transakcyjŏ ôstanie ôdciepniyntŏ bez nec.</translation>
-   </message>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Ôstało blokōw</translation>
@@ -1039,7 +976,7 @@
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Skupluj sie z necym Qtum bez SOCKS5 proxy.</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Skupluj bez proxy SOCKS5 (wychodne proxy):</translation>
@@ -1304,7 +1241,7 @@
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">Ôpcyjōnalnŏ wiadōmość do prziwstōniŏ do żōndaniŏ płatu, kerŏ bydzie wyświytlanŏ, kej żōndanie ôstanie ôdewrzōne. Napōmniynie: wiadōmość ta niy ôstanie wysłanŏ z płatym w nec Qtum.</translation>  
+        <translation type="unfinished">Ôpcyjōnalnŏ wiadōmość do prziwstōniŏ do żōndaniŏ płatu, kerŏ bydzie wyświytlanŏ, kej żōndanie ôstanie ôdewrzōne. Napōmniynie: wiadōmość ta niy ôstanie wysłanŏ z płatym w nec Qtum.</translation>
   </message>
     <message>
         <source>Clear</source>
@@ -1510,8 +1447,8 @@
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">Wiadōmość, kerŏ ôstała prziwstōnŏ do URI qtum:, kerŏ bydzie przechowowanŏ z transakcyjōm w cylach informacyjnych. Napōmniynie: Ta wiadōmość niy bydzie rozszyrzowanŏ w necu Qtum.</translation>  
-  </message>
+        <translation type="unfinished">Wiadōmość, kerŏ ôstała prziwstōnŏ do URI qtum:, kerŏ bydzie przechowowanŏ z transakcyjōm w cylach informacyjnych. Napōmniynie: Ta wiadōmość niy bydzie rozszyrzowanŏ w necu Qtum.</translation>
+    </message>
     </context>
 <context>
     <name>SignVerifyMessageDialog</name>
@@ -1720,4 +1657,67 @@
         <translation type="unfinished">Pociep</translation>
     </message>
 </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>The %s developers</source>
+        <translation type="unfinished">Twōrcy %s</translation>
+    </message>
+    <message>
+        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
+        <translation type="unfinished">Imyntnŏ dugość kety wersyje (%i) przekrŏczŏ maksymalnõ dopuszczalnõ dugość (%i). Zmyńsz wielość abo miara parametra uacomment.</translation>
+    </message>
+    <message>
+        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
+        <translation type="unfinished">Pozōr: Wykryto było klucze prywatne w portmanyju {%s} kery mŏ zastawiōne klucze prywatne</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Wgrŏwanie zakōńczōne</translation>
+    </message>
+    <message>
+        <source>Error loading %s</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ %s</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Private keys can only be disabled during creation</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ %s: Klucze prywatne mogōm być zastawiōne ino w czasie tworzyniŏ</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ %s: Portmanyj poprzniōny</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ %s: Portmanyj fołdruje nowszyj wersyje %s</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Feler wgrŏwaniŏ bazy blokōw</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is low for %s</source>
+        <translation type="unfinished">Feler: Za mało wolnego placu na dysku dlŏ %s</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Szkryftniyńcie transakcyji niy podarziło sie</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">To je eksperymyntalny softwer.</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Transakcyjŏ za srogŏ</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">Niyznōmy nec ôkryślōny w -onlynet: '%s'</translation>
+    </message>
+    <message>
+        <source>Unsupported logging category %s=%s.</source>
+        <translation type="unfinished">Niypodpiyranŏ kategoryjŏ registrowaniŏ %s=%s.</translation>
+    </message>
+    </context>
 </TS>

@@ -13,6 +13,7 @@
 #include <QKeyEvent>
 
 class PlatformStyle;
+class TransactionDescDialog;
 class TransactionFilterProxy;
 class WalletModel;
 
@@ -95,6 +96,8 @@ private:
 
     const PlatformStyle* m_platform_style;
 
+    QList<TransactionDescDialog*> m_opened_dialogs;
+
 private Q_SLOTS:
     void contextualMenu(const QPoint &);
     void dateRangeChanged();
@@ -126,6 +129,7 @@ public Q_SLOTS:
     void changedAmount();
     void changedSearch();
     void exportClicked();
+    void closeOpenedDialogs();
     void focusTransaction(const QModelIndex&);
     void focusTransaction(const uint256& txid);
 };

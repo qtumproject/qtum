@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Бұл сіздің төлем жіберетін Qtum мекенжайларыңыз. Тиын жібермес бұрын, әрқашан сома мен алушы мекенжайды тексеріңіз.</translation> 
+        <translation type="unfinished">Бұл сіздің төлем жіберетін Qtum мекенжайларыңыз. Тиын жібермес бұрын, әрқашан сома мен алушы мекенжайды тексеріңіз.</translation>
    </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -243,14 +243,6 @@
 <context>
     <name>QObject</name>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation type="unfinished">Қате: берілген "%1" дерек директориясы жоқ.</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation type="unfinished">Қате: конфигурация файлы талданбайды: %1.</translation>
-    </message>
-    <message>
         <source>Error: %1</source>
         <translation type="unfinished">Қате: %1</translation>
     </message>
@@ -307,25 +299,6 @@
             <numerusform />
             <numerusform />
         </translation>
-    </message>
-    </context>
-<context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">-fallbackfee=&lt;amount&gt; үшін қате сан: "%s"</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">Транзакция өте кішкентай</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Транзакция өте үлкен</translation>
-    </message>
-    <message>
-        <source>Verifying wallet(s)…</source>
-        <translation type="unfinished">Әмиян(дар) тексерілуде…</translation>
     </message>
     </context>
 <context>
@@ -438,14 +411,14 @@
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Хатқа Qtum мекенжайларын қосып, олар сізге тиесілі екенін дәлелдеу</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Хат тексеру…</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Хат тексеріп, берілген Qtum мекенжайлары қосылғанына көз жеткізу</translation> 
+        <translation type="unfinished">Хат тексеріп, берілген Qtum мекенжайлары қосылғанына көз жеткізу</translation>
    </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -496,11 +469,7 @@
         <translation type="unfinished">Дискідегі блоктар инедекстелуде...</translation>
     </message>
     <message>
-        <source>Reindexing blocks on disk…</source>
-        <translation type="unfinished">Дискідегі блоктар қайта индекстелуде…</translation>
-    </message>
-    <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source> 
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Төлем талап ету (QR кодтары мен биткоин құрады: URI)</translation>
     </message>
     <message>
@@ -520,7 +489,7 @@
     </message>
     <message>
         <source>%1 behind</source>
-        <translation type="unfinished">%1 қалмады</translation>
+        <translation type="unfinished">%1 артта</translation>
     </message>
     <message>
         <source>Catching up…</source>
@@ -528,7 +497,7 @@
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">қате</translation>
+        <translation type="unfinished">Қате</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -536,7 +505,7 @@
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished">Информация</translation>
+        <translation type="unfinished">Ақпарат</translation>
     </message>
     <message>
         <source>Up to date</source>
@@ -646,7 +615,7 @@
 <context>
     <name>Intro</name>
     <message>
-        <source>Qtum</source> 
+        <source>Qtum</source>
         <translation type="unfinished">Биткоин</translation>
     </message>
     <message numerus="yes">
@@ -922,6 +891,21 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">Қазіргі қойыншадағы деректерді файлға экспорттау</translation>
+    </message>
+    </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Транзакция өте кішкентай</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Транзакция өте үлкен</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">Әмиян(дар) тексерілуде…</translation>
     </message>
     </context>
 </TS>

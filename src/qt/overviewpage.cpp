@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -217,8 +217,6 @@ private:
 OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::OverviewPage),
-    clientModel(nullptr),
-    walletModel(nullptr),
     m_platform_style{platformStyle},
     txdelegate(new TxViewDelegate(platformStyle, this))
 {
@@ -259,6 +257,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
 void OverviewPage::setPrivacy(bool privacy)
 {
     m_privacy = privacy;
+    clientModel->getOptionsModel()->setOption(OptionsModel::OptionID::MaskValues, privacy);
     const auto& balances = walletModel->getCachedBalance();
     if (balances.balance != -1) {
         setBalance(balances);

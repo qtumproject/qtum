@@ -72,7 +72,7 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Улар тўловларни қабул қилиш учун сизнинг Qtum манзилларингиз. Янги манзилларни яратиш учун қабул қилиш варағидаги "Янги қабул қилиш манзилини яратиш" устига босинг. 
+        <translation type="unfinished">Улар тўловларни қабул қилиш учун сизнинг Qtum манзилларингиз. Янги манзилларни яратиш учун қабул қилиш варағидаги "Янги қабул қилиш манзилини яратиш" устига босинг.
 Фақат 'legacy' туридаги манзиллар билан ҳисобга кириш мумкин.</translation>
     </message>
     <message>
@@ -271,14 +271,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Fatal xatolik yuz berdi. Sozlamalar fayli tahrirlashga yaroqliligini tekshiring yoki -nosettings bilan davom etishga harakat qiling.</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation type="unfinished">Xatolik. Belgilangan "%1" mavjud emas.</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation type="unfinished">Xatolik. %1 ni tahlil qilish imkonsiz.</translation>
-    </message>
-    <message>
         <source>Error: %1</source>
         <translation type="unfinished">Xatolik: %1</translation>
     </message>
@@ -385,41 +377,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>%1 GB</source>
         <translation type="unfinished">%1 ГБ</translation>
-    </message>
-</context>
-<context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">Sozlamalar fayli o'qishga yaroqsiz</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">Sozlamalar fayli yaratish uchun yaroqsiz</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Юклаш тайёр</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Кам миқдор</translation>
-    </message>
-    <message>
-        <source>Unable to start HTTP server. See debug log for details.</source>
-        <translation type="unfinished">HTTP serverni ishga tushirib bo'lmadi. Tafsilotlar uchun disk raskadrovka jurnaliga qarang.</translation>
-    </message>
-    <message>
-        <source>Verifying blocks…</source>
-        <translation type="unfinished">Bloklar tekshirilmoqda…</translation>
-    </message>
-    <message>
-        <source>Verifying wallet(s)…</source>
-        <translation type="unfinished">Hamyon(lar) tekshirilmoqda…</translation>
-    </message>
-    <message>
-        <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation type="unfinished">Hamyonni qayta yozish kerak: bajarish uchun 1%s ni qayta ishga tushiring</translation>
     </message>
 </context>
 <context>
@@ -531,7 +488,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Sign &amp;message…</source>
-        <translation type="unfinished">Kirish &amp;xabarlashish</translation>
+        <translation type="unfinished">Xabarni &amp;signlash...</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
@@ -539,7 +496,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Verify message…</source>
-        <translation type="unfinished">&amp;Xabarni tasdiqlash</translation>
+        <translation type="unfinished">&amp;Xabarni tasdiqlash...</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
@@ -591,15 +548,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Indexing blocks on disk…</source>
-        <translation type="unfinished">Diskdagi bloklarni indekslash</translation>
+        <translation type="unfinished">Diskdagi bloklarni indekslash...</translation>
     </message>
     <message>
         <source>Processing blocks on disk…</source>
-        <translation type="unfinished">Diskdagi bloklarni protsesslash</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk…</source>
-        <translation type="unfinished">Diskdagi bloklarni qayta indekslash...</translation>
+        <translation type="unfinished">Diskdagi bloklarni protsesslash...</translation>
     </message>
     <message>
         <source>Connecting to peers…</source>
@@ -694,7 +647,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Open Wallet</source>
-        <translation type="unfinished">Hamyonni ochish</translation>
+        <translation type="unfinished">Ochiq hamyon</translation>
     </message>
     <message>
         <source>Open a wallet</source>
@@ -754,7 +707,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Ko'&amp;rsatish</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>Bitkoin tarmog'iga %n aktiv ulanishlar.</numerusform>
@@ -2588,4 +2541,39 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Жорий ички ойна ичидаги маълумотларни файлга экспорт қилиш</translation>
     </message>
     </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Юклаш тайёр</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Кам миқдор</translation>
+    </message>
+    <message>
+        <source>Unable to start HTTP server. See debug log for details.</source>
+        <translation type="unfinished">HTTP serverni ishga tushirib bo'lmadi. Tafsilotlar uchun disk raskadrovka jurnaliga qarang.</translation>
+    </message>
+    <message>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">Bloklar tekshirilmoqda…</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">Hamyon(lar) tekshirilmoqda…</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation type="unfinished">Hamyonni qayta yozish kerak: bajarish uchun 1%s ni qayta ishga tushiring</translation>
+    </message>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Sozlamalar fayli o'qishga yaroqsiz</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Sozlamalar fayli yaratish uchun yaroqsiz</translation>
+    </message>
+</context>
 </TS>

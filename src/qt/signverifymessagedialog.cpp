@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -22,7 +22,6 @@
 SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::SignVerifyMessageDialog),
-    model(nullptr),
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
@@ -42,7 +41,6 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     SetObjectStyleSheet(ui->pasteButton_SM, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->copySignatureButton_SM, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->addressBookButton_VM, StyleSheetNames::ButtonTransparent);
-
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);
     GUIUtil::setupAddressWidget(ui->addressIn_VM, this);

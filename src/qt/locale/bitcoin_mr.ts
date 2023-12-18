@@ -220,17 +220,6 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">सेटिंग्ज फाइल वाचता आली नाही</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">सेटिंग्ज फाइल लिहिता आली नाही</translation>
-    </message>
-    </context>
-<context>
     <name>BitcoinGUI</name>
     <message>
         <source>&amp;Minimize</source>
@@ -246,8 +235,7 @@
     </message>
     <message>
         <source>&amp;Backup Wallet…</source>
-        <translation type="unfinished">&amp;बॅकअप वॉलेट…
- </translation>
+        <translation type="unfinished">&amp;बॅकअप वॉलेट...</translation>
     </message>
     <message>
         <source>&amp;Change Passphrase…</source>
@@ -433,4 +421,15 @@
         <translation type="unfinished">सध्याच्या टॅबमधील डेटा एका फाईलमध्ये एक्स्पोर्ट करा</translation>
     </message>
     </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">सेटिंग्ज फाइल वाचता आली नाही</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">सेटिंग्ज फाइल लिहिता आली नाही</translation>
+    </message>
+</context>
 </TS>

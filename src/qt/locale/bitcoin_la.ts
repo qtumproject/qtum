@@ -225,69 +225,6 @@
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation type="unfinished">Hoc est prae-dimittum experimentala aedes - utere eo periculo tuo proprio - nolite utere fodendo vel applicationibus mercatoriis</translation>
-    </message>
-    <message>
-        <source>Corrupted block database detected</source>
-        <translation type="unfinished">Corruptum databasum frustorum invenitur</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Visne reficere databasum frustorum iam?</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Completo lengendi</translation>
-    </message>
-    <message>
-        <source>Error initializing block database</source>
-        <translation type="unfinished">Error initiando databasem frustorum</translation>
-    </message>
-    <message>
-        <source>Error initializing wallet database environment %s!</source>
-        <translation type="unfinished">Error initiando systematem databasi cassidilis %s!</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Error legendo frustorum databasem</translation>
-    </message>
-    <message>
-        <source>Error opening block database</source>
-        <translation type="unfinished">Error aperiendo databasum frustorum</translation>
-    </message>
-    <message>
-        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
-        <translation type="unfinished">Non potuisse auscultare in ulla porta.  Utere -listen=0 si hoc vis.</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Inopia nummorum</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">Inopia descriptorum plicarum.</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Signandum transactionis abortum est</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">Magnitudo transactionis nimis parva</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Transactio nimis magna</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">Ignotum rete specificatum in -onlynet: '%s'</translation>
-    </message>
-    </context>
-<context>
     <name>BitcoinGUI</name>
     <message>
         <source>&amp;Overview</source>
@@ -417,7 +354,7 @@
         <translation type="unfinished">&amp;Fenestra</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -508,7 +445,7 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Inscriptio inserta "%1" non valida inscriptio Qtum est.</translation>
-   </message>
+    </message>
     <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">Non potuisse cassidile reserare</translation>
@@ -985,7 +922,7 @@
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Signa nuntium ut demonstres hanc inscriptionem Qtum a te possessa esse</translation>
-   </message>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Signa &amp;Nuntium</translation>
@@ -1005,7 +942,7 @@
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verifica nuntium ut cures signatum esse cum specifica inscriptione Qtum</translation>
-   </message>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Verifica &amp;Nuntium</translation>
@@ -1359,6 +1296,69 @@
     <message>
         <source>Backup Successful</source>
         <translation type="unfinished">Successum in conservando</translation>
+    </message>
+    </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation type="unfinished">Hoc est prae-dimittum experimentala aedes - utere eo periculo tuo proprio - nolite utere fodendo vel applicationibus mercatoriis</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">Corruptum databasum frustorum invenitur</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">Visne reficere databasum frustorum iam?</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Completo lengendi</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">Error initiando databasem frustorum</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">Error initiando systematem databasi cassidilis %s!</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Error legendo frustorum databasem</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">Error aperiendo databasum frustorum</translation>
+    </message>
+    <message>
+        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
+        <translation type="unfinished">Non potuisse auscultare in ulla porta.  Utere -listen=0 si hoc vis.</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Inopia nummorum</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation type="unfinished">Inopia descriptorum plicarum.</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Signandum transactionis abortum est</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Magnitudo transactionis nimis parva</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Transactio nimis magna</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">Ignotum rete specificatum in -onlynet: '%s'</translation>
     </message>
     </context>
 </TS>

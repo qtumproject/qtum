@@ -97,11 +97,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">અલ્પવિરામથી વિભાજિત ફાઇલ</translation>
     </message>
     <message>
-        <source>There was an error trying to save the address list to %1. Please try again.</source>
-        <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
-        <translation type="unfinished">સરનામાં સૂચિને માં સાચવવાનો પ્રયાસ કરતી વખતે ભૂલ આવી હતી %1. મહેરબાની કરીને ફરીથી પ્રયતન કરો.</translation>
-    </message>
-    <message>
         <source>Exporting Failed</source>
         <translation type="unfinished">નિકાસ ની પ્ર્રાક્રિયા નિષ્ફળ ગયેલ છે</translation>
     </message>
@@ -165,7 +160,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">ચેતવણી: જો તમે તમારા વૉલેટને એન્ક્રિપ્ટ કરો છો અને તમારો પાસફ્રેઝ ખોવાઈ જાય છે, &lt;b&gt; તો તમે તમારા બધા બિટકોઇન્સ ગુમાવશો&lt;/b&gt;!</translation>
+        <translation type="unfinished">ચેતવણી: જો તમે તમારું વletલેટ એન્ક્રિપ્ટ કરો છો અને તમારો પાસફ્રેઝ ખોવાઈ જાય છે, તો તમે તમારા બધા બિટકોઇન્સ ગુમાવશો!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -189,10 +184,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Amount</source>
         <translation type="unfinished">રકમ</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation type="unfinished">અંદરનું</translation>
     </message>
     <message>
         <source>Inbound</source>
@@ -390,7 +381,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>(no label)</source>
-        <translation type="unfinished">(લેબલ નથી)</translation>
+        <translation type="unfinished">લેબલ નથી</translation>
     </message>
     </context>
 <context>

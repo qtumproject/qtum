@@ -248,20 +248,12 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
 <context>
     <name>QObject</name>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation type="unfinished">Erro: O directorio de datos especificado "%1" non existe.</translation>
-    </message>
-    <message>
         <source>unknown</source>
         <translation type="unfinished">descoñecido</translation>
     </message>
     <message>
         <source>Amount</source>
         <translation type="unfinished">Cantidade</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation type="unfinished">Interno</translation>
     </message>
     <message numerus="yes">
         <source>%n second(s)</source>
@@ -304,77 +296,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
             <numerusform />
             <numerusform />
         </translation>
-    </message>
-    </context>
-<context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation type="unfinished">Esta é unha build de test pre-lanzamento - emprégaa baixo o teu propio risco - non empregar para minado ou aplicacións de comerciantes</translation>
-    </message>
-    <message>
-        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation type="unfinished">Precaución: Non parece que esteamos totalmente de acordo cos nosos pares! Pode que precises actualizar, ou outros nodos poden precisar actualizarse.</translation>
-    </message>
-    <message>
-        <source>Corrupted block database detected</source>
-        <translation type="unfinished">Detectada base de datos de bloques corrupta.</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Queres reconstruír a base de datos de bloques agora?</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Carga completa</translation>
-    </message>
-    <message>
-        <source>Error initializing block database</source>
-        <translation type="unfinished">Erro inicializando a base de datos de bloques</translation>
-    </message>
-    <message>
-        <source>Error initializing wallet database environment %s!</source>
-        <translation type="unfinished">Erro inicializando entorno de base de datos de moedeiro %s!</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Erro cargando base de datos do bloque</translation>
-    </message>
-    <message>
-        <source>Error opening block database</source>
-        <translation type="unfinished">Erro abrindo base de datos de bloques</translation>
-    </message>
-    <message>
-        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
-        <translation type="unfinished">Fallou escoitar en calquera porto. Emprega -listen=0 se queres isto.</translation>
-    </message>
-    <message>
-        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
-        <translation type="unfinished">Bloque xénese incorrecto ou non existente. Datadir erróneo para a rede?</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Fondos insuficientes</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">Non hai suficientes descritores de arquivo dispoñibles.</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Fallou a sinatura da transacción</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">A cantidade da transacción é demasiado pequena</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">A transacción é demasiado grande</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">Rede descoñecida especificada en -onlynet: '%s'</translation>
     </message>
     </context>
 <context>
@@ -475,7 +396,7 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Asina mensaxes cos teus enderezos Qtum para probar que che pertencen</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verifica a mensaxe...</translation>
@@ -2090,6 +2011,77 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>The wallet data was successfully saved to %1.</source>
         <translation type="unfinished">Os datos do moedeiro foron gardados correctamente en %1.</translation>
+    </message>
+    </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation type="unfinished">Esta é unha build de test pre-lanzamento - emprégaa baixo o teu propio risco - non empregar para minado ou aplicacións de comerciantes</translation>
+    </message>
+    <message>
+        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
+        <translation type="unfinished">Precaución: Non parece que esteamos totalmente de acordo cos nosos pares! Pode que precises actualizar, ou outros nodos poden precisar actualizarse.</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">Detectada base de datos de bloques corrupta.</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">Queres reconstruír a base de datos de bloques agora?</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Carga completa</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">Erro inicializando a base de datos de bloques</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">Erro inicializando entorno de base de datos de moedeiro %s!</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Erro cargando base de datos do bloque</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">Erro abrindo base de datos de bloques</translation>
+    </message>
+    <message>
+        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
+        <translation type="unfinished">Fallou escoitar en calquera porto. Emprega -listen=0 se queres isto.</translation>
+    </message>
+    <message>
+        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
+        <translation type="unfinished">Bloque xénese incorrecto ou non existente. Datadir erróneo para a rede?</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Fondos insuficientes</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation type="unfinished">Non hai suficientes descritores de arquivo dispoñibles.</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Fallou a sinatura da transacción</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">A cantidade da transacción é demasiado pequena</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">A transacción é demasiado grande</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">Rede descoñecida especificada en -onlynet: '%s'</translation>
     </message>
     </context>
 </TS>

@@ -54,7 +54,6 @@ brew install cmake automake berkeley-db@4 libtool boost@1.76 miniupnpc openssl p
 Link the specific boost version:
 ``` bash
 brew link boost@1.76
-```
 
 ### 4. Clone Qtum repository
 

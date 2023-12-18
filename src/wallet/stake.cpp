@@ -9,7 +9,7 @@ namespace wallet {
 
 void StakeQtums(CWallet& wallet, bool fStake)
 {
-    node::StakeQtums(fStake, &wallet, wallet.stakeThread);
+    node::StakeQtums(fStake, &wallet);
 }
 
 void StartStake(CWallet& wallet)

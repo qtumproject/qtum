@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -21,7 +21,7 @@
 #include <policy/policy.h>
 #include <util/system.h>
 #include <validation.h>
-#include <wallet/ismine.h>
+#include <wallet/types.h>
 #include <consensus/params.h>
 #include <qt/guiconstants.h>
 
@@ -314,9 +314,9 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
                             strHTML += GUIUtil::HtmlEscape(name) + " ";
                         strHTML += GUIUtil::HtmlEscape(EncodeDestination(address));
                         if(toSelf == ISMINE_SPENDABLE)
-                            strHTML += " (own address)";
+                            strHTML += " (" + tr("own address") + ")";
                         else if(toSelf & ISMINE_WATCH_ONLY)
-                            strHTML += " (watch-only)";
+                            strHTML += " (" + tr("watch-only") + ")";
                         strHTML += "<br>";
                     }
                 }
@@ -369,10 +369,12 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
     if (wtx.value_map.count("comment") && !wtx.value_map["comment"].empty())
         strHTML += "<br>" + TransactionFormater::ItemNameColor(tr("Comment"), false) + "<br>" + GUIUtil::HtmlEscape(wtx.value_map["comment"], true) + "<br>";
 
+
     strHTML += TransactionFormater::ItemNameColor(tr("Transaction ID")) + TransactionFormater::TxIdLink(rec->getTxHash()) + "<br>";
     strHTML += TransactionFormater::ItemNameColor(tr("Transaction total size")) + QString::number(wtx.tx->GetTotalSize()) + " bytes<br>";
     strHTML += TransactionFormater::ItemNameColor(tr("Transaction virtual size")) + QString::number(GetVirtualTransactionSize(*wtx.tx)) + " bytes<br>";
     strHTML += TransactionFormater::ItemNameColor(tr("Output index")) + QString::number(rec->getOutputIndex()) + "<br>";
+
 
     // Message from normal bitcoin:URI (bitcoin:123...?message=example)
     for (const std::pair<std::string, std::string>& r : orderForm) {

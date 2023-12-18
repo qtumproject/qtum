@@ -7,15 +7,6 @@
 
 #include <util/strencodings.h>
 
-#include <string.h>
-
-template <unsigned int BITS>
-base_blob<BITS>::base_blob(const std::vector<unsigned char>& vch)
-{
-    assert(vch.size() == sizeof(m_data));
-    memcpy(m_data, vch.data(), sizeof(m_data));
-}
-
 template <unsigned int BITS>
 std::string base_blob<BITS>::GetHex() const
 {
@@ -29,19 +20,19 @@ std::string base_blob<BITS>::GetHex() const
 template <unsigned int BITS>
 std::string base_blob<BITS>::GetReverseHex() const
 {
-    char psz[sizeof(m_data) * 2 + 1];
+    char psz[WIDTH * 2 + 1];
     int j=0;
     for (int i = sizeof(m_data)-1; i >= 0; i--) {
-        sprintf(psz + j * 2, "%02x", m_data[sizeof(m_data) - i - 1]);
+        sprintf(psz + j * 2, "%02x", m_data[WIDTH - i - 1]);
         j++;
     }
-    return std::string(psz, psz + sizeof(m_data) * 2);
+    return std::string(psz, psz + WIDTH * 2);
 }
 
 template <unsigned int BITS>
 void base_blob<BITS>::SetHex(const char* psz)
 {
-    memset(m_data, 0, sizeof(m_data));
+    std::fill(m_data.begin(), m_data.end(), 0);
 
     // skip leading spaces
     while (IsSpace(*psz))
@@ -55,7 +46,7 @@ void base_blob<BITS>::SetHex(const char* psz)
     size_t digits = 0;
     while (::HexDigit(psz[digits]) != -1)
         digits++;
-    unsigned char* p1 = (unsigned char*)m_data;
+    unsigned char* p1 = m_data.data();
     unsigned char* pend = p1 + WIDTH;
     while (digits > 0 && p1 < pend) {
         *p1 = ::HexDigit(psz[--digits]);
@@ -79,7 +70,7 @@ void base_blob<BITS>::SetReverseHex(const char* psz)
     //reverse in-place
     int left = 0;
     int right = size()-1;
-    unsigned char* p1 = (unsigned char*)m_data;
+    unsigned char* p1 = m_data.data();
     while(left < right){
         int temp=p1[left];
         p1[left++] = p1[right];
@@ -100,7 +91,6 @@ std::string base_blob<BITS>::ToString() const
 }
 
 // Explicit instantiations for base_blob<160>
-template base_blob<160>::base_blob(const std::vector<unsigned char>&);
 template std::string base_blob<160>::GetHex() const;
 template std::string base_blob<160>::ToString() const;
 template void base_blob<160>::SetHex(const char*);
@@ -110,7 +100,6 @@ template void base_blob<160>::SetReverseHex(const char*);
 template void base_blob<160>::SetReverseHex(const std::string&);
 
 // Explicit instantiations for base_blob<256>
-template base_blob<256>::base_blob(const std::vector<unsigned char>&);
 template std::string base_blob<256>::GetHex() const;
 template std::string base_blob<256>::ToString() const;
 template void base_blob<256>::SetHex(const char*);

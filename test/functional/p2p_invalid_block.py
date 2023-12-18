@@ -21,12 +21,12 @@ from test_framework.blocktools import (
     create_coinbase,
     create_tx_with_script,
 )
-from test_framework.messages import COIN, MAX_MONEY 
+from test_framework.messages import COIN, MAX_MONEY
 from test_framework.p2p import P2PDataStore
 from test_framework.script import OP_TRUE
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
-from test_framework.qtumconfig import * 
+from test_framework.qtumconfig import *
 
 
 class InvalidBlockRequestTest(BitcoinTestFramework):
@@ -56,7 +56,7 @@ class InvalidBlockRequestTest(BitcoinTestFramework):
         peer.send_blocks_and_test([block1], node, success=True)
 
         self.log.info("Mature the block.")
-        node.generatetoaddress(COINBASE_MATURITY, node.get_deterministic_priv_key().address)
+        self.generatetoaddress(node, COINBASE_MATURITY, node.get_deterministic_priv_key().address)
 
         best_block = node.getblock(node.getbestblockhash())
         tip = int(node.getbestblockhash(), 16)
@@ -102,7 +102,7 @@ class InvalidBlockRequestTest(BitcoinTestFramework):
         block3 = create_block(tip, create_coinbase(height, nValue=MAX_MONEY), block_time)
         block_time += 1
         block3.solve()
-        
+
         peer.send_blocks_and_test([block3], node, success=False, reject_reason='block-reward-invalid')
 
 

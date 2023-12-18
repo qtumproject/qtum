@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -44,9 +44,7 @@ RPCHelpMan getnewaddress()
     }
 
     // Parse the label first so we don't generate a key if there's an error
-    std::string label;
-    if (!request.params[0].isNull())
-        label = LabelFromValue(request.params[0]);
+    const std::string label{LabelFromValue(request.params[0])};
 
     OutputType output_type = pwallet->m_default_address_type;
     if (!request.params[1].isNull()) {
@@ -141,12 +139,12 @@ RPCHelpMan setlabel()
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
     }
 
-    std::string label = LabelFromValue(request.params[1]);
+    const std::string label{LabelFromValue(request.params[1])};
 
     if (pwallet->IsMine(dest)) {
-        pwallet->SetAddressBook(dest, label, "receive");
+        pwallet->SetAddressBook(dest, label, AddressPurpose::RECEIVE);
     } else {
-        pwallet->SetAddressBook(dest, label, "send");
+        pwallet->SetAddressBook(dest, label, AddressPurpose::SEND);
     }
 
     return UniValue::VNULL;
@@ -229,7 +227,7 @@ RPCHelpMan addmultisigaddress()
                             {"key", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "qtum address or hex-encoded public key"},
                         },
                         },
-                    {"label", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "A label to assign the addresses to."},
+                    {"label", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "A label to assign the addresses to."},
                     {"address_type", RPCArg::Type::STR, RPCArg::DefaultHint{"set by -addresstype"}, "The address type to use. Options are \"legacy\", \"p2sh-segwit\", and \"bech32\"."},
                 },
                 RPCResult{
@@ -259,9 +257,7 @@ RPCHelpMan addmultisigaddress()
 
     LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
-    std::string label;
-    if (!request.params[2].isNull())
-        label = LabelFromValue(request.params[2]);
+    const std::string label{LabelFromValue(request.params[2])};
 
     int required = request.params[0].getInt<int>();
 
@@ -290,7 +286,7 @@ RPCHelpMan addmultisigaddress()
     // Construct using pay-to-script-hash:
     CScript inner;
     CTxDestination dest = AddAndGetMultisigDestination(required, pubkeys, output_type, spk_man, inner);
-    pwallet->SetAddressBook(dest, label, "send");
+    pwallet->SetAddressBook(dest, label, AddressPurpose::SEND);
 
     // Make the descriptor
     std::unique_ptr<Descriptor> descriptor = InferDescriptor(GetScriptForDestination(dest), spk_man);
@@ -305,7 +301,7 @@ RPCHelpMan addmultisigaddress()
         // Only warns if the user has explicitly chosen an address type we cannot generate
         warnings.push_back("Unable to make chosen address type, please ensure no uncompressed public keys are present.");
     }
-    if (!warnings.empty()) result.pushKV("warnings", warnings);
+    PushWarnings(warnings, result);
 
     return result;
 },
@@ -663,12 +659,12 @@ RPCHelpMan getaddressesbylabel()
 
     LOCK(pwallet->cs_wallet);
 
-    std::string label = LabelFromValue(request.params[0]);
+    const std::string label{LabelFromValue(request.params[0])};
 
     // Find all addresses that have the given label
     UniValue ret(UniValue::VOBJ);
     std::set<std::string> addresses;
-    pwallet->ForEachAddrBookEntry([&](const CTxDestination& _dest, const std::string& _label, const std::string& _purpose, bool _is_change) {
+    pwallet->ForEachAddrBookEntry([&](const CTxDestination& _dest, const std::string& _label, bool _is_change, const std::optional<AddressPurpose>& _purpose) {
         if (_is_change) return;
         if (_label == label) {
             std::string address = EncodeDestination(_dest);
@@ -682,7 +678,7 @@ RPCHelpMan getaddressesbylabel()
             // std::set in O(log(N))), UniValue::__pushKV is used instead,
             // which currently is O(1).
             UniValue value(UniValue::VOBJ);
-            value.pushKV("purpose", _purpose);
+            value.pushKV("purpose", _purpose ? PurposeToString(*_purpose) : "unknown");
             ret.__pushKV(address, value);
         }
     });
@@ -701,7 +697,7 @@ RPCHelpMan listlabels()
     return RPCHelpMan{"listlabels",
                 "\nReturns the list of all labels, or labels that are assigned to addresses with a specific purpose.\n",
                 {
-                    {"purpose", RPCArg::Type::STR, RPCArg::Optional::OMITTED_NAMED_ARG, "Address purpose to list labels for ('send','receive'). An empty string is the same as not providing this argument."},
+                    {"purpose", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "Address purpose to list labels for ('send','receive'). An empty string is the same as not providing this argument."},
                 },
                 RPCResult{
                     RPCResult::Type::ARR, "", "",
@@ -726,9 +722,15 @@ RPCHelpMan listlabels()
 
     LOCK(pwallet->cs_wallet);
 
-    std::string purpose;
+    std::optional<AddressPurpose> purpose;
     if (!request.params[0].isNull()) {
-        purpose = request.params[0].get_str();
+        std::string purpose_str = request.params[0].get_str();
+        if (!purpose_str.empty()) {
+            purpose = PurposeFromString(purpose_str);
+            if (!purpose) {
+                throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid 'purpose' argument, must be a known purpose string, typically 'send', or 'receive'.");
+            }
+        }
     }
 
     // Add to a set to sort by label name, then insert into Univalue array
@@ -891,7 +893,7 @@ RPCHelpMan createmultisig()
         // Only warns if the user has explicitly chosen an address type we cannot generate
         warnings.push_back("Unable to make chosen address type, please ensure no uncompressed public keys are present.");
     }
-    if (!warnings.empty()) result.pushKV("warnings", warnings);
+    PushWarnings(warnings, result);
 
     return result;
 },

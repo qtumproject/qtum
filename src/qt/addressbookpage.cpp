@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -65,12 +65,11 @@ protected:
 AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode, Tabs _tab, QWidget *parent) :
     QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::AddressBookPage),
-    model(nullptr),
     mode(_mode),
     tab(_tab)
 {
     ui->setupUi(this);
-    SetObjectStyleSheet(ui->tableView, StyleSheetNames::TableViewLight); 
+    SetObjectStyleSheet(ui->tableView, StyleSheetNames::TableViewLight);
     setStyleSheet("");
     if (!platformStyle->getImagesOnButtons()) {
         ui->newAddress->setIcon(QIcon());
@@ -83,6 +82,7 @@ AddressBookPage::AddressBookPage(const PlatformStyle *platformStyle, Mode _mode,
         ui->deleteAddress->setIcon(platformStyle->MultiStatesIcon(":/icons/remove", PlatformStyle::PushButtonLight));
         ui->exportButton->setIcon(platformStyle->MultiStatesIcon(":/icons/export", PlatformStyle::PushButton));
     }
+
     SetObjectStyleSheet(ui->newAddress, StyleSheetNames::ButtonLight);
     SetObjectStyleSheet(ui->copyAddress, StyleSheetNames::ButtonLight);
     SetObjectStyleSheet(ui->deleteAddress, StyleSheetNames::ButtonLight);

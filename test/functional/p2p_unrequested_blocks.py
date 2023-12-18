@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2021 The Bitcoin Core developers
+# Copyright (c) 2015-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test processing of unrequested blocks.
@@ -145,10 +145,11 @@ class AcceptBlockTest(BitcoinTestFramework):
         block_h3 = create_block(block_h2f.sha256, create_coinbase(3), block_h2f.nTime+1)
         block_h3.solve()
         test_node.send_and_ping(msg_block(block_h3))
+
         # Then send the prev block as well
         self.nodes[0].submitblock(block_h2f.serialize().hex())
-
         test_node.sync_with_ping()
+
         # Since the earlier block was not processed by node, the new block
         # can't be fully validated.
         tip_entry_found = False
