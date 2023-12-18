@@ -136,11 +136,11 @@ BOOST_FIXTURE_TEST_CASE(noncontextual_package_tests, TestChain100Setup)
     // Parent and Child Package
     {
         auto mtx_parent = CreateValidMempoolTransaction(m_coinbase_txns[0], 0, 0, coinbaseKey, spk,
-                                                        CAmount(49 * COIN), /*submit=*/false);
+                                                        CAmount(19999 * COIN), /*submit=*/false);
         CTransactionRef tx_parent = MakeTransactionRef(mtx_parent);
 
-        auto mtx_child = CreateValidMempoolTransaction(tx_parent, 0, 101, placeholder_key, spk2,
-                                                       CAmount(48 * COIN), /*submit=*/false);
+        auto mtx_child = CreateValidMempoolTransaction(tx_parent, 0, 2001, placeholder_key, spk2,
+                                                       CAmount(19998 * COIN), /*submit=*/false);
         CTransactionRef tx_child = MakeTransactionRef(mtx_child);
 
         PackageValidationState state;
@@ -157,11 +157,11 @@ BOOST_FIXTURE_TEST_CASE(noncontextual_package_tests, TestChain100Setup)
         CMutableTransaction child;
         for (int i{0}; i < 24; ++i) {
             auto parent = MakeTransactionRef(CreateValidMempoolTransaction(m_coinbase_txns[i + 1],
-                                             0, 0, coinbaseKey, spk, CAmount(48 * COIN), false));
+                                             0, 0, coinbaseKey, spk, CAmount(19998 * COIN), false));
             package.emplace_back(parent);
             child.vin.push_back(CTxIn(COutPoint(parent->GetHash(), 0)));
         }
-        child.vout.push_back(CTxOut(47 * COIN, spk2));
+        child.vout.push_back(CTxOut(19997 * COIN, spk2));
 
         // The child must be in the package.
         BOOST_CHECK(!IsChildWithParents(package));
@@ -229,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE(package_submission_tests, TestChain100Setup)
         auto mtx = CreateValidMempoolTransaction(/*input_transaction=*/m_coinbase_txns[i + 25], /*input_vout=*/0,
                                                  /*input_height=*/0, /*input_signing_key=*/coinbaseKey,
                                                  /*output_destination=*/parent_locking_script,
-                                                 /*output_amount=*/CAmount(49 * COIN), /*submit=*/false);
+                                                 /*output_amount=*/CAmount(19999 * COIN), /*submit=*/false);
         package_unrelated.emplace_back(MakeTransactionRef(mtx));
     }
     auto result_unrelated_submit = ProcessNewPackage(m_node.chainman->ActiveChainstate(), *m_node.mempool,
@@ -245,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE(package_submission_tests, TestChain100Setup)
     auto mtx_parent = CreateValidMempoolTransaction(/*input_transaction=*/m_coinbase_txns[0], /*input_vout=*/0,
                                                     /*input_height=*/0, /*input_signing_key=*/coinbaseKey,
                                                     /*output_destination=*/parent_locking_script,
-                                                    /*output_amount=*/CAmount(49 * COIN), /*submit=*/false);
+                                                    /*output_amount=*/CAmount(19999 * COIN), /*submit=*/false);
     CTransactionRef tx_parent = MakeTransactionRef(mtx_parent);
     package_parent_child.push_back(tx_parent);
     package_3gen.push_back(tx_parent);
@@ -254,9 +254,9 @@ BOOST_FIXTURE_TEST_CASE(package_submission_tests, TestChain100Setup)
     child_key.MakeNewKey(true);
     CScript child_locking_script = GetScriptForDestination(PKHash(child_key.GetPubKey()));
     auto mtx_child = CreateValidMempoolTransaction(/*input_transaction=*/tx_parent, /*input_vout=*/0,
-                                                   /*input_height=*/101, /*input_signing_key=*/parent_key,
+                                                   /*input_height=*/2001, /*input_signing_key=*/parent_key,
                                                    /*output_destination=*/child_locking_script,
-                                                   /*output_amount=*/CAmount(48 * COIN), /*submit=*/false);
+                                                   /*output_amount=*/CAmount(19998 * COIN), /*submit=*/false);
     CTransactionRef tx_child = MakeTransactionRef(mtx_child);
     package_parent_child.push_back(tx_child);
     package_3gen.push_back(tx_child);
@@ -265,9 +265,9 @@ BOOST_FIXTURE_TEST_CASE(package_submission_tests, TestChain100Setup)
     grandchild_key.MakeNewKey(true);
     CScript grandchild_locking_script = GetScriptForDestination(PKHash(grandchild_key.GetPubKey()));
     auto mtx_grandchild = CreateValidMempoolTransaction(/*input_transaction=*/tx_child, /*input_vout=*/0,
-                                                       /*input_height=*/101, /*input_signing_key=*/child_key,
+                                                       /*input_height=*/2001, /*input_signing_key=*/child_key,
                                                        /*output_destination=*/grandchild_locking_script,
-                                                       /*output_amount=*/CAmount(47 * COIN), /*submit=*/false);
+                                                       /*output_amount=*/CAmount(19997 * COIN), /*submit=*/false);
     CTransactionRef tx_grandchild = MakeTransactionRef(mtx_grandchild);
     package_3gen.push_back(tx_grandchild);
 
@@ -650,7 +650,7 @@ BOOST_FIXTURE_TEST_CASE(package_cpfp_tests, TestChain100Setup)
     package_cpfp.push_back(tx_parent);
 
     auto mtx_child = CreateValidMempoolTransaction(/*input_transaction=*/tx_parent, /*input_vout=*/0,
-                                                   /*input_height=*/101, /*input_signing_key=*/child_key,
+                                                   /*input_height=*/2001, /*input_signing_key=*/child_key,
                                                    /*output_destination=*/child_spk,
                                                    /*output_amount=*/child_value, /*submit=*/false);
     CTransactionRef tx_child = MakeTransactionRef(mtx_child);
@@ -720,7 +720,7 @@ BOOST_FIXTURE_TEST_CASE(package_cpfp_tests, TestChain100Setup)
     package_still_too_low.push_back(tx_parent_cheap);
 
     auto mtx_child_cheap = CreateValidMempoolTransaction(/*input_transaction=*/tx_parent_cheap, /*input_vout=*/0,
-                                                         /*input_height=*/101, /*input_signing_key=*/child_key,
+                                                         /*input_height=*/2001, /*input_signing_key=*/child_key,
                                                          /*output_destination=*/child_spk,
                                                          /*output_amount=*/coinbase_value - 200, /*submit=*/false);
     CTransactionRef tx_child_cheap = MakeTransactionRef(mtx_child_cheap);
@@ -785,7 +785,7 @@ BOOST_FIXTURE_TEST_CASE(package_cpfp_tests, TestChain100Setup)
     package_rich_parent.push_back(tx_parent_rich);
 
     auto mtx_child_poor = CreateValidMempoolTransaction(/*input_transaction=*/tx_parent_rich, /*input_vout=*/0,
-                                                        /*input_height=*/101, /*input_signing_key=*/child_key,
+                                                        /*input_height=*/2001, /*input_signing_key=*/child_key,
                                                         /*output_destination=*/child_spk,
                                                         /*output_amount=*/coinbase_value - high_parent_fee, /*submit=*/false);
     CTransactionRef tx_child_poor = MakeTransactionRef(mtx_child_poor);

@@ -1989,7 +1989,12 @@ util::Result<CTxDestination> DescriptorScriptPubKeyMan::GetNewDestination(const 
         assert(m_wallet_descriptor.descriptor->IsSingleType()); // This is a combo descriptor which should not be an active descriptor
         std::optional<OutputType> desc_addr_type = m_wallet_descriptor.descriptor->GetOutputType();
         assert(desc_addr_type);
-        if (type != *desc_addr_type) {
+        bool isInconsistent = type != *desc_addr_type;
+        if(type == OutputType::P2PK) {
+            // Address type is LEGACY for valid P2PK output
+            isInconsistent = *desc_addr_type !=OutputType::LEGACY;
+        }
+        if (isInconsistent) {
             throw std::runtime_error(std::string(__func__) + ": Types are inconsistent. Stored type does not match type of newly generated address");
         }
 

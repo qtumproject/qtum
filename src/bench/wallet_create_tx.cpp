@@ -154,7 +154,7 @@ static void AvailableCoins(benchmark::Bench& bench, const std::vector<OutputType
 
     // Generate chain; each coinbase will have two outputs to fill-up the wallet
     const auto& params = Params();
-    unsigned int chain_size = 1000;
+    unsigned int chain_size = 3000;
     for (unsigned int i = 0; i < chain_size / dest_wallet.size(); ++i) {
         for (const auto& dest : dest_wallet) {
             generateFakeBlock(params, test_setup->m_node, wallet, dest);

@@ -661,7 +661,12 @@ BOOST_FIXTURE_TEST_CASE(BasicOutputTypesTest, ListCoinsTest)
 
     for (const auto& out_type : OUTPUT_TYPES) {
         if (out_type == OutputType::UNKNOWN) continue;
-        expected_coins_sizes[out_type] = 2U;
+        if(out_type == OutputType::P2PK) {
+            // Add the coins to the LEGACY address for P2PK output
+            expected_coins_sizes[OutputType::LEGACY] += 2U;
+        } else {
+            expected_coins_sizes[out_type] = 2U;
+        }
         TestCoinsResult(*this, out_type, 1 * COIN, expected_coins_sizes);
     }
 }
