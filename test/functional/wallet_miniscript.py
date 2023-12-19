@@ -167,14 +167,14 @@ class WalletMiniscriptTest(BitcoinTestFramework):
 
         self.log.info("Testing we derive new addresses for it")
         assert_equal(
-            self.ms_wo_wallet.getnewaddress(), self.funder.deriveaddresses(desc, 0)[0]
+            self.ms_wo_wallet.getnewaddress(address_type="bech32"), self.funder.deriveaddresses(desc, 0)[0]
         )
         assert_equal(
-            self.ms_wo_wallet.getnewaddress(), self.funder.deriveaddresses(desc, 1)[1]
+            self.ms_wo_wallet.getnewaddress(address_type="bech32"), self.funder.deriveaddresses(desc, 1)[1]
         )
 
         self.log.info("Testing we detect funds sent to one of them")
-        addr = self.ms_wo_wallet.getnewaddress()
+        addr = self.ms_wo_wallet.getnewaddress(address_type="bech32")
         txid = self.funder.sendtoaddress(addr, 0.01)
         self.wait_until(
             lambda: len(self.ms_wo_wallet.listunspent(minconf=0, addresses=[addr])) == 1

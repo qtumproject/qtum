@@ -19,7 +19,7 @@ class QtumEVMStaticCallTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
-        self.extra_args = [['-logevents', '-minmempoolgaslimit=21000', '-constantinopleheight=%d' % (204 + COINBASE_MATURITY), '-muirglacierheight=100000', '-londonheight=100000']]
+        self.extra_args = [['-logevents', '-minmempoolgaslimit=21000', '-constantinopleheight=%d' % (204 + COINBASE_MATURITY), '-muirglacierheight=100000', '-londonheight=100000', '-shanghaiheight=100000']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -49,11 +49,24 @@ class QtumEVMStaticCallTest(BitcoinTestFramework):
         call_tx = node.getrawtransaction(txids[1], True, blockhash)
 
         input_tx = node.decoderawtransaction(node.gettransaction(call_tx['vin'][0]['txid'])['hex'])
-        sender_utxo = input_tx['vout'][call_tx['vin'][0]['vout']]
-        sender_address = sender_utxo['scriptPubKey']['address']
-
+        
         for op_call_vout_index in range(len(call_tx['vout'])):
-            if call_tx['vout'][op_call_vout_index]['scriptPubKey']['type'] == 'call_sender':
+            if call_tx['vout'][op_call_vout_index]['scriptPubKey']['type'] in ['call', 'call_sender']:
+                
+                sender_utxo = input_tx['vout'][call_tx['vin'][0]['vout']]
+                sender_address = sender_utxo['scriptPubKey']['address']
+                vin0_output = 'OP_DUP OP_HASH160 ' + p2pkh_to_hex_hash(sender_address) + ' OP_EQUALVERIFY OP_CHECKSIG'
+                
+                if call_tx['vout'][op_call_vout_index]['scriptPubKey']['type'] == 'call_sender':
+                    sender_utxo = {
+                        'scriptPubKey': {
+                            'asm': ''
+                        }
+                    }
+                    sender_hex = call_tx['vout'][op_call_vout_index]['scriptPubKey']['asm'].split(" ")[1]
+                    sender_address = hex_hash_to_p2pkh(sender_hex)
+                    sender_utxo['scriptPubKey']['asm'] = 'OP_DUP OP_HASH160 ' + sender_hex + ' OP_EQUALVERIFY OP_CHECKSIG'
+                    
                 break
 
         # Check that the transaction receipt is correct
@@ -90,7 +103,7 @@ class QtumEVMStaticCallTest(BitcoinTestFramework):
             gas_refund_output = coinbase_tx['vout'][-2]
             assert_equal((gas_refund_output['value'] * 100000000) // 10000000,
                          ((gas - gas_used) * gas_price * 100000000) // 10000000)
-            assert_equal(sender_utxo['scriptPubKey']['asm'], gas_refund_output['scriptPubKey']['asm'])
+            assert_equal(vin0_output, gas_refund_output['scriptPubKey']['asm'])
         else:
             assert_equal(len(coinbase_tx['vout']), 2)
 

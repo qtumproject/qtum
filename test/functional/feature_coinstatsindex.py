@@ -131,15 +131,15 @@ class CoinStatsIndexTest(BitcoinTestFramework):
             res5 = index_node.gettxoutsetinfo(hash_option, 2002)
             assert_equal(res5['total_unspendable_amount'], 20000)
             assert_equal(res5['block_info'], {
-                'unspendable': 0,
-                'prevout_spent': 20000,
-                'new_outputs_ex_coinbase': Decimal('19999.99911200'),
-                'coinbase': Decimal('20000.00088800'),
+                'unspendable': Decimal('0E-8'),
+                'prevout_spent': Decimal('20000.00000000'),
+                'new_outputs_ex_coinbase': Decimal('19999.99688000'),
+                'coinbase': Decimal('20000.00312000'),
                 'unspendables': {
-                    'genesis_block': 0,
-                    'bip30': 0,
-                    'scripts': 0,
-                    'unclaimed_rewards': 0,
+                    'genesis_block': Decimal('0E-8'),
+                    'bip30': Decimal('0E-8'),
+                    'scripts': Decimal('0E-8'),
+                    'unclaimed_rewards': Decimal('0E-8'),
                 }
             })
             self.block_sanity_check(res5['block_info'])
@@ -170,14 +170,14 @@ class CoinStatsIndexTest(BitcoinTestFramework):
             assert_equal(res6['total_unspendable_amount'], Decimal('20020.99000000'))
             assert_equal(res6['block_info'], {
                 'unspendable': Decimal('20.99000000'),
-                'prevout_spent': 20011,
-                'new_outputs_ex_coinbase': Decimal('19989.99931200'),
-                'coinbase': Decimal('20000.01068800'),
+                'prevout_spent': Decimal('20021.00000000'),
+                'new_outputs_ex_coinbase': Decimal('19999.99920000'),
+                'coinbase': Decimal('20000.01080000'),
                 'unspendables': {
-                    'genesis_block': 0,
-                    'bip30': 0,
+                    'genesis_block': Decimal('0E-8'),
+                    'bip30': Decimal('0E-8'),
                     'scripts': Decimal('20.99000000'),
-                    'unclaimed_rewards': 0,
+                    'unclaimed_rewards': Decimal('0E-8'),
                 }
             })
             self.block_sanity_check(res6['block_info'])

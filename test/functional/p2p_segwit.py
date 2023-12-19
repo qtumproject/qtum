@@ -1458,7 +1458,7 @@ class SegWitTest(BitcoinTestFramework):
         spend_tx.rehash()
 
         # Now test a premature spend.
-        generatesynchronized(self.nodes[0], COINBASE_MATURITY-2, None, self.nodes)
+        self.generate(self.nodes[0], COINBASE_MATURITY-2)
         block2 = self.build_next_block()
         self.update_witness_block_with_transactions(block2, [spend_tx])
         test_witness_block(self.nodes[0], self.test_node, block2, accepted=False, reason='bad-txns-premature-spend-of-coinbase')
@@ -2036,7 +2036,8 @@ class SegWitTest(BitcoinTestFramework):
         class msg_bogus_tx(msg_tx):
             def serialize(self):
                 return serialize_with_bogus_witness(self.tx)
-
+        
+        self.wallet.generate(1)
         tx = self.wallet.create_self_transfer()['tx']
         assert_raises_rpc_error(-22, "TX decode failed", self.nodes[0].decoderawtransaction, hexstring=serialize_with_bogus_witness(tx).hex(), iswitness=True)
         with self.nodes[0].assert_debug_log(['Unknown transaction optional data']):

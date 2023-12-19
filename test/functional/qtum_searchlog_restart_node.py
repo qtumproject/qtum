@@ -124,7 +124,7 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
         assert_equal(ret[0]['transactionIndex'], 1)
         assert_equal(ret[0]['from'], send_result[0]['hash160'])
         assert_equal(ret[0]['to'], contract_addresses[0])
-        assert_equal(ret[0]['gasUsed'], 30183 if ENABLE_REDUCED_BLOCK_TIME else 30991)
+        assert_equal(ret[0]['gasUsed'], 27283 if ENABLE_REDUCED_BLOCK_TIME else 30991)
         assert_equal(ret[0]['contractAddress'], contract_addresses[0])
 
         assert_equal(ret[1]['blockHash'], block_hashes[1][0])
@@ -133,7 +133,7 @@ class QtumRPCSearchlogsTestModified(BitcoinTestFramework):
         assert_equal(ret[1]['transactionIndex'], 1)
         assert_equal(ret[1]['from'], send_result[1]['hash160'])
         assert_equal(ret[1]['to'], contract_addresses[1])
-        assert_equal(ret[1]['gasUsed'], 44071 if ENABLE_REDUCED_BLOCK_TIME else 43679)
+        assert_equal(ret[1]['gasUsed'], 45371 if ENABLE_REDUCED_BLOCK_TIME else 43679)
         assert_equal(ret[1]['contractAddress'], contract_addresses[1])
 
     def run_test(self):

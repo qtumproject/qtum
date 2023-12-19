@@ -18,7 +18,7 @@ class QtumEVMCreate2Test(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
-        self.extra_args = [['-logevents', '-minmempoolgaslimit=21000', '-constantinopleheight=%d' % (204 + COINBASE_MATURITY), '-muirglacierheight=100000', '-londonheight=1000000']]
+        self.extra_args = [['-logevents', '-minmempoolgaslimit=21000', '-constantinopleheight=%d' % (204 + COINBASE_MATURITY), '-muirglacierheight=100000', '-londonheight=1000000', '-shanghaiheight=1000000']]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -52,15 +52,27 @@ class QtumEVMCreate2Test(BitcoinTestFramework):
         txids = block['tx']
         coinbase_tx = node.getrawtransaction(txids[0], True, blockhash)
         call_tx = node.getrawtransaction(txids[1], True, blockhash)
-
         input_tx = node.decoderawtransaction(node.gettransaction(call_tx['vin'][0]['txid'])['hex'])
-        sender_utxo = input_tx['vout'][call_tx['vin'][0]['vout']]
-        sender_address = sender_utxo['scriptPubKey']['address']
 
         for op_call_vout_index in range(len(call_tx['vout'])):
-            if call_tx['vout'][op_call_vout_index]['scriptPubKey']['type'] == 'call_sender':
+            if call_tx['vout'][op_call_vout_index]['scriptPubKey']['type'] in ['call', 'call_sender']:
+                
+                sender_utxo = input_tx['vout'][call_tx['vin'][0]['vout']]
+                sender_address = sender_utxo['scriptPubKey']['address']
+                vin0_output = 'OP_DUP OP_HASH160 ' + p2pkh_to_hex_hash(sender_address) + ' OP_EQUALVERIFY OP_CHECKSIG'
+                
+                if call_tx['vout'][op_call_vout_index]['scriptPubKey']['type'] == 'call_sender':
+                    sender_utxo = {
+                        'scriptPubKey': {
+                            'asm': ''
+                        }
+                    }
+                    sender_hex = call_tx['vout'][op_call_vout_index]['scriptPubKey']['asm'].split(" ")[1]
+                    sender_address = hex_hash_to_p2pkh(sender_hex)
+                    sender_utxo['scriptPubKey']['asm'] = 'OP_DUP OP_HASH160 ' + sender_hex + ' OP_EQUALVERIFY OP_CHECKSIG'
+                    
                 break
-
+            
         # Check that the transaction receipt is correct
         receipt = node.gettransactionreceipt(call_tx['txid'])[0]
         assert_equal(receipt['gasUsed'], gas_used)

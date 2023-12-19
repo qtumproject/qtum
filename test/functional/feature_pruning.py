@@ -301,7 +301,7 @@ class PruneTest(BitcoinTestFramework):
         assert_equal(node.getblockchaininfo()["blocks"], 3546)
 
         # prune parameter in the future (block or timestamp) should raise an exception
-        future_parameter = height(1001) + 5
+        future_parameter = height(3546) + 5
         if use_timestamp:
             assert_raises_rpc_error(-8, "Could not find block with at least the specified timestamp", node.pruneblockchain, future_parameter)
         else:

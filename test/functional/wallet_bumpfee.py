@@ -77,8 +77,10 @@ class BumpFeeTest(BitcoinTestFramework):
         peer_node.generate(COINBASE_MATURITY+10)
         for _ in range(25):
             peer_node.sendtoaddress(rbf_node_address, 0.1)
-        self.sync_all()
+            
         self.generate(peer_node, 1)
+        self.sync_all()
+        # self.generate(peer_node, 1)
         assert_equal(rbf_node.getbalance(), Decimal("2.5"))
 
         self.log.info("Running tests")
@@ -283,7 +285,7 @@ def test_notmine_bumpfee(self, rbf_node, peer_node, dest_address):
     psbt = rbf_node.psbtbumpfee(txid=rbfid)
     finish_psbtbumpfee(psbt["psbt"])
 
-    psbt = rbf_node.psbtbumpfee(txid=rbfid, options={"fee_rate": old_feerate + 10})
+    psbt = rbf_node.psbtbumpfee(txid=rbfid, options={"fee_rate": old_feerate + 1000})
     finish_psbtbumpfee(psbt["psbt"])
 
     self.clear_mempool()
@@ -313,12 +315,12 @@ def test_bumpfee_with_abandoned_descendant_succeeds(self, rbf_node, rbf_node_add
     # parent is send-to-self, so we don't have to check which output is change when creating the child tx
     parent_id = spend_one_input(rbf_node, rbf_node_address)
     # Submit child transaction with low fee
-    child_id = rbf_node.send(outputs={dest_address: 0.00020000},
-                             options={"inputs": [{"txid": parent_id, "vout": 0}], "fee_rate": 2})["txid"]
+    child_id = rbf_node.send(outputs={dest_address: 0.020000},
+                             options={"inputs": [{"txid": parent_id, "vout": 0}], "fee_rate": 500})["txid"]
     assert child_id in rbf_node.getrawmempool()
 
     # Restart the node with higher min relay fee so the descendant tx is no longer in mempool so that we can abandon it
-    self.restart_node(1, ['-minrelaytxfee=0.00005'] + self.extra_args[1])
+    self.restart_node(1, ['-minrelaytxfee=0.006'] + self.extra_args[1])
     rbf_node.walletpassphrase(WALLET_PASSPHRASE, WALLET_PASSPHRASE_TIMEOUT)
     self.connect_nodes(1, 0)
     assert parent_id in rbf_node.getrawmempool()

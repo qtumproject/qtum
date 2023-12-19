@@ -857,7 +857,7 @@ class PSBTTest(BitcoinTestFramework):
             self.generate(self.nodes[0], 1)
             self.nodes[0].importdescriptors([{"desc": descsum_create("tr({})".format(privkey)), "timestamp":"now"}])
 
-            psbt = watchonly.sendall([wallet.getnewaddress(), addr])["psbt"]
+            psbt = watchonly.sendall(recipients=[wallet.getnewaddress(), addr], options={"fee_rate": 65200})["psbt"]
             psbt = self.nodes[0].walletprocesspsbt(psbt)["psbt"]
             txid = self.nodes[0].sendrawtransaction(self.nodes[0].finalizepsbt(psbt)["hex"])
             vout = find_vout_for_address(self.nodes[0], txid, addr)
@@ -874,7 +874,7 @@ class PSBTTest(BitcoinTestFramework):
             addr = self.nodes[0].getnewaddress("", "bech32m")
             txid = self.nodes[0].sendtoaddress(addr, 1)
             vout = find_vout_for_address(self.nodes[0], txid, addr)
-            psbt = self.nodes[0].createpsbt([{"txid": txid, "vout": vout}], [{self.nodes[0].getnewaddress(): 0.9999}])
+            psbt = self.nodes[0].createpsbt([{"txid": txid, "vout": vout}], [{self.nodes[0].getnewaddress(): 0.9995}])
             signed = self.nodes[0].walletprocesspsbt(psbt)
             rawtx = self.nodes[0].finalizepsbt(signed["psbt"])["hex"]
             self.nodes[0].sendrawtransaction(rawtx)

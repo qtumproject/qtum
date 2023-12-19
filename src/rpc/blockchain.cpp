@@ -950,7 +950,7 @@ const RPCResult getblock_vin{
             {RPCResult::Type::ELISION, "", "The same output as verbosity = 2"},
             {RPCResult::Type::OBJ, "prevout", "(Only if undo information is available)",
             {
-                {RPCResult::Type::BOOL, "generated", "Coinbase or not"},
+                {RPCResult::Type::BOOL, "generated", "Coinbase or not, coinstake or not"},
                 {RPCResult::Type::NUM, "height", "The height of the prevout"},
                 {RPCResult::Type::STR_AMOUNT, "value", "The value in " + CURRENCY_UNIT},
                 {RPCResult::Type::OBJ, "scriptPubKey", "",

@@ -102,18 +102,18 @@ class SegWitTest(BitcoinTestFramework):
             [
                 "-acceptnonstdtxn=1",
                 "-rpcserialversion=0",
-                "-testactivationheight=segwit@2364" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@864",
+                "-testactivationheight=segwit@2357" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@857",
                 "-addresstype=legacy",
             ],
             [
                 "-acceptnonstdtxn=1",
                 "-rpcserialversion=1",
-                "-testactivationheight=segwit@2364" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@864",
+                "-testactivationheight=segwit@2357" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@857",
                 "-addresstype=legacy",
             ],
             [
                 "-acceptnonstdtxn=1",
-                "-testactivationheight=segwit@2364" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@864",
+                "-testactivationheight=segwit@2357" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@857",
                 "-addresstype=legacy",
             ],
         ]

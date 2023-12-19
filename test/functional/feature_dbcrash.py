@@ -255,7 +255,7 @@ class ChainstateWriteCrashTest(BitcoinTestFramework):
             while current_height + 1 > self.nodes[3].getblockcount():
                 block_hashes.extend(self.generatetoaddress(
                     self.nodes[3],
-                    nblocks=min(10, current_height + 1 - self.nodes[3].getblockcount()),
+                    nblocks=10,
                     # new address to avoid mining a block that has just been invalidated
                     address=getnewdestination()[2],
                     sync_fun=self.no_op,

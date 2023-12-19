@@ -121,7 +121,7 @@ Make sure to check out these resources as well for more information and to keep 
 *	@Qtum on Twitter https://twitter.com/qtum
 * Qtum blog https://blog.qtum.org/
 *	Qtum Telegram Group https://t.me/qtumofficial, other languages available
-* Qtum Discord https://discordapp.com/invite/wRfmkQ9
+* Qtum Discord https://discord.com/invite/DCPGvUCms5
 *	/r/Qtum on Reddit https://www.reddit.com/r/Qtum/
 *	Qtum.org https://qtum.org
 *	Qtum on Facebook https://www.facebook.com/QtumOfficial/
@@ -149,9 +149,6 @@ This is a quick start script for compiling Qtum on Ubuntu
 
     sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev libgmp3-dev
     sudo apt-get install software-properties-common
-    sudo add-apt-repository ppa:bitcoin/bitcoin
-    sudo apt-get update
-    sudo apt-get install libdb4.8-dev libdb4.8++-dev
     
     # If you want to build the Qt GUI:
     sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler qrencode
@@ -160,6 +157,7 @@ This is a quick start script for compiling Qtum on Ubuntu
     cd qtum
     
     # Note autogen will prompt to install some more dependencies if needed
+    ./contrib/install_db4.sh `pwd`
     ./autogen.sh
     ./configure 
     make -j2
