@@ -313,6 +313,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>지갑의 비밀번호가 성공적으로 수정되었습니다.</translation>
     </message>
     <message>
+        <source>Passphrase change failed</source>
+        <translation type="unfinished">암호 변경에 실패하였습니다.</translation>
         <source>Warning: The Caps Lock key is on!</source>
         <translation>경고: Cap Lock 키가 활성화되어 있습니다</translation>
     </message>
@@ -637,6 +639,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">지갑 정보</translation>
     </message>
     <message>
+        <source>Load Wallet Backup</source>
+        <extracomment>The title for Restore Wallet File Windows</extracomment>
+        <translation type="unfinished">백업된 지갑 불러오기</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">지갑 복원하기</translation>
+    </message>
+    <message>
         <source>Wallet Name</source>
         <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
         <translation type="unfinished">지갑 이름</translation>
@@ -766,10 +778,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation>파일에서 PSBT 불러오기(&amp;L)</translation>
-    </message>
-    <message>
-        <source>Load Partially Signed Qtum Transaction</source>
-        <translation>부분적으로 서명된 QTUM 트랜잭션 불러오기</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -1226,10 +1234,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Copy</source>
         <translation type="unfinished">복사</translation>
     </message>
-    <message>
-        <source>Delete the currently selected contract info from the list</source>
-        <translation type="unfinished">리스트에서 선택된 컨트랙트 정보 삭제</translation>
-    </message>
+    </context>
+<context>
     <message>
         <source>Delete</source>
         <translation type="unfinished">삭제</translation>
@@ -1621,10 +1627,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Optional fields are not present:
-%1</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform>%nGB의 가용 공간</numerusform>
+        </translation>
     </message>
     <message>
         <source>Parse error: unbalanced &apos; or &quot;</source>
@@ -1714,7 +1721,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
-            <numerusform />
+            <numerusform>%nGB의 가용 공간</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -5209,6 +5216,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Unit to show amounts in. Click to select another unit.</source>
         <translation>금액 단위. 클릭해서 다른 단위로 바꾸세요. </translation>
+    </message>
+</context>
+<context>
+    <name>RestoreWalletActivity</name>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">지갑 복원하기</translation>
     </message>
 </context>
 <context>

@@ -196,7 +196,7 @@ ChainTestingSetup::ChainTestingSetup(const std::string& chainName, const std::ve
     pstorageresult.reset(new StorageResults(pathTemp.string()));
 //////////////////////////////////////////////////////////////
 
-    m_node.fee_estimator = std::make_unique<CBlockPolicyEstimator>(FeeestPath(*m_node.args));
+    m_node.fee_estimator = std::make_unique<CBlockPolicyEstimator>(FeeestPath(*m_node.args), DEFAULT_ACCEPT_STALE_FEE_ESTIMATES);
     m_node.mempool = std::make_unique<CTxMemPool>(MemPoolOptionsForTest(m_node));
 
     m_cache_sizes = CalculateCacheSizes(m_args);
