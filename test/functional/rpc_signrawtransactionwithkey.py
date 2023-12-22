@@ -37,9 +37,15 @@ from test_framework.wallet import (
 from test_framework.qtum import convert_btc_address_to_qtum
 
 class SignRawTransactionWithKeyTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def send_to_address(self, addr, amount):
         input = {"txid": self.nodes[0].getblock(self.block_hash[self.blk_idx])["tx"][0], "vout": 0}

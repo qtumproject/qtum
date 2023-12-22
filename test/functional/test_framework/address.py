@@ -107,6 +107,7 @@ def base58_to_byte(v, length):
   hsh = hexresult[2:-8]
   checksum = hexresult[-8:]
   return (version, hsh, checksum)
+
 def base58_to_byte_btc(s):
     """Converts a base58-encoded string to its data and version.
 
@@ -202,7 +203,7 @@ def check_script(script):
 
 def bech32_to_bytes(address):
     hrp = address.split('1')[0]
-    if hrp not in ['bc', 'tb', 'bcrt']:
+    if hrp not in ['qc', 'tq', 'qcrt']:
         return (None, None)
     version, payload = decode_segwit_address(hrp, address)
     if version is None:
@@ -212,10 +213,10 @@ def bech32_to_bytes(address):
 
 def address_to_scriptpubkey(address):
     """Converts a given address to the corresponding output script (scriptPubKey)."""
-    version, payload = base58_to_byte_btc(address)
+    version, payload = bech32_to_bytes(address)
     if version is not None:
         return program_to_witness_script(version, payload) # testnet segwit scriptpubkey
-    payload, version = base58_to_byte(address)
+    payload, version = base58_to_byte_btc(address)
     if version == 120:  # testnet pubkey hash
         return keyhash_to_p2pkh_script(payload)
     elif version == 110:  # testnet script hash
@@ -246,7 +247,7 @@ class TestFrameworkScript(unittest.TestCase):
 
     def test_bech32_decode(self):
         def check_bech32_decode(payload, version):
-            hrp = "tb"
+            hrp = "tq"
             self.assertEqual(bech32_to_bytes(encode_segwit_address(hrp, version, payload)), (version, payload))
 
         check_bech32_decode(bytes.fromhex('36e3e2a33f328de12e4b43c515a75fba2632ecc3'), 0)

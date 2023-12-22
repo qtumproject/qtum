@@ -34,6 +34,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
                             help="Run the DoS variable height test")
         parser.add_argument("--run-standard-tests", dest="run_standard_tests", default=False, action="store_true",
                             help="Run all other tests")
+        self.add_wallet_options(parser)
 
 
     def skip_test_if_missing_module(self):
