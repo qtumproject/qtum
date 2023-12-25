@@ -29,6 +29,7 @@ static const QString PARAM_REQUESTS = "requests";
 static const QString PARAM_PSBT = "psbt";
 static const QString PARAM_HEXTX = "hextx";
 static const QString PARAM_MAXFEERATE = "maxfeerate";
+static const QString PARAM_MAXBURNAMOUNT = "maxburnamount";
 static const QString PARAM_SHOWCONTRACTDATA = "showcontractdata";
 static const QString LOAD_FORMAT = ":/ledger/%1_load";
 static const QString DELETE_FORMAT = ":/ledger/%1_delete";
@@ -47,7 +48,7 @@ public:
         cmdImport = new ExecRPCCommand("importmulti", mandatoryImport, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryFinalize = QStringList() << PARAM_PSBT;
         cmdFinalize = new ExecRPCCommand("finalizepsbt", mandatoryFinalize, QStringList(),  QMap<QString, QString>(), parent);
-        QStringList mandatorySend = QStringList() << PARAM_HEXTX << PARAM_MAXFEERATE << PARAM_SHOWCONTRACTDATA;
+        QStringList mandatorySend = QStringList() << PARAM_HEXTX << PARAM_MAXFEERATE << PARAM_MAXBURNAMOUNT << PARAM_SHOWCONTRACTDATA;
         cmdSend = new ExecRPCCommand("sendrawtransaction", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryDecode = QStringList() << PARAM_PSBT;
         cmdDecode = new ExecRPCCommand("decodepsbt", mandatoryDecode, QStringList(),  QMap<QString, QString>(), parent);
@@ -400,6 +401,7 @@ bool QtumHwiTool::sendRawTransaction(const QString &hexTx, QVariantMap& variantM
     QString resultStr;
     ExecRPCCommand::appendParam(lstParams, PARAM_HEXTX, hexTx);
     ExecRPCCommand::appendParam(lstParams, PARAM_MAXFEERATE, "null");
+    ExecRPCCommand::appendParam(lstParams, PARAM_MAXBURNAMOUNT, "null");
     ExecRPCCommand::appendParam(lstParams, PARAM_SHOWCONTRACTDATA, "true");
 
     // Exec RPC
