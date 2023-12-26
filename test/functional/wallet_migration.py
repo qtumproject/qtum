@@ -715,7 +715,7 @@ class WalletMigrationTest(BitcoinTestFramework):
             locktime += 1
 
         # conflict with parent
-        conflict_unsigned = self.nodes[0].createrawtransaction(inputs=[conflict_utxo], outputs=[{wallet.getnewaddress(): 9.9999}])
+        conflict_unsigned = self.nodes[0].createrawtransaction(inputs=[conflict_utxo], outputs=[{wallet.getnewaddress(): 9.8999}])
         conflict_signed = wallet.signrawtransactionwithwallet(conflict_unsigned)["hex"]
         conflict_txid = self.nodes[0].sendrawtransaction(conflict_signed)
         self.generate(self.nodes[0], 1)

@@ -181,7 +181,6 @@ class AssumeValidTest(BitcoinTestFramework):
         p2p1.send_header_for_blocks(self.blocks[6000:8000])
         p2p1.send_header_for_blocks(self.blocks[8000:10000])
         p2p1.send_header_for_blocks(self.blocks[10000:])
-        p2p2.send_header_for_blocks(self.blocks[0:600])
 
         # Send all blocks to node1. All blocks will be accepted.
         # Send only a subset to speed this up

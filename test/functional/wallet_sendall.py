@@ -287,8 +287,8 @@ class SendallTest(BitcoinTestFramework):
     @cleanup
     def sendall_fails_on_low_fee(self):
         self.log.info("Test sendall fails if the transaction fee is lower than the minimum fee rate setting")
-        assert_raises_rpc_error(-8, "Fee rate (0.999 sat/vB) is lower than the minimum fee rate setting (1.000 sat/vB)",
-        self.wallet.sendall, recipients=[self.recipient], fee_rate=0.999)
+        assert_raises_rpc_error(-8, "Fee rate (300.000 sat/vB) is lower than the minimum fee rate setting (400.000 sat/vB)",
+        self.wallet.sendall, recipients=[self.recipient], fee_rate=300)
 
     @cleanup
     def sendall_watchonly_specific_inputs(self):
@@ -350,13 +350,13 @@ class SendallTest(BitcoinTestFramework):
             options={"minconf": 7})
 
         self.log.info("Test sendall only spends utxos with a specified number of confirmations when minconf is used")
-        self.wallet.sendall(recipients=[self.remainder_target], fee_rate=300, options={"minconf": 6})
+        self.wallet.sendall(recipients=[self.remainder_target], fee_rate=400, options={"minconf": 6})
 
         assert_equal(len(self.wallet.listunspent()), 1)
         assert_equal(self.wallet.listunspent()[0]['confirmations'], 3)
 
         # decrease minconf and show the remaining utxo is picked up
-        self.wallet.sendall(recipients=[self.remainder_target], fee_rate=300, options={"minconf": 3})
+        self.wallet.sendall(recipients=[self.remainder_target], fee_rate=400, options={"minconf": 3})
         assert_equal(self.wallet.getbalance(), 0)
 
     @cleanup
@@ -375,7 +375,7 @@ class SendallTest(BitcoinTestFramework):
             options={"maxconf": 1})
 
         self.log.info("Test sendall only spends utxos with a specified number of confirmations when maxconf is used")
-        self.wallet.sendall(recipients=[self.remainder_target], fee_rate=300, options={"maxconf":4})
+        self.wallet.sendall(recipients=[self.remainder_target], fee_rate=400, options={"maxconf":4})
         assert_equal(len(self.wallet.listunspent()), 1)
         assert_equal(self.wallet.listunspent()[0]['confirmations'], 6)
 

@@ -83,7 +83,7 @@ class FeeFilterTest(BitcoinTestFramework):
         conn = self.nodes[0].add_p2p_connection(TestP2PConn())
 
         self.log.info("Test txs paying 20 sat/byte are received by test connection")
-        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.00000200'), from_node=node1)['wtxid'] for _ in range(3)]
+        txids = [miniwallet.send_self_transfer(fee_rate=Decimal('0.02000000'), from_node=node1)['wtxid'] for _ in range(3)]
         conn.wait_for_invs_to_match(txids)
         conn.clear_invs()
 

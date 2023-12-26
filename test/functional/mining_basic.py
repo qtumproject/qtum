@@ -47,11 +47,17 @@ def assert_template(node, block, expect, rehash=True):
 
 
 class MiningTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.num_nodes = 2
         self.setup_clean_chain = True
         self.supports_cli = False
         self.requires_wallet = True 
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def mine_chain(self):
         self.log.info('Create some old blocks')

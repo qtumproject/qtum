@@ -11,6 +11,7 @@ from test_framework.util import assert_equal
 from test_framework.blocktools import create_block, add_witness_commitment
 from test_framework.script import CScriptOp
 import time
+from test_framework.wallet import MiniWallet
 
 SIGNET_HEADER = b"\xec\xc7\xda\xa2"
 signet_blocks = [
@@ -28,6 +29,9 @@ signet_blocks = [
 
 
 class SignetBasicTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.chain = "signet"
         self.num_nodes = 6
@@ -44,6 +48,9 @@ class SignetBasicTest(BitcoinTestFramework):
             shared_args3, shared_args3,
         ]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def setup_network(self):
         self.setup_nodes()
 
@@ -56,6 +63,7 @@ class SignetBasicTest(BitcoinTestFramework):
         self.log.info("basic tests using OP_TRUE challenge")
 
         self.log.info('getmininginfo')
+        self.wallet = MiniWallet(self.nodes[0])
         mining_info = self.nodes[0].getmininginfo()
         assert_equal(mining_info['blocks'], 0)
         assert_equal(mining_info['chain'], 'signet')

@@ -14,6 +14,7 @@ from collections import OrderedDict
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 BUFFER_SIZE = 16 * 1024
 
@@ -402,7 +403,7 @@ class ToolWalletTest(BitcoinTestFramework):
     def test_chainless_conflicts(self):
         self.log.info("Test wallet tool when wallet contains conflicting transactions")
         self.restart_node(0)
-        self.generate(self.nodes[0], 101)
+        self.generate(self.nodes[0], COINBASE_MATURITY+1)
 
         def_wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
 
@@ -431,7 +432,7 @@ class ToolWalletTest(BitcoinTestFramework):
             locktime += 1
 
         # conflict with parent
-        conflict_unsigned = self.nodes[0].createrawtransaction(inputs=[conflict_utxo], outputs=[{wallet.getnewaddress(): 9.9999}])
+        conflict_unsigned = self.nodes[0].createrawtransaction(inputs=[conflict_utxo], outputs=[{wallet.getnewaddress(): 9.8999}])
         conflict_signed = wallet.signrawtransactionwithwallet(conflict_unsigned)["hex"]
         conflict_txid = self.nodes[0].sendrawtransaction(conflict_signed)
         self.generate(self.nodes[0], 1)
@@ -450,7 +451,7 @@ class ToolWalletTest(BitcoinTestFramework):
             Descriptors: {"yes" if self.options.descriptors else "no"}
             Encrypted: no
             HD (hd seed available): yes
-            Keypool Size: {"8" if self.options.descriptors else "1"}
+            Keypool Size: {"10" if self.options.descriptors else "1"}
             Transactions: 4
             Address Book: 4
         ''')

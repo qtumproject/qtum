@@ -37,6 +37,7 @@ from test_framework.util import (
 from test_framework.wallet import getnewdestination
 from test_framework.key import ECKey
 from test_framework.wallet_util import bytes_to_wif
+from test_framework.wallet import MiniWallet
 
 NULLDUMMY_ERROR = "non-mandatory-script-verify-flag (Dummy CHECKMULTISIG argument must be zero)"
 
@@ -81,7 +82,7 @@ class NULLDUMMYTest(BitcoinTestFramework):
         eckey.generate()
         self.privkey = bytes_to_wif(eckey.get_bytes())
         self.pubkey = eckey.get_pubkey().get_bytes().hex()
-        self.nodes[0].createwallet(wallet_name="multisig")
+        self.wallet = MiniWallet(self.nodes[0])
         cms = self.nodes[0].createmultisig(1, [self.pubkey])
         wms = self.nodes[0].createmultisig(1, [self.pubkey], 'p2sh-segwit')
         self.ms_address = cms["address"]
