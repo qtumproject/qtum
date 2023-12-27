@@ -296,7 +296,7 @@ class RESTTest (BitcoinTestFramework):
         # See if we can get 5 headers in one response
         self.generate(self.nodes[1], 5)
         expected_filter = {
-            'basic block filter index': {'synced': True, 'best_block_height': 208},
+            'basic block filter index': {'synced': True, 'best_block_height': 2108},
         }
         self.wait_until(lambda: self.nodes[0].getindexinfo() == expected_filter)
         json_obj = self.test_rest_request(f"/headers/{bb_hash}", query_params={"count": 5})

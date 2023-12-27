@@ -17,7 +17,7 @@ from test_framework.wallet_util import get_generate_key
 
 
 KEYPOOL_SIZE = 100   # smaller than default size to speed-up test
-NUM_DESCRIPTORS = 9  # number of descriptors (8 default ranged ones + 1 fixed non-ranged one)
+NUM_DESCRIPTORS = 11  # number of descriptors (10 default ranged ones + 1 fixed non-ranged one)
 NUM_BLOCKS = 6       # number of blocks to mine
 
 
@@ -64,7 +64,7 @@ class WalletFastRescanTest(BitcoinTestFramework):
                 else:
                     spk = bytes.fromhex(fixed_key.p2wpkh_script)
                     self.log.info(f"-> fixed non-range descriptor address {fixed_key.p2wpkh_addr}")
-                wallet.send_to(from_node=node, scriptPubKey=spk, amount=10000)
+                wallet.send_to(from_node=node, scriptPubKey=spk, amount=100000)
             self.generate(node, 1)
 
         self.log.info("Import wallet backup with block filter index")
