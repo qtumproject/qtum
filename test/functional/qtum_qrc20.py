@@ -67,7 +67,7 @@ class QtumQRC20Test(BitcoinTestFramework):
         tx.vin = [CTxIn(vin.prevout) for vin in tx_to_double_spend.vin]
         tx.vout = [CTxOut(value, scriptPubKey=CScript([OP_RETURN, b"\x00"]))]
         tx_signed_hex = double_spending_node.signrawtransactionwithkey(tx.serialize().hex(), [signer_privkey])['hex']
-        double_spending_node.sendrawtransaction(tx_signed_hex)
+        double_spending_node.sendrawtransaction(tx_signed_hex, maxburnamount='20000.0')
 
 
     def run_test(self):

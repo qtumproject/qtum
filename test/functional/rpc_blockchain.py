@@ -352,7 +352,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res['bestblock'], node.getblockhash(2100))
         size = res['disk_size']
         assert size > 6400
-        assert size < 176400
+        assert size < 192000
         assert_equal(len(res['bestblock']), 64)
         assert_equal(len(res['hash_serialized_2']), 64)
 

@@ -441,7 +441,7 @@ class QtumOpSenderTest(BitcoinTestFramework):
         input_tx.vin = [CTxIn(COutPoint(int(unspent['txid'], 16), unspent['vout']), scriptSig=CScript([]))]
         input_tx.vout = [CTxOut(int(unspent['amount'])*COIN-100000, scriptPubKey=CScript([OP_TRUE, OP_SENDER, OP_SENDER]))]
         input_tx = rpc_sign_transaction(self.nodes[0], input_tx)
-        input_txid = self.nodes[0].sendrawtransaction(bytes_to_hex_str(input_tx.serialize()))
+        input_txid = self.nodes[0].sendrawtransaction(bytes_to_hex_str(input_tx.serialize()), maxburnamount='20000.0')
 
         spending_tx = CTransaction()
         spending_tx.vin = [CTxIn(COutPoint(int(input_txid, 16), 0), scriptSig=CScript([]))]

@@ -194,7 +194,7 @@ class RPCPackagesTest(BitcoinTestFramework):
                 parent_coins.append(parent_tx["new_utxo"])
                 package_hex.append(parent_tx["hex"])
 
-            child_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_coins, fee_per_output=2000)
+            child_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_coins, fee_per_output=1000000)
             for _ in range(10):
                 random.shuffle(package_hex)
                 testres_multiple = node.testmempoolaccept(rawtxs=package_hex + [child_tx['hex']])
@@ -298,7 +298,7 @@ class RPCPackagesTest(BitcoinTestFramework):
             if partial_submit and random.choice([True, False]):
                 node.sendrawtransaction(parent_tx["hex"])
                 presubmitted_wtxids.add(parent_tx["wtxid"])
-        child_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=[tx["new_utxo"] for tx in package_txns], fee_per_output=10000) #DEFAULT_FEE
+        child_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=[tx["new_utxo"] for tx in package_txns], fee_per_output=5000000) #DEFAULT_FEE
         package_txns.append(child_tx)
 
         testmempoolaccept_result = node.testmempoolaccept(rawtxs=[tx["hex"] for tx in package_txns])
@@ -336,7 +336,7 @@ class RPCPackagesTest(BitcoinTestFramework):
         node.prioritisetransaction(tx_rich["txid"], 0, int(DEFAULT_FEE * COIN))
         package_txns = [tx_rich, tx_poor]
         coins = [tx["new_utxo"] for tx in package_txns]
-        tx_child = self.wallet.create_self_transfer_multi(utxos_to_spend=coins, fee_per_output=10000) #DEFAULT_FEE
+        tx_child = self.wallet.create_self_transfer_multi(utxos_to_spend=coins, fee_per_output=5000000) #DEFAULT_FEE
         package_txns.append(tx_child)
 
         submitpackage_result = node.submitpackage([tx["hex"] for tx in package_txns])
