@@ -100,11 +100,36 @@ bool HardwareSignTx::send(QVariantMap &result)
     return false;
 }
 
+bool HardwareSignTx::displayAddress()
+{
+    if(askDevice())
+    {
+        // Show address on hardware
+        WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Address on your Ledger device..."), [this]() {
+            QString fingerprint = model->getFingerprint();
+            QString tmpDesc;
+            QString tmpAddress;
+            complete = false;
+            bool ret = tool->getAddressDesc(address, tmpDesc);
+            if(ret) ret &= tool->displayAddress(fingerprint, tmpDesc, tmpAddress);
+            if(ret) complete = address == tmpAddress;
+        }, widget);
+
+        dlg.exec();
+    }
+    return complete;
+}
+
 void HardwareSignTx::setPsbt(const QString &_psbt)
 {
     psbt = _psbt;
     hexTx = "";
     complete = false;
+}
+
+void HardwareSignTx::setAddress(const QString &value)
+{
+    address = value;
 }
 
 bool HardwareSignTx::process(QWidget *widget, WalletModel *model, const QString &psbt, QVariantMap &result, bool send)
@@ -147,3 +172,13 @@ bool HardwareSignTx::process(QWidget *widget, WalletModel *model, const QString 
 
     return ret;
 }
+
+bool HardwareSignTx::display(QWidget *widget, WalletModel *model, const QString &address)
+{
+    // Display address
+    HardwareSignTx tool(widget);
+    tool.setModel(model);
+    tool.setAddress(address);
+    return tool.displayAddress();
+}
+

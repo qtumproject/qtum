@@ -18,6 +18,7 @@
 #ifdef WIN32
 #include <boost/process/windows.hpp>
 #endif
+#include <univalue.h>
 
 RecursiveMutex cs_ledger;
 
@@ -403,7 +404,7 @@ bool QtumLedger::signMessage(const std::string &fingerprint, const std::string &
     return endSignMessage(fingerprint, message, path, signature);
 }
 
-bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string &desc)
+bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, bool descriptorwallet, std::string &desc)
 {
     LOCK(cs_ledger);
     // Check if tool exists
@@ -414,12 +415,12 @@ bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std:
     if(isStarted())
         return false;
 
-    if(!beginGetKeyPool(fingerprint, type, path, internal, from, to, desc))
+    if(!beginGetKeyPool(fingerprint, type, path, internal, from, to, descriptorwallet, desc))
         return false;
 
     wait();
 
-    return endGetKeyPool(fingerprint, type, path, internal, from, to, desc);
+    return endGetKeyPool(fingerprint, type, path, internal, from, to, descriptorwallet, desc);
 }
 
 bool QtumLedger::displayAddress(const std::string &fingerprint, const std::string &desc, std::string &address)
@@ -626,7 +627,7 @@ bool QtumLedger::endSignMessage(const std::string &, const std::string &, const 
     return false;
 }
 
-bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string &)
+bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, bool, std::string &)
 {
     // Get the output type
     std::string descType = get_address_type(type);
@@ -651,11 +652,26 @@ bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const
     return d->fStarted;
 }
 
-bool QtumLedger::endGetKeyPool(const std::string &, int, const std::string& , bool, int, int, std::string &desc)
+bool QtumLedger::endGetKeyPool(const std::string &, int type, const std::string& , bool, int, int, bool descriptorwallet, std::string &desc)
 {
     // Decode command line results
     bool ret = d->strStdout.find("desc")!=std::string::npos;
     desc = d->strStdout;
+
+    // Import both PK and PKH descriptors for legacy address in descriptor wallet
+    if(descriptorwallet && (type == (int)OutputType::P2PK || type == (int)OutputType::LEGACY)) {
+        UniValue items;
+        if(items.read(desc)) {
+            if(items.isArray()) {
+                for(size_t i = 0; i < items.size(); i++) {
+                    UniValue& item = (UniValue&) items[i];
+                    if(item.isObject()) item.pushKV("importforstaking", true);
+                }
+                desc = items.write();
+            }
+        }
+    }
+
     return ret;
 }
 

@@ -31,6 +31,7 @@ static const QString PARAM_HEXTX = "hextx";
 static const QString PARAM_MAXFEERATE = "maxfeerate";
 static const QString PARAM_MAXBURNAMOUNT = "maxburnamount";
 static const QString PARAM_SHOWCONTRACTDATA = "showcontractdata";
+static const QString PARAM_ADDRESS = "address";
 static const QString LOAD_FORMAT = ":/ledger/%1_load";
 static const QString DELETE_FORMAT = ":/ledger/%1_delete";
 static const QString RC_PATH_FORMAT = ":/ledger";
@@ -46,12 +47,15 @@ public:
         cmdRescan = new ExecRPCCommand("rescanblockchain", QStringList(), optionalRescan,  QMap<QString, QString>(), parent);
         QStringList mandatoryImport = QStringList() << PARAM_REQUESTS;
         cmdImport = new ExecRPCCommand("importmulti", mandatoryImport, QStringList(),  QMap<QString, QString>(), parent);
+        cmdImportDesc = new ExecRPCCommand("importdescriptors", mandatoryImport, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryFinalize = QStringList() << PARAM_PSBT;
         cmdFinalize = new ExecRPCCommand("finalizepsbt", mandatoryFinalize, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatorySend = QStringList() << PARAM_HEXTX << PARAM_MAXFEERATE << PARAM_MAXBURNAMOUNT << PARAM_SHOWCONTRACTDATA;
         cmdSend = new ExecRPCCommand("sendrawtransaction", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
         QStringList mandatoryDecode = QStringList() << PARAM_PSBT;
         cmdDecode = new ExecRPCCommand("decodepsbt", mandatoryDecode, QStringList(),  QMap<QString, QString>(), parent);
+        QStringList mandatoryAddressInfo = QStringList() << PARAM_ADDRESS;
+        cmdAddressInfo = new ExecRPCCommand("getaddressinfo", mandatoryAddressInfo, QStringList(),  QMap<QString, QString>(), parent);
     }
 
     std::atomic<bool> fStarted{false};
@@ -63,9 +67,11 @@ public:
 
     ExecRPCCommand* cmdRescan = 0;
     ExecRPCCommand* cmdImport = 0;
+    ExecRPCCommand* cmdImportDesc = 0;
     ExecRPCCommand* cmdFinalize = 0;
     ExecRPCCommand* cmdSend = 0;
     ExecRPCCommand* cmdDecode = 0;
+    ExecRPCCommand* cmdAddressInfo = 0;
     WalletModel* model = 0;
 };
 
@@ -156,7 +162,7 @@ bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, const QString
     {
         strPath += internal ? "/1/*" : "/0/*";
     }
-    bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, strPath, internal, d->from, d->to, strDesc);
+    bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, strPath, internal, d->from, d->to, isDescriptorWallet(), strDesc);
     desc = QString::fromStdString(strDesc);
     if(ret)
     {
@@ -270,6 +276,18 @@ bool QtumHwiTool::signDelegate(const QString &fingerprint, QString &psbt)
     return true;
 }
 
+bool QtumHwiTool::displayAddress(const QString &fingerprint, const QString &desc, QString &address)
+{
+    LOCK(cs_ledger);
+    std::string strFingerprint = fingerprint.toStdString();
+    std::string strDesc = desc.toStdString();
+    std::string strAddress;
+    bool ret = QtumLedger::instance().displayAddress(strFingerprint, strDesc, strAddress);
+    address = QString::fromStdString(strAddress);
+    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    return ret;
+}
+
 QString QtumHwiTool::errorMessage()
 {
     // Get the last error message
@@ -341,7 +359,8 @@ bool QtumHwiTool::importAddresses(const QString &desc)
     ExecRPCCommand::appendParam(lstParams, PARAM_REQUESTS, desc);
 
     // Exec RPC
-    if(!execRPC(d->cmdImport, lstParams, result, resultJson))
+    ExecRPCCommand* cmd = isDescriptorWallet() ? d->cmdImportDesc : d->cmdImport;
+    if(!execRPC(cmd, lstParams, result, resultJson))
         return false;
 
     // Parse results
@@ -442,6 +461,27 @@ bool QtumHwiTool::decodePsbt(const QString &psbt, QString &decoded)
     return true;
 }
 
+bool QtumHwiTool::getAddressDesc(const QString &address, QString &desc)
+{
+    if(!d->model) return false;
+
+    // Add params for RPC
+    QMap<QString, QString> lstParams;
+    QVariant result;
+    QString resultJson;
+    ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, address);
+
+    // Exec RPC
+    if(!execRPC(d->cmdAddressInfo, lstParams, result, resultJson))
+        return false;
+
+    // Parse results
+    QVariantMap variantMap = result.toMap();
+    desc = variantMap.value("desc").toString();
+
+    return !desc.isEmpty();
+}
+
 void QtumHwiTool::setModel(WalletModel *model)
 {
     d->model = model;
@@ -461,6 +501,12 @@ void QtumHwiTool::addError(const QString &error)
     if(d->strError != "")
         d->strError += "\n";
     d->strError += error;
+}
+
+bool QtumHwiTool::isDescriptorWallet()
+{
+    if(!d->model) return false;
+    return d->model->wallet().hasDescriptors();
 }
 
 QString QtumHwiTool::derivationPathPKH()

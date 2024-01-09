@@ -283,6 +283,9 @@ public:
     // Return whether wallet uses an external signer.
     virtual bool hasExternalSigner() = 0;
 
+    // Return whether wallet uses descriptors.
+    virtual bool hasDescriptors() = 0;
+
     // Get default address type.
     virtual OutputType getDefaultAddressType() = 0;
 

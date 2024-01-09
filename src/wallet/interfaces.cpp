@@ -837,6 +837,7 @@ public:
         auto spk_man = m_wallet->GetScriptPubKeyMan(OutputType::BECH32M, /*internal=*/false);
         return spk_man != nullptr;
     }
+    bool hasDescriptors() override { return m_wallet->IsWalletFlagSet(WALLET_FLAG_DESCRIPTORS); }
     OutputType getDefaultAddressType() override { return m_wallet->m_default_address_type; }
     CAmount getDefaultMaxTxFee() override { return m_wallet->m_default_max_tx_fee; }
     void remove() override
