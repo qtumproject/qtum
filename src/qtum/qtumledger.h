@@ -105,6 +105,25 @@ public:
     bool getKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string& desc);
 
     /**
+     * @brief displayAddress Display address on ledger
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param desc Address description
+     * @param address Address displayed on the ledger
+     * @return success of the operation
+     */
+    bool displayAddress(const std::string& fingerprint, const std::string& desc, std::string& address);
+
+    /**
+     * @brief displayAddress Display address on ledger
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param type Type of output
+     * @param path HD key path
+     * @param address Address displayed on the ledger
+     * @return success of the operation
+     */
+    bool displayAddress(const std::string& fingerprint, int type, const std::string& path, std::string& address);
+
+    /**
      * @brief errorMessage Get the last error message
      * @return Last error message
      */
@@ -147,6 +166,10 @@ private:
 
     bool beginGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string& desc);
     bool endGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal,  int from, int to, std::string& desc);
+
+    bool beginDisplayAddress(const std::string& fingerprint, const std::string& desc);
+    bool beginDisplayAddress(const std::string& fingerprint, int type, const std::string& path);
+    bool endDisplayAddress(std::string& address);
 
 private:
     QtumLedger(const QtumLedger&);
