@@ -105,7 +105,7 @@ bool HardwareSignTx::displayAddress()
     if(askDevice())
     {
         // Show address on hardware
-        WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Address on your Ledger device..."), [this]() {
+        WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Address on your Ledger device:\n%1").arg(address), [this]() {
             QString fingerprint = model->getFingerprint();
             QString tmpDesc;
             QString tmpAddress;
