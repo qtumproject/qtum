@@ -195,6 +195,7 @@ public:
     // Get or set hardware wallet init required (only for hardware wallet applicable)
     void importAddressesData(bool rescan = true, bool importPKH = true, bool importP2SH = true, bool importBech32 = true, QString pathPKH = QString(), QString pathP2SH = QString(), QString pathBech32 = QString());
     bool getSignPsbtWithHwiTool();
+    bool getSignMessageWithHwiTool();
     bool createUnsigned();
     bool hasLedgerProblem();
 

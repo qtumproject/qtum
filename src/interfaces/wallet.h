@@ -454,6 +454,9 @@ public:
     //! Get staker ledger id.
     virtual std::string getStakerLedgerId() = 0;
 
+    //! Get HD key path
+    virtual bool getHDKeyPath(const CTxDestination& dest, std::string& hdkeypath) = 0;
+
     //! Register handler for unload message.
     using UnloadFn = std::function<void()>;
     virtual std::unique_ptr<Handler> handleUnload(UnloadFn fn) = 0;

@@ -73,6 +73,15 @@ public:
     bool displayAddress();
 
     /**
+     * @brief signMessage Sign message on a device
+     * @param message Message to sign
+     * @param path Address path
+     * @param signature Message signature
+     * @return success of the operation
+     */
+    bool signMessage(const QString& message, const QString& path, QString& signature);
+
+    /**
      * @brief process Process transaction
      * @param widget Parent widget
      * @param model Wallet model
@@ -91,6 +100,17 @@ public:
      * @return success of the operation
      */
     static bool display(QWidget *widget, WalletModel *model, const QString& address);
+
+    /**
+     * @brief sign_message Sign message on a device
+     * @param widget Parent widget
+     * @param model Wallet model
+     * @param message Message to sign
+     * @param path Address path
+     * @param signature Message signature
+     * @return success of the operation
+     */
+    static bool sign_message(QWidget *widget, WalletModel *model, const QString& message, const QString& path, QString& signature);
 
 Q_SIGNALS:
 

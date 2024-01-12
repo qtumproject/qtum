@@ -1007,6 +1007,14 @@ bool WalletModel::getSignPsbtWithHwiTool()
     return wallet().privateKeysDisabled() && gArgs.GetBoolArg("-signpsbtwithhwitool", wallet::DEFAULT_SIGN_PSBT_WITH_HWI_TOOL);
 }
 
+bool WalletModel::getSignMessageWithHwiTool()
+{
+    if(!::Params().HasHardwareWalletSupport())
+        return false;
+
+    return wallet().privateKeysDisabled();
+}
+
 bool WalletModel::createUnsigned()
 {
     if(wallet().privateKeysDisabled())

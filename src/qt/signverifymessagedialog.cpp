@@ -11,9 +11,9 @@
 #include <qt/walletmodel.h>
 
 #include <key_io.h>
-#include <util/message.h> // For MessageSign(), MessageVerify()
 #include <wallet/wallet.h>
 #include <qt/styleSheet.h>
+#include <qt/hardwaresigntx.h>
 
 #include <vector>
 
@@ -145,7 +145,7 @@ void SignVerifyMessageDialog::on_signMessageButton_SM_clicked()
 
     const std::string& message = ui->messageIn_SM->document()->toPlainText().toStdString();
     std::string signature;
-    SigningResult res = model->wallet().signMessage(message, *pkhash, signature);
+    SigningResult res = signMessage(message, *pkhash, signature);
 
     QString error;
     switch (res) {
@@ -305,4 +305,19 @@ void SignVerifyMessageDialog::changeEvent(QEvent* e)
     }
 
     QDialog::changeEvent(e);
+}
+
+SigningResult SignVerifyMessageDialog::signMessage(const std::string &message, const PKHash &pkhash, std::string &signature)
+{
+    if(model->getSignMessageWithHwiTool()) {
+        std::string hdkeypath;
+        bool ret = model->wallet().getHDKeyPath(pkhash, hdkeypath);
+        QString strMessage = QString::fromStdString(message);
+        QString strPath = QString::fromStdString(hdkeypath);
+        QString strSignature;
+        if(ret) ret &= HardwareSignTx::sign_message(this, model, strMessage, strPath, strSignature);
+        signature = strSignature.toStdString();
+        return ret ? SigningResult::OK : SigningResult::SIGNING_FAILED;
+    }
+    return model->wallet().signMessage(message, pkhash, signature);
 }

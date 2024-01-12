@@ -120,6 +120,21 @@ bool HardwareSignTx::displayAddress()
     return complete;
 }
 
+bool HardwareSignTx::signMessage(const QString &message, const QString &path, QString &signature)
+{
+    if(askDevice())
+    {
+        // Sign message on hardware
+        WaitMessageBox dlg(tr("Ledger Status"), tr("Confirm Message on your Ledger device..."), [this, message, path, &signature]() {
+            QString fingerprint = model->getFingerprint();
+            complete = tool->signMessage(fingerprint, message, path, signature);
+        }, widget);
+
+        dlg.exec();
+    }
+    return complete;
+}
+
 void HardwareSignTx::setPsbt(const QString &_psbt)
 {
     psbt = _psbt;
@@ -180,5 +195,14 @@ bool HardwareSignTx::display(QWidget *widget, WalletModel *model, const QString 
     tool.setModel(model);
     tool.setAddress(address);
     return tool.displayAddress();
+}
+
+
+bool HardwareSignTx::sign_message(QWidget *widget, WalletModel *model, const QString &message, const QString &path, QString &signature)
+{
+    // Display address
+    HardwareSignTx tool(widget);
+    tool.setModel(model);
+    return tool.signMessage(message, path, signature);
 }
 
