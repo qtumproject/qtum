@@ -69,7 +69,12 @@ void StakePage::setWalletModel(WalletModel *model)
     {
         transactionView->setModel(model);
         transactionView->chooseType(6);
-        ui->checkStake->setChecked(model->wallet().getEnabledStaking());
+        if(model->wallet().privateKeysDisabled()) {
+            ui->checkStake->setEnabled(node::ENABLE_HARDWARE_STAKE);
+        }
+        if(ui->checkStake->isEnabled()) {
+            ui->checkStake->setChecked(model->wallet().getEnabledStaking());
+        }
 
         // Keep up to date with wallet
         interfaces::Wallet& wallet = model->wallet();

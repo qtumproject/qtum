@@ -16,7 +16,7 @@ void StartStake(CWallet& wallet)
 {
     if(wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS))
     {
-        wallet.m_enabled_staking = !wallet.m_ledger_id.empty() && QtumLedger::instance().toolExists();
+        wallet.m_enabled_staking = node::ENABLE_HARDWARE_STAKE && !wallet.m_ledger_id.empty() && QtumLedger::instance().toolExists();
     }
     else
     {

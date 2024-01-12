@@ -24,6 +24,7 @@
 #include <qt/styleSheet.h>
 #include <chainparams.h>
 #include <chrono>
+#include <node/miner.h>
 
 #include <QDataWidgetMapper>
 #include <QDir>
@@ -119,9 +120,10 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
         ui->toolHWIPath->setVisible(fHasHardwareWalletSupport);
         ui->HWIToolLabel->setVisible(fHasHardwareWalletSupport);
         ui->signPSBTHWITool->setVisible(fHasHardwareWalletSupport);
-        ui->txtStakeLedgerId->setVisible(fHasHardwareWalletSupport);
-        ui->toolStakeLedgerId->setVisible(fHasHardwareWalletSupport);
-        ui->stakeLedgerIdlabel->setVisible(fHasHardwareWalletSupport);
+        bool fHasHardwareStakeSupport = fHasHardwareWalletSupport && node::ENABLE_HARDWARE_STAKE;
+        ui->txtStakeLedgerId->setVisible(fHasHardwareStakeSupport);
+        ui->toolStakeLedgerId->setVisible(fHasHardwareStakeSupport);
+        ui->stakeLedgerIdlabel->setVisible(fHasHardwareStakeSupport);
     }
 
 #ifdef ENABLE_EXTERNAL_SIGNER
