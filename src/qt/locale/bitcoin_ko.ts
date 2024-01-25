@@ -1234,8 +1234,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Copy</source>
         <translation type="unfinished">복사</translation>
     </message>
-    </context>
-<context>
     <message>
         <source>Delete</source>
         <translation type="unfinished">삭제</translation>
