@@ -109,6 +109,9 @@ public:
 
     /** Initialize clean block index */
     virtual void InitCleanBlockIndex() = 0;
+
+    /** Stop clean block index thread */
+    virtual void StopCleanBlockIndex() = 0;
 };
 
 /** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */

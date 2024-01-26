@@ -45,7 +45,6 @@
 #include <validation.h>
 #include <clientversion.h>
 #include <consensus/merkle.h>
-#include <shutdown.h>
 #include <pos.h>
 
 #include <algorithm>
@@ -629,6 +628,7 @@ public:
         EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex, !m_recent_confirmed_transactions_mutex, !m_most_recent_block_mutex, !m_headers_presync_mutex, g_msgproc_mutex);
     void UpdateLastBlockAnnounceTime(NodeId node, int64_t time_in_seconds) override;
     void InitCleanBlockIndex() override;
+    void StopCleanBlockIndex() override;
 
 private:
     /** Consider evicting an outbound peer based on the amount of time they've been behind our tip */
@@ -832,6 +832,7 @@ private:
     std::set<std::pair<COutPoint, unsigned int>> setStakeSeenOrphan GUARDED_BY(cs_main);
     size_t nOrphanBlocksSize = 0;
     std::thread threadCleanBlockIndex;
+    std::atomic<bool> m_stop_thread_clean_block_index = false;
 
     const CChainParams& m_chainparams;
     CConnman& m_connman;
@@ -2030,8 +2031,7 @@ void PeerManagerImpl::StartScheduledTasks(CScheduler& scheduler)
 PeerManagerImpl::~PeerManagerImpl()
 {
     // Stop clean block index thread
-    if (threadCleanBlockIndex.joinable())
-        threadCleanBlockIndex.join();
+    StopCleanBlockIndex();
 }
 
 /**
@@ -6461,7 +6461,7 @@ void PeerManagerImpl::CleanBlockIndex()
     unsigned int cleanTimeout = gArgs.GetIntArg("-cleanblockindextimeout", DEFAULT_CLEANBLOCKINDEXTIMEOUT);
     if(cleanTimeout == 0) cleanTimeout = DEFAULT_CLEANBLOCKINDEXTIMEOUT;
 
-    while(!ShutdownRequested())
+    while(!m_stop_thread_clean_block_index)
     {
         if(!m_chainman.ActiveChainstate().IsInitialBlockDownload())
         {
@@ -6518,15 +6518,25 @@ void PeerManagerImpl::CleanBlockIndex()
             }
         }
 
-        for(unsigned int i = 0; (i < cleanTimeout) && !ShutdownRequested(); i++)
+        for(unsigned int i = 0; (i < cleanTimeout) && !m_stop_thread_clean_block_index; i++)
             UninterruptibleSleep(std::chrono::seconds{1});
     }
 }
 
 void PeerManagerImpl::InitCleanBlockIndex()
 {
+    m_stop_thread_clean_block_index = false;
     if(gArgs.GetBoolArg("-cleanblockindex", DEFAULT_CLEANBLOCKINDEX))
         threadCleanBlockIndex = std::thread(&util::TraceThread, "cleanindex", [this] { CleanBlockIndex(); });
+}
+
+void PeerManagerImpl::StopCleanBlockIndex()
+{
+    if(!m_stop_thread_clean_block_index) {
+        m_stop_thread_clean_block_index = true;
+        if (threadCleanBlockIndex.joinable())
+            threadCleanBlockIndex.join();
+    }
 }
 
 unsigned int GefaultHeaderSpamFilterMaxSize()

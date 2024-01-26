@@ -122,6 +122,7 @@ bool RemoveWallet(WalletContext& context, const std::shared_ptr<CWallet>& wallet
 
     interfaces::Chain& chain = wallet->chain();
     std::string name = wallet->GetName();
+    wallet->StopStake();
 
     // Unregister with the validation interface which also drops shared pointers.
     wallet->m_chain_notifications_handler.reset();
@@ -5174,7 +5175,7 @@ void CWallet::StopStake()
 
 bool CWallet::IsStakeClosing()
 {
-    return chain().shutdownRequested() || m_stop_staking_thread;
+    return m_stop_staking_thread;
 }
 
 void CWallet::updateDelegationsStaker(const std::map<uint160, Delegation> &delegations_staker)

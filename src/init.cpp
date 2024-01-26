@@ -260,6 +260,7 @@ void Shutdown(NodeContext& node)
         }
     }
 #endif
+    if(node.peerman) node.peerman->StopCleanBlockIndex();
 
     if (node.mempool) node.mempool->AddTransactionsUpdated(1);
 
@@ -2226,5 +2227,8 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
 void UnlockDataDirectory()
 {
     // Unlock
-    LockDataDirectory(true, false);
+    const fs::path& datadir = gArgs.GetDataDirNet();
+    if (DirIsWritable(datadir)) {
+        UnlockDirectory(datadir, ".lock");
+    }
 }

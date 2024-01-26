@@ -777,6 +777,7 @@ public:
     int32_t m_staker_max_utxo_script_cache{DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE};
     uint8_t m_staking_min_fee{DEFAULT_STAKING_MIN_FEE};
     std::atomic<bool> m_stop_staking_thread{false};
+    std::atomic<bool> m_is_staking_thread_stopped{false};
 
     size_t KeypoolCountExternalKeys() const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool TopUpKeyPool(unsigned int kpSize = 0);
