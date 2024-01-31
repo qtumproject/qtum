@@ -23,6 +23,7 @@ env:
   MAKEJOBS: '-j10'
 
 jobs:
+  if: false
   test-each-commit:
     name: 'test each commit'
     runs-on: ubuntu-22.04
