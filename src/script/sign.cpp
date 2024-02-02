@@ -17,6 +17,7 @@
 #include <uint256.h>
 #include <util/translation.h>
 #include <util/vector.h>
+#include <span.h>
 
 typedef std::vector<unsigned char> valtype;
 
@@ -88,6 +89,26 @@ bool MutableTransactionSignatureCreator::CreateSchnorrSig(const SigningProvider&
     if (!key.SignSchnorr(hash, sig, merkle_root, {})) return false;
     if (nHashType) sig.push_back(nHashType);
     return true;
+}
+
+MutableTransactionSignatureOutputCreator::MutableTransactionSignatureOutputCreator(const CMutableTransaction& txToIn, unsigned int nOutIn, const CAmount& amountIn, int nHashTypeIn) : m_txto(txToIn), nOut(nOutIn), nHashType(nHashTypeIn), amount(amountIn), checker(&m_txto, nOut, amountIn) {}
+
+bool MutableTransactionSignatureOutputCreator::CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& address, const CScript& scriptCode, SigVersion sigversion) const
+{
+    CKey key;
+    if (!provider.GetKey(address, key))
+        return false;
+
+    uint256 hash = SignatureHashOutput(scriptCode, m_txto, nOut, nHashType, amount, sigversion);
+    if (!key.Sign(hash, vchSig))
+        return false;
+    vchSig.push_back((unsigned char)nHashType);
+    return true;
+}
+
+bool MutableTransactionSignatureOutputCreator::CreateSchnorrSig(const SigningProvider &, std::vector<unsigned char> &, const XOnlyPubKey &, const uint256 *, const uint256 *, SigVersion ) const
+{
+    return false;
 }
 
 static bool GetCScript(const SigningProvider& provider, const SignatureData& sigdata, const CScriptID& scriptid, CScript& script)
@@ -412,6 +433,10 @@ static bool SignStep(const SigningProvider& provider, const BaseSignatureCreator
     case TxoutType::NONSTANDARD:
     case TxoutType::NULL_DATA:
     case TxoutType::WITNESS_UNKNOWN:
+    case TxoutType::CREATE_SENDER:
+    case TxoutType::CALL_SENDER:
+    case TxoutType::CREATE:
+    case TxoutType::CALL:
         return false;
     case TxoutType::PUBKEY:
         if (!CreateSig(creator, sigdata, provider, sig, CPubKey(vSolutions[0]), scriptPubKey, sigversion)) return false;
@@ -712,6 +737,35 @@ bool SignSignature(const SigningProvider &provider, const CTransaction& txFrom, 
     return SignSignature(provider, txout.scriptPubKey, txTo, nIn, txout.nValue, nHashType, sig_data);
 }
 
+bool VerifySignature(const Coin& coin, const uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags)
+{
+    TransactionSignatureChecker checker(&txTo, nIn, 0, MissingDataBehavior::FAIL);
+	
+    const CTxIn& txin = txTo.vin[nIn];
+//    if (txin.prevout.n >= txFrom.vout.size())
+//        return false;
+//    const CTxOut& txout = txFrom.vout[txin.prevout.n];
+
+    const CTxOut& txout = coin.out;
+
+    if (txin.prevout.hash != txFromHash)
+        return false;
+		
+    return VerifyScript(txin.scriptSig, txout.scriptPubKey, NULL, flags, checker);
+}
+
+bool VerifySignature(const CScript& fromPubKey, const uint256 txFromHash, const CTransaction& txTo, unsigned int nIn, unsigned int flags)
+{
+    TransactionSignatureChecker checker(&txTo, nIn, 0, MissingDataBehavior::FAIL);
+	
+    const CTxIn& txin = txTo.vin[nIn];
+
+    if (txin.prevout.hash != txFromHash)
+        return false;
+		
+    return VerifyScript(txin.scriptSig, fromPubKey, NULL, flags, checker);
+}
+
 namespace {
 /** Dummy signature checker which accepts all signatures. */
 class DummySignatureChecker final : public BaseSignatureChecker
@@ -847,4 +901,88 @@ bool SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, 
         }
     }
     return input_errors.empty();
+}
+
+bool UpdateOutput(CTxOut &output, const SignatureData &data)
+{
+    bool ret = false;
+    CDataStream streamSig(SER_NETWORK, PROTOCOL_VERSION);
+    streamSig << data.scriptSig;
+    CScript scriptPubKey;
+    if(output.scriptPubKey.UpdateSenderSig(ToByteVector(MakeUCharSpan(streamSig)), scriptPubKey))
+    {
+        output.scriptPubKey = scriptPubKey;
+        ret = true;
+    }
+    return ret;
+}
+
+bool SignTransactionOutput(CMutableTransaction &mtx, const SigningProvider *provider, int nHashType, std::map<int, std::string>& output_errors)
+{
+    // Signing transaction outputs
+    for (unsigned int i = 0; i < mtx.vout.size(); i++)
+    {
+        CTxOut& output = mtx.vout[i];
+        if(output.scriptPubKey.HasOpSender())
+        {
+            CScript scriptPubKey;
+            if(!GetSenderPubKey(output.scriptPubKey, scriptPubKey))
+            {
+                output_errors[i] = "Fail to get sender public key";
+                continue;
+            }
+
+            SignatureData sigdata;
+            if (!ProduceSignature(*provider, MutableTransactionSignatureOutputCreator(mtx, i, output.nValue, nHashType), scriptPubKey, sigdata))
+            {
+                output_errors[i] = "Signing transaction output failed";
+                continue;
+            }
+            else
+            {
+                if(UpdateOutput(output, sigdata))
+                {
+                    output_errors.erase(i);
+                }
+                else
+                {
+                    output_errors[i] = "Update transaction output failed";
+                    continue;
+                }
+            }
+        }
+    }
+    return output_errors.empty();
+}
+
+bool SignTransactionStake(CMutableTransaction &mtx, const SigningProvider *provider, const std::vector<std::pair<CTxOut, unsigned int> > &coins)
+{
+    for(const std::pair<const CTxOut&,unsigned int> &pcoin : coins)
+    {
+        const CTxOut& txout = pcoin.first;
+        unsigned int nIn = pcoin.second;
+        SignatureData sigdata;
+        if (!SignSignature(*provider, txout.scriptPubKey, mtx, nIn, txout.nValue, SIGHASH_ALL, sigdata))
+            return false;
+    }
+
+    return true;
+}
+
+bool SignBlockStake(CBlock &block, CKey &key, bool compact)
+{
+    bool isSigned = false;
+    if(compact)
+    {
+        // append a signature to our block and ensure that is compact
+        std::vector<unsigned char> vchSig;
+        isSigned = key.SignCompact(block.GetHashWithoutSign(), vchSig);
+        block.SetBlockSignature(vchSig);
+    }
+    else
+    {
+        isSigned = key.Sign(block.GetHashWithoutSign(), block.vchBlockSigDlgt);
+    }
+
+    return isSigned;
 }
