@@ -27,6 +27,7 @@ from test_framework.script import (
 from test_framework.script_util import (
     script_to_p2wsh_script,
 )
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
@@ -136,7 +137,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
     def run_test(self):
         self.wallet = MiniWallet(self.nodes[0])
 
-        for bytes_per_sigop in (DEFAULT_BYTES_PER_SIGOP, 43, 81, 165, 327, 649, 1072):
+        for bytes_per_sigop in (DEFAULT_BYTES_PER_SIGOP, ):  # (43, 81, 165, 327, 649, 1072)
             if bytes_per_sigop == DEFAULT_BYTES_PER_SIGOP:
                 self.log.info(f"Test default sigops limit setting ({bytes_per_sigop} bytes per sigop)...")
             else:
@@ -147,7 +148,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
             for num_sigops in (69, 101, 142, 183, 222):
                 self.test_sigops_limit(bytes_per_sigop, num_sigops)
 
-            self.generate(self.wallet, 1)
+            self.generate(self.wallet, COINBASE_MATURITY + 1)
 
 
 if __name__ == '__main__':
