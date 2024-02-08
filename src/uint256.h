@@ -58,8 +58,11 @@ public:
     friend constexpr bool operator<(const base_blob& a, const base_blob& b) { return a.Compare(b) < 0; }
 
     std::string GetHex() const;
+    std::string GetReverseHex() const;
     void SetHex(const char* psz);
     void SetHex(const std::string& str);
+    void SetReverseHex(const char* psz);
+    void SetReverseHex(const std::string& str);
     std::string ToString() const;
 
     constexpr const unsigned char* data() const { return m_data.data(); }
@@ -97,6 +100,18 @@ public:
     constexpr uint160() = default;
     constexpr explicit uint160(Span<const unsigned char> vch) : base_blob<160>(vch) {}
 };
+inline uint160 uint160S(const char *str)
+{
+    uint160 rv;
+    rv.SetHex(str);
+    return rv;
+}
+inline uint160 uint160S(const std::string& str)
+{
+    uint160 rv;
+    rv.SetHex(str);
+    return rv;
+}
 
 /** 256-bit opaque blob.
  * @note This type is called uint256 for historical reasons only. It is an

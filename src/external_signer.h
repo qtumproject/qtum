@@ -61,6 +61,11 @@ public:
     //! Calls `<command> signtransaction` and passes the PSBT via stdin.
     //! @param[in,out] psbt  PartiallySignedTransaction to be signed
     bool SignTransaction(PartiallySignedTransaction& psbt, std::string& error);
+
+    //! Get the network argument
+    //! @param chain            "main", "test", "regtest" or "signet"
+    //! @returns network argument
+    static std::string NetworkArg(const std::string chain);
 };
 
 #endif // BITCOIN_EXTERNAL_SIGNER_H

@@ -170,6 +170,32 @@ void base_uint<BITS>::SetHex(const std::string& str)
 }
 
 template <unsigned int BITS>
+std::string base_uint<BITS>::GetReverseHex() const
+{
+    base_blob<BITS> b;
+    for (int x = 0; x < this->WIDTH; ++x) {
+        WriteLE32(b.begin() + x*4, this->pn[x]);
+    }
+    return b.GetReverseHex();
+}
+
+template <unsigned int BITS>
+void base_uint<BITS>::SetReverseHex(const char* psz)
+{
+    base_blob<BITS> b;
+    b.SetReverseHex(psz);
+    for (int x = 0; x < this->WIDTH; ++x) {
+        this->pn[x] = ReadLE32(b.begin() + x*4);
+    }
+}
+
+template <unsigned int BITS>
+void base_uint<BITS>::SetReverseHex(const std::string& str)
+{
+    SetReverseHex(str.c_str());
+}
+
+template <unsigned int BITS>
 std::string base_uint<BITS>::ToString() const
 {
     return GetHex();
