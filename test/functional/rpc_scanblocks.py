@@ -10,6 +10,7 @@ from test_framework.blockfilter import (
 )
 from test_framework.messages import COIN
 from test_framework.test_framework import BitcoinTestFramework
+from test_framework.qtum import convert_btc_address_to_qtum
 from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
@@ -37,7 +38,7 @@ class ScanblocksTest(BitcoinTestFramework):
         # send 1.0, mempool only
         # childkey 5 of `parent_key`
         wallet.send_to(from_node=node,
-                       scriptPubKey=address_to_scriptpubkey("mkS4HXoTYWRTescLGaUTGbtTTYX5EjJyEE"),
+                       scriptPubKey=address_to_scriptpubkey(convert_btc_address_to_qtum("mkS4HXoTYWRTescLGaUTGbtTTYX5EjJyEE")),
                        amount=1 * COIN)
 
         # mine a block and assure that the mined blockhash is in the filterresult
