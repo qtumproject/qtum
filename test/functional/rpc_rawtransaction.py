@@ -362,7 +362,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         tx_val = 0.001
         tx.vout = [CTxOut(int(Decimal(tx_val) * COIN), CScript([OP_FALSE] * 10001))]
         tx_hex = tx.serialize().hex()
-        assert_raises_rpc_error(-25, max_burn_exceeded, self.nodes[2].sendrawtransaction, tx_hex)
+        assert_raises_rpc_error(-26, "scriptpubkey", self.nodes[2].sendrawtransaction, tx_hex)
 
         # Test that script containing invalid opcode gets rejected by sendrawtransaction
         tx = self.wallet.create_self_transfer()['tx']
