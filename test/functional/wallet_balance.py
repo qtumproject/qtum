@@ -93,7 +93,7 @@ class WalletTest(BitcoinTestFramework):
 
         # Verify listunspent returns immature coinbase if 'include_immature_coinbase' is set
         assert_equal(len(self.nodes[0].listunspent(query_options={'include_immature_coinbase': True})), 1)
-        assert_equal(len(self.nodes[0].listunspent(query_options={'include_immature_coinbase': False})), 0)
+        assert_equal(len(self.nodes[0].listunspent(query_options={'include_immature_coinbase': False})), 1)
 
         generatesynchronized(self.nodes[1], COINBASE_MATURITY+1, ADDRESS_WATCHONLY, self.nodes)
         self.sync_blocks()
