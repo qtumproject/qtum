@@ -17,6 +17,12 @@
 #include <stdint.h>
 #include <string>
 
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#endif
+
 // Application startup time (used for uptime calculation)
 int64_t GetStartupTime();
 
@@ -34,5 +40,31 @@ void runCommand(const std::string& strCommand);
  * @note This does count virtual cores, such as those provided by HyperThreading.
  */
 int GetNumCores();
+
+#ifdef WIN32
+inline void SetThreadPriority(int nPriority)
+{
+    SetThreadPriority(GetCurrentThread(), nPriority);
+}
+#else
+
+#define THREAD_PRIORITY_LOWEST          PRIO_MAX
+#define THREAD_PRIORITY_BELOW_NORMAL    2
+#define THREAD_PRIORITY_NORMAL          0
+#define THREAD_PRIORITY_ABOVE_NORMAL    0
+
+inline void SetThreadPriority(int nPriority)
+{
+    // It's unclear if it's even possible to change thread priorities on Linux,
+    // but we really and truly need it for the generation threads.
+#ifdef PRIO_THREAD
+    setpriority(PRIO_THREAD, 0, nPriority);
+#else
+    setpriority(PRIO_PROCESS, 0, nPriority);
+#endif
+}
+#endif
+
+bool CheckHex(const std::string& str);
 
 #endif // BITCOIN_COMMON_SYSTEM_H

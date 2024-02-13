@@ -478,7 +478,7 @@ public:
     UniValue operator()(const WitnessUnknown& id) const { return UniValue(UniValue::VOBJ); }
 };
 
-static UniValue DescribeWalletAddress(const CWallet& wallet, const CTxDestination& dest)
+UniValue DescribeWalletAddress(const CWallet& wallet, const CTxDestination& dest)
 {
     UniValue ret(UniValue::VOBJ);
     UniValue detail = DescribeAddress(dest);

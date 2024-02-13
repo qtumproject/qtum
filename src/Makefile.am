@@ -344,6 +344,9 @@ BITCOIN_CORE_H = \
   util/ui_change_type.h \
   util/vector.h \
   util/convert.h \
+  util/signstr.h \
+  util/contractabi.h \
+  util/tokenstr.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -361,6 +364,7 @@ BITCOIN_CORE_H = \
   wallet/receive.h \
   wallet/rpc/util.h \
   wallet/rpc/wallet.h \
+  wallet/rpc/addresses.h \
   wallet/salvage.h \
   wallet/scriptpubkeyman.h \
   wallet/spend.h \
@@ -377,7 +381,13 @@ BITCOIN_CORE_H = \
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h \
   zmq/zmqrpc.h \
-  zmq/zmqutil.h
+  zmq/zmqutil.h \
+  qtum/posutils.h \
+  qtum/qtumtransaction.h \
+  qtum/qtumutils.h \
+  qtum/qtumtoken.h \
+  qtum/qtumledger.h \
+  qtum/delegationutils.h
 
 
 obj/build.h: FORCE
@@ -479,6 +489,7 @@ libbitcoin_node_a_SOURCES = \
   validation.cpp \
   validationinterface.cpp \
   versionbits.cpp \
+  qtum/qtumledger.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
@@ -721,6 +732,10 @@ libbitcoin_common_a_SOURCES = \
   script/signingprovider.cpp \
   script/solver.cpp \
   warnings.cpp \
+  qtum/qtumutils.cpp \
+  qtum/qtumtoken.cpp \
+  qtum/delegationutils.cpp \
+  util/contractabi.cpp \
   libff/libff/algebra/curves/public_params.hpp \
   libff/libff/algebra/curves/curve_utils.hpp \
   evmone/include/evmone/evmone.h \
@@ -960,6 +975,7 @@ libqtum_util_a_SOURCES = \
   util/string.cpp \
   util/time.cpp \
   util/tokenpipe.cpp \
+  util/tokenstr.cpp \
   $(BITCOIN_CORE_H)
 #
 

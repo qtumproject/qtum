@@ -5,6 +5,7 @@
 
 #include <span.h>
 #include <util/strencodings.h>
+#include <tinyformat.h>
 
 #include <array>
 #include <cassert>
@@ -320,6 +321,20 @@ std::string FormatParagraph(std::string_view in, size_t width, size_t indent)
         }
     }
     return out.str();
+}
+
+std::string i64tostr(int64_t n)
+{
+    return strprintf("%d", n);
+}
+
+int64_t atoi64(const std::string& str)
+{
+#ifdef _MSC_VER
+    return _atoi64(str.c_str());
+#else
+    return strtoll(str.c_str(), nullptr, 10);
+#endif
 }
 
 /** Upper bound for mantissa.
