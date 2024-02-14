@@ -141,7 +141,12 @@ struct Params {
     {
         return std::chrono::seconds{nPowTargetSpacing};
     }
-    int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
+    int64_t DifficultyAdjustmentInterval(int height=0) const
+    {
+        int64_t targetTimespan = TargetTimespan(height);
+        int64_t targetSpacing = TargetSpacing(height);
+        return targetTimespan / targetSpacing;
+    }
     /** The best chain should have at least this much work */
     uint256 nMinimumChainWork;
     /** By default assume that the signatures in ancestors of this block are valid */
