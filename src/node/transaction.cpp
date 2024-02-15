@@ -74,7 +74,7 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
                 const MempoolAcceptResult result = node.chainman->ProcessTransaction(tx, /*test_accept=*/ true);
                 if (result.m_result_type != MempoolAcceptResult::ResultType::VALID) {
                     return HandleATMPError(result.m_state, err_string);
-                } else if (result.m_base_fees.value() > max_tx_fee) {
+                } else if (!tx->HasCreateOrCall() && result.m_base_fees.value() > max_tx_fee) {
                     return TransactionError::MAX_FEE_EXCEEDED;
                 }
             }
@@ -122,7 +122,7 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
     return TransactionError::OK;
 }
 
-CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, uint256& hashBlock, const BlockManager& blockman)
+CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, uint256& hashBlock, const BlockManager& blockman, Chainstate* chainstate)
 {
     if (mempool && !block_index) {
         CTransactionRef ptx = mempool->get(hash);
@@ -148,6 +148,22 @@ CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMe
                 if (tx->GetHash() == hash) {
                     hashBlock = block_index->GetBlockHash();
                     return tx;
+                }
+            }
+        }
+    }
+    if (chainstate) { // use coin database to locate block that contains transaction, and scan it
+        CBlockIndex* pindexSlow = nullptr;
+        const Coin& coin = AccessByTxid(chainstate->CoinsTip(), hash);
+        if (!coin.IsSpent()) pindexSlow = chainstate->m_chain[coin.nHeight];
+        if (pindexSlow) {
+            CBlock block;
+            if (blockman.ReadBlockFromDisk(block, *pindexSlow)) {
+                for (const auto& tx : block.vtx) {
+                    if (tx->GetHash() == hash) {
+                        hashBlock = pindexSlow->GetBlockHash();
+                        return tx;
+                    }
                 }
             }
         }
