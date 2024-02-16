@@ -83,7 +83,7 @@ struct TestingSetup : public ChainTestingSetup {
 /** Identical to TestingSetup, but chain set to regtest */
 struct RegTestingSetup : public TestingSetup {
     RegTestingSetup()
-        : TestingSetup{ChainType::REGTEST} {}
+        : TestingSetup{ChainType::UNITTEST} {}
 };
 
 class CBlock;
@@ -95,7 +95,7 @@ class CScript;
  */
 struct TestChain100Setup : public TestingSetup {
     TestChain100Setup(
-        const ChainType chain_type = ChainType::REGTEST,
+        const ChainType chain_type = ChainType::UNITTEST,
         const std::vector<const char*>& extra_args = {},
         const bool coins_db_in_memory = true,
         const bool block_tree_db_in_memory = true);
@@ -173,7 +173,7 @@ struct TestChain100Setup : public TestingSetup {
  * be used in "hot loops", for example fuzzing or benchmarking.
  */
 template <class T = const BasicTestingSetup>
-std::unique_ptr<T> MakeNoLogFileContext(const ChainType chain_type = ChainType::REGTEST, const std::vector<const char*>& extra_args = {})
+std::unique_ptr<T> MakeNoLogFileContext(const ChainType chain_type = ChainType::UNITTEST, const std::vector<const char*>& extra_args = {})
 {
     const std::vector<const char*> arguments = Cat(
         {

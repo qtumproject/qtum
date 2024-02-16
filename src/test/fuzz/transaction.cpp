@@ -24,7 +24,7 @@
 
 void initialize_transaction()
 {
-    SelectParams(ChainType::REGTEST);
+    SelectParams(ChainType::UNITTEST);
 }
 
 FUZZ_TARGET(transaction, .init = initialize_transaction)

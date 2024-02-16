@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(ChainParams_MAIN_sanity)
 
 BOOST_AUTO_TEST_CASE(ChainParams_REGTEST_sanity)
 {
-    sanity_check_chainparams(*m_node.args, ChainType::REGTEST);
+    sanity_check_chainparams(*m_node.args, ChainType::UNITTEST);
 }
 
 BOOST_AUTO_TEST_CASE(ChainParams_TESTNET_sanity)
