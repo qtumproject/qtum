@@ -188,7 +188,7 @@ struct SnapshotTestSetup : TestChain100Setup {
         }
 
         size_t initial_size;
-        size_t initial_total_coins{100};
+        size_t initial_total_coins{2000};
 
         // Make some initial assertions about the contents of the chainstate.
         {
@@ -216,7 +216,7 @@ struct SnapshotTestSetup : TestChain100Setup {
 
         // Mine 10 more blocks, putting at us height 110 where a valid assumeutxo value can
         // be found.
-        constexpr int snapshot_height = 110;
+        constexpr int snapshot_height = 2010;
         mineBlocks(10);
         initial_size += 10;
         initial_total_coins += 10;
@@ -321,7 +321,7 @@ struct SnapshotTestSetup : TestChain100Setup {
         }
 
         // Mine some new blocks on top of the activated snapshot chainstate.
-        constexpr size_t new_coins{100};
+        constexpr size_t new_coins{2000};
         mineBlocks(new_coins);  // Defined in TestChain100Setup.
 
         {
@@ -586,7 +586,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_init, SnapshotTestSetup)
         BOOST_CHECK(bg_chainstate.DisconnectTip(unused_state, &unused_pool));
         unused_pool.clear();  // to avoid queuedTx assertion errors on teardown
     }
-    BOOST_CHECK_EQUAL(bg_chainstate.m_chain.Height(), 109);
+    BOOST_CHECK_EQUAL(bg_chainstate.m_chain.Height(), 2009);
 
     // Test that simulating a shutdown (resetting ChainstateManager) and then performing
     // chainstate reinitializing successfully cleans up the background-validation
@@ -605,7 +605,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_init, SnapshotTestSetup)
         BOOST_CHECK(!chainman_restarted.IsSnapshotValidated());
 
         BOOST_CHECK_EQUAL(chainman_restarted.ActiveTip()->GetBlockHash(), snapshot_tip_hash);
-        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 210);
+        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 4010);
     }
 
     BOOST_TEST_MESSAGE(
@@ -613,13 +613,13 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_init, SnapshotTestSetup)
     mineBlocks(10);
     {
         LOCK(chainman_restarted.GetMutex());
-        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 220);
+        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 4020);
 
         // Background chainstate should be unaware of new blocks on the snapshot
         // chainstate.
         for (Chainstate* cs : chainman_restarted.GetAll()) {
             if (cs != &chainman_restarted.ActiveChainstate()) {
-                BOOST_CHECK_EQUAL(cs->m_chain.Height(), 109);
+                BOOST_CHECK_EQUAL(cs->m_chain.Height(), 2009);
             }
         }
     }
@@ -696,7 +696,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_completion, SnapshotTestSetup
         BOOST_CHECK(active_cs2.m_coinsdb_cache_size_bytes > db_cache_before_complete);
 
         BOOST_CHECK_EQUAL(chainman_restarted.ActiveTip()->GetBlockHash(), snapshot_tip_hash);
-        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 210);
+        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 4010);
     }
 
     BOOST_TEST_MESSAGE(
@@ -704,7 +704,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_completion, SnapshotTestSetup
     mineBlocks(10);
     {
         LOCK(chainman_restarted.GetMutex());
-        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 220);
+        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 4020);
     }
 }
 
@@ -763,7 +763,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_completion_hash_mismatch, Sna
         BOOST_CHECK_EQUAL(chainman_restarted.GetAll().size(), 1);
         BOOST_CHECK(!chainman_restarted.IsSnapshotActive());
         BOOST_CHECK(!chainman_restarted.IsSnapshotValidated());
-        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 210);
+        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 4010);
     }
 
     BOOST_TEST_MESSAGE(
@@ -771,7 +771,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_completion_hash_mismatch, Sna
     mineBlocks(10);
     {
         LOCK(::cs_main);
-        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 220);
+        BOOST_CHECK_EQUAL(chainman_restarted.ActiveHeight(), 4020);
     }
 }
 
