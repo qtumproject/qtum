@@ -34,6 +34,14 @@ struct FeeCalculation;
 namespace node {
 struct NodeContext;
 } // namespace node
+class ChainstateManager;
+class CTxMemPool;
+
+#ifdef ENABLE_WALLET
+namespace wallet {
+class CWallet;
+} // namespace wallet
+#endif
 
 namespace interfaces {
 
@@ -123,6 +131,12 @@ class Chain
 {
 public:
     virtual ~Chain() {}
+
+    //! Get chain state manager
+    virtual ChainstateManager& chainman() = 0;
+
+    //! Get mempool
+    virtual const CTxMemPool& mempool() = 0;
 
     //! Get current chain height, not including genesis block (returns 0 if
     //! chain only contains genesis block, nullopt if chain does not contain
@@ -366,6 +380,14 @@ public:
     //! Get internal node context. Useful for testing, but not
     //! accessible across processes.
     virtual node::NodeContext* context() { return nullptr; }
+
+    //! Get transaction gas fee.
+    virtual CAmount getTxGasFee(const CMutableTransaction& tx) = 0;
+
+#ifdef ENABLE_WALLET
+    //! Stop staking qtums.
+    virtual void stopStake(wallet::CWallet& wallet) = 0;
+#endif
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for

@@ -31,6 +31,8 @@ CAmount CachedTxGetDebit(const CWallet& wallet, const CWalletTx& wtx, const ismi
 CAmount CachedTxGetChange(const CWallet& wallet, const CWalletTx& wtx);
 CAmount CachedTxGetImmatureCredit(const CWallet& wallet, const CWalletTx& wtx, const isminefilter& filter)
     EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet);
+CAmount CachedTxGetStakeCredit(const CWallet& wallet, const CWalletTx& wtx, const isminefilter& filter)
+    EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet);
 CAmount CachedTxGetAvailableCredit(const CWallet& wallet, const CWalletTx& wtx, const isminefilter& filter = ISMINE_SPENDABLE)
     EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet);
 struct COutputEntry
@@ -52,9 +54,11 @@ struct Balance {
     CAmount m_mine_trusted{0};           //!< Trusted, at depth=GetBalance.min_depth or more
     CAmount m_mine_untrusted_pending{0}; //!< Untrusted, but in mempool (pending)
     CAmount m_mine_immature{0};          //!< Immature coinbases in the main chain
+    CAmount m_mine_stake{0};
     CAmount m_watchonly_trusted{0};
     CAmount m_watchonly_untrusted_pending{0};
     CAmount m_watchonly_immature{0};
+    CAmount m_watchonly_stake{0};
 };
 Balance GetBalance(const CWallet& wallet, int min_depth = 0, bool avoid_reuse = true);
 

@@ -62,6 +62,10 @@
 
 #include <boost/signals2/signal.hpp>
 
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#endif
+
 using interfaces::BlockTip;
 using interfaces::Chain;
 using interfaces::FoundBlock;
@@ -817,7 +821,17 @@ public:
 
     NodeContext* context() override { return &m_node; }
     ArgsManager& args() { return *Assert(m_node.args); }
-    ChainstateManager& chainman() { return *Assert(m_node.chainman); }
+    ChainstateManager& chainman() override { return *Assert(m_node.chainman); }
+    const CTxMemPool& mempool() override { return *Assert(m_node.mempool); }
+    CAmount getTxGasFee(const CMutableTransaction& tx) override
+    {
+        return GetTxGasFee(tx, mempool(), chainman().ActiveChainstate());
+    }
+#ifdef ENABLE_WALLET
+    void stopStake(wallet::CWallet& wallet) override
+    {
+    }
+#endif
     NodeContext& m_node;
 };
 } // namespace

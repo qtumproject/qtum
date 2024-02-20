@@ -155,6 +155,7 @@ bool RemoveWallet(WalletContext& context, const std::shared_ptr<CWallet>& wallet
 
     interfaces::Chain& chain = wallet->chain();
     std::string name = wallet->GetName();
+    wallet->StopStake();
 
     // Unregister with the validation interface which also drops shared pointers.
     wallet->m_chain_notifications_handler.reset();
@@ -223,6 +224,7 @@ static void ReleaseWallet(CWallet* wallet)
 {
     const std::string name = wallet->GetName();
     wallet->WalletLogPrintf("Releasing wallet\n");
+    wallet->StopStake();
     wallet->Flush();
     delete wallet;
     // Wallet is now released, notify UnloadWallet, if any.
@@ -248,6 +250,7 @@ void UnloadWallet(std::shared_ptr<CWallet>&& wallet)
     // The wallet can be in use so it's not possible to explicitly unload here.
     // Notify the unload intent so that all remaining shared pointers are
     // released.
+    wallet->StopStake();
     wallet->NotifyUnload();
 
     // Time to ditch our shared_ptr and wait for ReleaseWallet call.
@@ -697,6 +700,7 @@ void CWallet::Flush()
 
 void CWallet::Close()
 {
+    StopStake();
     GetDatabase().Close();
 }
 
@@ -1481,6 +1485,7 @@ void CWallet::blockConnected(ChainstateRole role, const interfaces::BlockInfo& b
     assert(block.data);
     LOCK(cs_wallet);
 
+    bool hasDelegation = block.data->HasProofOfDelegation();
     m_last_block_processed_height = block.height;
     m_last_block_processed = block.hash;
 
@@ -1490,7 +1495,7 @@ void CWallet::blockConnected(ChainstateRole role, const interfaces::BlockInfo& b
 
     // Scan block
     for (size_t index = 0; index < block.data->vtx.size(); index++) {
-        SyncTransaction(block.data->vtx[index], TxStateConfirmed{block.hash, block.height, static_cast<int>(index)});
+        SyncTransaction(block.data->vtx[index], TxStateConfirmed{block.hash, block.height, static_cast<int>(index), hasDelegation});
         transactionRemovedFromMempool(block.data->vtx[index], MemPoolRemovalReason::BLOCK);
     }
 }
@@ -1910,8 +1915,9 @@ CWallet::ScanResult CWallet::ScanForWalletTransactions(const uint256& start_bloc
                     result.status = ScanResult::FAILURE;
                     break;
                 }
+                bool hasDelegation = block.HasProofOfDelegation();
                 for (size_t posInBlock = 0; posInBlock < block.vtx.size(); ++posInBlock) {
-                    SyncTransaction(block.vtx[posInBlock], TxStateConfirmed{block_hash, block_height, static_cast<int>(posInBlock)}, fUpdate, /*rescanning_old_block=*/true);
+                    SyncTransaction(block.vtx[posInBlock], TxStateConfirmed{block_hash, block_height, static_cast<int>(posInBlock), hasDelegation}, fUpdate, /*rescanning_old_block=*/true);
                 }
                 // scan succeeded, record block as most recent successfully scanned
                 result.last_scanned_block = block_hash;
@@ -2108,6 +2114,10 @@ void MaybeResendWalletTxs(WalletContext& context)
  * @{
  */
 
+void CWallet::RefreshAddressStakeCache()
+{
+}
+
 bool CWallet::SignTransaction(CMutableTransaction& tx) const
 {
     AssertLockHeld(cs_wallet);
@@ -2139,6 +2149,62 @@ bool CWallet::SignTransaction(CMutableTransaction& tx, const std::map<COutPoint,
     }
 
     // At this point, one input was not fully signed otherwise we would have exited already
+    return false;
+}
+
+bool CWallet::SignTransactionOutput(CMutableTransaction& tx) const
+{
+    std::map<int, std::string> output_errors;
+    return SignTransactionOutput(tx, SIGHASH_ALL, output_errors);
+}
+
+bool CWallet::SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const
+{
+    // Sign transaction op_sender outputs
+    for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
+        if (spk_man->SignTransactionOutput(tx, sighash, output_errors)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CWallet::SignTransactionStake(CMutableTransaction& txTo, const std::vector<std::pair<const CWalletTx*,unsigned int>>& vwtxPrev) const
+{
+    // Create the list of coins
+    std::vector<std::pair<CTxOut,unsigned int>> coins;
+    unsigned int nIn = 0;
+    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : vwtxPrev)
+    {
+        const CTransaction& txFrom = *pcoin.first->tx;
+        assert(nIn < txTo.vin.size());
+        CTxIn& txin = txTo.vin[nIn];
+        assert(txin.prevout.n < txFrom.vout.size());
+        const CTxOut& txout = txFrom.vout[txin.prevout.n];
+        coins.push_back(std::make_pair(txout, nIn));
+        nIn++;
+    }
+
+    // Sign coinstake transaction
+    for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
+        if (spk_man->SignTransactionStake(txTo, coins)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CWallet::SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const
+{
+    // Sign coinstake transaction
+    for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
+        if (spk_man->SignBlockStake(block, pkhash, compact)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -2657,7 +2723,7 @@ void CWallet::GetKeyBirthTimes(std::map<CKeyID, int64_t>& mapKeyBirth) const {
 
     // map in which we'll infer heights of other keys
     std::map<CKeyID, const TxStateConfirmed*> mapKeyFirstBlock;
-    TxStateConfirmed max_confirm{uint256{}, /*height=*/-1, /*index=*/-1};
+    TxStateConfirmed max_confirm{uint256{}, /*height=*/-1, /*index=*/-1, /*delegation=*/false};
     max_confirm.confirmed_block_height = GetLastBlockHeight() > 144 ? GetLastBlockHeight() - 144 : 0; // the tip can be reorganized; use a 144-block safety margin
     CHECK_NONFATAL(chain().findAncestorByHeight(GetLastBlockHash(), max_confirm.confirmed_block_height, FoundBlock().hash(max_confirm.confirmed_block_hash)));
 
@@ -3346,12 +3412,22 @@ int CWallet::GetTxBlocksToMaturity(const CWalletTx& wtx) const
     return std::max(0, (COINBASE_MATURITY+1) - chain_depth);
 }
 
-bool CWallet::IsTxImmatureCoinBase(const CWalletTx& wtx) const
+bool CWallet::IsTxImmature(const CWalletTx& wtx) const
 {
     AssertLockHeld(cs_wallet);
 
     // note GetBlocksToMaturity is 0 for non-coinbase tx
     return GetTxBlocksToMaturity(wtx) > 0;
+}
+
+bool CWallet::IsTxImmatureCoinBase(const CWalletTx& wtx) const
+{
+    return wtx.IsCoinBase() && IsTxImmature(wtx);
+}
+
+bool CWallet::IsTxImmatureCoinStake(const CWalletTx& wtx) const
+{
+    return wtx.IsCoinStake() && IsTxImmature(wtx);
 }
 
 bool CWallet::IsCrypted() const
@@ -4339,5 +4415,22 @@ util::Result<MigrationResult> MigrateLegacyToDescriptor(const std::string& walle
         return util::Error{error};
     }
     return res;
+}
+
+void CWallet::StopStake()
+{
+    if(HaveChain())
+    {
+        chain().stopStake(*this);
+    }
+}
+
+CAmount CWallet::GetTxGasFee(const CMutableTransaction& tx)
+{
+    if(HaveChain())
+    {
+        return chain().getTxGasFee(tx);
+    }
+    return 0;
 }
 } // namespace wallet

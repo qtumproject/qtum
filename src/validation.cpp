@@ -6028,3 +6028,8 @@ std::pair<int, int> ChainstateManager::GetPruneRange(const Chainstate& chainstat
 
     return {prune_start, prune_end};
 }
+
+CAmount GetTxGasFee(const CMutableTransaction& _tx, const CTxMemPool& mempool, Chainstate& active_chainstate)
+{
+    return {};
+}
