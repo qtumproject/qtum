@@ -8,6 +8,7 @@
 #include <blockfilter.h>
 #include <common/settings.h>
 #include <primitives/transaction.h> // For CTransactionRef
+#include <netbase.h>                // For ConnectionDirection
 
 #include <functional>
 #include <memory>
@@ -16,6 +17,11 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <map>
+
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
 
 class ArgsManager;
 class CBlock;
@@ -36,12 +42,15 @@ struct NodeContext;
 } // namespace node
 class ChainstateManager;
 class CTxMemPool;
+class CBlockIndex;
+class CCoinsViewCache;
 
 #ifdef ENABLE_WALLET
 namespace wallet {
 class CWallet;
 } // namespace wallet
 #endif
+struct Delegation;
 
 namespace interfaces {
 
@@ -65,6 +74,8 @@ public:
     FoundBlock& time(int64_t& time) { m_time = &time; return *this; }
     FoundBlock& maxTime(int64_t& max_time) { m_max_time = &max_time; return *this; }
     FoundBlock& mtpTime(int64_t& mtp_time) { m_mtp_time = &mtp_time; return *this; }
+    //! Return whether block has delagation.
+    FoundBlock& hasDelegation(bool& has_delegation) { m_has_delegation = &has_delegation; return *this; }
     //! Return whether block is in the active (most-work) chain.
     FoundBlock& inActiveChain(bool& in_active_chain) { m_in_active_chain = &in_active_chain; return *this; }
     //! Return locator if block is in the active chain.
@@ -80,6 +91,7 @@ public:
     int64_t* m_time = nullptr;
     int64_t* m_max_time = nullptr;
     int64_t* m_mtp_time = nullptr;
+    bool* m_has_delegation = nullptr;
     bool* m_in_active_chain = nullptr;
     CBlockLocator* m_locator = nullptr;
     const FoundBlock* m_next_block = nullptr;
@@ -197,6 +209,9 @@ public:
         const FoundBlock& block1_out={},
         const FoundBlock& block2_out={}) = 0;
 
+    //! Get map of the immature stakes.
+    virtual std::map<COutPoint, uint32_t> getImmatureStakes() = 0;
+
     //! Look up unspent output information. Returns coins in the mempool and in
     //! the current chain UTXO set. Iterates through all the keys in the map and
     //! populates the values.
@@ -297,6 +312,9 @@ public:
     //! Check if any block has been pruned.
     virtual bool havePruned() = 0;
 
+    //! Is loading blocks.
+    virtual bool isLoadingBlocks() = 0;
+
     //! Check if the node is ready to broadcast transactions.
     virtual bool isReadyToBroadcast() = 0;
 
@@ -305,6 +323,9 @@ public:
 
     //! Check if shutdown requested.
     virtual bool shutdownRequested() = 0;
+
+    //! Get adjusted time.
+    virtual int64_t getAdjustedTime() = 0;
 
     //! Send init message.
     virtual void initMessage(const std::string& message) = 0;
@@ -381,13 +402,46 @@ public:
     //! accessible across processes.
     virtual node::NodeContext* context() { return nullptr; }
 
+    //! Get chain tip
+    virtual CBlockIndex* getTip() const =  0;
+
+    //! Get unspent outputs associated with a transaction.
+    virtual bool getUnspentOutput(const COutPoint& output, Coin& coin) = 0;
+
+    //! Get coins tip.
+    virtual CCoinsViewCache& getCoinsTip() = 0;
+
+    //! Get number of connections.
+    virtual size_t getNodeCount(ConnectionDirection flags) = 0;
+
     //! Get transaction gas fee.
     virtual CAmount getTxGasFee(const CMutableTransaction& tx) = 0;
 
 #ifdef ENABLE_WALLET
+    //! Start staking qtums.
+    virtual void startStake(wallet::CWallet& wallet) = 0;
+
     //! Stop staking qtums.
     virtual void stopStake(wallet::CWallet& wallet) = 0;
+
+    //! get stake weight.
+    virtual uint64_t getStakeWeight(const wallet::CWallet& wallet, uint64_t* pStakerWeight = nullptr, uint64_t* pDelegateWeight = nullptr) = 0;
+
+    //! refresh delegates.
+    virtual void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) = 0;
+
+    //! get contract RPC commands.
+    virtual Span<const CRPCCommand> getContractRPCCommands() = 0;
+
+    //! get mining RPC commands.
+    virtual Span<const CRPCCommand> getMiningRPCCommands() = 0;
 #endif
+
+    //! get delegation for an address.
+    virtual bool getDelegation(const uint160& address, Delegation& delegation) = 0;
+
+    //! verify delegation for an address.
+    virtual bool verifyDelegation(const uint160& address, const Delegation& delegation) = 0;
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for
