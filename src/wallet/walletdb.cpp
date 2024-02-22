@@ -61,6 +61,11 @@ const std::string WALLETDESCRIPTORCKEY{"walletdescriptorckey"};
 const std::string WALLETDESCRIPTORKEY{"walletdescriptorkey"};
 const std::string WATCHMETA{"watchmeta"};
 const std::string WATCHS{"watchs"};
+const std::string TOKEN{"token"};
+const std::string TOKENTX{"tokentx"};
+const std::string CONTRACTDATA{"contractdata"};
+const std::string DELEGATION{"delegation"};
+const std::string SUPERSTAKER{"superstaker"};
 const std::unordered_set<std::string> LEGACY_TYPES{CRYPTED_KEY, CSCRIPT, DEFAULTKEY, HDCHAIN, KEYMETA, KEY, OLD_KEY, POOL, WATCHMETA, WATCHS};
 } // namespace DBKeys
 
@@ -1432,6 +1437,16 @@ bool WalletBatch::TxnCommit()
 bool WalletBatch::TxnAbort()
 {
     return m_batch->TxnAbort();
+}
+
+bool WalletBatch::WriteContractData(const std::string &address, const std::string &key, const std::string &value)
+{
+    return WriteIC(std::make_pair(DBKeys::CONTRACTDATA, std::make_pair(address, key)), value);
+}
+
+bool WalletBatch::EraseContractData(const std::string &address, const std::string &key)
+{
+    return EraseIC(std::make_pair(DBKeys::CONTRACTDATA, std::make_pair(address, key)));
 }
 
 std::unique_ptr<WalletDatabase> MakeDatabase(const fs::path& path, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error)

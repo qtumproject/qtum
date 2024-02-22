@@ -389,7 +389,8 @@ public:
     }
     int64_t getBlockSubsidy(int nHeight) override
     {
-        return {};
+        const CChainParams& chainparams = Params();
+        return GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     uint64_t getNetworkStakeWeight() override
     {
@@ -611,7 +612,8 @@ public:
     }
     std::map<COutPoint, uint32_t> getImmatureStakes() override
     {
-        return {};
+        LOCK(cs_main);
+        return GetImmatureStakes(chainman());
     }
     std::optional<int> findLocatorFork(const CBlockLocator& locator) override
     {
