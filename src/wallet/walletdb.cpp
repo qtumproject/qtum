@@ -1439,6 +1439,26 @@ bool WalletBatch::TxnAbort()
     return m_batch->TxnAbort();
 }
 
+bool WalletBatch::WriteToken(const CTokenInfo &wtoken)
+{
+    return WriteIC(std::make_pair(DBKeys::TOKEN, wtoken.GetHash()), wtoken);
+}
+
+bool WalletBatch::EraseToken(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::TOKEN, hash));
+}
+
+bool WalletBatch::WriteTokenTx(const CTokenTx &wTokenTx)
+{
+    return WriteIC(std::make_pair(DBKeys::TOKENTX, wTokenTx.GetHash()), wTokenTx);
+}
+
+bool WalletBatch::EraseTokenTx(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::TOKENTX, hash));
+}
+
 bool WalletBatch::WriteContractData(const std::string &address, const std::string &key, const std::string &value)
 {
     return WriteIC(std::make_pair(DBKeys::CONTRACTDATA, std::make_pair(address, key)), value);
@@ -1447,6 +1467,26 @@ bool WalletBatch::WriteContractData(const std::string &address, const std::strin
 bool WalletBatch::EraseContractData(const std::string &address, const std::string &key)
 {
     return EraseIC(std::make_pair(DBKeys::CONTRACTDATA, std::make_pair(address, key)));
+}
+
+bool WalletBatch::WriteDelegation(const CDelegationInfo &wdelegation)
+{
+    return WriteIC(std::make_pair(DBKeys::DELEGATION, wdelegation.GetHash()), wdelegation);
+}
+
+bool WalletBatch::EraseDelegation(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::DELEGATION, hash));
+}
+
+bool WalletBatch::WriteSuperStaker(const CSuperStakerInfo &wsuperStaker)
+{
+    return WriteIC(std::make_pair(DBKeys::SUPERSTAKER, wsuperStaker.GetHash()), wsuperStaker);
+}
+
+bool WalletBatch::EraseSuperStaker(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::SUPERSTAKER, hash));
 }
 
 std::unique_ptr<WalletDatabase> MakeDatabase(const fs::path& path, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error)

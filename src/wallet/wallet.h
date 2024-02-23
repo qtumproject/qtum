@@ -528,6 +528,14 @@ public:
 
     std::map<std::string, CContractBookData> mapContractBook;
 
+    std::map<uint256, CTokenInfo> mapToken;
+
+    std::map<uint256, CTokenTx> mapTokenTx;
+
+    std::map<uint256, CDelegationInfo> mapDelegation;
+
+    std::map<uint256, CSuperStakerInfo> mapSuperStaker;
+
     bool fUpdatedSuperStaker = false;
 
     std::map<COutPoint, CStakeCache> minerStakeCache;
@@ -624,6 +632,10 @@ public:
 
     void GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     unsigned int ComputeTimeSmart(const CWalletTx& wtx, bool rescanning_old_block) const;
+
+    bool LoadToken(const CTokenInfo &token);
+
+    bool LoadTokenTx(const CTokenTx &tokenTx);
 
     //! Adds a contract data tuple to the store, without saving it to disk
     bool LoadContractData(const std::string &address, const std::string &key, const std::string &value);
@@ -734,6 +746,7 @@ public:
     bool GetDelegationStaker(const uint160& keyid, Delegation& delegation);
     bool HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* insertAddressStake = nullptr) const;
     void RefreshAddressStakeCache();
+    bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
     void RefreshDelegates(bool myDelegates, bool stakerDelegates);
 
     /** Pass this transaction to node for mempool insertion and relay to peers if flag set to true */
@@ -1158,6 +1171,42 @@ public:
     //! Whether the (external) signer performs R-value signature grinding
     bool CanGrindR() const;
 
+    /* Add token entry into the wallet */
+    bool AddTokenEntry(const CTokenInfo& token, bool fFlushOnClose=true);
+
+    /* Add token tx entry into the wallet */
+    bool AddTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose=true);
+
+    /* Get details token tx entry into the wallet */
+    bool GetTokenTxDetails(const CTokenTx &wtx, uint256& credit, uint256& debit, std::string& tokenSymbol, uint8_t& decimals) const;
+
+    /* Check if token transaction is mine */
+    bool IsTokenTxMine(const CTokenTx &wtx) const;
+
+    /* Remove token entry from the wallet */
+    bool RemoveTokenEntry(const uint256& tokenHash, bool fFlushOnClose=true);
+
+    /* Clean token transaction entries in the wallet */
+    bool CleanTokenTxEntries(bool fFlushOnClose=true);
+
+    /* Load delegation entry into the wallet */
+    bool LoadDelegation(const CDelegationInfo &delegation);
+
+    /* Add delegation entry into the wallet */
+    bool AddDelegationEntry(const CDelegationInfo& delegation, bool fFlushOnClose=true);
+
+    /* Remove delegation entry from the wallet */
+    bool RemoveDelegationEntry(const uint256& delegationHash, bool fFlushOnClose=true);
+
+    /* Load super staker entry into the wallet */
+    bool LoadSuperStaker(const CSuperStakerInfo &superStaker);
+
+    /* Add super staker entry into the wallet */
+    bool AddSuperStakerEntry(const CSuperStakerInfo& superStaker, bool fFlushOnClose=true);
+
+    /* Remove super staker entry from the wallet */
+    bool RemoveSuperStakerEntry(const uint256& superStakerHash, bool fFlushOnClose=true);
+
     /* Start staking qtums */
     void StartStake();
 
@@ -1172,6 +1221,9 @@ public:
 
     /* Clean coinstake transactions when not reindex and not importing */
     void TryCleanCoinStake();
+
+    void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
+    void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);
 
     std::map<uint160, Delegation> m_delegations_staker;
     std::map<uint160, CAmount> m_delegations_weight;
@@ -1255,6 +1307,90 @@ struct MigrationResult {
 //! Do all steps to migrate a legacy wallet to a descriptor wallet
 [[nodiscard]] util::Result<MigrationResult> MigrateLegacyToDescriptor(const std::string& wallet_name, const SecureString& passphrase, WalletContext& context);
 
+class CTokenInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strContractAddress;
+    std::string strTokenName;
+    std::string strTokenSymbol;
+    uint8_t nDecimals;
+    std::string strSenderAddress;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
+
+    CTokenInfo()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CTokenInfo, obj) {
+        READWRITE(obj.nDecimals, obj.strContractAddress, obj.strSenderAddress);
+    }
+
+    void SetNull()
+    {
+        nVersion = CTokenInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        strContractAddress = "";
+        strTokenName = "";
+        strTokenSymbol = "";
+        nDecimals = 0;
+        strSenderAddress = "";
+        blockHash.SetNull();
+        blockNumber = -1;
+    }
+
+    uint256 GetHash() const;
+};
+
+class CTokenTx
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strContractAddress;
+    std::string strSenderAddress;
+    std::string strReceiverAddress;
+    uint256 nValue;
+    uint256 transactionHash;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
+    std::string strLabel;
+
+    CTokenTx()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CTokenTx, obj) {
+        READWRITE(obj.strContractAddress, obj.strSenderAddress, obj.strReceiverAddress, obj.nValue, obj.transactionHash);
+    }
+
+    void SetNull()
+    {
+        nVersion = CTokenTx::CURRENT_VERSION;
+        nCreateTime = 0;
+        strContractAddress = "";
+        strSenderAddress = "";
+        strReceiverAddress = "";
+        nValue.SetNull();
+        transactionHash.SetNull();
+        blockHash.SetNull();
+        blockNumber = -1;
+        strLabel = "";
+    }
+
+    uint256 GetHash() const;
+};
+
 /** Contract book data */
 class CContractBookData
 {
@@ -1264,6 +1400,84 @@ public:
 
     CContractBookData()
     {}
+};
+
+class CDelegationInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    int64_t nCreateTime;
+    uint8_t nFee;
+    uint160 delegateAddress;
+    uint160 stakerAddress;
+    std::string strStakerName;
+    int64_t blockNumber;
+    uint256 createTxHash;
+    uint256 removeTxHash;
+
+    CDelegationInfo()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CDelegationInfo, obj) {
+        READWRITE(obj.delegateAddress, obj.stakerAddress, obj.strStakerName);
+    }
+
+    void SetNull()
+    {
+        nVersion = CDelegationInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        nFee = 0;
+        delegateAddress.SetNull();
+        stakerAddress.SetNull();
+        strStakerName = "";
+        blockNumber = -1;
+        createTxHash.SetNull();
+        removeTxHash.SetNull();
+    }
+
+    uint256 GetHash() const;
+};
+
+class CSuperStakerInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    int64_t nCreateTime;
+    uint160 stakerAddress;
+    std::string strStakerName;
+    bool fCustomConfig;
+    uint8_t nMinFee;
+    CAmount nMinDelegateUtxo;
+    std::vector<uint160> delegateAddressList;
+    int nDelegateAddressType;
+
+    CSuperStakerInfo()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CSuperStakerInfo, obj) {
+        READWRITE(obj.stakerAddress, obj.strStakerName);
+    }
+
+    void SetNull()
+    {
+        nVersion = CSuperStakerInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        nMinFee = 0;
+        stakerAddress.SetNull();
+        strStakerName = "";
+        fCustomConfig = 0;
+        nMinDelegateUtxo = 0;
+        delegateAddressList.clear();
+        nDelegateAddressType = 0;
+    }
+
+    uint256 GetHash() const;
 };
 } // namespace wallet
 
