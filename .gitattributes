@@ -1,1 +1,5 @@
 src/clientversion.cpp export-subst
+REVIEWERS merge=ours
+src/qt/locale/bitcoin_en.ts merge=ours
+src/qt/locale/bitcoin_en.xlf merge=ours
+src/qt/bitcoinstrings.cpp merge=ours
