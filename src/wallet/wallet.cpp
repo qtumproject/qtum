@@ -4718,22 +4718,22 @@ util::Result<MigrationResult> MigrateLegacyToDescriptor(const std::string& walle
 
 uint256 CTokenInfo::GetHash() const
 {
-    return {};
+    return (CHashWriter{SERIALIZE_GETHASH} << *this).GetHash();
 }
 
 uint256 CTokenTx::GetHash() const
 {
-    return {};
+    return (CHashWriter{SERIALIZE_GETHASH} << *this).GetHash();
 }
 
 uint256 CDelegationInfo::GetHash() const
 {
-    return {};
+    return (CHashWriter{SERIALIZE_GETHASH} << *this).GetHash();
 }
 
 uint256 CSuperStakerInfo::GetHash() const
 {
-    return {};
+    return (CHashWriter{SERIALIZE_GETHASH} << *this).GetHash();
 }
 
 bool CWallet::GetTokenTxDetails(const CTokenTx &wtx, uint256 &credit, uint256 &debit, std::string &tokenSymbol, uint8_t &decimals) const
@@ -5232,6 +5232,10 @@ bool CWallet::GetSuperStaker(CSuperStakerInfo &info, const uint160 &stakerAddres
     }
 
     return false;
+}
+
+void CWallet::GetStakerAddressBalance(const PKHash &staker, CAmount &balance, CAmount &stake, CAmount& weight) const
+{
 }
 
 void CWallet::CleanCoinStake()

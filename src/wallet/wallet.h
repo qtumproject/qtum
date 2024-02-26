@@ -81,6 +81,7 @@ struct SignatureData;
 using LoadWalletFn = std::function<void(std::unique_ptr<interfaces::Wallet> wallet)>;
 
 struct bilingual_str;
+static const int SERIALIZE_GETHASH = -1;
 
 namespace wallet {
 struct WalletContext;
@@ -747,6 +748,7 @@ public:
     bool HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* insertAddressStake = nullptr) const;
     void RefreshAddressStakeCache();
     bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
+    void GetStakerAddressBalance(const PKHash& staker, CAmount& balance, CAmount& stake, CAmount& weight) const;
     void RefreshDelegates(bool myDelegates, bool stakerDelegates);
 
     /** Pass this transaction to node for mempool insertion and relay to peers if flag set to true */
@@ -1329,6 +1331,10 @@ public:
     }
 
     SERIALIZE_METHODS(CTokenInfo, obj) {
+        if (s.GetVersion() != SERIALIZE_GETHASH)
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.strTokenName, obj.strTokenSymbol, obj.blockHash, obj.blockNumber);
+        }
         READWRITE(obj.nDecimals, obj.strContractAddress, obj.strSenderAddress);
     }
 
@@ -1371,6 +1377,10 @@ public:
     }
 
     SERIALIZE_METHODS(CTokenTx, obj) {
+        if (s.GetVersion() != SERIALIZE_GETHASH)
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.blockHash, obj.blockNumber, LIMITED_STRING(obj.strLabel, 65536));
+        }
         READWRITE(obj.strContractAddress, obj.strSenderAddress, obj.strReceiverAddress, obj.nValue, obj.transactionHash);
     }
 
@@ -1422,6 +1432,10 @@ public:
     }
 
     SERIALIZE_METHODS(CDelegationInfo, obj) {
+        if (s.GetVersion() != SERIALIZE_GETHASH)
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.nFee, obj.blockNumber, obj.createTxHash, obj.removeTxHash);
+        }
         READWRITE(obj.delegateAddress, obj.stakerAddress, obj.strStakerName);
     }
 
@@ -1461,6 +1475,10 @@ public:
     }
 
     SERIALIZE_METHODS(CSuperStakerInfo, obj) {
+        if (s.GetVersion() != SERIALIZE_GETHASH)
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.nMinFee, obj.fCustomConfig, obj.nMinDelegateUtxo, obj.delegateAddressList, obj.nDelegateAddressType);
+        }
         READWRITE(obj.stakerAddress, obj.strStakerName);
     }
 
