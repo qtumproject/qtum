@@ -115,6 +115,9 @@ extern bool fLogEvents;
 /** Documentation for argument 'checklevel'. */
 extern const std::vector<std::string> CHECKLEVEL_DOC;
 
+/** The set of all seen COutPoint entries for proof of stake. */
+extern std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
+
 /** Run instances of script checking worker threads */
 void StartScriptCheckWorkerThreads(int threads_num);
 /** Stop all of the script checking worker threads */
@@ -361,6 +364,8 @@ static_assert(std::is_nothrow_destructible_v<CScriptCheck>);
 
 std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman);
 /////////////////////////////////////////////////////////////////
+
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
 
 /** Functions for validating blocks and updating the block tree */
 
