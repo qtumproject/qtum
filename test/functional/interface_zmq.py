@@ -30,6 +30,7 @@ from test_framework.wallet import (
     MiniWallet,
 )
 from test_framework.netutil import test_ipv6_local
+from io import BytesIO
 from test_framework.qtum import convert_btc_bech32_address_to_qtum
 
 # Test may be skipped and not have zmq installed
