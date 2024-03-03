@@ -186,8 +186,8 @@ def test_simple_bumpfee_succeeds(self, mode, rbf_node, peer_node, dest_address):
         bumped_tx = rbf_node.bumpfee(rbfid, {"fee_rate": NORMAL})
     elif mode == "new_outputs":
         new_address = peer_node.getnewaddress()
-        bumped_psbt = rbf_node.psbtbumpfee(rbfid, {"outputs": {new_address: 0.0003}})
-        bumped_tx = rbf_node.bumpfee(rbfid, {"outputs": {new_address: 0.0003}})
+        bumped_psbt = rbf_node.psbtbumpfee(rbfid, {"outputs": {new_address: 0.003}})
+        bumped_tx = rbf_node.bumpfee(rbfid, {"outputs": {new_address: 0.003}})
     else:
         bumped_psbt = rbf_node.psbtbumpfee(rbfid)
         bumped_tx = rbf_node.bumpfee(rbfid)
@@ -669,7 +669,7 @@ def spend_one_input(node, dest_address, change_size=Decimal("0.04900000"), data=
 
 def test_no_more_inputs_fails(self, rbf_node, dest_address):
     # Throw away some coins to a dummy address so that the test does not hit the max tx size error
-    rbf_node.sendtoaddress("qc4bREjo85FRxUMatqVTVAeaD4XKGHswgm", rbf_node.getbalance()/2)
+    rbf_node.sendtoaddress("qc4bREjo85FRxUMatqVTVAeaD4XKGHswgm", int(rbf_node.getbalance()/2))
     self.log.info('Test that bumpfee fails when there are no available confirmed outputs')
     # feerate rbf requires confirmed outputs when change output doesn't exist or is insufficient
     self.generatetoaddress(rbf_node, 1, dest_address)
@@ -688,7 +688,7 @@ def test_feerate_checks_replaced_outputs(self, rbf_node, peer_node):
     outputs = []
     for i in range(50):
         outputs.append({rbf_node.getnewaddress(address_type="bech32"): 1})
-    tx_res = rbf_node.send(outputs=outputs, fee_rate=5)
+    tx_res = rbf_node.send(outputs=outputs, fee_rate=500)
     tx_details = rbf_node.gettransaction(txid=tx_res["txid"], verbose=True)
 
     # Calculate the minimum feerate required for the bump to work.
