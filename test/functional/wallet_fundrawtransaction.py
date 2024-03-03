@@ -993,9 +993,9 @@ class RawTransactionsTest(BitcoinTestFramework):
         # shouldn't use BnB and instead fall back to Knapsack but that behavior
         # is not implemented yet. For now we just check that we get an error.
         # First, force the wallet to bulk-generate the addresses we'll need.
-        recipient.keypoolrefill(3222)
-        for _ in range(3222):
-            outputs[recipient.getnewaddress()] = 0.1
+        recipient.keypoolrefill(322)
+        for _ in range(322):
+            outputs[recipient.getnewaddress()] = 0.001
         wallet.sendmany("", outputs)
         self.generate(self.nodes[0], 10)
 #        assert_raises_rpc_error(-4, "The inputs size exceeds the maximum weight. "
@@ -1424,7 +1424,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.log.info("Crafting TX using an unconfirmed input")
         target_address = self.nodes[2].getnewaddress()
         raw_tx1 = wallet.createrawtransaction([], {target_address: 0.1}, 0, True)
-        funded_tx1 = wallet.fundrawtransaction(raw_tx1, {'fee_rate': 1, 'maxconf': 0})['hex']
+        funded_tx1 = wallet.fundrawtransaction(raw_tx1, {'fee_rate': 600, 'maxconf': 0})['hex']
 
         # Make sure we only had the one input
         tx1_inputs = self.nodes[0].decoderawtransaction(funded_tx1)['vin']
@@ -1450,12 +1450,12 @@ class RawTransactionsTest(BitcoinTestFramework):
         # So, the selection process, to cover the amount, will pick up the 'final_tx1' output as well, which is an output of the tx that this
         # new tx is replacing!. So, once we send it to the mempool, it will return a "bad-txns-spends-conflicting-tx"
         # because the input will no longer exist once the first tx gets replaced by this new one).
-        funded_invalid = wallet.fundrawtransaction(raw_tx2, {'add_inputs': True, 'maxconf': 0, 'fee_rate': 10})['hex']
+        funded_invalid = wallet.fundrawtransaction(raw_tx2, {'add_inputs': True, 'maxconf': 0, 'fee_rate': 1200})['hex']
         final_invalid = wallet.signrawtransactionwithwallet(funded_invalid)['hex']
         assert_raises_rpc_error(-26, "bad-txns-spends-conflicting-tx", self.nodes[0].sendrawtransaction, final_invalid)
 
         self.log.info("Craft a replacement adding inputs with highest depth possible")
-        funded_tx2 = wallet.fundrawtransaction(raw_tx2, {'add_inputs': True, 'minconf': 2, 'fee_rate': 10})['hex']
+        funded_tx2 = wallet.fundrawtransaction(raw_tx2, {'add_inputs': True, 'minconf': 2, 'fee_rate': 900})['hex']
         tx2_inputs = self.nodes[0].decoderawtransaction(funded_tx2)['vin']
         assert_greater_than_or_equal(len(tx2_inputs), 2)
         for vin in tx2_inputs:
