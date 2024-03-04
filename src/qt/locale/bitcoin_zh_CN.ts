@@ -84,11 +84,11 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation>鼠标右击编辑地址或标签</translation>
+        <translation>单击鼠标右键编辑地址或标签</translation>
     </message>
     <message>
         <source>Create a new address</source>
-        <translation>创建新地址</translation>
+        <translation>添加新地址</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -108,11 +108,11 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation>从列表中删除选中的地址</translation>
+        <translation>从列表中删除当前选中的地址</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
-        <translation>输入地址或标签来搜索</translation>
+        <translation>输入地址或标签用来搜索</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
@@ -120,7 +120,7 @@
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>导出(&amp;E)</translation>
+        <translation>导出(E)</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -148,13 +148,13 @@
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>您可以给这些QTUM地址付款。在付款之前，务必要检查金额和收款地址是否正确。</translation>
+        <translation>这是您用来付款的QTUM地址。在付款之前，务必要检查金额和收款地址是否正确。</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>这是您用来收款的QTUM地址。使用“接收”标签页中的“创建新收款地址”按钮来创建新的收款地址。
-只有“旧式（legacy）”类型的地址支持签名。</translation>
+只有“legacy”类型的地址支持签名。</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -305,8 +305,20 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>输入的钱包解锁密码不正确。</translation>
     </message>
     <message>
+        <source>The passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character. If this is successful, please set a new passphrase to avoid this issue in the future.</source>
+        <translation type="unfinished">输入的密码有误，无法解密钱包。输入的密码中包含空字符（例如，一个值为零的字节）。如果密码是在此软件早于25.0的版本上设置的，请只输入密码中首个空字符（不包括空字符本身）之前的部分来再尝试一次。如果这样可以成功解密，为避免未来出现问题，请设置一个新的密码。</translation>
+    </message>
+    <message>
         <source>Wallet passphrase was successfully changed.</source>
         <translation>钱包密码修改成功。</translation>
+    </message>
+    <message>
+        <source>Passphrase change failed</source>
+        <translation type="unfinished">修改密码失败</translation>
+    </message>
+    <message>
+        <source>The old passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character.</source>
+        <translation type="unfinished">输入的旧密码有误，无法解密钱包。输入的密码中包含空字符（例如，一个值为零的字节）。如果密码是在此软件早于25.0的版本上设置的，请只输入密码中首个空字符（不包括空字符本身）之前的部分来再尝试一次。</translation>
     </message>
     <message>
         <source>Warning: The Caps Lock key is on!</source>
@@ -749,10 +761,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Processing blocks on disk…</source>
         <translation type="unfinished">处理磁盘上的区块...</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk…</source>
-        <translation type="unfinished">重新索引磁盘上的区块...</translation>
     </message>
     <message>
         <source>Connecting to peers…</source>
@@ -1712,10 +1720,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Use a custom data directory:</source>
         <translation>使用自定义的数据目录：</translation>
     </message>
-    <message>
-        <source>Qtum</source>
-        <translation>QTUM</translation>
-    </message>
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
@@ -1733,6 +1737,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">
             <numerusform>(保存完整的链需要 %n GB)</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Choose data directory</source>
+        <translation type="unfinished">选择数据目录</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -1893,6 +1901,10 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>脚本验证线程数(&amp;V)</translation>
     </message>
     <message>
+        <source>Full path to a %1 compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
+        <translation type="unfinished">与%1兼容的脚本文件路径（例如 C:\Downloads\hwi.exe 或者 /Users/you/Downloads/hwi.py ）。注意：恶意软件可以偷币！</translation>
+    </message>
+    <message>
         <source>IP address of the proxy (e.g. IPv4: 127.0.0.1 / IPv6: ::1)</source>
         <translation>代理的 IP 地址 (例如 IPv4: 127.0.0.1 / IPv6: ::1)</translation>
     </message>
@@ -2007,10 +2019,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>&amp;External signer script path</source>
         <translation>外部签名器脚本路径(&amp;E)</translation>
-    </message>
-    <message>
-        <source>Full path to a Qtum Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
-        <translation>指向兼容Qtum Core的脚本的完整路径 (例如 C:\Downloads\hwi.exe 或者 /Users/you/Downloads/hwi.py )。注意: 恶意软件可能会偷窃您的币！</translation>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
@@ -2391,8 +2399,8 @@ Please make sure to keep an updated antivirus and operating system. We can not r
 <context>
     <name>PSBTOperationsDialog</name>
     <message>
-        <source>Dialog</source>
-        <translation>会话</translation>
+        <source>PSBT Operations</source>
+        <translation type="unfinished">PSBT操作</translation>
     </message>
     <message>
         <source>Sign Tx</source>
@@ -2649,10 +2657,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation>不可路由</translation>
     </message>
     <message>
-        <source>Internal</source>
-        <translation>内部</translation>
-    </message>
-    <message>
         <source>Inbound</source>
         <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
         <translation type="unfinished">传入</translation>
@@ -2780,14 +2784,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <source>A fatal error occurred. Check that settings file is writable, or try running with -nosettings.</source>
         <extracomment>Explanatory text shown on startup when the settings file could not be written. Prompts user to check that we have the ability to write to the file. Explains that the user has the option of running without a settings file.</extracomment>
         <translation type="unfinished">出现致命错误。请检查设置文件是否可写，或者尝试带 -nosettings 参数运行。</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation>错误:指定的数据目录“%1”不存在。</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation>错误:无法解析配置文件: %1</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -3007,6 +3003,14 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation>版本</translation>
     </message>
     <message>
+        <source>Whether we relay transactions to this peer.</source>
+        <translation type="unfinished">是否要将交易转发给这个节点。</translation>
+    </message>
+    <message>
+        <source>Transaction Relay</source>
+        <translation type="unfinished">交易转发</translation>
+    </message>
+    <message>
         <source>Starting Block</source>
         <translation>起步区块</translation>
     </message>
@@ -3099,14 +3103,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Services</source>
         <translation>服务</translation>
-    </message>
-    <message>
-        <source>Whether the peer requested us to relay transactions.</source>
-        <translation>这个节点是否要求我们转发交易。</translation>
-    </message>
-    <message>
-        <source>Wants Tx Relay</source>
-        <translation>要求交易转发</translation>
     </message>
     <message>
         <source>High bandwidth BIP152 compact block relay: %1</source>
@@ -3437,6 +3433,26 @@ For more information on using this console, type %6.
     <message>
         <source>Copy &amp;amount</source>
         <translation>复制金额(&amp;A)</translation>
+    </message>
+    <message>
+        <source>Base58 (Legacy)</source>
+        <translation type="unfinished">Base58 (旧式)</translation>
+    </message>
+    <message>
+        <source>Not recommended due to higher fees and less protection against typos.</source>
+        <translation type="unfinished">因手续费较高，而且打字错误防护较弱，故不推荐。</translation>
+    </message>
+    <message>
+        <source>Generates an address compatible with older wallets.</source>
+        <translation type="unfinished">生成一个与旧版钱包兼容的地址。</translation>
+    </message>
+    <message>
+        <source>Generates a native segwit address (BIP-173). Some old wallets don't support it.</source>
+        <translation type="unfinished">生成一个原生隔离见证地址 (BIP-173) 。不被部分旧版本钱包所支持。</translation>
+    </message>
+    <message>
+        <source>Bech32m (BIP-350) is an upgrade to Bech32, wallet support is still limited.</source>
+        <translation type="unfinished">Bech32m (BIP-350) 是对 Bech32 的更新升级，支持它的钱包仍然比较有限。</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -3900,6 +3916,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>PSBT saved</source>
+        <extracomment>Popup message when a PSBT has been saved to a file</extracomment>
         <translation>已保存PSBT</translation>
     </message>
     <message>
@@ -3949,6 +3966,20 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Total Amount</source>
         <translation>总额</translation>
+    </message>
+    <message>
+        <source>Unsigned Transaction</source>
+        <comment>PSBT copied</comment>
+        <extracomment>Caption of "PSBT has been copied" messagebox</extracomment>
+        <translation type="unfinished">未签名交易</translation>
+    </message>
+    <message>
+        <source>The PSBT has been copied to the clipboard. You can also save it.</source>
+        <translation type="unfinished">PSBT已被复制到剪贴板。您也可以保存它。</translation>
+    </message>
+    <message>
+        <source>PSBT saved to disk</source>
+        <translation type="unfinished">已保存PSBT到磁盘</translation>
     </message>
     <message>
         <source>Confirm send coins</source>
@@ -5441,6 +5472,11 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>已复制PSBT</translation>
     </message>
     <message>
+        <source>Copied to clipboard</source>
+        <comment>Fee-bump PSBT saved</comment>
+        <translation type="unfinished">复制到剪贴板</translation>
+    </message>
+    <message>
         <source>Can&apos;t sign transaction.</source>
         <translation>无法签署交易。</translation>
     </message>
@@ -5461,7 +5497,7 @@ Go to File &gt; Open Wallet to load a wallet.
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
-        <translation>导出(&amp;E)</translation>
+        <translation>导出(E)</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
@@ -5512,20 +5548,12 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">Qtum Core</translation>
     </message>
     <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">无法读取设置文件</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">无法写入设置文件</translation>
-    </message>
-    <message>
         <source>The %s developers</source>
         <translation type="unfinished">%s 开发人员</translation>
     </message>
     <message>
-        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
-        <translation type="unfinished">参数 -maxtxfee 设定了很高的金额！这是你一次交易就有可能付出的最高手续费。</translation>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">%s请求监听端口%u。此端口被认为是“坏的”，所以不太可能有其他节点会连接过来。详情以及完整的端口列表请参见 doc/p2p-bad-ports.md 。</translation>
     </message>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
@@ -5540,8 +5568,16 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>无法在不支持“拆分前的密钥池”（pre split keypool）的情况下把“非拆分HD钱包”（non HD split wallet）从版本%i升级到%i。请使用版本号%i，或者压根不要指定版本号。</translation>
     </message>
     <message>
+        <source>Disk space for %s may not accommodate the block files. Approximately %u GB of data will be stored in this directory.</source>
+        <translation type="unfinished">%s的磁盘空间可能无法容纳区块文件。大约要在这个目录中储存 %uGB 的数据。</translation>
+    </message>
+    <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation type="unfinished">在MIT协议下分发，参见附带的 %s 文件或 %s</translation>
+    </message>
+    <message>
+        <source>Error loading wallet. Wallet requires blocks to be downloaded, and software does not currently support loading wallets while blocks are being downloaded out of order when using assumeutxo snapshots. Wallet should be able to load successfully after node sync reaches height %s</source>
+        <translation type="unfinished">加载钱包时出错。需要下载区块才能加载钱包，而且在使用assumeutxo快照时，下载区块是不按顺序的，这个时候软件不支持加载钱包。在节点同步至高度%s之后就应该可以加载钱包了。</translation>
     </message>
     <message>
         <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
@@ -5588,16 +5624,16 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>无法在不支持“拆分前的密钥池”（pre split keypool）的情况下对“非拆分HD钱包”（non HD split wallet）进行升级。请使用版本号169900，或者压根不要指定版本号。</translation>
     </message>
     <message>
-        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
-        <translation type="unfinished">手续费估计失败。而且备用手续费估计（fallbackfee）已被禁用。请再等一些区块，或者通过-fallbackfee参数启用备用手续费估计。</translation>
+        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable %s.</source>
+        <translation type="unfinished">手续费估计失败。而且备用手续费估计（fallbackfee）已被禁用。请再等一些区块，或者通过%s参数启用备用手续费估计。</translation>
+    </message>
+    <message>
+        <source>Error: Unable to produce descriptors for this legacy wallet. Make sure to provide the wallet's passphrase if it is encrypted.</source>
+        <translation type="unfinished">错误: 无法为该旧式钱包生成描述符。如果钱包已被加密，请确保提供的钱包加密密码正确。</translation>
     </message>
     <message>
         <source>File %s already exists. If you are sure this is what you want, move it out of the way first.</source>
         <translation>文件%s已经存在。如果你确定这就是你想做的，先把这个文件挪开。</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
-        <translation>参数 -maxtxfee=&lt;amount&gt;: '%s' 指定了非法的金额 (手续费必须至少达到最小转发费率(minrelay fee) %s 以避免交易卡着发不出去)</translation>
     </message>
     <message>
         <source>Invalid or corrupt peers.dat (%s). If you believe this is a bug, please report it to %s. As a workaround, you can move the file (%s) out of the way (rename, move, or delete) to have a new one created on the next start.</source>
@@ -5764,8 +5800,12 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">无法完成由之前版本启动的 -txindex 升级。请用之前的版本重新启动，或者进行一次完整的 -reindex 。</translation>
     </message>
     <message>
-        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any Qtum Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">%s请求监听端口 %u。这个端口被认为是“坏的”，所以不太可能有Qtum Core节点会连接到它。有关详细信息和完整列表，请参见 doc/p2p-bad-ports.md 。</translation>
+        <source>%s failed to validate the -assumeutxo snapshot state. This indicates a hardware problem, or a bug in the software, or a bad software modification that allowed an invalid snapshot to be loaded. As a result of this, the node will shut down and stop using any state that was built on the snapshot, resetting the chain height from %d to %d. On the next restart, the node will resume syncing from %d without using any snapshot data. Please report this incident to %s, including how you obtained the snapshot. The invalid snapshot chainstate has been left on disk in case it is helpful in diagnosing the issue that caused this error.</source>
+        <translation type="unfinished">%s 验证 -assumeutxo 快照状态失败。这表明硬件可能有问题，也可能是软件bug，或者还可能是软件被不当修改、从而让非法快照也能够被加载。因此，将关闭节点并停止使用从这个快照构建出的任何状态，并将链高度从 %d 重置到 %d 。下次启动时，节点将会不使用快照数据从 %d 继续同步。请将这个事件报告给 %s 并在报告中包括您是如何获得这份快照的。无效的链状态快照仍被保存至磁盘上以供诊断问题的原因。</translation>
+    </message>
+    <message>
+        <source>%s is set very high! Fees this large could be paid on a single transaction.</source>
+        <translation type="unfinished">%s被设置得很高! 这可是一次交易就有可能付出的手续费。</translation>
     </message>
     <message>
         <source>-reindex-chainstate option is not compatible with -blockfilterindex. Please temporarily disable blockfilterindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
@@ -5778,10 +5818,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>-reindex-chainstate option is not compatible with -txindex. Please temporarily disable txindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
         <translation type="unfinished">-reindex-chainstate 与 -txindex 不兼容。请在进行 -reindex-chainstate 时临时禁用 txindex ，或者改用 -reindex （而不是 -reindex-chainstate ）来完整地重建所有索引。</translation>
-    </message>
-    <message>
-        <source>Assumed-valid: last wallet synchronisation goes beyond available block data. You need to wait for the background validation chain to download more blocks.</source>
-        <translation type="unfinished">假定有效（assume-valid）: 上次同步钱包时进度越过了现有的区块数据。你需要等待后台验证链下载更多的区块。</translation>
     </message>
     <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
@@ -5804,10 +5840,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">错误：钱包中的交易%s无法被识别为属于迁移后的钱包</translation>
     </message>
     <message>
-        <source>Error: Unable to produce descriptors for this legacy wallet. Make sure the wallet is unlocked first</source>
-        <translation type="unfinished">错误：无法为这个旧式钱包生成输出描述符。请先确定钱包已被解锁</translation>
-    </message>
-    <message>
         <source>Failed to rename invalid peers.dat file. Please move or delete it and try again.</source>
         <translation type="unfinished">无法重命名无效的 peers.dat 文件。 请移动或删除它，然后重试。</translation>
     </message>
@@ -5816,12 +5848,54 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">互不兼容的选项：-dnsseed=1 已被显式指定，但 -onlynet 禁止了IPv4/IPv6 连接</translation>
     </message>
     <message>
+        <source>Invalid amount for %s=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
+        <translation type="unfinished">%s=&lt;amount&gt;: '%s' 中指定了非法的金额 (手续费必须至少达到最小转发费率(minrelay fee) %s 以避免交易卡着发不出去)</translation>
+    </message>
+    <message>
+        <source>Outbound connections restricted to CJDNS (-onlynet=cjdns) but -cjdnsreachable is not provided</source>
+        <translation type="unfinished">传出连接被限制为仅使用CJDNS (-onlynet=cjdns) ，但却未提供 -cjdnsreachable 参数。</translation>
+    </message>
+    <message>
         <source>Outbound connections restricted to Tor (-onlynet=onion) but the proxy for reaching the Tor network is explicitly forbidden: -onion=0</source>
         <translation type="unfinished">出站连接被限制为仅使用 Tor (-onlynet=onion)，但是到达 Tor 网络的代理被显式禁止： -onion=0</translation>
     </message>
     <message>
         <source>Outbound connections restricted to Tor (-onlynet=onion) but the proxy for reaching the Tor network is not provided: none of -proxy, -onion or -listenonion is given</source>
         <translation type="unfinished">出站连接被限制为仅使用 Tor (-onlynet=onion)，但是未提供到达 Tor 网络的代理：没有提供 -proxy=, -onion= 或 -listenonion 参数</translation>
+    </message>
+    <message>
+        <source>Outbound connections restricted to i2p (-onlynet=i2p) but -i2psam is not provided</source>
+        <translation type="unfinished">传出连接被限制为仅使用I2P (-onlynet=i2p) ，但却未提供 -i2psam 参数。</translation>
+    </message>
+    <message>
+        <source>The inputs size exceeds the maximum weight. Please try sending a smaller amount or manually consolidating your wallet's UTXOs</source>
+        <translation type="unfinished">输入大小超出了最大重量。请尝试减少发出的金额，或者手动整合一下钱包UTXO</translation>
+    </message>
+    <message>
+        <source>The preselected coins total amount does not cover the transaction target. Please allow other inputs to be automatically selected or include more coins manually</source>
+        <translation type="unfinished">预先选择的币总金额不能覆盖交易目标。请允许自动选择其他输入，或者手动加入更多的币</translation>
+    </message>
+    <message>
+        <source>Transaction requires one destination of non-0 value, a non-0 feerate, or a pre-selected input</source>
+        <translation type="unfinished">交易要求一个非零值目标，或是非零值手续费率，或是预选中的输入。</translation>
+    </message>
+    <message>
+        <source>UTXO snapshot failed to validate. Restart to resume normal initial block download, or try loading a different snapshot.</source>
+        <translation type="unfinished">验证UTXO快照失败。重启后，可以普通方式继续初始区块下载，或者也可以加载一个不同的快照。</translation>
+    </message>
+    <message>
+        <source>Unconfirmed UTXOs are available, but spending them creates a chain of transactions that will be rejected by the mempool</source>
+        <translation type="unfinished">未确认UTXO可用，但花掉它们会创建出一条会被内存池拒绝的交易链</translation>
+    </message>
+    <message>
+        <source>Unexpected legacy entry in descriptor wallet found. Loading wallet %s
+
+The wallet might have been tampered with or created with malicious intent.
+</source>
+        <translation type="unfinished">在描述符钱包中意料之外地找到了旧式条目。加载钱包%s
+
+钱包可能被篡改过，或者是出于恶意而被构建的。
+</translation>
     </message>
     <message>
         <source>Unrecognized descriptor found. Loading wallet %s
@@ -5850,6 +5924,10 @@ Unable to cleanup failed migration</source>
 Unable to restore backup of wallet.</source>
         <translation type="unfinished">
 无法还原钱包备份</translation>
+    </message>
+    <message>
+        <source>Block verification was interrupted</source>
+        <translation type="unfinished">区块验证已中断</translation>
     </message>
     <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>
@@ -5912,12 +5990,20 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">导入区块数据库出错</translation>
     </message>
     <message>
+        <source>Error reading configuration file: %s</source>
+        <translation type="unfinished">读取配置文件失败: %s</translation>
+    </message>
+    <message>
         <source>Error reading from database, shutting down.</source>
         <translation type="unfinished">读取数据库出错，关闭中。</translation>
     </message>
     <message>
         <source>Error reading next record from wallet database</source>
         <translation>从钱包数据库读取下一条记录时出错</translation>
+    </message>
+    <message>
+        <source>Error: Cannot extract destination from the generated scriptpubkey</source>
+        <translation type="unfinished">错误: 无法从生成的scriptpubkey提取目标</translation>
     </message>
     <message>
         <source>Error: Could not add watchonly tx to watchonly wallet</source>
@@ -6048,6 +6134,10 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">找不到交易输入项，可能已经被花掉了</translation>
     </message>
     <message>
+        <source>Insufficient dbcache for block verification</source>
+        <translation type="unfinished">dbcache不足以用于区块验证</translation>
+    </message>
+    <message>
         <source>Insufficient funds</source>
         <translation type="unfinished">金额不足</translation>
     </message>
@@ -6064,16 +6154,20 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">无效的 -proxy 地址: &apos;%s&apos;</translation>
     </message>
     <message>
-        <source>Invalid amount for -%s=&lt;amount&gt;: &apos;%s&apos;</source>
-        <translation type="unfinished">无效的金额 -%s=&lt;amount&gt;: &apos;%s&apos;</translation>
+        <source>Invalid P2P permission: '%s'</source>
+        <translation type="unfinished">无效的 P2P 权限：'%s'</translation>
     </message>
     <message>
-        <source>Invalid amount for -discardfee=&lt;amount&gt;: &apos;%s&apos;</source>
-        <translation type="unfinished">无效的金额 -discardfee=&lt;amount&gt;: &apos;%s&apos;</translation>
+        <source>Invalid amount for %s=&lt;amount&gt;: '%s' (must be at least %s)</source>
+        <translation type="unfinished">%s=&lt;amount&gt;: '%s' 中指定了非法的金额 (必须至少达到 %s)</translation>
     </message>
     <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: &apos;%s&apos;</source>
-        <translation type="unfinished">-fallbackfee 的无效数额=&lt;amount&gt;: &apos;%s&apos;</translation>
+        <source>Invalid amount for %s=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">%s=&lt;amount&gt;: '%s' 中指定了非法的金额</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">参数 -%s=&lt;amount&gt;: '%s' 指定了无效的金额</translation>
     </message>
     <message>
         <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
@@ -6096,16 +6190,20 @@ Unable to restore backup of wallet.</source>
         <translation>SQLiteDatabase: 意料之外的应用ID。预期为%u，实际为%u</translation>
     </message>
     <message>
-        <source>Invalid amount for -paytxfee=&lt;amount&gt;: &apos;%s&apos; (must be at least %s)</source>
-        <translation type="unfinished">无效的金额 -paytxfee=&lt;amount&gt;: &apos;%s&apos; (必须至少为 %s)</translation>
-    </message>
-    <message>
         <source>Invalid amount for -reservebalance=&lt;amount&gt;</source>
         <translation type="unfinished">无效的金额 -reservebalance=&lt;amount&gt;</translation>
     </message>
     <message>
         <source>Invalid netmask specified in -whitelist: &apos;%s&apos;</source>
         <translation type="unfinished">-whitelist: &apos;%s&apos; 指定的网络掩码无效</translation>
+    </message>
+    <message>
+        <source>Invalid port specified in %s: '%s'</source>
+        <translation type="unfinished">%s指定了无效的端口号: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid pre-selected input %s</source>
+        <translation type="unfinished">无效的预先选择输入%s</translation>
     </message>
     <message>
         <source>Listening for incoming connections failed (listen returned error %s)</source>
@@ -6150,6 +6248,14 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Not enough file descriptors available.</source>
         <translation type="unfinished">没有足够的文件描述符可用。</translation>
+    </message>
+    <message>
+        <source>Not found pre-selected input %s</source>
+        <translation type="unfinished">找不到预先选择输入%s</translation>
+    </message>
+    <message>
+        <source>Not solvable pre-selected input %s</source>
+        <translation type="unfinished">无法求解的预先选择输入%s</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>
@@ -6202,6 +6308,10 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Specified blocks directory &quot;%s&quot; does not exist.</source>
         <translation type="unfinished">指定的区块目录&quot;%s&quot;不存在。</translation>
+    </message>
+    <message>
+        <source>Specified data directory "%s" does not exist.</source>
+        <translation type="unfinished">指定的数据目录 "%s" 不存在。</translation>
     </message>
     <message>
         <source>Starting network threads…</source>
@@ -6343,6 +6453,14 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Wallet needed to be rewritten: restart %s to complete</source>
         <translation type="unfinished">钱包需要被重写：请重新启动%s来完成</translation>
+    </message>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">无法读取设置文件</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">无法写入设置文件</translation>
     </message>
     <message>
         <source>Warning</source>

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -144,6 +144,7 @@ private:
     QLabel* labelStakingIcon = nullptr;
     QTimer* timerStakingIcon = nullptr;
 
+
     QMenuBar* appMenuBar = nullptr;
     TitleBar* appTitleBar = nullptr;
     NavigationBar* appNavigationBar = nullptr;
@@ -202,8 +203,10 @@ private:
     RPCConsole* rpcConsole = nullptr;
     HelpMessageDialog* helpMessageDialog = nullptr;
     ModalOverlay* modalOverlay = nullptr;
+
     ModalOverlay *modalBackupOverlay = nullptr;
     QtumVersionChecker *qtumVersionChecker = nullptr;
+
 
     QMenu* m_network_context_menu = new QMenu(this);
 
@@ -248,7 +251,6 @@ private:
 
     /** Add docking windows to the main windows */
     void addDockWindows(Qt::DockWidgetArea area, QWidget* widget);
-
 Q_SIGNALS:
     void quitRequested();
     /** Signal raised when a URI was entered or dragged to the GUI */
@@ -340,6 +342,8 @@ public Q_SLOTS:
     void gotoVerifyMessageTab(QString addr = "");
     /** Load Partially Signed Bitcoin Transaction from file or clipboard */
     void gotoLoadPSBT(bool from_clipboard = false);
+    /** Enable history action when privacy is changed */
+    void enableHistoryAction(bool privacy);
     /** Sign transaction with hardware wallet*/
     void signTxHardware(const QString& tx = "");
 
@@ -369,7 +373,6 @@ public Q_SLOTS:
     /** Update staking icon **/
     void updateStakingIcon();
 #endif // ENABLE_WALLET
-
     /** called by a timer to check if ShutdownRequested() has been set **/
     void detectShutdown();
 
@@ -396,15 +399,14 @@ protected:
     void changeEvent(QEvent* e) override;
 
 private:
-    OptionsModel *optionsModel;
-    QMenu* menu;
+    OptionsModel* optionsModel{nullptr};
+    QMenu* menu{nullptr};
     const PlatformStyle* m_platform_style;
 
     int menuMargin;
     int iconHeight;
     int iconWidth;
     QString iconPath;
-
     /** Shows context menu with Display Unit options by the mouse coordinates */
     void onDisplayUnitsClicked(const QPoint& point);
     /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */

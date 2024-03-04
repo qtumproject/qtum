@@ -83,12 +83,14 @@ QValidator::State BitcoinAddressEntryValidator::validate(QString &input, int &po
 BitcoinAddressCheckValidator::BitcoinAddressCheckValidator(QObject *parent, bool senderAddress) :
     QValidator(parent),
     m_senderAddress(senderAddress)
+
 {
 }
 
 QValidator::State BitcoinAddressCheckValidator::validate(QString &input, int &pos) const
 {
     Q_UNUSED(pos);
+
     if(m_senderAddress &&
             !IsValidContractSenderAddressString(input.toStdString()))
     {

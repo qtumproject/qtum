@@ -302,6 +302,19 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="btnVerify">
+          <property name="text">
+           <string>&amp;Verify</string>
+          </property>
+          <property name="toolTip">
+           <string>Verify this address on e.g. a hardware wallet screen</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>

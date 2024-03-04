@@ -12,11 +12,12 @@ from test_framework.messages import (
     CInv,
     MAX_HEADERS_RESULTS,
     MAX_INV_SIZE,
+    MSG_TX,
+    from_hex,
     msg_getdata,
     msg_headers,
     msg_inv,
     msg_ping,
-    MSG_TX,
     msg_version,
     ser_string,
 )
@@ -29,7 +30,7 @@ from test_framework.util import (
     assert_equal,
 )
 
-MAX_PROTOCOL_MESSAGE_LENGTH = 2000000 
+MAX_PROTOCOL_MESSAGE_LENGTH = 2000000
 VALID_DATA_LIMIT = MAX_PROTOCOL_MESSAGE_LENGTH - 5  # Account for the 5-byte length prefix
 
 
@@ -73,11 +74,17 @@ class InvalidMessagesTest(BitcoinTestFramework):
         self.test_oversized_inv_msg()
         self.test_oversized_getdata_msg()
         self.test_oversized_headers_msg()
+        self.test_invalid_pow_headers_msg()
         self.test_resource_exhaustion()
 
     def test_buffer(self):
         self.log.info("Test message with header split across two buffers is received")
         conn = self.nodes[0].add_p2p_connection(P2PDataStore())
+        # After add_p2p_connection both sides have the verack processed.
+        # However the pong from conn in reply to the ping from the node has not
+        # been processed and recorded in totalbytesrecv.
+        # Flush the pong from conn by sending a ping from conn.
+        conn.sync_with_ping(timeout=1)
         # Create valid message
         msg = conn.build_message(msg_ping(nonce=12345))
         cut_pos = 12  # Chosen at an arbitrary position within the header
@@ -87,8 +94,6 @@ class InvalidMessagesTest(BitcoinTestFramework):
         # Wait until node has processed the first half of the message
         self.wait_until(lambda: self.nodes[0].getnettotals()['totalbytesrecv'] != before)
         middle = self.nodes[0].getnettotals()['totalbytesrecv']
-        # If this assert fails, we've hit an unlikely race
-        # where the test framework sent a message in between the two halves
         assert_equal(middle, before + cut_pos)
         conn.send_raw_message(msg[cut_pos:])
         conn.sync_with_ping(timeout=1)
@@ -130,7 +135,7 @@ class InvalidMessagesTest(BitcoinTestFramework):
     def test_size(self):
         self.log.info("Test message with oversized payload disconnects peer")
         conn = self.nodes[0].add_p2p_connection(P2PDataStore())
-        with self.nodes[0].assert_debug_log(['Header error: Size too large (badmsg, 2000001 bytes)']): 
+        with self.nodes[0].assert_debug_log(['Header error: Size too large (badmsg, 2000001 bytes)']):
             msg = msg_unrecognized(str_data="d" * (VALID_DATA_LIMIT + 1))
             msg = conn.build_message(msg)
             conn.send_raw_message(msg)
@@ -247,6 +252,36 @@ class InvalidMessagesTest(BitcoinTestFramework):
     def test_oversized_headers_msg(self):
         size = MAX_HEADERS_RESULTS + 1
         self.test_oversized_msg(msg_headers([CBlockHeader()] * size), size)
+
+    def test_invalid_pow_headers_msg(self):
+        self.log.info("Test headers message with invalid proof-of-work is logged as misbehaving and disconnects peer")
+        blockheader_tip_hash = self.nodes[0].getbestblockhash()
+        blockheader_tip = from_hex(CBlockHeader(), self.nodes[0].getblockheader(blockheader_tip_hash, False))
+
+        # send valid headers message first
+        assert_equal(self.nodes[0].getblockchaininfo()['headers'], 0)
+        blockheader = CBlockHeader()
+        blockheader.hashPrevBlock = int(blockheader_tip_hash, 16)
+        blockheader.nTime = int(time.time())
+        blockheader.nBits = blockheader_tip.nBits
+        blockheader.rehash()
+        while not blockheader.hash.startswith('0'):
+            blockheader.nNonce += 1
+            blockheader.rehash()
+        peer = self.nodes[0].add_p2p_connection(P2PInterface())
+        peer.send_and_ping(msg_headers([blockheader]))
+        assert_equal(self.nodes[0].getblockchaininfo()['headers'], 1)
+        chaintips = self.nodes[0].getchaintips()
+        assert_equal(chaintips[0]['status'], 'headers-only')
+        assert_equal(chaintips[0]['hash'], blockheader.hash)
+
+        # invalidate PoW
+        while not blockheader.hash.startswith('f'):
+            blockheader.nNonce += 1
+            blockheader.rehash()
+        with self.nodes[0].assert_debug_log(['Misbehaving', 'header with invalid proof of work']):
+            peer.send_message(msg_headers([blockheader]))
+            peer.wait_for_disconnect()
 
     def test_resource_exhaustion(self):
         self.log.info("Test node stays up despite many large junk messages")

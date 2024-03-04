@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2021 The Bitcoin Core developers
+# Copyright (c) 2016-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the SegWit changeover logic."""
@@ -74,7 +74,6 @@ def getutxo(txid):
     utxo["txid"] = txid
     return utxo
 
-
 def find_unspent(node, min_value):
     for utxo in node.listunspent():
         if utxo['amount'] >= min_value:
@@ -92,6 +91,9 @@ txs_mined = {}  # txindex from txid to blockhash
 
 
 class SegWitTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 3
@@ -148,9 +150,9 @@ class SegWitTest(BitcoinTestFramework):
         self.log.info("Verify sigops are counted in GBT with pre-BIP141 rules before the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         tmpl = self.nodes[0].getblocktemplate({'rules': ['segwit']})
-        assert tmpl['sizelimit'] == MAX_BLOCK_BASE_SIZE
+        assert_equal(tmpl['sizelimit'], MAX_BLOCK_BASE_SIZE)
         assert 'weightlimit' not in tmpl
-        assert tmpl['sigoplimit'] == MAX_BLOCK_SIGOPS
+        assert_equal(tmpl['sigoplimit'], MAX_BLOCK_SIGOPS)
         assert_equal(tmpl['transactions'][0]['hash'], txid)
         assert_equal(tmpl['transactions'][0]['sigops'], 2)
         assert '!segwit' not in tmpl['rules']
@@ -279,9 +281,9 @@ class SegWitTest(BitcoinTestFramework):
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         raw_tx = self.nodes[0].getrawtransaction(txid, True)
         tmpl = self.nodes[0].getblocktemplate({'rules': ['segwit']})
-        assert tmpl['sizelimit'] >= 7999577/FACTOR_REDUCED_BLOCK_TIME  # actual maximum size is lower due to minimum mandatory non-witness data
-        assert tmpl['weightlimit'] == 8000000//FACTOR_REDUCED_BLOCK_TIME
-        assert tmpl['sigoplimit'] == 80000//FACTOR_REDUCED_BLOCK_TIME
+        assert_greater_than_or_equal(tmpl['sizelimit'], 7999577/FACTOR_REDUCED_BLOCK_TIME)  # actual maximum size is lower due to minimum mandatory non-witness data
+        assert_equal(tmpl['weightlimit'], 8000000//FACTOR_REDUCED_BLOCK_TIME)
+        assert_equal(tmpl['sigoplimit'], 80000//FACTOR_REDUCED_BLOCK_TIME)
         assert_equal(tmpl['transactions'][0]['txid'], txid)
         expected_sigops = 9 if 'txinwitness' in raw_tx["vin"][0] else 8
         assert_equal(tmpl['transactions'][0]['sigops'], expected_sigops)

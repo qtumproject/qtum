@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2021 The Bitcoin Core developers
+# Copyright (c) 2014-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test spending coinbase transactions.
@@ -11,6 +11,7 @@ This test makes sure coinbase spends that will be mature
 in the next block are accepted into the memory pool,
 but less mature coinbase spends are NOT.
 """
+
 from decimal import Decimal
 from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
@@ -30,7 +31,6 @@ class MempoolSpendCoinbaseTest(BitcoinTestFramework):
         chain_height = 2098
         self.nodes[0].invalidateblock(self.nodes[0].getblockhash(chain_height + 1))
         assert_equal(chain_height, self.nodes[0].getblockcount())
-        wallet.rescan_utxos()
 
         # Coinbase at height chain_height-100+1 ok in mempool, should
         # get mined. Coinbase at height chain_height-100+2 is

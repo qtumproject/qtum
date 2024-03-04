@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019-2021 The Bitcoin Core developers
+# Copyright (c) 2019-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test basic signet functionality"""
@@ -11,6 +11,7 @@ from test_framework.util import assert_equal
 from test_framework.blocktools import create_block, add_witness_commitment
 from test_framework.script import CScriptOp
 import time
+from test_framework.wallet import MiniWallet
 
 SIGNET_HEADER = b"\xec\xc7\xda\xa2"
 signet_blocks = [
@@ -28,6 +29,9 @@ signet_blocks = [
 
 
 class SignetBasicTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.chain = "signet"
         self.num_nodes = 6
@@ -44,6 +48,9 @@ class SignetBasicTest(BitcoinTestFramework):
             shared_args3, shared_args3,
         ]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def setup_network(self):
         self.setup_nodes()
 
@@ -56,6 +63,7 @@ class SignetBasicTest(BitcoinTestFramework):
         self.log.info("basic tests using OP_TRUE challenge")
 
         self.log.info('getmininginfo')
+        self.wallet = MiniWallet(self.nodes[0])
         mining_info = self.nodes[0].getmininginfo()
         assert_equal(mining_info['blocks'], 0)
         assert_equal(mining_info['chain'], 'signet')
@@ -67,7 +75,6 @@ class SignetBasicTest(BitcoinTestFramework):
         self.generate(self.nodes[0], 10, sync_fun=self.no_op)
 
         self.log.info("pregenerated signet blocks check")
-
         block = create_block(tmpl=self.nodes[0].getblock(self.nodes[0].getbestblockhash()))
         add_witness_commitment(block)
         block.vtx[0].vout[-1].scriptPubKey = b''.join([block.vtx[0].vout[-1].scriptPubKey, CScriptOp.encode_op_pushdata(SIGNET_HEADER)])
@@ -88,7 +95,6 @@ class SignetBasicTest(BitcoinTestFramework):
         print("BEST", self.nodes[0].getbestblockhash(), self.nodes[0].getblockcount())
         pp.pprint(self.nodes[0].getrawtransaction(self.nodes[0].getblock(self.nodes[0].getbestblockhash())['tx'][0], True))
         return
-
 
         height = 0
         for block in signet_blocks:

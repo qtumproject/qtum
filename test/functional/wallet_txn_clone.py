@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2021 The Bitcoin Core developers
+# Copyright (c) 2014-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the wallet accounts properly when there are cloned transactions with malleated scriptsigs."""
@@ -25,6 +25,7 @@ class TxnMallTest(BitcoinTestFramework):
         self.skip_if_no_wallet()
 
     def add_options(self, parser):
+        self.add_wallet_options(parser)
         parser.add_argument("--mineblock", dest="mine_block", default=False, action="store_true",
                             help="Test double-spend of 1-confirmed transaction")
         parser.add_argument("--segwit", dest="segwit", default=False, action="store_true",
@@ -49,7 +50,7 @@ class TxnMallTest(BitcoinTestFramework):
             output_type = "legacy"
 
         # All nodes should start with 1,250 BTC:
-        starting_balance = 25*INITIAL_BLOCK_REWARD 
+        starting_balance = 25*INITIAL_BLOCK_REWARD
         for i in range(3):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
 
@@ -103,7 +104,7 @@ class TxnMallTest(BitcoinTestFramework):
         # matured block, minus tx1 and tx2 amounts, and minus transaction fees:
         expected = starting_balance + node0_tx1["fee"] + node0_tx2["fee"]
         if self.options.mine_block:
-            expected += INITIAL_BLOCK_REWARD 
+            expected += INITIAL_BLOCK_REWARD
         expected += tx1["amount"] + tx1["fee"]
         expected += tx2["amount"] + tx2["fee"]
         assert_equal(self.nodes[0].getbalance(), expected)
@@ -143,9 +144,9 @@ class TxnMallTest(BitcoinTestFramework):
 
         # Check node0's total balance; should be same as before the clone, + 100 BTC for 2 matured,
         # less possible orphaned matured subsidy
-        expected += 2*INITIAL_BLOCK_REWARD 
+        expected += 2*INITIAL_BLOCK_REWARD
         if (self.options.mine_block):
-            expected -= INITIAL_BLOCK_REWARD 
+            expected -= INITIAL_BLOCK_REWARD
         assert_equal(self.nodes[0].getbalance(), expected)
 
 

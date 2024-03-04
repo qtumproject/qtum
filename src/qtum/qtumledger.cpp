@@ -18,6 +18,7 @@
 #ifdef WIN32
 #include <boost/process/windows.hpp>
 #endif
+#include <univalue.h>
 
 RecursiveMutex cs_ledger;
 
@@ -74,6 +75,30 @@ int json_get_key_int(const UniValue& jsondata, std::string key)
     }
 
     return v.getInt<int>();
+}
+
+// Get address type
+std::string get_address_type(int type)
+{
+    std::string descType;
+    switch (type) {
+    case (int)OutputType::P2SH_SEGWIT:
+        descType = "sh_wit";
+        break;
+    case (int)OutputType::BECH32:
+        descType = "wit";
+        break;
+    case (int)OutputType::BECH32M:
+        descType = "tap";
+        break;
+    case (int)OutputType::P2PK:
+    case (int)OutputType::LEGACY:
+        descType = "legacy";
+        break;
+    default:
+        break;
+    }
+    return descType;
 }
 
 // Append data to vector
@@ -379,7 +404,7 @@ bool QtumLedger::signMessage(const std::string &fingerprint, const std::string &
     return endSignMessage(fingerprint, message, path, signature);
 }
 
-bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string &desc)
+bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, bool descriptorwallet, std::string &desc)
 {
     LOCK(cs_ledger);
     // Check if tool exists
@@ -390,12 +415,50 @@ bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std:
     if(isStarted())
         return false;
 
-    if(!beginGetKeyPool(fingerprint, type, path, internal, from, to, desc))
+    if(!beginGetKeyPool(fingerprint, type, path, internal, from, to, descriptorwallet, desc))
         return false;
 
     wait();
 
-    return endGetKeyPool(fingerprint, type, path, internal, from, to, desc);
+    return endGetKeyPool(fingerprint, type, path, internal, from, to, descriptorwallet, desc);
+}
+
+bool QtumLedger::displayAddress(const std::string &fingerprint, const std::string &desc, std::string &address)
+{
+    LOCK(cs_ledger);
+    // Check if tool exists
+    if(!toolExists())
+        return false;
+
+    // Display address on device
+    if(isStarted())
+        return false;
+
+    if(!beginDisplayAddress(fingerprint, desc))
+        return false;
+
+    wait();
+
+    return endDisplayAddress(address);
+}
+
+bool QtumLedger::displayAddress(const std::string &fingerprint, int type, const std::string &path, std::string &address)
+{
+    LOCK(cs_ledger);
+    // Check if tool exists
+    if(!toolExists())
+        return false;
+
+    // Display address on device
+    if(isStarted())
+        return false;
+
+    if(!beginDisplayAddress(fingerprint, type, path))
+        return false;
+
+    wait();
+
+    return endDisplayAddress(address);
 }
 
 std::string QtumLedger::errorMessage()
@@ -564,23 +627,10 @@ bool QtumLedger::endSignMessage(const std::string &, const std::string &, const 
     return false;
 }
 
-bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string &)
+bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, bool, std::string &)
 {
     // Get the output type
-    std::string descType;
-    switch (type) {
-    case (int)OutputType::P2SH_SEGWIT:
-        descType = "sh_wit";
-        break;
-    case (int)OutputType::BECH32:
-        descType = "wit";
-        break;
-    case (int)OutputType::LEGACY:
-        descType = "legacy";
-        break;
-    default:
-        break;
-    }
+    std::string descType = get_address_type(type);
 
     // Execute command line
     std::vector<std::string> arguments = d->arguments;
@@ -602,14 +652,68 @@ bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const
     return d->fStarted;
 }
 
-bool QtumLedger::endGetKeyPool(const std::string &, int, const std::string& , bool, int, int, std::string &desc)
+bool QtumLedger::endGetKeyPool(const std::string &, int type, const std::string& , bool, int, int, bool descriptorwallet, std::string &desc)
 {
     // Decode command line results
     bool ret = d->strStdout.find("desc")!=std::string::npos;
     desc = d->strStdout;
+
+    // Import both PK and PKH descriptors for legacy address in descriptor wallet
+    if(descriptorwallet && (type == (int)OutputType::P2PK || type == (int)OutputType::LEGACY)) {
+        UniValue items;
+        if(items.read(desc)) {
+            if(items.isArray()) {
+                for(size_t i = 0; i < items.size(); i++) {
+                    UniValue& item = (UniValue&) items[i];
+                    if(item.isObject()) item.pushKV("importforstaking", true);
+                }
+                desc = items.write();
+            }
+        }
+    }
+
     return ret;
 }
 
+bool QtumLedger::beginDisplayAddress(const std::string &fingerprint, int type, const std::string& path)
+{
+    // Get the output type
+    std::string descType = get_address_type(type);
+
+    // Execute command line
+    std::vector<std::string> arguments = d->arguments;
+    arguments << "-f" << fingerprint << "displayaddress" << "--addr-type" << descType << "--path" << path;
+    d->process.start(d->toolPath, arguments);
+    d->fStarted = true;
+
+    return d->fStarted;
+}
+
+bool QtumLedger::beginDisplayAddress(const std::string &fingerprint, const std::string &desc)
+{
+    // Execute command line
+    std::vector<std::string> arguments = d->arguments;
+    arguments << "-f" << fingerprint << "displayaddress" << "--desc" << desc;
+    d->process.start(d->toolPath, arguments);
+    d->fStarted = true;
+
+    return d->fStarted;
+}
+
+bool QtumLedger::endDisplayAddress(std::string &address)
+{
+    // Decode command line results
+    UniValue jsonDocument = json_read_doc(d->strStdout);
+    UniValue data = json_get_object(jsonDocument);
+    std::string strAddress = json_get_key_string(data, "address");
+    if(!strAddress.empty())
+    {
+        address = strAddress;
+        return true;
+    }
+
+    return false;
+}
 
 std::string QtumLedger::derivationPath(int type)
 {
@@ -623,6 +727,10 @@ std::string QtumLedger::derivationPath(int type)
         case (int)OutputType::BECH32:
             derivPath = "m/84'/88'/0'";
             break;
+        case (int)OutputType::BECH32M:
+            derivPath = "m/86'/88'/0'";
+            break;
+        case (int)OutputType::P2PK:
         case (int)OutputType::LEGACY:
             derivPath = "m/44'/88'/0'";
             break;
@@ -639,6 +747,10 @@ std::string QtumLedger::derivationPath(int type)
         case (int)OutputType::BECH32:
             derivPath = "m/84'/1'/0'";
             break;
+        case (int)OutputType::BECH32M:
+            derivPath = "m/86'/1'/0'";
+            break;
+        case (int)OutputType::P2PK:
         case (int)OutputType::LEGACY:
             derivPath = "m/44'/1'/0'";
             break;

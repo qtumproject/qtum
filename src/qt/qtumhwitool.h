@@ -161,6 +161,15 @@ public:
     bool signDelegate(const QString& fingerprint, QString& psbt);
 
     /**
+     * @brief displayAddress Display address on hardware device
+     * @param fingerprint Hardware wallet device fingerprint
+     * @param desc Address descriptor to display
+     * @param address Displayed address result
+     * @return success of the operation
+     */
+    bool displayAddress(const QString& fingerprint, const QString& desc, QString& address);
+
+    /**
      * @brief rescanBlockchain Rescan blockchain
      * @param startHeight Start height
      * @param stopHeight Stop height
@@ -208,6 +217,14 @@ public:
     bool decodePsbt(const QString& psbt, QString& decoded);
 
     /**
+     * @brief getAddressDesc Get address descriptor
+     * @param address Address string
+     * @param desc Descriptor
+     * @return success of the operation
+     */
+    bool getAddressDesc(const QString &address, QString &desc);
+
+    /**
      * @brief errorMessage Get the last error message
      * @return Last error message
      */
@@ -249,6 +266,7 @@ private:
     bool endGetKeyPool(const QString& fingerprint, int type, QString& desc);
     bool execRPC(ExecRPCCommand* cmd, const QMap<QString, QString>& lstParams, QVariant& result, QString& resultJson);
     void addError(const QString& error);
+    bool isDescriptorWallet();
 
     QtumHwiToolPriv* d;
 };

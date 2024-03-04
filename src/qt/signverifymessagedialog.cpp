@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,9 +11,9 @@
 #include <qt/walletmodel.h>
 
 #include <key_io.h>
-#include <util/message.h> // For MessageSign(), MessageVerify()
 #include <wallet/wallet.h>
 #include <qt/styleSheet.h>
+#include <qt/hardwaresigntx.h>
 
 #include <vector>
 
@@ -22,7 +22,6 @@
 SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::SignVerifyMessageDialog),
-    model(nullptr),
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
@@ -42,7 +41,6 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     SetObjectStyleSheet(ui->pasteButton_SM, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->copySignatureButton_SM, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->addressBookButton_VM, StyleSheetNames::ButtonTransparent);
-
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);
     GUIUtil::setupAddressWidget(ui->addressIn_VM, this);
@@ -147,7 +145,7 @@ void SignVerifyMessageDialog::on_signMessageButton_SM_clicked()
 
     const std::string& message = ui->messageIn_SM->document()->toPlainText().toStdString();
     std::string signature;
-    SigningResult res = model->wallet().signMessage(message, *pkhash, signature);
+    SigningResult res = signMessage(message, *pkhash, signature);
 
     QString error;
     switch (res) {
@@ -307,4 +305,19 @@ void SignVerifyMessageDialog::changeEvent(QEvent* e)
     }
 
     QDialog::changeEvent(e);
+}
+
+SigningResult SignVerifyMessageDialog::signMessage(const std::string &message, const PKHash &pkhash, std::string &signature)
+{
+    if(model->getSignMessageWithHwiTool()) {
+        std::string hdkeypath;
+        bool ret = model->wallet().getHDKeyPath(pkhash, hdkeypath);
+        QString strMessage = QString::fromStdString(message);
+        QString strPath = QString::fromStdString(hdkeypath);
+        QString strSignature;
+        if(ret) ret &= HardwareSignTx::sign_message(this, model, strMessage, strPath, strSignature);
+        signature = strSignature.toStdString();
+        return ret ? SigningResult::OK : SigningResult::SIGNING_FAILED;
+    }
+    return model->wallet().signMessage(message, pkhash, signature);
 }

@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2021 The Bitcoin Core developers
+// Copyright (c) 2009-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -112,7 +112,9 @@ void WalletInit::AddWalletOptions(ArgsManager& argsman) const
     argsman.AddArg("-stakerthreads=<n>", strprintf("Set the number of threads the staker use for processing (default is the number of cores to your machine: %d)", GetNumCores()), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-maxstakerwaitforbestheader=<n>", strprintf("Set max staker wait for best header in milliseconds (default: %d)", node::DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-signpsbtwithhwitool", strprintf("Sign PSBT with HWI tool"), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-stakerledgerid=<path>", strprintf("Set the ledger fingerprint to use for staking"), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    if (node::ENABLE_HARDWARE_STAKE) {
+        argsman.AddArg("-stakerledgerid=<path>", strprintf("Set the ledger fingerprint to use for staking"), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    }
 }
 
 bool WalletInit::ParameterInteraction() const
@@ -137,9 +139,6 @@ bool WalletInit::ParameterInteraction() const
     if (gArgs.IsArgSet("-zapwallettxes")) {
         return InitError(Untranslated("-zapwallettxes has been removed. If you are attempting to remove a stuck transaction from your wallet, please use abandontransaction instead."));
     }
-
-    if (gArgs.GetBoolArg("-sysperms", false))
-        return InitError(Untranslated("-sysperms is not allowed in combination with enabled wallet functionality"));
 
     return true;
 }

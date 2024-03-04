@@ -1,4 +1,4 @@
-// Copyright (c) 2021 The Bitcoin Core developers
+// Copyright (c) 2021-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,7 +16,7 @@
 
 namespace init {
 namespace {
-const char* EXE_NAME = "bitcoin-gui";
+const char* EXE_NAME = "qtum-gui";
 
 class BitcoinGuiInit : public interfaces::Init
 {

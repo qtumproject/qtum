@@ -11,6 +11,9 @@ import random
 
 
 class QtumSoftMinerGasRelatedLimitsTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 8

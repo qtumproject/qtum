@@ -80,7 +80,7 @@ protected:
     bool eventFilter(QObject *object, QEvent *event) override;
 
 private:
-    AmountSpinBox *amount;
+    AmountSpinBox* amount{nullptr};
     QValueComboBox *unit;
 
 private Q_SLOTS:

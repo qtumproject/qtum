@@ -9,25 +9,29 @@ namespace wallet {
 
 void StakeQtums(CWallet& wallet, bool fStake)
 {
-    node::StakeQtums(fStake, &wallet, wallet.stakeThread);
+    node::StakeQtums(fStake, &wallet);
 }
 
 void StartStake(CWallet& wallet)
 {
     if(wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS))
     {
-        wallet.m_enabled_staking = !wallet.m_ledger_id.empty() && QtumLedger::instance().toolExists();
+        wallet.m_enabled_staking = node::ENABLE_HARDWARE_STAKE && !wallet.m_ledger_id.empty() && QtumLedger::instance().toolExists();
     }
     else
     {
         wallet.m_enabled_staking = true;
     }
 
+    wallet.m_is_staking_thread_stopped = false;
     StakeQtums(wallet, true);
 }
 
 void StopStake(CWallet& wallet)
 {
+    if(wallet.m_is_staking_thread_stopped)
+        return;
+
     if(!wallet.stakeThread)
     {
         if(wallet.m_enabled_staking)
@@ -41,6 +45,8 @@ void StopStake(CWallet& wallet)
         wallet.stakeThread = 0;
         wallet.m_stop_staking_thread = false;
     }
+
+    wallet.m_is_staking_thread_stopped = true;
 }
 
 bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, bool sign, COutPoint& headerPrevout)

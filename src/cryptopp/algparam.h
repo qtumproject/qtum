@@ -320,7 +320,7 @@ public:
 	virtual ~AlgorithmParametersBase() CRYPTOPP_THROW
 	{
 #ifdef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
-		if (!std::uncaught_exception())
+		if (!std::uncaught_exceptions())
 #else
 		try
 #endif

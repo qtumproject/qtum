@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2021 The Bitcoin Core developers
+// Copyright (c) 2020-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -46,7 +46,7 @@ FUZZ_TARGET_INIT(coins_view, initialize_coins_view)
 {
     FuzzedDataProvider fuzzed_data_provider{buffer.data(), buffer.size()};
     CCoinsView backend_coins_view;
-    CCoinsViewCache coins_view_cache{&backend_coins_view};
+    CCoinsViewCache coins_view_cache{&backend_coins_view, /*deterministic=*/true};
     COutPoint random_out_point;
     Coin random_coin;
     CMutableTransaction random_mutable_transaction;
@@ -73,6 +73,9 @@ FUZZ_TARGET_INIT(coins_view, initialize_coins_view)
             },
             [&] {
                 (void)coins_view_cache.Flush();
+            },
+            [&] {
+                (void)coins_view_cache.Sync();
             },
             [&] {
                 coins_view_cache.SetBestBlock(ConsumeUInt256(fuzzed_data_provider));

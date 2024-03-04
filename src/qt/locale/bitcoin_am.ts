@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation type="unfinished">አሁን የተመረጠውን አድራሻ ወደ ሲስተሙ ቅንጥብ ሰሌዳ ቅዳ</translation>
+        <translation type="unfinished">አሁን የተመረጠውን አድራሻ ወደ ስርዓቱ ቅንጥብ ሰሌዳ ቅዳ</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -27,7 +27,7 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation type="unfinished">አሁን የተመረጠውን አድራሻ ከዝርዝሩ ውስጥ ሰርዝ</translation>
+        <translation type="unfinished">አሁን የተመረጠውን አድራሻ ከዝርዝሩ ውስጥ አጥፋ</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
@@ -35,7 +35,7 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation type="unfinished">በአሁኑ ማውጫ ውስጥ ያለውን መረጃ ወደ አንድ ፋይል ላክ</translation>
+        <translation type="unfinished">በዚህ ማውጫ ውስጥ ያለውን ውሂብ ወደ አንድ ፋይል ቀይረህ አስቀምጥ</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -47,7 +47,7 @@
     </message>
     <message>
         <source>Choose the address to send coins to</source>
-        <translation type="unfinished">ገንዘብ/ኮይኖች የሚልኩለትን አድራሻ ይምረጡ</translation>
+        <translation type="unfinished">ገንዘብ/ኮይኖች የሚልኩበትን አድራሻ ይምረጡ</translation>
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
@@ -64,6 +64,16 @@
     <message>
         <source>Receiving addresses</source>
         <translation type="unfinished">የመቀበያ አድራሻዎች</translation>
+    </message>
+    <message>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">እነኚህ የቢትኮይን ክፍያ የመላኪያ አድራሻዎችዎ ናቸው:: ገንዘብ/ኮይኖች ከመላክዎ በፊት መጠኑን እና የመቀበያ አድራሻውን ሁልጊዜ ያረጋግጡ::</translation>
+    </message>
+    <message>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">እነኚህ የቢትኮይን አድራሻዎች የክፍያ መቀበያ አድራሻዎችዎ ናችው። "ተቀበል" በሚለው መደብ ውስጥ ያለውን "አዲስ የመቀበያ አድራሻ ይፍጠሩ" የሚለውን አዝራር ይጠቀሙ።
+መፈረም የሚቻለው "ሌጋሲ" በሚል ምድብ ስር በተመደቡ አድራሻዎች ብቻ ነው።</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -85,6 +95,11 @@
         <source>Comma separated file</source>
         <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
         <translation type="unfinished">በንዑስ ሰረዝ የተለዩ ፋይሎች</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
+        <translation type="unfinished">የአድራሻ ዝርዝሩን ወደ %1 ለማስቀመጥ ሲሞከር ስህተት አጋጥሟል:: እባክዎ መልሰው ይሞክሩ::</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
@@ -149,6 +164,10 @@
         <translation type="unfinished">የቢትኮይን ቦርሳዎን ማመስጠር ያረጋግጡ</translation>
     </message>
     <message>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">ማስጠንቀቂያ: የቢትኮይን ቦርሳዎን አመስጥረው የይለፍ-ሐረግዎን ካጡት&lt;b&gt;ቢትኮይኖቾን በሙሉ ያጣሉ&lt;/b&gt;!</translation>
+    </message>
+    <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">እርግጠኛ ነዎት ቦርሳዎን ማመስጠር ይፈልጋሉ?</translation>
     </message>
@@ -161,12 +180,24 @@
         <translation type="unfinished">ለመመስጠር የተዘጋጀ ዋሌት</translation>
     </message>
     <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation type="unfinished">ቦርሳዎ ሊመሰጠር ነው። </translation>
+    </message>
+    <message>
         <source>Your wallet is now encrypted. </source>
         <translation type="unfinished">ቦርሳዎ አሁን ተመስጥሯል። </translation>
     </message>
     <message>
+        <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
+        <translation type="unfinished">አስፈላጊ: ከ ቦርሳ ፋይልዎ ያከናወኗቸው ቀደም ያሉ ምትኬዎች በአዲስ በተፈጠረ የማመስጠሪያ ፋይል ውስጥ መተካት አለባቸው. ለደህንነት ሲባል, አዲሱን የተመሰጠ የቦርሳ ፋይል መጠቀም ሲጀመሩ ወዲያውኑ ቀደም ሲል ያልተመሰጠሩ የቦርሳ ፋይል ቅጂዎች ዋጋ ቢስ ይሆናሉ::</translation>
+    </message>
+    <message>
         <source>Wallet encryption failed</source>
         <translation type="unfinished">የቦርሳ ማመስጠር አልተሳካም</translation>
+    </message>
+    <message>
+        <source>Wallet encryption failed due to an internal error. Your wallet was not encrypted.</source>
+        <translation type="unfinished">የቦርሳ ማመስጠር በውስጣዊ ስህተት ምክንያት አልተሳካም:: ቦርሳዎ አልተመሰጠረም::</translation>
     </message>
     <message>
         <source>The supplied passphrases do not match.</source>
@@ -300,6 +331,18 @@
         <translation type="unfinished">&amp;ስለ %1</translation>
     </message>
     <message>
+        <source>Show information about %1</source>
+        <translation type="unfinished">ስለ %1 መረጃ አሳይ</translation>
+    </message>
+    <message>
+        <source>About &amp;Qt</source>
+        <translation type="unfinished">ስለ &amp;Qt</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation type="unfinished">ስለ Qt መረጃ አሳይ</translation>
+    </message>
+    <message>
         <source>Create a new wallet</source>
         <translation type="unfinished">አዲስ ዋሌት ፍጠር</translation>
     </message>
@@ -372,7 +415,7 @@
         <translation type="unfinished">እሳድግ</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>%n active connection(s) to Qtum network.</numerusform>
@@ -427,6 +470,10 @@
     <message>
         <source>Date</source>
         <translation type="unfinished">ቀን</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation type="unfinished">መጠኑ ገልብጥ</translation>
     </message>
     <message>
         <source>Copy fee</source>
@@ -485,7 +532,7 @@
 <context>
     <name>Intro</name>
     <message>
-        <source>Qtum</source> 
+        <source>Qtum</source>
         <translation type="unfinished">ቢትኮይን</translation>
     </message>
     <message numerus="yes">
@@ -617,6 +664,10 @@
     <message>
         <source>Hide</source>
         <translation type="unfinished">ደብቅ</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation type="unfinished">መጠኑ ገልብጥ</translation>
     </message>
     <message>
         <source>Copy fee</source>

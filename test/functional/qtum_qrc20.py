@@ -32,6 +32,9 @@ qrc20listtransactions
 
 
 class QtumQRC20Test(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.num_nodes = 2
         self.setup_clean_chain = True
@@ -64,7 +67,7 @@ class QtumQRC20Test(BitcoinTestFramework):
         tx.vin = [CTxIn(vin.prevout) for vin in tx_to_double_spend.vin]
         tx.vout = [CTxOut(value, scriptPubKey=CScript([OP_RETURN, b"\x00"]))]
         tx_signed_hex = double_spending_node.signrawtransactionwithkey(tx.serialize().hex(), [signer_privkey])['hex']
-        double_spending_node.sendrawtransaction(tx_signed_hex)
+        double_spending_node.sendrawtransaction(tx_signed_hex, maxburnamount='20000.0')
 
 
     def run_test(self):

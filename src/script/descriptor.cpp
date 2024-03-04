@@ -4,11 +4,13 @@
 
 #include <script/descriptor.h>
 
+#include <hash.h>
 #include <key_io.h>
 #include <pubkey.h>
 #include <script/miniscript.h>
 #include <script/script.h>
 #include <script/standard.h>
+#include <uint256.h>
 
 #include <span.h>
 #include <util/bip32.h>
@@ -829,6 +831,7 @@ protected:
     std::vector<CScript> MakeScripts(const std::vector<CPubKey>& keys, Span<const CScript>, FlatSigningProvider&) const override {
         CScript ret;
         std::vector<XOnlyPubKey> xkeys;
+        xkeys.reserve(keys.size());
         for (const auto& key : keys) xkeys.emplace_back(key);
         if (m_sorted) std::sort(xkeys.begin(), xkeys.end());
         ret << ToByteVector(xkeys[0]) << OP_CHECKSIG;
@@ -1013,7 +1016,7 @@ public:
         return false;
     }
 
-    bool IsSolvable() const override { return false; } // For now, mark these descriptors as non-solvable (as we don't have signing logic for them).
+    bool IsSolvable() const override { return true; }
     bool IsSingleType() const final { return true; }
 };
 
@@ -1619,8 +1622,7 @@ std::unique_ptr<DescriptorImpl> InferScript(const CScript& script, ParseScriptCo
         }
     }
     if (txntype == TxoutType::WITNESS_V0_SCRIPTHASH && (ctx == ParseScriptContext::TOP || ctx == ParseScriptContext::P2SH)) {
-        CScriptID scriptid;
-        CRIPEMD160().Write(data[0].data(), data[0].size()).Finalize(scriptid.begin());
+        CScriptID scriptid{RIPEMD160(data[0])};
         CScript subscript;
         if (provider.GetCScript(scriptid, subscript)) {
             auto sub = InferScript(subscript, ParseScriptContext::P2WSH, provider);
@@ -1644,7 +1646,7 @@ std::unique_ptr<DescriptorImpl> InferScript(const CScript& script, ParseScriptCo
                 for (const auto& [depth, script, leaf_ver] : *tree) {
                     std::unique_ptr<DescriptorImpl> subdesc;
                     if (leaf_ver == TAPROOT_LEAF_TAPSCRIPT) {
-                        subdesc = InferScript(script, ParseScriptContext::P2TR, provider);
+                        subdesc = InferScript(CScript(script.begin(), script.end()), ParseScriptContext::P2TR, provider);
                     }
                     if (!subdesc) {
                         ok = false;
@@ -1676,6 +1678,10 @@ std::unique_ptr<DescriptorImpl> InferScript(const CScript& script, ParseScriptCo
             return std::make_unique<MiniscriptDescriptor>(std::move(parser.m_keys), std::move(node));
         }
     }
+
+    // The following descriptors are all top-level only descriptors.
+    // So if we are not at the top level, return early.
+    if (ctx != ParseScriptContext::TOP) return nullptr;
 
     CTxDestination dest;
     if (ExtractDestination(script, dest)) {
@@ -1833,17 +1839,17 @@ DescriptorCache DescriptorCache::MergeAndDiff(const DescriptorCache& other)
     return diff;
 }
 
-const ExtPubKeyMap DescriptorCache::GetCachedParentExtPubKeys() const
+ExtPubKeyMap DescriptorCache::GetCachedParentExtPubKeys() const
 {
     return m_parent_xpubs;
 }
 
-const std::unordered_map<uint32_t, ExtPubKeyMap> DescriptorCache::GetCachedDerivedExtPubKeys() const
+std::unordered_map<uint32_t, ExtPubKeyMap> DescriptorCache::GetCachedDerivedExtPubKeys() const
 {
     return m_derived_xpubs;
 }
 
-const ExtPubKeyMap DescriptorCache::GetCachedLastHardenedExtPubKeys() const
+ExtPubKeyMap DescriptorCache::GetCachedLastHardenedExtPubKeys() const
 {
     return m_last_hardened_xpubs;
 }

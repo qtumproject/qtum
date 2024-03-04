@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -263,7 +263,6 @@ TransactionTableModel::TransactionTableModel(const PlatformStyle *_platformStyle
         QAbstractTableModel(parent),
         walletModel(parent),
         priv(new TransactionTablePriv(this)),
-        fProcessingQueuedTransactions(false),
         platformStyle(_platformStyle)
 {
     subscribeToCoreSignals();

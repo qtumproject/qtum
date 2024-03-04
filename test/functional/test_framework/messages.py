@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2010 ArtForz -- public domain half-a-node
 # Copyright (c) 2012 Jeff Garzik
-# Copyright (c) 2010-2021 The Bitcoin Core developers
+# Copyright (c) 2010-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Bitcoin test framework primitive and message structures
@@ -738,6 +738,7 @@ class CBlockHeader(object):
         self.sha256 = None
         self.calc_sha256()
         return self.sha256
+
     def is_pos(self):
         return self.prevoutStake and (self.prevoutStake.hash != 0 or self.prevoutStake.n != 0xffffffff)
 
@@ -754,10 +755,12 @@ class CBlockHeader(object):
                 self.prevoutStake = prevout
                 return True
         return False
+
     def __repr__(self):
         return "CBlockHeader(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x)" \
             % (self.nVersion, self.hashPrevBlock, self.hashMerkleRoot,
                time.ctime(self.nTime), self.nBits, self.nNonce)
+
 # BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
 # assert_equal(BLOCK_HEADER_SIZE, 80)
 
@@ -802,6 +805,7 @@ class CBlock(CBlockHeader):
     def calc_witness_merkle_root(self, is_pos=False):
         # For witness root purposes, the hash of the
         # coinbase, with witness, is defined to be 0...0
+        hashes = [ser_uint256(0)]
 
         if is_pos:
             hashes = [ser_uint256(0), ser_uint256(0)]
@@ -1902,3 +1906,25 @@ class msg_cfcheckpt:
     def __repr__(self):
         return "msg_cfcheckpt(filter_type={:#x}, stop_hash={:x})".format(
             self.filter_type, self.stop_hash)
+
+class msg_sendtxrcncl:
+    __slots__ = ("version", "salt")
+    msgtype = b"sendtxrcncl"
+
+    def __init__(self):
+        self.version = 0
+        self.salt = 0
+
+    def deserialize(self, f):
+        self.version = struct.unpack("<I", f.read(4))[0]
+        self.salt = struct.unpack("<Q", f.read(8))[0]
+
+    def serialize(self):
+        r = b""
+        r += struct.pack("<I", self.version)
+        r += struct.pack("<Q", self.salt)
+        return r
+
+    def __repr__(self):
+        return "msg_sendtxrcncl(version=%lu, salt=%lu)" %\
+            (self.version, self.salt)

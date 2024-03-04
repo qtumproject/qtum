@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2021 The Bitcoin Core developers
+# Copyright (c) 2016-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test NULLDUMMY softfork.
@@ -14,6 +14,7 @@ Generate COINBASE_MATURITY (CB) more blocks to ensure the coinbases are mature.
 """
 import time
 
+from test_framework.address import address_to_scriptpubkey
 from test_framework.blocktools import (
     COINBASE_MATURITY,
     NORMAL_GBT_REQUEST_PARAMS,
@@ -36,6 +37,7 @@ from test_framework.util import (
 from test_framework.wallet import getnewdestination
 from test_framework.key import ECKey
 from test_framework.wallet_util import bytes_to_wif
+from test_framework.wallet import MiniWallet
 
 NULLDUMMY_ERROR = "non-mandatory-script-verify-flag (Dummy CHECKMULTISIG argument must be zero)"
 
@@ -49,6 +51,9 @@ def invalidate_nulldummy_tx(tx):
 
 
 class NULLDUMMYTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.num_nodes = 1
         self.setup_clean_chain = True
@@ -59,6 +64,9 @@ class NULLDUMMYTest(BitcoinTestFramework):
             '-addresstype=legacy',
             '-par=1',  # Use only one script thread to get the exact reject reason for testing
         ]]
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def create_transaction(self, *, txid, input_details=None, addr, amount, privkey):
         input = {"txid": txid, "vout": 0}
@@ -74,11 +82,11 @@ class NULLDUMMYTest(BitcoinTestFramework):
         eckey.generate()
         self.privkey = bytes_to_wif(eckey.get_bytes())
         self.pubkey = eckey.get_pubkey().get_bytes().hex()
-        self.nodes[0].createwallet(wallet_name="multisig")
+        self.wallet = MiniWallet(self.nodes[0])
         cms = self.nodes[0].createmultisig(1, [self.pubkey])
         wms = self.nodes[0].createmultisig(1, [self.pubkey], 'p2sh-segwit')
         self.ms_address = cms["address"]
-        ms_unlock_details = {"scriptPubKey": self.nodes[0].validateaddress(self.ms_address)["scriptPubKey"],
+        ms_unlock_details = {"scriptPubKey": address_to_scriptpubkey(self.ms_address).hex(),
                              "redeemScript": cms["redeemScript"]}
         self.wit_ms_address = wms['address']
 

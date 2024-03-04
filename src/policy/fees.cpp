@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2021 The Bitcoin Core developers
+// Copyright (c) 2009-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,7 +7,7 @@
 
 #include <clientversion.h>
 #include <consensus/amount.h>
-#include <fs.h>
+#include <kernel/mempool_entry.h>
 #include <logging.h>
 #include <policy/feerate.h>
 #include <primitives/transaction.h>
@@ -16,14 +16,15 @@
 #include <streams.h>
 #include <sync.h>
 #include <tinyformat.h>
-#include <txmempool.h>
 #include <uint256.h>
+#include <util/fs.h>
 #include <util/serfloat.h>
 #include <util/system.h>
 #include <util/time.h>
 
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -527,8 +528,8 @@ bool CBlockPolicyEstimator::_removeTx(const uint256& hash, bool inBlock)
     }
 }
 
-CBlockPolicyEstimator::CBlockPolicyEstimator(const fs::path& estimation_filepath)
-    : m_estimation_filepath{estimation_filepath}, nBestSeenHeight{0}, firstRecordedHeight{0}, historicalFirst{0}, historicalBest{0}, trackedTxs{0}, untrackedTxs{0}
+CBlockPolicyEstimator::CBlockPolicyEstimator(const fs::path& estimation_filepath, const bool read_stale_estimates)
+    : m_estimation_filepath{estimation_filepath}
 {
     static_assert(MIN_BUCKET_FEERATE > 0, "Min feerate must be nonzero");
     size_t bucketIndex = 0;
@@ -545,9 +546,22 @@ CBlockPolicyEstimator::CBlockPolicyEstimator(const fs::path& estimation_filepath
     shortStats = std::unique_ptr<TxConfirmStats>(new TxConfirmStats(buckets, bucketMap, SHORT_BLOCK_PERIODS, SHORT_DECAY, SHORT_SCALE));
     longStats = std::unique_ptr<TxConfirmStats>(new TxConfirmStats(buckets, bucketMap, LONG_BLOCK_PERIODS, LONG_DECAY, LONG_SCALE));
 
-    // If the fee estimation file is present, read recorded estimations
     AutoFile est_file{fsbridge::fopen(m_estimation_filepath, "rb")};
-    if (est_file.IsNull() || !Read(est_file)) {
+
+    // Whenever the fee estimation file is not present return early
+    if (est_file.IsNull()) {
+        LogPrintf("%s is not found. Continue anyway.\n", fs::PathToString(m_estimation_filepath));
+        return;
+    }
+
+    std::chrono::hours file_age = GetFeeEstimatorFileAge();
+    // fee estimate file must not be too old to avoid wrong fee estimates.
+    if (file_age > MAX_FILE_AGE && !read_stale_estimates) {
+        LogPrintf("Fee estimation file %s too old (age=%lld > %lld hours) and will not be used to avoid serving stale estimates.\n", fs::PathToString(m_estimation_filepath), Ticks<std::chrono::hours>(file_age), Ticks<std::chrono::hours>(MAX_FILE_AGE));
+        return;
+    }
+
+    if (!Read(est_file)) {
         LogPrintf("Failed to read fee estimates from %s. Continue anyway.\n", fs::PathToString(m_estimation_filepath));
     }
 }
@@ -908,10 +922,16 @@ CFeeRate CBlockPolicyEstimator::estimateSmartFee(int confTarget, FeeCalculation 
 
 void CBlockPolicyEstimator::Flush() {
     FlushUnconfirmed();
+    FlushFeeEstimates();
+}
 
+void CBlockPolicyEstimator::FlushFeeEstimates()
+{
     AutoFile est_file{fsbridge::fopen(m_estimation_filepath, "wb")};
     if (est_file.IsNull() || !Write(est_file)) {
         LogPrintf("Failed to write fee estimates to %s. Continue anyway.\n", fs::PathToString(m_estimation_filepath));
+    } else {
+        LogPrintf("Flushed fee estimates to %s.\n", fs::PathToString(m_estimation_filepath.filename()));
     }
 }
 
@@ -1002,8 +1022,9 @@ bool CBlockPolicyEstimator::Read(AutoFile& filein)
     return true;
 }
 
-void CBlockPolicyEstimator::FlushUnconfirmed() {
-    int64_t startclear = GetTimeMicros();
+void CBlockPolicyEstimator::FlushUnconfirmed()
+{
+    const auto startclear{SteadyClock::now()};
     LOCK(m_cs_fee_estimator);
     size_t num_entries = mapMemPoolTxs.size();
     // Remove every entry in mapMemPoolTxs
@@ -1011,24 +1032,48 @@ void CBlockPolicyEstimator::FlushUnconfirmed() {
         auto mi = mapMemPoolTxs.begin();
         _removeTx(mi->first, false); // this calls erase() on mapMemPoolTxs
     }
-    int64_t endclear = GetTimeMicros();
-    LogPrint(BCLog::ESTIMATEFEE, "Recorded %u unconfirmed txs from mempool in %gs\n", num_entries, (endclear - startclear)*0.000001);
+    const auto endclear{SteadyClock::now()};
+    LogPrint(BCLog::ESTIMATEFEE, "Recorded %u unconfirmed txs from mempool in %gs\n", num_entries, Ticks<SecondsDouble>(endclear - startclear));
+}
+
+std::chrono::hours CBlockPolicyEstimator::GetFeeEstimatorFileAge()
+{
+    auto file_time = std::filesystem::last_write_time(m_estimation_filepath);
+    auto now = std::filesystem::file_time_type::clock::now();
+    return std::chrono::duration_cast<std::chrono::hours>(now - file_time);
+}
+
+static std::set<double> MakeFeeSet(const CFeeRate& min_incremental_fee,
+                                   double max_filter_fee_rate,
+                                   double fee_filter_spacing)
+{
+    std::set<double> fee_set;
+
+    const CAmount min_fee_limit{std::max(CAmount(1), min_incremental_fee.GetFeePerK() / 2)};
+    fee_set.insert(0);
+    for (double bucket_boundary = min_fee_limit;
+         bucket_boundary <= max_filter_fee_rate;
+         bucket_boundary *= fee_filter_spacing) {
+
+        fee_set.insert(bucket_boundary);
+    }
+
+    return fee_set;
 }
 
 FeeFilterRounder::FeeFilterRounder(const CFeeRate& minIncrementalFee)
+    : m_fee_set{MakeFeeSet(minIncrementalFee, MAX_FILTER_FEERATE, FEE_FILTER_SPACING)}
 {
-    CAmount minFeeLimit = std::max(CAmount(1), minIncrementalFee.GetFeePerK() / 2);
-    feeset.insert(0);
-    for (double bucketBoundary = minFeeLimit; bucketBoundary <= MAX_FILTER_FEERATE; bucketBoundary *= FEE_FILTER_SPACING) {
-        feeset.insert(bucketBoundary);
-    }
 }
 
 CAmount FeeFilterRounder::round(CAmount currentMinFee)
 {
-    std::set<double>::iterator it = feeset.lower_bound(currentMinFee);
-    if ((it != feeset.begin() && insecure_rand.rand32() % 3 != 0) || it == feeset.end()) {
-        it--;
+    AssertLockNotHeld(m_insecure_rand_mutex);
+    std::set<double>::iterator it = m_fee_set.lower_bound(currentMinFee);
+    if (it == m_fee_set.end() ||
+        (it != m_fee_set.begin() &&
+         WITH_LOCK(m_insecure_rand_mutex, return insecure_rand.rand32()) % 3 != 0)) {
+        --it;
     }
     return static_cast<CAmount>(*it);
 }

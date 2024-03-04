@@ -3,15 +3,15 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">បិទស្លាកចុចម៉ៅស្តាំ ដើម្បីកែសម្រួលអាសយដ្ឋាន រឺស្លាកសញ្ញា</translation>
+        <translation type="unfinished">ចុចម៉ៅស្តាំ ដើម្បីកែសម្រួលអាសយដ្ឋាន រឺស្លាក</translation>
     </message>
     <message>
         <source>Create a new address</source>
-        <translation type="unfinished">បង្កើតអាស្រយដ្ឋានថ្មី</translation>
+        <translation type="unfinished">បង្កើតអាសយដ្ឋានថ្មី</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Nថ្មី</translation>
+        <translation type="unfinished">ថ្មី(&amp;N)</translation>
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
@@ -31,15 +31,15 @@
     </message>
     <message>
         <source>Enter address or label to search</source>
-        <translation type="unfinished">បញ្ចូលអាសយដ្ឋាន រឺ ស្លាក​សញ្ញា ដើម្បីស្វែងរក</translation>
+        <translation type="unfinished">បញ្ចូលអាសយដ្ឋាន រឺ ស្លាក​ ដើម្បីស្វែងរក</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation type="unfinished">នាំចេញទិន្នន័យនៃផ្ទាំងបច្ចុប្បន្នទៅជាឯកសារ</translation>
+        <translation type="unfinished">នាំចេញទិន្នន័យនៃផ្ទាំងបច្ចុប្បន្នទៅជាឯកសារមួយ</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;នាំចេញ</translation>
+        <translation type="unfinished">នាំចេញ(&amp;E)</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -70,6 +70,12 @@
         <translation type="unfinished">ទាំងនេះ​គឺជាអាសយដ្ឋាន Qtum របស់អ្នកសម្រាប់ធ្វើការផ្ញើការបង់ប្រាក់។ តែងតែពិនិត្យមើលចំនួនប្រាក់ និងអាសយដ្ឋានដែលទទួល មុនពេលផ្ញើប្រាក់។</translation>
     </message>
     <message>
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">ទាំងនេះគឺជាអាសយដ្ឋាន Qtum របស់អ្នកសម្រាប់ការទទួលការទូទាត់។ ប្រើប៊ូតុង 'បង្កើតអាសយដ្ឋានទទួលថ្មី' នៅក្នុងផ្ទាំងទទួល ដើម្បីបង្កើតអាសយដ្ឋានថ្មី។ 
+ការចុះហត្ថលេខាគឺអាចធ្វើទៅបានតែជាមួយអាសយដ្ឋាននៃប្រភេទ 'legacy' ប៉ុណ្ណោះ។</translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">ចម្លងអាសយដ្ឋាន(&amp;C)</translation>
     </message>
@@ -91,6 +97,11 @@
         <translation type="unfinished">Comma បំបែកឯកសារ</translation>
     </message>
     <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
+        <translation type="unfinished">មានបញ្ហាក្នុងការព្យាយាម រក្សាទុកបញ្ជីអាសយដ្ឋានដល់ %1។ សូមព្យាយាមម្ដងទៀត។</translation>
+    </message>
+    <message>
         <source>Exporting Failed</source>
         <translation type="unfinished">ការនាំចេញបានបរាជ័យ</translation>
     </message>
@@ -99,7 +110,7 @@
     <name>AddressTableModel</name>
     <message>
         <source>Label</source>
-        <translation type="unfinished">ស្លាក​សញ្ញា</translation>
+        <translation type="unfinished">ស្លាក​</translation>
     </message>
     <message>
         <source>Address</source>
@@ -107,7 +118,7 @@
     </message>
     <message>
         <source>(no label)</source>
-        <translation type="unfinished">(គ្មាន​ស្លាក​សញ្ញា)</translation>
+        <translation type="unfinished">(គ្មាន​ស្លាក​)</translation>
     </message>
 </context>
 <context>
@@ -166,11 +177,15 @@
     </message>
     <message>
         <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
-        <translation type="unfinished">បញ្ចូលឃ្លាសម្ងាត់សំរាប់កាបូប។ សូមប្រើឃ្លាសម្ងាត់ពី១០ តួរឬច្រើនជាងនេះ, ឬ ៨ពាក្យឬច្រើនជាងនេះ</translation>
+        <translation type="unfinished">បញ្ចូលឃ្លាសម្ងាត់សំរាប់កាបូប។ &lt;br/&gt;សូមប្រើឃ្លាសម្ងាត់ពី&lt;b&gt;១០ តួ&lt;/b&gt;ឬ&lt;b&gt;ច្រើនជាងនេះ, ៨ពាក្យឬច្រើនជាងនេះ&lt;/b&gt;។.</translation>
     </message>
     <message>
         <source>Enter the old passphrase and new passphrase for the wallet.</source>
         <translation type="unfinished">វាយបញ្ចូលឃ្លាសម្ងាត់ចាស់ និងឃ្លាសសម្លាត់ថ្មី សម្រាប់កាបូបចល័តរបស់អ្នក។</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">សូមចងចាំថាការអ៊ិនគ្រីបកាបូបរបស់អ្នកមិនអាចការពារបានពេញលេញនូវ qtums របស់អ្នកពីការលួចដោយមេរោគដែលឆ្លងកុំព្យូទ័ររបស់អ្នក។</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -183,6 +198,10 @@
     <message>
         <source>Your wallet is now encrypted. </source>
         <translation type="unfinished">កាបូបចល័តរបស់អ្នក ឥឡូវត្រូវបានអ៊ិនគ្រីប។</translation>
+    </message>
+    <message>
+        <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
+        <translation type="unfinished">សំខាន់៖ ការបម្រុងទុកពីមុនណាមួយដែលអ្នកបានធ្វើពីឯកសារកាបូបរបស់អ្នកគួរតែត្រូវបានជំនួសដោយឯកសារកាបូបដែលបានអ៊ិនគ្រីបដែលបានបង្កើតថ្មី។សម្រាប់ហេតុផលសុវត្ថិភាព ការបម្រុងទុកពីមុននៃឯកសារកាបូបដែលមិនបានអ៊ិនគ្រីបនឹងក្លាយទៅជាគ្មានប្រយោជន៍ភ្លាមៗនៅពេលដែលអ្នកចាប់ផ្តើមប្រើកាបូបដែលបានអ៊ិនគ្រីបថ្មី។</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -205,8 +224,20 @@
         <translation type="unfinished">ឃ្លាសម្ងាត់ ដែលបានបញ្ចូលសម្រាប់ការអ៊ិនគ្រីបកាបូបចល័តគឺមិនត្រឹមត្រូវទេ។</translation>
     </message>
     <message>
+        <source>The passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character. If this is successful, please set a new passphrase to avoid this issue in the future.</source>
+        <translation type="unfinished">ឃ្លាសម្ងាត់ដែលបានបញ្ចូលសម្រាប់ការឌិគ្រីបកាបូបគឺមិនត្រឹមត្រូវទេ។ វាមានតួអក្សរទទេ (ឧ - សូន្យបៃ)។ ប្រសិនបើឃ្លាសម្ងាត់ត្រូវបានកំណត់ជាមួយនឹងកំណែនៃកម្មវិធីនេះមុន 25.0 សូមព្យាយាមម្តងទៀតដោយប្រើតែតួអក្សររហូតដល់ — ប៉ុន្តែមិនរាប់បញ្ចូល — តួអក្សរទទេដំបូង។ ប្រសិនបើ​វា​ជោគជ័យ សូម​កំណត់​ឃ្លាសម្ងាត់​ថ្មី ដើម្បី​ចៀសវាង​បញ្ហា​នេះ​នៅពេល​អនាគត។</translation>
+    </message>
+    <message>
         <source>Wallet passphrase was successfully changed.</source>
         <translation type="unfinished">ឃ្លាសម្ងាត់នៃកាបូបចល័ត ត្រូវបានផ្លាស់ប្តូរដោយជោគជ័យ។</translation>
+    </message>
+    <message>
+        <source>Passphrase change failed</source>
+        <translation type="unfinished">ប្ដូរ​ឃ្លា​សម្ងាត់​បាន​បរាជ័យ</translation>
+    </message>
+    <message>
+        <source>The old passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character.</source>
+        <translation type="unfinished">ឃ្លាសម្ងាត់ចាស់ដែលបានបញ្ចូលសម្រាប់ការឌិគ្រីបកាបូបគឺមិនត្រឹមត្រូវទេ។ វាមានតួអក្សរទទេ (ឧ - សូន្យបៃ)។ ប្រសិនបើឃ្លាសម្ងាត់ត្រូវបានកំណត់ជាមួយនឹងកំណែនៃកម្មវិធីនេះមុន 25.0 សូមព្យាយាមម្តងទៀតដោយប្រើតែតួអក្សររហូតដល់ — ប៉ុន្តែមិនរាប់បញ្ចូល — តួអក្សរទទេដំបូង។</translation>
     </message>
     <message>
         <source>Warning: The Caps Lock key is on!</source>
@@ -231,6 +262,10 @@
         <translation type="unfinished">ករណីលើកលែងដែលរត់គេចខ្លួន</translation>
     </message>
     <message>
+        <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
+        <translation type="unfinished">កំហុសធ្ងន់ធ្ងរបានកើតឡើង។ %1 មិនអាចបន្តដោយសុវត្ថិភាពទៀតទេ ហើយនឹងឈប់ដំណើរការ។</translation>
+    </message>
+    <message>
         <source>Internal error</source>
         <translation type="unfinished">ខាងក្នុងបញ្ហា</translation>
     </message>
@@ -252,6 +287,10 @@
         <translation type="unfinished">កំហុសធ្ងន់ធ្ងរបានកើតឡើង។ ពិនិត្យមើលថាឯកសារការកំណត់អាចសរសេរបាន ឬព្យាយាមដំណើរការជាមួយ -nosettings។</translation>
     </message>
     <message>
+        <source>Error: %1</source>
+        <translation type="unfinished">កំហុស៖%1</translation>
+    </message>
+    <message>
         <source>%1 didn't yet exit safely…</source>
         <translation type="unfinished">%1មិនទាន់ចេញដោយសុវត្ថិភាពទេ…</translation>
     </message>
@@ -262,10 +301,6 @@
     <message>
         <source>Amount</source>
         <translation type="unfinished">ចំនួន</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation type="unfinished">ខាងក្នុង</translation>
     </message>
     <message>
         <source>Full Relay</source>
@@ -294,7 +329,7 @@
     <message numerus="yes">
         <source>%n second(s)</source>
         <translation type="unfinished">
-            <numerusform>%nវិនាទី</numerusform>
+            <numerusform>%n(ច្រើន)វិនាទី</numerusform>
             <numerusform />
         </translation>
     </message>
@@ -336,129 +371,6 @@
     <message>
         <source>%1 kB</source>
         <translation type="unfinished"> %1 kB</translation>
-    </message>
-    </context>
-<context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">ការកំណត់ឯកសារមិនអាចអានបានទេ។</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">ការកំណត់ឯកសារមិនអាចសរសេរបានទេ។</translation>
-    </message>
-    <message>
-        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
-        <translation type="unfinished">-maxtxfee មានតំម្លៃខ្ពស់ពេក។​ តំម្លៃនេះ អាចគួរត្រូវបានបង់សម្រាប់មួយប្រត្តិបត្តិការ។</translation>
-    </message>
-    <message>
-        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
-        <translation type="unfinished">ការវាយតម្លៃកំម្រៃមិនជោគជ័យ។  Fallbackfee ត្រូវបានដាក់ឲ្យប្រើលែងកើត។ រងចាំប្លុក ឬក៏ ដាក់ឲ្យប្រើឡើងវិញនូវ  Fallbackfee។</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to send after the fee has been deducted</source>
-        <translation type="unfinished">ចំនួនប្រត្តិបត្តិការមានទឹកប្រាក់ទំហំតិចតួច ក្នុងការផ្ញើរចេញទៅ  បន្ទាប់ពីកំរៃត្រូវបានកាត់រួចរាល់</translation>
-    </message>
-    <message>
-        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
-        <translation type="unfinished">នេះជាកម្រៃប្រត្តិបត្តិការតូចបំផុត ដែលអ្នកទូរទាត់ (បន្ថែមទៅលើកម្រៃធម្មតា)​​  ដើម្បីផ្តល់អាទិភាពលើការជៀសវៀងការចំណាយដោយផ្នែក សម្រាប់ការជ្រើសរើសកាក់ដោយទៀងទាត់។</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
-        <translation type="unfinished"> អ្នកនឹងទូរទាត់ កម្រៃប្រត្តិបត្តិការនេះ នៅពេលណាដែល ទឹកប្រាក់នៃការប៉ាន់ស្មាន មិនទាន់មាន។</translation>
-    </message>
-    <message>
-        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
-        <translation type="unfinished">ប្រវែងខ្សែបណ្តាញសរុប(%i) លើសប្រវែងខ្សែដែលវែងបំផុត (%i)។ កាត់បន្ថយចំនួន ​ឬទំហំនៃ uacomments ។</translation>
-    </message>
-    <message>
-        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
-        <translation type="unfinished">សេចក្តីប្រកាសអាសន្នៈ​ លេខសំម្ងាត់ត្រូវបានស្វែងរកឃើញនៅក្នុងកាបូបអេឡិចត្រូនិច​ {%s} ជាមួយនិងលេខសំម្ងាត់ត្រូវបានដាក់ឲ្យលែងប្រើលែងកើត</translation>
-    </message>
-    <message>
-        <source>%s is set very high!</source>
-        <translation type="unfinished">%s ត្រូវបានកំណត់យ៉ាងខ្ពស់</translation>
-    </message>
-    <message>
-        <source>Cannot write to data directory '%s'; check permissions.</source>
-        <translation type="unfinished">មិនអាចសរសេរទៅកាន់ កន្លែងផ្ទុកទិន្នន័យ​ '%s'; ពិនិត្យមើលការអនុញ្ញាត។</translation>
-    </message>
-    <message>
-        <source>Disk space is too low!</source>
-        <translation type="unfinished">ទំហំឌីស មានកំរិតទាប</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">បានធ្វើរួចរាល់ហើយ កំពុងបង្ហាញ</translation>
-    </message>
-    <message>
-        <source>Error reading from database, shutting down.</source>
-        <translation type="unfinished">បញ្ហា​ក្នុងការទទួលបានទិន្ន័យ​ ពីមូលដ្ឋានទិន្ន័យ ដូច្នេះកំពុងតែបិទ។</translation>
-    </message>
-    <message>
-        <source>Failed to verify database</source>
-        <translation type="unfinished">មិនបានជោគជ័យក្នុងការបញ្ចាក់ មូលដ្ឋានទិន្នន័យ</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">មូលនិធិមិនគ្រប់គ្រាន់</translation>
-    </message>
-    <message>
-        <source>Invalid P2P permission: '%s'</source>
-        <translation type="unfinished">ការអនុញ្ញាត P2P មិនត្រឹមត្រូវៈ​ '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">ចំនួនមិនត្រឹមត្រូវសម្រាប់  -%s=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">ចំនួនមិនត្រឹមត្រូវសម្រាប់ -discardfee=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">ចំនួនមិនត្រឹមត្រូវសម្រាប់ -fallbackfee=&lt;amount&gt; : '%s'</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">ប្រត្តិបត្តការចូល មិនជោគជ័យ</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to pay the fee</source>
-        <translation type="unfinished">ចំនួនប្រត្តិបត្តិការមានទឹកប្រាក់ទំហំតូចពេក សម្រាប់បង់ប្រាក់</translation>
-    </message>
-    <message>
-        <source>The wallet will avoid paying less than the minimum relay fee.</source>
-        <translation type="unfinished">ប្រត្តិបត្តិការមានខ្សែចង្វាក់រងចាំដើម្បីធ្វើការផ្ទៀងផ្ទាត់វែង</translation>
-    </message>
-    <message>
-        <source>This is the minimum transaction fee you pay on every transaction.</source>
-        <translation type="unfinished">នេះជាកម្រៃប្រត្តិបត្តិការតិចបំផុត អ្នកបង់រាល់ពេលធ្វើប្រត្តិបត្តិការម្តងៗ។</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">នេះជាកម្រៃប្រត្តិបត្តិការ អ្នកនឹងបង់ប្រសិនបើអ្នកធ្វើប្រត្តិបត្តិការម្តង។</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">ចំនួនប្រត្តិបត្តិការមានទឹកប្រាក់ទំហំតូច</translation>
-    </message>
-    <message>
-        <source>Transaction amounts must not be negative</source>
-        <translation type="unfinished">ចំនួនប្រត្តិបត្តិការ មិនអាចអវិជ្ជមានបានទេ</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">ប្រត្តិបត្តិការមានខ្សែចង្វាក់រងចាំដើម្បីធ្វើការផ្ទៀងផ្ទាត់វែង</translation>
-    </message>
-    <message>
-        <source>Transaction must have at least one recipient</source>
-        <translation type="unfinished">ប្រត្តិបត្តិការត្រូវមានអ្នកទទួលម្នាក់យ៉ាងតិចបំផុត</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">ប្រត្តិបត្តការទឹកប្រាក់ មានទំហំធំ</translation>
     </message>
     </context>
 <context>
@@ -546,7 +458,7 @@
     </message>
     <message>
         <source>&amp;Encrypt Wallet…</source>
-        <translation type="unfinished">&amp;អ៊ិនគ្រីបកាបូប</translation>
+        <translation type="unfinished">&amp;អ៊ិនគ្រីបកាបូប...</translation>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
@@ -626,10 +538,6 @@
     </message>
     <message>
         <source>Processing blocks on disk…</source>
-        <translation type="unfinished">កំពុងដំណើរការប្លុកនៅលើថាស...</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk…</source>
         <translation type="unfinished">កំពុងដំណើរការប្លុកនៅលើថាស...</translation>
     </message>
     <message>
@@ -755,15 +663,23 @@
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation type="unfinished">&amp;វិនដូ</translation>
+        <translation type="unfinished">វិនដូ(&amp;W)</translation>
+    </message>
+    <message>
+        <source>Main Window</source>
+        <translation type="unfinished">វិនដូចម្បង</translation>
+    </message>
+    <message>
+        <source>%1 client</source>
+        <translation type="unfinished">%1 អតិថិជន</translation>
     </message>
     <message>
         <source>&amp;Hide</source>
-        <translation type="unfinished">&amp;លាក់</translation>
+        <translation type="unfinished">លាក់(&amp;H)</translation>
     </message>
     <message>
         <source>S&amp;how</source>
-        <translation type="unfinished">S&amp;របៀប</translation>
+        <translation type="unfinished">របៀប(&amp;S)</translation>
     </message>
     <message numerus="yes">
         <source>%n active connection(s) to Qtum network.</source> 
@@ -792,6 +708,50 @@
         <source>Enable network activity</source>
         <extracomment>A context menu item. The network activity was disabled previously.</extracomment>
         <translation type="unfinished">បើកសកម្មភាពបណ្តាញ</translation>
+    </message>
+    <message>
+        <source>Error: %1</source>
+        <translation type="unfinished">កំហុស៖%1</translation>
+    </message>
+    <message>
+        <source>Warning: %1</source>
+        <translation type="unfinished">ប្រុងប្រយ័ត្នៈ %1</translation>
+    </message>
+    <message>
+        <source>Date: %1
+</source>
+        <translation type="unfinished">ថ្ងៃ៖%1
+</translation>
+    </message>
+    <message>
+        <source>Amount: %1
+</source>
+        <translation type="unfinished">ចំនួន៖%1
+</translation>
+    </message>
+    <message>
+        <source>Wallet: %1
+</source>
+        <translation type="unfinished">កាបូប៖%1
+</translation>
+    </message>
+    <message>
+        <source>Type: %1
+</source>
+        <translation type="unfinished">ប្រភេទ៖%1
+</translation>
+    </message>
+    <message>
+        <source>Label: %1
+</source>
+        <translation type="unfinished">ស្លាក៖%1
+</translation>
+    </message>
+    <message>
+        <source>Address: %1
+</source>
+        <translation type="unfinished">អាសយដ្ឋាន៖%1
+</translation>
     </message>
     <message>
         <source>Sent transaction</source>
@@ -823,18 +783,61 @@
     </message>
     <message>
         <source>Original message:</source>
-        <translation type="unfinished">សារដើម</translation>
+        <translation type="unfinished">សារដើម៖</translation>
+    </message>
+</context>
+<context>
+    <name>UnitDisplayStatusBarControl</name>
+    <message>
+        <source>Unit to show amounts in. Click to select another unit.</source>
+        <translation type="unfinished">ឯកតា​ដើម្បី​បង្ហាញ​ចំនួន​ចូល។ ចុច​ដើម្បី​ជ្រើសរើស​ឯកតា​ផ្សេងទៀត។</translation>
     </message>
 </context>
 <context>
     <name>CoinControlDialog</name>
     <message>
         <source>Coin Selection</source>
-        <translation type="unfinished">ជ្រើរើសកាក់</translation>
+        <translation type="unfinished">ជ្រើសកាក់</translation>
+    </message>
+    <message>
+        <source>Quantity:</source>
+        <translation type="unfinished">បរិមាណ៖</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation type="unfinished">Bytes៖</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation type="unfinished">ចំនួនទឹកប្រាក់៖</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation type="unfinished">តម្លៃសេវា៖</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation type="unfinished">ធូលី៖</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation type="unfinished">បន្ទាប់ពីតម្លៃសេវា៖</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation type="unfinished">ប្តូរ៖</translation>
     </message>
     <message>
         <source>(un)select all</source>
         <translation type="unfinished">(កុំ)ជ្រើសរើសទាំងអស់</translation>
+    </message>
+    <message>
+        <source>Tree mode</source>
+        <translation type="unfinished">ម៉ូតដើមឈើ</translation>
+    </message>
+    <message>
+        <source>List mode</source>
+        <translation type="unfinished">ម៉ូតបញ្ជី</translation>
     </message>
     <message>
         <source>Amount</source>
@@ -850,19 +853,23 @@
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished">ថ្ងៃ</translation>
+        <translation type="unfinished">កាលបរិច្ឆេទ</translation>
     </message>
     <message>
         <source>Confirmations</source>
-        <translation type="unfinished">ការបញ្ចាក់</translation>
+        <translation type="unfinished">ការបញ្ជាក់</translation>
     </message>
     <message>
         <source>Confirmed</source>
-        <translation type="unfinished">បានបញ្ចាក់រួចរាល់</translation>
+        <translation type="unfinished">បានបញ្ជាក់</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation type="unfinished">ចម្លងចំនួនទឹកប្រាក់</translation>
     </message>
     <message>
         <source>&amp;Copy address</source>
-        <translation type="unfinished">&amp;ចម្លងអាសយដ្ឋាន</translation>
+        <translation type="unfinished">ចម្លងអាសយដ្ឋាន(&amp;C)</translation>
     </message>
     <message>
         <source>Copy &amp;label</source>
@@ -870,7 +877,7 @@
     </message>
     <message>
         <source>Copy &amp;amount</source>
-        <translation type="unfinished">ចម្លង &amp; ចំនួន</translation>
+        <translation type="unfinished">ចម្លង &amp; ចំនួនទឹកប្រាក់</translation>
     </message>
     <message>
         <source>Copy transaction &amp;ID and output index</source>
@@ -885,6 +892,26 @@
         <translation type="unfinished">&amp;ដោះសោដោយមិនបានចំណាយ</translation>
     </message>
     <message>
+        <source>Copy quantity</source>
+        <translation type="unfinished">ចម្លងបរិមាណ</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation type="unfinished">ចម្លងតម្លៃ</translation>
+    </message>
+    <message>
+        <source>Copy dust</source>
+        <translation type="unfinished">ចម្លងធូលី</translation>
+    </message>
+    <message>
+        <source>Copy change</source>
+        <translation type="unfinished">ចម្លងការផ្លាស់ប្តូរ</translation>
+    </message>
+    <message>
+        <source>(%1 locked)</source>
+        <translation type="unfinished">(%1បានចាក់សោរ)</translation>
+    </message>
+    <message>
         <source>yes</source>
         <translation type="unfinished">បាទ ឬ ចាស</translation>
     </message>
@@ -897,8 +924,16 @@
         <translation type="unfinished">ស្លាកសញ្ញានេះបង្ហាញពណ៌ក្រហម ប្រសិនបើអ្នកទទួល ទទួលបានចំនួនមួយតិចជាងចំនួនចាប់ផ្តើមបច្ចុប្បន្ន។</translation>
     </message>
     <message>
+        <source>Can vary +/- %1 satoshi(s) per input.</source>
+        <translation type="unfinished">អាច +/- %1 satoshi(s)ច្រើនក្នុងការបញ្ជូលមួយ។</translation>
+    </message>
+    <message>
         <source>(no label)</source>
-        <translation type="unfinished">(គ្មាន​ស្លាក​សញ្ញា)</translation>
+        <translation type="unfinished">(គ្មាន​ស្លាក​)</translation>
+    </message>
+    <message>
+        <source>change from %1 (%2)</source>
+        <translation type="unfinished">ប្តូរពី %1 (%2)</translation>
     </message>
     <message>
         <source>(change)</source>
@@ -922,6 +957,10 @@
         <translation type="unfinished">បង្កើតកាបូបអេឡិចត្រូនិច មិនជោគជ័យ</translation>
     </message>
     <message>
+        <source>Create wallet warning</source>
+        <translation type="unfinished">ការព្រមានបង្កើតកាបូប</translation>
+    </message>
+    <message>
         <source>Can't list signers</source>
         <translation type="unfinished">មិនអាចចុះបញ្ជីអ្នកចុះហត្ថលេខាបានទេ។</translation>
     </message>
@@ -935,12 +974,12 @@
     <message>
         <source>Load Wallets</source>
         <extracomment>Title of progress window which is displayed when wallets are being loaded.</extracomment>
-        <translation type="unfinished">ផ្ទុកកាបូប</translation>
+        <translation type="unfinished">ទាញកាបូប</translation>
     </message>
     <message>
         <source>Loading wallets…</source>
         <extracomment>Descriptive text of the load wallets progress window which indicates to the user that wallets are currently being loaded.</extracomment>
-        <translation type="unfinished">កំពុងផ្ទុកកាបូប...</translation>
+        <translation type="unfinished">កំពុងទាញកាបូប...</translation>
     </message>
 </context>
 <context>
@@ -1122,21 +1161,21 @@
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
-            <numerusform>%nGB of space available</numerusform>
+            <numerusform>%nGB នៃកន្លែងទំនេរ</numerusform>
             <numerusform />
         </translation>
     </message>
     <message numerus="yes">
         <source>(of %n GB needed)</source>
         <translation type="unfinished">
-            <numerusform>(នៃ%n ជីហ្គាប៊ៃ ដែលត្រូវការ)</numerusform>
+            <numerusform>(នៃ%n GB ដែលត្រូវការ)</numerusform>
             <numerusform />
         </translation>
     </message>
     <message numerus="yes">
         <source>(%n GB needed for full chain)</source>
         <translation type="unfinished">
-            <numerusform>(%n GB needed for full chain)</numerusform>
+            <numerusform>(%n GB ត្រូវការសម្រាប់ខ្សែសង្វាក់ពេញលេញ)</numerusform>
             <numerusform />
         </translation>
     </message>
@@ -1281,8 +1320,28 @@
         <translation type="unfinished">&amp;សំខាន់</translation>
     </message>
     <message>
+        <source>Automatically start %1 after logging in to the system.</source>
+        <translation type="unfinished">ចាប់ផ្តើម %1 ដោយស្វ័យប្រវត្តិបន្ទាប់ពីបានចូលក្នុងប្រព័ន្ធ។</translation>
+    </message>
+    <message>
+        <source>&amp;Start %1 on system login</source>
+        <translation type="unfinished">ចាប់ផ្តើម %1 ទៅលើការចូលប្រព័ន្ធ(&amp;S)</translation>
+    </message>
+    <message>
         <source>Enabling pruning significantly reduces the disk space required to store transactions. All blocks are still fully validated. Reverting this setting requires re-downloading the entire blockchain.</source>
-        <translation type="unfinished">ការបើកដំណើរការកាត់ចេញយ៉ាងសំខាន់កាត់បន្ថយទំហំថាសដែលត្រូវការដើម្បីរក្សាទុកប្រតិបត្តិការ។ ប្លុកទាំងអស់នៅតែផ្ទៀងផ្ទាត់ពេញលេញ។ ការត្រឡប់ការកំណត់នេះទាមទារការទាញយក blockchain ទាំងមូលឡើងវិញ។</translation>
+        <translation type="unfinished">ការបើកដំណើរការកាត់ចេញយ៉ាងសំខាន់កាត់បន្ថយទំហំថាសដែលត្រូវការដើម្បីរក្សាទុកប្រតិបត្តិការ។ ប្លុកទាំងអស់នៅតែផ្ទៀងផ្ទាត់ពេញលេញ។ ការត្រឡប់ការកំណត់នេះទាមទារការទាញយក blockchain ទាំងស្រុងឡើងវិញ។</translation>
+    </message>
+    <message>
+        <source>Size of &amp;database cache</source>
+        <translation type="unfinished">ទំហំ​&amp;ឃ្លាំង​ផ្ទុក​ទិន្នន័យ</translation>
+    </message>
+    <message>
+        <source>Number of script &amp;verification threads</source>
+        <translation type="unfinished">ចំនួនscript &amp; threadsផ្ទៀងផ្ទាត់</translation>
+    </message>
+    <message>
+        <source>Full path to a %1 compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
+        <translation type="unfinished">ផ្លូវពេញទៅកាន់%1ស្គ្រីបដែលត្រូវគ្នា (ឧ. C:\Downloads\hwi.exe ឬ /Users/you/Downloads/hwi.py)។ ប្រយ័ត្ន៖ មេរោគអាចលួចកាក់របស់អ្នក!</translation>
     </message>
     <message>
         <source>Options set in this dialog are overridden by the command line:</source>
@@ -1365,7 +1424,7 @@
         <translation type="unfinished">អនុញ្ញាតឲ្យមានការតភ្ជាប់ដែលចូលមក</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a SOCKS5 proxy.</source> 
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">ភ្ជាប់ទៅកាន់បណ្តាញប៊ឺតខញតាមរយៈ​ SOCKS5 proxy។</translation>
     </message>
     <message>
@@ -1374,7 +1433,7 @@
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation type="unfinished">&amp;វិនដូ</translation>
+        <translation type="unfinished">វិនដូ(&amp;W)</translation>
     </message>
     <message>
         <source>&amp;Display</source>
@@ -1516,6 +1575,14 @@
         <translation type="unfinished">មិនអាចចុះហត្ថលេខាលើធាតុចូលបានទេ ខណៈពេលដែលកាបូបត្រូវបានចាក់សោ។</translation>
     </message>
     <message>
+        <source>Could not sign any more inputs.</source>
+        <translation type="unfinished">មិនអាចចុះហត្ថលេខាលើធាតុចូលទៀតទេ</translation>
+    </message>
+    <message>
+        <source>Signed %1 inputs, but more signatures are still required.</source>
+        <translation type="unfinished">បានចុះហត្ថលេខា%1ធាតុចូល ប៉ុន្តែហត្ថលេខាបន្ថែមទៀតនៅតែត្រូវបានទាមទារ។</translation>
+    </message>
+    <message>
         <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
         <translation type="unfinished">ប្រត្តិបត្តិការបានចុះហត្ថលេខាដោយជោគជ័យ។​ ប្រត្តិបត្តិការគឺរួចរាល់ក្នុងការផ្សព្វផ្សាយ។</translation>
     </message>
@@ -1555,6 +1622,10 @@
     <message>
         <source>or</source>
         <translation type="unfinished">ឬ</translation>
+    </message>
+    <message>
+        <source>Transaction has %1 unsigned inputs.</source>
+        <translation type="unfinished">ប្រត្តិបត្តិការ​មាននៅសល់ %1 នៅពុំទាន់បានហត្ថលេខាធាតុចូល។</translation>
     </message>
     <message>
         <source>Transaction is missing some information about inputs.</source>
@@ -1741,6 +1812,14 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">ជំនាន់</translation>
     </message>
     <message>
+        <source>Whether we relay transactions to this peer.</source>
+        <translation type="unfinished">ថាតើយើងបញ្ជូនតប្រតិបត្តិការទៅpeerនេះឬអត់។</translation>
+    </message>
+    <message>
+        <source>Transaction Relay</source>
+        <translation type="unfinished">ការបញ្ជូនតប្រតិបត្តិការ</translation>
+    </message>
+    <message>
         <source>Starting Block</source>
         <translation type="unfinished">កំពុងចាប់ផ្តើមប៊្លុក</translation>
     </message>
@@ -1805,7 +1884,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Last block time</source>
-        <translation type="unfinished">ពេវេលាប្លុកជុងក្រោយ</translation>
+        <translation type="unfinished">ពេលវេលាប្លុកចុងក្រោយ</translation>
     </message>
     <message>
         <source>&amp;Network Traffic</source>
@@ -1830,7 +1909,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>&amp;Copy address</source>
         <extracomment>Context menu action to copy the address of a peer.</extracomment>
-        <translation type="unfinished">&amp;ចម្លងអាសយដ្ឋាន</translation>
+        <translation type="unfinished">ចម្លងអាសយដ្ឋាន(&amp;C)</translation>
     </message>
     <message>
         <source>1 d&amp;ay</source>
@@ -1894,7 +1973,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">&amp;សារ</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source> 
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">សារជាជម្រើសមួយក្នុងការភ្ជាប់ទៅនឹងសំណើរទូរទាត់ប្រាក់ ដែលនឹងត្រូវបង្ហាញនៅពេលដែលសំណើរត្រូវបានបើក។ កំណត់ចំណាំៈ សារនេះនឹងមិនត្រូវបានបញ្ចូនជាមួយការទូរទាត់ប្រាក់នៅលើបណ្តាញប៊ីតខញ។</translation>
     </message>
     <message>
@@ -1955,7 +2034,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>&amp;Copy address</source>
-        <translation type="unfinished">&amp;ចម្លងអាសយដ្ឋាន</translation>
+        <translation type="unfinished">ចម្លងអាសយដ្ឋាន(&amp;C)</translation>
     </message>
     <message>
         <source>Copy &amp;label</source>
@@ -1967,7 +2046,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Copy &amp;amount</source>
-        <translation type="unfinished">ចម្លង &amp; ចំនួន</translation>
+        <translation type="unfinished">ចម្លង &amp; ចំនួនទឹកប្រាក់</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -1983,6 +2062,10 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Address:</source>
         <translation type="unfinished">អាសយដ្ឋានៈ</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation type="unfinished">ចំនួនទឹកប្រាក់៖</translation>
     </message>
     <message>
         <source>Label:</source>
@@ -2025,15 +2108,15 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <name>RecentRequestsTableModel</name>
     <message>
         <source>Date</source>
-        <translation type="unfinished">ថ្ងៃ</translation>
+        <translation type="unfinished">កាលបរិច្ឆេទ</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">ស្លាក​សញ្ញា</translation>
+        <translation type="unfinished">ស្លាក​</translation>
     </message>
     <message>
         <source>(no label)</source>
-        <translation type="unfinished">(គ្មាន​ស្លាក​សញ្ញា)</translation>
+        <translation type="unfinished">(គ្មាន​ស្លាក​)</translation>
     </message>
     <message>
         <source>(no message)</source>
@@ -2067,6 +2150,30 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">ប្រាក់មិនគ្រប់គ្រាន់!</translation>
     </message>
     <message>
+        <source>Quantity:</source>
+        <translation type="unfinished">បរិមាណ៖</translation>
+    </message>
+    <message>
+        <source>Bytes:</source>
+        <translation type="unfinished">Bytes៖</translation>
+    </message>
+    <message>
+        <source>Amount:</source>
+        <translation type="unfinished">ចំនួនទឹកប្រាក់៖</translation>
+    </message>
+    <message>
+        <source>Fee:</source>
+        <translation type="unfinished">តម្លៃសេវា៖</translation>
+    </message>
+    <message>
+        <source>After Fee:</source>
+        <translation type="unfinished">បន្ទាប់ពីតម្លៃសេវា៖</translation>
+    </message>
+    <message>
+        <source>Change:</source>
+        <translation type="unfinished">ប្តូរ៖</translation>
+    </message>
+    <message>
         <source>Custom change address</source>
         <translation type="unfinished">ជ្រើសរើសផ្លាស់ប្តូរអាសយដ្ឋាន</translation>
     </message>
@@ -2096,7 +2203,11 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Inputs…</source>
-        <translation type="unfinished">បញ្ចូល...</translation>
+        <translation type="unfinished">ធាតុចូល...</translation>
+    </message>
+    <message>
+        <source>Dust:</source>
+        <translation type="unfinished">ធូលី៖</translation>
     </message>
     <message>
         <source>Choose…</source>
@@ -2139,13 +2250,33 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">ប&amp;ញ្ជូន</translation>
     </message>
     <message>
+        <source>Copy quantity</source>
+        <translation type="unfinished">ចម្លងបរិមាណ</translation>
+    </message>
+    <message>
+        <source>Copy amount</source>
+        <translation type="unfinished">ចម្លងចំនួនទឹកប្រាក់</translation>
+    </message>
+    <message>
+        <source>Copy fee</source>
+        <translation type="unfinished">ចម្លងតម្លៃ</translation>
+    </message>
+    <message>
+        <source>Copy dust</source>
+        <translation type="unfinished">ចម្លងធូលី</translation>
+    </message>
+    <message>
+        <source>Copy change</source>
+        <translation type="unfinished">ចម្លងការផ្លាស់ប្តូរ</translation>
+    </message>
+    <message>
         <source>Sign on device</source>
         <extracomment>"device" usually means a hardware wallet.</extracomment>
         <translation type="unfinished">ចុះហត្ថលេខាលើឧបករណ៍</translation>
     </message>
     <message>
         <source>Connect your hardware wallet first.</source>
-        <translation type="unfinished">ភ្ជាប់កាបូបវែរឹងរបស់អ្នកជាមុនសិន។</translation>
+        <translation type="unfinished">ភ្ជាប់កាបូបហាដវែរបស់អ្នកជាមុនសិន។</translation>
     </message>
     <message>
         <source>Set external signer script path in Options -&gt; Wallet</source>
@@ -2181,6 +2312,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>PSBT saved</source>
+        <extracomment>Popup message when a PSBT has been saved to a file</extracomment>
         <translation type="unfinished"> បានរក្សាទុកPSBT</translation>
     </message>
     <message>
@@ -2255,7 +2387,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>(no label)</source>
-        <translation type="unfinished">(គ្មាន​ស្លាក​សញ្ញា)</translation>
+        <translation type="unfinished">(គ្មាន​ស្លាក​)</translation>
     </message>
 </context>
 <context>
@@ -2455,7 +2587,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished">ថ្ងៃ</translation>
+        <translation type="unfinished">កាលបរិច្ឆេទ</translation>
     </message>
     <message>
         <source>Source</source>
@@ -2526,7 +2658,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Inputs</source>
-        <translation type="unfinished">បញ្ចូល</translation>
+        <translation type="unfinished">ធាតុចូល</translation>
     </message>
     <message>
         <source>Amount</source>
@@ -2545,7 +2677,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <name>TransactionTableModel</name>
     <message>
         <source>Date</source>
-        <translation type="unfinished">ថ្ងៃ</translation>
+        <translation type="unfinished">កាលបរិច្ឆេទ</translation>
     </message>
     <message>
         <source>Type</source>
@@ -2553,7 +2685,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">ស្លាក​សញ្ញា</translation>
+        <translation type="unfinished">ស្លាក​</translation>
     </message>
     <message>
         <source>Unconfirmed</source>
@@ -2601,7 +2733,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>(no label)</source>
-        <translation type="unfinished">(គ្មាន​ស្លាក​សញ្ញា)</translation>
+        <translation type="unfinished">(គ្មាន​ស្លាក​)</translation>
     </message>
     <message>
         <source>Transaction status. Hover over this field to show number of confirmations.</source>
@@ -2676,7 +2808,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>&amp;Copy address</source>
-        <translation type="unfinished">&amp;ចម្លងអាសយដ្ឋាន</translation>
+        <translation type="unfinished">ចម្លងអាសយដ្ឋាន(&amp;C)</translation>
     </message>
     <message>
         <source>Copy &amp;label</source>
@@ -2684,7 +2816,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Copy &amp;amount</source>
-        <translation type="unfinished">ចម្លង &amp; ចំនួន</translation>
+        <translation type="unfinished">ចម្លង &amp; ចំនួនទឹកប្រាក់</translation>
     </message>
     <message>
         <source>Export Transaction History</source>
@@ -2697,7 +2829,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Confirmed</source>
-        <translation type="unfinished">បានបញ្ចាក់រួចរាល់</translation>
+        <translation type="unfinished">បានបញ្ជាក់</translation>
     </message>
     <message>
         <source>Watch-only</source>
@@ -2705,7 +2837,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished">ថ្ងៃ</translation>
+        <translation type="unfinished">កាលបរិច្ឆេទ</translation>
     </message>
     <message>
         <source>Type</source>
@@ -2713,7 +2845,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">ស្លាក​សញ្ញា</translation>
+        <translation type="unfinished">ស្លាក​</translation>
     </message>
     <message>
         <source>Address</source>
@@ -2807,11 +2939,11 @@ Go to File &gt; Open Wallet to load a wallet.
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;នាំចេញ</translation>
+        <translation type="unfinished">នាំចេញ(&amp;E)</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation type="unfinished">នាំចេញទិន្នន័យនៃផ្ទាំងបច្ចុប្បន្នទៅជាឯកសារ</translation>
+        <translation type="unfinished">នាំចេញទិន្នន័យនៃផ្ទាំងបច្ចុប្បន្នទៅជាឯកសារមួយ</translation>
     </message>
     <message>
         <source>Wallet Data</source>
@@ -2829,6 +2961,121 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Cancel</source>
         <translation type="unfinished">ចាកចេញ</translation>
+    </message>
+</context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>The transaction amount is too small to send after the fee has been deducted</source>
+        <translation type="unfinished">ចំនួនប្រត្តិបត្តិការមានទឹកប្រាក់ទំហំតិចតួច ក្នុងការផ្ញើរចេញទៅ  បន្ទាប់ពីកំរៃត្រូវបានកាត់រួចរាល់</translation>
+    </message>
+    <message>
+        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
+        <translation type="unfinished">នេះជាកម្រៃប្រត្តិបត្តិការតូចបំផុត ដែលអ្នកទូរទាត់ (បន្ថែមទៅលើកម្រៃធម្មតា)​​  ដើម្បីផ្តល់អាទិភាពលើការជៀសវៀងការចំណាយដោយផ្នែក សម្រាប់ការជ្រើសរើសកាក់ដោយទៀងទាត់។</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
+        <translation type="unfinished"> អ្នកនឹងទូរទាត់ កម្រៃប្រត្តិបត្តិការនេះ នៅពេលណាដែល ទឹកប្រាក់នៃការប៉ាន់ស្មាន មិនទាន់មាន។</translation>
+    </message>
+    <message>
+        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
+        <translation type="unfinished">ប្រវែងខ្សែបណ្តាញសរុប(%i) លើសប្រវែងខ្សែដែលវែងបំផុត (%i)។ កាត់បន្ថយចំនួន ​ឬទំហំនៃ uacomments ។</translation>
+    </message>
+    <message>
+        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
+        <translation type="unfinished">សេចក្តីប្រកាសអាសន្នៈ​ លេខសំម្ងាត់ត្រូវបានស្វែងរកឃើញនៅក្នុងកាបូបអេឡិចត្រូនិច​ {%s} ជាមួយនិងលេខសំម្ងាត់ត្រូវបានដាក់ឲ្យលែងប្រើលែងកើត</translation>
+    </message>
+    <message>
+        <source>%s is set very high!</source>
+        <translation type="unfinished">%s ត្រូវបានកំណត់យ៉ាងខ្ពស់</translation>
+    </message>
+    <message>
+        <source>Cannot write to data directory '%s'; check permissions.</source>
+        <translation type="unfinished">មិនអាចសរសេរទៅកាន់ កន្លែងផ្ទុកទិន្នន័យ​ '%s'; ពិនិត្យមើលការអនុញ្ញាត។</translation>
+    </message>
+    <message>
+        <source>The inputs size exceeds the maximum weight. Please try sending a smaller amount or manually consolidating your wallet's UTXOs</source>
+        <translation type="unfinished">ទំហំបញ្ចូលលើសពីទម្ងន់អតិបរមា។ សូមព្យាយាមផ្ញើចំនួនតូចជាងនេះ ឬបង្រួបបង្រួម UTXO នៃកាបូបរបស់អ្នកដោយដៃ</translation>
+    </message>
+    <message>
+        <source>The preselected coins total amount does not cover the transaction target. Please allow other inputs to be automatically selected or include more coins manually</source>
+        <translation type="unfinished">ចំនួនសរុបនៃកាក់ដែលបានជ្រើសរើសជាមុនមិនគ្របដណ្តប់លើគោលដៅប្រតិបត្តិការទេ។ សូមអនុញ្ញាតឱ្យធាតុបញ្ចូលផ្សេងទៀតត្រូវបានជ្រើសរើសដោយស្វ័យប្រវត្តិ ឬបញ្ចូលកាក់បន្ថែមទៀតដោយហត្ថកម្</translation>
+    </message>
+    <message>
+        <source>Disk space is too low!</source>
+        <translation type="unfinished">ទំហំឌីស មានកំរិតទាប</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">បានធ្វើរួចរាល់ហើយ កំពុងបង្ហាញ</translation>
+    </message>
+    <message>
+        <source>Error reading from database, shutting down.</source>
+        <translation type="unfinished">បញ្ហា​ក្នុងការទទួលបានទិន្ន័យ​ ពីមូលដ្ឋានទិន្ន័យ ដូច្នេះកំពុងតែបិទ។</translation>
+    </message>
+    <message>
+        <source>Failed to verify database</source>
+        <translation type="unfinished">មិនបានជោគជ័យក្នុងការបញ្ចាក់ មូលដ្ឋានទិន្នន័យ</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">មូលនិធិមិនគ្រប់គ្រាន់</translation>
+    </message>
+    <message>
+        <source>Invalid P2P permission: '%s'</source>
+        <translation type="unfinished">ការអនុញ្ញាត P2P មិនត្រឹមត្រូវៈ​ '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">ចំនួនមិនត្រឹមត្រូវសម្រាប់  -%s=&lt;amount&gt;: '%s'</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">ប្រត្តិបត្តការចូល មិនជោគជ័យ</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to pay the fee</source>
+        <translation type="unfinished">ចំនួនប្រត្តិបត្តិការមានទឹកប្រាក់ទំហំតូចពេក សម្រាប់បង់ប្រាក់</translation>
+    </message>
+    <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation type="unfinished">ប្រត្តិបត្តិការមានខ្សែចង្វាក់រងចាំដើម្បីធ្វើការផ្ទៀងផ្ទាត់វែង</translation>
+    </message>
+    <message>
+        <source>This is the minimum transaction fee you pay on every transaction.</source>
+        <translation type="unfinished">នេះជាកម្រៃប្រត្តិបត្តិការតិចបំផុត អ្នកបង់រាល់ពេលធ្វើប្រត្តិបត្តិការម្តងៗ។</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation type="unfinished">នេះជាកម្រៃប្រត្តិបត្តិការ អ្នកនឹងបង់ប្រសិនបើអ្នកធ្វើប្រត្តិបត្តិការម្តង។</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">ចំនួនប្រត្តិបត្តិការមានទឹកប្រាក់ទំហំតូច</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation type="unfinished">ចំនួនប្រត្តិបត្តិការ មិនអាចអវិជ្ជមានបានទេ</translation>
+    </message>
+    <message>
+        <source>Transaction has too long of a mempool chain</source>
+        <translation type="unfinished">ប្រត្តិបត្តិការមានខ្សែចង្វាក់រងចាំដើម្បីធ្វើការផ្ទៀងផ្ទាត់វែង</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation type="unfinished">ប្រត្តិបត្តិការត្រូវមានអ្នកទទួលម្នាក់យ៉ាងតិចបំផុត</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">ប្រត្តិបត្តការទឹកប្រាក់ មានទំហំធំ</translation>
+    </message>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">ការកំណត់ឯកសារមិនអាចអានបានទេ។</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">ការកំណត់ឯកសារមិនអាចសរសេរបានទេ។</translation>
     </message>
 </context>
 </TS>

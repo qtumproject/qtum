@@ -7,7 +7,7 @@
 
 #include <qt/guiutil.h>
 #include <qt/transactiontablemodel.h>
-#include <qt/styleSheet.h>
+#include <qt/styleSheet.h> 
 
 #include <QModelIndex>
 
@@ -16,7 +16,7 @@ TransactionDescDialog::TransactionDescDialog(const QModelIndex &idx, QWidget *pa
     ui(new Ui::TransactionDescDialog)
 {
     ui->setupUi(this);
-    // Set stylesheet
+    // Set stylesheet 
     SetObjectStyleSheet(this, StyleSheetNames::ScrollBarDark);
     setWindowTitle(tr("Details for %1").arg(idx.data(TransactionTableModel::TxHashRole).toString()));
     QString desc = idx.data(TransactionTableModel::LongDescriptionRole).toString();

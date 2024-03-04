@@ -63,11 +63,11 @@
     </message>
     <message>
         <source>Receiving addresses</source>
-        <translation type="unfinished">Qabul qilish manzillari</translation>
+        <translation type="unfinished">Qabul qiluvchi manzillari</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Quyida to'lovlarni jo'natish uchun Qtum manzillaringiz. Coinlarni yuborishdan oldin har doim miqdor va qabul qilish manzilini tekshiring.</translation>
+        <translation type="unfinished">Quyida to'lovlarni yuborish uchun Qtum manzillaringiz. Coinlarni yuborishdan oldin har doim miqdor va qabul qilish manzilini tekshiring.</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
@@ -125,23 +125,23 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     <name>AskPassphraseDialog</name>
     <message>
         <source>Passphrase Dialog</source>
-        <translation type="unfinished">Parollar dialogi</translation>
+        <translation type="unfinished">Maxfiy so'zlar dialogi</translation>
     </message>
     <message>
         <source>Enter passphrase</source>
-        <translation type="unfinished">Parolni kiriting</translation>
+        <translation type="unfinished">Maxfiy so'zni kiriting</translation>
     </message>
     <message>
         <source>New passphrase</source>
-        <translation type="unfinished">Yangi parol</translation>
+        <translation type="unfinished">Yangi maxfiy so'z</translation>
     </message>
     <message>
         <source>Repeat new passphrase</source>
-        <translation type="unfinished">Yangi parolni qaytadan kirgizing</translation>
+        <translation type="unfinished">Yangi maxfiy so'zni qaytadan kirgizing</translation>
     </message>
     <message>
         <source>Show passphrase</source>
-        <translation type="unfinished">Parolni ko'rsatish</translation>
+        <translation type="unfinished">Maxfiy so'zni ko'rsatish</translation>
     </message>
     <message>
         <source>Encrypt wallet</source>
@@ -149,7 +149,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>This operation needs your wallet passphrase to unlock the wallet.</source>
-        <translation type="unfinished">Bu operatsiya uchun hamyoningiz paroli kerak bo'ladi.</translation>
+        <translation type="unfinished">Bu operatsiya hamyoningizni ochish uchun mo'ljallangan maxfiy so'zni talab qiladi.</translation>
     </message>
     <message>
         <source>Unlock wallet</source>
@@ -157,7 +157,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Change passphrase</source>
-        <translation type="unfinished">Parolni almashtirish</translation>
+        <translation type="unfinished">Maxfiy so'zni almashtirish</translation>
     </message>
     <message>
         <source>Confirm wallet encryption</source>
@@ -271,14 +271,6 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
         <translation type="unfinished">Fatal xatolik yuz berdi. Sozlamalar fayli tahrirlashga yaroqliligini tekshiring yoki -nosettings bilan davom etishga harakat qiling.</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation type="unfinished">Xatolik. Belgilangan "%1" mavjud emas.</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation type="unfinished">Xatolik. %1 ni tahlil qilish imkonsiz.</translation>
-    </message>
-    <message>
         <source>Error: %1</source>
         <translation type="unfinished">Xatolik: %1</translation>
     </message>
@@ -385,41 +377,6 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     <message>
         <source>%1 GB</source>
         <translation type="unfinished">%1 ГБ</translation>
-    </message>
-</context>
-<context>
-    <name>bitcoin-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">Sozlamalar fayli o'qishga yaroqsiz</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">Sozlamalar fayli yaratish uchun yaroqsiz</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Юклаш тайёр</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Кам миқдор</translation>
-    </message>
-    <message>
-        <source>Unable to start HTTP server. See debug log for details.</source>
-        <translation type="unfinished">HTTP serverni ishga tushirib bo'lmadi. Tafsilotlar uchun disk raskadrovka jurnaliga qarang.</translation>
-    </message>
-    <message>
-        <source>Verifying blocks…</source>
-        <translation type="unfinished">Bloklar tekshirilmoqda…</translation>
-    </message>
-    <message>
-        <source>Verifying wallet(s)…</source>
-        <translation type="unfinished">Hamyon(lar) tekshirilmoqda…</translation>
-    </message>
-    <message>
-        <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation type="unfinished">Hamyonni qayta yozish kerak: bajarish uchun 1%s ni qayta ishga tushiring</translation>
     </message>
 </context>
 <context>
@@ -531,7 +488,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Sign &amp;message…</source>
-        <translation type="unfinished">Kirish &amp;xabarlashish</translation>
+        <translation type="unfinished">Xabarni &amp;signlash...</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
@@ -539,7 +496,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
-        <translation type="unfinished">&amp;Xabarni tasdiqlash</translation>
+        <translation type="unfinished">&amp;Xabarni tasdiqlash...</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
@@ -591,15 +548,11 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Indexing blocks on disk…</source>
-        <translation type="unfinished">Diskdagi bloklarni indekslash</translation>
+        <translation type="unfinished">Diskdagi bloklarni indekslash...</translation>
     </message>
     <message>
         <source>Processing blocks on disk…</source>
-        <translation type="unfinished">Diskdagi bloklarni protsesslash</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk…</source>
-        <translation type="unfinished">Diskdagi bloklarni qayta indekslash...</translation>
+        <translation type="unfinished">Diskdagi bloklarni protsesslash...</translation>
     </message>
     <message>
         <source>Connecting to peers…</source>
@@ -607,19 +560,19 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">To'lovlarni so'rash(QR kolar va bitkoin yaratish: URL manzillar)</translation>
+        <translation type="unfinished">Тўловлар (QR кодлари ва qtum ёрдамида яратишлар: URI’лар) сўраш</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
-        <translation type="unfinished">Manzillar va yorliqlar ro'yxatini ko'rsatish</translation>
+        <translation type="unfinished">Фойдаланилган жўнатилган манзиллар ва ёрлиқлар рўйхатини кўрсатиш</translation>
     </message>
     <message>
         <source>Show the list of used receiving addresses and labels</source>
-        <translation type="unfinished">Qabul qilish manzillari va yorliqlar ro'yxatini ko'rsatish</translation>
+        <translation type="unfinished">Фойдаланилган қабул қилинган манзиллар ва ёрлиқлар рўйхатини кўрсатиш</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
-        <translation type="unfinished">&amp;Command-line sozlamalari</translation>
+        <translation type="unfinished">&amp;Буйруқлар сатри мосламалари</translation>
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
@@ -630,7 +583,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>%1 behind</source>
-        <translation type="unfinished">%1 yonida</translation>
+        <translation type="unfinished">%1 орқада</translation>
     </message>
     <message>
         <source>Catching up…</source>
@@ -638,27 +591,27 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Last received block was generated %1 ago.</source>
-        <translation type="unfinished">%1 oldin oxirgi marta blok qabul qilingan edi.</translation>
+        <translation type="unfinished">Сўнги қабул қилинган блок %1 олдин яратилган.</translation>
     </message>
     <message>
         <source>Transactions after this will not yet be visible.</source>
-        <translation type="unfinished">Shundan keyingi operatsiyalar hali ko'rinmaydi.</translation>
+        <translation type="unfinished">Бундан кейинги пул ўтказмалари кўринмайдиган бўлади.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Xatolik</translation>
+        <translation type="unfinished">Хатолик</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Eslatma</translation>
+        <translation type="unfinished">Диққат</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished">Informatsiya</translation>
+        <translation type="unfinished">Маълумот</translation>
     </message>
     <message>
         <source>Up to date</source>
-        <translation type="unfinished">Hozirgi kunda</translation>
+        <translation type="unfinished">Янгиланган</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
@@ -694,7 +647,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Open Wallet</source>
-        <translation type="unfinished">Hamyonni ochish</translation>
+        <translation type="unfinished">Ochiq hamyon</translation>
     </message>
     <message>
         <source>Open a wallet</source>
@@ -792,7 +745,8 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     <message>
         <source>Date: %1
 </source>
-        <translation type="unfinished">Sana: %1</translation>
+        <translation type="unfinished">Sana: %1
+</translation>
     </message>
     <message>
         <source>Amount: %1
@@ -834,7 +788,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>HD key generation is &lt;b&gt;enabled&lt;/b&gt;</source>
-        <translation type="unfinished">HD kalit yaratish &lt;b&gt;imkonsiz&lt;/b&gt;</translation>
+        <translation type="unfinished">HD kalit yaratish &lt;b&gt;yoqilgan&lt;/b&gt;</translation>
     </message>
     <message>
         <source>HD key generation is &lt;b&gt;disabled&lt;/b&gt;</source>
@@ -952,7 +906,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>L&amp;ock unspent</source>
-        <translation type="unfinished">Sarflanmagan miqdorlarni q&amp;ulflash</translation>
+        <translation type="unfinished">Sarflanmagan tranzaksiyalarni q&amp;ulflash</translation>
     </message>
     <message>
         <source>&amp;Unlock unspent</source>
@@ -1070,7 +1024,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     <message>
         <source>Open Wallet</source>
         <extracomment>Title of window indicating the progress of opening of a wallet.</extracomment>
-        <translation type="unfinished">Hamyonni ochish</translation>
+        <translation type="unfinished">Ochiq hamyon</translation>
     </message>
     <message>
         <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
@@ -1113,7 +1067,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Wallet</source>
-        <translation type="unfinished">Hamyon</translation>
+        <translation type="unfinished">Ҳамён</translation>
     </message>
     <message>
         <source>Encrypt the wallet. The wallet will be encrypted with a passphrase of your choice.</source>
@@ -1149,7 +1103,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Descriptor Wallet</source>
-        <translation type="unfinished">Izohlovchi hamyon</translation>
+        <translation type="unfinished">Deskriptor hamyon</translation>
     </message>
     <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
@@ -1177,39 +1131,39 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     <name>EditAddressDialog</name>
     <message>
         <source>Edit Address</source>
-        <translation type="unfinished">Manzilni tahrirlash</translation>
+        <translation type="unfinished">Манзилларни таҳрирлаш</translation>
     </message>
     <message>
         <source>&amp;Label</source>
-        <translation type="unfinished">&amp;Yorliq</translation>
+        <translation type="unfinished">&amp;Ёрлик</translation>
     </message>
     <message>
         <source>The label associated with this address list entry</source>
-        <translation type="unfinished">Bu manzillar roʻyxati yozuvi bilan bogʻlangan yorliq</translation>
+        <translation type="unfinished">Ёрлиқ ушбу манзилар рўйхати ёзуви билан боғланган</translation>
     </message>
     <message>
         <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation type="unfinished">Bu manzillar roʻyxati yozuvi bilan bogʻlangan yorliq. Bu faqat manzillarni yuborish uchun o'zgartirilishi mumkin.</translation>
+        <translation type="unfinished">Манзил ушбу манзиллар рўйхати ёзуви билан боғланган. Уни фақат жўнатиладиган манзиллар учун ўзгартирса бўлади.</translation>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation type="unfinished">&amp;Manzil</translation>
+        <translation type="unfinished">&amp;Манзил</translation>
     </message>
     <message>
         <source>New sending address</source>
-        <translation type="unfinished">Yangi jo'natish manzili</translation>
+        <translation type="unfinished">Янги жунатилувчи манзил</translation>
     </message>
     <message>
         <source>Edit receiving address</source>
-        <translation type="unfinished">Qabul qiluvchi manzilini tahrirlash</translation>
+        <translation type="unfinished">Кабул килувчи манзилни тахрирлаш</translation>
     </message>
     <message>
         <source>Edit sending address</source>
-        <translation type="unfinished">Yuboruvchi manzilini tahrirlash</translation>
+        <translation type="unfinished">Жунатилувчи манзилни тахрирлаш</translation>
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">%1 manzil Qtum da mavjud manzil emas</translation>
+        <translation type="unfinished">Киритилган "%1" манзили тўғри Qtum манзили эмас.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1221,42 +1175,38 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
-        <translation type="unfinished">Hamyonni ochish imkonsiz</translation>
+        <translation type="unfinished">Ҳамён қулфдан чиқмади.</translation>
     </message>
     <message>
         <source>New key generation failed.</source>
-        <translation type="unfinished">Yangi kalit yaratilishi amalga oshmadi.</translation>
+        <translation type="unfinished">Янги калит яратиш амалга ошмади.</translation>
     </message>
 </context>
 <context>
     <name>FreespaceChecker</name>
     <message>
         <source>A new data directory will be created.</source>
-        <translation type="unfinished">Yangi ma'lumot manzili yaratiladi.</translation>
+        <translation type="unfinished">Янги маълумотлар директорияси яратилади.</translation>
     </message>
     <message>
         <source>name</source>
-        <translation type="unfinished">nom</translation>
+        <translation type="unfinished">номи</translation>
     </message>
     <message>
         <source>Directory already exists. Add %1 if you intend to create a new directory here.</source>
-        <translation type="unfinished">Manzil allaqachon yaratilgan. %1 ni qo'shing, agar yangi manzil yaratmoqchi bo'lsangiz.</translation>
+        <translation type="unfinished">Директория аллақачон мавжуд. Агар бу ерда янги директория яратмоқчи бўлсангиз, %1 қўшинг.</translation>
     </message>
     <message>
         <source>Path already exists, and is not a directory.</source>
-        <translation type="unfinished">Ushbu manzil allaqachon egallangan.</translation>
+        <translation type="unfinished">Йўл аллақачон мавжуд. У директория эмас.</translation>
     </message>
     <message>
         <source>Cannot create data directory here.</source>
-        <translation type="unfinished">Ma'lumotlar bu yerda saqlanishi mumkin emas.</translation>
+        <translation type="unfinished">Маълумотлар директориясини бу ерда яратиб бўлмайди..</translation>
     </message>
 </context>
 <context>
     <name>Intro</name>
-    <message>
-        <source>Qtum</source>
-        <translation type="unfinished">Bitkoin</translation>
-    </message>
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
@@ -1280,7 +1230,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
-        <translation type="unfinished">Kamida %1 GB ma'lumot bu yerda saqlanadi va vaqtlar davomida o'sib boradi</translation>
+        <translation type="unfinished">Ushbu katalogda kamida  %1 GB ma'lumotlar saqlanadi va vaqt o'tishi bilan u o'sib boradi.</translation>
     </message>
     <message>
         <source>Approximately %1 GB of data will be stored in this directory.</source>
@@ -1304,15 +1254,15 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Error: Specified data directory "%1" cannot be created.</source>
-        <translation type="unfinished">Xatolik: Belgilangan %1 ma'lumotlar katalogini yaratib bo'lmaydi</translation>
+        <translation type="unfinished">Хато: кўрсатилган "%1" маълумотлар директориясини яратиб бўлмайди.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Xatolik</translation>
+        <translation type="unfinished">Хатолик</translation>
     </message>
     <message>
         <source>Welcome</source>
-        <translation type="unfinished">Xush kelibsiz</translation>
+        <translation type="unfinished">Хуш келибсиз</translation>
     </message>
     <message>
         <source>Welcome to %1.</source>
@@ -1344,18 +1294,18 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Use the default data directory</source>
-        <translation type="unfinished">Standart ma'lumotlar katalogidan foydalanish</translation>
+        <translation type="unfinished">Стандарт маълумотлар директориясидан фойдаланиш</translation>
     </message>
     <message>
         <source>Use a custom data directory:</source>
-        <translation type="unfinished">O'zingiz xohlagan ma'lumotlar katalogidan foydalanish:</translation>
+        <translation type="unfinished">Бошқа маълумотлар директориясида фойдаланинг:</translation>
     </message>
 </context>
 <context>
     <name>HelpMessageDialog</name>
     <message>
         <source>version</source>
-        <translation type="unfinished">versiya</translation>
+        <translation type="unfinished">версияси</translation>
     </message>
     <message>
         <source>About %1</source>
@@ -1363,7 +1313,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Command-line options</source>
-        <translation type="unfinished">Command-line sozlamalari</translation>
+        <translation type="unfinished">Буйруқлар сатри мосламалари</translation>
     </message>
 </context>
 <context>
@@ -1381,7 +1331,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     <name>ModalOverlay</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation type="unfinished">Шакл</translation>
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
@@ -1405,7 +1355,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Last block time</source>
-        <translation type="unfinished">Oxirgi bloklash vaqti</translation>
+        <translation type="unfinished">Сўнгги блок вақти</translation>
     </message>
     <message>
         <source>Progress</source>
@@ -1662,7 +1612,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     <name>OverviewPage</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation type="unfinished">Шакл</translation>
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
@@ -2000,7 +1950,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
-        <translation type="unfinished">Hamyonni ochish imkonsiz</translation>
+        <translation type="unfinished">Hamyonni ochish imkonsiz.</translation>
     </message>
     </context>
 <context>
@@ -2584,4 +2534,39 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
         <translation type="unfinished">Joriy yorliqdagi ma'lumotlarni faylga eksport qilish</translation>
     </message>
     </context>
+<context>
+    <name>bitcoin-core</name>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Юклаш тайёр</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Кам миқдор</translation>
+    </message>
+    <message>
+        <source>Unable to start HTTP server. See debug log for details.</source>
+        <translation type="unfinished">HTTP serverni ishga tushirib bo'lmadi. Tafsilotlar uchun disk raskadrovka jurnaliga qarang.</translation>
+    </message>
+    <message>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">Bloklar tekshirilmoqda…</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">Hamyon(lar) tekshirilmoqda…</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation type="unfinished">Hamyonni qayta yozish kerak: bajarish uchun 1%s ni qayta ishga tushiring</translation>
+    </message>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Sozlamalar fayli o'qishga yaroqsiz</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Sozlamalar fayli yaratish uchun yaroqsiz</translation>
+    </message>
+</context>
 </TS>

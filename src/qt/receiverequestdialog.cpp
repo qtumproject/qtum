@@ -15,6 +15,7 @@
 #include <qt/addresstablemodel.h>
 #include <qt/recentrequeststablemodel.h>
 #include <qt/receivecoinsdialog.h>
+#include <qt/hardwaresigntx.h>
 
 #include <QDialog>
 #include <QString>
@@ -26,7 +27,6 @@
 ReceiveRequestDialog::ReceiveRequestDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::ReceiveRequestDialog),
-    model(nullptr),
     platformStyle(_platformStyle),
     requestPaymentDialog(0)
 {
@@ -57,6 +57,8 @@ void ReceiveRequestDialog::setModel(WalletModel *_model)
 
         // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.
         ui->btnRefreshAddress->setEnabled(model->wallet().canGetAddresses());
+        ui->btnVerify->setVisible(model->wallet().privateKeysDisabled());
+        ui->btnVerify->setEnabled(model->wallet().canGetAddresses());
 
         // Enable/disable the receive button if the wallet is now able/unable to give out new addresses.
         connect(model, &WalletModel::canGetAddressesChanged, [this] {
@@ -66,6 +68,22 @@ void ReceiveRequestDialog::setModel(WalletModel *_model)
             if(getDefault && getDefaultAddress())
             {
                 update();
+            }
+            if(model->wallet().privateKeysDisabled())
+            {
+                ui->btnVerify->setVisible(canGetAddresses);
+                ui->btnVerify->setEnabled(canGetAddresses);
+            }
+        });
+
+        connect(ui->btnVerify, &QPushButton::clicked, [this] {
+            if(model->wallet().hasExternalSigner())
+            {
+                model->displayAddress(info.address.toStdString());
+            }
+            else
+            {
+                HardwareSignTx::display(this, model, info.address);
             }
         });
     }

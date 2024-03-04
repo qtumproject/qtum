@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019-2021 The Bitcoin Core developers
+# Copyright (c) 2019-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the importdescriptors RPC.
@@ -15,7 +15,9 @@ variants.
 - `test_address()` is called to call getaddressinfo for an address on node1
   and test the values returned."""
 
-from test_framework.address import key_to_p2pkh
+import concurrent.futures
+
+from test_framework.authproxy import JSONRPCException
 from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.descriptors import descsum_create
@@ -31,6 +33,9 @@ from test_framework.wallet_util import (
 
 from test_framework.qtum import convert_btc_address_to_qtum, convert_btc_bech32_address_to_qtum
 class ImportDescriptorsTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser, legacy=False)
+
     def set_test_params(self):
         self.num_nodes = 2
         self.extra_args = [["-addresstype=legacy"],
@@ -118,12 +123,11 @@ class ImportDescriptorsTest(BitcoinTestFramework):
 
         self.log.info("Internal addresses should be detected as such")
         key = get_generate_key()
-        addr = key_to_p2pkh(key.pubkey)
         self.test_importdesc({"desc": descsum_create("pkh(" + key.pubkey + ")"),
                               "timestamp": "now",
                               "internal": True},
                              success=True)
-        info = w1.getaddressinfo(addr)
+        info = w1.getaddressinfo(key.p2pkh_addr)
         assert_equal(info["ismine"], True)
         assert_equal(info["ischange"], True)
 
@@ -668,6 +672,48 @@ class ImportDescriptorsTest(BitcoinTestFramework):
                               success=True,
                               # warnings=["Unknown output type, cannot set descriptor to active."]
                               )
+
+        self.log.info("Test importing a descriptor to an encrypted wallet")
+
+        descriptor = {"desc": descsum_create("pkh(" + xpriv + "/1h/*h)"),
+                              "timestamp": "now",
+                              "active": True,
+                              "range": [0,4000],
+                              "next_index": 4000}
+
+        self.nodes[0].createwallet("temp_wallet", blank=True, descriptors=True)
+        temp_wallet = self.nodes[0].get_wallet_rpc("temp_wallet")
+        temp_wallet.importdescriptors([descriptor])
+        self.generatetoaddress(self.nodes[0], COINBASE_MATURITY + 1, temp_wallet.getnewaddress())
+        self.generatetoaddress(self.nodes[0], COINBASE_MATURITY + 1, temp_wallet.getnewaddress())
+
+        self.nodes[0].createwallet("encrypted_wallet", blank=True, descriptors=True, passphrase="passphrase")
+        encrypted_wallet = self.nodes[0].get_wallet_rpc("encrypted_wallet")
+
+        descriptor["timestamp"] = 0
+        descriptor["next_index"] = 0
+
+        encrypted_wallet.walletpassphrase("passphrase", 99999)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as thread:
+            with self.nodes[0].assert_debug_log(expected_msgs=["Rescan started from block 665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943... (slow variant inspecting all blocks)"], timeout=5):
+                importing = thread.submit(encrypted_wallet.importdescriptors, requests=[descriptor])
+
+            # Set the passphrase timeout to 1 to test that the wallet remains unlocked during the rescan
+            self.nodes[0].cli("-rpcwallet=encrypted_wallet").walletpassphrase("passphrase", 1)
+
+            try:
+                self.nodes[0].cli("-rpcwallet=encrypted_wallet").walletlock()
+            except JSONRPCException as e:
+                assert e.error["code"] == -4 and "Error: the wallet is currently being used to rescan the blockchain for related transactions. Please call `abortrescan` before locking the wallet." in e.error["message"]
+
+            try:
+                self.nodes[0].cli("-rpcwallet=encrypted_wallet").walletpassphrasechange("passphrase", "newpassphrase")
+            except JSONRPCException as e:
+                assert e.error["code"] == -4 and "Error: the wallet is currently being used to rescan the blockchain for related transactions. Please call `abortrescan` before changing the passphrase." in e.error["message"]
+
+            assert_equal(importing.result(), [{"success": True}])
+
+        assert_equal(temp_wallet.getbalance(), encrypted_wallet.getbalance())
 
 if __name__ == '__main__':
     ImportDescriptorsTest().main()

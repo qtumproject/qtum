@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2021 The Bitcoin Core developers
+# Copyright (c) 2018-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test bitcoin-wallet."""
@@ -14,11 +14,15 @@ from collections import OrderedDict
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 BUFFER_SIZE = 16 * 1024
 
 
 class ToolWalletTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.num_nodes = 1
         self.setup_clean_chain = True
@@ -34,7 +38,7 @@ class ToolWalletTest(BitcoinTestFramework):
         if not self.options.descriptors and 'create' in args:
             default_args.append('-legacy')
 
-        return subprocess.Popen([binary] + default_args + list(args), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        return subprocess.Popen([binary] + default_args + list(args), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     def assert_raises_tool_error(self, error, *args):
         p = self.bitcoin_wallet_process(*args)
@@ -396,6 +400,62 @@ class ToolWalletTest(BitcoinTestFramework):
         self.assert_raises_tool_error('Error: Checksum is not the correct size', '-wallet=badload', '-dumpfile={}'.format(bad_sum_wallet_dump), 'createfromdump')
         assert not os.path.isdir(os.path.join(self.nodes[0].datadir, "regtest/wallets", "badload"))
 
+    def test_chainless_conflicts(self):
+        self.log.info("Test wallet tool when wallet contains conflicting transactions")
+        self.restart_node(0)
+        self.generate(self.nodes[0], COINBASE_MATURITY+1)
+
+        def_wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
+
+        self.nodes[0].createwallet("conflicts")
+        wallet = self.nodes[0].get_wallet_rpc("conflicts")
+        def_wallet.sendtoaddress(wallet.getnewaddress(), 10)
+        self.generate(self.nodes[0], 1)
+
+        # parent tx
+        parent_txid = wallet.sendtoaddress(wallet.getnewaddress(), 9)
+        parent_txid_bytes = bytes.fromhex(parent_txid)[::-1]
+        conflict_utxo = wallet.gettransaction(txid=parent_txid, verbose=True)["decoded"]["vin"][0]
+
+        # The specific assertion in MarkConflicted being tested requires that the parent tx is already loaded
+        # by the time the child tx is loaded. Since transactions end up being loaded in txid order due to how both
+        # and sqlite store things, we can just grind the child tx until it has a txid that is greater than the parent's.
+        locktime = 500000000 # Use locktime as nonce, starting at unix timestamp minimum
+        addr = wallet.getnewaddress()
+        while True:
+            child_send_res = wallet.send(outputs=[{addr: 8}], options={"add_to_wallet": False, "locktime": locktime})
+            child_txid = child_send_res["txid"]
+            child_txid_bytes = bytes.fromhex(child_txid)[::-1]
+            if (child_txid_bytes > parent_txid_bytes):
+                wallet.sendrawtransaction(child_send_res["hex"])
+                break
+            locktime += 1
+
+        # conflict with parent
+        conflict_unsigned = self.nodes[0].createrawtransaction(inputs=[conflict_utxo], outputs=[{wallet.getnewaddress(): 9.8999}])
+        conflict_signed = wallet.signrawtransactionwithwallet(conflict_unsigned)["hex"]
+        conflict_txid = self.nodes[0].sendrawtransaction(conflict_signed)
+        self.generate(self.nodes[0], 1)
+        assert_equal(wallet.gettransaction(txid=parent_txid)["confirmations"], -1)
+        assert_equal(wallet.gettransaction(txid=child_txid)["confirmations"], -1)
+        assert_equal(wallet.gettransaction(txid=conflict_txid)["confirmations"], 1)
+
+        self.stop_node(0)
+
+        # Wallet tool should successfully give info for this wallet
+        expected_output = textwrap.dedent(f'''\
+            Wallet info
+            ===========
+            Name: conflicts
+            Format: {"sqlite" if self.options.descriptors else "bdb"}
+            Descriptors: {"yes" if self.options.descriptors else "no"}
+            Encrypted: no
+            HD (hd seed available): yes
+            Keypool Size: {"10" if self.options.descriptors else "1"}
+            Transactions: 4
+            Address Book: 4
+        ''')
+        self.assert_tool_output(expected_output, "-wallet=conflicts", "info")
 
     def run_test(self):
         self.wallet_path = os.path.join(self.nodes[0].datadir, self.chain, 'wallets', self.default_wallet_name, self.wallet_data_filename)
@@ -409,6 +469,7 @@ class ToolWalletTest(BitcoinTestFramework):
             # Salvage is a legacy wallet only thing
             self.test_salvage()
         self.test_dump_createfromdump()
+        self.test_chainless_conflicts()
 
 if __name__ == '__main__':
     ToolWalletTest().main()

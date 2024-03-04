@@ -8,6 +8,7 @@ from test_framework.blocktools import (
     COINBASE_MATURITY,
 )
 from test_framework.address import (
+    address_to_scriptpubkey,
     script_to_p2sh,
 )
 from test_framework.key import ECKey
@@ -34,11 +35,18 @@ from test_framework.wallet import (
 )
 
 from test_framework.qtum import convert_btc_address_to_qtum
+from test_framework.wallet import MiniWallet
 
 class SignRawTransactionWithKeyTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def send_to_address(self, addr, amount):
         input = {"txid": self.nodes[0].getblock(self.block_hash[self.blk_idx])["tx"][0], "vout": 0}
@@ -84,7 +92,7 @@ class SignRawTransactionWithKeyTest(BitcoinTestFramework):
         eckey.generate()
         embedded_privkey = bytes_to_wif(eckey.get_bytes())
         embedded_pubkey = eckey.get_pubkey().get_bytes().hex()
-        self.nodes[1].createwallet(wallet_name="multisig")
+        self.wallet = MiniWallet(self.nodes[0])
         p2sh_p2wsh_address = self.nodes[1].createmultisig(1, [embedded_pubkey], "p2sh-segwit")
         # send transaction to P2SH-P2WSH 1-of-1 multisig address
         self.block_hash = self.generate(self.nodes[0], COINBASE_MATURITY + 1)
@@ -120,7 +128,7 @@ class SignRawTransactionWithKeyTest(BitcoinTestFramework):
         }.get(tx_type, "Invalid tx_type")
         redeem_script = script_to_p2wsh_script(witness_script).hex()
         addr = script_to_p2sh(redeem_script)
-        script_pub_key = self.nodes[1].validateaddress(addr)['scriptPubKey']
+        script_pub_key = address_to_scriptpubkey(addr).hex()
         # Fund that address
         txid = self.send_to_address(addr, 10)
         vout = find_vout_for_address(self.nodes[0], txid, addr)

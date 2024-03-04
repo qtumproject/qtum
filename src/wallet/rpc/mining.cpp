@@ -8,6 +8,7 @@
 #include <node/miner.h>
 #include <pow.h>
 #include <warnings.h>
+#include <chainparams.h>
 
 #include <univalue.h>
 

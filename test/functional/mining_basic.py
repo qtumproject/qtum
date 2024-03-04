@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2021 The Bitcoin Core developers
+# Copyright (c) 2014-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test mining RPCs
@@ -47,12 +47,17 @@ def assert_template(node, block, expect, rehash=True):
 
 
 class MiningTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.num_nodes = 2
         self.setup_clean_chain = True
         self.supports_cli = False
         self.requires_wallet = True 
-        
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def mine_chain(self):
         self.log.info('Create some old blocks')
@@ -116,7 +121,6 @@ class MiningTest(BitcoinTestFramework):
         assert 'proposal' in tmpl['capabilities']
         assert 'coinbasetxn' not in tmpl
 
-        next_height = int(tmpl["height"])
         next_height = int(tmpl["height"])
         coinbase_tx = create_coinbase(height=next_height)
         # sequence numbers must not be max for nLockTime to have effect
@@ -199,9 +203,10 @@ class MiningTest(BitcoinTestFramework):
         bad_block.hashMerkleRoot += 1
         assert_template(node, bad_block, 'bad-txnmrklroot', False)
         assert_submitblock(bad_block, 'bad-txnmrklroot', 'bad-txnmrklroot')
+
         #self.log.info("getblocktemplate: Test bad timestamps")
         #bad_block = copy.deepcopy(block)
-        #bad_block.nTime = 2**31 - 1
+        #bad_block.nTime = 2**32 - 1
         #assert_template(node, bad_block, 'time-too-new')
         #assert_submitblock(bad_block, 'time-too-new', 'time-too-new')
         #bad_block.nTime = 0
@@ -257,6 +262,7 @@ class MiningTest(BitcoinTestFramework):
         bad_block2.hashPrevBlock = bad_block_lock.sha256
         bad_block2.solve()
         assert_raises_rpc_error(-25, 'bad-prevblk', lambda: node.submitheader(hexdata=CBlockHeader(bad_block2).serialize().hex()))
+
         # Should reject invalid header right away, only applies to PoS blocks in qtum.
         #bad_block_time = copy.deepcopy(block)
         #bad_block_time.nTime = 1

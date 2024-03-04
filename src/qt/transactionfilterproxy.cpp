@@ -11,13 +11,10 @@
 #include <cstdlib>
 #include <optional>
 
-TransactionFilterProxy::TransactionFilterProxy(QObject *parent) :
-    QSortFilterProxyModel(parent),
-    m_search_string(),
-    typeFilter(ALL_TYPES),
-    watchOnlyFilter(WatchOnlyFilter_All),
-    minAmount(0),
-    showInactive(true)
+TransactionFilterProxy::TransactionFilterProxy(QObject* parent)
+    : QSortFilterProxyModel(parent),
+      m_search_string(),
+      typeFilter(ALL_TYPES)
 {
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020-2021 The Bitcoin Core developers
+# Copyright (c) 2020-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test indices in conjunction with prune."""
@@ -61,7 +61,7 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
         for node in filter_nodes:
             assert_greater_than(len(node.getblockfilter(tip)['filter']), 0)
         for node in stats_nodes:
-            assert(node.gettxoutsetinfo(hash_type="muhash", hash_or_height=tip)['muhash'])
+            assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=tip)['muhash']
 
         self.mine_batches(1000)
         self.sync_index(height=3100)
@@ -78,14 +78,14 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
         for node in filter_nodes:
             assert_greater_than(len(node.getblockfilter(tip)['filter']), 0)
         for node in stats_nodes:
-            assert(node.gettxoutsetinfo(hash_type="muhash", hash_or_height=tip)['muhash'])
+            assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=tip)['muhash']
 
         self.log.info("check if we can access the blockfilter and coinstats of a pruned block")
         height_hash = self.nodes[0].getblockhash(2)
         for node in filter_nodes:
             assert_greater_than(len(node.getblockfilter(height_hash)['filter']), 0)
         for node in stats_nodes:
-            assert(node.gettxoutsetinfo(hash_type="muhash", hash_or_height=height_hash)['muhash'])
+            assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=height_hash)['muhash']
 
         # mine and sync index up to a height that will later be the pruneheight
         self.generate(self.nodes[0], 51)
@@ -136,6 +136,7 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
             self.connect_nodes(i, 3)
         
         self.sync_blocks(timeout=300)
+        self.sync_index(height=6900)
 
         for node in self.nodes[:2]:
             with node.assert_debug_log(['limited pruning to height 6889']):

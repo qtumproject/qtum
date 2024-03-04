@@ -1,9 +1,9 @@
-24.1 Release Notes
+25.1 Release Notes
 ==================
 
-Bitcoin Core version 24.1 is now available from:
+Bitcoin Core version 25.1 is now available from:
 
-  <https://bitcoincore.org/bin/bitcoin-core-24.1/>
+  <https://bitcoincore.org/bin/bitcoin-core-25.1/>
 
 This release includes various bug fixes and performance
 improvements, as well as updated translations.
@@ -37,63 +37,72 @@ Core should also work on most other Unix-like systems but is not as
 frequently tested on them.  It is not recommended to use Bitcoin Core on
 unsupported systems.
 
+Notable changes
+===============
+
 ### P2P
 
-- #26878 I2P network optimizations
-- #26909 net: prevent peers.dat corruptions by only serializing once
-- #27608 p2p: Avoid prematurely clearing download state for other peers
-- #27610 Improve performance of p2p inv to send queues
+- #27626 Parallel compact block downloads, take 3
+- #27743 p2p: Unconditionally return when compact block status == READ_STATUS_FAILED
 
-### RPC and other APIs
+### Fees
 
-- #26515 rpc: Require NodeStateStats object in getpeerinfo
-- #27279 doc: fix/improve warning helps in {create,load,unload,restore}wallet
-- #27468 rest: avoid segfault for invalid URI
+- #27622 Fee estimation: avoid serving stale fee estimate
 
-### Build System
+### RPC
 
-- #26944 depends: fix systemtap download URL
-- #27462 depends: fix compiling bdb with clang-16 on aarch64
+- #27727 rpc: Fix invalid bech32 address handling
+
+### Rest
+
+- #27853 rest: fix crash error when calling /deploymentinfo
+- #28551 http: bugfix: allow server shutdown in case of remote client disconnection
 
 ### Wallet
 
-- #26595 wallet: be able to specify a wallet name and passphrase to migratewallet
-- #26675 wallet: For feebump, ignore abandoned descendant spends
-- #26679 wallet: Skip rescanning if wallet is more recent than tip
-- #26761 wallet: fully migrate address book entries for watchonly/solvable wallets
-- #27053 wallet: reuse change dest when re-creating TX with avoidpartialspends
-- #27080 wallet: Zero out wallet master key upon locking so it doesn't persist in memory
-- #27473 wallet: Properly handle "unknown" Address Type
+- #28038 wallet: address book migration bug fixes
+- #28067 descriptors: do not return top-level only funcs as sub descriptors
+- #28125 wallet: bugfix, disallow migration of invalid scripts
+- #28542 wallet: Check for uninitialized last processed and conflicting heights in MarkConflicted
 
-### GUI changes
+### Build
 
-- gui#687 Load PSBTs using istreambuf_iterator rather than istream_iterator
-- gui#704 Correctly limit overview transaction list
+- #27724 build: disable boost multi index safe mode in debug mode
+- #28097 depends: xcb-proto 1.15.2
+- #28543 build, macos: Fix qt package build with new Xcode 15 linker
+- #28571 depends: fix unusable memory_resource in macos qt build
+
+### Gui
+
+- gui#751 macOS, do not process actions during shutdown
 
 ### Miscellaneous
 
-- #26880 ci: replace Intel macOS CI job
-- #26924 refactor: Add missing includes to fix gcc-13 compile error
+- #28452 Do not use std::vector = {} to release memory
+
+### CI
+
+- #27777 ci: Prune dangling images on RESTART_CI_DOCKER_BEFORE_RUN
+- #27834 ci: Nuke Android APK task, Use credits for tsan
+- #27844 ci: Use podman stop over podman kill
+- #27886 ci: Switch to amd64 container in "ARM" task
 
 Credits
 =======
 
 Thanks to everyone who directly contributed to this release:
 
+- Abubakar Sadiq Ismail
 - Andrew Chow
-- Anthony Towns
+- Bruno Garcia
+- Gregory Sanders
 - Hennadii Stepanov
-- John Moffett
-- Jon Atack
-- Marco Falke
-- Martin Zumsande
-- Matthew Zipkin
+- MacroFake
+- Matias Furszyfer
 - Michael Ford
-- pablomartin4btc
-- Sebastian Falbesoner
-- Suhas Daftuar
-- Thomas Nguyen
-- Vasil Dimov
+- Pieter Wuille
+- stickies-v
+- Will Clark
 
 As well as to everyone that helped with translations on
 [Transifex](https://www.transifex.com/bitcoin/bitcoin/).

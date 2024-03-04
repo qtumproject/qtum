@@ -22,6 +22,8 @@ $(package)_patches += rcc_hardcode_timestamp.patch
 $(package)_patches += duplicate_lcqpafonts.patch
 $(package)_patches += fast_fixed_dtoa_no_optimize.patch
 $(package)_patches += guix_cross_lib_path.patch
+$(package)_patches += fix-macos-linker.patch
+$(package)_patches += memory_resource.patch
 
 $(package)_qttranslations_file_name=qttranslations-$($(package)_suffix)
 $(package)_qttranslations_sha256_hash=c92af4171397a0ed272330b4fa0669790fcac8d050b07c8b8cc565ebeba6735e
@@ -33,6 +35,7 @@ $(package)_extra_sources  = $($(package)_qttranslations_file_name)
 $(package)_extra_sources += $($(package)_qttools_file_name)
 
 define $(package)_set_vars
+$(package)_config_env = QT_MAC_SDK_NO_VERSION_CHECK=1
 $(package)_config_opts_release = -release
 $(package)_config_opts_release += -silent
 $(package)_config_opts_debug = -debug
@@ -159,9 +162,15 @@ $(package)_config_opts_linux += -dbus-runtime
 ifneq ($(LTO),)
 $(package)_config_opts_linux += -ltcg
 endif
-$(package)_config_opts_linux += -platform linux-g++ -xplatform bitcoin-linux-g++
-ifneq (,$(findstring -stdlib=libc++,$($(1)_cxx)))
-$(package)_config_opts_x86_64_linux = -xplatform linux-clang-libc++
+
+ifneq (,$(findstring clang,$($(package)_cxx)))
+  ifneq (,$(findstring -stdlib=libc++,$($(package)_cxx)))
+    $(package)_config_opts_linux += -platform linux-clang-libc++ -xplatform linux-clang-libc++
+  else
+    $(package)_config_opts_linux += -platform linux-clang -xplatform linux-clang
+  endif
+else
+  $(package)_config_opts_linux += -platform linux-g++ -xplatform bitcoin-linux-g++
 endif
 
 $(package)_config_opts_mingw32 = -no-opengl
@@ -230,6 +239,7 @@ endef
 define $(package)_preprocess_cmds
   cp $($(package)_patch_dir)/qt.pro qt.pro && \
   cp $($(package)_patch_dir)/qttools_src.pro qttools/src/src.pro && \
+  patch -p1 -i $($(package)_patch_dir)/fix-macos-linker.patch && \
   patch -p1 -i $($(package)_patch_dir)/dont_hardcode_pwd.patch && \
   patch -p1 -i $($(package)_patch_dir)/fix_qt_pkgconfig.patch && \
   patch -p1 -i $($(package)_patch_dir)/fix_android_jni_static.patch && \
@@ -238,6 +248,7 @@ define $(package)_preprocess_cmds
   patch -p1 -i $($(package)_patch_dir)/qtbase-moc-ignore-gcc-macro.patch && \
   patch -p1 -i $($(package)_patch_dir)/fix_montery_include.patch && \
   patch -p1 -i $($(package)_patch_dir)/use_android_ndk23.patch && \
+  patch -p1 -i $($(package)_patch_dir)/memory_resource.patch && \
   patch -p1 -i $($(package)_patch_dir)/rcc_hardcode_timestamp.patch && \
   patch -p1 -i $($(package)_patch_dir)/duplicate_lcqpafonts.patch && \
   patch -p1 -i $($(package)_patch_dir)/fast_fixed_dtoa_no_optimize.patch && \
@@ -260,9 +271,6 @@ define $(package)_preprocess_cmds
 endef
 
 define $(package)_config_cmds
-  export PKG_CONFIG_SYSROOT_DIR=/ && \
-  export PKG_CONFIG_LIBDIR=$(host_prefix)/lib/pkgconfig && \
-  export QT_MAC_SDK_NO_VERSION_CHECK=1 && \
   cd qtbase && \
   ./configure -top-level $($(package)_config_opts)
 endef

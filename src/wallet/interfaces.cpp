@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2021 The Bitcoin Core developers
+// Copyright (c) 2018-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -18,10 +18,11 @@
 #include <util/system.h>
 #include <util/translation.h>
 #include <util/ui_change_type.h>
+#include <wallet/coincontrol.h>
 #include <wallet/context.h>
 #include <wallet/feebumper.h>
 #include <wallet/fees.h>
-#include <wallet/ismine.h>
+#include <wallet/types.h>
 #include <wallet/load.h>
 #include <wallet/receive.h>
 #include <wallet/rpc/wallet.h>
@@ -40,7 +41,7 @@
 using interfaces::Chain;
 using interfaces::FoundBlock;
 using interfaces::Handler;
-using interfaces::MakeHandler;
+using interfaces::MakeSignalHandler;
 using interfaces::Wallet;
 using interfaces::WalletAddress;
 using interfaces::WalletBalances;
@@ -415,7 +416,7 @@ public:
         }
         return false;
     };
-    bool setAddressBook(const CTxDestination& dest, const std::string& name, const std::string& purpose) override
+    bool setAddressBook(const CTxDestination& dest, const std::string& name, const std::optional<AddressPurpose>& purpose) override
     {
         return m_wallet->SetAddressBook(dest, name, purpose);
     }
@@ -426,7 +427,7 @@ public:
     bool getAddress(const CTxDestination& dest,
         std::string* name,
         isminetype* is_mine,
-        std::string* purpose) override
+        AddressPurpose* purpose) override
     {
         LOCK(m_wallet->cs_wallet);
         const auto& entry = m_wallet->FindAddressBookEntry(dest, /*allow_change=*/false);
@@ -434,11 +435,16 @@ public:
         if (name) {
             *name = entry->GetLabel();
         }
+        std::optional<isminetype> dest_is_mine;
+        if (is_mine || purpose) {
+            dest_is_mine = m_wallet->IsMine(dest);
+        }
         if (is_mine) {
-            *is_mine = m_wallet->IsMine(dest);
+            *is_mine = *dest_is_mine;
         }
         if (purpose) {
-            *purpose = entry->purpose;
+            // In very old wallets, address purpose may not be recorded so we derive it from IsMine
+            *purpose = entry->purpose.value_or(*dest_is_mine ? AddressPurpose::RECEIVE : AddressPurpose::SEND);
         }
         return true;
     }
@@ -446,9 +452,11 @@ public:
     {
         LOCK(m_wallet->cs_wallet);
         std::vector<WalletAddress> result;
-        m_wallet->ForEachAddrBookEntry([&](const CTxDestination& dest, const std::string& label, const std::string& purpose, bool is_change) EXCLUSIVE_LOCKS_REQUIRED(m_wallet->cs_wallet) {
+        m_wallet->ForEachAddrBookEntry([&](const CTxDestination& dest, const std::string& label, bool is_change, const std::optional<AddressPurpose>& purpose) EXCLUSIVE_LOCKS_REQUIRED(m_wallet->cs_wallet) {
             if (is_change) return;
-            result.emplace_back(dest, m_wallet->IsMine(dest), label, purpose);
+            isminetype is_mine = m_wallet->IsMine(dest);
+            // In very old wallets, address purpose may not be recorded so we derive it from IsMine
+            result.emplace_back(dest, is_mine, purpose.value_or(is_mine ? AddressPurpose::RECEIVE : AddressPurpose::SEND), label);
         });
         return result;
     }
@@ -528,7 +536,8 @@ public:
         CAmount& new_fee,
         CMutableTransaction& mtx) override
     {
-        return feebumper::CreateRateBumpTransaction(*m_wallet.get(), txid, coin_control, errors, old_fee, new_fee, mtx, /* require_mine= */ true) == feebumper::Result::OK;
+        std::vector<CTxOut> outputs; // just an empty list of new recipients for now
+        return feebumper::CreateRateBumpTransaction(*m_wallet.get(), txid, coin_control, errors, old_fee, new_fee, mtx, /* require_mine= */ true, outputs) == feebumper::Result::OK;
     }
     bool signBumpTransaction(CMutableTransaction& mtx) override { return feebumper::SignTransaction(*m_wallet.get(), mtx); }
     bool commitBumpTransaction(const uint256& txid,
@@ -641,7 +650,24 @@ public:
     CAmount getBalance() override { return GetBalance(*m_wallet).m_mine_trusted; }
     CAmount getAvailableBalance(const CCoinControl& coin_control) override
     {
-        return GetAvailableBalance(*m_wallet, &coin_control);
+        LOCK(m_wallet->cs_wallet);
+        CAmount total_amount = 0;
+        // Fetch selected coins total amount
+        if (coin_control.HasSelected()) {
+            FastRandomContext rng{};
+            CoinSelectionParams params(rng);
+            // Note: for now, swallow any error.
+            if (auto res = FetchSelectedInputs(*m_wallet, coin_control, params)) {
+                total_amount += res->total_amount;
+            }
+        }
+
+        // And fetch the wallet available coins
+        if (coin_control.m_allow_other_inputs) {
+            total_amount += AvailableCoins(*m_wallet, &coin_control).GetTotalAmount();
+        }
+
+        return total_amount;
     }
     isminetype txinIsMine(const CTxIn& txin) override
     {
@@ -703,7 +729,7 @@ public:
             // Get the user created addresses in from the address book and add them if they are mine
             for (const auto& item : m_wallet->m_address_book) {
                 if(!m_wallet->IsMine(item.first)) continue;
-                if(item.second.purpose != "receive") continue;
+                if(item.second.purpose != AddressPurpose::RECEIVE) continue;
                 if(item.second.destdata.size() == 0) continue;
 
                 std::string strAddress = EncodeDestination(item.first);
@@ -715,7 +741,9 @@ public:
             }
 
             // Get all coins including the 0 values
-            vecOutputs = AvailableCoinsListUnspent(*m_wallet, nullptr, 0).All();
+            CoinFilterParams params;
+            params.min_amount = 0;
+            vecOutputs = AvailableCoinsListUnspent(*m_wallet, nullptr, params).All();
         }
         else
         {
@@ -809,11 +837,12 @@ public:
         auto spk_man = m_wallet->GetScriptPubKeyMan(OutputType::BECH32M, /*internal=*/false);
         return spk_man != nullptr;
     }
+    bool hasDescriptors() override { return m_wallet->IsWalletFlagSet(WALLET_FLAG_DESCRIPTORS); }
     OutputType getDefaultAddressType() override { return m_wallet->m_default_address_type; }
     CAmount getDefaultMaxTxFee() override { return m_wallet->m_default_max_tx_fee; }
     void remove() override
     {
-        RemoveWallet(m_context, m_wallet, false /* load_on_start */);
+        RemoveWallet(m_context, m_wallet, /*load_on_start=*/false);
     }
     bool isLegacy() override { return m_wallet->IsLegacy(); }
     bool addTokenEntry(const TokenInfo &token) override
@@ -1472,66 +1501,71 @@ public:
         LOCK(m_wallet->cs_wallet);
         return m_wallet->m_ledger_id;
     }
+    bool getHDKeyPath(const CTxDestination& dest, std::string& hdkeypath) override
+    {
+        LOCK(m_wallet->cs_wallet);
+        return m_wallet->GetHDKeyPath(dest, hdkeypath);
+    }
     std::unique_ptr<Handler> handleUnload(UnloadFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyUnload.connect(fn));
+        return MakeSignalHandler(m_wallet->NotifyUnload.connect(fn));
     }
     std::unique_ptr<Handler> handleShowProgress(ShowProgressFn fn) override
     {
-        return MakeHandler(m_wallet->ShowProgress.connect(fn));
+        return MakeSignalHandler(m_wallet->ShowProgress.connect(fn));
     }
     std::unique_ptr<Handler> handleStatusChanged(StatusChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyStatusChanged.connect([fn](CWallet*) { fn(); }));
+        return MakeSignalHandler(m_wallet->NotifyStatusChanged.connect([fn](CWallet*) { fn(); }));
     }
     std::unique_ptr<Handler> handleAddressBookChanged(AddressBookChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyAddressBookChanged.connect(
+        return MakeSignalHandler(m_wallet->NotifyAddressBookChanged.connect(
             [fn](const CTxDestination& address, const std::string& label, bool is_mine,
-                 const std::string& purpose, ChangeType status) { fn(address, label, is_mine, purpose, status); }));
+                 AddressPurpose purpose, ChangeType status) { fn(address, label, is_mine, purpose, status); }));
     }
     std::unique_ptr<Handler> handleTransactionChanged(TransactionChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyTransactionChanged.connect(
+        return MakeSignalHandler(m_wallet->NotifyTransactionChanged.connect(
             [fn](const uint256& txid, ChangeType status) { fn(txid, status); }));
     }
     std::unique_ptr<Handler> handleTokenTransactionChanged(TokenTransactionChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyTokenTransactionChanged.connect(
+        return MakeSignalHandler(m_wallet->NotifyTokenTransactionChanged.connect(
             [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
     std::unique_ptr<Handler> handleTokenChanged(TokenChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyTokenChanged.connect(
+        return MakeSignalHandler(m_wallet->NotifyTokenChanged.connect(
             [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
     std::unique_ptr<Handler> handleWatchOnlyChanged(WatchOnlyChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyWatchonlyChanged.connect(fn));
+        return MakeSignalHandler(m_wallet->NotifyWatchonlyChanged.connect(fn));
     }
     std::unique_ptr<Handler> handleCanGetAddressesChanged(CanGetAddressesChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyCanGetAddressesChanged.connect(fn));
+        return MakeSignalHandler(m_wallet->NotifyCanGetAddressesChanged.connect(fn));
     }
     std::unique_ptr<Handler> handleContractBookChanged(ContractBookChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyContractBookChanged.connect(
+        return MakeSignalHandler(m_wallet->NotifyContractBookChanged.connect(
             [fn](CWallet*, const std::string& address, const std::string& label,
                 const std::string& abi, ChangeType status) { fn(address, label, abi, status); }));
     }
     std::unique_ptr<Handler> handleDelegationChanged(DelegationChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyDelegationChanged.connect(
+        return MakeSignalHandler(m_wallet->NotifyDelegationChanged.connect(
             [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
     std::unique_ptr<Handler> handleSuperStakerChanged(SuperStakerChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifySuperStakerChanged.connect(
+        return MakeSignalHandler(m_wallet->NotifySuperStakerChanged.connect(
             [fn](CWallet*, const uint256& id, ChangeType status) { fn(id, status); }));
     }
     std::unique_ptr<Handler> handleDelegationsStakerChanged(DelegationsStakerChangedFn fn) override
     {
-        return MakeHandler(m_wallet->NotifyDelegationsStakerChanged.connect(
+        return MakeSignalHandler(m_wallet->NotifyDelegationsStakerChanged.connect(
             [fn](CWallet*, const uint160& id, ChangeType status) { fn(id, status); }));
     }
     CWallet* wallet() override { return m_wallet.get(); }

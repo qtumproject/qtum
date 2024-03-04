@@ -84,7 +84,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">우클릭하여 주소나 상표 수정하기</translation>
+        <translation type="unfinished">우클릭하여 주소 혹은 라벨 수정하기</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -313,6 +313,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>지갑의 비밀번호가 성공적으로 수정되었습니다.</translation>
     </message>
     <message>
+        <source>Passphrase change failed</source>
+        <translation type="unfinished">암호 변경에 실패하였습니다.</translation>
         <source>Warning: The Caps Lock key is on!</source>
         <translation>경고: Cap Lock 키가 활성화되어 있습니다</translation>
     </message>
@@ -637,6 +639,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">지갑 정보</translation>
     </message>
     <message>
+        <source>Load Wallet Backup</source>
+        <extracomment>The title for Restore Wallet File Windows</extracomment>
+        <translation type="unfinished">백업된 지갑 불러오기</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">지갑 복원하기</translation>
+    </message>
+    <message>
         <source>Wallet Name</source>
         <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
         <translation type="unfinished">지갑 이름</translation>
@@ -746,10 +758,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">디스크에서 블록 처리 중...</translation>
     </message>
     <message>
-        <source>Reindexing blocks on disk…</source>
-        <translation type="unfinished">디스크에서 블록 다시 색인 중...</translation>
-    </message>
-    <message>
         <source>Connecting to peers…</source>
         <translation type="unfinished">피어에 연결 중...</translation>
     </message>
@@ -770,10 +778,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation>파일에서 PSBT 불러오기(&amp;L)</translation>
-    </message>
-    <message>
-        <source>Load Partially Signed Qtum Transaction</source>
-        <translation>부분적으로 서명된 QTUM 트랜잭션 불러오기</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -1231,10 +1235,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">복사</translation>
     </message>
     <message>
-        <source>Delete the currently selected contract info from the list</source>
-        <translation type="unfinished">리스트에서 선택된 컨트랙트 정보 삭제</translation>
-    </message>
-    <message>
         <source>Delete</source>
         <translation type="unfinished">삭제</translation>
     </message>
@@ -1625,10 +1625,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Optional fields are not present:
-%1</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>%n GB of space available</source>
+        <translation type="unfinished">
+            <numerusform>%nGB의 가용 공간</numerusform>
+        </translation>
     </message>
     <message>
         <source>Parse error: unbalanced &apos; or &quot;</source>
@@ -1718,7 +1719,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
-            <numerusform />
+            <numerusform>%nGB의 가용 공간</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -2020,10 +2021,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <source>&amp;External signer script path</source>
         <translation type="unfinished">외부 서명자 스크립트 경로
  </translation>
-    </message>
-    <message>
-        <source>Full path to a Qtum Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
-        <translation type="unfinished">QTUM 코어 호환 스크립트의 전체 경로 (예: C:\Downloads\whi.exe 또는 /Users/you/Downloads/hwi.py). 주의: 악성 프로그램이 코인을 훔칠 수 있습니다!</translation>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
@@ -2392,10 +2389,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
 <context>
     <name>PSBTOperationsDialog</name>
     <message>
-        <source>Dialog</source>
-        <translation>다이얼로그</translation>
-    </message>
-    <message>
         <source>Sign Tx</source>
         <translation>거래 서명</translation>
     </message>
@@ -2630,10 +2623,6 @@ BIP70의 광범위한 보안 결함으로 인해 모든 가맹점에서는 지�
         <translation type="unfinished">라우팅할 수 없습니다.</translation>
     </message>
     <message>
-        <source>Internal</source>
-        <translation type="unfinished">내부</translation>
-    </message>
-    <message>
         <source>Inbound</source>
         <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
         <translation>인바운드</translation>
@@ -2749,14 +2738,6 @@ BIP70의 광범위한 보안 결함으로 인해 모든 가맹점에서는 지�
         <source>A fatal error occurred. Check that settings file is writable, or try running with -nosettings.</source>
         <extracomment>Explanatory text shown on startup when the settings file could not be written. Prompts user to check that we have the ability to write to the file. Explains that the user has the option of running without a settings file.</extracomment>
         <translation type="unfinished">심각한 문제가 발생하였습니다. 세팅 파일이 작성가능한지 확인하거나 세팅없이 실행을 시도해보세요.</translation>
-    </message>
-    <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation>오류: 지정한 데이터 폴더 "%1"은 존재하지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation>오류: 설성 파일 %1을 파싱할 수 없습니다</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -3046,14 +3027,6 @@ BIP70의 광범위한 보안 결함으로 인해 모든 가맹점에서는 지�
     <message>
         <source>Services</source>
         <translation>서비스</translation>
-    </message>
-    <message>
-        <source>Whether the peer requested us to relay transactions.</source>
-        <translation type="unfinished">피어가 트랜잭션 중계를 요청했는지 여부.</translation>
-    </message>
-    <message>
-        <source>Wants Tx Relay</source>
-        <translation type="unfinished">Tx 릴레이를 원합니다</translation>
     </message>
     <message>
         <source>High bandwidth BIP152 compact block relay: %1</source>
@@ -3864,6 +3837,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>PSBT saved</source>
+        <extracomment>Popup message when a PSBT has been saved to a file</extracomment>
         <translation>PSBT 저장됨</translation>
     </message>
     <message>
@@ -5243,6 +5217,14 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
 </context>
 <context>
+    <name>RestoreWalletActivity</name>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">지갑 복원하기</translation>
+    </message>
+</context>
+<context>
     <name>WalletController</name>
     <message>
         <source>Close wallet</source>
@@ -5423,20 +5405,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">Qtum Core</translation>
     </message>
     <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">설정 파일을 읽을 수 없습니다</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">설정파일이 쓰여지지 않았습니다.</translation>
-    </message>
-    <message>
         <source>The %s developers</source>
         <translation type="unfinished">%s 개발자</translation>
-    </message>
-    <message>
-        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
-        <translation type="unfinished">-maxtxfee 매우 높은 금액을 설정하셨습니다. 한번의 거래에 지불해야 하는 수수료 액수입니다. </translation>
     </message>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
@@ -5499,20 +5469,12 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>%s가 손상되었습니다. '비트 코인-지갑'을 사용하여 백업을 구제하거나 복원하십시오.</translation>
     </message>
     <message>
-        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
-        <translation>유효하지 않은 금액 -maxtxfee=&lt;amount&gt;: '%s' (거래가 막히는 상황을 방지하게 위해 적어도 %s 의 중계 수수료를 지정해야 합니다)</translation>
-    </message>
-    <message>
         <source>Invalid or corrupt peers.dat (%s). If you believe this is a bug, please report it to %s. As a workaround, you can move the file (%s) out of the way (rename, move, or delete) to have a new one created on the next start.</source>
         <translation type="unfinished">유효하지 않거나 손상된 peers.dat(%s). 만약 이게 버그인 경우에, %s이쪽으로 리포트해주세요.  새로 만들어서 시작하기 위한 해결방법으로 %s파일을 옮길 수 있습니다. (이름 재설정, 파일 옮기기 혹은 삭제).</translation>
     </message>
     <message>
         <source>The transaction amount is too small to send after the fee has been deducted</source>
         <translation>거래액이 수수료를 지불하기엔 너무 작습니다</translation>
-    </message>
-    <message>
-        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
-        <translation type="unfinished">수수료 예측 실패. 예비용 수수료 예측(fallbackfee)이 비활성화되어 있습니다. 블록 생성을 대기하거나 -fallbackfee 를 통해 예비용 수수료 예측 기능을 활성화하세요. </translation>
     </message>
     <message>
         <source>File %s already exists. If you are sure this is what you want, move it out of the way first.</source>
@@ -5777,14 +5739,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">-%s 에 대한 무효한 금액 =&lt;amount&gt;: &apos;%s&apos;</translation>
     </message>
     <message>
-        <source>Invalid amount for -discardfee=&lt;amount&gt;: &apos;%s&apos;</source>
-        <translation type="unfinished">-discardfee에 대한 무효한 금액=&lt;amount&gt;: &apos;%s&apos;</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: &apos;%s&apos;</source>
-        <translation type="unfinished">-fallbackfee 의 무효 액수 =&lt;amount&gt;: &apos;%s&apos;</translation>
-    </message>
-    <message>
         <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
         <translation>에스큐엘라이트 데이터베이스 : 데이터베이스를 확인하는 실행문 출력을 실패하였습니다 : %s.</translation>
     </message>
@@ -5795,10 +5749,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
         <translation>에스큐엘라이트 데이터베이스 : 예상 못한 어플리케이션 아이디. 예정: %u, 받음: %u</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -paytxfee=&lt;amount&gt;: &apos;%s&apos; (must be at least %s)</source>
-        <translation type="unfinished">-paytxfee에 대한 무효한 금액 =&lt;amount&gt;: &apos;%s&apos; (최저 금액 %s)</translation>
     </message>
     <message>
         <source>Invalid amount for -reservebalance=&lt;amount&gt;</source>
@@ -6007,6 +5957,14 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Warning</source>
         <translation type="unfinished">경고</translation>
+    </message>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">설정 파일을 읽을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">설정파일이 쓰여지지 않았습니다.</translation>
     </message>
 </context>
 </TS>
