@@ -3,8 +3,11 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test logic for limiting mempool and package ancestors/descendants."""
+from decimal import Decimal
+
 from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.messages import (
+    COIN,
     WITNESS_SCALE_FACTOR,
 )
 from test_framework.test_framework import BitcoinTestFramework
@@ -290,7 +293,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         node = self.nodes[0]
         parent_utxos = []
         target_vsize = 30_000
-        high_fee = 1000 * target_vsize  # 10 sats/vB
+        high_fee = Decimal("0.3")  # 10 sats/vB
         target_weight = target_vsize * WITNESS_SCALE_FACTOR
         self.log.info("Check that in-mempool and in-package ancestor size limits are calculated properly in packages")
         # Mempool transactions A and B
@@ -300,7 +303,7 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
             parent_utxos.append(bulked_tx["new_utxo"])
 
         # Package transaction C
-        pc_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_utxos, fee_per_output=high_fee, target_weight=target_weight)
+        pc_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_utxos, fee_per_output=int(high_fee * COIN), target_weight=target_weight)
 
         # Package transaction D
         pd_tx = self.wallet.create_self_transfer(utxo_to_spend=pc_tx["new_utxos"][0], target_weight=target_weight, fee=high_fee)
@@ -321,11 +324,11 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         """
         node = self.nodes[0]
         target_vsize = 21_000
-        high_fee = 1000 * target_vsize  # 10 sats/vB
+        high_fee = Decimal("0.21")  # 10 sats/vB
         target_weight = target_vsize * WITNESS_SCALE_FACTOR
         self.log.info("Check that in-mempool and in-package descendant sizes are calculated properly in packages")
         # Top parent in mempool, Ma
-        ma_tx = self.wallet.create_self_transfer_multi(num_outputs=2, fee_per_output=high_fee // 2, target_weight=target_weight)
+        ma_tx = self.wallet.create_self_transfer_multi(num_outputs=2, fee_per_output=int(high_fee / 2 * COIN) // 2, target_weight=target_weight)
         self.wallet.sendrawtransaction(from_node=node, tx_hex=ma_tx["hex"])
 
         package_hex = []
