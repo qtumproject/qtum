@@ -86,6 +86,13 @@ CTxDestination DecodeDestination(const std::string& str, const CChainParams& par
     // Note this will be false if it is a valid Bech32 address for a different network
     bool is_bech32 = (ToLower(str.substr(0, params.Bech32HRP().size())) == params.Bech32HRP());
 
+    // Decode bech32 address
+    if(is_bech32)
+    {
+        // There are valid PKH addresses that start with Qc, so make sure it is not a valid PKH address
+        is_bech32 = !DecodeBase58Check(str, data, 21);
+    }
+
     if (!is_bech32 && DecodeBase58Check(str, data, 21)) {
         // base58-encoded Bitcoin addresses.
         // Public-key-hash-addresses have version 0 (or 111 testnet).
