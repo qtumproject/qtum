@@ -1,5 +1,6 @@
 #include <qtum/storageresults.h>
 #include <util/convert.h>
+#include <logging.h>
 
 StorageResults::StorageResults(std::string const& _path){
 	path = _path + "/resultsDB";

@@ -383,7 +383,10 @@ BITCOIN_CORE_H = \
   zmq/zmqrpc.h \
   zmq/zmqutil.h \
   qtum/posutils.h \
+  qtum/qtumstate.h \
   qtum/qtumtransaction.h \
+  qtum/qtumDGP.h \
+  qtum/storageresults.h \
   qtum/qtumutils.h \
   qtum/qtumtoken.h \
   qtum/qtumledger.h \
@@ -489,6 +492,8 @@ libbitcoin_node_a_SOURCES = \
   validation.cpp \
   validationinterface.cpp \
   versionbits.cpp \
+  qtum/qtumstate.cpp \
+  qtum/storageresults.cpp \
   qtum/qtumledger.cpp \
   $(BITCOIN_CORE_H)
 
@@ -733,6 +738,7 @@ libbitcoin_common_a_SOURCES = \
   script/solver.cpp \
   warnings.cpp \
   qtum/qtumutils.cpp \
+  qtum/qtumDGP.cpp \
   qtum/qtumtoken.cpp \
   qtum/delegationutils.cpp \
   util/contractabi.cpp \

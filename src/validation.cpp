@@ -11,6 +11,7 @@
 
 #include <arith_uint256.h>
 #include <chain.h>
+#include <chainparams.h>
 #include <checkqueue.h>
 #include <clientversion.h>
 #include <consensus/amount.h>
@@ -31,6 +32,7 @@
 #include <logging/timer.h>
 #include <node/blockstorage.h>
 #include <node/utxo_snapshot.h>
+#include <node/transaction.h>
 #include <policy/policy.h>
 #include <policy/rbf.h>
 #include <policy/settings.h>
@@ -42,6 +44,7 @@
 #include <script/script.h>
 #include <script/sigcache.h>
 #include <signet.h>
+#include <timedata.h>
 #include <tinyformat.h>
 #include <txdb.h>
 #include <txmempool.h>
@@ -61,6 +64,11 @@
 #include <validationinterface.h>
 #include <warnings.h>
 
+#include <libethcore/ABI.h>
+#include <univalue.h>
+#include <util/signstr.h>
+#include <qtum/qtumutils.h>
+
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -70,6 +78,7 @@
 #include <string>
 #include <tuple>
 #include <utility>
+#include <fstream>
 
 using kernel::CCoinsStats;
 using kernel::CoinStatsHashType;
@@ -105,6 +114,12 @@ const std::vector<std::string> CHECKLEVEL_DOC {
  * */
 static constexpr int PRUNE_LOCK_BUFFER{10};
 
+std::unique_ptr<QtumState> globalState;
+std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
+std::unique_ptr<StorageResults> pstorageresult;
+bool fRecordLogOpcodes = false;
+bool fIsVMlogFile = false;
+bool fGettingValuesDGP = false;
 std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
 
 GlobalMutex g_best_block_mutex;
@@ -2150,6 +2165,10 @@ static SteadyClock::duration time_undo{};
 static SteadyClock::duration time_index{};
 static SteadyClock::duration time_total{};
 static int64_t num_blocks_total = 0;
+
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount){
+    return {};
+}
 
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
@@ -6034,6 +6053,40 @@ std::pair<int, int> ChainstateManager::GetPruneRange(const Chainstate& chainstat
     int prune_end = std::min(last_height_can_prune, max_prune);
 
     return {prune_start, prune_end};
+}
+
+////////////////////////////////////////////////////////////////////////////////// // qtum
+bool GetAddressIndex(uint256 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, node::BlockManager& blockman, int start, int end)
+{
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    if (!blockman.m_block_tree_db->ReadAddressIndex(addressHash, type, addressIndex, start, end))
+        return error("unable to get txids for address");
+
+    return true;
+}
+
+bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs, node::BlockManager& blockman)
+{
+    if (!fAddressIndex)
+        return error("address index not enabled");
+
+    if (!blockman.m_block_tree_db->ReadAddressUnspentIndex(addressHash, type, unspentOutputs))
+        return error("unable to get txids for address");
+
+    return true;
+}
+
+bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes, ChainstateManager& chainman)
+{
+    if (!fAddressIndex)
+        return error("Timestamp index not enabled");
+
+    if (!chainman.m_blockman.m_block_tree_db->ReadTimestampIndex(high, low, fActiveOnly, hashes, chainman))
+        return error("Unable to get hashes for timestamps");
+
+    return true;
 }
 
 CAmount GetTxGasFee(const CMutableTransaction& _tx, const CTxMemPool& mempool, Chainstate& active_chainstate)

@@ -3,7 +3,7 @@
 #include <libethereum/State.h>
 #include <libethereum/Transaction.h>
 #include <leveldb/db.h>
-#include <util/system.h>
+#include <common/system.h>
 
 using logEntriesSerialize = std::vector<std::pair<dev::Address, std::pair<dev::h256s, dev::bytes>>>;
 

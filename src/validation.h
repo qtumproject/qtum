@@ -47,6 +47,30 @@
 #include <utility>
 #include <vector>
 
+#include <consensus/consensus.h>
+
+/////////////////////////////////////////// qtum
+#include <qtum/qtumstate.h>
+#include <qtum/qtumDGP.h>
+#include <libethereum/ChainParams.h>
+#include <libethereum/LastBlockHashesFace.h>
+#include <libethashseal/GenesisInfo.h>
+#include <script/solver.h>
+#include <qtum/storageresults.h>
+
+
+extern std::unique_ptr<QtumState> globalState;
+extern std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
+extern std::unique_ptr<StorageResults> pstorageresult;
+extern bool fRecordLogOpcodes;
+extern bool fIsVMlogFile;
+extern bool fGettingValuesDGP;
+
+struct EthTransactionParams;
+using valtype = std::vector<unsigned char>;
+using ExtractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
+///////////////////////////////////////////
+
 class Chainstate;
 class CTxMemPool;
 class ChainstateManager;
@@ -362,6 +386,16 @@ static_assert(std::is_nothrow_destructible_v<CScriptCheck>);
 /** Initializes the script-execution cache */
 [[nodiscard]] bool InitScriptExecutionCache(size_t max_size_bytes);
 
+///////////////////////////////////////////////////////////////// // qtum
+bool GetAddressIndex(uint256 addressHash, int type,
+                     std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, node::BlockManager& blockman,
+                     int start = 0, int end = 0);
+
+bool GetAddressUnspent(uint256 addressHash, int type,
+                       std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs, node::BlockManager& blockman);
+
+bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes, ChainstateManager& chainman);
+
 std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman);
 /////////////////////////////////////////////////////////////////
 
@@ -412,6 +446,8 @@ public:
         int nCheckLevel,
         int nCheckDepth) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 };
+
+std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
 
 enum DisconnectResult
 {
