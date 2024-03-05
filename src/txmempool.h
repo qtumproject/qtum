@@ -279,11 +279,64 @@ public:
     }
 };
 
+class CompareTxMemPoolEntryByAncestorFeeOrGasPrice
+{
+public:
+    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b) const
+    {
+        int fAHasCreateOrCall = a.GetTx().GetCreateOrCall();
+        int fBHasCreateOrCall = b.GetTx().GetCreateOrCall();
+
+        // If either of the two entries that we are comparing has a contract scriptPubKey, the comparison here takes precedence
+        if(fAHasCreateOrCall || fBHasCreateOrCall) {
+            // Prioritze non-contract txs
+            if((fAHasCreateOrCall > CTransaction::OpNone) != (fBHasCreateOrCall > CTransaction::OpNone)) {
+                return fAHasCreateOrCall > CTransaction::OpNone ? false : true;
+            }
+
+            // Prioritze create contract txs over send to contract txs
+            if((fAHasCreateOrCall > CTransaction::OpNone) && (fBHasCreateOrCall > CTransaction::OpNone) &&
+                    (fAHasCreateOrCall != fBHasCreateOrCall) && (fAHasCreateOrCall == CTransaction::OpCall || fBHasCreateOrCall == CTransaction::OpCall)){
+                return fAHasCreateOrCall == CTransaction::OpCall ? false : true;
+            }
+
+            // Prioritize the contract txs that have the least number of ancestors
+            // The reason for this is that otherwise it is possible to send one tx with a
+            // high gas limit but a low gas price which has a child with a low gas limit but a high gas price
+            // Without this condition that transaction chain would get priority in being included into the block.
+            if(a.GetCountWithAncestors() != b.GetCountWithAncestors()) {
+                return a.GetCountWithAncestors() < b.GetCountWithAncestors();
+            }
+
+            // Otherwise, prioritize the contract tx with the highest (minimum among its outputs) gas price
+            // The reason for using the gas price of the output that sets the minimum gas price is that there
+            // otherwise it may be possible to game the prioritization by setting a large gas price in one output
+            // that does no execution, while the real execution has a very low gas price
+            if(a.GetMinGasPrice() != b.GetMinGasPrice()) {
+                return a.GetMinGasPrice() > b.GetMinGasPrice();
+            }
+
+            // Otherwise, prioritize the tx with the minimum size
+            if(a.GetTxSize() != b.GetTxSize()) {
+                return a.GetTxSize() < b.GetTxSize();
+            }
+
+            // If the txs are identical in their minimum gas prices and tx size
+            // order based on the tx hash for consistency.
+            return a.GetTx().GetHash() < b.GetTx().GetHash();
+        }
+
+        // If neither of the txs we are comparing are contract txs, use the standard comparison based on ancestor fees / ancestor size
+        return CompareTxMemPoolEntryByAncestorFee()(a, b);
+    }
+};
+
 // Multi_index tag names
 struct descendant_score {};
 struct entry_time {};
 struct ancestor_score {};
 struct index_by_wtxid {};
+struct ancestor_score_or_gas_price {};
 
 class CBlockPolicyEstimator;
 
@@ -440,6 +493,12 @@ public:
                 boost::multi_index::tag<ancestor_score>,
                 boost::multi_index::identity<CTxMemPoolEntry>,
                 CompareTxMemPoolEntryByAncestorFee
+            >,
+            // sorted by fee rate with gas price (if contract tx) or ancestors otherwise
+            boost::multi_index::ordered_non_unique<
+                boost::multi_index::tag<ancestor_score_or_gas_price>,
+                boost::multi_index::identity<CTxMemPoolEntry>,
+                CompareTxMemPoolEntryByAncestorFeeOrGasPrice
             >
         >
     > indexed_transaction_set;
@@ -485,6 +544,19 @@ public:
 private:
     typedef std::map<txiter, setEntries, CompareIteratorByHash> cacheMap;
 
+    //////////////////////////////////////////////////////////////// // qtum
+    typedef std::map<CMempoolAddressDeltaKey, CMempoolAddressDelta, CMempoolAddressDeltaKeyCompare> addressDeltaMap;
+    addressDeltaMap mapAddress;
+
+    typedef std::map<uint256, std::vector<CMempoolAddressDeltaKey> > addressDeltaMapInserted;
+    addressDeltaMapInserted mapAddressInserted;
+
+    typedef std::map<CSpentIndexKey, CSpentIndexValue, CSpentIndexKeyCompare> mapSpentIndex;
+    mapSpentIndex mapSpent;
+
+    typedef std::map<uint256, std::vector<CSpentIndexKey> > mapSpentIndexInserted;
+    mapSpentIndexInserted mapSpentInserted;
+    ////////////////////////////////////////////////////////////////
 
     void UpdateParent(txiter entry, txiter parent, bool add) EXCLUSIVE_LOCKS_REQUIRED(cs);
     void UpdateChild(txiter entry, txiter child, bool add) EXCLUSIVE_LOCKS_REQUIRED(cs);
@@ -556,6 +628,17 @@ public:
     // lack of CValidationInterface::TransactionAddedToMempool callbacks).
     void addUnchecked(const CTxMemPoolEntry& entry, bool validFeeEstimate = true) EXCLUSIVE_LOCKS_REQUIRED(cs, cs_main);
     void addUnchecked(const CTxMemPoolEntry& entry, setEntries& setAncestors, bool validFeeEstimate = true) EXCLUSIVE_LOCKS_REQUIRED(cs, cs_main);
+
+    ///////////////////////////////////////////////////////// // qtum
+    void addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view);
+    bool getAddressIndex(std::vector<std::pair<uint256, int> > &addresses,
+                         std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> > &results);
+    bool removeAddressIndex(const uint256 txhash);
+
+    void addSpentIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view);
+    bool getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) const;
+    bool removeSpentIndex(const uint256 txhash);
+    /////////////////////////////////////////////////////////
 
     void removeRecursive(const CTransaction& tx, MemPoolRemovalReason reason) EXCLUSIVE_LOCKS_REQUIRED(cs);
     /** After reorg, filter the entries that would no longer be valid in the next block, and update
@@ -767,6 +850,13 @@ public:
         return (mapTx.count(gtxid.GetHash()) != 0);
     }
 
+    bool exists(const COutPoint& outpoint) const
+    {
+        LOCK(cs);
+        auto it = mapTx.find(outpoint.hash);
+        return (it != mapTx.end() && outpoint.n < it->GetTx().vout.size());
+    }
+
     CTransactionRef get(const uint256& hash) const;
     txiter get_iter_from_wtxid(const uint256& wtxid) const EXCLUSIVE_LOCKS_REQUIRED(cs)
     {
@@ -923,6 +1013,7 @@ public:
     /** GetCoin, returning whether it exists and is not spent. Also updates m_non_base_coins if the
      * coin is not fetched from base. */
     bool GetCoin(const COutPoint &outpoint, Coin &coin) const override;
+    bool HaveCoin(const COutPoint &outpoint) const override;
     /** Add the coins created by this transaction. These coins are only temporarily stored in
      * m_temp_added and cannot be flushed to the back end. Only used for package validation. */
     void PackageAddTransaction(const CTransactionRef& tx);

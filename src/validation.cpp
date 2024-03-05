@@ -6067,6 +6067,20 @@ bool GetAddressIndex(uint256 addressHash, int type, std::vector<std::pair<CAddre
     return true;
 }
 
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool, node::BlockManager& blockman)
+{
+    if (!fAddressIndex)
+        return false;
+
+    if (mempool.getSpentIndex(key, value))
+        return true;
+
+    if (!blockman.m_block_tree_db->ReadSpentIndex(key, value))
+        return false;
+
+    return true;
+}
+
 bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs, node::BlockManager& blockman)
 {
     if (!fAddressIndex)

@@ -391,6 +391,8 @@ bool GetAddressIndex(uint256 addressHash, int type,
                      std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex, node::BlockManager& blockman,
                      int start = 0, int end = 0);
 
+bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value, const CTxMemPool& mempool, node::BlockManager& blockman);
+
 bool GetAddressUnspent(uint256 addressHash, int type,
                        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs, node::BlockManager& blockman);
 
