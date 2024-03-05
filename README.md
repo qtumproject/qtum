@@ -207,9 +207,8 @@ Then install [Homebrew](https://brew.sh).
 
 #### Dependencies
 
-    brew install cmake automake berkeley-db@4 libtool boost@1.76 miniupnpc openssl pkg-config protobuf qt@5 libevent imagemagick librsvg qrencode gmp
+    brew install cmake automake berkeley-db@4 libtool boost miniupnpc openssl pkg-config protobuf qt@5 libevent imagemagick librsvg qrencode gmp
 
-After installing all dependencies, make sure to run "brew link boost@1.76"
 NOTE: This will work for building on Intel Macs and Apple Silicon Macs
 
 NOTE: Building with Qt4 is still supported, however, could result in a broken UI. Building with Qt5 is recommended.
