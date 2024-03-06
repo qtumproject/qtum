@@ -167,3 +167,8 @@ CScript GetScriptForDestination(const CTxDestination& dest)
 bool IsValidDestination(const CTxDestination& dest) {
     return std::visit(ValidDestinationVisitor(), dest);
 }
+
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK)
+{
+    return {};
+}

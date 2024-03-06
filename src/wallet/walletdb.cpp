@@ -632,15 +632,15 @@ static DBErrors LoadLegacyWalletRecords(CWallet* pwallet, DatabaseBatch& batch, 
                 }
 
                 // Extract the index and internal from the path
-                // Path string is m/0'/k'/i'
-                // Path vector is [0', k', i'] (but as ints OR'd with the hardened bit
+                // Path string is m/88'/k'/i'
+                // Path vector is [88', k', i'] (but as ints OR'd with the hardened bit
                 // k == 0 for external, 1 for internal. i is the index
                 if (path.size() != 3) {
                     strErr = "Error reading wallet database: keymeta found with unexpected path";
                     return DBErrors::NONCRITICAL_ERROR;
                 }
-                if (path[0] != 0x80000000) {
-                    strErr = strprintf("Unexpected path index of 0x%08x (expected 0x80000000) for the element at index 0", path[0]);
+                if (path[0] != 0x80000058) {
+                    strErr = strprintf("Unexpected path index of 0x%08x (expected 0x80000058) for the element at index 0", path[0]);
                     return DBErrors::NONCRITICAL_ERROR;
                 }
                 if (path[1] != 0x80000000 && path[1] != (1 | 0x80000000)) {

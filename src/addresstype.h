@@ -150,4 +150,6 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
  */
 CScript GetScriptForDestination(const CTxDestination& dest);
 
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK = nullptr);
+
 #endif // BITCOIN_ADDRESSTYPE_H

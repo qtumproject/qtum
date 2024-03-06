@@ -51,6 +51,8 @@
 #include <validation.h>
 #include <validationinterface.h>
 #include <warnings.h>
+#include <qtum/qtumdelegation.h>
+#include <qtum/qtumDGP.h>
 
 #if defined(HAVE_CONFIG_H)
 #include <config/bitcoin-config.h>
@@ -361,6 +363,13 @@ public:
     }
     void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
     {
+        LOCK(::cs_main);
+
+        QtumDGP qtumDGP(globalState.get(), chainman().ActiveChainstate(), fGettingValuesDGP);
+        int numBlocks = chainman().ActiveChain().Height();
+        blockGasLimit = qtumDGP.getBlockGasLimit(numBlocks);
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(numBlocks));
+        nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     }
     void getSyncInfo(int& numBlocks, bool& isSyncing) override
     {
@@ -394,11 +403,13 @@ public:
     }
     uint64_t getNetworkStakeWeight() override
     {
-        return {};
+        LOCK(::cs_main);
+        return GetPoSKernelPS(chainman());
     }
     double getEstimatedAnnualROI() override
     {
-        return {};
+        LOCK(::cs_main);
+        return GetEstimatedAnnualROI(chainman());
     }
     int64_t getMoneySupply() override
     {
@@ -407,7 +418,7 @@ public:
     }
     double getPoSKernelPS() override
     {
-        return {};
+        return GetPoSKernelPS(chainman());
     }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
@@ -945,11 +956,12 @@ public:
 #endif
     bool getDelegation(const uint160& address, Delegation& delegation) override
     {
-        return {};
+        QtumDelegation qtumDelegation;
+        return qtumDelegation.ExistDelegationContract() ? qtumDelegation.GetDelegation(address, delegation, chainman().ActiveChainstate()) : false;
     }
     bool verifyDelegation(const uint160& address, const Delegation& delegation) override
     {
-        return {};
+        return QtumDelegation::VerifyDelegation(address, delegation);
     }
 
     NodeContext& m_node;
