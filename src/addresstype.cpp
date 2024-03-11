@@ -172,3 +172,7 @@ PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK)
 {
     return {};
 }
+
+bool IsValidContractSenderAddress(const CTxDestination& dest) {
+    return {};
+}

@@ -150,6 +150,19 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
  */
 CScript GetScriptForDestination(const CTxDestination& dest);
 
+enum addresstype
+{
+    PUBKEYHASH = 1,
+    SCRIPTHASH = 2,
+    WITNESSSCRIPTHASH = 3,
+    WITNESSPUBKEYHASH = 4,
+    WITNESSTAPROOT = 5,
+    NONSTANDARD = 6
+};
+
+/** Check whether a CTxDestination can be used as contract sender address. */
+bool IsValidContractSenderAddress(const CTxDestination& dest);
+
 PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK = nullptr);
 
 #endif // BITCOIN_ADDRESSTYPE_H
