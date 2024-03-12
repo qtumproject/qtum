@@ -12,6 +12,7 @@
 
 #include <variant>
 #include <algorithm>
+enum class TxoutType;
 
 class CNoDestination
 {
@@ -141,7 +142,7 @@ bool IsValidDestination(const CTxDestination& dest);
  * Returns true for standard destinations with addresses - P2PKH, P2SH, P2WPKH, P2WSH, P2TR and P2W??? scripts.
  * Returns false for non-standard destinations and those without addresses - P2PK, bare multisig, null data, and nonstandard scripts.
  */
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet);
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL);
 
 /**
  * Generate a Bitcoin scriptPubKey for the given CTxDestination. Returns a P2PKH
@@ -149,6 +150,8 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
  * script for CNoDestination.
  */
 CScript GetScriptForDestination(const CTxDestination& dest);
+
+inline bool operator!=(const CTxDestination& lhs, const CTxDestination& rhs){ return !(lhs == rhs); }
 
 enum addresstype
 {

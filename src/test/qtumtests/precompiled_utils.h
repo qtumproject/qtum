@@ -103,8 +103,7 @@ private:
     do {\
         std::string name = #contract;\
         PrecompiledTester tester(name, params, blockNumber);\
-        std::string jsondata = std::string(json_tests::data, json_tests::data + sizeof(json_tests::data));\
-        tester.performTests(jsondata);\
+        tester.performTests(json_tests::data);\
     } while(false)
 
 #endif // QTUMTESTS_PRECOMPILED_UTILS_H

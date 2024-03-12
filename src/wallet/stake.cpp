@@ -4,6 +4,7 @@
 #include <qtum/qtumledger.h>
 #include <pos.h>
 #include <key_io.h>
+#include <common/args.h>
 
 namespace wallet {
 

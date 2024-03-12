@@ -23,6 +23,10 @@
 #include <timedata.h>
 #include <util/moneystr.h>
 #include <validation.h>
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <wallet/receive.h>
+#endif
 
 #include <algorithm>
 #include <utility>
@@ -428,4 +432,26 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         nDescendantsUpdated += UpdatePackagesForAdded(mempool, ancestors, mapModifiedTx);
     }
 }
+
+bool CanStake()
+{
+    bool canStake = gArgs.GetBoolArg("-staking", DEFAULT_STAKE);
+
+    if(canStake)
+    {
+        // Signet is for creating PoW blocks by an authorized signer
+        canStake = !Params().GetConsensus().signet_blocks;
+    }
+
+    return canStake;
+}
+
+#ifdef ENABLE_WALLET
+void StakeQtums(bool fStake, wallet::CWallet *pwallet)
+{
+}
+void RefreshDelegates(wallet::CWallet *pwallet, bool refreshMyDelegates, bool refreshStakerDelegates)
+{
+}
+#endif
 } // namespace node

@@ -16,7 +16,8 @@
 #include <consensus/consensus.h>
 #include <util/signstr.h>
 #include <qtum/qtumdelegation.h>
-#include <script/standard.h>
+#include <script/solver.h>
+#include <logging.h>
 
 using namespace std;
 
@@ -37,9 +38,9 @@ uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kerne
     if (!pindexPrev)
         return uint256();  // genesis block's modifier is 0
 
-    CDataStream ss(SER_GETHASH, 0);
+    CHashWriter ss(0);
     ss << kernel << pindexPrev->nStakeModifier;
-    return Hash(ss);
+    return ss.GetHash();
 }
 
 // BlackCoin kernel protocol
@@ -87,10 +88,10 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     uint256 nStakeModifier = pindexPrev->nStakeModifier;
 
     // Calculate hash
-    CDataStream ss(SER_GETHASH, 0);
+    CHashWriter ss(0);
     ss << nStakeModifier;
     ss << blockFromTime << prevout.hash << prevout.n << nTimeBlock;
-    hashProofOfStake = Hash(ss);
+    hashProofOfStake = ss.GetHash();
 
     if (fPrintProofOfStake)
     {

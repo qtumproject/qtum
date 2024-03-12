@@ -26,6 +26,9 @@ class CChainParams;
 class CScript;
 class Chainstate;
 class ChainstateManager;
+#ifdef ENABLE_WALLET
+namespace wallet { class CWallet; };
+#endif
 
 namespace Consensus { struct Params; };
 
@@ -238,6 +241,12 @@ private:
     void SortForBlock(const CTxMemPool::setEntries& package, std::vector<CTxMemPool::txiter>& sortedEntries);
 };
 
+#ifdef ENABLE_WALLET
+/** Generate a new block, without valid proof-of-work */
+void StakeQtums(bool fStake, wallet::CWallet *pwallet);
+void RefreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates);
+#endif
+
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev);
 
 /** Update an old GenerateCoinbaseCommitment from CreateNewBlock after the block txs have changed */
@@ -245,6 +254,9 @@ void RegenerateCommitments(CBlock& block, ChainstateManager& chainman);
 
 /** Apply -blockmintxfee and -blockmaxweight options from ArgsManager to BlockAssembler options. */
 void ApplyArgsManOptions(const ArgsManager& gArgs, BlockAssembler::Options& options);
+
+/** Check if staking is enabled */
+bool CanStake();
 } // namespace node
 
 #endif // BITCOIN_NODE_MINER_H

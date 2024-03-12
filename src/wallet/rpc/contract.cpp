@@ -4,7 +4,7 @@
 #include <rpc/server.h>
 #include <rpc/contract_util.h>
 #include <util/moneystr.h>
-#include <util/system.h>
+#include <common/system.h>
 #include <util/signstr.h>
 #include <util/tokenstr.h>
 #include <wallet/rpc/util.h>
@@ -15,6 +15,7 @@
 #include <qtum/qtumdelegation.h>
 #include <validation.h>
 #include <wallet/rpc/contract.h>
+#include <common/args.h>
 
 #include <univalue.h>
 
@@ -318,7 +319,7 @@ RPCHelpMan createcontract()
     // Create and send the transaction
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, 0, false};
+    CRecipient recipient = {CNoDestination(scriptPubKey), 0, false};
     vecSend.push_back(recipient);
 
     bool sign = !fPsbt;
@@ -580,7 +581,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
     // Create and send the transaction
     std::vector<CRecipient> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nAmount, false};
+    CRecipient recipient = {CNoDestination(scriptPubKey), nAmount, false};
     vecSend.push_back(recipient);
 
     bool sign = !fPsbt;

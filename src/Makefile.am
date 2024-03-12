@@ -256,6 +256,7 @@ BITCOIN_CORE_H = \
   policy/rbf.h \
   policy/settings.h \
   pow.h \
+  pos.h \
   protocol.h \
   psbt.h \
   random.h \
@@ -273,6 +274,7 @@ BITCOIN_CORE_H = \
   rpc/server.h \
   rpc/server_util.h \
   rpc/util.h \
+  rpc/contract_util.h \
   scheduler.h \
   script/descriptor.h \
   script/keyorigin.h \
@@ -365,6 +367,8 @@ BITCOIN_CORE_H = \
   wallet/rpc/util.h \
   wallet/rpc/wallet.h \
   wallet/rpc/addresses.h \
+  wallet/rpc/contract.h \
+  wallet/rpc/mining.h \
   wallet/salvage.h \
   wallet/scriptpubkeyman.h \
   wallet/spend.h \
@@ -375,6 +379,7 @@ BITCOIN_CORE_H = \
   wallet/walletdb.h \
   wallet/wallettool.h \
   wallet/walletutil.h \
+  wallet/stake.h \
   walletinitinterface.h \
   warnings.h \
   zmq/zmqabstractnotifier.h \
@@ -499,7 +504,10 @@ libbitcoin_node_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
-libbitcoin_node_a_SOURCES += wallet/init.cpp
+libbitcoin_node_a_SOURCES += wallet/init.cpp \
+  wallet/stake.cpp \
+  wallet/rpc/contract.cpp \
+  wallet/rpc/mining.cpp
 libbitcoin_node_a_CPPFLAGS += $(BDB_CPPFLAGS)
 endif
 if !ENABLE_WALLET
@@ -727,10 +735,12 @@ libbitcoin_common_a_SOURCES = \
   policy/policy.cpp \
   protocol.cpp \
   psbt.cpp \
+  pos.cpp \
   rpc/external_signer.cpp \
   rpc/rawtransaction_util.cpp \
   rpc/request.cpp \
   rpc/util.cpp \
+  rpc/contract_util.cpp \
   scheduler.cpp \
   script/descriptor.cpp \
   script/miniscript.cpp \
