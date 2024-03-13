@@ -88,7 +88,7 @@ public:
 	//! \details The default implementation returns <tt>PreimageBound() - 1</tt>.
 	virtual Integer MaxPreimage() const {return --PreimageBound();}
 	//! \brief Returns the maximum size of a message after the trapdoor function is applied bound to a public key
-	//! \returns the the maximum size of a message after the trapdoor function is applied bound to a public key
+	//! \returns the maximum size of a message after the trapdoor function is applied bound to a public key
 	//! \details The default implementation returns <tt>ImageBound() - 1</tt>.
 	virtual Integer MaxImage() const {return --ImageBound();}
 };
@@ -671,7 +671,7 @@ public:
 	//! \brief Generate and apply mask
 	//! \param hash HashTransformation derived class
 	//! \param output the destination byte array
-	//! \param outputLength the size fo the the destination byte array
+	//! \param outputLength the size fo the destination byte array
 	//! \param input the message to hash
 	//! \param inputLength the size of the message
 	//! \param mask flag indicating whether to apply the mask
@@ -682,7 +682,7 @@ public:
 //! \brief P1363 mask generation function
 //! \param hash HashTransformation derived class
 //! \param output the destination byte array
-//! \param outputLength the size fo the the destination byte array
+//! \param outputLength the size fo the destination byte array
 //! \param input the message to hash
 //! \param inputLength the size of the message
 //! \param derivationParams additional derivation parameters

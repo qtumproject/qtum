@@ -294,7 +294,7 @@ public:
 	//! \brief Calculates the greatest common denominator in the ring
 	//! \param a the first element
 	//! \param b the second element
-	//! \returns the the greatest common denominator of a and b.
+	//! \returns the greatest common denominator of a and b.
 	virtual const Element& Gcd(const Element &a, const Element &b) const;
 
 protected:
