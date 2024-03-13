@@ -73,7 +73,7 @@ public:
     // returns schedule for the fork active at the given block
     // may include additional individually activated EIPs on top of the last fork block
     EVMSchedule const& scheduleForBlockNumber(u256 const& _blockNumber) const;
-    // returns schedule according to the the fork rules active at the given block
+    // returns schedule according to the fork rules active at the given block
     // doesn't include additional individually activated EIPs
     EVMSchedule const& forkScheduleForBlockNumber(u256 const& _blockNumber) const;
     u256 blockReward(EVMSchedule const& _schedule) const;

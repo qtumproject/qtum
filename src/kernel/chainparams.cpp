@@ -679,7 +679,7 @@ public:
     explicit CUnitTestParams(const RegTestOptions& opts)
     : CRegTestParams(opts)
     {
-        // Activate the the BIPs for regtest as in Bitcoin
+        // Activate the BIPs for regtest as in Bitcoin
         consensus.BIP34Height = 100000000; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests)
         consensus.BIP34Hash = uint256();
         consensus.BIP65Height = consensus.nBlocktimeDownscaleFactor*500 + 851; // BIP65 activated on regtest (Used in rpc activation tests)

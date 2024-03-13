@@ -102,7 +102,7 @@ The following are some of the targets provided by the GNU makefile.
 
 `make cryptest.exe` builds the library test harness.
 
-`make test` and `make check` are the same recipe and invoke the test harness with the the validation option. That is, it executes `cryptest.exe v`.
+`make test` and `make check` are the same recipe and invoke the test harness with the validation option. That is, it executes `cryptest.exe v`.
 
 `make install` installs the library. By default, the makefile copies into `/usr/local` by default.
 

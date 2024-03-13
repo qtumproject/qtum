@@ -190,7 +190,7 @@ public:
 	const Integer& SubPrime() const {return q;}
 
 	//! \brief Retrieve the generator
-	//! \returns Generator() returns the the generator g.
+	//! \returns Generator() returns the generator g.
 	const Integer& Generator() const {return g;}
 
 private:
