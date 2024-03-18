@@ -268,6 +268,9 @@ public:
 
     explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool);
     explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, const Options& options);
+#ifdef ENABLE_WALLET
+    explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, wallet::CWallet *pwallet);
+#endif
 
 ///////////////////////////////////////////// // qtum
     ByteCodeExecResult bceResult;
@@ -305,7 +308,7 @@ private:
     /** Add transactions based on feerate including unconfirmed ancestors
       * Increments nPackagesSelected / nDescendantsUpdated with corresponding
       * statistics from the package selection (for logging statistics). */
-    void addPackageTxs(const CTxMemPool& mempool, int& nPackagesSelected, int& nDescendantsUpdated) EXCLUSIVE_LOCKS_REQUIRED(mempool.cs);
+    void addPackageTxs(const CTxMemPool& mempool, int& nPackagesSelected, int& nDescendantsUpdated, uint64_t minGasPrice, CBlock* pblock) EXCLUSIVE_LOCKS_REQUIRED(mempool.cs);
 
     /** Rebuild the coinbase/coinstake transaction to account for new gas refunds **/
     void RebuildRefundTransaction(CBlock* pblock);
