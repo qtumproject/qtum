@@ -9,10 +9,13 @@
 #include <script/script.h>
 #include <uint256.h>
 #include <util/hash_type.h>
+#include <primitives/transaction.h>
 
 #include <variant>
 #include <algorithm>
 enum class TxoutType;
+
+typedef std::vector<unsigned char> valtype;
 
 class CNoDestination
 {
@@ -142,7 +145,7 @@ bool IsValidDestination(const CTxDestination& dest);
  * Returns true for standard destinations with addresses - P2PKH, P2SH, P2WPKH, P2WSH, P2TR and P2W??? scripts.
  * Returns false for non-standard destinations and those without addresses - P2PK, bare multisig, null data, and nonstandard scripts.
  */
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL);
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL, bool convertPublicKeyToHash = false);
 
 /**
  * Generate a Bitcoin scriptPubKey for the given CTxDestination. Returns a P2PKH
@@ -167,5 +170,19 @@ enum addresstype
 bool IsValidContractSenderAddress(const CTxDestination& dest);
 
 PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK = nullptr);
+
+struct DataVisitor
+{
+    valtype operator()(const CNoDestination& noDest) const;
+    valtype operator()(const PKHash& keyID) const;
+    valtype operator()(const PubKeyDestination& pubKey) const;
+    valtype operator()(const ScriptHash& scriptID) const;
+    valtype operator()(const WitnessV0ScriptHash& witnessScriptHash) const;
+    valtype operator()(const WitnessV0KeyHash& witnessKeyHash) const;
+    valtype operator()(const WitnessV1Taproot& witnessTaproot) const;
+    valtype operator()(const WitnessUnknown& witnessUnknown) const;
+};
+
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL);
 
 #endif // BITCOIN_ADDRESSTYPE_H
