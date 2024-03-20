@@ -120,7 +120,7 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
         COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChain()))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChainstate()))
         {
             // Found a kernel
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
@@ -323,7 +323,7 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
         boost::this_thread::interruption_point();
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChain()))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChainstate()))
         {
             // Found a kernel
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
@@ -331,7 +331,7 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
 
             Coin coinPrev;
             if(!wallet.chain().getUnspentOutput(prevoutStake, coinPrev)){
-                if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev, wallet.chain().chainman().ActiveChain())) {
+                if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev, wallet.chain().chainman().ActiveChainstate())) {
                     return error("CreateCoinStake: Could not find coin and it was not at the tip");
                 }
             }

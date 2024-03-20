@@ -1263,6 +1263,48 @@ std::vector<CTxMemPool::txiter> CTxMemPool::GatherClusters(const std::vector<uin
 /////////////////////////////////////////////////////// // qtum
 void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewCache &view)
 {
+    LOCK(cs);
+    const CTransaction& tx = entry.GetTx();
+    std::vector<CMempoolAddressDeltaKey> inserted;
+
+    uint256 txhash = tx.GetHash();
+    for (unsigned int j = 0; j < tx.vin.size(); j++) {
+        const CTxIn input = tx.vin[j];
+        const CTxOut &prevout = view.GetOutputFor(input);
+
+        CTxDestination dest;
+        if (ExtractDestination(input.prevout, prevout.scriptPubKey, dest)) {
+            valtype bytesID(std::visit(DataVisitor(), dest));
+            if(bytesID.empty()) {
+                continue;
+            }
+            valtype addressBytes(32);
+            std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+            CMempoolAddressDeltaKey key(dest.index(), uint256(addressBytes), txhash, j, 1);
+            CMempoolAddressDelta delta(entry.GetTime().count(), prevout.nValue * -1, input.prevout.hash, input.prevout.n);
+            mapAddress.insert(std::make_pair(key, delta));
+            inserted.push_back(key);
+        }
+    }
+
+    for (unsigned int k = 0; k < tx.vout.size(); k++) {
+        const CTxOut &out = tx.vout[k];
+
+        CTxDestination dest;
+        if (ExtractDestination({tx.GetHash(), k}, out.scriptPubKey, dest)) {
+            valtype bytesID(std::visit(DataVisitor(), dest));
+            if(bytesID.empty()) {
+                continue;
+            }
+            valtype addressBytes(32);
+            std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+            CMempoolAddressDeltaKey key(dest.index(), uint256(addressBytes), txhash, k, 0);
+            mapAddress.insert(std::make_pair(key, CMempoolAddressDelta(entry.GetTime().count(), out.nValue)));
+            inserted.push_back(key);
+        }
+    }
+
+    mapAddressInserted.insert(std::make_pair(txhash, inserted));
 }
 
 bool CTxMemPool::getAddressIndex(std::vector<std::pair<uint256, int> > &addresses, std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> > &results)

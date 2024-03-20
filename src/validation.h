@@ -478,9 +478,9 @@ public:
 bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, const Consensus::Params& consensusParams, CAmount nFees, CAmount gasRefunds, CAmount nActualStakeReward, const std::vector<CTxOut>& vouts, CAmount nValueCoinPrev, bool delegateOutputExist, CChain& chain, node::BlockManager& blockman);
 
 //////////////////////////////////////////////////////// qtum
-bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin);
+bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin, Chainstate& chainstate);
 
-bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin, CChain& chain);
+bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin, Chainstate& chainstate);
 
 unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams);
 

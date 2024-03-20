@@ -1803,11 +1803,11 @@ bool CheckHeaderPoS(const CBlockHeader& block, const Consensus::Params& consensu
     // Check the kernel hash
     CBlockIndex* pindexPrev = &((*mi).second);
 
-    if(pindexPrev->nHeight >= consensusParams.nEnableHeaderSignatureHeight && !CheckRecoveredPubKeyFromBlockSignature(pindexPrev, block, chainstate.CoinsTip(), chainstate.m_chain)) {
+    if(pindexPrev->nHeight >= consensusParams.nEnableHeaderSignatureHeight && !CheckRecoveredPubKeyFromBlockSignature(pindexPrev, block, chainstate.CoinsTip(), chainstate)) {
         return error("Failed signature check");
     }
 
-    return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.prevoutStake, chainstate.CoinsTip(), chainstate.m_chain);
+    return CheckKernel(pindexPrev, block.nBits, block.StakeTime(), block.prevoutStake, chainstate.CoinsTip(), chainstate);
 }
 
 bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams, Chainstate& chainstate){
@@ -2268,6 +2268,29 @@ DisconnectResult Chainstate::DisconnectBlock(const CBlock& block, const CBlockIn
             }
         }
 
+        /////////////////////////////////////////////////////////// // qtum
+        if (pfClean == NULL && fAddressIndex) {
+
+            for (unsigned int k = tx.vout.size(); k-- > 0;) {
+                const CTxOut &out = tx.vout[k];
+
+                CTxDestination dest;
+                if (ExtractDestination({hash, k}, out.scriptPubKey, dest)) {
+                    valtype bytesID(std::visit(DataVisitor(), dest));
+                    if(bytesID.empty()) {
+                        continue;
+                    }
+                    valtype addressBytes(32);
+                    std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+                    // undo receiving activity
+                    addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.index(), uint256(addressBytes), pindex->nHeight, i, hash, k, false), out.nValue));
+                    // undo unspent index
+                    addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(dest.index(), uint256(addressBytes), hash, k), CAddressUnspentValue()));
+                }
+            }
+        }
+        ///////////////////////////////////////////////////////////
+
         // restore inputs
         if (i > 0) { // not coinbases
             CTxUndo &txundo = blockUndo.vtxundo[i-1];
@@ -2281,6 +2304,27 @@ DisconnectResult Chainstate::DisconnectBlock(const CBlock& block, const CBlockIn
                 int res = ApplyTxInUndo(std::move(txundo.vprevout[j]), view, out);
                 if (res == DISCONNECT_FAILED) return DISCONNECT_FAILED;
                 fClean = fClean && res != DISCONNECT_UNCLEAN;
+
+                if (pfClean == NULL && fAddressIndex) {
+                    const auto &undo = txundo.vprevout[j];
+                    const bool isTxCoinStake = tx.IsCoinStake();
+                    const CTxIn input = tx.vin[j];
+                    const CTxOut &prevout = view.GetOutputFor(input);
+
+                    CTxDestination dest;
+                    if (ExtractDestination(input.prevout, prevout.scriptPubKey, dest)) {
+                        valtype bytesID(std::visit(DataVisitor(), dest));
+                        if(bytesID.empty()) {
+                            continue;
+                        }
+                        valtype addressBytes(32);
+                        std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+                        // undo spending activity
+                        addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.index(), uint256(addressBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
+                        // restore unspent index
+                        addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(dest.index(), uint256(addressBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight, isTxCoinStake)));
+                    }
+                }
             }
             // At this point, all of txundo.vprevout should have been moved out.
         }
@@ -2426,15 +2470,48 @@ static SteadyClock::duration time_index{};
 static SteadyClock::duration time_total{};
 static int64_t num_blocks_total = 0;
 
-bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin) {
-    return {};
+/////////////////////////////////////////////////////////////////////// qtum
+bool GetSpentCoinFromBlock(const CBlockIndex* pindex, COutPoint prevout, Coin* coin, Chainstate& chainstate) {
+    std::shared_ptr<CBlock> pblock = std::make_shared<CBlock>();
+    CBlock& block = *pblock;
+    if (!chainstate.m_blockman.ReadBlockFromDisk(block, *pindex)) {
+        return error("GetSpentCoinFromBlock(): Could not read block from disk");
+    }
+
+    for(size_t j = 1; j < block.vtx.size(); ++j) {
+        CTransactionRef& tx = block.vtx[j];
+        for(size_t k = 0; k < tx->vin.size(); ++k) {
+            const COutPoint& tmpprevout = tx->vin[k].prevout;
+            if(tmpprevout == prevout) {
+                CBlockUndo undo;
+                if(!chainstate.m_blockman.UndoReadFromDisk(undo, *pindex)) {
+                    return error("GetSpentCoinFromBlock(): Could not read undo block from disk");
+                }
+
+                if(undo.vtxundo.size() != block.vtx.size() - 1) {
+                    return error("GetSpentCoinFromBlock(): undo tx size not equal to block tx size");
+                }
+
+                CTxUndo &txundo = undo.vtxundo[j-1]; // no vtxundo for coinbase
+
+                if(txundo.vprevout.size() != tx->vin.size()) {
+                    return error("GetSpentCoinFromBlock(): undo tx vin size not equal to block tx vin size");
+                }
+
+                *coin = txundo.vprevout[k];
+                return true;
+            }
+
+        }
+    }
+    return false;
 }
 
-bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin, CChain& chain) {
-    const CBlockIndex* pforkBase = chain.FindFork(pforkPrev);
+bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutStake, Coin* coin, Chainstate& chainstate) {
+    const CBlockIndex* pforkBase = chainstate.m_chain.FindFork(pforkPrev);
 
     // If the forkbase is more than coinbaseMaturity blocks in the past, do not attempt to scan the main chain.
-    int nHeight = chain.Tip()->nHeight;
+    int nHeight = chainstate.m_chain.Tip()->nHeight;
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     if(nHeight - pforkBase->nHeight > coinbaseMaturity) {
         return error("The fork's base is behind by more than 500 blocks");
@@ -2456,9 +2533,9 @@ bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutSt
     // Scan through blocks until we reach the forkbase to check if the prevoutStake has been spent in one of those blocks
     // If it not in any of those blocks, and not in the utxo set, it can't be spendable in the orphan chain.
     {
-        CBlockIndex* pindex = chain.Tip();
+        CBlockIndex* pindex = chainstate.m_chain.Tip();
         while(pindex && pindex != pforkBase) {
-            if(GetSpentCoinFromBlock(pindex, prevoutStake, coin)) {
+            if(GetSpentCoinFromBlock(pindex, prevoutStake, coin, chainstate)) {
                 return true;
             }
             pindex = pindex->pprev;
@@ -2676,7 +2753,56 @@ bool CheckReward(const CBlock& block, BlockValidationState& state, int nHeight, 
 }
 
 valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsView, const std::vector<CTransactionRef>* blockTxs, Chainstate& chainstate, const CTxMemPool* mempool, int nOut = -1){
-    return {};
+    CScript script;
+    bool scriptFilled=false; //can't use script.empty() because an empty script is technically valid
+
+    // Try get the sender script from the output script
+    if(nOut > -1)
+        scriptFilled = ExtractSenderData(tx.vout[nOut].scriptPubKey, &script, nullptr);
+
+    // Check if the transaction has inputs
+    if(tx.vin.size() == 0) {
+        return valtype();
+    }
+
+    // Check the current (or in-progress) block for zero-confirmation change spending that won't yet be in txindex
+    if(!scriptFilled && blockTxs){
+        for(auto btx : *blockTxs){
+            if(btx->GetHash() == tx.vin[0].prevout.hash){
+                script = btx->vout[tx.vin[0].prevout.n].scriptPubKey;
+                scriptFilled=true;
+                break;
+            }
+        }
+    }
+    if(!scriptFilled && coinsView){
+        script = coinsView->AccessCoin(tx.vin[0].prevout).out.scriptPubKey;
+        scriptFilled = true;
+    }
+    if(!scriptFilled)
+    {
+        CTransactionRef txPrevout;
+        uint256 hashBlock;
+        txPrevout = node::GetTransaction(nullptr, mempool, tx.vin[0].prevout.hash, hashBlock, chainstate.m_blockman, &chainstate);
+        if(txPrevout != nullptr){
+            script = txPrevout->vout[tx.vin[0].prevout.n].scriptPubKey;
+        } else {
+            LogPrintf("Error fetching transaction details of tx %s. This will probably cause more errors", tx.vin[0].prevout.hash.ToString());
+            return valtype();
+        }
+    }
+
+	CTxDestination addressBit;
+    TxoutType txType=TxoutType::NONSTANDARD;
+	if(ExtractDestination(script, addressBit, &txType)){
+		if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) &&
+                std::holds_alternative<PKHash>(addressBit)){
+			PKHash senderAddress(std::get<PKHash>(addressBit));
+			return valtype(senderAddress.begin(), senderAddress.end());
+		}
+	}
+    //prevout is not a standard transaction format, so just return 0
+    return valtype();
 }
 
 UniValue vmLogToJSON(const ResultExecute& execRes, const CTransaction& tx, const CBlock& block, CChain& chain){
@@ -2859,7 +2985,18 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
 }
 
 dev::Address ByteCodeExec::EthAddrFromScript(const CScript& script){
-    return {};
+    CTxDestination addressBit;
+    TxoutType txType=TxoutType::NONSTANDARD;
+    if(ExtractDestination(script, addressBit, &txType)){
+        if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) &&
+            std::holds_alternative<PKHash>(addressBit)){
+            PKHash addressKey(std::get<PKHash>(addressBit));
+            std::vector<unsigned char> addr(addressKey.begin(), addressKey.end());
+            return dev::Address(addr);
+        }
+    }
+    //if not standard or not a pubkey or pubkeyhash output, then return 0
+    return dev::Address();
 }
 
 bool QtumTxConverter::extractionQtumTransactions(ExtractQtumTX& qtumtx){
@@ -3319,6 +3456,31 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
                 LogPrintf("ERROR: %s: contains a non-BIP68-final transaction\n", __func__);
                 return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-nonfinal");
             }
+
+            ////////////////////////////////////////////////////////////////// // qtum
+            if (fAddressIndex)
+            {
+                for (size_t j = 0; j < tx.vin.size(); j++) {
+                    const CTxIn input = tx.vin[j];
+                    const CTxOut &prevout = view.GetOutputFor(tx.vin[j]);
+
+                    CTxDestination dest;
+                    if (ExtractDestination(input.prevout, prevout.scriptPubKey, dest)) {
+                        valtype bytesID(std::visit(DataVisitor(), dest));
+                        if(bytesID.empty()) {
+                            continue;
+                        }
+                        valtype addressBytes(32);
+                        std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+                        addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.index(), uint256(addressBytes), pindex->nHeight, i, tx.GetHash(), j, true), prevout.nValue * -1));
+
+                        // remove address from unspent index
+                        addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(dest.index(), uint256(addressBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue()));
+                        spentIndex.push_back(std::make_pair(CSpentIndexKey(input.prevout.hash, input.prevout.n), CSpentIndexValue(tx.GetHash(), j, pindex->nHeight, prevout.nValue, dest.index(), uint256(addressBytes))));
+                    }
+                }
+            }
+            //////////////////////////////////////////////////////////////////
         }
 
         // GetTransactionSigOpCost counts 3 types of sigops:
@@ -3519,6 +3681,30 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
             }
         }
 /////////////////////////////////////////////////////////////////////////////////////////
+
+        /////////////////////////////////////////////////////////////////////////////////// // qtum
+        if (fAddressIndex) {
+
+            for (unsigned int k = 0; k < tx.vout.size(); k++) {
+                const CTxOut &out = tx.vout[k];
+                const bool isTxCoinStake = tx.IsCoinStake();
+
+                CTxDestination dest;
+                if (ExtractDestination({tx.GetHash(), k}, out.scriptPubKey, dest)) {
+                    valtype bytesID(std::visit(DataVisitor(), dest));
+                    if(bytesID.empty()) {
+                        continue;
+                    }
+                    valtype addressBytes(32);
+                    std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+                    // record receiving activity
+                    addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.index(), uint256(addressBytes), pindex->nHeight, i, tx.GetHash(), k, false), out.nValue));
+                    // record unspent output
+                    addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(dest.index(), uint256(addressBytes), tx.GetHash(), k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight, isTxCoinStake)));
+                }
+            }
+        }
+        ///////////////////////////////////////////////////////////////////////////////////
 
         CTxUndo undoDummy;
         if (i > 0) {
@@ -5765,8 +5951,6 @@ bool ChainstateManager::AcceptBlock(const std::shared_ptr<const CBlock>& pblock,
 
     // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
     // (but if it does not build on our best tip, let the SendMessages loop relay it)
-    if (!IsInitialBlockDownload() && ActiveTip() == pindex->pprev)
-        GetMainSignals().NewPoWValidBlock(pindex, pblock);
 
     // Write block to history file
     if (fNewBlock) *fNewBlock = true;
@@ -6425,8 +6609,10 @@ void ChainstateManager::LoadExternalBlockFile(
                     }
                 }
 
-                // Activate the genesis block so normal node progress can continue
-                if (hash == params.GetConsensus().hashGenesisBlock) {
+                // In Bitcoin this only needed to be done for genesis and at the end of block indexing
+                // But for Qtum PoS we need to sync this after every block to ensure txdb is populated for
+                // validating PoS proofs
+                {
                     bool genesis_activation_failure = false;
                     for (auto c : GetAll()) {
                         BlockValidationState state;
