@@ -2794,7 +2794,7 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
 
 	CTxDestination addressBit;
     TxoutType txType=TxoutType::NONSTANDARD;
-	if(ExtractDestination(script, addressBit, &txType)){
+	if(ExtractDestination(script, addressBit, &txType, true)){
 		if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) &&
                 std::holds_alternative<PKHash>(addressBit)){
 			PKHash senderAddress(std::get<PKHash>(addressBit));
@@ -2987,7 +2987,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
 dev::Address ByteCodeExec::EthAddrFromScript(const CScript& script){
     CTxDestination addressBit;
     TxoutType txType=TxoutType::NONSTANDARD;
-    if(ExtractDestination(script, addressBit, &txType)){
+    if(ExtractDestination(script, addressBit, &txType, true)){
         if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) &&
             std::holds_alternative<PKHash>(addressBit)){
             PKHash addressKey(std::get<PKHash>(addressBit));

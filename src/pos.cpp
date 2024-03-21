@@ -293,7 +293,7 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
     // If the input does not exactly match the output, it MUST be on P2PKH spent and P2PK out.
     CTxDestination inputAddress;
     TxoutType inputTxType=TxoutType::NONSTANDARD;
-    if(!ExtractDestination(coinIn.out.scriptPubKey, inputAddress, &inputTxType)) {
+    if(!ExtractDestination(coinIn.out.scriptPubKey, inputAddress, &inputTxType, true)) {
         return error("%s: Could not extract address from input", __func__);
     }
 
@@ -303,7 +303,7 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
 
     CTxDestination outputAddress;
     TxoutType outputTxType=TxoutType::NONSTANDARD;
-    if(!ExtractDestination(txout.scriptPubKey, outputAddress, &outputTxType)) {
+    if(!ExtractDestination(txout.scriptPubKey, outputAddress, &outputTxType, true)) {
         return error("%s: Could not extract address from output", __func__);
     }
 
@@ -346,7 +346,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
             CTxDestination address;
             TxoutType txType=TxoutType::NONSTANDARD;
             if(pubkey.RecoverCompact(hash, vchBlockSig) &&
-                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType, true)){
                 if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
                     if(SignStr::VerifyMessage(ToKeyID(std::get<PKHash>(address)), pubkey.GetID().GetReverseHex(), vchPoD)) {
                         return true;
@@ -360,7 +360,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
             CTxDestination address;
             TxoutType txType=TxoutType::NONSTANDARD;
             if(pubkey.RecoverCompact(hash, vchBlockSig) &&
-                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType, true)){
                 if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
                     if(pubkey.GetID() == ToKeyID(std::get<PKHash>(address))) {
                         return true;
@@ -380,7 +380,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
 
                 CTxDestination address;
                 TxoutType txType=TxoutType::NONSTANDARD;
-                if(ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                if(ExtractDestination(coinPrev.out.scriptPubKey, address, &txType, true)){
                     if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
                         if(pubkey.GetID() == ToKeyID(std::get<PKHash>(address))) {
                             return true;

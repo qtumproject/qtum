@@ -343,9 +343,9 @@ RPCHelpMan sendtoaddress()
      for(const COutput& out : vecOutputs) {
          CTxDestination destAdress;
          const CScript& scriptPubKey = out.txout.scriptPubKey;
-         bool fValidAddress = ExtractDestination(scriptPubKey, destAdress);
+         bool fValidAddress = ExtractDestination(scriptPubKey, destAdress, nullptr, true);
 
-         if (!fValidAddress || !(senderAddress == destAdress))
+         if (!fValidAddress || senderAddress != destAdress)
              continue;
 
          coin_control.Select(out.outpoint);
@@ -2045,10 +2045,10 @@ RPCHelpMan splitutxosforaddress()
     for(const COutput& out : vecOutputs) {
         CTxDestination destAdress;
         const CScript& scriptPubKey = out.txout.scriptPubKey;
-        bool fValidAddress = ExtractDestination(scriptPubKey, destAdress);
+        bool fValidAddress = ExtractDestination(scriptPubKey, destAdress, nullptr, true);
 
         CAmount val = out.txout.nValue;
-        if (!fValidAddress || !(address == destAdress) || (val >= minValue && val <= maxValue ) )
+        if (!fValidAddress || address != destAdress || (val >= minValue && val <= maxValue ) )
             continue;
 
         if(nSelectedAmount <= nRequiredAmount)

@@ -5509,7 +5509,7 @@ bool CWallet::GetSenderDest(const CTransaction &tx, CTxDestination &txSenderDest
     }
 
     // Extract destination from script
-    return ExtractDestination(senderPubKey, txSenderDest);
+    return ExtractDestination(senderPubKey, txSenderDest, nullptr, true);
 }
 
 bool CWallet::GetHDKeyPath(const CTxDestination &dest, std::string &hdkeypath) const

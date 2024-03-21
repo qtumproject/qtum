@@ -99,7 +99,7 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     {
         CTxDestination tx_sender_address;
         if(wtx.tx && wtx.tx->vin.size() > 0 && wallet.mapWallet.find(wtx.tx->vin[0].prevout.hash) != wallet.mapWallet.end() &&
-                ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address)) {
+                ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address, nullptr, true)) {
             result.tx_sender_key = wallet.GetKeyForDestination(tx_sender_address);
         }
 
@@ -712,7 +712,7 @@ public:
         {
             CTxDestination address;
             const CScript& scriptPubKey = out.txout.scriptPubKey;
-            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+            bool fValidAddress = ExtractDestination(scriptPubKey, address, nullptr, true);
 
             if(fValidAddress && EncodeDestination(address) == qtumAddress && out.txout.nValue)
             {
@@ -770,7 +770,7 @@ public:
         {
             CTxDestination address;
             const CScript& scriptPubKey = out.txout.scriptPubKey;
-            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+            bool fValidAddress = ExtractDestination(scriptPubKey, address, nullptr, true);
 
             if (!fValidAddress || !m_wallet->IsMine(address)) continue;
 

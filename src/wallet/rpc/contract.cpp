@@ -33,7 +33,7 @@ bool SetDefaultPayForContractAddress(const CWallet& wallet, CCoinControl & coinC
     for (const COutput& out : vecOutputs) {
         CTxDestination destAdress;
         const CScript& scriptPubKey = out.txout.scriptPubKey;
-        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress)
+        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress, nullptr, true)
                 && IsValidContractSenderAddress(destAdress);
 
         if (!fValidAddress)
@@ -57,7 +57,7 @@ bool SetDefaultSignSenderAddress(const CWallet& wallet, CTxDestination& destAdre
 
     for (const COutput& out : vecOutputs) {
         const CScript& scriptPubKey = out.txout.scriptPubKey;
-        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress)
+        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress, nullptr, true)
                 && IsValidContractSenderAddress(destAdress);
 
         if (!fValidAddress)
@@ -238,7 +238,7 @@ RPCHelpMan createcontract()
         for (const COutput& out : vecOutputs) {
             CTxDestination destAdress;
             const CScript& scriptPubKey = out.txout.scriptPubKey;
-            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress);
+            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress, nullptr, true);
 
             if (!fValidAddress || senderAddress != destAdress)
                 continue;
@@ -499,7 +499,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
 
             CTxDestination destAdress;
             const CScript& scriptPubKey = out.txout.scriptPubKey;
-            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress);
+            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress, nullptr, true);
 
             if (!fValidAddress || senderAddress != destAdress)
                 continue;
