@@ -55,7 +55,7 @@ from test_framework.util import (
 )
 from test_framework.wallet_util import generate_keypair
 
-DEFAULT_FEE = Decimal("0.0001")
+DEFAULT_FEE = Decimal("0.05")
 
 class MiniWalletMode(Enum):
     """Determines the transaction type the MiniWallet is creating and spending.
@@ -208,7 +208,7 @@ class MiniWallet:
         assert_equal(self._mode, MiniWalletMode.ADDRESS_OP_TRUE)
         return self._address
 
-    def get_utxo(self, *, txid: str = '', vout: Optional[int] = None, mark_as_spent=True, confirmed_only=False) -> dict:
+    def get_utxo(self, *, txid: str = '', vout: Optional[int] = None, mark_as_spent=True, confirmed_only=False, sort_by_height=False) -> dict:
         """
         Returns a utxo and marks it as spent (pops it from the internal list)
 

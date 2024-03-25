@@ -163,7 +163,7 @@ class ECKey:
         ret.compressed = self.compressed
         return ret
 
-    def sign_ecdsa(self, msg, low_s=True, rfc6979=False):
+    def sign_ecdsa(self, msg, low_s=True, der_sig=True, rfc6979=False):
         """Construct a DER-encoded ECDSA signature with this key.
 
         See https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm for the

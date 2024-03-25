@@ -6,6 +6,7 @@
 
 import os
 from test_framework.test_framework import BitcoinTestFramework
+from test_framework.blocktools import COINBASE_MATURITY
 
 class FeatureRemovePrunedFilesOnStartupTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -24,12 +25,12 @@ class FeatureRemovePrunedFilesOnStartupTest(BitcoinTestFramework):
         rev0 = self.nodes[0].blocks_path / "rev00000.dat"
         blk1 = self.nodes[0].blocks_path / "blk00001.dat"
         rev1 = self.nodes[0].blocks_path / "rev00001.dat"
-        self.mine_batches(800)
+        self.mine_batches(COINBASE_MATURITY+700)
         fo1 = os.open(blk0, os.O_RDONLY)
         fo2 = os.open(rev1, os.O_RDONLY)
         fd1 = os.fdopen(fo1)
         fd2 = os.fdopen(fo2)
-        self.nodes[0].pruneblockchain(600)
+        self.nodes[0].pruneblockchain(COINBASE_MATURITY+500)
 
         # Windows systems will not remove files with an open fd
         if os.name != 'nt':

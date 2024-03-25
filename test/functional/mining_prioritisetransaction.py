@@ -270,7 +270,7 @@ class PrioritiseTransactionTest(BitcoinTestFramework):
                 assert x not in mempool
 
         # Create a free transaction.  Should be rejected.
-        tx_res = self.wallet.create_self_transfer(fee_rate=0)
+        tx_res = self.wallet.create_self_transfer(fee_rate=0, sort_by_height=True)
         tx_hex = tx_res['hex']
         tx_id = tx_res['txid']
 

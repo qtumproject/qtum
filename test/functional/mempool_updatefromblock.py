@@ -20,7 +20,7 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [['-limitdescendantsize=1000', '-limitancestorsize=1000', '-limitancestorcount=100']]
 
-    def transaction_graph_test(self, size, n_tx_to_mine=None, fee=100_000):
+    def transaction_graph_test(self, size, n_tx_to_mine=None, fee=40_000_000):
         """Create an acyclic tournament (a type of directed graph) of transactions and use it for testing.
 
         Keyword arguments:

@@ -40,7 +40,7 @@ class ConfArgsTest(BitcoinTestFramework):
             expected_msg=conf_in_config_file_err,
         )
         inc_conf_file_path = self.nodes[0].datadir_path / 'include.conf'
-        with open(self.nodes[0].datadir_path / 'bitcoin.conf', 'a', encoding='utf-8') as conf:
+        with open(self.nodes[0].datadir_path / 'qtum.conf', 'a', encoding='utf-8') as conf:
             conf.write(f'includeconf={inc_conf_file_path}\n')
         with open(inc_conf_file_path, 'w', encoding='utf-8') as conf:
             conf.write('conf=some.conf\n')
@@ -98,7 +98,7 @@ class ConfArgsTest(BitcoinTestFramework):
         self.nodes[0].assert_start_raises_init_error(expected_msg='Error: Error reading configuration file: parse error on line 4, using # in rpcpassword can be ambiguous and should be avoided')
 
         inc_conf_file2_path = self.nodes[0].datadir_path / 'include2.conf'
-        with open(self.nodes[0].datadir_path / 'bitcoin.conf', 'a', encoding='utf-8') as conf:
+        with open(self.nodes[0].datadir_path / 'qtum.conf', 'a', encoding='utf-8') as conf:
             conf.write(f'includeconf={inc_conf_file2_path}\n')
 
         with open(inc_conf_file_path, 'w', encoding='utf-8') as conf:
@@ -402,7 +402,7 @@ class ConfArgsTest(BitcoinTestFramework):
         self.nodes[0].assert_start_raises_init_error([f'-datadir={new_data_dir}'], f'Error: Specified data directory "{new_data_dir}" does not exist.')
 
         # Check that using non-existent datadir in conf file fails
-        conf_file = default_data_dir / "bitcoin.conf"
+        conf_file = default_data_dir / "qtum.conf"
 
         # datadir needs to be set before [chain] section
         with open(conf_file, encoding='utf8') as f:
