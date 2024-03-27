@@ -215,7 +215,11 @@ class MiniWallet:
         Args:
         txid: get the first utxo we find from a specific transaction
         """
-        self._utxos = sorted(self._utxos, key=lambda k: (k['value'], -k['height']))  # Put the largest utxo last
+        if sort_by_height:
+            self._utxos = sorted(self._utxos, key=lambda k: (-k['height'], k['value'])) 
+        else:
+            # Put the largest utxo last
+            self._utxos = sorted(self._utxos, key=lambda k: (k['value'], -k['height']))  # Put the largest utxo last
         blocks_height = self._test_node.getblockchaininfo()['blocks']
         mature_coins = list(filter(lambda utxo: not utxo['coinbase'] or COINBASE_MATURITY - 1 <= blocks_height - utxo['height'], self._utxos))
         if txid:
@@ -252,7 +256,7 @@ class MiniWallet:
         self.sendrawtransaction(from_node=from_node, tx_hex=tx['hex'])
         return tx
 
-    def send_to(self, *, from_node, scriptPubKey, amount, fee=1000):
+    def send_to(self, *, from_node, scriptPubKey, amount, fee=80000, sort_by_height=False):
         """
         Create and send a tx with an output to a given scriptPubKey/amount,
         plus a change output to our internal address. To keep things simple, a
@@ -262,7 +266,7 @@ class MiniWallet:
         available that can cover the cost for the amount and the fixed fee
         (the utxo with the largest value is taken).
         """
-        tx = self.create_self_transfer(fee_rate=0)["tx"]
+        tx = self.create_self_transfer(fee_rate=0, sort_by_height=sort_by_height)["tx"]
         assert_greater_than_or_equal(tx.vout[0].nValue, amount + fee)
         tx.vout[0].nValue -= (amount + fee)           # change output -> MiniWallet
         tx.vout.append(CTxOut(amount, scriptPubKey))  # arbitrary output -> to be returned
@@ -289,7 +293,7 @@ class MiniWallet:
         amount_per_output=0,
         locktime=0,
         sequence=0,
-        fee_per_output=1000,
+        fee_per_output=80000,
         target_weight=0,
         confirmed_only=False
     ):
@@ -345,10 +349,11 @@ class MiniWallet:
             locktime=0,
             sequence=0,
             target_weight=0,
-            confirmed_only=False
+            confirmed_only=False,
+            sort_by_height=False
     ):
         """Create and return a tx with the specified fee. If fee is 0, use fee_rate, where the resulting fee may be exact or at most one satoshi higher than needed."""
-        utxo_to_spend = utxo_to_spend or self.get_utxo(confirmed_only=confirmed_only)
+        utxo_to_spend = utxo_to_spend or self.get_utxo(confirmed_only=confirmed_only, sort_by_height=sort_by_height)
         assert fee_rate >= 0
         assert fee >= 0
         # calculate fee
