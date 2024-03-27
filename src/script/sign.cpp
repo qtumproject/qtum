@@ -13,6 +13,7 @@
 #include <script/miniscript.h>
 #include <script/signingprovider.h>
 #include <script/standard.h>
+#include <script/interpreter.h>
 #include <uint256.h>
 #include <util/translation.h>
 #include <util/vector.h>
