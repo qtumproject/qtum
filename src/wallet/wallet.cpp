@@ -2956,7 +2956,6 @@ bool CWallet::UnlockAllCoins()
 
 bool CWallet::IsLockedCoin(const COutPoint& output) const
 {
-    AssertLockHeld(cs_wallet);
     return setLockedCoins.count(output) > 0;
 }
 
