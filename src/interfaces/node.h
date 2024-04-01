@@ -84,7 +84,7 @@ public:
     virtual int getExitStatus() = 0;
 
     // Get log flags.
-    virtual uint32_t getLogCategories() = 0;
+    virtual uint64_t getLogCategories() = 0;
 
     //! Initialize app dependencies.
     virtual bool baseInitialize() = 0;
