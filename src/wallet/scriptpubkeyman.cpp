@@ -2033,7 +2033,7 @@ util::Result<CTxDestination> DescriptorScriptPubKeyMan::GetNewDestination(const 
         }
 
         CTxDestination dest;
-        if (!ExtractDestination(scripts_temp[0], dest)) {
+        if (!ExtractDestination(scripts_temp[0], dest, nullptr, true)) {
             return util::Error{_("Error: Cannot extract destination from the generated scriptpubkey")}; // shouldn't happen
         }
         m_wallet_descriptor.next_index++;

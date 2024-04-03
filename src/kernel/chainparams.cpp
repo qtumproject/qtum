@@ -705,15 +705,9 @@ public:
         m_assumeutxo_data = {
             {
                 .height = 2010,
-                .hash_serialized = AssumeutxoHash{uint256S("0xf3ad83776715ee9b09a7a43421b6fe17701fb2247370a4ea9fcf0b073639cac9")},
-                .nChainTx = 2010,
-                .blockhash = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000")
-            },
-            {
-                .height = 2100,
-                .hash_serialized = AssumeutxoHash{uint256S("0x677f8902ca481677862d19fbe8c6214f596c8b475aabfe4273361485fc4e6fb4")},
-                .nChainTx = 2100,
-                .blockhash = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000")
+                .hash_serialized = AssumeutxoHash{uint256S("0x62528c92991cbedf47bdf3f0f5a0ad1e07bce4b2a35500beabe3f87fa5cca44f")},
+                .nChainTx = 2011,
+                .blockhash = uint256S("0x292911929ab59409569a86bae416da0ba697fd7086b107ddd0a8eeaddba91b4d")
             }
         };
     }

@@ -57,7 +57,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager, TestChain100Setup)
 
     // Get to a valid assumeutxo tip (per chainparams);
     mineBlocks(10);
-    BOOST_CHECK_EQUAL(WITH_LOCK(manager.GetMutex(), return manager.ActiveHeight()), 110);
+    BOOST_CHECK_EQUAL(WITH_LOCK(manager.GetMutex(), return manager.ActiveHeight()), 2010);
     auto active_tip = WITH_LOCK(manager.GetMutex(), return manager.ActiveTip());
     auto exp_tip = c1.m_chain.Tip();
     BOOST_CHECK_EQUAL(active_tip, exp_tip);
@@ -92,10 +92,10 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager, TestChain100Setup)
     auto& active_chain2 = WITH_LOCK(manager.GetMutex(), return manager.ActiveChain());
     BOOST_CHECK_EQUAL(&active_chain2, &c2.m_chain);
 
-    BOOST_CHECK_EQUAL(WITH_LOCK(manager.GetMutex(), return manager.ActiveHeight()), 110);
+    BOOST_CHECK_EQUAL(WITH_LOCK(manager.GetMutex(), return manager.ActiveHeight()), 2010);
     mineBlocks(1);
-    BOOST_CHECK_EQUAL(WITH_LOCK(manager.GetMutex(), return manager.ActiveHeight()), 111);
-    BOOST_CHECK_EQUAL(WITH_LOCK(manager.GetMutex(), return c1.m_chain.Height()), 110);
+    BOOST_CHECK_EQUAL(WITH_LOCK(manager.GetMutex(), return manager.ActiveHeight()), 2011);
+    BOOST_CHECK_EQUAL(WITH_LOCK(manager.GetMutex(), return c1.m_chain.Height()), 2010);
 
     auto active_tip2 = WITH_LOCK(manager.GetMutex(), return manager.ActiveTip());
     BOOST_CHECK_EQUAL(active_tip, active_tip2->pprev);
@@ -426,7 +426,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_loadblockindex, TestChain100Setup)
     // Blocks in range [assumed_valid_start_idx, last_assumed_valid_idx) will be
     // marked as assumed-valid and not having data.
     const int expected_assumed_valid{20};
-    const int last_assumed_valid_idx{111};
+    const int last_assumed_valid_idx{2011};
     const int assumed_valid_start_idx = last_assumed_valid_idx - expected_assumed_valid;
 
     // Mine to height 120, past the hardcoded regtest assumeutxo snapshot at
@@ -436,7 +436,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_loadblockindex, TestChain100Setup)
     CBlockIndex* validated_tip{nullptr};
     CBlockIndex* assumed_base{nullptr};
     CBlockIndex* assumed_tip{WITH_LOCK(chainman.GetMutex(), return chainman.ActiveChain().Tip())};
-    BOOST_CHECK_EQUAL(assumed_tip->nHeight, 120);
+    BOOST_CHECK_EQUAL(assumed_tip->nHeight, 2020);
 
     auto reload_all_block_indexes = [&]() {
         // For completeness, we also reset the block sequence counters to
@@ -497,10 +497,10 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_loadblockindex, TestChain100Setup)
     cs2.m_chain.SetTip(*assumed_base);
 
     // Sanity check test variables.
-    BOOST_CHECK_EQUAL(num_indexes, 121); // 121 total blocks, including genesis
-    BOOST_CHECK_EQUAL(assumed_tip->nHeight, 120);  // original chain has height 120
-    BOOST_CHECK_EQUAL(validated_tip->nHeight, 90); // current cs1 chain has height 90
-    BOOST_CHECK_EQUAL(assumed_base->nHeight, 110); // current cs2 chain has height 110
+    BOOST_CHECK_EQUAL(num_indexes, 2021); // 121 total blocks, including genesis
+    BOOST_CHECK_EQUAL(assumed_tip->nHeight, 2020);  // original chain has height 120
+    BOOST_CHECK_EQUAL(validated_tip->nHeight, 1990); // current cs1 chain has height 90
+    BOOST_CHECK_EQUAL(assumed_base->nHeight, 2010); // current cs2 chain has height 110
 
     // Regenerate cs1.setBlockIndexCandidates and cs2.setBlockIndexCandidate and
     // check contents below.
