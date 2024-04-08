@@ -5,7 +5,7 @@
  * This is a major rewrite of my old public domain DES code written
  * circa 1987, which in turn borrowed heavily from Jim Gillogly's 1977
  * public domain code. I pretty much kept my key scheduling code, but
- * the actual encrypt/decrypt routines are taken from from Richard
+ * the actual encrypt/decrypt routines are taken from Richard
  * Outerbridge's DES code as printed in Schneier's "Applied Cryptography."
  *
  * This code is in the public domain. I would appreciate bug reports and

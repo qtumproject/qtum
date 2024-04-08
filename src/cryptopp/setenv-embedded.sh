@@ -86,7 +86,7 @@ fi
 #   IS_LINUX or IS_DARWIN, and incorporate settings for ARM_EMBEDDED
 export IS_ARM_EMBEDDED=1
 
-# GNUmakefile-cross uses these to to set CXXFLAGS for ARM_EMBEDDED
+# GNUmakefile-cross uses these to set CXXFLAGS for ARM_EMBEDDED
 if [ -z "$ARM_EMBEDDED_SYSROOT" ]; then
   export ARM_EMBEDDED_SYSROOT="/usr/arm-linux-gnueabi"
 fi
