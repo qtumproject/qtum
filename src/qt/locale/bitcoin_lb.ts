@@ -38,13 +38,13 @@
         <translation type="unfinished">Wielt déi Adress, fir Mënz mat ze erhuelen.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Dat sinn är Bitcoin-Adressen fir Bezuelungen ze schécken. Iwwerpréift ëmmer de Betrag an d'Erhaltsadress virum Mënz ze schécken.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Dat sinn är Qtum-Adressen fir Bezuelungen ze schécken. Iwwerpréift ëmmer de Betrag an d'Erhaltsadress virum Mënz ze schécken.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Dat sinn är Bitcoin-Adressen fir Zuelungen ze erhuelen. Benotzt de 'Nei Erhaltsadress erstellen' Knäppchen am 'Erhalts'-Tab, fir nei Adressen ze erstellen. 
+        <translation type="unfinished">Dat sinn är Qtum-Adressen fir Zuelungen ze erhuelen. Benotzt de 'Nei Erhaltsadress erstellen' Knäppchen am 'Erhalts'-Tab, fir nei Adressen ze erstellen. 
 D'Signatur ass nëmmen mat Adressen vum Typ 'legacy' méiglech.</translation>
     </message>
     <message>
@@ -56,8 +56,8 @@ D'Signatur ass nëmmen mat Adressen vum Typ 'legacy' méiglech.</translation>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Warnung: Wann Dir Är Portemonnaie verschlësselt an Äert Passwort verléiert, da verléiert Dir 1ALLE ÄRE BITCOINS1!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Warnung: Wann Dir Är Portemonnaie verschlësselt an Äert Passwort verléiert, da verléiert Dir 1ALLE ÄRE QTUMS1!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -68,8 +68,8 @@ D'Signatur ass nëmmen mat Adressen vum Typ 'legacy' méiglech.</translation>
         <translation type="unfinished">Gitt deen alten Passwort an den neien Passwort fir d'Portemonnaie an</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Erënner Iech, dass d'Verschlësselung vun ärer Portemonnaie Är Bitcoins net vollstänneg vir Malware schützen kann, déi Äre Computer infizéiert.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Erënner Iech, dass d'Verschlësselung vun ärer Portemonnaie Är Qtums net vollstänneg vir Malware schützen kann, déi Äre Computer infizéiert.</translation>
     </message>
     </context>
 <context>
@@ -127,7 +127,7 @@ D'Signatur ass nëmmen mat Adressen vum Typ 'legacy' méiglech.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />

@@ -58,14 +58,13 @@
         <translation type="unfinished">K&amp;iezen</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Dit zijn uw Bitcoin adressen om betalingen mee te verzenden. Controleer altijd het bedrag en het ontvangstadres voordat u uw bitcoins verzendt.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Dit zijn uw Qtum adressen om betalingen mee te verzenden. Controleer altijd het bedrag en het ontvangstadres voordat u uw bitcoins verzendt.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Dit zijn uw Bitcoin adressen voor het ontvangen van betalingen. Gebruik de 'Nieuw ontvangstadres maken' knop in de ontvangst tab om nieuwe adressen te maken.
-Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation>
+        <translation type="unfinished">Dit zijn uw Qtum adressen voor het ontvangen van betalingen. Gebruik de 'Nieuw ontvangstadres maken' knop in de ontvangst tab om nieuwe adressen te maken.
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -152,8 +151,8 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Bevestig versleuteling van de portemonnee</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Waarschuwing: Als u uw portemonnee versleutelt en uw wachtwoord vergeet, zult u &lt;b&gt;AL UW BITCOINS VERLIEZEN&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Waarschuwing: Als u uw portemonnee versleutelt en uw wachtwoord vergeet, zult u &lt;b&gt;AL UW QTUMS VERLIEZEN&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -172,8 +171,8 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Voer de oude wachtwoordzin en de nieuwe wachtwoordzin in voor de portemonnee.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Onthoud dat het versleutelen van uw portemonnee uw bitcoins niet volledig kan beschermen tegen diefstal, bijvoorbeeld door malware die uw computer infecteert.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Onthoud dat het versleutelen van uw portemonnee uw qtums niet volledig kan beschermen tegen diefstal, bijvoorbeeld door malware die uw computer infecteert.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -295,8 +294,8 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Bedrag</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation type="unfinished">Voer een Bitcoin adres in (bijv. %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation type="unfinished">Voer een Qtum adres in (bijv. %1)</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -468,8 +467,8 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Proxy is &lt;b&gt;ingeschakeld&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation type="unfinished">Verstuur munten naar een Bitcoin adres</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">Verstuur munten naar een Qtum adres</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -512,16 +511,16 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Onderteken &amp;bericht</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation type="unfinished">Onderteken berichten met uw Bitcoin adressen om te bewijzen dat u deze adressen bezit</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation type="unfinished">Onderteken berichten met uw Qtum adressen om te bewijzen dat u deze adressen bezit</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verifiëer Bericht...</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation type="unfinished">Verifiëer handtekeningen om zeker te zijn dat de berichten zijn ondertekend met de gespecificeerde Bitcoin adressen</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation type="unfinished">Verifiëer handtekeningen om zeker te zijn dat de berichten zijn ondertekend met de gespecificeerde Qtum adressen</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -580,8 +579,8 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Verbinden met peers...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">Vraag betaling aan (genereert QR-codes en bitcoin: URI's)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">Vraag betaling aan (genereert QR-codes en qtum: URI's)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -635,16 +634,16 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Bijgewerkt</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation type="unfinished">Laad gedeeltelijk ondertekende Bitcoin-transactie</translation>
-    </message>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation type="unfinished">Laad gedeeltelijk ondertekende Qtum-transactie</translation>
+   </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Laad PSBT vanaf klembord...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">Laad gedeeltelijk ondertekende Bitcoin-transactie vanaf het klembord</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation type="unfinished">Laad gedeeltelijk ondertekende Qtum-transactie vanaf het klembord</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -663,9 +662,9 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Ontvangstadressen</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation type="unfinished">Open een bitcoin: URI</translation>
-    </message>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">Open een qtum: URI</translation> 
+   </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Portemonnee Openen</translation>
@@ -693,9 +692,8 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Sluit alle portemonnees</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">Toon het %1 hulpbericht om een lijst te krijgen met mogelijke Bitcoin commandoregelopties</translation>
-    </message>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="unfinished">Toon het %1 hulpbericht om een lijst te krijgen met mogelijke Qtum commandoregelopties</translation>
     <message>
         <source>&amp;Mask values</source>
         <translation type="unfinished">&amp;Maskeer waarden</translation>
@@ -749,12 +747,12 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">&amp;Toon</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n actieve verbinding(en) met het Bitcoin netwerk.</numerusform>
-            <numerusform>%n actieve verbinding(en) met het Bitcoin netwerk.</numerusform>
-        </translation>
+            <numerusform>%n actieve verbinding(en) met het Qtum netwerk.</numerusform>
+            <numerusform>%n actieve verbinding(en) met het Qtum netwerk.</numerusform> 
+      </translation>
     </message>
     <message>
         <source>Click for more actions.</source>
@@ -1182,8 +1180,8 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Bewerk verzendadres</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation type="unfinished">Het opgegeven adres "%1" is een ongeldig Bitcoin adres.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation type="unfinished">Het opgegeven adres "%1" is een ongeldig Qtum adres.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1269,8 +1267,8 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 zal een kopie van de blokketen van Bitcoin downloaden en opslaan.</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 zal een kopie van de blokketen van Qtum downloaden en opslaan.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1362,12 +1360,12 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Vorm</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation type="unfinished">Recente transacties zijn mogelijk nog niet zichtbaar. De balans van de wallet is daarom mogelijk niet correct. Deze informatie is correct zodra de synchronisatie van de wallet met het Bitcoinnetwerk gereed is, zoals onderaan toegelicht.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation type="unfinished">Recente transacties zijn mogelijk nog niet zichtbaar. De balans van de wallet is daarom mogelijk niet correct. Deze informatie is correct zodra de synchronisatie van de wallet met het Qtumnetwerk gereed is, zoals onderaan toegelicht.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Poging om bitcoins te besteden die door "nog niet weergegeven" transacties worden beïnvloed, worden niet door het netwerk geaccepteerd.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">Poging om qtums te besteden die door "nog niet weergegeven" transacties worden beïnvloed, worden niet door het netwerk geaccepteerd.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1417,9 +1415,9 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation type="unfinished">Open bitcoin-URI</translation>
-    </message>
+        <source>Open qtum URI</source>
+        <translation type="unfinished">Open qtum-URI</translation>
+   </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -1572,17 +1570,17 @@ Ongebruikte mempool geheugen is gedeeld voor deze cache.</translation>
         <translation type="unfinished">&amp;Extern ondertekenscript directory</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">Open de Bitcoin poort automatisch op de router. Dit werkt alleen als de router UPnP ondersteunt en het aanstaat.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation type="unfinished">Open de Qtum poort automatisch op de router. Dit werkt alleen als de router UPnP ondersteunt en het aanstaat.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Portmapping via &amp;UPnP</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">Automatisch openen van de Bitcoin client poort op de router. Dit werkt alleen als de router NAT-PMP ondersteunt en het is ingeschakeld. De externe poort kan willekeurig zijn.</translation>
-    </message>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation type="unfinished">Automatisch openen van de Qtum client poort op de router. Dit werkt alleen als de router NAT-PMP ondersteunt en het is ingeschakeld. De externe poort kan willekeurig zijn.</translation>
+   </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
         <translation type="unfinished">Port mapping via NA&amp;T-PMP</translation>
@@ -1596,9 +1594,9 @@ Ongebruikte mempool geheugen is gedeeld voor deze cache.</translation>
         <translation type="unfinished">Sta inkomende verbindingen toe</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Verbind met het Bitcoinnetwerk via een SOCKS5 proxy.</translation>
-    </message>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Verbind met het Qtumnetwerk via een SOCKS5 proxy.</translation>
+   </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Verbind via een SOCKS5-proxy (standaardproxy):</translation>
@@ -1672,9 +1670,8 @@ Ongebruikte mempool geheugen is gedeeld voor deze cache.</translation>
         <translation type="unfinished">Munt controle functies weergeven of niet.</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Maak verbinding met het Bitcoin netwerk via een aparte SOCKS5-proxy voor Tor Onion-services.</translation>
-    </message>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Maak verbinding met het Qtum netwerk via een aparte SOCKS5-proxy voor Tor Onion-services.</translation>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation type="unfinished">Gebruik afzonderlijke SOCKS &amp; 5-proxy om peers te bereiken via Tor Onion-services:</translation>
@@ -1781,8 +1778,8 @@ Ongebruikte mempool geheugen is gedeeld voor deze cache.</translation>
         <translation type="unfinished">Vorm</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">De weergegeven informatie kan verouderd zijn. Uw wallet synchroniseert automatisch met het Bitcoinnetwerk nadat een verbinding is gelegd, maar dit proces is nog niet voltooid.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation type="unfinished">De weergegeven informatie kan verouderd zijn. Uw wallet synchroniseert automatisch met het Qtumnetwerk nadat een verbinding is gelegd, maar dit proces is nog niet voltooid.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1996,16 +1993,16 @@ Ongebruikte mempool geheugen is gedeeld voor deze cache.</translation>
         <translation type="unfinished">Fout bij betalingsverzoek</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation type="unfinished">Kan bitcoin niet starten: click-to-pay handler</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation type="unfinished">Kan qtum niet starten: click-to-pay handler</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">URI-behandeling</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation type="unfinished">'bitcoin://' is niet een geldige URI. Gebruik 'bitcoin:' in plaats daarvan.</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation type="unfinished">'qtum://' is niet een geldige URI. Gebruik 'qtum:' in plaats daarvan.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -2016,9 +2013,9 @@ Gezien de wijdverspreide beveiligingsproblemen in BIP70 is het sterk aanbevolen 
 Als je deze fout ziet zou je de aanbieder moeten verzoeken om een BIP21-compatibele URI te verstrekken.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
-        <translation type="unfinished">URI kan niet verwerkt worden! Dit kan het gevolg zijn van een ongeldig Bitcoin adres of misvormde URI parameters.</translation>
-    </message>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <translation type="unfinished">URI kan niet verwerkt worden! Dit kan het gevolg zijn van een ongeldig Qtum adres of misvormde URI parameters.</translation>
+   </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">Betalingsverzoek bestandsafhandeling</translation>
@@ -2510,9 +2507,9 @@ Voor meer informatie over het gebruik van deze console, type %6.
         <translation type="unfinished">&amp;Bericht</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation type="unfinished">Een optioneel bericht om bij te voegen aan het betalingsverzoek, welke zal getoond worden wanneer het verzoek is geopend. Opmerking: Het bericht zal niet worden verzonden met de betaling over het Bitcoin netwerk.</translation>
-    </message>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation type="unfinished">Een optioneel bericht om bij te voegen aan het betalingsverzoek, welke zal getoond worden wanneer het verzoek is geopend. Opmerking: Het bericht zal niet worden verzonden met de betaling over het Qtum netwerk.</translation>
+ </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Een optioneel label om te associëren met het nieuwe ontvangstadres</translation>
@@ -2787,9 +2784,9 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
 Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "100 satoshis per kvB" voor een transactie ten grootte van 500 virtuele bytes (de helft van 1 kvB) uiteindelijk een vergoeding van maar 50 satoshis betekenen.</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
-        <translation type="unfinished">De minimale toeslag betalen is prima mits het transactievolume kleiner is dan de ruimte in de blokken. Let wel op dat dit tot gevolg kan hebben dat een transactie nooit wordt bevestigd als er meer vraag is naar bitcointransacties dan het netwerk kan verwerken.</translation>
-    </message>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <translation type="unfinished">De minimale toeslag betalen is prima mits het transactievolume kleiner is dan de ruimte in de blokken. Let wel op dat dit tot gevolg kan hebben dat een transactie nooit wordt bevestigd als er meer vraag is naar qtumtransacties dan het netwerk kan verwerken.</translation>
+   </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
         <translation type="unfinished">Een te lage toeslag kan tot gevolg hebben dat de transactie nooit bevestigd wordt (lees de tooltip)</translation>
@@ -2873,9 +2870,9 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">Cr&amp;eëer Ongetekend</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Creëert een Gedeeltelijk Getekende Bitcoin Transactie (PSBT) om te gebruiken met b.v. een offline %1 wallet, of een PSBT-compatibele hardware wallet.</translation>
-    </message>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Creëert een Gedeeltelijk Getekende Qtum Transactie (PSBT) om te gebruiken met b.v. een offline %1 wallet, of een PSBT-compatibele hardware wallet.</translation> 
+   </message>
     <message>
         <source> from wallet '%1'</source>
         <translation type="unfinished">van wallet '%1'</translation>
@@ -2933,9 +2930,9 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">Je kunt de vergoeding later verhogen (signaleert Replace-By-Fee, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Controleer aub je transactievoorstel. Dit zal een Gedeeltelijk Getekende Bitcoin Transactie (PSBT) produceren die je kan opslaan of kopiëren en vervolgens ondertekenen met bijv. een offline %1 wallet, of een PSBT-combatibele hardware wallet.</translation>
+        <translation type="unfinished">Controleer aub je transactievoorstel. Dit zal een Gedeeltelijk Getekende Qtum Transactie (PSBT) produceren die je kan opslaan of kopiëren en vervolgens ondertekenen met bijv. een offline %1 wallet, of een PSBT-combatibele hardware wallet.</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>
@@ -2943,9 +2940,9 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">Wilt u deze transactie aanmaken?</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitcoin Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">Controleer aub je transactie. Je kan deze transactie creëren en verzenden, of een Gedeeltelijk Getekende Bitcoin Transactie (PSBT) maken, die je kan opslaan of kopiëren en daarna ondertekenen, bijv. met een offline %1 wallet, of een PSBT-combatibele hardware wallet.</translation>
+        <translation type="unfinished">Controleer aub je transactie. Je kan deze transactie creëren en verzenden, of een Gedeeltelijk Getekende Qtum Transactie (PSBT) maken, die je kan opslaan of kopiëren en daarna ondertekenen, bijv. met een offline %1 wallet, of een PSBT-combatibele hardware wallet.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3022,9 +3019,9 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation type="unfinished">Waarschuwing: Ongeldig Bitcoin adres</translation>
-    </message>
+        <source>Warning: Invalid Qtum address</source>
+        <translation type="unfinished">Waarschuwing: Ongeldig Qtum adres</translation>
+   </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Waarschuwing: Onbekend wisselgeldadres</translation>
@@ -3057,9 +3054,9 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">Kies een eerder gebruikt adres</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation type="unfinished">Het Bitcoinadres om betaling aan te versturen</translation>
-    </message>
+        <source>The Qtum address to send the payment to</source>
+        <translation type="unfinished">Het Qtumadres om betaling aan te versturen</translation>
+  </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Plak adres vanuit klembord</translation>
@@ -3073,9 +3070,9 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">Het te sturen bedrag in de geselecteerde eenheid</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished">De transactiekosten zal worden afgetrokken van het bedrag dat verstuurd wordt. De ontvangers zullen minder bitcoins ontvangen dan ingevoerd is in het hoeveelheidsveld. Als er meerdere ontvangers geselecteerd zijn, dan worden de transactiekosten gelijk verdeeld.</translation>
-    </message>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation type="unfinished">De transactiekosten zal worden afgetrokken van het bedrag dat verstuurd wordt. De ontvangers zullen minder qtums ontvangen dan ingevoerd is in het hoeveelheidsveld. Als er meerdere ontvangers geselecteerd zijn, dan worden de transactiekosten gelijk verdeeld.</translation>
+   </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">Trek de transactiekosten a&amp;f van het bedrag.</translation>
@@ -3093,8 +3090,8 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">Vul een label voor dit adres in om het aan de lijst met gebruikte adressen toe te voegen</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">Een bericht dat werd toegevoegd aan de bitcoin: URI welke wordt opgeslagen met de transactie ter referentie. Opmerking: Dit bericht zal niet worden verzonden over het Bitcoin netwerk.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">Een bericht dat werd toegevoegd aan de qtum: URI welke wordt opgeslagen met de transactie ter referentie. Opmerking: Dit bericht zal niet worden verzonden over het Qtum netwerk.</translation>
     </message>
 </context>
 <context>
@@ -3119,12 +3116,12 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">&amp;Onderteken bericht</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">U kunt berichten/overeenkomsten ondertekenen met uw adres om te bewijzen dat u Bitcoins kunt versturen. Wees voorzichtig met het ondertekenen van iets vaags of willekeurigs, omdat phishingaanvallen u kunnen proberen te misleiden tot het ondertekenen van overeenkomsten om uw identiteit aan hen toe te vertrouwen. Onderteken alleen volledig gedetailleerde verklaringen voordat u akkoord gaat.</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation type="unfinished">U kunt berichten/overeenkomsten ondertekenen met uw adres om te bewijzen dat u Qtums kunt versturen. Wees voorzichtig met het ondertekenen van iets vaags of willekeurigs, omdat phishingaanvallen u kunnen proberen te misleiden tot het ondertekenen van overeenkomsten om uw identiteit aan hen toe te vertrouwen. Onderteken alleen volledig gedetailleerde verklaringen voordat u akkoord gaat.</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation type="unfinished">Het Bitcoin adres om bericht mee te ondertekenen</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation type="unfinished">Het Qtum adres om bericht mee te ondertekenen</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -3147,8 +3144,8 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">Kopieer de huidige handtekening naar het systeemklembord</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
-        <translation type="unfinished">Onderteken een bericht om te bewijzen dat u een bepaald Bitcoin adres bezit</translation>
+        <source>Sign the message to prove you own this Qtum address</source>
+        <translation type="unfinished">Onderteken een bericht om te bewijzen dat u een bepaald Qtum adres bezit</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -3171,8 +3168,8 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">Voer het adres van de ontvanger in, bericht (zorg ervoor dat de regeleinden, spaties, tabs etc. precies kloppen) en onderteken onderaan om het bericht te verifiëren. Wees voorzicht om niet meer in de ondertekening te lezen dan in het getekende bericht zelf, om te voorkomen dat je wordt aangevallen met een man-in-the-middle attack. Houd er mee rekening dat dit alleen de ondertekende partij bewijst met het ontvangen adres, er kan niet bewezen worden dat er een transactie heeft plaatsgevonden!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation type="unfinished">Het Bitcoin adres waarmee het bericht ondertekend is</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation type="unfinished">Het Qtum adres waarmee het bericht ondertekend is</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -3183,8 +3180,8 @@ Notitie: Omdat de vergoeding per byte wordt gerekend, zal een vergoeding van "10
         <translation type="unfinished">De handtekening waarmee het bericht ondertekend werd</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation type="unfinished">Controleer een bericht om te verifiëren dat het gespecificeerde Bitcoin adres het bericht heeft ondertekend.</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation type="unfinished">Controleer een bericht om te verifiëren dat het gespecificeerde Qtum adres het bericht heeft ondertekend.</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -3812,8 +3809,8 @@ Ga naar Bestand &gt; Wallet openen om een wallet te laden.
         <translation type="unfinished">De %s ontwikkelaars</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s beschadigd. Probeer de wallet tool bitcoin-wallet voor herstel of een backup terug te zetten.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s beschadigd. Probeer de wallet tool qtum-wallet voor herstel of een backup terug te zetten.</translation>
     </message>
     <message>
         <source>%s failed to validate the -assumeutxo snapshot state. This indicates a hardware problem, or a bug in the software, or a bad software modification that allowed an invalid snapshot to be loaded. As a result of this, the node will shut down and stop using any state that was built on the snapshot, resetting the chain height from %d to %d. On the next restart, the node will resume syncing from %d without using any snapshot data. Please report this incident to %s, including how you obtained the snapshot. The invalid snapshot chainstate will be left on disk in case it is helpful in diagnosing the issue that caused this error.</source>
@@ -3821,8 +3818,7 @@ Ga naar Bestand &gt; Wallet openen om een wallet te laden.
     </message>
     <message>
         <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">%s verzoekt om te luisteren op poort %u. Deze poort wordt als "slecht" beschouwd en het is daarom onwaarschijnlijk dat Bitcoin Core peers er verbinding mee maken. Zie doc/p2p-bad-ports.md voor details en een volledige lijst.</translation>
-    </message>
+        <translation type="unfinished">%s verzoekt om te luisteren op poort %u. Deze poort wordt als "slecht" beschouwd en het is daarom onwaarschijnlijk dat Qtum Core peers er verbinding mee maken. Zie doc/p2p-bad-ports.md voor details en een volledige lijst.</translation>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
         <translation type="unfinished">Kan wallet niet downgraden van versie %i naar version %i. Walletversie ongewijzigd.</translation>
@@ -3860,8 +3856,8 @@ Ga naar Bestand &gt; Wallet openen om een wallet te laden.
         <translation type="unfinished">Fout: Identificatierecord van dumpbestand is onjuist. Gekregen "%s", verwacht "%s".</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Fout: Dumpbestandsversie wordt niet ondersteund. Deze versie bitcoinwallet ondersteunt alleen versie 1 dumpbestanden. Dumpbestand met versie %s gekregen</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Fout: Dumpbestandsversie wordt niet ondersteund. Deze versie qtumwallet ondersteunt alleen versie 1 dumpbestanden. Dumpbestand met versie %s gekregen</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

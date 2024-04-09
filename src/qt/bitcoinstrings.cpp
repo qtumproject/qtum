@@ -11,7 +11,7 @@
 static const char UNUSED *bitcoin_strings[] = {
 QT_TRANSLATE_NOOP("bitcoin-core", "The %s developers"),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
-"%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring "
+"%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring "
 "a backup."),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "%s failed to validate the -assumeutxo snapshot state. This indicates a "
@@ -69,7 +69,7 @@ QT_TRANSLATE_NOOP("bitcoin-core", ""
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Error: Dumpfile identifier record is incorrect. Got \"%s\", expected \"%s\"."),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
-"Error: Dumpfile version is not supported. This version of bitcoin-wallet "
+"Error: Dumpfile version is not supported. This version of qtum-wallet "
 "only supports version 1 dumpfiles. Got dumpfile with version %s"),
 QT_TRANSLATE_NOOP("bitcoin-core", ""
 "Error: Duplicate descriptors created during migration. Your wallet may be "
@@ -308,9 +308,11 @@ QT_TRANSLATE_NOOP("bitcoin-core", "Invalid -onion address or hostname: '%s'"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid -proxy address or hostname: '%s'"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid P2P permission: '%s'"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid amount for %s=<amount>: '%s' (must be at least %s)"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Invalid amount for -reservebalance=<amount>"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid amount for %s=<amount>: '%s'"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid amount for -%s=<amount>: '%s'"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid netmask specified in -whitelist: '%s'"),
+QT_TRANSLATE_NOOP("bitcoin-core", "Invalid amount for -reservebalance=<amount>"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid port specified in %s: '%s'"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Invalid pre-selected input %s"),
 QT_TRANSLATE_NOOP("bitcoin-core", "Listening for incoming connections failed (listen returned error %s)"),

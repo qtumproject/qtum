@@ -20,6 +20,7 @@ class Node;
 
 extern const char *DEFAULT_GUI_PROXY_HOST;
 static constexpr uint16_t DEFAULT_GUI_PROXY_PORT = 9050;
+static const bool DEFAULT_CHECK_FOR_UPDATES = true;
 
 /**
  * Convert configured prune target MiB to displayed GB. Round up to avoid underestimating max disk usage.
@@ -68,11 +69,21 @@ public:
         PruneSize,              // int
         DatabaseCache,          // int
         ExternalSignerPath,     // QString
+        LogEvents,              // bool
+        SuperStaking,           // bool
         SpendZeroConfChange,    // bool
+        ZeroBalanceAddressToken,// bool
         Listen,                 // bool
         Server,                 // bool
         EnablePSBTControls,     // bool
         MaskValues,             // bool
+        UseChangeAddress,       // bool
+        CheckForUpdates,        // bool
+        ReserveBalance,         // CAmount
+        Theme,                  // QString
+        HWIToolPath,            // QString
+        SignPSBTWithHWITool,    // bool
+        StakeLedgerId,          // QString
         OptionIDRowCount,
     };
 
@@ -98,18 +109,22 @@ public:
     bool getSubFeeFromAmount() const { return m_sub_fee_from_amount; }
     bool getEnablePSBTControls() const { return m_enable_psbt_controls; }
     const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
-
+    bool getCheckForUpdates() const { return fCheckForUpdates; }
     /** Whether -signer was set or not */
     bool hasSigner();
 
     /* Explicit setters */
     void SetPruneTargetGB(int prune_target_gb);
+    bool getZeroBalanceAddressToken() const { return bZeroBalanceAddressToken; }
 
     /* Restart flag helper */
     void setRestartRequired(bool fRequired);
     bool isRestartRequired() const;
 
     interfaces::Node& node() const { return m_node; }
+
+    bool getRestartApp() const;
+    void setRestartApp(bool value);
 
 private:
     interfaces::Node& m_node;
@@ -128,6 +143,10 @@ private:
 
     /* settings that were overridden by command-line */
     QString strOverriddenByCommandLine;
+    bool fCheckForUpdates;
+    bool bZeroBalanceAddressToken;
+    QString theme;
+    bool restartApp;
 
     // Add option to list of GUI options overridden through command line/config file
     void addOverriddenOption(const std::string &option);
@@ -140,6 +159,7 @@ Q_SIGNALS:
     void coinControlFeaturesChanged(bool);
     void showTrayIconChanged(bool);
     void useEmbeddedMonospacedFontChanged(bool);
+    void zeroBalanceAddressTokenChanged(bool);
 };
 
 #endif // BITCOIN_QT_OPTIONSMODEL_H

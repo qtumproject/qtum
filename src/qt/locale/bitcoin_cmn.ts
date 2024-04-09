@@ -47,20 +47,19 @@
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation type="unfinished">选择接收比特币地址</translation>
+        <translation type="unfinished">选择接收QTUM地址</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
         <translation type="unfinished">选择(&amp;H)</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">这些是你的比特币支付地址。在发送之前，一定要核对金额和接收地址。</translation>
-    </message>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">这些是你的QTUM支付地址。在发送之前，一定要核对金额和接收地址。</translation>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">這些是您的比特幣接收地址。使用“接收”標籤中的“產生新的接收地址”按鈕產生新的地址。只能使用“傳統”類型的地址進行簽名。</translation>
+        <translation type="unfinished">這些是您的QTUM幣接收地址。使用“接收”標籤中的“產生新的接收地址”按鈕產生新的地址。只能使用“傳統”類型的地址進行簽名。</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -155,8 +154,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">确认钱包加密</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">警告: 如果把钱包加密后又忘记密码，你就会从此&lt;b&gt;失去其中所有的比特币了&lt;/b&gt;！</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">警告: 如果把钱包加密后又忘记密码，你就会从此&lt;b&gt;失去其中所有的QTUM了&lt;/b&gt;！</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -175,7 +174,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">输入钱包的旧密码和新密码。</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">請記得, 即使將錢包加密, 也不能完全防止因惡意軟體入侵, 而導致位元幣被偷.</translation>
     </message>
     <message>
@@ -445,8 +444,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">代理服务器已&lt;b&gt;启用&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation type="unfinished">向一个比特币地址发币</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">向一个QTUM地址发币</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -493,8 +492,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">验证消息(&amp;V)</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation type="unfinished">校验消息，确保该消息是由指定的比特币地址所有者签名的</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation type="unfinished">校验消息，确保该消息是由指定的QTUM地址所有者签名的</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -553,8 +552,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">连到同行...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">请求支付 (生成二维码和 bitcoin: URI)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">请求支付 (生成二维码和 qtum: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -607,16 +606,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">已是最新</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation type="unfinished">加载部分签名比特币交易（PSBT）</translation>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation type="unfinished">加载部分签名QTUM币交易（PSBT）</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">從剪貼簿載入PSBT</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">从剪贴板中加载部分签名比特币交易（PSBT）</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation type="unfinished">从剪贴板中加载部分签名QTUM交易（PSBT）</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -635,8 +634,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">收款地址(&amp;R)</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation type="unfinished">打开bitcoin:开头的URI</translation>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">打开qtum:开头的URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -673,8 +672,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">迁移一个钱包</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">显示 %1 帮助信息，获取可用命令行选项列表</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="unfinished">显示%1帮助消息以获得可能包含Qtum命令行选项的列表</translation>
+
+
+
+
+
+
+
+
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -737,10 +744,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;顯示</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform> %n 与比特币网络接。</numerusform>
+            <numerusform> %n 与QTUM网络接。</numerusform>
         </translation>
     </message>
     <message>
@@ -1210,8 +1217,8 @@ The migration process will create a backup of the wallet before migrating. This 
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 将会下载并存储比特币区块链。</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 将会下载并存储QTUM区块链。</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1310,8 +1317,8 @@ The migration process will create a backup of the wallet before migrating. This 
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation type="unfinished">打开比特币URI</translation>
+        <source>Open qtum URI</source>
+        <translation type="unfinished">打开QTUMURI</translation>
     </message>
     </context>
 <context>
@@ -1433,8 +1440,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">允许传入连接(&amp;G)</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">透過 SOCKS5 代理伺服器來連線到 Bitcoin 網路。</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">透過 SOCKS5 代理伺服器來連線到 Qtum 網路。</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1478,7 +1485,7 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation type="unfinished">选择显示及发送比特币时使用的最小单位。</translation>
+        <translation type="unfinished">选择显示及发送QTUM时使用的最小单位。</translation>
     </message>
     <message>
         <source>Third-party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
@@ -1489,8 +1496,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">第三方交易网址(&amp;T)</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">连接比特币网络时专门为Tor onion服务使用另一个 SOCKS5 代理。</translation>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">连接QTUM网络时专门为Tor onion服务使用另一个 SOCKS5 代理。</translation>
     </message>
     <message>
         <source>Monospaced font in the Overview tab:</source>
@@ -1560,8 +1567,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">窗体</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">顯示的資訊可能是過期的。跟 Bitcoin 網路的連線建立後，你的錢包會自動和網路同步，但是這個步驟還沒完成。</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation type="unfinished">顯示的資訊可能是過期的。跟 Qtum 網路的連線建立後，你的錢包會自動和網路同步，但是這個步驟還沒完成。</translation>
     </message>
     <message>
         <source>Available:</source>
@@ -1703,8 +1710,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">URI 處理</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation type="unfinished">字首為 bitcoin:// 不是有效的 URI，請改用 bitcoin: 開頭。</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation type="unfinished">字首為 qtum:// 不是有效的 URI，請改用 qtum: 開頭。</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -1715,8 +1722,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
 如果您看到了这个错误，您应该要求商家提供兼容BIP21的URI。</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
-        <translation type="unfinished">无法解析 URI 地址！可能是因为比特币地址无效，或是 URI 参数格式错误。</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <translation type="unfinished">无法解析 URI 地址！可能是因为QTUM地址无效，或是 URI 参数格式错误。</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2164,8 +2171,8 @@ For more information on using this console, type %6.
         <translation type="unfinished">訊息(&amp;M):</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation type="unfinished">可在支付请求上备注一条信息，在打开支付请求时可以看到。注意:该消息不是通过比特币网络传送。</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation type="unfinished">可在支付请求上备注一条信息，在打开支付请求时可以看到。注意:该消息不是通过QTUM网络传送。</translation>
     </message>
     <message>
         <source>Use this form to request payments. All fields are &lt;b&gt;optional&lt;/b&gt;.</source>
@@ -2409,8 +2416,8 @@ For more information on using this console, type %6.
         <translation type="unfinished">%1 (%2个块)</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">创建一个“部分签名比特币交易”（PSBT），以用于诸如离线%1钱包，或是兼容PSBT的硬件钱包这类用途。</translation>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">创建一个“部分签名QTUM交易”（PSBT），以用于诸如离线%1钱包，或是兼容PSBT的硬件钱包这类用途。</translation>
     </message>
     <message>
         <source> from wallet '%1'</source>
@@ -2448,9 +2455,9 @@ For more information on using this console, type %6.
         <translation type="unfinished">要创建这笔交易吗？</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitcoin Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">请务必仔细检查您的交易。你可以创建并发送这笔交易；也可以创建一个“部分签名比特币交易(PSBT)”，它可以被保存下来或被复制出去，然后就可以对它进行签名，比如用离线%1钱包，或是用兼容PSBT的硬件钱包。</translation>
+        <translation type="unfinished">请务必仔细检查您的交易。你可以创建并发送这笔交易；也可以创建一个“部分签名QTUM交易(PSBT)”，它可以被保存下来或被复制出去，然后就可以对它进行签名，比如用离线%1钱包，或是用兼容PSBT的硬件钱包。</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -2517,8 +2524,8 @@ For more information on using this console, type %6.
         <translation type="unfinished">付給(&amp;T):</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation type="unfinished">將支付發送到的比特幣地址給</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation type="unfinished">將支付發送到的QTUM幣地址給</translation>
     </message>
     <message>
         <source>The amount to send in the selected unit</source>
@@ -2541,8 +2548,8 @@ For more information on using this console, type %6.
         <translation type="unfinished">請輸入這個地址的標籤，來把它加進去已使用過地址清單。</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">附加在 Bitcoin 付款協議的資源識別碼(URI)中的訊息，會和交易內容一起存起來，給你自己做參考。注意: 這個訊息不會送到 Bitcoin 網路上。</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">附加在 Qtum 付款協議的資源識別碼(URI)中的訊息，會和交易內容一起存起來，給你自己做參考。注意: 這個訊息不會送到 Qtum 網路上。</translation>
     </message>
 </context>
 <context>
@@ -2567,8 +2574,8 @@ For more information on using this console, type %6.
         <translation type="unfinished">簽署訊息(&amp;S)</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">您可以使用您的地址簽名訊息/協議，以證明您可以接收發送給他們的比特幣。但是請小心，不要簽名語意含糊不清，或隨機產生的內容，因為釣魚式詐騙可能會用騙你簽名的手法來冒充是你。只有簽名您同意的詳細內容。</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation type="unfinished">您可以使用您的地址簽名訊息/協議，以證明您可以接收發送給他們的QTUM幣。但是請小心，不要簽名語意含糊不清，或隨機產生的內容，因為釣魚式詐騙可能會用騙你簽名的手法來冒充是你。只有簽名您同意的詳細內容。</translation>
     </message>
     <message>
         <source>Signature</source>
@@ -2579,7 +2586,7 @@ For more information on using this console, type %6.
         <translation type="unfinished">複製目前的簽章到系統剪貼簿</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
+        <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">签名消息，以证明这个地址属于您</translation>
     </message>
     <message>
@@ -2595,7 +2602,7 @@ For more information on using this console, type %6.
         <translation type="unfinished">消息验证(&amp;V)</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
+        <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">用来签名消息的地址</translation>
     </message>
     <message>
@@ -2607,8 +2614,8 @@ For more information on using this console, type %6.
         <translation type="unfinished">对消息进行签署得到的签名数据</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation type="unfinished">驗證這個訊息來確定是用指定的比特幣地址簽名的</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation type="unfinished">驗證這個訊息來確定是用指定的QTUM幣地址簽名的</translation>
     </message>
     <message>
         <source>Click "Sign Message" to generate signature</source>
@@ -3102,8 +3109,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">错误: 转储文件格式不正确。得到是"%s"，而预期本应得到的是 "format"。</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">错误: 转储文件版本不被支持。这个版本的 bitcoin-wallet 只支持版本为 1 的转储文件。得到的转储文件版本却是%s</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">错误: 转储文件版本不被支持。这个版本的 qtum-wallet 只支持版本为 1 的转储文件。得到的转储文件版本却是%s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

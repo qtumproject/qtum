@@ -58,13 +58,13 @@
         <translation type="unfinished">&amp;Tria</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Aquestes són les vostres adreces de Bitcoin per a enviar els pagaments. Sempre reviseu l'import i l'adreça del destinatari abans de transferir monedes.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Aquestes són les vostres adreces de Qtum per a enviar els pagaments. Sempre reviseu l'import i l'adreça del destinatari abans de transferir monedes.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Aquestes son les teves adreces de Bitcoin per a rebre pagaments. Utilitza el botó "Crear nova adreça de recepció" de la pestanya de recepció per a crear una nova adreça.
+        <translation type="unfinished">Aquestes son les teves adreces de Qtum per a rebre pagaments. Utilitza el botó "Crear nova adreça de recepció" de la pestanya de recepció per a crear una nova adreça. 
 Només és possible firmar amb adreces del tipus "legacy".</translation>
     </message>
     <message>
@@ -156,8 +156,8 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">Confirma el xifratge de la cartera</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Avís: si xifreu la cartera i perdeu la contrasenya, &lt;b&gt;PERDREU TOTS ELS BITCOINS&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Avís: si xifreu la cartera i perdeu la contrasenya, &lt;b&gt;PERDREU TOTS ELS QTUMS&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -176,8 +176,8 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">Introduïu la contrasenya antiga i la contrasenya nova a la cartera.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Recorda que tot i xifrant la teva cartera, els teus bitcoins no estan completament protegits de robatori a través de programari maliciós que estigui infectant el teu ordinador.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Recorda que tot i xifrant la teva cartera, els teus qtums no estan completament protegits de robatori a través de programari maliciós que estigui infectant el teu ordinador.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -279,8 +279,8 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">Import</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation type="unfinished">Introduïu una adreça de Bitcoin (p. ex. %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation type="unfinished">Introduïu una adreça de Qtum (p. ex. %1)</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -435,9 +435,8 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">El servidor proxy està &lt;b&gt;activat&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation type="unfinished">Envia monedes a una adreça Bitcoin</translation>
-    </message>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">Envia monedes a una adreça Qtum</translation>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Realitza una còpia de seguretat de la cartera a una altra ubicació</translation>
@@ -479,16 +478,16 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">Signa el &amp;missatge</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation type="unfinished">Signa els missatges amb la seva adreça de Bitcoin per a provar que les posseeixes</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation type="unfinished">Signa els missatges amb la seva adreça de Qtum per a provar que les posseeixes</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verifica el missatge</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation type="unfinished">Verifiqueu els missatges per a assegurar-vos que han estat signats amb una adreça Bitcoin específica.</translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation type="unfinished">Verifiqueu els missatges per a assegurar-vos que han estat signats amb una adreça Qtum específica.</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -547,8 +546,8 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">Connectant als iguals...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">Sol·licita pagaments (genera codis QR i bitcoin: URI)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">Sol·licita pagaments (genera codis QR i qtum: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -598,16 +597,16 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">Actualitzat</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation type="unfinished">Carrega la transacció Bitcoin signada parcialment</translation>
+        <source>Load Partially Signed Qtum Transaction</source>
+        <translation type="unfinished">Carrega la transacció Qtum signada parcialment</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Carrega la PSBT des del porta-retalls.</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">Carrega la transacció de Bitcoin signada parcialment des del porta-retalls</translation>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <translation type="unfinished">Carrega la transacció de Qtum signada parcialment des del porta-retalls</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -626,8 +625,8 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">Adreces de &amp;recepció</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
-        <translation type="unfinished">Obrir un bitcoin: URI</translation>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">Obrir un qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -646,8 +645,8 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">Tanqueu totes les carteres</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">Mostra el missatge d'ajuda del %1 per obtenir una llista amb les possibles opcions de línia d'ordres de Bitcoin</translation>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <translation type="unfinished">Mostra el missatge d'ajuda del %1 per obtenir una llista amb les possibles opcions de línia d'ordres de Qtum</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -696,11 +695,11 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">&amp;Amaga</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source> 
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n connexió activa a la xarxa Bitcoin</numerusform>
-            <numerusform>%n connexions actives a la xarxa Bitcoin</numerusform>
+            <numerusform>%n connexió activa a la xarxa Qtum</numerusform>
+            <numerusform>%n connexions actives a la xarxa Qtum</numerusform>
         </translation>
     </message>
     <message>
@@ -1103,8 +1102,8 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation type="unfinished">Edita l'adreça d'enviament</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Bitcoin address.</source>
-        <translation type="unfinished">L'adreça introduïda «%1» no és una adreça de Bitcoin vàlida.</translation>
+        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <translation type="unfinished">L'adreça introduïda «%1» no és una adreça de Qtum vàlida.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1186,8 +1185,8 @@ Això és ideal per a carteres de mode només lectura.</translation>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 descarregarà i emmagatzemarà una còpia de la cadena de blocs Bitcoin.</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 descarregarà i emmagatzemarà una còpia de la cadena de blocs Qtum.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1267,12 +1266,12 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation type="unfinished">Formulari</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
-        <translation type="unfinished">És possible que les transaccions recents encara no siguin visibles i, per tant, el saldo de la vostra cartera podria ser incorrecte. Aquesta informació serà correcta una vegada que la cartera hagi finalitzat la sincronització amb la xarxa bitcoin, tal com es detalla més avall.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <translation type="unfinished">És possible que les transaccions recents encara no siguin visibles i, per tant, el saldo de la vostra cartera podria ser incorrecte. Aquesta informació serà correcta una vegada que la cartera hagi finalitzat la sincronització amb la xarxa qtum, tal com es detalla més avall.</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Els intents de gastar bitcoins que es veuen afectats per les transaccions que encara no s'hagin mostrat no seran acceptats per la xarxa.</translation>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">Els intents de gastar qtums que es veuen afectats per les transaccions que encara no s'hagin mostrat no seran acceptats per la xarxa.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1318,8 +1317,8 @@ Això és ideal per a carteres de mode només lectura.</translation>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation type="unfinished">Obre Bitcoin URI</translation>
+        <source>Open qtum URI</source>
+        <translation type="unfinished">Obre Qtum URI</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -1426,16 +1425,16 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation type="unfinished">&amp;Camí de l'script del signatari extern</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">Obre el port del client de Bitcoin al router de forma automàtica. Això només funciona quan el router implementa UPnP i l'opció està activada.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation type="unfinished">Obre el port del client de Qtum al router de forma automàtica. Això només funciona quan el router implementa UPnP i l'opció està activada.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Port obert amb &amp;UPnP</translation>
     </message>
     <message>
-        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">Obriu automàticament el port client de Bitcoin al router. Això només funciona quan el vostre router admet NAT-PMP i està activat. El port extern podria ser aleatori.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation type="unfinished">Obriu automàticament el port client de Qtum al router. Això només funciona quan el vostre router admet NAT-PMP i està activat. El port extern podria ser aleatori.</translation>
     </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
@@ -1450,8 +1449,8 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation type="unfinished">Permet connexions entrants</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Connecta a la xarxa Bitcoin a través d'un proxy SOCKS5.</translation>
+        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Connecta a la xarxa Qtum a través d'un proxy SOCKS5.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1518,8 +1517,8 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation type="unfinished">Si voleu mostrar les funcions de control de monedes o no.</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Connecteu-vos a la xarxa Bitcoin mitjançant un servidor intermediari SOCKS5 separat per als serveis de ceba Tor.</translation>
+        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Connecteu-vos a la xarxa Qtum mitjançant un servidor intermediari SOCKS5 separat per als serveis de ceba Tor.</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -1607,8 +1606,8 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation type="unfinished">Formulari</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">La informació mostrada pot no estar al dia. El vostra cartera se sincronitza automàticament amb la xarxa Bitcoin un cop s'ha establert connexió, però aquest proces encara no ha finalitzat.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
+        <translation type="unfinished">La informació mostrada pot no estar al dia. El vostra cartera se sincronitza automàticament amb la xarxa Qtum un cop s'ha establert connexió, però aquest proces encara no ha finalitzat.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -1798,16 +1797,16 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation type="unfinished">Error de la sol·licitud de pagament</translation>
     </message>
     <message>
-        <source>Cannot start bitcoin: click-to-pay handler</source>
-        <translation type="unfinished">No es pot iniciar bitcoin: controlador click-to-pay</translation>
+        <source>Cannot start qtum: click-to-pay handler</source>
+        <translation type="unfinished">No es pot iniciar qtum: controlador click-to-pay</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Gestió d'URI</translation>
     </message>
     <message>
-        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
-        <translation type="unfinished">'bitcoin://' no és una URI vàlida. Usi 'bitcoin:' en lloc seu.</translation>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <translation type="unfinished">'qtum://' no és una URI vàlida. Usi 'qtum:' en lloc seu.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -1818,8 +1817,8 @@ A causa dels defectes generalitzats de seguretat del BIP70, es recomana que s'ig
 Si rebeu aquest error, haureu de sol·licitar al comerciant que proporcioni un URI compatible amb BIP21.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
-        <translation type="unfinished">L'URI no pot ser analitzat! Això pot ser a causa d'una adreça de Bitcoin no vàlida o per paràmetres URI amb mal format.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
+        <translation type="unfinished">L'URI no pot ser analitzat! Això pot ser a causa d'una adreça de Qtum no vàlida o per paràmetres URI amb mal format.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2299,8 +2298,8 @@ No utilitzeu aquesta consola sense entendre completament les ramificacions d'una
         <translation type="unfinished">&amp;Missatge:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
-        <translation type="unfinished">Un missatge opcional que s'adjuntarà a la sol·licitud de pagament, que es mostrarà quan s'obri la sol·licitud. Nota: El missatge no s'enviarà amb el pagament per la xarxa Bitcoin.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
+        <translation type="unfinished">Un missatge opcional que s'adjuntarà a la sol·licitud de pagament, que es mostrarà quan s'obri la sol·licitud. Nota: El missatge no s'enviarà amb el pagament per la xarxa Qtum.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2572,8 +2571,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
 Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per kvB" per a una mida de transacció de 500 bytes virtuals (la meitat d'1 kvB) donaria finalment una tarifa de només 50 satoshis.</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
-        <translation type="unfinished">Quan no hi ha prou espai en els blocs per a encabir totes les transaccions, els miners i així mateix els nodes de trànsit poden exigir una taxa mínima. És acceptable pagar únicament la taxa mínima, però tingueu present que pot resultar que la vostra transacció no sigui mai confirmada mentre hi hagi més demanda de transaccions bitcoin de les que la xarxa pot processar.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <translation type="unfinished">Quan no hi ha prou espai en els blocs per a encabir totes les transaccions, els miners i així mateix els nodes de trànsit poden exigir una taxa mínima. És acceptable pagar únicament la taxa mínima, però tingueu present que pot resultar que la vostra transacció no sigui mai confirmada mentre hi hagi més demanda de transaccions qtum de les que la xarxa pot processar.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -2658,8 +2657,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">Creació sense firmar</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Crea una transacció bitcoin parcialment signada (PSBT) per a utilitzar, per exemple,  amb una cartera %1 fora de línia o amb una cartera compatible amb PSBT.</translation>
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Crea una transacció qtum parcialment signada (PSBT) per a utilitzar, per exemple,  amb una cartera %1 fora de línia o amb una cartera compatible amb PSBT.</translation>
     </message>
     <message>
         <source> from wallet '%1'</source>
@@ -2717,10 +2716,10 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
         <translation type="unfinished">Pot incrementar la tarifa més tard (senyala Replace-By-Fee o substitució per tarifa, BIP-125).</translation>
     </message>
-    <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source> 
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Si us plau, revisa la teva proposta de transacció. Es produirà una transacció de Bitcoin amb firma parcial (PSBT) que podeu guardar o copiar i després firmar, per exemple, amb una cartera %1, o amb una cartera física compatible amb PSBT.</translation>
+        <translation type="unfinished">Si us plau, revisa la teva proposta de transacció. Es produirà una transacció de Qtum amb firma parcial (PSBT) que podeu guardar o copiar i després firmar, per exemple, amb una cartera %1, o amb una cartera física compatible amb PSBT.</translation> 
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -2783,8 +2782,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
-        <translation type="unfinished">Avís: adreça Bitcoin no vàlida</translation>
+        <source>Warning: Invalid Qtum address</source>
+        <translation type="unfinished">Avís: adreça Qtum no vàlida</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -2822,8 +2821,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">Escull una adreça feta servir anteriorment</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
-        <translation type="unfinished">L'adreça Bitcoin on enviar el pagament</translation>
+        <source>The Qtum address to send the payment to</source>
+        <translation type="unfinished">L'adreça Qtum on enviar el pagament</translation>
     </message>
     <message>
         <source>Alt+A</source>
@@ -2842,8 +2841,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">L’import a enviar a la unitat seleccionada</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished">La tarifa es deduirà de l'import que s'enviarà. El destinatari rebrà menys bitcoins que les que introduïu al camp d'import. Si se seleccionen múltiples destinataris, la tarifa es dividirà per igual.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation type="unfinished">La tarifa es deduirà de l'import que s'enviarà. El destinatari rebrà menys qtums que les que introduïu al camp d'import. Si se seleccionen múltiples destinataris, la tarifa es dividirà per igual.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -2862,8 +2861,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">Introduïu una etiqueta per a aquesta adreça per afegir-la a la llista d'adreces utilitzades</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
-        <translation type="unfinished">Un missatge que s'ha adjuntat al bitcoin: URI que s'emmagatzemarà amb la transacció per a la vostra referència. Nota: el missatge no s'enviarà a través de la xarxa Bitcoin.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">Un missatge que s'ha adjuntat al qtum: URI que s'emmagatzemarà amb la transacció per a la vostra referència. Nota: el missatge no s'enviarà a través de la xarxa Qtum.</translation>
     </message>
 </context>
 <context>
@@ -2888,12 +2887,12 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">&amp;Signa el missatge</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Podeu signar missatges/acords amb les vostres adreces per a provar que rebeu les bitcoins que s'hi envien. Aneu amb compte no signar res que sigui vague o aleatori, perquè en alguns atacs de suplantació es pot provar que hi signeu la vostra identitat. Només signeu aquelles declaracions completament detallades en què hi esteu d'acord. </translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation type="unfinished">Podeu signar missatges/acords amb les vostres adreces per a provar que rebeu les qtums que s'hi envien. Aneu amb compte no signar res que sigui vague o aleatori, perquè en alguns atacs de suplantació es pot provar que hi signeu la vostra identitat. Només signeu aquelles declaracions completament detallades en què hi esteu d'acord. </translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
-        <translation type="unfinished">L'adreça Bitcoin amb què signar el missatge</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation type="unfinished">L'adreça Qtum amb què signar el missatge</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -2920,8 +2919,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">Copia la signatura actual al porta-retalls del sistema</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Bitcoin address</source>
-        <translation type="unfinished">Signa el missatge per a provar que ets propietari d'aquesta adreça Bitcoin</translation>
+        <source>Sign the message to prove you own this Qtum address</source>
+        <translation type="unfinished">Signa el missatge per a provar que ets propietari d'aquesta adreça Qtum</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -2944,8 +2943,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">Introduïu l'adreça del receptor, el missatge (assegureu-vos de copiar els salts de línia, espais, tabuladors, etc. exactament) i signatura de sota per a verificar el missatge. Tingueu cura de no llegir més en la signatura del que està al missatge signat, per a evitar ser enganyat per un atac d'home-en-el-mig. Tingueu en compte que això només demostra que la part que signa rep amb l'adreça, i no es pot provar l'enviament de qualsevol transacció!</translation>
     </message>
     <message>
-        <source>The Bitcoin address the message was signed with</source>
-        <translation type="unfinished">L'adreça Bitcoin amb què va ser signat el missatge</translation>
+        <source>The Qtum address the message was signed with</source>
+        <translation type="unfinished">L'adreça Qtum amb què va ser signat el missatge</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -2956,8 +2955,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">La signatura donada quan es va signar el missatge</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
-        <translation type="unfinished">Verificar el missatge per a assegurar-se que ha estat signat amb una adreça Bitcoin específica</translation>
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
+        <translation type="unfinished">Verificar el missatge per a assegurar-se que ha estat signat amb una adreça Qtum específica</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -3589,8 +3588,8 @@ Ves a Arxiu &gt; Obrir Cartera per a carregar cartera.
         <translation type="unfinished">Els desenvolupadors %s</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s està malmès. Proveu d’utilitzar l’eina bitcoin-wallet per a recuperar o restaurar una còpia de seguretat.</translation>
+        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s està malmès. Proveu d’utilitzar l’eina qtum-wallet per a recuperar o restaurar una còpia de seguretat.</translation>
     </message>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
@@ -3617,8 +3616,8 @@ Ves a Arxiu &gt; Obrir Cartera per a carregar cartera.
         <translation type="unfinished">Error: el registre de l'identificador del fitxer de bolcat és incorrecte. S'ha obtingut «%s», s'esperava «%s».</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Error: la versió del fitxer de bolcat no és compatible. Aquesta versió de bitcoin-wallet només admet fitxers de bolcat de la versió 1. S'ha obtingut un fitxer de bolcat amb la versió %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Error: la versió del fitxer de bolcat no és compatible. Aquesta versió de qtum-wallet només admet fitxers de bolcat de la versió 1. S'ha obtingut un fitxer de bolcat amb la versió %s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

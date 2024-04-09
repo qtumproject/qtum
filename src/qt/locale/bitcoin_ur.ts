@@ -58,11 +58,11 @@
         <translation type="unfinished">چننا</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">یہ آپ کے ادائیگی بھیجنے کے لئے بٹ کوائن ایڈریس ہیں.سکے بھیجنے سے پہلے ہمیشہ رقم اور وصول کنندہ پتہ چیک کریں۔</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ادائیگیوں کے لئے آپ کے بٹ کوائن ایڈریس ہیں۔ نئے پتے بنانے کے لئے وصول کنندہ ٹیب میں 'نیا وصول کنندہ پتہ بنائیں' بٹن کا استعمال کریں۔دستخط صرف 'میراثی' قسم کے پتے کے ساتھ ہی ممکن ہے۔</translation>
     </message>
@@ -155,7 +155,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پرس کی خفیہ کاری کی تصدیق کریں</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source> 
         <translation type="unfinished">انتباہ: اگر آپ اپنا بٹوہ انکرپٹ کرتے ہیں اور اپنا پاس فریز کھو دیتے ہیں تو ، آپ اپنے تمام بٹکوئنز کھو دیں گے.</translation>
     </message>
     <message>
@@ -175,7 +175,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پرس کے لئے پرانا پاسفریج اور نیا پاسفریز درج کریں۔</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source> 
         <translation type="unfinished">یاد رکھیں کہ آپ کے پرس کو خفیہ کرنا آپ کے بٹ کوائنز کو میلویئر/چور سے آپ کے کمپیوٹر میں انفیکشن لگانے کے ذریعہ چوری ہونے سے پوری طرح محفوظ نہیں رکھ سکتا ہے۔</translation>
     </message>
     <message>
@@ -404,7 +404,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پراکسی &lt;b&gt;فعال&lt;/b&gt; ہے:%1</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
+        <source>Send coins to a Qtum address</source> 
         <translation type="unfinished">بٹ کوائن ایڈریس پر سکے بھیجیں</translation>
     </message>
     <message>
@@ -444,7 +444,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">سائن اور پیغام…</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">اپنے ویکیپیڈیا پتوں کے ساتھ پیغامات پر دستخط کریں تاکہ آپ ان کے مالک ہوں</translation>
     </message>
     <message>
@@ -452,7 +452,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پیغام کی توثیق کریں…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">پیغامات کی توثیق کریں تاکہ یہ یقینی بن سکے کہ ان پر بٹ کوائن کے مخصوص پتوں پر دستخط ہوئے ہیں</translation>
     </message>
     <message>
@@ -508,7 +508,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ساتھیوں سے منسلک کرنے</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">ادائیگی کی درخواست کریں: ( کوئیک رسپانس ( کیو۔آر ) کوڈ اور بٹ کوائن ( یونیورسل ادائیگیوں کا نظام) کے ذریعے سے</translation>
     </message>
     <message>
@@ -563,11 +563,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">سب سے نیا</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
+        <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">جزوی طور پر دستخط شدہ بٹ کوائن ٹرانزیکشن لوڈ کریں۔</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">کلپ بورڈ سے جزوی طور پر دستخط شدہ بٹ کوائن ٹرانزیکشن لوڈ کریں۔</translation>
     </message>
     <message>
@@ -587,7 +587,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">اور پتے وصول کرنا</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
+        <source>Open a qtum: URI</source>
         <translation type="unfinished">بٹ کوائن کا یو۔آر۔آئی۔ کھولیں</translation>
     </message>
     <message>
@@ -607,7 +607,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">تمام والیٹس بند کریں</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">ممکنہ بٹ کوائن کمانڈ لائن اختیارات کے ساتھ فہرست حاصل کرنے کے لیے %1 مدد کا پیغام دکھائیں۔</translation>
     </message>
     <message>
@@ -648,7 +648,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">'%1'کلائنٹ</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -1071,7 +1071,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>Intro</name>
     <message>
-        <source>Bitcoin</source>
+        <source>Qtum</source>
         <translation type="unfinished">بٹ کوائن</translation>
     </message>
     <message numerus="yes">
@@ -1169,11 +1169,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">فارم</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">ہو سکتا ہے حالیہ لین دین ابھی تک نظر نہ آئے، اور اس وجہ سے آپ کے والیٹ کا بیلنس غلط ہو سکتا ہے۔ یہ معلومات درست ہوں گی جب آپ کے والیٹ نے بٹ کوائن نیٹ ورک کے ساتھ مطابقت پذیری مکمل کر لی ہو، جیسا کہ ذیل میں تفصیل ہے۔</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">ایسے بٹ کوائنز خرچ کرنے کی کوشش کرنا جو ابھی تک ظاہر نہ ہونے والے لین دین سے متاثر ہوں نیٹ ورک کے ذریعے قبول نہیں کیا جائے گا۔</translation>
     </message>
     <message>
@@ -1212,7 +1212,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
+        <source>Open qtum URI</source>
         <translation type="unfinished">بٹ کوائن URI کھولیں۔</translation>
     </message>
     <message>
@@ -1356,7 +1356,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">فارم</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">ظاہر کی گئی معلومات پرانی ہو سکتی ہے۔ کنکشن قائم ہونے کے بعد آپ کا والیٹ خود بخود بٹ کوائن نیٹ ورک کے ساتھ ہم آہنگ ہوجاتا ہے، لیکن یہ عمل ابھی مکمل نہیں ہوا ہے۔</translation>
     </message>
     <message>
@@ -1741,7 +1741,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">اور پیغام</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">ادائیگی کی درخواست کے ساتھ منسلک کرنے کے لیے ایک اختیاری پیغام، جو درخواست کے کھلنے پر ظاہر ہوگا۔ نوٹ: پیغام بٹ کوائن نیٹ ورک پر ادائیگی کے ساتھ نہیں بھیجا جائے گا۔</translation>
     </message>
     <message>
@@ -2044,7 +2044,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
+        <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">انتباہ: غلط بٹ کوائن ایڈریس</translation>
     </message>
     <message>
@@ -2075,7 +2075,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">پہلے استعمال شدہ پتہ کا انتخاب کریں۔</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
+        <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">ادائیگی بھیجنے کے لیے بٹ کوائن کا پتہ</translation>
     </message>
     <message>
@@ -2091,7 +2091,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">منتخب یونٹ میں بھیجی جانے والی رقم</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">بھیجی جانے والی رقم سے فیس کاٹی جائے گی۔ وصول کنندہ کو اس سے کم بٹ کوائنز موصول ہوں گے جو آپ رقم کے خانے میں داخل کریں گے۔ اگر متعدد وصول کنندگان کو منتخب کیا جاتا ہے، تو فیس کو برابر تقسیم کیا جاتا ہے۔</translation>
     </message>
     <message>
@@ -2114,11 +2114,11 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">دستخط - ایک پیغام پر دستخط / تصدیق کریں۔</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">آپ یہ ثابت کرنے کے لیے اپنے پتوں کے ساتھ پیغامات/معاہدوں پر دستخط کر سکتے ہیں کہ آپ ان پر بھیجے گئے بٹ کوائنز وصول کر سکتے ہیں۔ ہوشیار رہیں کہ کسی بھی مبہم یا بے ترتیب پر دستخط نہ کریں، کیونکہ فریب دہی کے حملے آپ کو اپنی شناخت پر دستخط کرنے کے لیے دھوکہ دینے کی کوشش کر سکتے ہیں۔ صرف مکمل تفصیلی بیانات پر دستخط کریں جن سے آپ اتفاق کرتے ہیں۔</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
+        <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">پیغام پر دستخط کرنے کے لیے بٹ کوائن کا پتہ</translation>
     </message>
     <message>
