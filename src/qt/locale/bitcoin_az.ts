@@ -590,6 +590,7 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
     <message>
         <source>Open a qtum: URI</source>
         <translation type="unfinished">Qtum açın: URI</translation>
+    </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Cüzdanı açın</translation>

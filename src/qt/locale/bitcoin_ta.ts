@@ -473,6 +473,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">கொடுப்பனவுகளை கோருதல் (QR குறியீடுகள் மற்றும் qtum உருவாக்குகிறது: URI கள்)</translation>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">பயன்படுத்தப்பட்ட அனுப்புதல்கள் மற்றும் லேபிள்களின் பட்டியலைக் காட்டு</translation>

@@ -178,6 +178,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">N’oubliez pas que le chiffrement de votre porte-monnaie ne peut pas protéger entièrement vos qtums contre le vol par des programmes malveillants qui infecteraient votre ordinateur.</translation>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Porte-monnaie à chiffrer</translation>
@@ -485,6 +486,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Envoyer des pièces à une adresse Qtum</translation>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Sauvegarder le porte-monnaie dans un autre emplacement</translation>

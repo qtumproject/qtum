@@ -1952,6 +1952,7 @@ ID Συναλλαγής: %1</translation>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Δεν είναι δυνατή η εκκίνηση του qtum: χειριστής click-to-pay</translation>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">χειρισμός URI</translation>
@@ -3014,6 +3015,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Υπογράψτε το μήνυμα για να αποδείξετε πως σας ανήκει η συγκεκριμένη διεύθυνση Qtum</translation>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Υπογραφη μήνυματος</translation>

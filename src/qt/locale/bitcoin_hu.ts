@@ -64,7 +64,9 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Ezek az Ön Qtum címei amelyeken fogadni tud Qtum utalásokat. Az "Új cím létrehozása" gombbal tud új címet létrehozni.
+        <translation type="unfinished">Ezek az Ön Qtum címei amelyeken fogadni tud Bitcoin utalásokat. Az "Új cím létrehozása" gombbal tud új címet létrehozni.
+Aláírni csak régi típusú, egyessel kezdődő címekkel lehet.</translation>
+    </message>
     <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">Cím &amp;másolása</translation>
@@ -668,6 +670,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Open a qtum: URI</source>
         <translation type="unfinished">Qtum URI megnyitása</translation>
+    </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Tárca megnyitása</translation>
@@ -2608,6 +2611,7 @@ Gépeljen %5 az elérhető parancsok áttekintéséhez. Több információért a
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Egy opcionális üzenet csatolása a fizetési kérelemhez, amely megjelenik a kérelem megnyitásakor. Megjegyzés: Az üzenet nem lesz elküldve a fizetséggel a Qtum hálózaton keresztül.</translation>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Egy opcionális címke, amit hozzá lehet rendelni az új fogadó címhez.</translation>
@@ -2994,6 +2998,7 @@ Megjegyzés: Mivel a díj bájtonként van kiszámítva, egy "100 satoshi kvB-nk
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">Létrehoz egy Részlegesen Aláírt Qtum Tranzakciót (PSBT) melyet offline %1 tárcával vagy egy PSBT kompatibilis hardver tárcával használhat.</translation>
+    </message>
     <message>
         <source> from wallet '%1'</source>
         <translation type="unfinished"> '%1' tárcából</translation>
@@ -4032,6 +4037,7 @@ A "Fájl &gt; Tárca megnyitása" menüben tölthet be egyet.
     <message>
         <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
         <translation type="unfinished">Hiba: A dump fájl verziója nem támogatott. A qtum-wallet ez a kiadása csak 1-es verziójú dump fájlokat támogat. A talált dump fájl verziója %s.</translation>
+    </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
         <translation type="unfinished">Hiba: Régi típusú tárcák csak "legacy", "p2sh-segwit" és "bech32" címformátumokat támogatják</translation>

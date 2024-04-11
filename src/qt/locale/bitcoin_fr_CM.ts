@@ -1633,6 +1633,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
         <translation type="unfinished">Ouvrir automatiquement le port du client Qtum sur le routeur. Cela ne fonctionne que si votre routeur prend en charge NAT-PMP. Le port externe peut être aléatoire.</translation>
+    </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
         <translation type="unfinished">Mapper le port avec NA&amp;T-PMP</translation>
@@ -3037,6 +3038,7 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
         <translation type="unfinished">Veuillez réviser votre transaction. Vous pouvez créer et envoyer cette transaction ou créer une transaction Qtum partiellement signée (TBSP), que vous pouvez enregistrer ou copier, et ensuite avec laquelle signer, par ex., un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBSP.</translation>
+    </message>
     <message>
         <source>Please, review your transaction.</source>
         <extracomment>Text to prompt a user to review the details of the transaction they are attempting to send.</extracomment>
@@ -3107,6 +3109,7 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">Avertissement : L’adresse Qtum est invalide</translation>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Avertissement : L’adresse de monnaie est inconnue</translation>

@@ -694,16 +694,6 @@ E' possibile firmare solo con indirizzi di tipo "legacy".</translation>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Mostra il messaggio di aiuto di %1 per ottenere una lista di opzioni di comando per Qtum</translation>
-   </message>
-
-
-
-
-
-
-
-
-
     </message>
     <message>
         <source>&amp;Mask values</source>

@@ -453,7 +453,7 @@
         <translation type="unfinished">Tải PSBT từ &amp;khay nhớ tạm…</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>/
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Tải một phần giao dịch Qtum đã ký từ khay nhớ tạm</translation>
     </message>
     <message>

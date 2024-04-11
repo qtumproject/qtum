@@ -526,6 +526,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Signer les messages avec vos adresses Qtum pour prouver que vous les détenez</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Vérifier un message…</translation>
@@ -533,6 +534,7 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Vérifier les messages pour s’assurer qu’ils ont été signés avec les adresses Qtum indiquées</translation>
+    </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">&amp;Charger la TBSP d’un fichier…</translation>
@@ -2594,6 +2596,7 @@ Pour plus de précisions sur cette console, tapez %6.
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Un message facultatif à joindre à la demande de paiement et qui sera affiché à l’ouverture de celle-ci. Note : Le message ne sera pas envoyé avec le paiement par le réseau Qtum.</translation>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Un étiquette facultative à associer à la nouvelle adresse de réception.</translation>
@@ -3145,6 +3148,7 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">L’adresse Qtum à laquelle envoyer le paiement</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Collez l’adresse du presse-papiers</translation>
@@ -3206,6 +3210,7 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Vous pouvez signer des messages ou des accords avec vos adresses pour prouver que vous pouvez recevoir des qtums à ces dernières. Faites attention de ne rien signer de vague ou au hasard, car des attaques d’hameçonnage pourraient essayer de vous faire signer avec votre identité afin de l’usurper. Ne signez que des déclarations entièrement détaillées et avec lesquelles vous êtes d’accord.</translation>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">L’adresse Qtum avec laquelle signer le message</translation>
@@ -3229,6 +3234,7 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Signer le message afin de prouver que vous détenez cette adresse Qtum</translation>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Signer le &amp;message</translation>

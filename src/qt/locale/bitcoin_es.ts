@@ -1773,6 +1773,7 @@ El proceso de migración creará una copia de seguridad de la billetera antes de
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
         <translation type="unfinished">Conectar a la red de Qtum a través de un proxy SOCKS5 diferente para los servicios anónimos de Tor.</translation>
+    </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation type="unfinished">Usar proxy SOCKS&amp;5 para alcanzar nodos vía servicios anónimos Tor:</translation>
@@ -2092,6 +2093,7 @@ El proceso de migración creará una copia de seguridad de la billetera antes de
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">«qtum: //» no es un URI válido. Use «qtum:» en su lugar.</translation>
+    </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.

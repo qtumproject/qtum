@@ -525,6 +525,7 @@ Registrarse solo es posible utilizando  una direccion tipo "Legal"</translation>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Solicitar pagos (genera codigo QR y URL's de Qtum)</translation>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Mostrar la lista de direcciones de envío y etiquetas</translation>
@@ -1358,6 +1359,7 @@ El proceso de migración creará una copia de seguridad de la billetera antes de
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">Abrir URI de qtum</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>

@@ -4092,11 +4092,7 @@ Gehen Sie zu Datei &gt; Wallet Öffnen, um eine Wallet zu laden.
     <message>
         <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
         <translation type="unfinished">%s korrupt. Versuche mit dem Wallet-Werkzeug qtum-wallet zu retten, oder eine Sicherung wiederherzustellen.</translation>
-
-
-
-
-
+    </message>
     <message>
         <source>%s failed to validate the -assumeutxo snapshot state. This indicates a hardware problem, or a bug in the software, or a bad software modification that allowed an invalid snapshot to be loaded. As a result of this, the node will shut down and stop using any state that was built on the snapshot, resetting the chain height from %d to %d. On the next restart, the node will resume syncing from %d without using any snapshot data. Please report this incident to %s, including how you obtained the snapshot. The invalid snapshot chainstate will be left on disk in case it is helpful in diagnosing the issue that caused this error.</source>
         <translation type="unfinished">%s konnte den -assumeutxo-Snapshot-Status nicht validieren. Dies deutet auf ein Hardwareproblem, einen Fehler in der Software oder eine fehlerhafte Softwareänderung hin, die das Laden eines ungültigen Schnappschusses ermöglichte. Infolgedessen wird der Knoten heruntergefahren und verwendet keinen Zustand mehr, der auf dem Snapshot aufgebaut wurde, wodurch die Chain Height von %d auf %d zurückgesetzt wird. Beim nächsten Neustart nimmt der Knoten die Synchronisierung ab %d ohne Verwendung von Snapshot-Daten wieder auf. Bitte melden Sie diesen Vorfall an %s und geben Sie an, wie Sie den Snapshot erhalten haben. Der ungültige Snapshot-Chainstatus wird auf der Festplatte belassen, falls er bei der Diagnose des Problems, das diesen Fehler verursacht hat, hilfreich ist.</translation>

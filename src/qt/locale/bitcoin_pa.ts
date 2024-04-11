@@ -63,6 +63,7 @@
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ਏਹ ਤੁਹਾਡੇ ਰਕਮ ਪ੍ਰਾਪਤ ਕਰਨ ਵਾਲੇ ਬਿਟਕਾਅਨ ਪਤੇ ਹਨ। ਪ੍ਰਾਪਤੀ ਟੈਬ ਤੇ ਨਵੇਂ ਪਤੇ ਦਰਜ ਕਰਨ ਲਈ "ਨਵਾਂ ਪ੍ਰਾਪਤੀ ਪਤਾ ਦਰਜ ਕਰੋ" ਬਟਨ ਤੇ ਟੈਪ ਕਰੋ। ਜੁੜਨ ਲਈ "ਲੈਗਸੀ" ਪ੍ਰਕਾਰ ਦੇ ਹੀ ਪਤੇ ਦਰਜ ਕੀਤੇ ਜਾਂ ਸਕਦੇ ਹਨ। </translation>
     </message>
     <message>

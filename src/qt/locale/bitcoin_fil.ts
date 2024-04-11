@@ -414,6 +414,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Humiling ng bayad (lumilikha ng QR codes at qtum: URIs)</translation>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Ipakita ang talaan ng mga gamit na address at label para sa pagpapadala</translation>

@@ -561,6 +561,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Be om betalinger (genererer QR-koder og qtum-URIer)</translation>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Vis lista over brukte sendeadresser og merkelapper</translation>
@@ -1142,6 +1143,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Den angitte adressen "%1" er ikke en gyldig Qtum-adresse.</translation>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Adresse "%1" eksisterer allerede som en mottaksadresse merket "%2" og kan derfor ikke bli lagt til som en sendingsadresse.</translation>
@@ -2971,6 +2973,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verifiser meldingen for å være sikker på at den ble signert av den angitte Qtum-adressen</translation>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Verifiser &amp;Melding</translation>

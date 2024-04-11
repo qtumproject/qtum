@@ -177,6 +177,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Husk, at kryptere din tegnebog vil ikke fuldt ud beskytte dine qtums mod at blive stjålet af malware på din computer.</translation>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Tegnebog, der skal krypteres</translation>
@@ -1935,6 +1936,7 @@ Hvis du modtager denne fejl, skal du anmode forhandleren om en BIP21-kompatibel 
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">URI kan ikke tolkes! Dette kan skyldes en ugyldig Qtum-adresse eller forkert udformede URL-parametre.</translation>
+    </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">Filhåndtering for betalingsanmodninger</translation>

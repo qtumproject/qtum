@@ -434,6 +434,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Patunayan ang mga mensahe para matiyak na sila ay napirmahan ng may tinukoy na mga ♦Qtum address♦</translation>
+    </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">&amp;I-load ang PSBT mula sa ♦file♦...</translation>

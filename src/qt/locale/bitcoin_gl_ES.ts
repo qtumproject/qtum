@@ -173,6 +173,7 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Recorda que encriptar a tua carteira non protexe completamente que os teus qtums poidan ser roubados por malware que afecte ó teu computador.</translation>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Carteira para ser encriptada</translation>

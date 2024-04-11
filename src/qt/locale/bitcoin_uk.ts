@@ -185,7 +185,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Пам’ятайте, що шифрування гаманця не може повністю захистити ваші qtums від крадіжки, у випадку якщо ваш комп’ютер буде інфіковано шкідливими програмами.</translation> 
+        <translation type="unfinished">Пам’ятайте, що шифрування гаманця не може повністю захистити ваші qtums від крадіжки, у випадку якщо ваш комп’ютер буде інфіковано шкідливими програмами.</translation>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Гаманець, який потрібно зашифрувати</translation>
@@ -1750,6 +1751,7 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Автоматично відкривати порт для клієнту Qtum на роутері. Працює лише, якщо ваш роутер підтримує UPnP, і ця функція увімкнена.</translation>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Перенаправити порт за допомогою &amp;UPnP</translation>
@@ -3212,6 +3214,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <source>Partially Signed Transaction (Binary)</source>
         <extracomment>Expanded name of the binary PSBT file format. See: BIP 174.</extracomment>
         <translation type="unfinished">Частково підписана qtum-транзакція (бінарний файл)</translation>
+    </message>
     <message>
         <source>PSBT saved</source>
         <extracomment>Popup message when a PSBT has been saved to a file</extracomment>
@@ -3243,6 +3246,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
         <translation type="unfinished">Перевірте транзакцію. Можливо створити та надіслати цю транзакцію або створити частково підписану qtum-транзакцію (PSBT), яку можна зберегти або скопіювати, а потім підписати з використанням, наприклад, офлайн гаманця %1 або апаратного PSBT-сумісного гаманця.</translation>
+    </message>
     <message>
         <source>Please, review your transaction.</source>
         <extracomment>Text to prompt a user to review the details of the transaction they are attempting to send.</extracomment>

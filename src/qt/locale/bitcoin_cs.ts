@@ -640,7 +640,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Načíst PSBT ze &amp;schránky</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>/
+        <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Načíst částečně podepsanou Qtumovou transakci ze schránky</translation>
     </message>
     <message>

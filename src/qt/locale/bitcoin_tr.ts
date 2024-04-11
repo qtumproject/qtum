@@ -159,6 +159,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Uyarı: Cüzdanınızı şifreler ve parolanızı unutursanız &lt;b&gt;TÜM QTUMLERINIZI KAYBEDERSİNİZ&lt;/b&gt;!</translation>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Cüzdanınızı şifrelemek istediğinizden emin misiniz?</translation>
@@ -2802,10 +2803,11 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Adreslerinize yollanan qtumleri alabileceğiniz ispatlamak için adreslerinizle iletiler/anlaşmalar imzalayabilirsiniz. Oltalama saldırılarının kimliğinizi imzanızla elde etmeyi deneyebilecekleri için belirsiz ya da rastgele hiçbir şey imzalamamaya dikkat ediniz. Sadece ayrıntılı açıklaması olan ve tümüne katıldığınız ifadeleri imzalayınız.</translation>
-   </message>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">İletinin imzalanmasında kullanılacak Qtum adresi</translation>
+   </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">Önceden kullanılmış adres seç</translation>

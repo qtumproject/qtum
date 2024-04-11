@@ -281,6 +281,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Qtum манзилини киритинг (масалан.  %1)</translation>
+    </message>
     <message>
         <source>Inbound</source>
         <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>

@@ -437,6 +437,7 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Envia monedes a una adreça Qtum</translation>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Realitza una còpia de seguretat de la cartera a una altra ubicació</translation>
@@ -2716,7 +2717,7 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <source>You can increase the fee later (signals Replace-By-Fee, BIP-125).</source>
         <translation type="unfinished">Pot incrementar la tarifa més tard (senyala Replace-By-Fee o substitució per tarifa, BIP-125).</translation>
     </message>
-
+    <message>
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source> 
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Si us plau, revisa la teva proposta de transacció. Es produirà una transacció de Qtum amb firma parcial (PSBT) que podeu guardar o copiar i després firmar, per exemple, amb una cartera %1, o amb una cartera física compatible amb PSBT.</translation> 

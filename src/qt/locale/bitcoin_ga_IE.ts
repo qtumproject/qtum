@@ -396,6 +396,7 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Seol boinn chuig seoladh Qtum</translation>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Cúltacaigh Sparán chuig suíomh eile</translation>
@@ -423,6 +424,7 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Teachtaireachtaí a fhíorú lena chinntiú go raibh siad sínithe le seoltaí sainithe Qtum</translation>
+    </message>
     <message>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;Comhad</translation>
@@ -2417,6 +2419,7 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">Bainfear an táille ón méid a sheolfar. Gheobhaidh an faighteoir níos lú qtums ná mar a iontrálann tú sa réimse méid. Má roghnaítear faighteoirí iolracha, roinntear an táille go cothrom.</translation>
+    </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">&amp;Dealaigh táille ón suim</translation>
@@ -2436,6 +2439,7 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Teachtaireacht a bhí ceangailte leis an qtum: URI a stórálfar leis an idirbheart le haghaidh do thagairt. Nóta: Ní sheolfar an teachtaireacht seo thar líonra Qtum.</translation>
+    </message>
 </context>
 <context>
     <name>SendConfirmationDialog</name>
@@ -2461,6 +2465,7 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Féadfaidh tú teachtaireachtaí / comhaontuithe a shíniú le do sheoltaí chun a chruthú gur féidir leat qtums a sheoltear chucu a fháil. Bí cúramach gan aon rud doiléir nó randamach a shíniú, mar d’fhéadfadh ionsaithe fioscaireachta iarracht ar d’aitheantas a shíniú chucu. Ná sínigh ach ráitis lán-mhionsonraithe a aontaíonn tú leo.</translation>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">An seoladh Qtum chun an teachtaireacht a shíniú le</translation>

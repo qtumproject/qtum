@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     //
     // All tests must use their own testing setup (if needed).
     fs::create_directories([] {
-        BasicTestingSetup dummy{ChainType::REGTEST};
+        BasicTestingSetup dummy{ChainType::UNITTEST};
         return gArgs.GetDataDirNet() / "blocks";
     }());
 

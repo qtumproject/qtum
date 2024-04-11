@@ -65,6 +65,7 @@
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Dit zijn uw Qtum adressen voor het ontvangen van betalingen. Gebruik de 'Nieuw ontvangstadres maken' knop in de ontvangst tab om nieuwe adressen te maken.
+Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -694,6 +695,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Toon het %1 hulpbericht om een lijst te krijgen met mogelijke Qtum commandoregelopties</translation>
+    </message>
     <message>
         <source>&amp;Mask values</source>
         <translation type="unfinished">&amp;Maskeer waarden</translation>
@@ -1672,6 +1674,7 @@ Ongebruikte mempool geheugen is gedeeld voor deze cache.</translation>
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
         <translation type="unfinished">Maak verbinding met het Qtum netwerk via een aparte SOCKS5-proxy voor Tor Onion-services.</translation>
+    </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation type="unfinished">Gebruik afzonderlijke SOCKS &amp; 5-proxy om peers te bereiken via Tor Onion-services:</translation>
@@ -3819,6 +3822,7 @@ Ga naar Bestand &gt; Wallet openen om een wallet te laden.
     <message>
         <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
         <translation type="unfinished">%s verzoekt om te luisteren op poort %u. Deze poort wordt als "slecht" beschouwd en het is daarom onwaarschijnlijk dat Qtum Core peers er verbinding mee maken. Zie doc/p2p-bad-ports.md voor details en een volledige lijst.</translation>
+    </message>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
         <translation type="unfinished">Kan wallet niet downgraden van versie %i naar version %i. Walletversie ongewijzigd.</translation>

@@ -333,10 +333,11 @@
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Parakstīt ziņojumus ar savām Qtum adresēm lai pierādītu ka tās pieder tev</translation>
-   </message>
+    </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Pārbaudīt ziņojumus lai pārliecinātos, ka tie tika parakstīti ar norādītajām Qtum adresēm</translation>
+    </message>
     <message>
         <source>&amp;File</source>
         <translation type="unfinished">&amp;Fails</translation>

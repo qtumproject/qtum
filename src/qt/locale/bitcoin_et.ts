@@ -177,6 +177,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Pea meeles, et rahakoti krüpteerimine ei välista qtumide vargust, kui sinu arvuti on nakatunud pahavaraga.</translation>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Krüpteeritav rahakott</translation>
@@ -408,6 +409,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Omandi tõestamiseks allkirjasta sõnumid oma Qtumi aadressiga</translation>
+    </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Kinnita sõnumid kindlustamaks et need allkirjastati määratud Qtumi aadressiga</translation>

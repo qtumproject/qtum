@@ -604,6 +604,7 @@ Usa el boton "Crear nueva direccion de recibimiento" en la pestaña de recibir p
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Cargar transacción de Qtum parcialmente firmada</translation>
+    </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Cargar PSBT desde el &amp;portapapeles...</translation>
@@ -1613,6 +1614,7 @@ El proceso de migración creará una copia de seguridad de la billetera antes de
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
         <translation type="unfinished">Abrir automáticamente el puerto del cliente de Qtum en el router. Esto solo funciona cuando el router es compatible con NAT-PMP y está activo. El puerto externo podría ser aleatorio</translation>
+    </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
         <translation type="unfinished">Asignar puerto usando NA&amp;T-PMP</translation>
@@ -1704,6 +1706,7 @@ El proceso de migración creará una copia de seguridad de la billetera antes de
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
         <translation type="unfinished">Conectarse a la red Qtum a través de un proxy SOCKS5 independiente para los servicios onion de Tor.</translation>
+    </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation type="unfinished">Usar un proxy SOCKS&amp;5 independiente para comunicarse con pares a través de los servicios onion de Tor:</translation>
@@ -3897,15 +3900,6 @@ Ir a Archivo &gt; Abrir billetera para cargar una.
     <message>
         <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
         <translation type="unfinished">%s corrupto. Intenta utilizar la herramienta de la billetera de qtum para rescatar o restaurar una copia de seguridad.</translation>
-    </message>
-    <message>
-        <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s corrupto. Intenta utilizar la herramienta de la billetera de qtum para rescatar o restaurar una copia de seguridad.</translation>
-
-
-
-
-
     </message>
     <message>
         <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>

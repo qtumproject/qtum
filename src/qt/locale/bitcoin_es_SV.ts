@@ -2194,6 +2194,7 @@ Escribe %5 para ver un resumen de los comandos disponibles. Para más informaci�
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Mensaje opcional adjunto a la solicitud de pago, que será mostrado cuando la solicitud sea abierta. Nota: Este mensaje no será enviado con el pago a través de la red Qtum.</translation>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Una etiqueta opcional para asociar con la nueva dirección de recepción</translation>
@@ -2663,6 +2664,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Mensaje que se agrgará al URI de Qtum, el cuál será almacenado con la transacción para su referencia. Nota: Este mensaje no será enviado a través de la red de Qtum.</translation>
+    </message>
 </context>
 <context>
     <name>SendConfirmationDialog</name>

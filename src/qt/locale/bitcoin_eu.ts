@@ -564,6 +564,7 @@ Sinatzea 'legacy' motako helbideekin soilik da posible</translation>
     <message>
         <source>Open a qtum: URI</source>
         <translation type="unfinished">Ireki qtum bat: URI</translation>
+    </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Diruzorroa zabaldu</translation>

@@ -1360,6 +1360,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Conectare la reţeaua Qtum printr-un proxy SOCKS5.</translation>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Conectare printr-un proxy SOCKS5 (implicit proxy):</translation>
@@ -2413,6 +2414,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">Introduceţi o adresă Qtum</translation>
+    </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verificaţi mesajul pentru a vă asigura că a fost semnat cu adresa Qtum specificată</translation>
