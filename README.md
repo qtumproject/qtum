@@ -146,21 +146,33 @@ Qtum uses a tool called Gitian to make reproducible builds that can be verified 
 
 This is a quick start script for compiling Qtum on Ubuntu
 
-
-    sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev libgmp3-dev
+```bash
+    sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git cmake libboost-all-dev libgmp3-dev bison libtool-bin
     sudo apt-get install software-properties-common
     
     # If you want to build the Qt GUI:
     sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler qrencode
     
-    git clone https://github.com/qtumproject/qtum --recursive
+    git clone https://github.com/qtumproject/qtum
     cd qtum
+    git submodule update --init --recursive
+
+    ./contrib/install_db4.sh `pwd`
+    export BDB_PREFIX='/path/to/qtum/db4'
+
+    cd depends
+    make
+
+    # replace x86_64-pc-linux-gnu with the appropriate folder name for your system
+    libtool --finish depends/x86_64-pc-linux-gnu/lib 
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`/x86_64-pc-linux-gnu/lib
     
-    # Note autogen will prompt to install some more dependencies if needed
+    # Note: autogen will prompt to install some more dependencies if needed
     ./contrib/install_db4.sh `pwd`
     ./autogen.sh
-    ./configure 
-    make -j2
+    ./configure --prefix=`pwd`/depends/x86_64-pc-linux-gnu
+    make -j$(nproc)
+```
 
 ### Build on CentOS
 
