@@ -1761,6 +1761,11 @@
     <slot>clear()</slot>
    </slots>
   </customwidget>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
+  </customwidget>
  </customwidgets>
  <resources>
   <include location="../bitcoin.qrc"/>

@@ -39,6 +39,7 @@
 #include <chain.h>
 #include <chainparams.h>
 #include <common/system.h>
+#include <common/args.h>
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
 #include <node/interface_ui.h>
@@ -322,7 +323,7 @@ void BitcoinGUI::createActions()
     sendCoinsAction->setCheckable(true);
     tabGroup->addAction(sendCoinsAction);
 
-   receiveCoinsAction = new QAction(platformStyle->MultiStatesIcon(":/icons/receive_from"), tr("&Receive"), this);
+    receiveCoinsAction = new QAction(platformStyle->MultiStatesIcon(":/icons/receive_from"), tr("&Receive"), this);
     receiveCoinsAction->setStatusTip(tr("Request payments (generates QR codes and qtum: URIs)"));
     receiveCoinsAction->setToolTip(receiveCoinsAction->statusTip());
     receiveCoinsAction->setCheckable(true);
@@ -420,7 +421,7 @@ void BitcoinGUI::createActions()
     unlockWalletAction->setObjectName("unlockWalletAction");
     lockWalletAction = new QAction(tr("&Lock Wallet"), this);
     lockWalletAction->setToolTip(tr("Lock wallet"));
-   signMessageAction = new QAction(tr("Sign &message…"), this);
+    signMessageAction = new QAction(tr("Sign &message…"), this);
     signMessageAction->setStatusTip(tr("Sign messages with your Qtum addresses to prove you own them"));
     verifyMessageAction = new QAction(tr("&Verify message…"), this);
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Qtum addresses"));
@@ -599,7 +600,7 @@ void BitcoinGUI::createMenuBar()
         file->addAction(m_migrate_wallet_action);
         file->addSeparator();
         file->addAction(backupWalletAction);
-file->addAction(restoreWalletAction);
+        file->addAction(restoreWalletAction);
         file->addAction(m_restore_wallet_action);
         file->addSeparator();
         file->addAction(openAction);
@@ -795,9 +796,9 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndH
             // initialize the disable state of the tray icon with the current value in the model.
             trayIcon->setVisible(optionsModel->getShowTrayIcon());
         }
-
         m_mask_values_action->setChecked(_clientModel->getOptionsModel()->getOption(OptionsModel::OptionID::MaskValues).toBool());
-    #ifdef ENABLE_WALLET
+
+#ifdef ENABLE_WALLET
         if (optionsModel && appTitleBar) {
             connect(optionsModel, &OptionsModel::displayUnitChanged, appTitleBar, &TitleBar::updateDisplayUnit);
         }
@@ -920,7 +921,7 @@ void BitcoinGUI::removeWallet(WalletModel* walletModel)
         m_wallet_selector->setVisible(false);
     }
     rpcConsole->removeWallet(walletModel);
-appTitleBar->removeWallet(walletModel);
+    appTitleBar->removeWallet(walletModel);
     walletFrame->removeWallet(walletModel);
     updateWindowTitle();
 }
@@ -1367,7 +1368,7 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
-    }
+
         // notify tip changed when the sync is finished
         if(clientModel->fBatchProcessingMode)
         {
@@ -1753,7 +1754,7 @@ void BitcoinGUI::toggleHidden()
 #ifdef ENABLE_WALLET
 void BitcoinGUI::updateLedgerIcon()
 {
-    if(m_node.shutdownRequested() || !clientModel || clientModel->fBatchProcessingMode)
+    if(!clientModel || clientModel->fBatchProcessingMode || m_node.shutdownRequested())
         return;
 
     WalletView * const walletView = walletFrame ? walletFrame->currentWalletView() : 0;
@@ -1797,7 +1798,7 @@ void BitcoinGUI::updateLedgerIcon()
 
 void BitcoinGUI::updateStakingIcon()
 {
-    if(m_node.shutdownRequested() || !clientModel || clientModel->fBatchProcessingMode)
+    if(!clientModel || clientModel->fBatchProcessingMode || m_node.shutdownRequested())
         return;
 
     WalletView * const walletView = walletFrame ? walletFrame->currentWalletView() : 0;

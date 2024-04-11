@@ -15,7 +15,7 @@
 #include <qt/titlebar.h>
 #include <util/fs.h>
 #include <util/fs_helpers.h>
-#include <util/system.h>
+#include <common/system.h>
 
 #include <wallet/wallet.h>
 #include <cassert>

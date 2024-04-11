@@ -146,8 +146,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
                     }
                     else
                     {
-                    sub.type = TransactionRecord::RecvWithAddress;
-                    sub.address = EncodeDestination(wtx.txout_address[i]);
+                        sub.type = TransactionRecord::RecvWithAddress;
+                        sub.address = EncodeDestination(wtx.txout_address[i]);
+                    }
                 }
                 else
                 {

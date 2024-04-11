@@ -1050,8 +1050,8 @@ QList<HWDevice> WalletModel::getDevices()
 
 void WalletModel::checkHardwareDevice()
 {
-    int64_t time = GetTimeMillis();
-    if(time > (count_milliseconds(DEVICE_UPDATE_DELAY) + deviceTime))
+    auto time{Now<SteadyMilliseconds>()};
+    if(time > DEVICE_UPDATE_DELAY + deviceTime)
     {
         QList<HWDevice> tmpDevices;
 
@@ -1092,7 +1092,7 @@ void WalletModel::checkHardwareDevice()
         }
 
         // Set update time
-        deviceTime = GetTimeMillis();
+        deviceTime = Now<SteadyMilliseconds>();
         devices = tmpDevices;
     }
 }

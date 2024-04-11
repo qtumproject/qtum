@@ -44,7 +44,7 @@ public:
         itemNameColor = GetStringStyleValue("transactiondesc/item-name-color", "#ffffff");
         itemColor = GetStringStyleValue("transactiondesc/item-color", "#ffffff");
         itemFontBold = GetIntStyleValue("transactiondesc/item-font-bold", true);
-        network = Params().NetworkIDString();
+        network = Params().GetChainTypeString();
     }
 
     static const TransactionFormater& instance()

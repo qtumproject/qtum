@@ -257,7 +257,7 @@ private:
     QString pathP2SH;
     QString pathBech32;
     QList<HWDevice> devices;
-    int64_t deviceTime = 0;
+    SteadyMilliseconds deviceTime{0ms};
 
     QThread t;
     WalletWorker *worker{nullptr};
