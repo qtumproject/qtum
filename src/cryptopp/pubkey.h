@@ -915,7 +915,7 @@ public:
 	//! \brief Determines if an element is an identity
 	//! \param element element to check
 	//! \return true if the element is an identity, false otherwise
-	//! \details The identity element or or neutral element is a special element in a group that leaves
+	//! \details The identity element or neutral element is a special element in a group that leaves
 	//!   other elements unchanged when combined with it.
 	//! \details IsIdentity() must be implemented in a derived class.
 	virtual bool IsIdentity(const Element &element) const =0;
