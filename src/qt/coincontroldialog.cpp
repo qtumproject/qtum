@@ -616,7 +616,7 @@ void CoinControlDialog::updateView()
             // address
             CTxDestination outputAddress;
             QString sAddress = "";
-            if(ExtractDestination(out.txout.scriptPubKey, outputAddress))
+            if(ExtractDestination(out.txout.scriptPubKey, outputAddress, nullptr, true))
             {
                 sAddress = QString::fromStdString(EncodeDestination(outputAddress));
 

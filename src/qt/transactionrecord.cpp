@@ -54,7 +54,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
     bool involvesWatchAddress = false;
     isminetype fAllFromMe = ISMINE_SPENDABLE;
     bool any_from_me = false;
-    if (wtx.is_coinbase) {
+    if (wtx.is_coinbase || wtx.is_coinstake) {
         fAllFromMe = ISMINE_NO;
     } else {
         for (const isminetype mine : wtx.txin_is_mine)

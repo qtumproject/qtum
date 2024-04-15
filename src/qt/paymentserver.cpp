@@ -46,7 +46,7 @@ const QString BITCOIN_IPC_PREFIX("qtum:");
 //
 static QString ipcServerName()
 {
-   QString name("QtumQt");
+    QString name("QtumQt");
 
     // Append a simple hash of the datadir
     // Note that gArgs.GetDataDirNet() returns a different path
