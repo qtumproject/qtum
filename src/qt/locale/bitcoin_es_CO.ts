@@ -623,7 +623,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">Cargar una transacción de Qtum parcialmente firmada desde el Portapapeles</translation>
+        <translation type="unfinished">Cargar una transacción de Qtum parcialmente firmada desde el portapapeles</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -643,7 +643,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">Abrir un qtum: URI</translation>
+        <translation type="unfinished">Abrir un URI de tipo "qtum:"</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -681,16 +681,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation type="unfinished">Mostrar el mensaje de ayuda %1 para obtener una lista de los posibles comandos de Qtum</translation>
-
-
-
-
-
-
-
-
-
+        <translation type="unfinished">Mostrar el mensaje de ayuda %1 para obtener una lista de las posibles opciones de línea de comandos de Qtum</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -3307,7 +3298,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
         <translation type="unfinished">Copiar la firma actual al portapapeles del sistema</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Qtum address</source> 
+        <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Firmar el mensaje para demostrar que esta dirección de Qtum te pertenece</translation>
     </message>
     <message>
@@ -4010,11 +4001,6 @@ Ir a "Archivo &gt; Abrir billetera" para cargar una.
     <message>
         <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
         <translation type="unfinished">%s dañado. Trata de usar la herramienta de la billetera de Qtum para rescatar o restaurar una copia de seguridad.</translation>
-
-
-
-
-
     </message>
     <message>
         <source>%s failed to validate the -assumeutxo snapshot state. This indicates a hardware problem, or a bug in the software, or a bad software modification that allowed an invalid snapshot to be loaded. As a result of this, the node will shut down and stop using any state that was built on the snapshot, resetting the chain height from %d to %d. On the next restart, the node will resume syncing from %d without using any snapshot data. Please report this incident to %s, including how you obtained the snapshot. The invalid snapshot chainstate will be left on disk in case it is helpful in diagnosing the issue that caused this error.</source>

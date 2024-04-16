@@ -632,7 +632,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Učitaj djelomično potpisanu qtum transakciju</translation>
-   </message>
+    </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Učitaj PSBT iz &amp;međuspremnika...</translation>
@@ -1334,7 +1334,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Nedavne transakcije možda još nisu vidljive pa vam stanje novčanika može biti netočno. Ove informacije bit će točne nakon što vaš novčanik dovrši sinkronizaciju s Qtumovom mrežom, kako je opisano dolje.</translation>
-   </message>
+    </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Mreža neće prihvatiti pokušaje trošenja qtuma koji su utjecani sa strane transakcija koje još nisu vidljive.</translation>
@@ -1381,7 +1381,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">Otvori qtum: URI</translation>
-   </message>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -1951,7 +1951,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Greška kod zahtjeva za plaćanje</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source> 
+        <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Ne može se pokrenuti klijent: rukovatelj "kliknite da platite"</translation>
     </message>
     <message>
@@ -1961,7 +1961,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' nije ispravan URI. Koristite 'qtum:' umjesto toga.</translation>
-   </message>
+    </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
@@ -2994,7 +2994,7 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">Upozorenje: Nevažeća Qtum adresa</translation>
-   </message>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Upozorenje: Nepoznata adresa u koju će ostatak biti poslan</translation>
@@ -3032,8 +3032,8 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
-        <translation type="unfinished">Qtum adresa na koju ćete poslati uplatu</translation> 
-  </message>
+        <translation type="unfinished">Qtum adresa na koju ćete poslati uplatu</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Zalijepi adresu iz međuspremnika</translation>
@@ -3095,11 +3095,11 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Možete potpisati poruke/dogovore svojim adresama kako biste dokazali da možete pristupiti qtumima poslanim na te adrese. Budite oprezni da ne potpisujte ništa nejasno ili nasumično, jer napadi phishingom vas mogu prevariti da prepišite svoj identitet njima. Potpisujte samo detaljno objašnjene izjave s kojima se slažete.</translation>
-   </message>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Qtum adresa pomoću koje ćete potpisati poruku</translation>
-   </message>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">Odaberite prethodno korištenu adresu</translation>
@@ -3123,7 +3123,7 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Potpišite poruku kako biste dokazali da posjedujete ovu Qtum adresu</translation>
-   </message>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">&amp;Potpišite poruku</translation>

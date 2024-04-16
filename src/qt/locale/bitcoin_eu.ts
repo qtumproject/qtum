@@ -381,7 +381,7 @@ Sinatzea 'legacy' motako helbideekin soilik da posible</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Bidali txanponak Qtum helbide batera</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Diru-zorroaren segurtasun-kopia beste leku batean.</translation>
@@ -619,7 +619,7 @@ Sinatzea 'legacy' motako helbideekin soilik da posible</translation>
         <translation type="unfinished">E&amp;rakutsi</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />

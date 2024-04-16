@@ -186,7 +186,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">ウォレットを暗号化しても、コンピュータに感染したマルウェアなどによる Qtum の盗難を完全に防ぐことはできないことにご注意ください。</translation>
-   </message>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">暗号化するウォレット</translation>
@@ -309,7 +309,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Qtum アドレスを入力してください (例: %1)</translation>
-   </message>
+    </message>
     <message>
         <source>Unroutable</source>
         <translation type="unfinished">ルーティング不可能</translation>
@@ -523,7 +523,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Qtum アドレスでメッセージに署名することで、そのアドレスの所有権を証明する</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">メッセージを検証(&amp;V)…</translation>
@@ -531,7 +531,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">メッセージを検証して、指定された Qtum アドレスで署名されたことを確認する</translation>
-  </message>
+    </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">PSBTをファイルから読む(&amp;L)…</translation>
@@ -591,7 +591,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">支払いをリクエストする（QRコードと qtum:で始まるURIを生成する）</translation>
-   </message>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">送金したことがあるアドレスとラベルの一覧を表示する</translation>
@@ -644,7 +644,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">部分的に署名されたビットコインのトランザクションを読み込み</translation>
+        <translation type="unfinished">部分的に署名されたQtumの取引を読み込む</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -652,7 +652,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">部分的に署名されたビットコインのトランザクションをクリップボードから読み込み</translation>
+        <translation type="unfinished">部分的に署名されたQtumの取引をクリップボードから読み込む</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -673,7 +673,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Open a qtum: URI</source>
         <translation type="unfinished">qtum: URIを開く</translation>
-  </message>
+    </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">ウォレットを開く</translation>
@@ -711,16 +711,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">%1 のヘルプ メッセージを表示し、使用可能な Qtum のコマンドラインオプション一覧を見る。</translation>
-   </message>
-
-
-
-
-
-
-
-
-
+    </message>
     <message>
         <source>&amp;Mask values</source>
         <translation type="unfinished">値を隠す (&amp;M)</translation>
@@ -785,7 +776,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>Bitcoinネットワークへの %n のアクティブな接続。</numerusform>
+            <numerusform>Qtumネットワークへの %n のアクティブな接続。</numerusform>
         </translation>
     </message>
     <message>
@@ -1313,7 +1304,7 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">入力されたアドレス "%1" は無効な Qtum アドレスです。</translation>
-   </message>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">アドレス "%1" は既に受取用アドレスにラベル "%2" として存在するので、送金先アドレスとしては追加できません。</translation>
@@ -1485,11 +1476,11 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">最近の取引がまだ表示されていない可能性があります。そのため、ウォレットの残高が正しく表示されていないかもしれません。この情報は、ウォレットが Qtum ネットワークへの同期が完了すると正確なものとなります。詳細は下記を参照してください。</translation>
-   </message>
+    </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">まだ表示されていない取引が関係する Qtum の使用を試みた場合、ネットワークから認証を受けられません。</translation>
-   </message>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">残りのブロック数</translation>
@@ -1540,7 +1531,7 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">qtum URIを開く</translation>
-   </message>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -1707,7 +1698,7 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">自動的にルーター上の Qtum クライアントのポートを開放します。あなたのユーターがNAT-PMPに対応していて、それが有効になっている場合のみ動作します。外部ポートはランダムで構いません。</translation>
+        <translation type="unfinished">自動的にルーター上の Qtum クライアントのポートを開放します。あなたのルーターが NAT-PMP に対応していて、それが有効になっている場合のみ動作します。外部ポートはランダムで構いません。</translation>
     </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
@@ -2727,8 +2718,8 @@ For more information on using this console, type %6.
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">支払いリクエストに添付するメッセージ（任意）。支払リクエスト開始時に表示されます。注意: メッセージは Qtum ネットワーク上へ送信されません。</translation> 
-   </message>
+        <translation type="unfinished">支払いリクエストに添付する任意のメッセージで、支払リクエストの開封時に表示されます。注意: メッセージは Qtum ネットワーク上へ送信されません。</translation>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">新規受取用アドレスに紐づける任意のラベル。</translation>
@@ -3024,7 +3015,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
-        <translation type="unfinished">ブロック内の空きよりトランザクション流量が少ない場合、マイナーや中継ノードは最低限の手数料でも処理することがあります。この最低限の手数料だけを支払っても問題ありませんが、一度トランザクションの需要がネットワークの処理能力を超えてしまった場合には、トランザクションが永久に承認されなくなってしまう可能性があることにご注意ください。</translation>
+        <translation type="unfinished">ブロック内の空きより取引の量が少ない場合、マイナーや中継ノードは最低限の手数料でも処理することがあります。この最低限の手数料だけを支払っても問題ありませんが、一度取引の需要がネットワークの処理能力を超えてしまった場合には、取引が永久に承認されなくなってしまう可能性があることに注意してください。</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -3110,7 +3101,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">オフライン%1ウォレットまたはPSBTに対応したハードウェアウォレットと合わせて使用するためのPSBT(部分的に署名されたトランザクション)を作成します。</translation>
+        <translation type="unfinished">オフラインの %1 ウォレット、あるいはPSBTに対応したハードウェアウォレットで使用するためのPSBT(部分的に署名された取引)を作成します。</translation>
     </message>
     <message>
         <source> from wallet '%1'</source>
@@ -3171,7 +3162,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">取引の提案を確認してください。これにより、部分的に署名されたBitcoin取引（PSBT）が作成されます。これを保存するかコピーして例えばオフラインの %1 ウォレットやPSBTを扱えるハードウェアウォレットで残りの署名が出来ます。</translation>
+        <translation type="unfinished">取引の提案を確認してください。これにより、部分的に署名されたQtum取引（PSBT）が作成されます。これを保存するかコピーして例えばオフラインの %1 ウォレットやPSBTを扱えるハードウェアウォレットで残りの署名が出来ます。</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>
@@ -3181,7 +3172,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">取引を確認してください。 この取引を作成して送信するか、部分的に署名されたビットコイン取引（Partially Signed Qtum Transaction: PSBT）を作成できます。これを保存またはコピーして、オフラインの %1 ウォレットやPSBT互換のハードウェアウォレットなどで署名できます。</translation> 
+        <translation type="unfinished">取引を確認してください。 この取引を作成して送信するか、部分的に署名されたQtum取引（Partially Signed Qtum Transaction: PSBT）を作成できます。これを保存またはコピーして、オフラインの %1 ウォレットやPSBT互換のハードウェアウォレットなどで署名できます。</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3258,8 +3249,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
-        <translation type="unfinished">警告: 無効な Qtum アドレス</translation>
-   </message>
+        <translation type="unfinished">警告: 無効な Qtum アドレスです</translation>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">警告: 不明なお釣りアドレスです</translation>
@@ -3297,7 +3288,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
-        <translation type="unfinished">支払い先 Qtum アドレス</translation>
+        <translation type="unfinished">送金先 Qtum アドレス</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -3412,7 +3403,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">メッセージの署名に使われた Qtum アドレス</translation>
-   </message>
+    </message>
     <message>
         <source>The signed message to verify</source>
         <translation type="unfinished">検証したい署名済みメッセージ</translation>
@@ -3424,7 +3415,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">メッセージを検証して指定された Qtum アドレスで署名されたことを確認</translation>
-   </message>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">メッセージを検証(&amp;M)</translation>
@@ -4138,7 +4129,7 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
     <message>
         <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">エラー: Dumpfileのバージョンが未指定です。このバージョンのqtum-walletは、バージョン1のDumpfileのみをサポートします。バージョン%sのDumpfileを取得しました。</translation>
+        <translation type="unfinished">エラー: ダンプファイルのバージョンがサポート外です。このバージョンの Qtum ウォレットは、バージョン 1 のダンプファイルのみをサポートします。バージョン%sのダンプファイルでした。</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

@@ -491,7 +491,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Υπογραφή &amp;μηνύματος...</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source> 
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Υπογράψτε ένα μήνυμα για να βεβαιώσετε πως είστε ο κάτοχος αυτής της διεύθυνσης</translation>
     </message>
     <message>
@@ -739,8 +739,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n active connection(s) to Qtum network.</numerusform>
-            <numerusform>%n active connection(s) to Qtum network.</numerusform>
+            <numerusform>1%n  ενεργές συνδέσεις στο δίκτυο Qtum.</numerusform>
+            <numerusform>%n ενεργές συνδέσεις στο δίκτυο Qtum.</numerusform>
         </translation>
     </message>
     <message>
@@ -2991,7 +2991,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Διεύθυνση Qtum που θα σταλεί το μήνυμα</translation>
-  </message>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">Επιλογή διεύθυνσης που έχει ήδη χρησιμοποιηθεί</translation>

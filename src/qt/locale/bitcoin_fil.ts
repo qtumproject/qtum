@@ -144,7 +144,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Babala: Kung na-encrypt mo ang iyong walet at nawala ang iyong passphrase, &lt;b&gt;MAWAWALA MO ANG LAHAT NG IYONG MGA QTUM!&lt;/b&gt;</translation>
-   </message>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Sigurado ka bang nais mong i-encrypt ang iyong walet?</translation>
@@ -394,11 +394,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Pumirma ng mga mensahe gamit ang iyong mga Qtum address upang mapatunayan na pagmamay-ari mo ang mga ito</translation>
-   </message>
+    </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">I-verify ang mga mensahe upang matiyak na sila ay napirmahan ng tinukoy na mga Qtum address.</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;File</source>
         <translation type="unfinished">File</translation>
@@ -833,7 +833,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Ang address na in-enter "%1" ay hindi isang wastong Qtum address.</translation>
-   </message>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Ang address "%1" ay ginagamit bilang address na pagtanggap na may label "%2" kaya hindi ito maaaring gamitin bilang address na pagpapadala.</translation>
@@ -915,8 +915,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 ay mag-do-download at magiimbak ng kopya ng Qtum blockchain.</translation> 
-   </message>
+        <translation type="unfinished">%1 ay mag-do-download at magiimbak ng kopya ng Qtum blockchain.</translation>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Ang walet ay maiimbak din sa direktoryong ito.</translation>
@@ -1116,7 +1116,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Kusang buksan ang Qtum client port sa router. Gumagana lamang ito kapag ang iyong router ay sumusuporta ng UPnP at ito ay pinagana.</translation>
-  </message>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Isamapa ang port gamit ang UPnP</translation>
@@ -1132,7 +1132,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Kumunekta sa Qtum network sa pamamagitan ng SOCKS5 proxy.</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">Kumunekta gamit ang SOCKS5 proxy (default na proxy):</translation>
@@ -1260,7 +1260,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Ang ipinapakitang impormasyon ay maaaring luma na. Kusang mag-sy-synchronize ang iyong walet sa Qtum network pagkatapos maitatag ang koneksyon, ngunit hindi pa nakukumpleto ang prosesong ito.</translation>
-   </message>
+    </message>
     <message>
         <source>Available:</source>
         <translation type="unfinished">Magagamit:</translation>
@@ -1394,15 +1394,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Hindi masimulan ang qtum: click-to-pay handler</translation>
-   </message>
+    </message>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">Ang 'qtum://' ay hindi wastong URI. Sa halip, gamitin ang 'qtum:'.</translation>
-   </message>
+    </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
-        <translation type="unfinished">Hindi ma-parse ang URI! Marahil ito ay dahil sa hindi wastong Qtum address o maling URI parameters</translation> 
-  </message>
+        <translation type="unfinished">Hindi ma-parse ang URI! Marahil ito ay dahil sa hindi wastong Qtum address o maling URI parameters</translation>
+    </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">File handling ng hiling ng bayad</translation>
@@ -1956,7 +1956,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">Kapag mas kaunti ang dami ng transaksyon kaysa sa puwang sa mga blocks, ang mga minero pati na rin ang mga relaying node ay maaaring magpatupad ng minimum na bayad. Ang pagbabayad lamang ng minimum na bayad na ito ay maayos, ngunit malaman na maaari itong magresulta sa hindi kailanmang nagkukumpirmang transaksyon sa sandaling magkaroon ng higit na pangangailangan para sa mga transaksyon ng qtum kaysa sa kayang i-proseso ng network.</translation>
-   </message>
+    </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
         <translation type="unfinished">Ang isang masyadong mababang bayad ay maaaring magresulta sa isang hindi kailanmang nagkukumpirmang transaksyon (basahin ang tooltip)</translation>
@@ -2134,8 +2134,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
-        <translation type="unfinished">Ang Qtum address kung saan ipapadala and bayad</translation> 
-   </message>
+        <translation type="unfinished">Ang Qtum address kung saan ipapadala and bayad</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">I-paste ang address mula sa clipboard</translation>
@@ -2147,7 +2147,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">Ibabawas ang bayad mula sa halagang ipapadala. Ang tatanggap ay makakatanggap ng mas kaunting mga qtum kaysa sa pinasok mo sa patlang ng halaga. Kung napili ang maraming tatanggap, ang bayad ay paghihiwalayin.</translation>
-   </message>
+    </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">Ibawas ang bayad mula sa halagaq</translation>
@@ -2193,7 +2193,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Ang Qtum address kung anong ipipirma sa mensahe</translation>
-   </message>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">Piliin ang dating ginamit na address</translation>
@@ -2217,7 +2217,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Pirmahan ang mensahe upang mapatunayan na pagmamay-ari mo ang Qtum address na ito</translation>
-  </message>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Pirmahan ang Mensahe</translation>

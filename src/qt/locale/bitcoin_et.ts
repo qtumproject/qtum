@@ -413,7 +413,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Kinnita sõnumid kindlustamaks et need allkirjastati määratud Qtumi aadressiga</translation>
-   </message>
+    </message>
     <message>
         <source>Close Wallet…</source>
         <translation type="unfinished">Sulge Rahakott...</translation>
@@ -498,7 +498,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 klient</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -902,7 +902,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Kuvatav info ei pruugi olla ajakohane. Ühenduse loomisel süngitakse sinu rahakott automaatselt Qtum võrgustikuga, kuid see toiming on hetkel lõpetamata.</translation>
-   </message>
+    </message>
     <message>
         <source>Pending:</source>
         <translation type="unfinished">Ootel:</translation>

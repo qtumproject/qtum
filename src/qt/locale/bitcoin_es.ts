@@ -162,7 +162,7 @@ La firma sólo es posible con direcciones del tipo 'legacy'.</translation>
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Atención: Si olvida la clave de su monedero o pierde la frase secreta de su contraseña, &lt;b&gt;¡PERDERÁS TODOS TUS QTUMS&lt;/b&gt;!</translation>
+        <translation type="unfinished">Atención: Si cifras tu monedero y pierdes la contraseña, &lt;b&gt;¡PERDERÁS TODOS TUS QTUMS!&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -182,7 +182,7 @@ La firma sólo es posible con direcciones del tipo 'legacy'.</translation>
     </message>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Recuerda que cifrar tu monedero no garantiza la protección de tus qtums si tu ordenador es infectado con malware.</translation>
+        <translation type="unfinished">Recuerda que cifrar tu monedero no garantiza la protección de tus qtum si tu equipo está infectado con malware.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -686,16 +686,7 @@ La firma sólo es posible con direcciones del tipo 'legacy'.</translation>
     </message>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation type="unfinished">Muestra el mensaje %1 de ayuda para obtener un listado con las opciones posibles de la línea de instrucciones de Qtum.</translation>
-
-
-
-
-
-
-
-
-
+        <translation type="unfinished">Muestra el mensaje de ayuda %1 para obtener una lista con posibles opciones de línea de comandos de Qtum.</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -761,8 +752,8 @@ La firma sólo es posible con direcciones del tipo 'legacy'.</translation>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n conexión activa con la red de Qtum.</numerusform>
-            <numerusform>%n conexiónes activas con la red de Qtum.</numerusform>
+            <numerusform>%n active connection(s) to Qtum network.</numerusform>
+            <numerusform>%n active connection(s) to Qtum network.</numerusform>
         </translation>
     </message>
     <message>
@@ -2674,7 +2665,7 @@ Escribe %5 para ver un resumen de las instrucciones disponibles. Para más infor
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">Mensaje opcional para agregar a la solicitud de pago, el cual será mostrado cuando la solicitud esté abierta. Nota: El mensaje no se enviará con el pago a través de la red de Qtum.</translation>
+        <translation type="unfinished">Mensaje opcional para agregar a la solicitud de pago, el cual será mostrado cuando la solicitud esté abierta. Nota: el mensaje no se enviará con el pago a través de la red de Qtum.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -3206,7 +3197,7 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
-        <translation type="unfinished">Alerta: Dirección de Qtum inválida</translation>
+        <translation type="unfinished">Alerta: Dirección de Qtum no válida</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -3281,7 +3272,7 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
     </message>
     <message>
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">Mensaje que se agrgará al URI de Qtum, el cuál será almacenado con la transacción para su referencia. Nota: Este mensaje no será enviado a través de la red de Qtum.</translation>
+        <translation type="unfinished">Mensaje que se agregara al URI de Qtum, el cual será almacenado con la transacción para su referencia. Nota: este mensaje no será enviado a través de la red de Qtum.</translation>
     </message>
 </context>
 <context>
@@ -3306,7 +3297,7 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
         <translation type="unfinished">&amp;Firmar mensaje</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source> 
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Puedes firmar los mensajes con tus direcciones para demostrar que las posees. Ten cuidado de no firmar cualquier cosa vaga, ya que los ataques de phishing pueden tratar de engañarte firmando tu identidad a través de ellos. Firma solo declaraciones totalmente detalladas con las que estés de acuerdo.</translation>
     </message>
     <message>
@@ -3335,7 +3326,7 @@ Nota: Dado que la comisión se calcula por cada byte, una tasa de «100 satoshis
     </message>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
-        <translation type="unfinished">Firmar un mensaje para demostrar que se posee una dirección Qtum</translation>
+        <translation type="unfinished">Firma un mensaje para demostrar que se posee una dirección Qtum</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -4021,6 +4012,32 @@ Vaya a Archivo&gt; Abrir monedero para cargar un monedero.
     </message>
 </context>
 <context>
+    <name>RestoreDialog</name>
+    <message>
+        <source>Select wallet file to restore from</source>
+        <translation>Seleccione el archivo de billetera para restaurar</translation>
+    </message>
+    <message>
+        <source>Rebuild blockchain index</source>
+        <translation>rescan - reindexa la blockchain en busqueda de transacciones que no se esten mostrando
+ -  Corrige transacciones faltantes y balance incorrecto</translation>
+    </message>
+    <message>
+        <source>Recover transactions without metadata</source>
+        <translation>zapwallettxes=2 - recupera transacciones sin metadatos.
+ - Corrige problemas con transacciones faltantes, bajo balance, bloques huerfanos y cadenas separadas. Realiza una copia de seguridad luego de ejecutar este comando.</translation>
+    </message>
+    <message>
+        <source>Delete the local copy of the block chain</source>
+        <translation>Borrar datos de blockchain - borra la copia local de blockchain y activa una re-sincronizacion de la blockchain en su totalidad
+ - Corrige problemas sincronizando al igual que datos corruptos al igual que separaciones de cadena</translation>
+    </message>
+    <message>
+        <source>The wallet.dat will be restored from the selected location and the Qt Wallet will be restarted with the -reindex or -deleteblockchaindata option.</source>
+        <translation>Realiza una copia de tu billetera primero, esto necesita reiniciar la aplicacion luego de seleccionar la opcion.</translation>
+    </message>
+</context>
+<context>
     <name>bitcoin-core</name>
     <message>
         <source>The %s developers</source>
@@ -4029,11 +4046,6 @@ Vaya a Archivo&gt; Abrir monedero para cargar un monedero.
     <message>
         <source>%s corrupt. Try using the wallet tool qtum-wallet to salvage or restoring a backup.</source>
         <translation type="unfinished">%s corrupto. Intenta utilizar la herramienta del monedero qtum-monedero para guardar o restaurar un respaldo.</translation>
-
-
-
-
-
     </message>
     <message>
         <source>%s failed to validate the -assumeutxo snapshot state. This indicates a hardware problem, or a bug in the software, or a bad software modification that allowed an invalid snapshot to be loaded. As a result of this, the node will shut down and stop using any state that was built on the snapshot, resetting the chain height from %d to %d. On the next restart, the node will resume syncing from %d without using any snapshot data. Please report this incident to %s, including how you obtained the snapshot. The invalid snapshot chainstate will be left on disk in case it is helpful in diagnosing the issue that caused this error.</source>

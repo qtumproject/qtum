@@ -406,7 +406,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Siųsti monetas Qtum adresui</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Daryti piniginės atsarginę kopiją</translation>
@@ -514,7 +514,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Užkraukite dalinai pasirašytas Qtum transakcijas iš iškarpinės...</translation>
-   </message>
+    </message>
     <message>
         <source>Node window</source>
         <translation type="unfinished">Mazgo langas</translation>
@@ -1246,7 +1246,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Prisijunkite prie „Qtum“ tinklo per SOCKS5 proxy.</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp; Prisijunkite per SOCKS5 proxy (numatytasis proxy):</translation>
@@ -1378,7 +1378,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Rodoma informacija gali būti pasenusi. Piniginė automatiškai sinchronizuojasi su „Qtum“ tinklu po ryšio užmezgimo, tačiau šis procesas dar nebaigtas.</translation>
-   </message>
+    </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Tik stebėti</translation>
@@ -1484,11 +1484,11 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">„qtum: //“ nėra galiojantis URI. Vietoj to naudokite „qtum:“.</translation>
-   </message>
+    </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">URI negalima perskaityti! Tai gali sukelti negaliojantys „Qtum“ adresas arba netinkami URI parametrai.</translation>
-   </message>
+    </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">Mokėjimo užklausos failų tvarkymas</translation>
@@ -2196,7 +2196,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">Įspėjimas: neteisingas Qtum adresas</translation>
-   </message>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Įspėjimas: nežinomas keitimo adresas</translation>
@@ -2235,7 +2235,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Qtum adresas, į kurį siunčiamas mokėjimas</translation>
-   </message>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Įvesti adresą iš mainų atminties</translation>
@@ -2333,7 +2333,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">Qtum adresas, kuriuo buvo pasirašytas pranešimas</translation>
-   </message>
+    </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Patikrinkite žinutę, jog įsitikintumėte, kad ją pasirašė nurodytas Qtum adresas</translation>

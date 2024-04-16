@@ -176,7 +176,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">შეიყვანეთ ძველი საიდუმლო ფრაზა და ახალი საიდუმლო ფრაზა საფულისთვის</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source> 
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">გახსოვდეთ, რომ თქვენი საფულის დაშიფვრა ვერ უზრუნველყოფს სრულად დაიცვას თქვენი ბიტკოინების მოპარვა კომპიუტერში მავნე პროგრამებით.</translation>
     </message>
     <message>
@@ -435,7 +435,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">მონეტების გაგზავნა Qtum-მისამართზე</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">საფულის არქივირება სხვა ადგილზე</translation>
@@ -1011,7 +1011,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">შეყვანილი მისამართი "%1" არ არის ვალიდური Qtum-მისამართი.</translation>
-   </message>
+    </message>
     <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">საფულის განბლოკვა ვერ მოხერხდა.</translation>
@@ -1364,7 +1364,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">ნაჩვენები ინფორმაცია შეიძლება მოძველებული იყოს. თქვენი საფულე ავტომატურად სინქრონიზდება Qtum-ის ქსელთან კავშირის დამყარების შემდეგ, ეს პროცესი ჯერ არ არის დასრულებული.</translation>
-   </message>
+    </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">მხოლოდ საყურებლად:</translation>
@@ -2194,7 +2194,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">ყურადღება: არასწორია Qtum-მისამართი</translation>
-   </message>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">ყურადღება: უცნობია ხურდის მისამართი</translation>
@@ -2243,7 +2243,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">შეიყვანეთ ამ მისამართის ნიშნული გამოყენებული მისამართების სიაში დასამატებლად</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source> 
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">მესიჯი, რომელიც თან ერთვის მონეტებს:  URI, რომელიც შეინახება ტრანსაქციასთან ერთად თქვენთვის. შენიშვნა: მესიჯი არ გაყვება გადახდას ბითქოინის ქსელში.</translation>
     </message>
 </context>
@@ -2311,7 +2311,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">შეამოწმეთ, რომ მესიჯი ხელმოწერილია მითითებული Qtum-მისამართით</translation>
-   </message>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">&amp;მესიჯის ვერიფიკაცია</translation>

@@ -616,8 +616,8 @@ Solicitar pagos (genera códigos QR y qtum: URI)
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n conexión activa con la red de Qtum.</numerusform>
-            <numerusform>%n conexiónes activas con la red de Qtum.</numerusform>
+            <numerusform>%n conexiones activas con la red Qtum</numerusform>
+            <numerusform>%n conexiones activas con la red Qtum </numerusform>
         </translation>
     </message>
     <message>

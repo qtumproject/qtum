@@ -136,8 +136,8 @@ Alihkan fail data ke dalam tab semasa</translation>
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Amaran: Jika anda enkripkan dompet anda dan hilangkan frasa laluan, anda akan &lt;b&gt;ANDA AKAN HILANGKAN SEMUA QTUM ANDA&lt;/b&gt;!</translation> 
-   </message>
+        <translation type="unfinished">Amaran: Jika anda enkripkan dompet anda dan hilangkan frasa laluan, anda akan &lt;b&gt;ANDA AKAN HILANGKAN SEMUA QTUM ANDA&lt;/b&gt;!</translation>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Anda pasti untuk membuat enkripsi dompet anda?</translation>
@@ -283,7 +283,7 @@ Alihkan fail data ke dalam tab semasa</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Menghantar koin kepada alamat Qtum</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Wallet sandaran ke lokasi lain</translation>
@@ -307,6 +307,8 @@ Alihkan fail data ke dalam tab semasa</translation>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">sahkan mesej bersama alamat qtum anda untuk menunjukkan alamat ini anda punya</translation>
+    </message>
+    <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Sahkan mesej untuk memastikan mereka telah ditandatangani dengan alamat Qtum yang ditentukan</translation>
     </message>

@@ -997,10 +997,10 @@
     </message>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Tú kann skriva undir boð/sáttmálar við tínum adressum, fyri at prógva at tú kanst móttaka qtums sendar til tær. Ver ansin so tú ikki skrivar undir nakað ógreitt ella tilvildarligt, tí fysking-álop kunnu royna at snýta teg til at latað tín samleika til tey. Undirrita einans nágreiniligar útsagnir ið tú tekur undir við.</translation>
+        <translation type="unfinished">Tú kann skriva undir boð/sáttmálar við tínum adressum, fyri at prógva at tú kanst móttaka qtum sendar til tær. Ver ansin so tú ikki skrivar undir nakað ógreitt ella tilvildarligt, tí fysking-álop kunnu royna at snýta teg til at latað tín samleika til tey. Undirrita einans nágreiniligar útsagnir ið tú tekur undir við.</translation>
     </message>
     <message>
-        <source>The qtums address to sign the message with</source>
+        <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Qtum adressan at undirskriva boðini við</translation>
     </message>
     <message>
@@ -1025,7 +1025,7 @@
     </message>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
-        <translation type="unfinished">Undirskriva boðini fyri at prógva at Qtum adressan er tín</translation>
+        <translation type="unfinished">Undirskriva boðini fyri at prógva at Qtum-adressan er tín</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
