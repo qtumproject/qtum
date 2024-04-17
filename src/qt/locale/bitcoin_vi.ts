@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Các địa chỉ này là các địa chỉ  Qtum dùng để thanh toán.Luôn luôn kiểm tra số dư và địa chỉ nhận trước khi gởi chuyển tiền ảo. </translation>
+        <translation type="unfinished">Các địa chỉ này là các địa chỉ Qtum dùng để thanh toán.Luôn luôn kiểm tra số dư và địa chỉ nhận trước khi gởi chuyển tiền ảo. </translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -473,8 +473,8 @@
         <translation type="unfinished">Các địa chỉ đang &amp;nhận</translation>
     </message>
     <message>
-        <source>Open a Qtum: URI</source>
-        <translation type="unfinished">Mở một Qtum: URI</translation>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">Mở một qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>

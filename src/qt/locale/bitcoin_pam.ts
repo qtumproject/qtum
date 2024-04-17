@@ -113,8 +113,8 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Kapabaluan: Istung in-encrypt me ing kekang wallet at meala ya ing passphrase na, ma-&lt;b&gt;ALA NO NGAN RING KEKANG QTUMS&lt;/b&gt;</translation> 
-   </message>
+        <translation type="unfinished">Kapabaluan: Istung in-encrypt me ing kekang wallet at meala ya ing passphrase na, ma-&lt;b&gt;ALA NO NGAN RING KEKANG QTUMS&lt;/b&gt;</translation>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Siguradu na kang buri meng i-encrypt ing kekang wallet?</translation>
@@ -236,7 +236,7 @@
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Magpadalang barya king Qtum address</translation>
-  </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">I-backup ing wallet king aliwang lugal</translation>
@@ -367,7 +367,7 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Ing pepalub yung address "%1" ali ya katanggap-tanggap a Qtum address.</translation>
-   </message>
+    </message>
     <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">Ali ya bisang mag-unlock ing wallet</translation>
@@ -452,7 +452,7 @@
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Ibuklat yang antimanu ing Qtum client port king router. Gagana yamu ini istung ing router mu susuporta yang UPnP at magsilbi ya.</translation>
-  </message>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapa ng ning port gamit ing &amp;UPnP</translation>
@@ -511,7 +511,7 @@
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Ing makaltong impormasion mapalyaring luma ne. Ing kekang wallet otomatiku yang mag-synchronize keng Qtum network istung mekakonekta ne king network, oneng ing prosesung ini ali ya pa kumpletu.</translation>
-   </message>
+    </message>
     <message>
         <source>Your current spendable balance</source>
         <translation type="unfinished">Ing kekang kasalungsungan balanse a malyari mung gastusan</translation>
@@ -753,7 +753,7 @@
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Pirman ing mensayi ban patune na keka ya ining Qtum address</translation>
-  </message>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Pirman ing &amp;Mensayi</translation>
@@ -773,7 +773,7 @@
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Beripikan ing mensayi ban asiguradu a me pirma ya ini gamit ing mepiling Qtum address</translation>
-   </message>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Beripikan ing &amp;Mensayi</translation>

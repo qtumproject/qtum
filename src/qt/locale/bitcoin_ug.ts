@@ -227,7 +227,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">خاتالىق</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />

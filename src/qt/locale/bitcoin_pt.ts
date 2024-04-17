@@ -178,7 +178,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Lembra se que encrostar a sua carteira não o pode defender na totalidade os seus qtums de serem roubados por um malware que possa infectar o seu computador.</translation>
-  </message>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Carteira a ser encriptada</translation>
@@ -461,7 +461,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Enviar moedas para um endereço Qtum</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Efetue uma cópia de segurança da carteira para outra localização</translation>
@@ -504,16 +504,16 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Assine as mensagens com os seus endereços Qtum para provar que é o proprietário dos mesmos</translation> 
-  </message>
+        <translation type="unfinished">Assine as mensagens com os seus endereços Qtum para provar que é o proprietário dos mesmos</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verificar mensagem…</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Verifique mensagens para assegurar que foram assinadas com o endereço Qtum especificado</translation> 
-  </message>
+        <translation type="unfinished">Verifique mensagens para assegurar que foram assinadas com o endereço Qtum especificado</translation>
+    </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">&amp;Carregar PSBT do arquivo...</translation>
@@ -573,7 +573,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Solicitar pagamentos (gera códigos QR e qtum: URIs)</translation>
-  </message>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Mostrar a lista de etiquetas e endereços de envio usados</translation>
@@ -628,7 +628,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Carregar transação de Qtum parcialmente assinada</translation>
-  </message>
+    </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Carregar PSBT da área de transferência...</translation>
@@ -636,7 +636,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Carregar transação de Qtum parcialmente assinada da área de transferência.</translation>
-   </message>
+    </message>
     <message>
         <source>Node window</source>
         <translation type="unfinished">Janela do nó</translation>
@@ -655,8 +655,8 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">Abrir um qtum URI</translation> 
-  </message>
+        <translation type="unfinished">Abrir um qtum URI</translation>
+    </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Abrir Carteira</translation>
@@ -1296,7 +1296,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 irá descarregar e armazenar uma cópia da cadeia de blocos da Qtum.</translation>
-   </message>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">A carteira também será guardada nesta pasta.</translation>
@@ -1389,7 +1389,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Tentar enviar qtums que estão afetadas por transações ainda não exibidas não será aceite pela rede.</translation>
-   </message>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Número de blocos restantes</translation>
@@ -1628,7 +1628,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Conectar à rede da Qtum através dum proxy SOCLS5.</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Ligar através dum proxy SOCKS5 (proxy por defeito):</translation>
@@ -1708,7 +1708,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
         <translation type="unfinished">Conecte-se a rede Qtum através de um proxy SOCKS5 separado para serviços Tor Onion</translation>
- </message>
+    </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation type="unfinished">Use um proxy SOCKS5 separado para alcançar pares por meio dos serviços Tor onion:</translation>
@@ -1813,7 +1813,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">A informação mostrada poderá estar desatualizada. A sua carteira sincroniza automaticamente com a rede Qtum depois de estabelecer ligação, mas este processo ainda não está completo.</translation>
-   </message>
+    </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Apenas vigiar:</translation>
@@ -2025,7 +2025,7 @@ ID transação: %1</translation>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Impossível iniciar o controlador de qtum: click-to-pay</translation>
-  </message>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Manuseamento de URI</translation>
@@ -2033,7 +2033,7 @@ ID transação: %1</translation>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' não é um URI válido. Utilize 'qtum:'.</translation>
- </message>
+    </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
@@ -2557,7 +2557,7 @@ Para mais informação acerca da utilização desta consola, escreva %6.
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Uma mensagem opcional para anexar ao pedido de pagamento, que será exibida quando o pedido for aberto. Nota: A mensagem não será enviada com o pagamento através da rede Qtum.</translation>
-   </message>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Uma etiqueta opcional a associar ao novo endereço de receção.</translation>

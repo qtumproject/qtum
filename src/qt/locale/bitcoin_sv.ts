@@ -498,8 +498,8 @@ Försök igen.</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Signera meddelanden med dina Qtum-adresser för att bevisa att du äger dem</translation> 
-   </message>
+        <translation type="unfinished">Signera meddelanden med dina Qtum-adresser för att bevisa att du äger dem</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Bekräfta meddelandet…</translation>
@@ -507,7 +507,7 @@ Försök igen.</translation>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Verifiera meddelanden för att vara säker på att de signerades med angivna Qtum-adresser</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">&amp;Ladda PSBT från fil…</translation>
@@ -684,15 +684,6 @@ Försök igen.</translation>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Visa %1 hjälpmeddelande för att få en lista med möjliga Qtum kommandoradsalternativ.</translation>
-
-
-
-
-
-
-
-
-
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -1306,7 +1297,7 @@ Försök igen.</translation>
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 kommer att ladda ner och lagra en kopia av Qtum blockkedja.</translation>
+        <translation type="unfinished">%1 kommer att ladda ner och lagra en kopia av Qtums blockkedja.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1554,11 +1545,9 @@ Försök igen.</translation>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Öppna automatiskt Qtum-klientens port på routern. Detta fungerar endast om din router stödjer UPnP och det är är aktiverat.</translation>
-
-
-
-
-
+    </message>
+    <message>
+        <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Tilldela port med hjälp av &amp;UPnP</translation>
     </message>
     <message>
@@ -1644,15 +1633,6 @@ Försök igen.</translation>
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
         <translation type="unfinished">Anslut till Qtum-nätverket genom en separat SOCKS5-proxy för onion-tjänster genom Tor.</translation>
-
-
-
-
-
-
-
-
-
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -1919,11 +1899,11 @@ Försök igen.</translation>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' är inte en accepterad URI. Använd 'qtum:' istället.</translation>
-   </message>
+    </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">URI kan inte parsas! Detta kan orsakas av en ogiltig Qtum-adress eller felaktiga URI-parametrar.</translation>
-   </message>
+    </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">Hantering av betalningsbegäransfil</translation>
@@ -2591,7 +2571,7 @@ Försök igen.</translation>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">När transaktionsvolymen är mindre än utrymmet i blocken kan både brytardatorer och relänoder kräva en minimiavgift. Det är okej att bara betala denna minimiavgift, men du ska vara medveten om att det kan leda till att en transaktion aldrig bekräftas så fort efterfrågan på qtumtransaktioner är större än vad nätverket kan hantera.</translation>
-   </message>
+    </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
         <translation type="unfinished">En alltför låg avgift kan leda till att en transaktion aldrig bekräfta (läs knappbeskrivningen)</translation>
@@ -2659,7 +2639,7 @@ Försök igen.</translation>
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">Skapar en delvis signerad Qtum transaktion (PSBT) att använda vid t.ex. en offline %1 plånbok, eller en PSBT-kompatibel hårdvaruplånbok.</translation>
-  </message>
+    </message>
     <message>
         <source> from wallet '%1'</source>
         <translation type="unfinished">från plånbok: '%1'</translation>
@@ -2694,9 +2674,9 @@ Försök igen.</translation>
         <translation type="unfinished">Du kan höja avgiften senare (signalerar Replace-By-Fee, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source> 
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Verifiera ditt transaktionsförslag. Det kommer skapas en delvis signerad Qtum transaktion (PSBT) som du kan spara eller kopiera och sen signera med t.ex. en offline %1 plånbok, eller en PSBT-kompatibel hårdvaruplånbok.</translation> 
+        <translation type="unfinished">Verifiera ditt transaktionsförslag. Det kommer skapas en delvis signerad Qtum transaktion (PSBT) som du kan spara eller kopiera och sen signera med t.ex. en offline %1 plånbok, eller en PSBT-kompatibel hårdvaruplånbok.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -2796,7 +2776,7 @@ Försök igen.</translation>
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Qtum-adress att sända betalning till</translation>
-   </message>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Klistra in adress från Urklipp</translation>
@@ -2861,8 +2841,8 @@ Försök igen.</translation>
     </message>
     <message>
         <source>The Qtum address to sign the message with</source>
-        <translation type="unfinished">Qtum-adress att signera meddelandet med</translation> 
-   </message>
+        <translation type="unfinished">Qtum-adress att signera meddelandet med</translation>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">Välj tidigare använda adresser</translation>

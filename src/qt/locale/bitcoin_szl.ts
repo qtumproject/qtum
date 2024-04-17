@@ -345,7 +345,7 @@
         <translation type="unfinished">Szyfruj klucze prywatne, kere sōm we twojim portmanyju</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source> 
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Podpisz wiadōmości swojōm adresōm coby dowiyść jejich posiadanie</translation>
     </message>
     <message>
@@ -932,7 +932,7 @@
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Autōmatycznie ôdewrzij port klijynta Qtum na routerze. Ta ôpcyjŏ funguje ino jeźli twōj router podpiyrŏ UPnP i je ôno zapuszczone.</translation>
-   </message>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapuj port przi używaniu &amp;UPnP</translation>
@@ -1004,7 +1004,7 @@
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Wyświytlanŏ informacyjŏ może być niyterŏźnŏ. Twōj portmanyj synchrōnizuje sie autōmatycznie z necym qtum zarŏz po tym, jak zrychtowane je skuplowanie, ale proces tyn niy ôstoł jeszcze skōńczōny.</translation>
-   </message>
+    </message>
     <message>
         <source>Available:</source>
         <translation type="unfinished">Dostympne:</translation>
@@ -1046,7 +1046,7 @@
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' to niyma nŏleżne URI. Użyj 'qtum:'.</translation>
-   </message>
+    </message>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -1214,7 +1214,7 @@
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Ôpcyjōnalnŏ wiadōmość do prziwstōniŏ do żōndaniŏ płatu, kerŏ bydzie wyświytlanŏ, kej żōndanie ôstanie ôdewrzōne. Napōmniynie: wiadōmość ta niy ôstanie wysłanŏ z płatym w nec Qtum.</translation>
-  </message>
+    </message>
     <message>
         <source>Clear</source>
         <translation type="unfinished">Wypucuj</translation>
@@ -1400,7 +1400,7 @@
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Adresa Qtum, na kerõ chcesz posłać płat</translation>
-   </message>
+    </message>
     <message>
         <source>Use available balance</source>
         <translation type="unfinished">Użyj dostympnego salda</translation>

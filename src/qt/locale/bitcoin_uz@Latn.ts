@@ -157,7 +157,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Eslatma: Agar hamyoningizni shifrlasangiz va parolni unutib qo'ysangiz, siz &lt;b&gt;BARCHA QTUMLARINGIZNI YO'QOTASIZ&lt;/b&gt;! </translation>
+        <translation type="unfinished">Eslatma: Agar hamyoningizni shifrlasangiz va maxfiy so'zni unutib qo'ysangiz, siz &lt;b&gt;BARCHA QTUMLARINGIZNI YO'QOTASIZ&lt;/b&gt;! </translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -699,7 +699,7 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
         <translation type="unfinished">Ko'&amp;rsatish</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>Bitkoin tarmog'iga %n aktiv ulanishlar.</numerusform>
