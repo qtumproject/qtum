@@ -65,7 +65,19 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
         }
     }
 
-    if (fAllFromMe || !any_from_me) {
+
+    if(nNet < 0 && wtx.has_create_or_call && (fAllFromMe || !any_from_me)) {
+        TransactionRecord sub(hash, nTime);
+        sub.idx = 0;
+        sub.credit = nNet;
+        sub.type = TransactionRecord::ContractSend;
+
+        // Use the same destination address as in the contract RPCs
+        sub.address = toStringHash160(wtx.tx_sender_key);
+
+        parts.append(sub);
+    }
+    else if (fAllFromMe || !any_from_me) {
         for (const isminetype mine : wtx.txout_is_mine)
         {
             if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
