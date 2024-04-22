@@ -347,7 +347,7 @@ public:
 	//! \param name the parameter name
 	//! \param throwIfNotUsed flags indicating whether an exception should be thrown
 	//! \details If throwIfNotUsed is true, then a ParameterNotUsed exception
-	//!   will be thrown in the destructor if the parameter is not not retrieved.
+	//!   will be thrown in the destructor if the parameter is not retrieved.
 	AlgorithmParametersBase(const char *name, bool throwIfNotUsed)
 		: m_name(name), m_throwIfNotUsed(throwIfNotUsed), m_used(false) {}
 
@@ -378,7 +378,7 @@ public:
 	//! \param value a reference to the value
 	//! \param throwIfNotUsed flags indicating whether an exception should be thrown
 	//! \details If throwIfNotUsed is true, then a ParameterNotUsed exception
-	//!   will be thrown in the destructor if the parameter is not not retrieved.
+	//!   will be thrown in the destructor if the parameter is not retrieved.
 	AlgorithmParametersTemplate(const char *name, const T &value, bool throwIfNotUsed)
 		: AlgorithmParametersBase(name, throwIfNotUsed), m_value(value)
 	{

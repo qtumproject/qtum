@@ -99,7 +99,7 @@ def convert_btc_address_to_qtum(addr, main=False):
 
 def convert_btc_bech32_address_to_qtum(addr, main=False, encoding=Encoding.BECH32):
     encoding, hdr, data = bech32_decode(addr)
-    return bech32_encode(encoding, 'qcrt', data)
+    return bech32_encode(encoding, 'qcrt' if not main else 'qc', data)
 
 
 def p2pkh_to_hex_hash(address):

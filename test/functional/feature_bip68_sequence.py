@@ -140,7 +140,7 @@ class BIP68Test(BitcoinTestFramework):
             import random
             num_outputs = random.randint(1, max_outputs)
             self.wallet.send_self_transfer_multi(from_node=self.nodes[0], num_outputs=num_outputs)
-            self.generate(self.wallet, 1)
+            self.generate(self.wallet, COINBASE_MATURITY + 1)
 
         utxos = self.wallet.get_utxos(include_immature_coinbase=False)
 

@@ -86,7 +86,7 @@ fi
 #   IS_LINUX or IS_DARWIN, and incorporate settings for ARM_EMBEDDED
 export IS_ARM_EMBEDDED=1
 
-# GNUmakefile-cross uses these to to set CXXFLAGS for ARM_EMBEDDED
+# GNUmakefile-cross uses these to set CXXFLAGS for ARM_EMBEDDED
 if [ -z "$ARM_EMBEDDED_SYSROOT" ]; then
   export ARM_EMBEDDED_SYSROOT="/usr/arm-linux-gnueabi"
 fi
@@ -134,7 +134,7 @@ fi
 
 echo
 echo "*******************************************************************************"
-echo "It looks the the environment is set correctly. Your next step is build"
+echo "It looks the environment is set correctly. Your next step is build"
 echo "the library with 'make -f GNUmakefile-cross'. You can create a versioned"
 echo "shared object using 'HAS_SOLIB_VERSION=1 make -f GNUmakefile-cross'"
 echo "*******************************************************************************"

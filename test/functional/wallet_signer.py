@@ -49,8 +49,8 @@ class WalletSignerTest(BitcoinTestFramework):
         self.num_nodes = 2
 
         self.extra_args = [
-            [],
-            [f"-signer={self.mock_signer_path()}", '-keypool=10'],
+            ["-addresstype=bech32", "-minrelaytxfee=0.00001"],
+            [f"-signer={self.mock_signer_path()}", '-keypool=10', "-addresstype=bech32", "-minrelaytxfee=0.00001"],
         ]
 
     def skip_test_if_missing_module(self):
@@ -169,7 +169,7 @@ class WalletSignerTest(BitcoinTestFramework):
         assert_equal(result[1], {'success': True})
         assert_equal(mock_wallet.getwalletinfo()["txcount"], 1)
         dest = self.nodes[0].getnewaddress(address_type='bech32')
-        mock_psbt = mock_wallet.walletcreatefundedpsbt([], {dest:0.5}, 0, {'replaceable': True, 'change_type': 'bech32'}, True)['psbt']
+        mock_psbt = mock_wallet.walletcreatefundedpsbt([], {dest:0.5}, 0, {'replaceable': True}, True)['psbt']
         mock_psbt_signed = mock_wallet.walletprocesspsbt(psbt=mock_psbt, sign=True, sighashtype="ALL", bip32derivs=True)
         mock_tx = mock_psbt_signed["hex"]
         assert mock_wallet.testmempoolaccept([mock_tx])[0]["allowed"]
