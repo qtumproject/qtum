@@ -9,6 +9,7 @@
 #include <addrman.h>
 #include <banman.h>
 #include <chainparams.h>
+#include <common/system.h>
 #include <common/url.h>
 #include <consensus/consensus.h>
 #include <consensus/params.h>
@@ -18,18 +19,22 @@
 #include <init/common.h>
 #include <interfaces/chain.h>
 #include <kernel/mempool_entry.h>
+#include <logging.h>
 #include <net.h>
 #include <net_processing.h>
 #include <node/blockstorage.h>
 #include <node/chainstate.h>
 #include <node/context.h>
+#include <node/kernel_notifications.h>
 #include <node/mempool_args.h>
 #include <node/miner.h>
+#include <node/peerman_args.h>
 #include <node/validation_cache_args.h>
 #include <noui.h>
 #include <policy/fees.h>
 #include <policy/fees_args.h>
 #include <pow.h>
+#include <random.h>
 #include <rpc/blockchain.h>
 #include <rpc/register.h>
 #include <rpc/server.h>
@@ -38,10 +43,12 @@
 #include <shutdown.h>
 #include <streams.h>
 #include <test/util/net.h>
+#include <test/util/random.h>
 #include <test/util/txmempool.h>
 #include <timedata.h>
 #include <txdb.h>
 #include <txmempool.h>
+#include <util/chaintype.h>
 #include <util/strencodings.h>
 #include <util/string.h>
 #include <util/thread.h>
@@ -58,10 +65,13 @@
 #include <functional>
 #include <stdexcept>
 
+using kernel::BlockTreeDB;
 using kernel::ValidationCacheSizes;
 using node::ApplyArgsManOptions;
 using node::BlockAssembler;
+using node::BlockManager;
 using node::CalculateCacheSizes;
+using node::KernelNotifications;
 using node::LoadChainstate;
 using node::RegenerateCommitments;
 using node::VerifyLoadedChainstate;
@@ -69,28 +79,8 @@ using node::VerifyLoadedChainstate;
 const std::function<std::string(const char*)> G_TRANSLATION_FUN = nullptr;
 UrlDecodeFn* const URL_DECODE = nullptr;
 
-FastRandomContext g_insecure_rand_ctx;
 /** Random context to get unique temp data dirs. Separate from g_insecure_rand_ctx, which can be seeded from a const env var */
 static FastRandomContext g_insecure_rand_ctx_temp_path;
-
-/** Return the unsigned from the environment var if available, otherwise 0 */
-static uint256 GetUintFromEnv(const std::string& env_name)
-{
-    const char* num = std::getenv(env_name.c_str());
-    if (!num) return {};
-    return uint256S(num);
-}
-
-void Seed(FastRandomContext& ctx)
-{
-    // Should be enough to get the seed once for the process
-    static uint256 seed{};
-    static const std::string RANDOM_CTX_SEED{"RANDOM_CTX_SEED"};
-    if (seed.IsNull()) seed = GetUintFromEnv(RANDOM_CTX_SEED);
-    if (seed.IsNull()) seed = GetRandHash();
-    LogPrintf("%s: Setting random seed for current tests to %s=%s\n", __func__, RANDOM_CTX_SEED, seed.GetHex());
-    ctx = FastRandomContext(seed);
-}
 
 std::ostream& operator<<(std::ostream& os, const uint256& num)
 {
@@ -98,7 +88,7 @@ std::ostream& operator<<(std::ostream& os, const uint256& num)
     return os;
 }
 
-BasicTestingSetup::BasicTestingSetup(const std::string& chainName, const std::vector<const char*>& extra_args)
+BasicTestingSetup::BasicTestingSetup(const ChainType chainType, const std::vector<const char*>& extra_args)
     : m_path_root{fs::temp_directory_path() / "test_common_" PACKAGE_NAME / g_insecure_rand_ctx_temp_path.rand256().ToString()},
       m_args{}
 {
@@ -134,7 +124,7 @@ BasicTestingSetup::BasicTestingSetup(const std::string& chainName, const std::ve
     }
     m_args.SoftSetBoolArg("-staking", false);
     gArgs.SoftSetBoolArg("-staking", false);
-    SelectParams(chainName);
+    SelectParams(chainType);
     SeedInsecureRand();
     if (G_TEST_LOG_FUN) LogInstance().PushBackCallback(G_TEST_LOG_FUN);
     InitLogging(*m_node.args);
@@ -165,8 +155,8 @@ BasicTestingSetup::~BasicTestingSetup()
     gArgs.ClearArgs();
 }
 
-ChainTestingSetup::ChainTestingSetup(const std::string& chainName, const std::vector<const char*>& extra_args)
-    : BasicTestingSetup(chainName, extra_args)
+ChainTestingSetup::ChainTestingSetup(const ChainType chainType, const std::vector<const char*>& extra_args)
+    : BasicTestingSetup(chainType, extra_args)
 {
     const CChainParams& chainparams = Params();
 
@@ -201,14 +191,22 @@ ChainTestingSetup::ChainTestingSetup(const std::string& chainName, const std::ve
 
     m_cache_sizes = CalculateCacheSizes(m_args);
 
+    m_node.notifications = std::make_unique<KernelNotifications>(m_node.exit_status);
+
     const ChainstateManager::Options chainman_opts{
         .chainparams = chainparams,
         .datadir = m_args.GetDataDirNet(),
         .adjusted_time_callback = GetAdjustedTime,
         .check_block_index = true,
+        .notifications = *m_node.notifications,
     };
-    m_node.chainman = std::make_unique<ChainstateManager>(chainman_opts, node::BlockManager::Options{});
-    m_node.chainman->m_blockman.m_block_tree_db = std::make_unique<CBlockTreeDB>(DBParams{
+    const BlockManager::Options blockman_opts{
+        .chainparams = chainman_opts.chainparams,
+        .blocks_dir = m_args.GetBlocksDirPath(),
+        .notifications = chainman_opts.notifications,
+    };
+    m_node.chainman = std::make_unique<ChainstateManager>(m_node.kernel->interrupt, chainman_opts, blockman_opts);
+    m_node.chainman->m_blockman.m_block_tree_db = std::make_unique<BlockTreeDB>(DBParams{
         .path = m_args.GetDataDirNet() / "blocks" / "index",
         .cache_bytes = static_cast<size_t>(m_cache_sizes.block_tree_db),
         .memory_only = true});
@@ -238,7 +236,7 @@ ChainTestingSetup::~ChainTestingSetup()
 ///////////////////////////////////////////////
 }
 
-void TestingSetup::LoadVerifyActivateChainstate()
+void ChainTestingSetup::LoadVerifyActivateChainstate()
 {
     auto& chainman{*Assert(m_node.chainman)};
     node::ChainstateLoadOptions options;
@@ -264,14 +262,14 @@ void TestingSetup::LoadVerifyActivateChainstate()
 }
 
 TestingSetup::TestingSetup(
-    const std::string& chainName,
+    const ChainType chainType,
     const std::vector<const char*>& extra_args,
     const bool coins_db_in_memory,
     const bool block_tree_db_in_memory)
-    : ChainTestingSetup(chainName, extra_args),
-      m_coins_db_in_memory(coins_db_in_memory),
-      m_block_tree_db_in_memory(block_tree_db_in_memory)
+    : ChainTestingSetup(chainType, extra_args)
 {
+    m_coins_db_in_memory = coins_db_in_memory;
+    m_block_tree_db_in_memory = block_tree_db_in_memory;
     // Ideally we'd move all the RPC tests to the functional testing framework
     // instead of unit tests, but for now we need these here.
     RegisterAllCoreRPCCommands(tableRPC);
@@ -283,10 +281,14 @@ TestingSetup::TestingSetup(
                                                /*deterministic=*/false,
                                                m_node.args->GetIntArg("-checkaddrman", 0));
     m_node.banman = std::make_unique<BanMan>(m_args.GetDataDirBase() / "banlist", nullptr, DEFAULT_MISBEHAVING_BANTIME);
-    m_node.connman = std::make_unique<ConnmanTestMsg>(0x1337, 0x1337, *m_node.addrman, *m_node.netgroupman); // Deterministic randomness for tests.
+    m_node.connman = std::make_unique<ConnmanTestMsg>(0x1337, 0x1337, *m_node.addrman, *m_node.netgroupman, Params()); // Deterministic randomness for tests.
+    PeerManager::Options peerman_opts;
+    ApplyArgsManOptions(*m_node.args, peerman_opts);
+    peerman_opts.deterministic_rng = true;
     m_node.peerman = PeerManager::make(*m_node.connman, *m_node.addrman,
                                        m_node.banman.get(), *m_node.chainman,
-                                       *m_node.mempool, false);
+                                       *m_node.mempool, peerman_opts);
+
     {
         CConnman::Options options;
         options.m_msgproc = m_node.peerman.get();
@@ -295,11 +297,11 @@ TestingSetup::TestingSetup(
 }
 
 TestChain100Setup::TestChain100Setup(
-        const std::string& chain_name,
+        const ChainType chain_type,
         const std::vector<const char*>& extra_args,
         const bool coins_db_in_memory,
         const bool block_tree_db_in_memory)
-    : TestingSetup{CBaseChainParams::UNITTEST, extra_args, coins_db_in_memory, block_tree_db_in_memory}
+    : TestingSetup{ChainType::UNITTEST, extra_args, coins_db_in_memory, block_tree_db_in_memory}
 {
     SetMockTime(1598887952);
     constexpr std::array<unsigned char, 32> vchKey = {
@@ -427,7 +429,7 @@ std::vector<CTransactionRef> TestChain100Setup::PopulateMempool(FastRandomContex
         for (size_t n{0}; n < num_inputs; ++n) {
             if (unspent_prevouts.empty()) break;
             const auto& [prevout, amount] = unspent_prevouts.front();
-            mtx.vin.push_back(CTxIn(prevout, CScript()));
+            mtx.vin.emplace_back(prevout, CScript());
             total_in += amount;
             unspent_prevouts.pop_front();
         }
@@ -436,7 +438,7 @@ std::vector<CTransactionRef> TestChain100Setup::PopulateMempool(FastRandomContex
         const CAmount amount_per_output = (total_in - fee) / num_outputs;
         for (size_t n{0}; n < num_outputs; ++n) {
             CScript spk = CScript() << CScriptNum(num_transactions + n);
-            mtx.vout.push_back(CTxOut(amount_per_output, spk));
+            mtx.vout.emplace_back(amount_per_output, spk);
         }
         CTransactionRef ptx = MakeTransactionRef(mtx);
         mempool_transactions.push_back(ptx);
@@ -445,7 +447,7 @@ std::vector<CTransactionRef> TestChain100Setup::PopulateMempool(FastRandomContex
             // it can be used to build a more complex transaction graph. Insert randomly into
             // unspent_prevouts for extra randomness in the resulting structures.
             for (size_t n{0}; n < num_outputs; ++n) {
-                unspent_prevouts.push_back(std::make_pair(COutPoint(ptx->GetHash(), n), amount_per_output));
+                unspent_prevouts.emplace_back(COutPoint(ptx->GetHash(), n), amount_per_output);
                 std::swap(unspent_prevouts.back(), unspent_prevouts[det_rand.randrange(unspent_prevouts.size())]);
             }
         }
@@ -453,7 +455,7 @@ std::vector<CTransactionRef> TestChain100Setup::PopulateMempool(FastRandomContex
             LOCK2(cs_main, m_node.mempool->cs);
             LockPoints lp;
             m_node.mempool->addUnchecked(CTxMemPoolEntry(ptx, /*fee=*/(total_in - num_outputs * amount_per_output),
-                                                         /*time=*/0, /*entry_height=*/1,
+                                                         /*time=*/0, /*entry_height=*/1, /*entry_sequence=*/0,
                                                          /*spends_coinbase=*/false, /*sigops_cost=*/4, lp));
         }
         --num_transactions;
@@ -461,6 +463,33 @@ std::vector<CTransactionRef> TestChain100Setup::PopulateMempool(FastRandomContex
     return mempool_transactions;
 }
 
+void TestChain100Setup::MockMempoolMinFee(const CFeeRate& target_feerate)
+{
+    LOCK2(cs_main, m_node.mempool->cs);
+    // Transactions in the mempool will affect the new minimum feerate.
+    assert(m_node.mempool->size() == 0);
+    // The target feerate cannot be too low...
+    // ...otherwise the transaction's feerate will need to be negative.
+    assert(target_feerate > m_node.mempool->m_incremental_relay_feerate);
+    // ...otherwise this is not meaningful. The feerate policy uses the maximum of both feerates.
+    assert(target_feerate > m_node.mempool->m_min_relay_feerate);
+
+    // Manually create an invalid transaction. Manually set the fee in the CTxMemPoolEntry to
+    // achieve the exact target feerate.
+    CMutableTransaction mtx = CMutableTransaction();
+    mtx.vin.emplace_back(COutPoint{g_insecure_rand_ctx.rand256(), 0});
+    mtx.vout.emplace_back(1 * COIN, GetScriptForDestination(WitnessV0ScriptHash(CScript() << OP_TRUE)));
+    const auto tx{MakeTransactionRef(mtx)};
+    LockPoints lp;
+    // The new mempool min feerate is equal to the removed package's feerate + incremental feerate.
+    const auto tx_fee = target_feerate.GetFee(GetVirtualTransactionSize(*tx)) -
+        m_node.mempool->m_incremental_relay_feerate.GetFee(GetVirtualTransactionSize(*tx));
+    m_node.mempool->addUnchecked(CTxMemPoolEntry(tx, /*fee=*/tx_fee,
+                                                 /*time=*/0, /*entry_height=*/1, /*entry_sequence=*/0,
+                                                 /*spends_coinbase=*/true, /*sigops_cost=*/1, lp));
+    m_node.mempool->TrimToSize(0);
+    assert(m_node.mempool->GetMinFee() == target_feerate);
+}
 /**
  * @returns a real block (0000000000013b8ab2cd513b0261a14096412195a72a0c4827d229dcc7e0f7af)
  *      with 9 txs.

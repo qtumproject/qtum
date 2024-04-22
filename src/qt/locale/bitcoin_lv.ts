@@ -58,17 +58,9 @@
         <translation type="unfinished">Izvēlēties</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Adrešu nosūtīšana</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Adrešu saņemšana</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Šīs ir jūsu Qtum adreses, kuras izmantojamas maksājumu veikšanai. Vienmēr pārbaudiet summu un saņēmēja adresi pirms monētu nosūtīšanas.</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">&amp;Kopēt adresi</translation>
@@ -313,7 +305,7 @@
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Nosūtīt bitkoinus uz Qtum adresi</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Izveidot maciņa rezerves kopiju citur</translation>
@@ -341,7 +333,7 @@
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Parakstīt ziņojumus ar savām Qtum adresēm lai pierādītu ka tās pieder tev</translation>
-   </message>
+    </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Pārbaudīt ziņojumus lai pārliecinātos, ka tie tika parakstīti ar norādītajām Qtum adresēm</translation>
@@ -411,7 +403,7 @@
         <translation type="unfinished">&amp;Logs</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -680,8 +672,8 @@
         <translation type="unfinished">&amp;Tērēt neapstiprinātu atlikumu</translation>
     </message>
     <message>
-        <source>Automatically open the qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">Uz rūtera automātiski atvērt qtum klienta portu. Tas strādā tikai tad, ja rūteris atbalsta UPnP un tas ir ieslēgts.</translation>
+        <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation type="unfinished">Uz rūtera automātiski atvērt Qtum klienta portu. Tas strādā tikai tad, ja rūteris atbalsta UPnP un tas ir ieslēgts.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
@@ -733,7 +725,7 @@
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
-        <translation type="unfinished">Vai rādīt qtum kontroles funkcijas vai nē.</translation>
+        <translation type="unfinished">Vai rādīt Qtum kontroles funkcijas vai nē.</translation>
     </message>
     <message>
         <source>&amp;OK</source>

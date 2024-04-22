@@ -1,7 +1,7 @@
 #ifndef QTUM_WALLET_RPC_ADDRESSES_H
 #define QTUM_WALLET_RPC_ADDRESSES_H
 
-#include <script/standard.h>
+#include <addresstype.h>
 #include <univalue.h>
 
 namespace wallet {

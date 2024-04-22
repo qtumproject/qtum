@@ -45,7 +45,7 @@ ThreadLocalStorage::ThreadLocalStorage()
 ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 {
 #ifdef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
-	if (!std::uncaught_exceptions())
+	if (!std::uncaught_exception())
 #else
 	try
 #endif

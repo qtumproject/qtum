@@ -5,9 +5,11 @@
 #include <bench/bench.h>
 #include <interfaces/chain.h>
 #include <node/context.h>
+#include <policy/policy.h>
 #include <wallet/coinselection.h>
 #include <wallet/spend.h>
 #include <wallet/wallet.h>
+#include <wallet/test/util.h>
 
 #include <set>
 
@@ -19,7 +21,7 @@ using wallet::CWallet;
 using wallet::CWalletTx;
 using wallet::CoinEligibilityFilter;
 using wallet::CoinSelectionParams;
-using wallet::CreateDummyWalletDatabase;
+using wallet::CreateMockableWalletDatabase;
 using wallet::OutputGroup;
 using wallet::SelectCoinsBnB;
 using wallet::TxStateInactive;
@@ -45,7 +47,7 @@ static void CoinSelection(benchmark::Bench& bench)
 {
     NodeContext node;
     auto chain = interfaces::MakeChain(node);
-    CWallet wallet(chain.get(), "", CreateDummyWalletDatabase());
+    CWallet wallet(chain.get(), "", CreateMockableWalletDatabase());
     std::vector<std::unique_ptr<CWalletTx>> wtxs;
     LOCK(wallet.cs_wallet);
 
@@ -77,7 +79,7 @@ static void CoinSelection(benchmark::Bench& bench)
     };
     auto group = wallet::GroupOutputs(wallet, available_coins, coin_selection_params, {{filter_standard}})[filter_standard];
     bench.run([&] {
-        auto result = AttemptSelection(1003 * COIN, group, coin_selection_params, /*allow_mixed_output_types=*/true);
+        auto result = AttemptSelection(wallet.chain(), 1003 * COIN, group, coin_selection_params, /*allow_mixed_output_types=*/true);
         assert(result);
         assert(result->GetSelectedValue() == 1003 * COIN);
         assert(result->GetInputSet().size() == 2);
@@ -115,7 +117,7 @@ static void BnBExhaustion(benchmark::Bench& bench)
     bench.run([&] {
         // Benchmark
         CAmount target = make_hard_case(17, utxo_pool);
-        SelectCoinsBnB(utxo_pool, target, 0); // Should exhaust
+        SelectCoinsBnB(utxo_pool, target, 0, MAX_STANDARD_TX_WEIGHT); // Should exhaust
 
         // Cleanup
         utxo_pool.clear();

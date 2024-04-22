@@ -4,9 +4,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainparams.h>
+#include <common/args.h>
 #include <logging.h>
 #include <util/fs.h>
-#include <util/system.h>
 #include <wallet/db.h>
 
 #include <exception>
@@ -136,7 +136,7 @@ bool IsSQLiteFile(const fs::path& path)
     }
 
     // Check the application id matches our network magic
-    return memcmp(Params().MessageStart(), app_id, 4) == 0;
+    return memcmp(Params().MessageStart().data(), app_id, 4) == 0;
 }
 
 void ReadDatabaseArgs(const ArgsManager& args, DatabaseOptions& options)

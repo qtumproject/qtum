@@ -38,7 +38,6 @@ public:
     {
         SetNull();
     }
-    virtual ~CBlockHeader(){};
 
     SERIALIZE_METHODS(CBlockHeader, obj) { READWRITE(obj.nVersion, obj.hashPrevBlock, obj.hashMerkleRoot, obj.nTime, obj.nBits, obj.nNonce, obj.hashStateRoot, obj.hashUTXORoot, obj.prevoutStake, obj.vchBlockSigDlgt); }
 
@@ -78,17 +77,17 @@ public:
     }
 
     // ppcoin: two types of block: proof-of-work or proof-of-stake
-    virtual bool IsProofOfStake() const //qtum
+    bool IsProofOfStake() const //qtum
     {
         return !prevoutStake.IsNull();
     }
 
-    virtual bool IsProofOfWork() const
+    bool IsProofOfWork() const
     {
         return !IsProofOfStake();
     }
     
-    virtual uint32_t StakeTime() const
+    uint32_t StakeTime() const
     {
         uint32_t ret = 0;
         if(IsProofOfStake())
@@ -105,24 +104,6 @@ public:
     std::vector<unsigned char> GetProofOfDelegation() const;
 
     bool HasProofOfDelegation() const;
-
-    CBlockHeader& operator=(const CBlockHeader& other) //qtum
-    {
-        if (this != &other)
-        {
-            this->nVersion       = other.nVersion;
-            this->hashPrevBlock  = other.hashPrevBlock;
-            this->hashMerkleRoot = other.hashMerkleRoot;
-            this->nTime          = other.nTime;
-            this->nBits          = other.nBits;
-            this->nNonce         = other.nNonce;
-            this->hashStateRoot  = other.hashStateRoot;
-            this->hashUTXORoot   = other.hashUTXORoot;
-            this->vchBlockSigDlgt    = other.vchBlockSigDlgt;
-            this->prevoutStake   = other.prevoutStake;
-        }
-        return *this;
-    }
 };
 
 
@@ -148,8 +129,7 @@ public:
 
     SERIALIZE_METHODS(CBlock, obj)
     {
-        READWRITEAS(CBlockHeader, obj);
-        READWRITE(obj.vtx);
+        READWRITE(AsBase<CBlockHeader>(obj), obj.vtx);
     }
 
     void SetNull()
@@ -189,6 +169,15 @@ public:
  */
 struct CBlockLocator
 {
+    /** Historically CBlockLocator's version field has been written to network
+     * streams as the negotiated protocol version and to disk streams as the
+     * client version, but the value has never been used.
+     *
+     * Hard-code to the highest protocol version ever written to a network stream.
+     * SerParams can be used if the field requires any meaning in the future,
+     **/
+    static constexpr int DUMMY_VERSION = 70016;
+
     std::vector<uint256> vHave;
 
     CBlockLocator() {}
@@ -197,9 +186,8 @@ struct CBlockLocator
 
     SERIALIZE_METHODS(CBlockLocator, obj)
     {
-        int nVersion = s.GetVersion();
-        if (!(s.GetType() & SER_GETHASH))
-            READWRITE(nVersion);
+        int nVersion = DUMMY_VERSION;
+        READWRITE(nVersion);
         READWRITE(obj.vHave);
     }
 

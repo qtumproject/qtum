@@ -47,12 +47,12 @@ struct EthChainIdCache
     int afterShanghaiChainId = 0;
 };
 
-int qtumutils::eth_getChainId(int blockHeight, int shanghaiHeight, const std::string& chain)
+int qtumutils::eth_getChainId(int blockHeight, int shanghaiHeight, const ChainType& chain)
 {
-    if (chain == CBaseChainParams::MAIN || blockHeight < shanghaiHeight)
+    if (chain == ChainType::MAIN || blockHeight < shanghaiHeight)
         return ChainIdType::MAIN;
 
-    if (chain == CBaseChainParams::REGTEST || chain == CBaseChainParams::UNITTEST)
+    if (chain == ChainType::REGTEST || chain == ChainType::UNITTEST)
         return ChainIdType::REGTEST;
 
     return ChainIdType::TESTNET;
@@ -66,7 +66,7 @@ int qtumutils::eth_getChainId(int blockHeight)
     static EthChainIdCache idCache;
     if(idCache.nDefaultPort != nDefaultPort)
     {
-        std::string chain = params.NetworkIDString();
+        ChainType chain = params.GetChainType();
         idCache.nDefaultPort = nDefaultPort;
         idCache.beforeShanghaiChainId = eth_getChainId(0, shanghaiHeight, chain);
         idCache.afterShanghaiChainId = eth_getChainId(shanghaiHeight, shanghaiHeight, chain);

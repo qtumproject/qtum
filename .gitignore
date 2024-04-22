@@ -51,11 +51,11 @@ src/qt/forms/ui_*.h
 
 src/qt/test/moc*.cpp
 
-src/qt/bitcoin-qt.config
-src/qt/bitcoin-qt.creator
-src/qt/bitcoin-qt.creator.user
-src/qt/bitcoin-qt.files
-src/qt/bitcoin-qt.includes
+src/qt/qtum-qt.config
+src/qt/qtum-qt.creator
+src/qt/qtum-qt.creator.user
+src/qt/qtum-qt.files
+src/qt/qtum-qt.includes
 
 .deps
 .dirstamp
@@ -75,7 +75,7 @@ src/qt/bitcoin-qt.includes
 
 *.log
 *.trs
-*.dmg
+*.zip
 
 *.json.h
 *.raw.h
@@ -117,7 +117,7 @@ releases
 *.gcno
 *.gcda
 /*.info
-test_bitcoin.coverage/
+test_qtum.coverage/
 total.coverage/
 fuzz.coverage/
 coverage_percent.txt

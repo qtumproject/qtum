@@ -3,20 +3,20 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainparams.h>
+#include <addresstype.h>
 #include <coins.h>
+#include <common/system.h>
 #include <consensus/consensus.h>
 #include <consensus/merkle.h>
 #include <consensus/tx_verify.h>
 #include <node/miner.h>
 #include <policy/policy.h>
-#include <script/standard.h>
 #include <test/util/random.h>
 #include <test/util/txmempool.h>
 #include <timedata.h>
 #include <txmempool.h>
 #include <uint256.h>
 #include <util/strencodings.h>
-#include <util/system.h>
 #include <util/time.h>
 #include <validation.h>
 #include <versionbits.h>

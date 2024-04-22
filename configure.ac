@@ -1,10 +1,10 @@
 AC_PREREQ([2.69])
-define(_CLIENT_VERSION_MAJOR, 25)
-define(_CLIENT_VERSION_MINOR, 1)
+define(_CLIENT_VERSION_MAJOR, 26)
+define(_CLIENT_VERSION_MINOR, 0)
 define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_RC, 0)
 define(_CLIENT_VERSION_IS_RELEASE, true)
-define(_COPYRIGHT_YEAR, 2023)
+define(_COPYRIGHT_YEAR, 2024)
 define(_COPYRIGHT_HOLDERS,[The %s Developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Qtum Core]])
 AC_INIT([Qtum Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/qtumproject/qtum/issues],[qtum],[https://qtum.org/])
@@ -70,11 +70,12 @@ else
 fi
 AC_PROG_CXX
 
-dnl By default, libtool for mingw refuses to link static libs into a dll for
-dnl fear of mixing pic/non-pic objects, and import/export complications. Since
-dnl we have those under control, re-enable that functionality.
+dnl libtool overrides
 case $host in
   *mingw*)
+     dnl By default, libtool for mingw refuses to link static libs into a dll for
+     dnl fear of mixing pic/non-pic objects, and import/export complications. Since
+     dnl we have those under control, re-enable that functionality.
      lt_cv_deplibs_check_method="pass_all"
 
      dnl Remove unwanted -DDLL_EXPORT from these variables.
@@ -83,13 +84,17 @@ case $host in
      lt_cv_prog_compiler_pic="-DPIC"
      lt_cv_prog_compiler_pic_CXX="-DPIC"
   ;;
+  *darwin*)
+     dnl Because it prints a verbose warning, lld fails the following check
+     dnl for "-Wl,-single_module" from libtool.m4:
+     dnl   # If there is a non-empty error log, and "single_module"
+     dnl   # appears in it, assume the flag caused a linker warning
+     dnl "-single_module" works fine on ld64 and lld, so just bypass the test.
+     dnl Failure to set this to "yes" causes libtool to use a very broken
+     dnl link-line for shared libs.
+     lt_cv_apple_cc_single_mod="yes"
+  ;;
 esac
-
-AC_ARG_WITH([seccomp],
-  [AS_HELP_STRING([--with-seccomp],
-  [enable experimental syscall sandbox feature (-sandbox), default is yes if seccomp-bpf is detected under Linux x86_64])],
-  [seccomp_found=$withval],
-  [seccomp_found=auto])
 
 AC_ARG_ENABLE([c++20],
   [AS_HELP_STRING([--enable-c++20],
@@ -103,9 +108,6 @@ AX_CXX_COMPILE_STDCXX([17], [noext], [mandatory])
 else
 AX_CXX_COMPILE_STDCXX([20], [noext], [mandatory])
 fi
-
-dnl check if additional link flags are required for std::filesystem
-CHECK_FILESYSTEM
 
 dnl Unless the user specified OBJCXX, force it to be the same as CXX. This ensures
 dnl that we get the same -std flags for both.
@@ -126,8 +128,8 @@ AC_PATH_TOOL([AR], [ar])
 AC_PATH_TOOL([GCOV], [gcov])
 AC_PATH_TOOL([LLVM_COV], [llvm-cov])
 AC_PATH_PROG([LCOV], [lcov])
-dnl Python 3.7 is specified in .python-version and should be used if available, see doc/dependencies.md
-AC_PATH_PROGS([PYTHON], [python3.7 python3.8 python3.9 python3.10 python3.11 python3.12 python3 python])
+dnl Python 3.8 is specified in .python-version and should be used if available, see doc/dependencies.md
+AC_PATH_PROGS([PYTHON], [python3.8 python3.9 python3.10 python3.11 python3.12 python3 python])
 AC_PATH_PROG([GENHTML], [genhtml])
 AC_PATH_PROG([GIT], [git])
 AC_PATH_PROG([CCACHE], [ccache])
@@ -236,10 +238,10 @@ dnl May be useful if warnings from external headers clutter the build output
 dnl too much, so that it becomes difficult to spot Bitcoin Core warnings
 dnl or if they cause a build failure with --enable-werror.
 AC_ARG_ENABLE([suppress-external-warnings],
-  [AS_HELP_STRING([--enable-suppress-external-warnings],
-                  [Suppress warnings from external headers (default is no)])],
+  [AS_HELP_STRING([--disable-suppress-external-warnings],
+                  [Do not suppress warnings from external headers (default is to suppress)])],
   [suppress_external_warnings=$enableval],
-  [suppress_external_warnings=no])
+  [suppress_external_warnings=yes])
 
 AC_ARG_ENABLE([lcov],
   [AS_HELP_STRING([--enable-lcov],
@@ -427,12 +429,6 @@ if test "$enable_werror" = "yes"; then
     AC_MSG_ERROR([enable-werror set but -Werror is not usable])
   fi
   ERROR_CXXFLAGS=$CXXFLAG_WERROR
-
-  dnl -Wreturn-type is broken in GCC for MinGW-w64.
-  dnl https://sourceforge.net/p/mingw-w64/bugs/306/
-  AX_CHECK_COMPILE_FLAG([-Werror=return-type], [], [ERROR_CXXFLAGS="$ERROR_CXXFLAGS -Wno-error=return-type"], [$CXXFLAG_WERROR],
-                        [AC_LANG_SOURCE([[#include <cassert>
-                                          int f(){ assert(false); }]])])
 fi
 
 if test "$CXXFLAGS_overridden" = "no"; then
@@ -480,6 +476,12 @@ fi
 
 dnl Don't allow extended (non-ASCII) symbols in identifiers. This is easier for code review.
 AX_CHECK_COMPILE_FLAG([-fno-extended-identifiers], [CORE_CXXFLAGS="$CORE_CXXFLAGS -fno-extended-identifiers"], [], [$CXXFLAG_WERROR])
+
+dnl Currently all versions of gcc are subject to a class of bugs, see the
+dnl gccbug_90348 test case (only reproduces on GCC 11 and earlier) and
+dnl https://gcc.gnu.org/bugzilla/show_bug.cgi?id=111843. To work around that, set
+dnl -fstack-reuse=none for all gcc builds. (Only gcc understands this flag)
+AX_CHECK_COMPILE_FLAG([-fstack-reuse=none], [CORE_CXXFLAGS="$CORE_CXXFLAGS -fstack-reuse=none"])
 
 enable_arm_crc=no
 enable_arm_shani=no
@@ -588,7 +590,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 CXXFLAGS="$TEMP_CXXFLAGS"
 
 # ARM
-AX_CHECK_COMPILE_FLAG([-march=armv8-a+crc], [ARM_CRC_CXXFLAGS="-march=armv8-a+crc"], [], [$CXXFLAG_WERROR])
+AX_CHECK_COMPILE_FLAG([-march=armv8-a+crc+crypto], [ARM_CRC_CXXFLAGS="-march=armv8-a+crc+crypto"], [], [$CXXFLAG_WERROR])
 AX_CHECK_COMPILE_FLAG([-march=armv8-a+crypto], [ARM_SHANI_CXXFLAGS="-march=armv8-a+crypto"], [], [$CXXFLAG_WERROR])
 
 TEMP_CXXFLAGS="$CXXFLAGS"
@@ -718,6 +720,8 @@ case $host in
        AC_MSG_ERROR([windres not found])
      fi
 
+     CORE_CPPFLAGS="$CORE_CPPFLAGS -DSECP256K1_STATIC"
+
      CORE_CPPFLAGS="$CORE_CPPFLAGS -D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB -D_WIN32_WINNT=0x0601 -D_WIN32_IE=0x0501 -DWIN32_LEAN_AND_MEAN"
      dnl Prevent the definition of min/max macros.
      dnl We always want to use the standard library.
@@ -733,6 +737,10 @@ case $host in
 
      dnl We require Windows 7 (NT 6.1) or later
      AX_CHECK_LINK_FLAG([-Wl,--major-subsystem-version -Wl,6 -Wl,--minor-subsystem-version -Wl,1], [CORE_LDFLAGS="$CORE_LDFLAGS -Wl,--major-subsystem-version -Wl,6 -Wl,--minor-subsystem-version -Wl,1"], [], [$LDFLAG_WERROR])
+
+     dnl Avoid the use of aligned vector instructions when building for Windows.
+     dnl See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54412.
+     AX_CHECK_COMPILE_FLAG([-Wa,-muse-unaligned-vector-move], [CORE_CXXFLAGS="$CORE_CXXFLAGS -Wa,-muse-unaligned-vector-move"], [], [$CXXFLAG_WERROR])
      ;;
   *darwin*)
      TARGET_OS=darwin
@@ -818,7 +826,7 @@ case $host in
            AC_PATH_TOOL([DSYMUTIL], [dsymutil], [dsymutil])
            AC_PATH_TOOL([INSTALL_NAME_TOOL], [install_name_tool], [install_name_tool])
            AC_PATH_TOOL([OTOOL], [otool], [otool])
-           AC_PATH_PROGS([XORRISOFS], [xorrisofs], [xorrisofs])
+           AC_PATH_PROG([ZIP], [zip], [zip])
 
            dnl libtool will try to strip the static lib, which is a problem for
            dnl cross-builds because strip attempts to call a hard-coded ld,
@@ -940,8 +948,6 @@ if test "$ac_cv_sys_large_files" != "" &&
   CORE_CPPFLAGS="$CORE_CPPFLAGS -D_LARGE_FILES=$ac_cv_sys_large_files"
 fi
 
-AC_SEARCH_LIBS([clock_gettime],[rt])
-
 if test "$enable_gprof" = "yes"; then
     dnl -pg is incompatible with -pie. Since hardening and profiling together doesn't make sense,
     dnl we simply make them mutually exclusive here. Additionally, hardened toolchains may force
@@ -964,12 +970,6 @@ if test "$TARGET_OS" != "windows"; then
   AX_CHECK_COMPILE_FLAG([-fPIC], [PIC_FLAGS="-fPIC"])
 fi
 
-dnl Versions of gcc prior to 12.1 (commit
-dnl https://github.com/gcc-mirror/gcc/commit/551aa75778a4c5165d9533cd447c8fc822f583e1)
-dnl are subject to a bug, see the gccbug_90348 test case and
-dnl https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90348. To work around that, set
-dnl -fstack-reuse=none for all gcc builds. (Only gcc understands this flag)
-AX_CHECK_COMPILE_FLAG([-fstack-reuse=none], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -fstack-reuse=none"])
 if test "$use_hardening" != "no"; then
   use_hardening=yes
   AX_CHECK_COMPILE_FLAG([-Wstack-protector], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -Wstack-protector"])
@@ -979,7 +979,8 @@ if test "$use_hardening" != "no"; then
 
   case $host in
     *mingw*)
-      dnl stack-clash-protection doesn't currently work, and likely should just be skipped for Windows.
+      dnl stack-clash-protection doesn't compile with GCC 10 and earlier.
+      dnl In any case, it is a no-op for Windows.
       dnl See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90458 for more details.
       ;;
     *)
@@ -987,6 +988,11 @@ if test "$use_hardening" != "no"; then
       ;;
   esac
 
+  case $host in
+    *aarch64*)
+      AX_CHECK_COMPILE_FLAG([-mbranch-protection=bti], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -mbranch-protection=bti"])
+    ;;
+  esac
 
   dnl When enable_debug is yes, all optimizations are disabled.
   dnl However, FORTIFY_SOURCE requires that there is some level of optimization, otherwise it does nothing and just creates a compiler warning.
@@ -1023,6 +1029,7 @@ if test "$TARGET_OS" = "darwin"; then
   AX_CHECK_LINK_FLAG([-Wl,-dead_strip], [CORE_LDFLAGS="$CORE_LDFLAGS -Wl,-dead_strip"], [], [$LDFLAG_WERROR])
   AX_CHECK_LINK_FLAG([-Wl,-dead_strip_dylibs], [CORE_LDFLAGS="$CORE_LDFLAGS -Wl,-dead_strip_dylibs"], [], [$LDFLAG_WERROR])
   AX_CHECK_LINK_FLAG([-Wl,-bind_at_load], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,-bind_at_load"], [], [$LDFLAG_WERROR])
+  AX_CHECK_LINK_FLAG([-Wl,-fixup_chains], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,-fixup_chains"], [], [$LDFLAG_WERROR])
 fi
 
 AC_CHECK_HEADERS([endian.h sys/endian.h byteswap.h sys/select.h sys/prctl.h sys/sysctl.h vm/vm_param.h sys/vmmeter.h sys/resources.h])
@@ -1087,7 +1094,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <malloc.h>]],
 dnl Check for posix_fallocate
 AC_MSG_CHECKING([for posix_fallocate])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-                   // same as in src/util/system.cpp
+                   // same as in src/util/fs_helpers.cpp
                    #ifdef __linux__
                    #ifdef _POSIX_C_SOURCE
                    #undef _POSIX_C_SOURCE
@@ -1185,17 +1192,16 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <ctime>]],
 )
 
 dnl Check for different ways of gathering OS randomness
-AC_MSG_CHECKING([for Linux getrandom syscall])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>
-  #include <sys/syscall.h>
-  #include <linux/random.h>]],
- [[ syscall(SYS_getrandom, nullptr, 32, 0); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_SYS_GETRANDOM], [1], [Define this symbol if the Linux getrandom system call is available]) ],
+AC_MSG_CHECKING([for Linux getrandom function])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+  #include <sys/random.h>]],
+ [[ getrandom(nullptr, 32, 0); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_GETRANDOM], [1], [Define this symbol if the Linux getrandom function call is available]) ],
  [ AC_MSG_RESULT([no])]
 )
 
-AC_MSG_CHECKING([for getentropy via random.h])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>
+AC_MSG_CHECKING([for getentropy via sys/random.h])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  #include <sys/random.h>]],
  [[ getentropy(nullptr, 32) ]])],
  [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_GETENTROPY_RAND], [1], [Define this symbol if the BSD getentropy system call is available with sys/random.h]) ],
@@ -1436,7 +1442,9 @@ if test "$use_usdt" != "no"; then
   AC_COMPILE_IFELSE([
     AC_LANG_PROGRAM(
       [#include <sys/sdt.h>],
-      [DTRACE_PROBE("context", "event");]
+      [DTRACE_PROBE(context, event);
+       int a, b, c, d, e, f, g;
+       DTRACE_PROBE7(context, event, a, b, c, d, e, f, g);]
     )],
     [AC_MSG_RESULT([yes]); AC_DEFINE([ENABLE_TRACING], [1], [Define to 1 to enable tracepoints for Userspace, Statically Defined Tracing])],
     [AC_MSG_RESULT([no]); use_usdt=no;]
@@ -1574,36 +1582,6 @@ if test "$use_external_signer" != "no"; then
 fi
 AM_CONDITIONAL([ENABLE_EXTERNAL_SIGNER], [test "$use_external_signer" = "yes"])
 
-dnl Do not compile with syscall sandbox support when compiling under the sanitizers.
-dnl The sanitizers introduce use of syscalls that are not typically used in bitcoind
-dnl (such as execve when the sanitizers execute llvm-symbolizer).
-if test "$use_sanitizers" != ""; then
-  AC_MSG_WARN([Specifying --with-sanitizers forces --without-seccomp since the sanitizers introduce use of syscalls not allowed by the bitcoind syscall sandbox (-sandbox=<mode>).])
-  seccomp_found=no
-fi
-if test "$seccomp_found" != "no"; then
-  AC_MSG_CHECKING([for seccomp-bpf (Linux x86-64)])
-  AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
-      @%:@include <linux/seccomp.h>
-    ]], [[
-      #if !defined(__x86_64__)
-      #  error Syscall sandbox is an experimental feature currently available only under Linux x86-64.
-      #endif
-    ]])],[
-      AC_MSG_RESULT([yes])
-      seccomp_found="yes"
-      AC_DEFINE([USE_SYSCALL_SANDBOX], [1], [Define this symbol to build with syscall sandbox support.])
-    ],[
-      AC_MSG_RESULT([no])
-      seccomp_found="no"
-  ])
-fi
-dnl Currently only enable -sandbox=<mode> feature if seccomp is found.
-dnl In the future, sandboxing could be also be supported with other
-dnl sandboxing mechanisms besides seccomp.
-use_syscall_sandbox=$seccomp_found
-AM_CONDITIONAL([ENABLE_SYSCALL_SANDBOX], [test "$use_syscall_sandbox" != "no"])
-
 dnl Check for reduced exports
 if test "$use_reduce_exports" = "yes"; then
   AX_CHECK_COMPILE_FLAG([-fvisibility=hidden], [CORE_CXXFLAGS="$CORE_CXXFLAGS -fvisibility=hidden"],
@@ -1664,12 +1642,9 @@ dnl ZMQ check
 
 if test "$use_zmq" = "yes"; then
   PKG_CHECK_MODULES([ZMQ], [libzmq >= 4],
-    AC_DEFINE([ENABLE_ZMQ], [1], [Define to 1 to enable ZMQ functions]),
-    [AC_DEFINE([ENABLE_ZMQ], [0], [Define to 1 to enable ZMQ functions])
-    AC_MSG_WARN([libzmq version 4.x or greater not found, disabling])
+    AC_DEFINE([ENABLE_ZMQ], [1], [Define this symbol to enable ZMQ functions]),
+    [AC_MSG_WARN([libzmq version 4.x or greater not found, disabling])
     use_zmq=no])
-else
-  AC_DEFINE_UNQUOTED([ENABLE_ZMQ], [0], [Define to 1 to enable ZMQ functions])
 fi
 
 if test "$use_zmq" = "yes"; then
@@ -1680,6 +1655,8 @@ if test "$use_zmq" = "yes"; then
     ;;
   esac
 fi
+
+AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
 
 # These packages don't provide pkgconfig config files across all
 # platforms, so we use older autoconf detection mechanisms:
@@ -1894,8 +1871,6 @@ if test "$bitcoin_enable_qt" != "no"; then
   fi
 fi
 
-AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
-
 AC_MSG_CHECKING([whether to build test_qtum])
 if test "$use_tests" = "yes"; then
   if test "$enable_fuzz" = "yes"; then
@@ -2039,7 +2014,6 @@ AC_CONFIG_FILES([contrib/devtools/split-debug.sh],[chmod +x contrib/devtools/spl
 AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Doxyfile])])
 AC_CONFIG_LINKS([contrib/devtools/iwyu/bitcoin.core.imp:contrib/devtools/iwyu/bitcoin.core.imp])
 AC_CONFIG_LINKS([contrib/filter-lcov.py:contrib/filter-lcov.py])
-AC_CONFIG_LINKS([contrib/macdeploy/background.tiff:contrib/macdeploy/background.tiff])
 AC_CONFIG_LINKS([src/.bear-tidy-config:src/.bear-tidy-config])
 AC_CONFIG_LINKS([src/.clang-tidy:src/.clang-tidy])
 AC_CONFIG_LINKS([test/functional/test_runner.py:test/functional/test_runner.py])
@@ -2074,7 +2048,6 @@ echo
 echo "Options used to compile and link:"
 echo "  external signer = $use_external_signer"
 echo "  multiprocess    = $build_multiprocess"
-echo "  with experimental syscall sandbox support = $use_syscall_sandbox"
 echo "  with libs       = $build_bitcoin_libs"
 echo "  with wallet     = $enable_wallet"
 if test "$enable_wallet" != "no"; then

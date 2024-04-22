@@ -14,12 +14,13 @@
 #include <qt/transactionrecord.h>
 #include <qt/styleSheet.h>
 
+#include <common/system.h>
 #include <consensus/consensus.h>
 #include <interfaces/node.h>
 #include <interfaces/wallet.h>
 #include <key_io.h>
+#include <logging.h>
 #include <policy/policy.h>
-#include <util/system.h>
 #include <validation.h>
 #include <wallet/types.h>
 #include <consensus/params.h>
@@ -43,7 +44,7 @@ public:
         itemNameColor = GetStringStyleValue("transactiondesc/item-name-color", "#ffffff");
         itemColor = GetStringStyleValue("transactiondesc/item-color", "#ffffff");
         itemFontBold = GetIntStyleValue("transactiondesc/item-font-bold", true);
-        network = Params().NetworkIDString();
+        network = Params().GetChainTypeString();
     }
 
     static const TransactionFormater& instance()

@@ -46,60 +46,14 @@
         <translation type="unfinished">&amp;Usuń</translation>
     </message>
     <message>
-        <source>Choose the address to send coins to</source>
-        <translation type="unfinished">Wybierz adres, na który chcesz wysyłać monety</translation>
-    </message>
-    <message>
-        <source>Choose the address to receive coins with</source>
-        <translation type="unfinished">Wybierz adres, na który chcesz otrzymywać monety</translation>
-    </message>
-    <message>
         <source>C&amp;hoose</source>
         <translation type="unfinished">Wybierz</translation>
-    </message>
-    <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">&amp;Adresy wysyłania8f0451c0-ec7d-4357-a370-eff72fb0685f</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Odbierające adresy</translation>
-    </message>
-    <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Tutaj znajdują się adresy Qtum na które wysyłasz płatności. Zawsze sprawdzaj ilość i adres odbiorcy przed wysyłką monet. </translation>
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">To są twoje adresy Qtum do otrzymywania płatności. Użyj przycisku 'Utwórz nowy adres odbioru' na karcie odbioru, aby utworzyć nowe adresy.
 Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
-    </message>
-    <message>
-        <source>&amp;Copy Address</source>
-        <translation type="unfinished">Kopiuj adres</translation>
-    </message>
-    <message>
-        <source>Copy &amp;Label</source>
-        <translation type="unfinished">Kopiuj etykietę</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation type="unfinished">&amp;Edytuj</translation>
-    </message>
-    <message>
-        <source>Export Address List</source>
-        <translation type="unfinished">Eksportuj listę adresów </translation>
-    </message>
-    <message>
-        <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
-        <translation type="unfinished">Plik *.CSV rozdzielany pzrecinkami</translation>
-    </message>
-    <message>
-        <source>There was an error trying to save the address list to %1. Please try again.</source>
-        <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
-        <translation type="unfinished">Wystąpił błąd podczas próby zapisu listy adresów do %1. Proszę spróbować ponownie.</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
@@ -148,14 +102,6 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Zaszyfruj portfel </translation>
     </message>
     <message>
-        <source>This operation needs your wallet passphrase to unlock the wallet.</source>
-        <translation type="unfinished">Ta operacja wymaga hasła do portfela aby odblokować portfel. </translation>
-    </message>
-    <message>
-        <source>Unlock wallet</source>
-        <translation type="unfinished">Odblokuj portfel</translation>
-    </message>
-    <message>
         <source>Change passphrase</source>
         <translation type="unfinished">Zmień hasło </translation>
     </message>
@@ -165,7 +111,7 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Ostrzeżenie: Jeśli zaszyfrujesz swój portfel i zgubisz hasło - &lt;b&gt;STRACISZ WSZYSTKIE SWOJE BITCONY&lt;/b&gt;!</translation>
+        <translation type="unfinished">hasłoOstrzeżenie: Jeśli zaszyfrujesz swój portfel i zgubisz hasło - &lt;b&gt;STRACISZ WSZYSTKIE SWOJE BITCONY&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -300,8 +246,8 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     </message>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
-        <translation type="unfinished">Wprowadź adres qtumowy (np. %1)</translation> 
-  </message>
+        <translation type="unfinished">Wprowadź adres qtumowy (np. %1)</translation>
+    </message>
     <message>
         <source>Unroutable</source>
         <translation type="unfinished">Nie można wytyczyć</translation>
@@ -472,7 +418,7 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Wyślij monety na adres Qtum</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Zapasowy portfel w innej lokalizacji</translation>
@@ -640,7 +586,7 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Załaduj częściowo podpisaną transakcję Qtum</translation>
-  </message>
+    </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Wczytaj PSBT ze schowka...</translation>
@@ -895,10 +841,6 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Opłata:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Pył:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Po opłacie:</translation>
     </message>
@@ -987,28 +929,12 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Skopiuj ilość bajtów</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopiuj pył</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Skopiuj resztę</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 zablokowane)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">tak</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">nie</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Ta etykieta staje się czerwona jeżeli którykolwiek odbiorca otrzymuje kwotę mniejszą niż obecny próg pyłu.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1188,14 +1114,6 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Stwórz czysty portfel</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Użyj deskryptorów do zarządzania scriptPubKey</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Portfel deskryptora</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Użyj zewnętrznego urządzenia podpisującego, takiego jak portfel sprzętowy. Najpierw skonfiguruj zewnętrzny skrypt podpisujący w preferencjach portfela.</translation>
     </message>
@@ -1206,10 +1124,6 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     <message>
         <source>Create</source>
         <translation type="unfinished">Stwórz</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Skompilowano bez wsparcia sqlite (wymaganego dla deskryptorów potfeli)</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1253,8 +1167,8 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">Wprowadzony adres "%1" nie jest prawidłowym adresem Qtum.</translation>  
-  </message>
+        <translation type="unfinished">Wprowadzony adres "%1" nie jest prawidłowym adresem Qtum.</translation>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Adres "%1" już istnieje jako adres odbiorczy z etykietą "%2" i dlatego nie można go dodać jako adresu nadawcy.</translation>
@@ -1341,7 +1255,7 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 pobierze i zapisze lokalnie kopię łańcucha bloków Qtum.</translation>
-  </message>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Portfel również zostanie zapisany w tym katalogu.</translation>
@@ -1433,12 +1347,12 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Świeże transakcje mogą nie być jeszcze widoczne, a zatem saldo portfela może być nieprawidłowe. Te detale będą poprawne, gdy portfel zakończy synchronizację z siecią qtum, zgodnie z poniższym opisem.</translation> 
+        <translation type="unfinished">Świeże transakcje mogą nie być jeszcze widoczne, a zatem saldo portfela może być nieprawidłowe. Te detale będą poprawne, gdy portfel zakończy synchronizację z siecią qtum, zgodnie z poniższym opisem.</translation>
     </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Próba wydania qtumów które nie są jeszcze wyświetlone jako transakcja zostanie odrzucona przez sieć.</translation>
-  </message>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Pozostało bloków</translation>
@@ -2000,6 +1914,10 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Wysyłanie %1 do %2</translation>
     </message>
     <message>
+        <source>own address</source>
+        <translation type="unfinished">własny adres</translation>
+    </message>
+    <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
         <translation type="unfinished">Nie można obliczyć opłaty za transakcję lub łącznej kwoty transakcji.</translation>
     </message>
@@ -2057,15 +1975,15 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Nie można uruchomić protokołu qtum: kliknij-by-zapłacić</translation>
-   </message>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Obsługa URI</translation>
     </message>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
-        <translation type="unfinished">'qtum://' nie jest poprawnym URI. Użyj 'qtum:'.</translation> 
-   </message>
+        <translation type="unfinished">'qtum://' nie jest poprawnym URI. Użyj 'qtum:'.</translation>
+    </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
@@ -2601,7 +2519,7 @@ Jeśli pojawia się ten błąd, poproś sprzedawcę o podanie URI zgodnego z BIP
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Opcjonalna wiadomość do dołączenia do żądania płatności, która będzie wyświetlana, gdy żądanie zostanie otwarte. Uwaga: wiadomość ta nie zostanie wysłana wraz z płatnością w sieci Qtum.</translation>
-   </message>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Opcjonalna etykieta do skojarzenia z nowym adresem odbiorczym.</translation>
@@ -2881,10 +2799,6 @@ Korzystanie z opłaty domyślnej może skutkować wysłaniem transakcji, która 
         <translation type="unfinished">Wejścia…</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Pył:</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">Wybierz...</translation>
     </message>
@@ -2961,10 +2875,6 @@ Uwaga: Ponieważ opłata jest naliczana za każdy bajt, opłata "100 satoshi za 
         <translation type="unfinished">Skopiuj ilość bajtów</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopiuj pył</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Skopiuj resztę</translation>
     </message>
@@ -2991,7 +2901,7 @@ Uwaga: Ponieważ opłata jest naliczana za każdy bajt, opłata "100 satoshi za 
         <translation type="unfinished">&amp;Utwórz niepodpisaną transakcję</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source> 
+        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">Tworzy częściowo podpisaną transakcję (ang. PSBT) używaną np. offline z portfelem %1 lub z innym portfelem zgodnym z PSBT.</translation>
     </message>
     <message>
@@ -3182,7 +3092,7 @@ Uwaga: Ponieważ opłata jest naliczana za każdy bajt, opłata "100 satoshi za 
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Adres Qtum gdzie wysłać płatność</translation>
- </message>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Wklej adres ze schowka</translation>
@@ -3198,7 +3108,7 @@ Uwaga: Ponieważ opłata jest naliczana za każdy bajt, opłata "100 satoshi za 
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">Opłata zostanie odjęta od kwoty wysyłane.Odbiorca otrzyma mniej niż qtums wpisz w polu kwoty. Jeśli wybrano kilku odbiorców, opłata jest podzielona równo.</translation>
-   </message>
+    </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">Odejmij od wysokości opłaty</translation>
@@ -3246,8 +3156,8 @@ Uwaga: Ponieważ opłata jest naliczana za każdy bajt, opłata "100 satoshi za 
         <translation type="unfinished">Możesz podpisywać wiadomości swoimi adresami aby udowodnić, że jesteś ich właścicielem. Uważaj, aby nie podpisywać niczego co wzbudza Twoje podejrzenia, ponieważ ktoś może stosować phishing próbując nakłonić Cię do ich podpisania. Akceptuj i podpisuj tylko w pełni zrozumiałe komunikaty i wiadomości.</translation>
     </message>
     <message>
-        <source>The Qtum  address to sign the message with</source>
-        <translation type="unfinished">Adres Qtum , za pomocą którego podpisać wiadomość</translation>
+        <source>The Qtum address to sign the message with</source>
+        <translation type="unfinished">Adres Qtum, za pomocą którego podpisać wiadomość</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -3297,7 +3207,7 @@ Zwróć uwagę, że poprawnie zweryfikowana wiadomość potwierdza to, że nadaw
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">Adres Qtum, którym została podpisana wiadomość</translation>
-   </message>
+    </message>
     <message>
         <source>The signed message to verify</source>
         <translation type="unfinished">Podpisana wiadomość do weryfikacji</translation>
@@ -3617,10 +3527,6 @@ Zwróć uwagę, że poprawnie zweryfikowana wiadomość potwierdza to, że nadaw
         <translation type="unfinished">Wysłane do</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Płatność do siebie</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Wydobyto</translation>
     </message>
@@ -3694,10 +3600,6 @@ Zwróć uwagę, że poprawnie zweryfikowana wiadomość potwierdza to, że nadaw
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Wysłane do</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Do siebie</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3992,10 +3894,6 @@ Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
         <translation type="unfinished">Rozprowadzane na licencji MIT, zobacz dołączony plik %s lub %s</translation>
     </message>
     <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Błąd odczytu %s! Wszystkie klucze zostały odczytane poprawnie, ale może brakować  danych transakcji lub wpisów w książce adresowej, lub mogą one być nieprawidłowe.</translation>
-    </message>
-    <message>
         <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
         <translation type="unfinished">Błąd odczytu 1%s! Może brakować danych transakcji lub mogą być one nieprawidłowe. Ponowne skanowanie portfela.</translation>
     </message>
@@ -4062,10 +3960,6 @@ Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
         <translation type="unfinished">Baza bloków zawiera blok, który wydaje się pochodzić z przyszłości. Może to wynikać z nieprawidłowego ustawienia daty i godziny Twojego komputera. Bazę danych bloków dobuduj tylko, jeśli masz pewność, że data i godzina twojego komputera są poprawne</translation>
-    </message>
-    <message>
-        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
-        <translation type="unfinished">Baza danych indeksu bloku zawiera odziedziczony „txindex”. Aby wyczyścić zajęte miejsce na dysku, uruchom pełną indeksację, w przeciwnym razie zignoruj ten błąd. Ten komunikat o błędzie nie zostanie ponownie wyświetlony.</translation>
     </message>
     <message>
         <source>The transaction amount is too small to send after the fee has been deducted</source>
@@ -4138,18 +4032,6 @@ Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
     <message>
         <source>Cannot write to data directory '%s'; check permissions.</source>
         <translation type="unfinished">Nie mogę zapisać do katalogu danych '%s'; sprawdź uprawnienia.</translation>
-    </message>
-    <message>
-        <source>-reindex-chainstate option is not compatible with -blockfilterindex. Please temporarily disable blockfilterindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
-        <translation type="unfinished">Opcja -reindex-chainstate nie jest kompatybilna z -blockfilterindex. Proszę tymczasowo wyłączyć opcję blockfilterindex podczas używania -reindex-chainstate lub zastąpić -reindex-chainstate opcją -reindex, aby w pełni przebudować wszystkie indeksy.</translation>
-    </message>
-    <message>
-        <source>-reindex-chainstate option is not compatible with -coinstatsindex. Please temporarily disable coinstatsindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
-        <translation type="unfinished">Opcja -reindex-chainstate nie jest kompatybilna z -coinstatsindex. Proszę tymczasowo wyłączyć opcję coinstatsindex podczas używania -reindex-chainstate lub zastąpić -reindex-chainstate opcją -reindex, aby w pełni przebudować wszystkie indeksy.</translation>
-    </message>
-    <message>
-        <source>-reindex-chainstate option is not compatible with -txindex. Please temporarily disable txindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
-        <translation type="unfinished">Opcja -reindex-chainstate nie jest kompatybilna z -txindex. Proszę tymczasowo wyłączyć opcję txindex podczas używania -reindex-chainstate lub zastąpić -reindex-chainstate opcją -reindex, aby w pełni przebudować wszystkie indeksy.</translation>
     </message>
     <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>

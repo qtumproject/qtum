@@ -54,14 +54,6 @@
         <translation type="unfinished">A&amp;lege</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Adresa de trimitere</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Adresa de primire</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Acestea sunt adresele tale Qtum pentru efectuarea platilor. Intotdeauna verifica atent suma de plata si adresa beneficiarului inainte de a trimite monede.</translation>
     </message>
@@ -183,7 +175,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Reţineti: criptarea portofelului dvs. nu vă poate proteja în totalitate qtum-urile împotriva furtului de malware care vă infectează computerul.</translation>
-   </message>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Portofel de criptat</translation>
@@ -290,7 +282,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">Introduceţi o adresă Qtum (de exemplu %1)</translation>
-   </message>
+    </message>
     <message>
         <source>Inbound</source>
         <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
@@ -432,7 +424,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Trimite monede către o adresă Qtum</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Creează o copie de rezervă a portofelului într-o locaţie diferită</translation>
@@ -476,7 +468,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Semnaţi mesaje cu adresa dvs. Qtum pentru a dovedi că vă aparţin</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verifică mesajul...</translation>
@@ -484,7 +476,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Verificaţi mesaje pentru a vă asigura că au fost semnate cu adresa Qtum specificată</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">&amp;Încarcă PSBT din fișier...</translation>
@@ -544,7 +536,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Cereţi plăţi (generează coduri QR şi qtum-uri: URls)</translation>
-  </message>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Arată lista de adrese trimise şi etichetele folosite.</translation>
@@ -600,7 +592,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Încărcați Tranzacția Qtum Parțial Semnată</translation>
-   </message>
+    </message>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Încărcați Tranzacția Qtum Parțial Semnată din clipboard</translation>
@@ -809,10 +801,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Comision:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Praf:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">După taxă:</translation>
     </message>
@@ -877,28 +865,12 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Copiază octeţi</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Copiază praf</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Copiază rest</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 blocat)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">da</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">nu</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Această etichetă devine roşie, dacă orice beneficiar primeşte o sumă mai mică decât pragul curent pentru praf.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1028,20 +1000,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Faceți Portofel gol</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Utilizați descriptori pentru gestionarea scriptPubKey</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished"> Descriptor Portofel</translation>
-    </message>
-    <message>
         <source>Create</source>
         <translation type="unfinished">Creează</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Compilat fără suport sqlite (necesar pentru portofele descriptor)</translation>
     </message>
     </context>
 <context>
@@ -1080,8 +1040,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">Adresa introdusă "%1" nu este o adresă Qtum validă.</translation> 
-  </message>
+        <translation type="unfinished">Adresa introdusă "%1" nu este o adresă Qtum validă.</translation>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Adresa "%1" exista deja ca si adresa de primire cu eticheta "%2" si deci nu poate fi folosita ca si adresa de trimitere.</translation>
@@ -1245,7 +1205,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Tranzactiile recente pot sa nu fie inca vizibile, de aceea balanta portofelului poate fi incorecta. Aceasta informatie va fi corecta de indata ce portofelul va fi complet sincronizat cu reteaua Qtum, asa cum este detaliat mai jos.</translation>
-  </message>
+    </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Incercarea de a cheltui qtumi care sunt afectati de tranzactii ce inca nu sunt afisate nu va fi acceptata de retea.</translation>
@@ -1383,8 +1343,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">Deschide automat în router portul aferent clientului Qtum. Funcţionează doar dacă routerul duportă UPnP şi e activat.</translation> 
- </message>
+        <translation type="unfinished">Deschide automat în router portul aferent clientului Qtum. Funcţionează doar dacă routerul duportă UPnP şi e activat.</translation>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapare port folosind &amp;UPnP</translation>
@@ -1520,7 +1480,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Informaţiile afişate pot fi neactualizate. Portofelul dvs. se sincronizează automat cu reţeaua Qtum după ce o conexiune este stabilită, dar acest proces nu a fost finalizat încă.</translation>
-   </message>
+    </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Doar-supraveghere:</translation>
@@ -1595,6 +1555,10 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Save Transaction Data</source>
         <translation type="unfinished">Salvați datele tranzacției</translation>
+    </message>
+    <message>
+        <source>own address</source>
+        <translation type="unfinished">adresa proprie</translation>
     </message>
     <message>
         <source>Total Amount</source>
@@ -2170,10 +2134,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Şterge toate câmpurile formularului.</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Praf:</translation>
-    </message>
-    <message>
         <source>Confirmation time target:</source>
         <translation type="unfinished">Timp confirmare tinta:</translation>
     </message>
@@ -2220,10 +2180,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Copiază octeţi</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Copiază praf</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -2352,7 +2308,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Adresa qtum către care se face plata</translation>
-   </message>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Lipeşte adresa din clipboard</translation>
@@ -2364,7 +2320,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">Taxa va fi scazuta in suma trimisa. Destinatarul va primi mai putini qtum decat ati specificat in campul sumei trimise. Daca au fost selectati mai multi destinatari, taxa se va imparti in mod egal.</translation>
-   </message>
+    </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">S&amp;cade taxa din suma</translation>
@@ -2406,7 +2362,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Puteţi semna mesaje/contracte cu adresele dvs. pentru a demostra ca puteti primi qtumi trimisi la ele. Aveţi grijă să nu semnaţi nimic vag sau aleator, deoarece atacurile de tip phishing vă pot păcăli să le transferaţi identitatea. Semnaţi numai declaraţiile detaliate cu care sînteti de acord.</translation>
-   </message>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Adresa cu care semnaţi mesajul</translation>
@@ -2434,7 +2390,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Semnează mesajul pentru a dovedi ca deţineţi acestă adresă Qtum</translation>
-   </message>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Semnează &amp;mesaj</translation>
@@ -2458,11 +2414,11 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">Introduceţi o adresă Qtum</translation>
-  </message>
+    </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Verificaţi mesajul pentru a vă asigura că a fost semnat cu adresa Qtum specificată</translation>
-   </message>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Verifică &amp;mesaj</translation>
@@ -2737,10 +2693,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Trimis către</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Plată către dvs.</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Minat</translation>
     </message>
@@ -2814,10 +2766,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Trimis către</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Către dvs.</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3001,10 +2949,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation type="unfinished">Distribuit sub licenţa de programe MIT, vezi fişierul însoţitor %s sau %s</translation>
-    </message>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Eroare la citirea %s! Toate cheile sînt citite corect, dar datele tranzactiei sau anumite intrări din agenda sînt incorecte sau lipsesc.</translation>
     </message>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>

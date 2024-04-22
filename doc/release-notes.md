@@ -1,11 +1,11 @@
-25.1 Release Notes
+26.x Release Notes
 ==================
 
-Bitcoin Core version 25.1 is now available from:
+Bitcoin Core version 26.x is now available from:
 
-  <https://bitcoincore.org/bin/bitcoin-core-25.1/>
+  <https://bitcoincore.org/bin/bitcoin-core-26.x/>
 
-This release includes various bug fixes and performance
+This release includes new features, various bug fixes and performance
 improvements, as well as updated translations.
 
 Please report bugs using the issue tracker at GitHub:
@@ -32,7 +32,7 @@ Compatibility
 ==============
 
 Bitcoin Core is supported and extensively tested on operating systems
-using the Linux kernel, macOS 10.15+, and Windows 7 and newer.  Bitcoin
+using the Linux kernel, macOS 11.0+, and Windows 7 and newer.  Bitcoin
 Core should also work on most other Unix-like systems but is not as
 frequently tested on them.  It is not recommended to use Bitcoin Core on
 unsupported systems.
@@ -40,69 +40,32 @@ unsupported systems.
 Notable changes
 ===============
 
-### P2P
+### Wallet
 
-- #27626 Parallel compact block downloads, take 3
-- #27743 p2p: Unconditionally return when compact block status == READ_STATUS_FAILED
-
-### Fees
-
-- #27622 Fee estimation: avoid serving stale fee estimate
+- #28994 wallet: skip BnB when SFFO is enabled
+- #28920 wallet: birth time update during tx scanning
+- #29176 wallet: Fix use-after-free in WalletBatch::EraseRecords
 
 ### RPC
 
-- #27727 rpc: Fix invalid bech32 address handling
-
-### Rest
-
-- #27853 rest: fix crash error when calling /deploymentinfo
-- #28551 http: bugfix: allow server shutdown in case of remote client disconnection
-
-### Wallet
-
-- #28038 wallet: address book migration bug fixes
-- #28067 descriptors: do not return top-level only funcs as sub descriptors
-- #28125 wallet: bugfix, disallow migration of invalid scripts
-- #28542 wallet: Check for uninitialized last processed and conflicting heights in MarkConflicted
-
-### Build
-
-- #27724 build: disable boost multi index safe mode in debug mode
-- #28097 depends: xcb-proto 1.15.2
-- #28543 build, macos: Fix qt package build with new Xcode 15 linker
-- #28571 depends: fix unusable memory_resource in macos qt build
-
-### Gui
-
-- gui#751 macOS, do not process actions during shutdown
-
-### Miscellaneous
-
-- #28452 Do not use std::vector = {} to release memory
+- #29003 rpc: fix getrawtransaction segfault
 
 ### CI
 
-- #27777 ci: Prune dangling images on RESTART_CI_DOCKER_BEFORE_RUN
-- #27834 ci: Nuke Android APK task, Use credits for tsan
-- #27844 ci: Use podman stop over podman kill
-- #27886 ci: Switch to amd64 container in "ARM" task
+- #28992 ci: Use Ubuntu 24.04 Noble for asan,tsan,tidy,fuzz
+- #29080 ci: Set HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK to avoid unrelated failures
 
 Credits
 =======
 
 Thanks to everyone who directly contributed to this release:
 
-- Abubakar Sadiq Ismail
 - Andrew Chow
-- Bruno Garcia
-- Gregory Sanders
+- furszy
 - Hennadii Stepanov
-- MacroFake
-- Matias Furszyfer
-- Michael Ford
-- Pieter Wuille
-- stickies-v
-- Will Clark
+- MarcoFalke
+- Martin Zumsande
+- Murch
 
 As well as to everyone that helped with translations on
 [Transifex](https://www.transifex.com/bitcoin/bitcoin/).

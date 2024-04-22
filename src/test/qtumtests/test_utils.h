@@ -1,13 +1,15 @@
 #ifndef QTUMTESTS_TEST_UTILS_H
 #define QTUMTESTS_TEST_UTILS_H
 
-#include <util/system.h>
+#include <common/system.h>
 #include <validation.h>
 #include <util/strencodings.h>
 #include <util/convert.h>
 #include <test/util/setup_common.h>
 #include <boost/filesystem/operations.hpp>
 #include <util/fs.h>
+
+#include <random.h>
 
 extern std::unique_ptr<QtumState> globalState;
 

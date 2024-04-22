@@ -30,10 +30,8 @@ AskPassphraseDialog::AskPassphraseDialog(Mode _mode, QWidget *parent, SecureStri
 {
     ui->setupUi(this);
 
-
     SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Cancel), StyleSheetNames::ButtonLight);
     SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Ok), StyleSheetNames::ButtonGray);
-
     ui->passEdit1->setMinimumSize(ui->passEdit1->sizeHint());
     ui->passEdit2->setMinimumSize(ui->passEdit2->sizeHint());
     ui->passEdit3->setMinimumSize(ui->passEdit3->sizeHint());
@@ -48,7 +46,6 @@ AskPassphraseDialog::AskPassphraseDialog(Mode _mode, QWidget *parent, SecureStri
     ui->passEdit3->installEventFilter(this);
 
     ui->stakingCheckBox->hide();
-
     switch(mode)
     {
         case Encrypt: // Ask passphrase x2
@@ -182,6 +179,9 @@ void AskPassphraseDialog::accept()
                                              "passphrase to avoid this issue in the future."));
                 }
             } else {
+                if (m_passphrase_out) {
+                    m_passphrase_out->assign(oldpass);
+                }
                 model->setWalletUnlockStakingOnly(ui->stakingCheckBox->isChecked());
                 if(UnlockStaking == mode)
                 {

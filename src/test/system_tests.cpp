@@ -7,16 +7,7 @@
 #include <univalue.h>
 
 #ifdef ENABLE_EXTERNAL_SIGNER
-#if defined(__GNUC__)
-// Boost 1.78 requires the following workaround.
-// See: https://github.com/boostorg/process/issues/235
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnarrowing"
-#endif
 #include <boost/process.hpp>
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#endif
 #endif // ENABLE_EXTERNAL_SIGNER
 
 #include <boost/test/unit_test.hpp>
@@ -52,7 +43,7 @@ BOOST_AUTO_TEST_CASE(run_command)
         const UniValue result = RunCommandParseJSON("echo \"{\"success\": true}\"");
 #endif
         BOOST_CHECK(result.isObject());
-        const UniValue& success = find_value(result, "success");
+        const UniValue& success = result.find_value("success");
         BOOST_CHECK(!success.isNull());
         BOOST_CHECK_EQUAL(success.get_bool(), true);
     }
@@ -106,7 +97,7 @@ BOOST_AUTO_TEST_CASE(run_command)
     {
         const UniValue result = RunCommandParseJSON("cat", "{\"success\": true}");
         BOOST_CHECK(result.isObject());
-        const UniValue& success = find_value(result, "success");
+        const UniValue& success = result.find_value("success");
         BOOST_CHECK(!success.isNull());
         BOOST_CHECK_EQUAL(success.get_bool(), true);
     }

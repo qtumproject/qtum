@@ -58,12 +58,12 @@ private:
 
 uint256 CBlockHeader::GetHash() const
 {
-    return SerializeHash(*this);
+    return (CHashWriter{PROTOCOL_VERSION} << *this).GetHash();
 }
 
 uint256 CBlockHeader::GetHashWithoutSign() const
 {
-    return SerializeHash(CBlockHeaderSign(*this), SER_GETHASH);
+    return (CHashWriter{PROTOCOL_VERSION} << CBlockHeaderSign(*this)).GetHash();
 }
 
 std::string CBlockHeader::GetWithoutSign() const

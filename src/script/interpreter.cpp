@@ -12,7 +12,6 @@
 #include <script/script.h>
 #include <uint256.h>
 
-#include <script/standard.h>
 
 namespace {
 
@@ -1241,7 +1240,6 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                 }
                 break;
                 ////////////////////////////////////////////////////////
-
                 default:
                     return set_error(serror, SCRIPT_ERR_BAD_OPCODE);
             }

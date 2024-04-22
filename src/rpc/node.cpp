@@ -13,18 +13,19 @@
 #include <interfaces/init.h>
 #include <interfaces/ipc.h>
 #include <kernel/cs_main.h>
+#include <logging.h>
 #include <node/context.h>
 #include <rpc/server.h>
 #include <rpc/server_util.h>
 #include <rpc/util.h>
 #include <scheduler.h>
 #include <univalue.h>
+#include <util/any.h>
 #include <util/check.h>
-#include <util/syscall_sandbox.h>
-#include <util/system.h>
 #include <txmempool.h>
 #include <validation.h>
 #include <key_io.h>
+#include <common/args.h>
 
 #include <stdint.h>
 #ifdef HAVE_MALLOC_INFO
@@ -61,38 +62,15 @@ static RPCHelpMan setmocktime()
         throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("Mocktime cannot be negative: %s.", time));
     }
     SetMockTime(time);
-    auto node_context = util::AnyPtr<NodeContext>(request.context);
-    if (node_context) {
-        for (const auto& chain_client : node_context->chain_clients) {
-            chain_client->setMockTime(time);
-        }
+    const NodeContext& node_context{EnsureAnyNodeContext(request.context)};
+    for (const auto& chain_client : node_context.chain_clients) {
+        chain_client->setMockTime(time);
     }
 
     return UniValue::VNULL;
 },
     };
 }
-
-#if defined(USE_SYSCALL_SANDBOX)
-static RPCHelpMan invokedisallowedsyscall()
-{
-    return RPCHelpMan{
-        "invokedisallowedsyscall",
-        "\nInvoke a disallowed syscall to trigger a syscall sandbox violation. Used for testing purposes.\n",
-        {},
-        RPCResult{RPCResult::Type::NONE, "", ""},
-        RPCExamples{
-            HelpExampleCli("invokedisallowedsyscall", "") + HelpExampleRpc("invokedisallowedsyscall", "")},
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue {
-            if (!Params().IsTestChain()) {
-                throw std::runtime_error("invokedisallowedsyscall is used for testing only.");
-            }
-            TestDisallowedSandboxCall();
-            return UniValue::VNULL;
-        },
-    };
-}
-#endif // USE_SYSCALL_SANDBOX
 
 static RPCHelpMan mockscheduler()
 {
@@ -114,10 +92,9 @@ static RPCHelpMan mockscheduler()
         throw std::runtime_error("delta_time must be between 1 and 3600 seconds (1 hr)");
     }
 
-    auto node_context = CHECK_NONFATAL(util::AnyPtr<NodeContext>(request.context));
-    // protect against null pointer dereference
-    CHECK_NONFATAL(node_context->scheduler);
-    node_context->scheduler->MockForward(std::chrono::seconds(delta_seconds));
+    const NodeContext& node_context{EnsureAnyNodeContext(request.context)};
+    CHECK_NONFATAL(node_context.scheduler)->MockForward(std::chrono::seconds{delta_seconds});
+    SyncWithValidationInterfaceQueue();
 
     return UniValue::VNULL;
 },
@@ -166,7 +143,7 @@ static RPCHelpMan getmemoryinfo()
                 {
                     {"mode", RPCArg::Type::STR, RPCArg::Default{"stats"}, "determines what kind of information is returned.\n"
             "  - \"stats\" returns general statistics about memory usage in the daemon.\n"
-            "  - \"mallocinfo\" returns an XML string describing low-level heap state (only available if compiled with glibc 2.10+)."},
+            "  - \"mallocinfo\" returns an XML string describing low-level heap state (only available if compiled with glibc)."},
                 },
                 {
                     RPCResult{"mode \"stats\"",
@@ -264,15 +241,15 @@ static RPCHelpMan logging()
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
-    uint32_t original_log_categories = LogInstance().GetCategoryMask();
+    uint64_t original_log_categories = LogInstance().GetCategoryMask();
     if (request.params[0].isArray()) {
         EnableOrDisableLogCategories(request.params[0], true);
     }
     if (request.params[1].isArray()) {
         EnableOrDisableLogCategories(request.params[1], false);
     }
-    uint32_t updated_log_categories = LogInstance().GetCategoryMask();
-    uint32_t changed_log_categories = original_log_categories ^ updated_log_categories;
+    uint64_t updated_log_categories = LogInstance().GetCategoryMask();
+    uint64_t changed_log_categories = original_log_categories ^ updated_log_categories;
 
     // Update libevent logging if BCLog::LIBEVENT has changed.
     if (changed_log_categories & BCLog::LIBEVENT) {
@@ -505,8 +482,8 @@ static RPCHelpMan getblockhashes()
 
     if (!request.params[2].isNull()) {
         if (request.params[2].isObject()) {
-            UniValue noOrphans = find_value(request.params[2].get_obj(), "noOrphans");
-            UniValue returnLogical = find_value(request.params[2].get_obj(), "logicalTimes");
+            UniValue noOrphans = request.params[2].get_obj().find_value("noOrphans");
+            UniValue returnLogical = request.params[2].get_obj().find_value("logicalTimes");
 
             if (noOrphans.isBool())
                 fActiveOnly = noOrphans.get_bool();
@@ -554,7 +531,7 @@ bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint25
         addresses.push_back(std::make_pair(hashBytes, type));
     } else if (params[0].isObject()) {
 
-        UniValue addressValues = find_value(params[0].get_obj(), "addresses");
+        UniValue addressValues = params[0].get_obj().find_value("addresses");
         if (!addressValues.isArray()) {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Addresses is expected to be an array");
         }
@@ -677,10 +654,10 @@ static RPCHelpMan getaddressdeltas()
 {
     ChainstateManager& chainman = EnsureAnyChainman(request.context);
 
-    UniValue startValue = find_value(request.params[0].get_obj(), "start");
-    UniValue endValue = find_value(request.params[0].get_obj(), "end");
+    UniValue startValue = request.params[0].get_obj().find_value("start");
+    UniValue endValue = request.params[0].get_obj().find_value("end");
 
-    UniValue chainInfo = find_value(request.params[0].get_obj(), "chainInfo");
+    UniValue chainInfo = request.params[0].get_obj().find_value("chainInfo");
     bool includeChainInfo = false;
     if (chainInfo.isBool()) {
         includeChainInfo = chainInfo.get_bool();
@@ -909,7 +886,7 @@ static RPCHelpMan getaddressutxos()
 
     bool includeChainInfo = false;
     if (request.params[0].isObject()) {
-        UniValue chainInfo = find_value(request.params[0].get_obj(), "chainInfo");
+        UniValue chainInfo = request.params[0].get_obj().find_value("chainInfo");
         if (chainInfo.isBool()) {
             includeChainInfo = chainInfo.get_bool();
         }
@@ -1077,8 +1054,8 @@ static RPCHelpMan getspentinfo()
     const CTxMemPool& mempool = EnsureMemPool(node);
     ChainstateManager& chainman = EnsureAnyChainman(request.context);
 
-    UniValue txidValue = find_value(request.params[0].get_obj(), "txid");
-    UniValue indexValue = find_value(request.params[0].get_obj(), "index");
+    UniValue txidValue = request.params[0].get_obj().find_value("txid");
+    UniValue indexValue = request.params[0].get_obj().find_value("index");
 
     if (!txidValue.isStr() || !indexValue.isNum()) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid txid or index");
@@ -1146,8 +1123,8 @@ static RPCHelpMan getaddresstxids()
     int start = 0;
     int end = 0;
     if (request.params[0].isObject()) {
-        UniValue startValue = find_value(request.params[0].get_obj(), "start");
-        UniValue endValue = find_value(request.params[0].get_obj(), "end");
+        UniValue startValue = request.params[0].get_obj().find_value("start");
+        UniValue endValue = request.params[0].get_obj().find_value("end");
         if (startValue.isNum() && endValue.isNum()) {
             start = startValue.getInt<int>();
             end = endValue.getInt<int>();
@@ -1284,9 +1261,6 @@ void RegisterNodeRPCCommands(CRPCTable& t)
         {"hidden", &echo},
         {"hidden", &echojson},
         {"hidden", &echoipc},
-#if defined(USE_SYSCALL_SANDBOX)
-        {"hidden", &invokedisallowedsyscall},
-#endif // USE_SYSCALL_SANDBOX
     };
     for (const auto& c : commands) {
         t.appendCommand(c.name, &c);

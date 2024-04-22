@@ -11,15 +11,15 @@
 #include <qt/peertablesortproxy.h>
 
 #include <clientversion.h>
+#include <common/args.h>
+#include <common/system.h>
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
 #include <net.h>
 #include <netbase.h>
-#include <util/system.h>
 #include <util/threadnames.h>
 #include <util/time.h>
 #include <validation.h>
-#include <wallet/wallet.h>
 
 #include <stdint.h>
 
@@ -28,8 +28,8 @@
 #include <QThread>
 #include <QTimer>
 
-static int64_t nLastHeaderTipUpdateNotification = 0;
-static int64_t nLastBlockTipUpdateNotification = 0;
+static SteadyClock::time_point g_last_header_tip_update_notification{};
+static SteadyClock::time_point g_last_block_tip_update_notification{};
 
 ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QObject *parent) :
     QObject(parent),
@@ -236,10 +236,10 @@ void ClientModel::TipChanged(SynchronizationState sync_state, interfaces::BlockT
     }
 
     // Throttle GUI notifications about (a) blocks during initial sync, and (b) both blocks and headers during reindex.
-    const bool throttle = (sync_state != SynchronizationState::POST_INIT && synctype == SyncType::BLOCK_SYNC) || sync_state == SynchronizationState::INIT_REINDEX || batchMode;
-    const int64_t now = throttle ? GetTimeMillis() : 0;
-    int64_t& nLastUpdateNotification = synctype != SyncType::BLOCK_SYNC ? nLastHeaderTipUpdateNotification : nLastBlockTipUpdateNotification;
-    if (throttle && now < nLastUpdateNotification + count_milliseconds(MODEL_UPDATE_DELAY)) {
+    const bool throttle = (sync_state != SynchronizationState::POST_INIT && synctype == SyncType::BLOCK_SYNC) || sync_state == SynchronizationState::INIT_REINDEX;
+    const auto now{throttle ? SteadyClock::now() : SteadyClock::time_point{}};
+    auto& nLastUpdateNotification = synctype != SyncType::BLOCK_SYNC ? g_last_header_tip_update_notification : g_last_block_tip_update_notification;
+    if (throttle && now < nLastUpdateNotification + MODEL_UPDATE_DELAY) {
         return;
     }
 

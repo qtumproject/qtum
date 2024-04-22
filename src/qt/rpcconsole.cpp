@@ -10,7 +10,9 @@
 #include <qt/forms/ui_debugwindow.h>
 
 #include <chainparams.h>
+#include <common/system.h>
 #include <interfaces/node.h>
+#include <node/connection_types.h>
 #include <qt/bantablemodel.h>
 #include <qt/clientmodel.h>
 #include <qt/guiutil.h>
@@ -21,7 +23,6 @@
 #include <rpc/server.h>
 #include <util/strencodings.h>
 #include <util/string.h>
-#include <util/system.h>
 #include <util/threadnames.h>
 #include <qt/styleSheet.h>
 
@@ -171,7 +172,7 @@ public:
 bool RPCConsole::RPCParseCommandLine(interfaces::Node* node, std::string &strResult, const std::string &strCommand, const bool fExecute, std::string * const pstrFilteredOut, const WalletModel* wallet_model)
 {
     std::vector< std::vector<std::string> > stack;
-    stack.push_back(std::vector<std::string>());
+    stack.emplace_back();
 
     enum CmdParseState
     {
@@ -199,7 +200,7 @@ bool RPCConsole::RPCParseCommandLine(interfaces::Node* node, std::string &strRes
         }
         // Make sure stack is not empty before adding something
         if (stack.empty()) {
-            stack.push_back(std::vector<std::string>());
+            stack.emplace_back();
         }
         stack.back().push_back(strArg);
     };
@@ -208,7 +209,7 @@ bool RPCConsole::RPCParseCommandLine(interfaces::Node* node, std::string &strRes
         if (nDepthInsideSensitive) {
             if (!--nDepthInsideSensitive) {
                 assert(filter_begin_pos);
-                filter_ranges.push_back(std::make_pair(filter_begin_pos, chpos));
+                filter_ranges.emplace_back(filter_begin_pos, chpos);
                 filter_begin_pos = 0;
             }
         }
@@ -252,7 +253,7 @@ bool RPCConsole::RPCParseCommandLine(interfaces::Node* node, std::string &strRes
                                     subelement = lastResult[parsed.value()];
                                 }
                                 else if (lastResult.isObject())
-                                    subelement = find_value(lastResult, curarg);
+                                    subelement = lastResult.find_value(curarg);
                                 else
                                     throw std::runtime_error("Invalid result query"); //no array or object: abort
                                 lastResult = subelement;
@@ -308,7 +309,7 @@ bool RPCConsole::RPCParseCommandLine(interfaces::Node* node, std::string &strRes
                             if (nDepthInsideSensitive) {
                                 ++nDepthInsideSensitive;
                             }
-                            stack.push_back(std::vector<std::string>());
+                            stack.emplace_back();
                         }
 
                         // don't allow commands after executed commands on baselevel
@@ -451,8 +452,8 @@ void RPCExecutor::request(const QString &command, const WalletModel* wallet_mode
     {
         try // Nice formatting for standard-format error
         {
-            int code = find_value(objError, "code").getInt<int>();
-            std::string message = find_value(objError, "message").get_str();
+            int code = objError.find_value("code").getInt<int>();
+            std::string message = objError.find_value("message").get_str();
             Q_EMIT reply(RPCConsole::CMD_ERROR, QString::fromStdString(message) + " (code " + QString::number(code) + ")");
         }
         catch (const std::runtime_error&) // raised when converting to invalid type, i.e. missing code or message
@@ -474,7 +475,6 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
 {
     ui->setupUi(this);
     QSettings settings;
-
     // Set stylesheet
     SetObjectStyleSheet(ui->promptIcon, StyleSheetNames::ButtonTransparent);
     SetObjectStyleSheet(ui->clearButton, StyleSheetNames::ButtonTransparent);
@@ -527,8 +527,17 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
         /*: Explanatory text for a short-lived outbound peer connection that is used
             to request addresses from a peer. */
         tr("Outbound Address Fetch: short-lived, for soliciting addresses")};
-    const QString list{"<ul><li>" + Join(CONNECTION_TYPE_DOC, QString("</li><li>")) + "</li></ul>"};
-    ui->peerConnectionTypeLabel->setToolTip(ui->peerConnectionTypeLabel->toolTip().arg(list));
+    const QString connection_types_list{"<ul><li>" + Join(CONNECTION_TYPE_DOC, QString("</li><li>")) + "</li></ul>"};
+    ui->peerConnectionTypeLabel->setToolTip(ui->peerConnectionTypeLabel->toolTip().arg(connection_types_list));
+    const std::vector<QString> TRANSPORT_TYPE_DOC{
+        //: Explanatory text for "detecting" transport type.
+        tr("detecting: peer could be v1 or v2"),
+        //: Explanatory text for v1 transport type.
+        tr("v1: unencrypted, plaintext transport protocol"),
+        //: Explanatory text for v2 transport type.
+        tr("v2: BIP324 encrypted transport protocol")};
+    const QString transport_types_list{"<ul><li>" + Join(TRANSPORT_TYPE_DOC, QString("</li><li>")) + "</li></ul>"};
+    ui->peerTransportTypeLabel->setToolTip(ui->peerTransportTypeLabel->toolTip().arg(transport_types_list));
     const QString hb_list{"<ul><li>\""
         + ts.to + "\" – " + tr("we selected the peer for high bandwidth relay") + "</li><li>\""
         + ts.from + "\" – " + tr("the peer selected us for high bandwidth relay") + "</li><li>\""
@@ -757,7 +766,7 @@ void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_
         ui->dataDir->setText(model->dataDir());
         ui->blocksDir->setText(model->blocksDir());
         ui->startupTime->setText(model->formatClientStartupTime());
-        ui->networkName->setText(QString::fromStdString(Params().NetworkIDString()));
+        ui->networkName->setText(QString::fromStdString(Params().GetChainTypeString()));
 
         //Setup autocomplete and attach it
         QStringList wordList;
@@ -812,6 +821,12 @@ void RPCConsole::removeWallet(WalletModel * const walletModel)
         ui->WalletSelector->setVisible(false);
         ui->WalletSelectorLabel->setVisible(false);
     }
+}
+
+void RPCConsole::setCurrentWallet(WalletModel* const wallet_model)
+{
+    QVariant data = QVariant::fromValue(wallet_model);
+    ui->WalletSelector->setCurrentIndex(ui->WalletSelector->findData(data));
 }
 #endif
 
@@ -1201,6 +1216,15 @@ void RPCConsole::updateDetailWidget()
         ui->peerSubversion->setText(QString::fromStdString(stats->nodeStats.cleanSubVer));
     }
     ui->peerConnectionType->setText(GUIUtil::ConnectionTypeToQString(stats->nodeStats.m_conn_type, /*prepend_direction=*/true));
+    ui->peerTransportType->setText(QString::fromStdString(TransportTypeAsString(stats->nodeStats.m_transport_type)));
+    if (stats->nodeStats.m_transport_type == TransportProtocolType::V2) {
+        ui->peerSessionIdLabel->setVisible(true);
+        ui->peerSessionId->setVisible(true);
+        ui->peerSessionId->setText(QString::fromStdString(stats->nodeStats.m_session_id));
+    } else {
+        ui->peerSessionIdLabel->setVisible(false);
+        ui->peerSessionId->setVisible(false);
+    }
     ui->peerNetwork->setText(GUIUtil::NetworkToQString(stats->nodeStats.m_network));
     if (stats->nodeStats.m_permission_flags == NetPermissionFlags::None) {
         ui->peerPermissions->setText(ts.na);
@@ -1387,4 +1411,3 @@ void RPCConsole::activeWalletChanged(int index)
         ui->WalletSelector->setCurrentIndex(walletId);
     }
 }
-

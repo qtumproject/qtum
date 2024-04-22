@@ -1,3 +1,4 @@
+afile
 asend
 ba
 blockin
@@ -11,9 +12,11 @@ hights
 inflight
 invokable
 keypair
+lief
 mor
 nd
 nin
+requestor
 ser
 siz
 stap

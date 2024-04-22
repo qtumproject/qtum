@@ -1,5 +1,5 @@
 #include <sstream>
-#include <util/system.h>
+#include <common/system.h>
 #include <validation.h>
 #include <chainparams.h>
 #include <script/script.h>

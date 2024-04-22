@@ -58,14 +58,6 @@
         <translation type="unfinished">Selecciona</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Enderezos de envío</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Enderezos de recepción</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Estes son os teus enderezos de Qtum para enviar pagamentos. Asegurate sempre de comprobar a cantidade e maila dirección antes de enviar moedas.</translation>
     </message>
@@ -392,7 +384,7 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Asina mensaxes cos teus enderezos de Qtum para probar que che pertencen</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verifica a mensaxe...</translation>
@@ -483,7 +475,7 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Open a qtum: URI</source>
         <translation type="unfinished">Abre una URI de Qtum</translation>
-   </message>
+    </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Abrir carteira</translation>
@@ -526,7 +518,7 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
         <translation type="unfinished">%1 cliente</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -625,10 +617,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
         <translation type="unfinished">taxa:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">po:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Despois de taxas:</translation>
     </message>
@@ -697,24 +685,12 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
         <translation type="unfinished">Copiar bytes</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Copiar po</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Copiar cambio</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 bloqueado)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">sí</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Esta etiqueta tórnase vermella se algún receptor recibe unha cantidade máis pequena que o actual límite de po.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -848,7 +824,7 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">O enderezo introducido "%1" non é un enderezo de Qtum válido.</translation>
-   </message>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">O enderezo "%1" xa existe como un enderezo de recepción ca etiqueta "%2" polo que non pode ser añadido como un enderezo de envío.</translation>
@@ -1014,10 +990,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
         <translation type="unfinished">Cambio:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">po:</translation>
-    </message>
-    <message>
         <source>Copy quantity</source>
         <translation type="unfinished">Copiar cantidade</translation>
     </message>
@@ -1036,10 +1008,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Copiar bytes</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Copiar po</translation>
     </message>
     <message>
         <source>Copy change</source>

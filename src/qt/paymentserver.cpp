@@ -13,11 +13,11 @@
 #include <qt/optionsmodel.h>
 
 #include <chainparams.h>
+#include <common/args.h>
 #include <interfaces/node.h>
 #include <key_io.h>
 #include <node/interface_ui.h>
 #include <policy/policy.h>
-#include <util/system.h>
 #include <wallet/wallet.h>
 
 #include <cstdlib>
@@ -225,7 +225,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
             }
             else
                 Q_EMIT message(tr("URI handling"),
-                    tr("URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters."), 
+                    tr("URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters."),
                     CClientUIInterface::ICON_WARNING);
 
             return;

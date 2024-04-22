@@ -8,7 +8,7 @@
 #include <primitives/transaction.h>
 #include <consensus/validation.h>
 #ifndef BUILD_BITCOIN_INTERNAL
-#include <script/standard.h>
+#include <script/solver.h>
 #endif
 
 bool CheckTransaction(const CTransaction& tx, TxValidationState& state)

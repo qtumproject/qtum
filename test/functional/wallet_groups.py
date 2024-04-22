@@ -13,7 +13,6 @@ from test_framework.util import (
     assert_approx,
     assert_equal,
 )
-
 from test_framework.qtumconfig import MAX_BLOCK_SIGOPS
 from test_framework.qtum import generatesynchronized
 
@@ -49,7 +48,7 @@ class WalletGroupTest(BitcoinTestFramework):
         #  node0 <-- node1 <-- node2 <-- node3 <-- node4 <-- node5)
         self.connect_nodes(0, self.num_nodes - 1)
         # Mine some coins
-        self.nodes[0].generate(10+COINBASE_MATURITY + 1)
+        self.generate(self.nodes[0], COINBASE_MATURITY + 11)
 
         # Get some addresses from the two nodes
         addr1 = [self.nodes[1].getnewaddress() for _ in range(3)]

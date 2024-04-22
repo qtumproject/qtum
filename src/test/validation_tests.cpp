@@ -7,6 +7,7 @@
 #include <net.h>
 #include <signet.h>
 #include <uint256.h>
+#include <util/chaintype.h>
 #include <validation.h>
 
 #include <test/util/setup_common.h>
@@ -42,7 +43,7 @@ static void TestBlockSubsidyHalvings(int nSubsidyHalvingInterval)
 
 BOOST_AUTO_TEST_CASE(block_subsidy_test)
 {
-    const auto chainParams = CreateChainParams(*m_node.args, CBaseChainParams::MAIN);
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     Consensus::Params consensusParams = chainParams->GetConsensus();
     consensusParams.nReduceBlocktimeHeight = 0x7fffffff; // Check for the halving before fork for target spacing
     TestBlockSubsidyHalvings(consensusParams); // As in main
@@ -52,7 +53,7 @@ BOOST_AUTO_TEST_CASE(block_subsidy_test)
 
 BOOST_AUTO_TEST_CASE(subsidy_limit_test)
 {
-    const auto chainParams = CreateChainParams(*m_node.args, CBaseChainParams::MAIN);
+    const auto chainParams = CreateChainParams(*m_node.args, ChainType::MAIN);
     Consensus::Params consensusParams = chainParams->GetConsensus();
     consensusParams.nReduceBlocktimeHeight = 800000; // Check for the halving after fork for target spacing
     int nMaxHeight = 14000000 * consensusParams.nBlocktimeDownscaleFactor;
@@ -100,7 +101,7 @@ BOOST_AUTO_TEST_CASE(signet_parse_tests)
 {
     ArgsManager signet_argsman;
     signet_argsman.ForceSetArg("-signetchallenge", "51"); // set challenge to OP_TRUE
-    const auto signet_params = CreateChainParams(signet_argsman, CBaseChainParams::SIGNET);
+    const auto signet_params = CreateChainParams(signet_argsman, ChainType::SIGNET);
     CBlock block;
     BOOST_CHECK(signet_params->GetConsensus().signet_challenge == std::vector<uint8_t>{OP_TRUE});
     CScript challenge{OP_TRUE};
@@ -160,24 +161,24 @@ BOOST_AUTO_TEST_CASE(signet_parse_tests)
 //! Test retrieval of valid assumeutxo values.
 BOOST_AUTO_TEST_CASE(test_assumeutxo)
 {
-    const auto params = CreateChainParams(*m_node.args, CBaseChainParams::UNITTEST);
+    const auto params = CreateChainParams(*m_node.args, ChainType::UNITTEST);
 
     // These heights don't have assumeutxo configurations associated, per the contents
     // of kernel/chainparams.cpp.
     std::vector<int> bad_heights{0, 2000, 2011, 2015, 2109, 2111};
 
     for (auto empty : bad_heights) {
-        const auto out = ExpectedAssumeutxo(empty, *params);
+        const auto out = params->AssumeutxoForHeight(empty);
         BOOST_CHECK(!out);
     }
 
-    const auto out110 = *ExpectedAssumeutxo(2010, *params);
-    BOOST_CHECK_EQUAL(out110.hash_serialized.ToString(), "f3ad83776715ee9b09a7a43421b6fe17701fb2247370a4ea9fcf0b073639cac9");
-    BOOST_CHECK_EQUAL(out110.nChainTx, 2010U);
+    const auto out110 = *params->AssumeutxoForHeight(2010);
+    BOOST_CHECK_EQUAL(out110.hash_serialized.ToString(), "62528c92991cbedf47bdf3f0f5a0ad1e07bce4b2a35500beabe3f87fa5cca44f");
+    BOOST_CHECK_EQUAL(out110.nChainTx, 2011U);
 
-    const auto out210 = *ExpectedAssumeutxo(2100, *params);
-    BOOST_CHECK_EQUAL(out210.hash_serialized.ToString(), "677f8902ca481677862d19fbe8c6214f596c8b475aabfe4273361485fc4e6fb4");
-    BOOST_CHECK_EQUAL(out210.nChainTx, 2100U);
+    const auto out110_2 = *params->AssumeutxoForBlockhash(uint256S("292911929ab59409569a86bae416da0ba697fd7086b107ddd0a8eeaddba91b4d"));
+    BOOST_CHECK_EQUAL(out110_2.hash_serialized.ToString(), "62528c92991cbedf47bdf3f0f5a0ad1e07bce4b2a35500beabe3f87fa5cca44f");
+    BOOST_CHECK_EQUAL(out110_2.nChainTx, 2011U);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

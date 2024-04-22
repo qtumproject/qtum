@@ -14,7 +14,7 @@
 #include <validation.h>
 #include <sync.h>
 #include <uint256.h>
-#include <util/system.h>
+#include <common/system.h>
 #include <interfaces/wallet.h>
 #include <interfaces/handler.h>
 #include <interfaces/node.h>

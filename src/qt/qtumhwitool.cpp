@@ -7,7 +7,7 @@
 #include <qt/execrpccommand.h>
 #include <qt/walletmodel.h>
 #include <util/strencodings.h>
-#include <util/system.h>
+#include <common/system.h>
 #include <qtum/qtumledger.h>
 #include <chainparams.h>
 #include <outputtype.h>

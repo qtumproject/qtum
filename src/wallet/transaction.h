@@ -30,10 +30,12 @@ struct TxStateConfirmed {
     bool has_delegation;
 
     explicit TxStateConfirmed(const uint256& block_hash, int height, int index, bool delegation) : confirmed_block_hash(block_hash), confirmed_block_height(height), position_in_block(index), has_delegation(delegation) {}
+    std::string toString() const { return strprintf("Confirmed (block=%s, height=%i, index=%i, delegation=%i)", confirmed_block_hash.ToString(), confirmed_block_height, position_in_block, has_delegation); }
 };
 
 //! State of transaction added to mempool.
 struct TxStateInMempool {
+    std::string toString() const { return strprintf("InMempool"); }
 };
 
 //! State of rejected transaction that conflicts with a confirmed block.
@@ -42,6 +44,7 @@ struct TxStateConflicted {
     int conflicting_block_height;
 
     explicit TxStateConflicted(const uint256& block_hash, int height) : conflicting_block_hash(block_hash), conflicting_block_height(height) {}
+    std::string toString() const { return strprintf("Conflicted (block=%s, height=%i)", conflicting_block_hash.ToString(), conflicting_block_height); }
 };
 
 //! State of transaction not confirmed or conflicting with a known block and
@@ -53,6 +56,7 @@ struct TxStateInactive {
     bool disabled;
 
     explicit TxStateInactive(bool abandoned = false, bool disabled = false) : abandoned(abandoned), disabled(disabled) {}
+    std::string toString() const { return strprintf("Inactive (abandoned=%i, disabled=%i)", abandoned, disabled); }
 };
 
 //! State of transaction loaded in an unrecognized state with unexpected hash or
@@ -64,6 +68,7 @@ struct TxStateUnrecognized {
     int index;
 
     TxStateUnrecognized(const uint256& block_hash, int index) : block_hash(block_hash), index(index) {}
+    std::string toString() const { return strprintf("Unrecognized (block=%s, index=%i)", block_hash.ToString(), index); }
 };
 
 //! All possible CWalletTx states
@@ -111,6 +116,12 @@ static inline int TxStateSerializedIndex(const TxState& state)
     }, state);
 }
 
+//! Return TxState or SyncTxState as a string for logging or debugging.
+template<typename T>
+std::string TxStateString(const T& state)
+{
+    return std::visit([](const auto& s) { return s.toString(); }, state);
+}
 
 /**
  * Cachable amount subdivided into watchonly and spendable parts.
@@ -326,11 +337,15 @@ public:
     bool IsCoinBase() const { return tx->IsCoinBase(); }
     bool IsCoinStake() const { return tx->IsCoinStake(); }
 
+private:
     // Disable copying of CWalletTx objects to prevent bugs where instances get
     // copied in and out of the mapWallet map, and fields are updated in the
     // wrong copy.
-    CWalletTx(CWalletTx const &) = delete;
-    void operator=(CWalletTx const &x) = delete;
+    CWalletTx(const CWalletTx&) = default;
+    CWalletTx& operator=(const CWalletTx&) = default;
+public:
+    // Instead have an explicit copy function
+    void CopyFrom(const CWalletTx&);
 };
 
 struct WalletTxOrderComparator {

@@ -9,6 +9,7 @@
 #include <pow.h>
 #include <warnings.h>
 #include <chainparams.h>
+#include <common/args.h>
 
 #include <univalue.h>
 
@@ -91,7 +92,7 @@ RPCHelpMan getmininginfo()
     obj.pushKV("netmhashps",       GetPoWMHashPS(chainman));
     obj.pushKV("netstakeweight",   GetPoSKernelPS(chainman));
     obj.pushKV("errors",           GetWarnings("statusbar").original);
-    obj.pushKV("networkhashps",    GetReqNetworkHashPS(request, chainman));
+    obj.pushKV("networkhashps",    GetNetworkHashPS(self.Arg<int>(0), self.Arg<int>(1), chainman.ActiveChain()));
     obj.pushKV("pooledtx",         (uint64_t)mempool.size());
 
     weight.pushKV("minimum",       (uint64_t)nWeight);
@@ -99,7 +100,7 @@ RPCHelpMan getmininginfo()
     weight.pushKV("combined",      (uint64_t)nWeight);
     obj.pushKV("stakeweight",      weight);
 
-    obj.pushKV("chain",            Params().NetworkIDString());
+    obj.pushKV("chain", chainman.GetParams().GetChainTypeString());
     obj.pushKV("warnings",         GetWarnings(false).original);
     return obj;
 },

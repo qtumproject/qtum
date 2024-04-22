@@ -58,14 +58,6 @@
         <translation type="unfinished">P&amp;asirinkti</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Išsiuntimo adresai</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Gavimo adresai</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Tai yra jūsų Qtum adresai išeinantiems mokėjimams. Visada pasitikrinkite sumą ir gavėjo adresą prieš siunčiant lėšas.</translation>
     </message>
@@ -414,7 +406,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Siųsti monetas Qtum adresui</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Daryti piniginės atsarginę kopiją</translation>
@@ -522,7 +514,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Užkraukite dalinai pasirašytas Qtum transakcijas iš iškarpinės...</translation>
-   </message>
+    </message>
     <message>
         <source>Node window</source>
         <translation type="unfinished">Mazgo langas</translation>
@@ -710,10 +702,6 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Mokestis:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Dulkės:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Po mokesčio:</translation>
     </message>
@@ -778,28 +766,12 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Kopijuoti baitus</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopijuoti dulkę</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopijuoti keisti</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 užrakinta)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">taip</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ne</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Ši etiketė tampa raudona, jei bet kuris gavėjas gauna mažesnę sumą nei dabartinė dulkių slenkstis.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1274,7 +1246,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Prisijunkite prie „Qtum“ tinklo per SOCKS5 proxy.</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp; Prisijunkite per SOCKS5 proxy (numatytasis proxy):</translation>
@@ -1406,7 +1378,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Rodoma informacija gali būti pasenusi. Piniginė automatiškai sinchronizuojasi su „Qtum“ tinklu po ryšio užmezgimo, tačiau šis procesas dar nebaigtas.</translation>
-   </message>
+    </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Tik stebėti</translation>
@@ -1483,6 +1455,10 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Uždaryti</translation>
     </message>
     <message>
+        <source>own address</source>
+        <translation type="unfinished">savo adresas</translation>
+    </message>
+    <message>
         <source>Total Amount</source>
         <translation type="unfinished">Visas kiekis</translation>
     </message>
@@ -1508,11 +1484,11 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">„qtum: //“ nėra galiojantis URI. Vietoj to naudokite „qtum:“.</translation>
-   </message>
+    </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">URI negalima perskaityti! Tai gali sukelti negaliojantys „Qtum“ adresas arba netinkami URI parametrai.</translation>
-   </message>
+    </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">Mokėjimo užklausos failų tvarkymas</translation>
@@ -2077,13 +2053,9 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Išvalykite visus formos laukus.</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Dulkės:</translation>
-    </message>
-    <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">Kai sandorių apimtis yra mažesnė nei erdvės blokuose, kasėjai ir perduodantys mazgai gali užtikrinti minimalų mokestį. Mokėti tik šį minimalų mokestį yra galima, tačiau atkreipkite dėmesį, kad dėl to gali atsirasti niekada nepatvirtinamas sandoris, kai bus daugiau paklausos qtum operacijoms, nei tinklas gali apdoroti.</translation>
-   </message>
+    </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
         <translation type="unfinished">Per mažas mokestis gali lemti niekada nepatvirtinamą sandorį (skaitykite tooltip)</translation>
@@ -2135,10 +2107,6 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Kopijuoti baitus</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopijuoti dulkę</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -2228,7 +2196,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">Įspėjimas: neteisingas Qtum adresas</translation>
-   </message>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Įspėjimas: nežinomas keitimo adresas</translation>
@@ -2267,7 +2235,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Qtum adresas, į kurį siunčiamas mokėjimas</translation>
-   </message>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Įvesti adresą iš mainų atminties</translation>
@@ -2365,7 +2333,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">Qtum adresas, kuriuo buvo pasirašytas pranešimas</translation>
-   </message>
+    </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Patikrinkite žinutę, jog įsitikintumėte, kad ją pasirašė nurodytas Qtum adresas</translation>
@@ -2640,10 +2608,6 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Išsiųsta</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Mokėjimas sau</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Išgauta</translation>
     </message>
@@ -2713,10 +2677,6 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Išsiųsta</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Skirta sau</translation>
     </message>
     <message>
         <source>Mined</source>

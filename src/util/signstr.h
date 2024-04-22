@@ -15,7 +15,7 @@ const std::string strMessageMagic = "Qtum Signed Message:\n";
 
 inline bool SignMessage(const CKey& key, const std::string& strMessage, std::vector<unsigned char>& vchSig)
 {
-    CHashWriter ss(SER_GETHASH, 0);
+    CHashWriter ss(0);
     ss << strMessageMagic;
     ss << strMessage;
 
@@ -24,7 +24,7 @@ inline bool SignMessage(const CKey& key, const std::string& strMessage, std::vec
 
 inline bool VerifyMessage(const CKeyID& keyID, const std::string& strMessage, const std::vector<unsigned char>& vchSig)
 {
-    CHashWriter ss(SER_GETHASH, 0);
+    CHashWriter ss(0);
     ss << strMessageMagic;
     ss << strMessage;
 
@@ -37,7 +37,7 @@ inline bool VerifyMessage(const CKeyID& keyID, const std::string& strMessage, co
 
 inline bool GetKeyIdMessage(const std::string& strMessage, const std::vector<unsigned char>& vchSig, CKeyID& keyID)
 {
-    CHashWriter ss(SER_GETHASH, 0);
+    CHashWriter ss(0);
     ss << strMessageMagic;
     ss << strMessage;
 

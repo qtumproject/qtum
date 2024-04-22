@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainparams.h>
-#include <chainparamsbase.h>
 #include <key.h>
 #include <pubkey.h>
 #include <script/sigcache.h>
@@ -27,7 +26,7 @@ void initialize_script_sigcache()
     g_setup = testing_setup.get();
 }
 
-FUZZ_TARGET_INIT(script_sigcache, initialize_script_sigcache)
+FUZZ_TARGET(script_sigcache, .init = initialize_script_sigcache)
 {
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
 

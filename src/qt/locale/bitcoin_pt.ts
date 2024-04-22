@@ -58,17 +58,9 @@
         <translation type="unfinished">Escol&amp;her</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Endereços de envio</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Endereços de receção</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Estes são os seus endereços Qtum para enviar pagamentos. Verifique sempre o valor e o endereço de receção antes de enviar moedas.</translation>
-   </message>
+    </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
@@ -186,7 +178,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Lembra se que encrostar a sua carteira não o pode defender na totalidade os seus qtums de serem roubados por um malware que possa infectar o seu computador.</translation>
-  </message>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Carteira a ser encriptada</translation>
@@ -469,7 +461,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Enviar moedas para um endereço Qtum</translation>
-   </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">Efetue uma cópia de segurança da carteira para outra localização</translation>
@@ -512,16 +504,16 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Assine as mensagens com os seus endereços Qtum para provar que é o proprietário dos mesmos</translation> 
-  </message>
+        <translation type="unfinished">Assine as mensagens com os seus endereços Qtum para provar que é o proprietário dos mesmos</translation>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verificar mensagem…</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Verifique mensagens para assegurar que foram assinadas com o endereço Qtum especificado</translation> 
-  </message>
+        <translation type="unfinished">Verifique mensagens para assegurar que foram assinadas com o endereço Qtum especificado</translation>
+    </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">&amp;Carregar PSBT do arquivo...</translation>
@@ -581,7 +573,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Solicitar pagamentos (gera códigos QR e qtum: URIs)</translation>
-  </message>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">Mostrar a lista de etiquetas e endereços de envio usados</translation>
@@ -636,7 +628,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Carregar transação de Qtum parcialmente assinada</translation>
-  </message>
+    </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Carregar PSBT da área de transferência...</translation>
@@ -644,7 +636,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Carregar transação de Qtum parcialmente assinada da área de transferência.</translation>
-   </message>
+    </message>
     <message>
         <source>Node window</source>
         <translation type="unfinished">Janela do nó</translation>
@@ -663,8 +655,8 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">Abrir um qtum URI</translation> 
-  </message>
+        <translation type="unfinished">Abrir um qtum URI</translation>
+    </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Abrir Carteira</translation>
@@ -890,10 +882,6 @@ Assinar só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Taxa:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Lixo:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Depois da taxa:</translation>
     </message>
@@ -982,28 +970,12 @@ Assinar só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Copiar bytes</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Copiar pó</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Copiar troco</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 bloqueado)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">sim</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">não</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Esta etiqueta fica vermelha se qualquer destinatário recebe um valor menor que o limite de dinheiro.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1183,14 +1155,6 @@ Assinar só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Fazer Carteira em Branco</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Use descritores para o gerenciamento de chaves públicas de script</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Carteira de descritor</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Utilize um dispositivo de assinatura externo tal com uma carteira de hardware. Configure primeiro o script de assinatura nas preferências da carteira.</translation>
     </message>
@@ -1201,10 +1165,6 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Create</source>
         <translation type="unfinished">Criar</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Compilado sem suporte para sqlite (requerido para carteiras de descritor)</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1336,7 +1296,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
         <translation type="unfinished">%1 irá descarregar e armazenar uma cópia da cadeia de blocos da Qtum.</translation>
-   </message>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">A carteira também será guardada nesta pasta.</translation>
@@ -1429,7 +1389,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Tentar enviar qtums que estão afetadas por transações ainda não exibidas não será aceite pela rede.</translation>
-   </message>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Número de blocos restantes</translation>
@@ -1668,7 +1628,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Conectar à rede da Qtum através dum proxy SOCLS5.</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Ligar através dum proxy SOCKS5 (proxy por defeito):</translation>
@@ -1748,7 +1708,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
         <translation type="unfinished">Conecte-se a rede Qtum através de um proxy SOCKS5 separado para serviços Tor Onion</translation>
- </message>
+    </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation type="unfinished">Use um proxy SOCKS5 separado para alcançar pares por meio dos serviços Tor onion:</translation>
@@ -1853,7 +1813,7 @@ Assinar só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">A informação mostrada poderá estar desatualizada. A sua carteira sincroniza automaticamente com a rede Qtum depois de estabelecer ligação, mas este processo ainda não está completo.</translation>
-   </message>
+    </message>
     <message>
         <source>Watch-only:</source>
         <translation type="unfinished">Apenas vigiar:</translation>
@@ -2004,6 +1964,10 @@ ID transação: %1</translation>
         <translation type="unfinished">Envia %1 para %2</translation>
     </message>
     <message>
+        <source>own address</source>
+        <translation type="unfinished">endereço próprio</translation>
+    </message>
+    <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
         <translation type="unfinished">Incapaz de calcular a taxa de transação ou o valor total da transação.</translation>
     </message>
@@ -2061,15 +2025,15 @@ ID transação: %1</translation>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Impossível iniciar o controlador de qtum: click-to-pay</translation>
-  </message>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Manuseamento de URI</translation>
     </message>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
-        <translation type="unfinished">'qtum://' não é um URI válido. Utilize 'qtum:'.</translation>  
- </message>
+        <translation type="unfinished">'qtum://' não é um URI válido. Utilize 'qtum:'.</translation>
+    </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
@@ -2593,7 +2557,7 @@ Para mais informação acerca da utilização desta consola, escreva %6.
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Uma mensagem opcional para anexar ao pedido de pagamento, que será exibida quando o pedido for aberto. Nota: A mensagem não será enviada com o pagamento através da rede Qtum.</translation>
-   </message>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Uma etiqueta opcional a associar ao novo endereço de receção.</translation>
@@ -2868,10 +2832,6 @@ Para mais informação acerca da utilização desta consola, escreva %6.
         <translation type="unfinished">Entradas...</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Lixo:</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">Escolher…</translation>
     </message>
@@ -2946,10 +2906,6 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Copiar bytes</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Copiar pó</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -3605,10 +3561,6 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Enviado para</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Pagamento para si mesmo</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Minada</translation>
     </message>
@@ -3682,10 +3634,6 @@ Nota: Como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Enviado para</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Para si mesmo</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3993,10 +3941,6 @@ Ir para o arquivo &gt; Abrir carteira para carregar a carteira
         <translation type="unfinished">Erro ao carregar a carteira. A carteira requer que os blocos sejam baixados e o software atualmente não suporta o carregamento de carteiras enquanto os blocos estão sendo baixados fora de ordem ao usar instantâneos assumeutxo. A carteira deve ser carregada com êxito após a sincronização do nó atingir o patamar 1%s</translation>
     </message>
     <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Erro ao ler %s! Todas as chaves foram lidas corretamente, mas os dados de transação ou as entradas no livro de endereços podem não existir ou estarem incorretos.</translation>
-    </message>
-    <message>
         <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
         <translation type="unfinished">Erro ao ler %s! Dados de transações podem estar incorretos ou faltando. Reescaneando a carteira.</translation>
     </message>
@@ -4048,10 +3992,6 @@ deve ser fornecido.</translation>
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
         <translation type="unfinished">A base de dados de blocos contém um bloco que aparenta ser do futuro. Isto pode ser causado por uma data incorreta definida no seu computador. Reconstrua apenas a base de dados de blocos caso tenha a certeza de que a data e hora do seu computador estão corretos.</translation>
-    </message>
-    <message>
-        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
-        <translation type="unfinished">O banco de dados de índices de bloco contém um 'txindex' antigo. Faça um -reindex completo para liberar espaço em disco, se desejar. Este erro não será exibido novamente.</translation>
     </message>
     <message>
         <source>The transaction amount is too small to send after the fee has been deducted</source>
@@ -4138,22 +4078,6 @@ deve ser fornecido.</translation>
         <translation type="unfinished">Não foi possível escrever na pasta de dados '%s': verifique as permissões.</translation>
     </message>
     <message>
-        <source>The -txindex upgrade started by a previous version cannot be completed. Restart with the previous version or run a full -reindex.</source>
-        <translation type="unfinished">O processo de atualização do -txindex iniciado por uma versão anterior não foi concluído. Reinicie com a versão antiga ou faça um -reindex completo.</translation>
-    </message>
-    <message>
-        <source>-reindex-chainstate option is not compatible with -blockfilterindex. Please temporarily disable blockfilterindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
-        <translation type="unfinished">a opção "-reindex-chainstate" não é compatível com "-blockfilterindex". Por favor, desabilite temporariamente a opção "blockfilterindex" enquanto utilizar a opção "-reindex-chainstate", ou troque "-reindex-chainstate" por "-reindex" para recriar completamente todos os índices. </translation>
-    </message>
-    <message>
-        <source>-reindex-chainstate option is not compatible with -coinstatsindex. Please temporarily disable coinstatsindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
-        <translation type="unfinished">a opção "-reindex-chainstate" não é compatível com a opção "-coinstatsindex". Por favor desative temporariamente a opção "coinstatsindex" enquanto estiver utilizando "-reindex-chainstate", ou troque "-reindex-chainstate" por "-reindex" para recriar completamente todos os índices.</translation>
-    </message>
-    <message>
-        <source>-reindex-chainstate option is not compatible with -txindex. Please temporarily disable txindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
-        <translation type="unfinished">a opção "-reindex-chainstate" não é compatível com a opção "-coinstatsindex". Por favor desative temporariamente a opção "coinstatsindex" enquanto estiver utilizando "-reindex-chainstate", ou troque "-reindex-chainstate" por "-reindex" para recriar completamente todos os índices.</translation>
-    </message>
-    <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
         <translation type="unfinished">Não é possível fornecer conexões específicas e ter addrman procurando conexões ao mesmo tempo.</translation>
     </message>
@@ -4200,10 +4124,6 @@ Please try running the latest software version.
 A carteira pode ter sido criada em uma versão mais nova.
 Por favor tente atualizar o software para a última versão.
 </translation>
-    </message>
-    <message>
-        <source>Unsupported category-specific logging level -loglevel=%s. Expected -loglevel=&lt;category&gt;:&lt;loglevel&gt;. Valid categories: %s. Valid loglevels: %s.</source>
-        <translation type="unfinished">Categoria especificada no nível de log não suportada "-loglevel=%s". Esperado "-loglevel=&lt;category&gt;:&lt;loglevel&gt;. Categorias validas: %s. Níveis de log válidos: %s.</translation>
     </message>
     <message>
         <source>
@@ -4662,10 +4582,6 @@ A pasta de blocos especificados "%s" não existe.</translation>
     <message>
         <source>Unknown new rules activated (versionbit %i)</source>
         <translation type="unfinished">Ativadas novas regras desconhecidas (versionbit %i)</translation>
-    </message>
-    <message>
-        <source>Unsupported global logging level -loglevel=%s. Valid values: %s.</source>
-        <translation type="unfinished">Nível de log global inválido "-loglevel=%s". Valores válidos: %s.</translation>
     </message>
     <message>
         <source>Unsupported logging category %s=%s.</source>

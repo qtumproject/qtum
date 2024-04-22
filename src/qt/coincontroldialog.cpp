@@ -57,7 +57,6 @@ CoinControlDialog::CoinControlDialog(CCoinControl& coin_control, WalletModel* _m
     // Set stylesheet
     SetObjectStyleSheet(ui->pushButtonSelectAll, StyleSheetNames::ButtonDark);
     SetObjectStyleSheet(ui->treeWidget, StyleSheetNames::TreeView);
-
     // context menu
     contextMenu = new QMenu(this);
     contextMenu->addAction(tr("&Copy address"), this, &CoinControlDialog::copyAddress);
@@ -75,7 +74,6 @@ CoinControlDialog::CoinControlDialog(CCoinControl& coin_control, WalletModel* _m
     QAction *clipboardFeeAction = new QAction(tr("Copy fee"), this);
     QAction *clipboardAfterFeeAction = new QAction(tr("Copy after fee"), this);
     QAction *clipboardBytesAction = new QAction(tr("Copy bytes"), this);
-    QAction *clipboardLowOutputAction = new QAction(tr("Copy dust"), this);
     QAction *clipboardChangeAction = new QAction(tr("Copy change"), this);
 
     connect(clipboardQuantityAction, &QAction::triggered, this, &CoinControlDialog::clipboardQuantity);
@@ -83,7 +81,6 @@ CoinControlDialog::CoinControlDialog(CCoinControl& coin_control, WalletModel* _m
     connect(clipboardFeeAction, &QAction::triggered, this, &CoinControlDialog::clipboardFee);
     connect(clipboardAfterFeeAction, &QAction::triggered, this, &CoinControlDialog::clipboardAfterFee);
     connect(clipboardBytesAction, &QAction::triggered, this, &CoinControlDialog::clipboardBytes);
-    connect(clipboardLowOutputAction, &QAction::triggered, this, &CoinControlDialog::clipboardLowOutput);
     connect(clipboardChangeAction, &QAction::triggered, this, &CoinControlDialog::clipboardChange);
 
     ui->labelCoinControlQuantity->addAction(clipboardQuantityAction);
@@ -91,7 +88,6 @@ CoinControlDialog::CoinControlDialog(CCoinControl& coin_control, WalletModel* _m
     ui->labelCoinControlFee->addAction(clipboardFeeAction);
     ui->labelCoinControlAfterFee->addAction(clipboardAfterFeeAction);
     ui->labelCoinControlBytes->addAction(clipboardBytesAction);
-    ui->labelCoinControlLowOutput->addAction(clipboardLowOutputAction);
     ui->labelCoinControlChange->addAction(clipboardChangeAction);
 
     // toggle tree/list mode
@@ -299,12 +295,6 @@ void CoinControlDialog::clipboardBytes()
     GUIUtil::setClipboard(ui->labelCoinControlBytes->text().replace(ASYMP_UTF8, ""));
 }
 
-// copy label "Dust" to clipboard
-void CoinControlDialog::clipboardLowOutput()
-{
-    GUIUtil::setClipboard(ui->labelCoinControlLowOutput->text());
-}
-
 // copy label "Change" to clipboard
 void CoinControlDialog::clipboardChange()
 {
@@ -395,17 +385,8 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
 
     // nPayAmount
     CAmount nPayAmount = 0;
-    bool fDust = false;
-    for (const CAmount &amount : CoinControlDialog::payAmounts)
-    {
+    for (const CAmount &amount : CoinControlDialog::payAmounts) {
         nPayAmount += amount;
-
-        if (amount > 0)
-        {
-            // Assumes a p2pkh script size
-            CTxOut txout(amount, CScript() << std::vector<unsigned char>(24, 0));
-            fDust |= IsDust(txout, model->node().getDustRelayFee());
-        }
     }
 
     CAmount nAmount             = 0;
@@ -417,8 +398,7 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
     unsigned int nQuantity      = 0;
     bool fWitness               = false;
 
-    std::vector<COutPoint> vCoinControl;
-    m_coin_control.ListSelected(vCoinControl);
+    auto vCoinControl{m_coin_control.ListSelected()};
 
     size_t i = 0;
     for (const auto& out : model->wallet().getCoins(vCoinControl)) {
@@ -445,7 +425,19 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
         std::vector<unsigned char> witnessprogram;
         if (out.txout.scriptPubKey.IsWitnessProgram(witnessversion, witnessprogram))
         {
-            nBytesInputs += (32 + 4 + 1 + (107 / WITNESS_SCALE_FACTOR) + 4);
+            // add input skeleton bytes (outpoint, scriptSig size, nSequence)
+            nBytesInputs += (32 + 4 + 1 + 4);
+
+            if (witnessversion == 0) { // P2WPKH
+                // 1 WU (witness item count) + 72 WU (ECDSA signature with len byte) + 34 WU (pubkey with len byte)
+                nBytesInputs += 107 / WITNESS_SCALE_FACTOR;
+            } else if (witnessversion == 1) { // P2TR key-path spend
+                // 1 WU (witness item count) + 65 WU (Schnorr signature with len byte)
+                nBytesInputs += 66 / WITNESS_SCALE_FACTOR;
+            } else {
+                // not supported, should be unreachable
+                throw std::runtime_error("Trying to spend future segwit version script");
+            }
             fWitness = true;
         }
         else if(ExtractDestination(out.txout.scriptPubKey, address))
@@ -521,12 +513,9 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
     QLabel *l3 = dialog->findChild<QLabel *>("labelCoinControlFee");
     QLabel *l4 = dialog->findChild<QLabel *>("labelCoinControlAfterFee");
     QLabel *l5 = dialog->findChild<QLabel *>("labelCoinControlBytes");
-    QLabel *l7 = dialog->findChild<QLabel *>("labelCoinControlLowOutput");
     QLabel *l8 = dialog->findChild<QLabel *>("labelCoinControlChange");
 
-    // enable/disable "dust" and "change"
-    dialog->findChild<QLabel *>("labelCoinControlLowOutputText")->setEnabled(nPayAmount > 0);
-    dialog->findChild<QLabel *>("labelCoinControlLowOutput")    ->setEnabled(nPayAmount > 0);
+    // enable/disable "change"
     dialog->findChild<QLabel *>("labelCoinControlChangeText")   ->setEnabled(nPayAmount > 0);
     dialog->findChild<QLabel *>("labelCoinControlChange")       ->setEnabled(nPayAmount > 0);
 
@@ -536,7 +525,6 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
     l3->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, nPayFee));        // Fee
     l4->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, nAfterFee));      // After Fee
     l5->setText(((nBytes > 0) ? ASYMP_UTF8 : "") + QString::number(nBytes));        // Bytes
-    l7->setText(fDust ? tr("yes") : tr("no"));                               // Dust
     l8->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, nChange));        // Change
     if (nPayFee > 0)
     {
@@ -546,12 +534,6 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
             l8->setText(ASYMP_UTF8 + l8->text());
     }
 
-    // turn label red when dust
-    l7->setStyleSheet((fDust) ? "color:red;" : "");
-
-    // tool tips
-    QString toolTipDust = tr("This label turns red if any recipient receives an amount smaller than the current dust threshold.");
-
     // how many satoshis the estimated fee can vary per byte we guess wrong
     double dFeeVary = (nBytes != 0) ? (double)nPayFee / nBytes : 0;
 
@@ -559,12 +541,10 @@ void CoinControlDialog::updateLabels(CCoinControl& m_coin_control, WalletModel *
 
     l3->setToolTip(toolTip4);
     l4->setToolTip(toolTip4);
-    l7->setToolTip(toolTipDust);
     l8->setToolTip(toolTip4);
     dialog->findChild<QLabel *>("labelCoinControlFeeText")      ->setToolTip(l3->toolTip());
     dialog->findChild<QLabel *>("labelCoinControlAfterFeeText") ->setToolTip(l4->toolTip());
     dialog->findChild<QLabel *>("labelCoinControlBytesText")    ->setToolTip(l5->toolTip());
-    dialog->findChild<QLabel *>("labelCoinControlLowOutputText")->setToolTip(l7->toolTip());
     dialog->findChild<QLabel *>("labelCoinControlChangeText")   ->setToolTip(l8->toolTip());
 
     // Insufficient funds
@@ -636,7 +616,7 @@ void CoinControlDialog::updateView()
             // address
             CTxDestination outputAddress;
             QString sAddress = "";
-            if(ExtractDestination(out.txout.scriptPubKey, outputAddress))
+            if(ExtractDestination(out.txout.scriptPubKey, outputAddress, nullptr, true))
             {
                 sAddress = QString::fromStdString(EncodeDestination(outputAddress));
 

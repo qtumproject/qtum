@@ -139,14 +139,6 @@
         <translation type="unfinished">&amp;선택</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation>송금 주소</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation>받는 주소</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>송금이 가능한 QTUM 주소입니다. 송금 전에 반드시 주소와 금액이 정확한지 확인해주세요. </translation>
     </message>
@@ -641,7 +633,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Load Wallet Backup</source>
         <extracomment>The title for Restore Wallet File Windows</extracomment>
-        <translation type="unfinished">백업된 지갑 불러오기</translation>
+        <translation type="unfinished">백업된 지갑을 불러옵니다.</translation>
     </message>
     <message>
         <source>Restore Wallet</source>
@@ -1042,10 +1034,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>수수료: </translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation>더스트: </translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation>수수료 포함 금액</translation>
     </message>
@@ -1134,28 +1122,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>바이트 복사</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation>더스트 금액 복사</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation>잔액 복사</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation>(%1 개 락업)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation>예</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation>아니오</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation>입금 금액이 현재의 더스트 금액 하한보다 작을 경우 라벨이 빨간색으로 표시 됩니다. </translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1346,14 +1318,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>빈 지갑 만들기</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation>scriptPubKey 관리를 위해 디스크립터를 사용하세요.</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation>디스크립터 지갑</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Hardware wallet과 같은 외부 서명 장치를 사용합니다. 지갑 기본 설정에서 외부 서명자 스크립트를 먼저 구성하십시오.</translation>
     </message>
@@ -1364,10 +1328,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Create</source>
         <translation>생성하기</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation>에스큐엘라이트 지원 없이 컴파일 되었습니다. (디스크립터 지갑에 요구됩니다.)</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -2390,15 +2350,15 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <name>PSBTOperationsDialog</name>
     <message>
         <source>Sign Tx</source>
-        <translation>거래 서명</translation>
+        <translation type="unfinished">거래 서명</translation>
     </message>
     <message>
         <source>Broadcast Tx</source>
-        <translation>거래 전파</translation>
+        <translation type="unfinished">거래 전파</translation>
     </message>
     <message>
         <source>Copy to Clipboard</source>
-        <translation>클립보드로 복사</translation>
+        <translation type="unfinished">클립보드로 복사</translation>
     </message>
     <message>
         <source>Save…</source>
@@ -2406,15 +2366,15 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     </message>
     <message>
         <source>Close</source>
-        <translation>닫기</translation>
+        <translation type="unfinished">닫기</translation>
     </message>
     <message>
         <source>Failed to load transaction: %1</source>
-        <translation>거래 불러오기 실패: %1</translation>
+        <translation type="unfinished">거래 불러오기 실패: %1</translation>
     </message>
     <message>
         <source>Failed to sign transaction: %1</source>
-        <translation>거래 서명 실패: %1</translation>
+        <translation type="unfinished">거래 서명 실패: %1</translation>
     </message>
     <message>
         <source>Cannot sign inputs while wallet is locked.</source>
@@ -2426,27 +2386,27 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     </message>
     <message>
         <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
-        <translation>거래 서명완료. 거래를 전파할 준비가 되었습니다.</translation>
+        <translation type="unfinished">거래 서명완료. 거래를 전파할 준비가 되었습니다.</translation>
     </message>
     <message>
         <source>Unknown error processing transaction.</source>
-        <translation>거래 처리 과정에 알 수 없는 오류 발생</translation>
+        <translation type="unfinished">거래 처리 과정에 알 수 없는 오류 발생</translation>
     </message>
     <message>
         <source>Transaction broadcast successfully! Transaction ID: %1</source>
-        <translation>거래가 성공적으로 전파되었습니다! 거래 ID : %1</translation>
+        <translation type="unfinished">거래가 성공적으로 전파되었습니다! 거래 ID : %1</translation>
     </message>
     <message>
         <source>Transaction broadcast failed: %1</source>
-        <translation>거래 전파에 실패: %1</translation>
+        <translation type="unfinished">거래 전파에 실패: %1</translation>
     </message>
     <message>
         <source>PSBT copied to clipboard.</source>
-        <translation>클립보드로 PSBT 복사</translation>
+        <translation type="unfinished">클립보드로 PSBT 복사</translation>
     </message>
     <message>
         <source>Save Transaction Data</source>
-        <translation>트랜잭션 데이터 저장</translation>
+        <translation type="unfinished">트랜잭션 데이터 저장</translation>
     </message>
     <message>
         <source>Partially Signed Transaction (Binary)</source>
@@ -2455,39 +2415,43 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     </message>
     <message>
         <source>PSBT saved to disk.</source>
-        <translation>PSBT가 디스크에 저장 됨</translation>
+        <translation type="unfinished">PSBT가 디스크에 저장 됨</translation>
     </message>
     <message>
         <source> * Sends %1 to %2</source>
-        <translation>* %1을 %2로 보냅니다.</translation>
+        <translation type="unfinished">* %1을 %2로 보냅니다.</translation>
+    </message>
+    <message>
+        <source>own address</source>
+        <translation type="unfinished">자신의 주소</translation>
     </message>
     <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
-        <translation>거래 수수료 또는 총 거래 금액을 계산할 수 없습니다.</translation>
+        <translation type="unfinished">거래 수수료 또는 총 거래 금액을 계산할 수 없습니다.</translation>
     </message>
     <message>
         <source>Pays transaction fee: </source>
-        <translation>거래 수수료 납부:</translation>
+        <translation type="unfinished">거래 수수료 납부:</translation>
     </message>
     <message>
         <source>Total Amount</source>
-        <translation>총액</translation>
+        <translation type="unfinished">총액</translation>
     </message>
     <message>
         <source>or</source>
-        <translation>또는</translation>
+        <translation type="unfinished">또는</translation>
     </message>
     <message>
         <source>Transaction has %1 unsigned inputs.</source>
-        <translation>거래가 %1 개의 서명 되지 않은 입력을 갖고 있습니다.</translation>
+        <translation type="unfinished">거래가 %1 개의 서명 되지 않은 입력을 갖고 있습니다.</translation>
     </message>
     <message>
         <source>Transaction is missing some information about inputs.</source>
-        <translation>거래에 입력에 대한 일부 정보가 없습니다.</translation>
+        <translation type="unfinished">거래에 입력에 대한 일부 정보가 없습니다.</translation>
     </message>
     <message>
         <source>Transaction still needs signature(s).</source>
-        <translation>거래가 아직 서명(들)을 필요로 합니다.</translation>
+        <translation type="unfinished">거래가 아직 서명(들)을 필요로 합니다.</translation>
     </message>
     <message>
         <source>(But no wallet is loaded.)</source>
@@ -2495,19 +2459,19 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     </message>
     <message>
         <source>(But this wallet cannot sign transactions.)</source>
-        <translation>(그러나 이 지갑은 거래에 서명이 불가능합니다.)</translation>
+        <translation type="unfinished">(그러나 이 지갑은 거래에 서명이 불가능합니다.)</translation>
     </message>
     <message>
         <source>(But this wallet does not have the right keys.)</source>
-        <translation>(그러나 이 지갑은 적절한 키를 갖고 있지 않습니다.)</translation>
+        <translation type="unfinished">(그러나 이 지갑은 적절한 키를 갖고 있지 않습니다.)</translation>
     </message>
     <message>
         <source>Transaction is fully signed and ready for broadcast.</source>
-        <translation>거래가 모두 서명되었고, 전파될 준비가 되었습니다.</translation>
+        <translation type="unfinished">거래가 모두 서명되었고, 전파될 준비가 되었습니다.</translation>
     </message>
     <message>
         <source>Transaction status is unknown.</source>
-        <translation>거래 상태를 알 수 없습니다.</translation>
+        <translation type="unfinished">거래 상태를 알 수 없습니다.</translation>
     </message>
 </context>
 <context>
@@ -3687,10 +3651,6 @@ For more information on using this console, type %6.
         <translation>해당 부분의 내용 제거</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation>더스트: </translation>
-    </message>
-    <message>
         <source>Hide transaction fee settings</source>
         <translation>거래 수수료 설정 숨기기</translation>
     </message>
@@ -3761,10 +3721,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Copy bytes</source>
         <translation>바이트 복사</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation>더스트 금액 복사</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -4984,10 +4940,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation>에게 지불</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation>본인에게 지불</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation>블록 리워드</translation>
     </message>
@@ -5069,10 +5021,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Sent to</source>
         <translation>받는 주소 :</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation>본인에게 </translation>
     </message>
     <message>
         <source>Mined</source>
@@ -5425,10 +5373,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">MIT 소프트웨어 라이센스를 통해 배포합니다. 첨부된 %s 파일 또는 %s 를 확인하세요. </translation>
     </message>
     <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">%s 불러오기 실패! 모든 키를 정확하게 불러왔지만 거래 기록 또는 주소록이 없거나 잘못되었습니다. </translation>
-    </message>
-    <message>
         <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
         <translation type="unfinished">%s를 읽는데 에러가 생겼습니다. 트랜잭션 데이터가 잘못되었거나 누락되었습니다. 지갑을 다시 스캐닝합니다.</translation>
     </message>
@@ -5503,10 +5447,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer&apos;s date and time being set incorrectly. Only rebuild the block database if you are sure that your computer&apos;s date and time are correct</source>
         <translation type="unfinished">블록 데이터베이스에 미래의 거래 내역이 있습니다. 이는 현재 컴퓨터의 시간 설정이 잘못되어 발생된 것으로 보입니다. 컴퓨터 시간 설정 오류가 없을 경우 블록 데이터베이스를 다시 구축해주세요. </translation>
-    </message>
-    <message>
-        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
-        <translation type="unfinished">udhdbfjfjdnbdjfjf hdhdbjcn2owkd. jjwbdbdof dkdbdnck wdkdj </translation>
     </message>
     <message>
         <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>

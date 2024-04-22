@@ -84,8 +84,8 @@ bool ExecRPCCommand::exec(interfaces::Node &node, const WalletModel* wallet_mode
     {
         try // Nice formatting for standard-format error
         {
-            int code = find_value(objError, "code").getInt<int>();
-            std::string message = find_value(objError, "message").get_str();
+            int code = objError.find_value("code").getInt<int>();
+            std::string message = objError.find_value("message").get_str();
             errorMessage = QString::fromStdString(message) + " (code " + QString::number(code) + ")";
         }
         catch (const std::runtime_error&) // raised when converting to invalid type, i.e. missing code or message

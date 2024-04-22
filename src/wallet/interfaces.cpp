@@ -4,18 +4,17 @@
 
 #include <interfaces/wallet.h>
 
+#include <common/args.h>
 #include <consensus/amount.h>
 #include <interfaces/chain.h>
 #include <interfaces/handler.h>
 #include <policy/fees.h>
 #include <primitives/transaction.h>
 #include <rpc/server.h>
-#include <script/standard.h>
 #include <support/allocators/secure.h>
 #include <sync.h>
 #include <uint256.h>
 #include <util/check.h>
-#include <util/system.h>
 #include <util/translation.h>
 #include <util/ui_change_type.h>
 #include <wallet/coincontrol.h>
@@ -46,6 +45,7 @@ using interfaces::Wallet;
 using interfaces::WalletAddress;
 using interfaces::WalletBalances;
 using interfaces::WalletLoader;
+using interfaces::WalletMigrationResult;
 using interfaces::WalletOrderForm;
 using interfaces::WalletTx;
 using interfaces::WalletTxOut;
@@ -80,8 +80,9 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     result.txout_address_is_mine.reserve(wtx.tx->vout.size());
     for (const auto& txout : wtx.tx->vout) {
         result.txout_is_mine.emplace_back(wallet.IsMine(txout));
+        result.txout_is_change.push_back(OutputIsChange(wallet, txout));
         result.txout_address.emplace_back();
-        result.txout_address_is_mine.emplace_back(ExtractDestination(txout.scriptPubKey, result.txout_address.back()) ?
+        result.txout_address_is_mine.emplace_back(ExtractDestination(txout.scriptPubKey, result.txout_address.back(), nullptr, true) ?
                                                       wallet.IsMine(result.txout_address.back()) :
                                                       ISMINE_NO);
     }
@@ -98,7 +99,7 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
     {
         CTxDestination tx_sender_address;
         if(wtx.tx && wtx.tx->vin.size() > 0 && wallet.mapWallet.find(wtx.tx->vin[0].prevout.hash) != wallet.mapWallet.end() &&
-                ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address)) {
+                ExtractDestination(wallet.mapWallet.at(wtx.tx->vin[0].prevout.hash).tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey, tx_sender_address, nullptr, true)) {
             result.tx_sender_key = wallet.GetKeyForDestination(tx_sender_address);
         }
 
@@ -465,9 +466,22 @@ public:
         return m_wallet->GetAddressReceiveRequests();
     }
     bool setAddressReceiveRequest(const CTxDestination& dest, const std::string& id, const std::string& value) override {
+        // Note: The setAddressReceiveRequest interface used by the GUI to store
+        // receive requests is a little awkward and could be improved in the
+        // future:
+        //
+        // - The same method is used to save requests and erase them, but
+        //   having separate methods could be clearer and prevent bugs.
+        //
+        // - Request ids are passed as strings even though they are generated as
+        //   integers.
+        //
+        // - Multiple requests can be stored for the same address, but it might
+        //   be better to only allow one request or only keep the current one.
         LOCK(m_wallet->cs_wallet);
         WalletBatch batch{m_wallet->GetDatabase()};
-        return m_wallet->SetAddressReceiveRequest(batch, dest, id, value);
+        return value.empty() ? m_wallet->EraseAddressReceiveRequest(batch, dest, id)
+                             : m_wallet->SetAddressReceiveRequest(batch, dest, id, value);
     }
     bool displayAddress(const CTxDestination& dest) override
     {
@@ -698,7 +712,7 @@ public:
         {
             CTxDestination address;
             const CScript& scriptPubKey = out.txout.scriptPubKey;
-            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+            bool fValidAddress = ExtractDestination(scriptPubKey, address, nullptr, true);
 
             if(fValidAddress && EncodeDestination(address) == qtumAddress && out.txout.nValue)
             {
@@ -730,7 +744,7 @@ public:
             for (const auto& item : m_wallet->m_address_book) {
                 if(!m_wallet->IsMine(item.first)) continue;
                 if(item.second.purpose != AddressPurpose::RECEIVE) continue;
-                if(item.second.destdata.size() == 0) continue;
+                if(item.second.receive_requests.size() == 0) continue;
 
                 std::string strAddress = EncodeDestination(item.first);
                 if (mapAddress.find(strAddress) == mapAddress.end())
@@ -756,7 +770,7 @@ public:
         {
             CTxDestination address;
             const CScript& scriptPubKey = out.txout.scriptPubKey;
-            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+            bool fValidAddress = ExtractDestination(scriptPubKey, address, nullptr, true);
 
             if (!fValidAddress || !m_wallet->IsMine(address)) continue;
 
@@ -1650,6 +1664,18 @@ public:
         } else {
             return util::Error{error};
         }
+    }
+    util::Result<WalletMigrationResult> migrateWallet(const std::string& name, const SecureString& passphrase) override
+    {
+        auto res = wallet::MigrateLegacyToDescriptor(name, passphrase, m_context);
+        if (!res) return util::Error{util::ErrorString(res)};
+        WalletMigrationResult out{
+            .wallet = MakeWallet(m_context, res->wallet),
+            .watchonly_wallet_name = res->watchonly_wallet ? std::make_optional(res->watchonly_wallet->GetName()) : std::nullopt,
+            .solvables_wallet_name = res->solvables_wallet ? std::make_optional(res->solvables_wallet->GetName()) : std::nullopt,
+            .backup_path = res->backup_path,
+        };
+        return {std::move(out)}; // std::move to work around clang bug
     }
     std::string getWalletDir() override
     {

@@ -58,14 +58,6 @@
         <translation type="unfinished">Seç</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Göndərilən ünvanlar</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Alınan ünvanlar</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Bunlar ödənişləri göndərmək üçün Qtum ünvanlarınızdır. pul göndərməzdən əvvəl həmişə miqdarı və göndəriləcək ünvanı yoxlayın.</translation>
     </message>
@@ -719,7 +711,7 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
     </message>
     <message>
         <source>Error: %1</source>
-        <translation type="unfinished">Xəta: %1</translation>
+        <translation type="unfinished">XƏta: %1</translation>
     </message>
     <message>
         <source>Warning: %1</source>
@@ -824,10 +816,6 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
         <translation type="unfinished">Komissiya:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Toz:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Komissiydan sonra:</translation>
     </message>
@@ -916,28 +904,12 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
         <translation type="unfinished">Baytları koyalayın</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Tozu kopyalayın</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Dəyişikliyi kopyalayın</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 kilidləndi)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">bəli</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">xeyr</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Əgər alıcı məbləği cari toz həddindən az alarsa bu etiket qırmızı olur.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1111,14 +1083,6 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
     <message>
         <source>Make Blank Wallet</source>
         <translation type="unfinished">Boş pulqabı yaradın</translation>
-    </message>
-    <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Publik açar skripti (scriptPubKey) idarəetməsi üçün deskreptorlardan itifadə edin</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Deskriptor pulqabı</translation>
     </message>
     <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
@@ -1463,10 +1427,6 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
         <translation type="unfinished">Gizlə</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Toz:</translation>
-    </message>
-    <message>
         <source>Copy quantity</source>
         <translation type="unfinished">Miqdarı kopyalayın</translation>
     </message>
@@ -1485,10 +1445,6 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Baytları koyalayın</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Tozu kopyalayın</translation>
     </message>
     <message>
         <source>Copy change</source>

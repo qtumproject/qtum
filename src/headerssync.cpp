@@ -9,13 +9,10 @@
 #include <util/check.h>
 #include <util/vector.h>
 
-// The two Bitcoin constants are computed using the simulation script on
-// https://gist.github.com/sipa/016ae445c132cdf65a2791534dfb7ae1
-// The two Qtum constants below are computed using the simulation script on
-// qtum/contrib/sync/headersync_params.py
-// It is the same simulation as for Bitcoin, just updated with Qtum parameters.
+// The two constants below are computed using the simulation script in
+// contrib/devtools/headerssync-params.py.
 
-//! Store a commitment to a header every HEADER_COMMITMENT_PERIOD blocks.
+//! Store one header commitment per HEADER_COMMITMENT_PERIOD blocks.
 constexpr size_t HEADER_COMMITMENT_PERIOD{59};
 
 //! Only feed headers to validation once this many headers on top have been
@@ -294,7 +291,7 @@ bool HeadersSyncState::ValidateAndStoreRedownloadedHeader(const CBlockHeader& he
     }
 
     // Store this header for later processing.
-    m_redownloaded_headers.push_back(header);
+    m_redownloaded_headers.emplace_back(header);
     m_redownload_buffer_last_height = next_height;
     m_redownload_buffer_last_hash = header.GetHash();
 

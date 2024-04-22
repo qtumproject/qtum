@@ -5,7 +5,9 @@
 #include <bench/bench.h>
 #include <bench/data.h>
 #include <chainparams.h>
+#include <clientversion.h>
 #include <test/util/setup_common.h>
+#include <util/chaintype.h>
 #include <validation.h>
 
 /**
@@ -22,7 +24,7 @@
  */
 static void LoadExternalBlockFile(benchmark::Bench& bench)
 {
-    const auto testing_setup{MakeNoLogFileContext<const TestingSetup>(CBaseChainParams::MAIN)};
+    const auto testing_setup{MakeNoLogFileContext<const TestingSetup>(ChainType::MAIN)};
 
     // Create a single block as in the blocks files (magic bytes, block size,
     // block data) as a stream object.
@@ -33,7 +35,7 @@ static void LoadExternalBlockFile(benchmark::Bench& bench)
     ss << static_cast<uint32_t>(benchmark::data::blockbench.size());
     // We can't use the streaming serialization (ss << benchmark::data::blockbench)
     // because that first writes a compact size.
-    ss.write(MakeByteSpan(benchmark::data::blockbench));
+    ss << Span{benchmark::data::blockbench};
 
     // Create the test file.
     {
@@ -48,14 +50,13 @@ static void LoadExternalBlockFile(benchmark::Bench& bench)
         fclose(file);
     }
 
-    Chainstate& chainstate{testing_setup->m_node.chainman->ActiveChainstate()};
     std::multimap<uint256, FlatFilePos> blocks_with_unknown_parent;
     FlatFilePos pos;
     bench.run([&] {
         // "rb" is "binary, O_RDONLY", positioned to the start of the file.
         // The file will be closed by LoadExternalBlockFile().
-        FILE* file{fsbridge::fopen(blkfile, "rb")};
-        chainstate.LoadExternalBlockFile(file, &pos, &blocks_with_unknown_parent);
+        CAutoFile file{fsbridge::fopen(blkfile, "rb"), CLIENT_VERSION};
+        testing_setup->m_node.chainman->LoadExternalBlockFile(file, &pos, &blocks_with_unknown_parent);
     });
     fs::remove(blkfile);
 }

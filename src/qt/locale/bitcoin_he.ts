@@ -58,14 +58,6 @@
         <translation type="unfinished">&amp;בחירה</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">כתובת לשליחה</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">כתובות לקבלה</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">אלה כתובות הקטום שלך לשליחת תשלומים. חשוב לבדוק את הסכום ואת הכתובת המקבלת לפני שליחת מטבעות.</translation>
     </message>
@@ -164,7 +156,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">אישור הצפנת הארנק</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source> 
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">אזהרה: הצפנת הארנק שלך ושיכחת הסיסמה &lt;b&gt;תגרום לאיבוד כל הביטקוינים שלך&lt;/b&gt;!</translation>
     </message>
     <message>
@@ -184,7 +176,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">נא לספק את הסיסמה הישנה ולתת סיסמה חדשה לארנק.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source> 
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">זכור שהצפנת הארנק לא יכולה להגן עליך לגמרי מגניבת המטבעות שלך על ידי תוכנה זדונית שנמצאת על המחשב שלך.</translation>
     </message>
     <message>
@@ -568,13 +560,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Indexing blocks on disk…</source>
-        <translation type="unfinished">מעביר לאינדקס בלוקים בדיסק...
-</translation>
+        <translation type="unfinished">מעביר לאינדקס בלוקים בדיסק...</translation>
     </message>
     <message>
         <source>Processing blocks on disk…</source>
-        <translation type="unfinished">מעבד בלוקים בדיסק...
-</translation>
+        <translation type="unfinished">מעבד בלוקים בדיסק...</translation>
     </message>
     <message>
         <source>Connecting to peers…</source>
@@ -759,7 +749,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ה&amp;צגה</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -784,7 +774,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Enable network activity</source>
         <extracomment>A context menu item. The network activity was disabled previously.</extracomment>
-        <translation type="unfinished">הפעלת הרשת</translation>
+        <translation type="unfinished">הפעלת פעילות רשת</translation>
     </message>
     <message>
         <source>Pre-syncing Headers (%1%)…</source>
@@ -893,10 +883,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">עמלה:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">אבק:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">לאחר עמלה:</translation>
     </message>
@@ -973,28 +959,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">העתקת בתים</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">העתקת אבק</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">העתקת השינוי</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 נעולים)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">כן</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">לא</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">תווית זו הופכת לאדומה אם מישהו מהנמענים מקבל סכום נמוך יותר מסף האבק הנוכחי.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1128,20 +1098,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">יצירת ארנק ריק</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">השתמש ב descriptors לניהול scriptPubKey </translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">ארנק Descriptor </translation>
-    </message>
-    <message>
         <source>Create</source>
         <translation type="unfinished">יצירה</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">מהודר ללא תמיכת sqlite (נחוץ לארנקי דסקריפטור)</translation>
     </message>
     </context>
 <context>
@@ -1353,9 +1311,9 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">ייתכן שהעברות שבוצעו לאחרונה לא יופיעו עדיין, ולכן המאזן בארנק שלך יהיה שגוי. המידע הנכון יוצג במלואו כאשר הארנק שלך יסיים להסתנכרן עם רשת הקטום, כמפורט למטה.</translation>
-   </message>
+    </message>
     <message>
-        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source> 
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">הרשת תסרב לקבל הוצאת ביטקוינים במידה והם כבר נמצאים בהעברות אשר לא מוצגות עדיין.</translation>
     </message>
     <message>
@@ -1395,7 +1353,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>OpenURIDialog</name>
     <message>
         <source>Open qtum URI</source>
-        <translation type="unfinished">פתיחת כתובת משאב קטום</translation> 
+        <translation type="unfinished">פתיחת כתובת משאב קטום</translation>
     </message>
     <message>
         <source>URI:</source>
@@ -1801,6 +1759,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished"> * שליחת %1 אל %2</translation>
     </message>
     <message>
+        <source>own address</source>
+        <translation type="unfinished">כתובת עצמית</translation>
+    </message>
+    <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
         <translation type="unfinished">לא מצליח לחשב עמלת עיסקה או הערך הכולל של העיסקה.</translation>
     </message>
@@ -1865,8 +1827,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
-        <translation type="unfinished">לא ניתן לנתח את כתובת המשאב! מצב זה יכול לקרות עקב כתובת קטום שגויה או פרמטרים שגויים בכתובת המשאב.</translation> 
-   </message>
+        <translation type="unfinished">לא ניתן לנתח את כתובת המשאב! מצב זה יכול לקרות עקב כתובת קטום שגויה או פרמטרים שגויים בכתובת המשאב.</translation>
+    </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">טיפול בקובצי בקשות תשלום</translation>
@@ -2484,10 +2446,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ניקוי של כל השדות בטופס.</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">אבק:</translation>
-    </message>
-    <message>
         <source>Hide transaction fee settings</source>
         <translation type="unfinished">הסתרת הגדרות עמלת עסקה</translation>
     </message>
@@ -2548,10 +2506,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">העתקת בתים</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">העתקת אבק</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">העתקת השינוי</translation>
     </message>
@@ -2601,9 +2555,9 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">תוכלו להגדיל את העמלה מאוחר יותר (איתות Replace-By-Fee, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source> 
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">בבקשה לסקור את העיסקה המוצעת. הדבר יצור עיסקת קטום חתומה חלקית (PSBT) אשר ניתן לשמור או להעתיק ואז לחתום עם למשל ארנק לא מקוון %1, או עם ארנק חומרה תואם-PSBT.</translation> 
+        <translation type="unfinished">בבקשה לסקור את העיסקה המוצעת. הדבר יצור עיסקת קטום חתומה חלקית (PSBT) אשר ניתן לשמור או להעתיק ואז לחתום עם למשל ארנק לא מקוון %1, או עם ארנק חומרה תואם-PSBT.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -2666,7 +2620,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Qtum address</source> 
+        <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">אזהרה: כתובת ביטקיון שגויה</translation>
     </message>
     <message>
@@ -2721,7 +2675,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">הסכום לשליחה במטבע הנבחר</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source> 
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">העמלה תנוכה מהסכום שנשלח. הנמען יקבל פחות ביטקוינים ממה שסיפקת בשדה הסכום. אם נבחרו מספר נמענים, העמלה תחולק באופן שווה.</translation>
     </message>
     <message>
@@ -2767,7 +2721,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">חתימה על הו&amp;דעה</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source> 
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">אפשר לחתום על הודעות/הסכמים באמצעות הכתובות שלך, כדי להוכיח שבאפשרותך לקבל את הביטקוינים הנשלחים אליהן. יש להיזהר ולא לחתום על תוכן עמום או אקראי, מכיוון שתקיפות דיוג עשויות לנסות לגנוב את זהותך. יש לחתום רק על הצהרות מפורטות שהנך מסכים/ה להן.</translation>
     </message>
     <message>
@@ -2797,7 +2751,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">ניתן לחתום על ההודעה כדי להוכיח שכתובת קטום זו בבעלותך</translation>
-   </message>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">&amp;חתימה על הודעה</translation>
@@ -2833,7 +2787,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">ניתן לאמת את ההודעה כדי להבטיח שהיא נחתמה עם כתובת הקטום הנתונה</translation>
-   </message>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">&amp;אימות הודעה</translation>
@@ -3123,10 +3077,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">נשלח אל</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">תשלום לעצמך</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">נכרו</translation>
     </message>
@@ -3200,10 +3150,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sent to</source>
         <translation type="unfinished">נשלח אל</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">לעצמך</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3443,10 +3389,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation type="unfinished">מופץ תחת רשיון התוכנה של MIT, ראה קובץ מלווה  %s או %s</translation>
-    </message>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">שגיאה בנסיון לקרוא את %s! כל המפתחות נקראו נכונה, אך נתוני העסקה או הכתובות יתכן שחסרו או שגויים.</translation>
     </message>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>

@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">Δεξί-κλικ για επεξεργασία της διεύθυνσης ή  ετικέτας</translation>
+        <translation type="unfinished">Δεξί-κλικ για επεξεργασία της διεύθυνσης ή της ετικέτας</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -56,14 +56,6 @@
     <message>
         <source>C&amp;hoose</source>
         <translation type="unfinished">Ε&amp;πιλογή</translation>
-    </message>
-    <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Διευθύνσεις αποστολής</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Διευθύνσεις λήψης</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
@@ -499,7 +491,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Υπογραφή &amp;μηνύματος...</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source> 
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Υπογράψτε ένα μήνυμα για να βεβαιώσετε πως είστε ο κάτοχος αυτής της διεύθυνσης</translation>
     </message>
     <message>
@@ -747,8 +739,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n active connection(s) to Qtum network.</numerusform>
-            <numerusform>%n active connection(s) to Qtum network.</numerusform>
+            <numerusform>1%n  ενεργές συνδέσεις στο δίκτυο Qtum.</numerusform>
+            <numerusform>%n ενεργές συνδέσεις στο δίκτυο Qtum.</numerusform>
         </translation>
     </message>
     <message>
@@ -874,10 +866,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Ταρίφα:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Σκόνη:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Ταρίφα αλλαγής:</translation>
     </message>
@@ -966,28 +954,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Αντιγραφή των bytes</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Αντιγραφή σκόνης</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Αντιγραφή αλλαγής</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 κλειδωμένο)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">ναι</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">όχι</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Αυτή η ετικέτα γίνεται κόκκινη εάν οποιοσδήποτε παραλήπτης λάβει ένα ποσό μικρότερο από το τρέχον όριο σκόνης.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1163,14 +1135,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Δημιουργία Άδειου Πορτοφολιού</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">χρήση περιγραφέων για την διαχείριση του scriptPubKey</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Πορτοφόλι Περιγραφέα </translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Χρησιμοποιήστε μια εξωτερική συσκευή υπογραφής, όπως ένα πορτοφόλι υλικού. Ρυθμίστε πρώτα στις προτιμήσεις του πορτοφολιού το εξωτερικό script υπογραφής.</translation>
     </message>
@@ -1181,10 +1145,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Create</source>
         <translation type="unfinished">Δημιουργία</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Μεταγλωτίστηκε χωρίς την υποστήριξη sqlite (απαραίτητη για περιγραφικά πορτοφόλια )</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1929,6 +1889,10 @@ ID Συναλλαγής: %1</translation>
     <message>
         <source> * Sends %1 to %2</source>
         <translation type="unfinished">* Στέλνει %1 προς  %2</translation>
+    </message>
+    <message>
+        <source>own address</source>
+        <translation type="unfinished">δική σας διεύθυνση</translation>
     </message>
     <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
@@ -2705,10 +2669,6 @@ ID Συναλλαγής: %1</translation>
         <translation type="unfinished">Προσθήκες...</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Σκόνη:</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">Επιλογή...</translation>
     </message>
@@ -2783,10 +2743,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Αντιγραφή των bytes</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Αντιγραφή σκόνης</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -3035,7 +2991,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Διεύθυνση Qtum που θα σταλεί το μήνυμα</translation>
-  </message>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">Επιλογή διεύθυνσης που έχει ήδη χρησιμοποιηθεί</translation>
@@ -3396,10 +3352,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">Αποστέλλονται προς</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Πληρωμή στον εαυτό σας</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Εξόρυξη</translation>
     </message>
@@ -3473,10 +3425,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Αποστέλλονται προς</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Στον εαυτό σου</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3762,10 +3710,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">Διανέμεται υπό την άδεια χρήσης του λογισμικού MIT, δείτε το συνοδευτικό αρχείο %s ή %s</translation>
     </message>
     <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Σφάλμα κατά την ανάγνωση %s! Όλα τα κλειδιά διαβάζονται σωστά, αλλά τα δεδομένα των συναλλαγών ή οι καταχωρίσεις του βιβλίου διευθύνσεων ενδέχεται να λείπουν ή να είναι εσφαλμένα.</translation>
-    </message>
-    <message>
         <source>Error: Dumpfile format record is incorrect. Got "%s", expected "format".</source>
         <translation type="unfinished">Σφάλμα: Η καταγραφή του φορμά του αρχείου dump είναι εσφαλμένη. Ελήφθη: «%s», αναμενόταν: «φορμά».</translation>
     </message>
@@ -3860,10 +3804,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Cannot write to data directory '%s'; check permissions.</source>
         <translation type="unfinished">Αδύνατη η εγγραφή στον κατάλογο δεδομένων '%s'. Ελέγξτε τα δικαιώματα.</translation>
-    </message>
-    <message>
-        <source>The -txindex upgrade started by a previous version cannot be completed. Restart with the previous version or run a full -reindex.</source>
-        <translation type="unfinished">Η αναβάθμιση -txindex που άρχισε από προηγούμενη έκδοση δεν μπορεί να ολοκληρωθεί. Επανεκινήστε με προηγούμενη έκδοση ή τρέξτε ένα ολοκληρωμένο -renindex</translation>
     </message>
     <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>

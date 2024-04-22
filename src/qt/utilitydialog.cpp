@@ -13,8 +13,8 @@
 #include <qt/guiutil.h>
 
 #include <clientversion.h>
+#include <common/args.h>
 #include <init.h>
-#include <util/system.h>
 #include <util/strencodings.h>
 
 #include <cstdio>
@@ -58,7 +58,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
         ui->helpMessage->setVisible(false);
     } else {
         setWindowTitle(tr("Command-line options"));
-        QString header = "Usage:  qtum-qt [command-line options]                     \n"; 
+        QString header = "Usage:  qtum-qt [command-line options]                     \n";
         QTextCursor cursor(ui->helpMessage->document());
         cursor.insertText(version);
         cursor.insertBlock();

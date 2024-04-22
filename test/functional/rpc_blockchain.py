@@ -49,7 +49,6 @@ from test_framework.util import (
     assert_raises_rpc_error,
     assert_is_hex_string,
     assert_is_hash_string,
-    get_datadir_path,
 )
 from test_framework.wallet import MiniWallet
 
@@ -194,64 +193,52 @@ class BlockchainTest(BitcoinTestFramework):
 
     def check_signalling_deploymentinfo_result(self, gdi_result, height, blockhash, status_next):
         assert height >= 2044 and height <= 2187
-        
+
         assert_equal(gdi_result, {
-                'hash': blockhash,
-                'height': height,
-                'deployments': {
-                    'bip34': {
-                        'type': 'buried',
-                        'active': True,
-                        'height': 0
+          "hash": blockhash,
+          "height": height,
+          "deployments": {
+            'bip34': {'type': 'buried', 'active': True, 'height': 0},
+            'bip66': {'type': 'buried', 'active': True, 'height': 0},
+            'bip65': {'type': 'buried', 'active': True, 'height': 0},
+            'csv': {'type': 'buried', 'active': True, 'height': 432},
+            'segwit': {'type': 'buried', 'active': True, 'height': 0},
+            'testdummy': {
+                'type': 'bip9',
+                'bip9': {
+                    'bit': 28,
+                    'start_time': 0,
+                    'timeout': 9223372036854775807,
+                    'min_activation_height': 0,
+                    'status': 'started',
+                    'status_next': status_next,
+                    'since': 432,
+                    'statistics': {
+                        'period': 144,
+                        'threshold': 108,
+                        'elapsed': height - 143,
+                        'count': height - 143,
+                        'possible': True,
                     },
-                    'bip66': {
-                        'type': 'buried',
-                        'active': True,
-                        'height': 0
-                    },
-                    'bip65': {
-                        'type': 'buried',
-                        'active': True,
-                        'height': 0
-                    },
-                    'csv': {
-                        'type': 'buried',
-                        'active': True,
-                        'height': 432
-                    },
-                    'segwit': {
-                        'type': 'buried',
-                        'active': True,
-                        'height': 0
-                    },
-                    'testdummy': {
-                        'type': 'bip9',
-                        'height': 432,
-                        'active': True,
-                        'bip9': {
-                            'start_time': 0,
-                            'timeout': 9223372036854775807,
-                            'min_activation_height': 0,
-                            'status': 'active',
-                            'since': 432,
-                            'status_next': 'active'
-                        }
-                    },
-                    'taproot': {
-                        'type': 'bip9',
-                        'height': 0,
-                        'active': True,
-                        'bip9': {
-                            'start_time': -1,
-                            'timeout': 9223372036854775807,
-                            'min_activation_height': 0,
-                            'status': 'active',
-                            'since': 0,
-                            'status_next': 'active'
-                        }
-                    }
-                }
-            })
+                    'signalling': '#'*(height-143),
+                },
+                'active': False
+            },
+            'taproot': {
+                'type': 'bip9',
+                'bip9': {
+                    'start_time': -1,
+                    'timeout': 9223372036854775807,
+                    'min_activation_height': 0,
+                    'status': 'active',
+                    'status_next': 'active',
+                    'since': 0,
+                },
+                'height': 0,
+                'active': True
+            }
+          }
+        })
 
     def _test_getdeploymentinfo(self):
         # Note: continues past -stopatheight height, so must be invoked
@@ -354,7 +341,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert size > 6400
         assert size < 192000
         assert_equal(len(res['bestblock']), 64)
-        assert_equal(len(res['hash_serialized_2']), 64)
+        assert_equal(len(res['hash_serialized_3']), 64)
 
         self.log.info("Test gettxoutsetinfo works for blockchain with just the genesis block")
         b1hash = node.getblockhash(2001)
@@ -367,7 +354,7 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res2['txouts'], 2000)
         assert_equal(res2['bogosize'], 168000),
         assert_equal(res2['bestblock'], node.getblockhash(2000))
-        assert_equal(len(res2['hash_serialized_2']), 64)
+        assert_equal(len(res2['hash_serialized_3']), 64)
 
         self.log.info("Test gettxoutsetinfo returns the same result after invalidate/reconsider block")
         node.reconsiderblock(b1hash)
@@ -379,20 +366,20 @@ class BlockchainTest(BitcoinTestFramework):
         assert_equal(res, res3)
 
         self.log.info("Test gettxoutsetinfo hash_type option")
-        # Adding hash_type 'hash_serialized_2', which is the default, should
+        # Adding hash_type 'hash_serialized_3', which is the default, should
         # not change the result.
-        res4 = node.gettxoutsetinfo(hash_type='hash_serialized_2')
+        res4 = node.gettxoutsetinfo(hash_type='hash_serialized_3')
         del res4['disk_size']
         assert_equal(res, res4)
 
         # hash_type none should not return a UTXO set hash.
         res5 = node.gettxoutsetinfo(hash_type='none')
-        assert 'hash_serialized_2' not in res5
+        assert 'hash_serialized_3' not in res5
 
         # hash_type muhash should return a different UTXO set hash.
         res6 = node.gettxoutsetinfo(hash_type='muhash')
         assert 'muhash' in res6
-        assert res['hash_serialized_2'] != res6['muhash']
+        assert res['hash_serialized_3'] != res6['muhash']
 
         # muhash should not be returned unless requested.
         for r in [res, res2, res3, res4, res5]:
@@ -585,16 +572,15 @@ class BlockchainTest(BitcoinTestFramework):
         self.log.info("Test that getblock with verbosity 3 includes prevout")
         assert_vin_contains_prevout(3)
 
-        self.log.info("Test that getblock with verbosity 2 and 3 still works with pruned Undo data")
-        datadir = get_datadir_path(self.options.tmpdir, 0)
-
         self.log.info("Test getblock with invalid verbosity type returns proper error message")
         assert_raises_rpc_error(-3, "JSON value of type string is not of expected type number", node.getblock, blockhash, "2")
 
+        self.log.info("Test that getblock with verbosity 2 and 3 still works with pruned Undo data")
+
         def move_block_file(old, new):
-            old_path = os.path.join(datadir, self.chain, 'blocks', old)
-            new_path = os.path.join(datadir, self.chain, 'blocks', new)
-            os.rename(old_path, new_path)
+            old_path = self.nodes[0].blocks_path / old
+            new_path = self.nodes[0].blocks_path / new
+            old_path.rename(new_path)
 
         # Move instead of deleting so we can restore chain state afterwards
         move_block_file('rev00000.dat', 'rev_wrong')
