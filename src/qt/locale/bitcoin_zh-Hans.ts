@@ -1361,7 +1361,7 @@ The migration process will create a backup of the wallet before migrating. This 
 <context>
     <name>Intro</name>
     <message>
-        <source>Bitcoin</source>
+        <source>Qtum</source>
         <translation type="unfinished">QTUM</translation>
     </message>
     <message numerus="yes">

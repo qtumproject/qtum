@@ -184,8 +184,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Введите старую и новую парольные фразы для кошелька.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Помните, что шифрование кошелька не может полностью защитить ваши биткоины от кражи вредоносным ПО, заразившим ваш компьютер.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Помните, что шифрование кошелька не может полностью защитить ваши qtumы от кражи вредоносным ПО, заразившим ваш компьютер.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -711,7 +711,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">Открыть биткойн: URI</translation>
+        <translation type="unfinished">Открыть qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
