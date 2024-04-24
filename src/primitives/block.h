@@ -113,8 +113,10 @@ public:
     // network and disk
     std::vector<CTransactionRef> vtx;
 
-    // memory only
-    mutable bool fChecked;
+    // Memory-only flags for caching expensive checks
+    mutable bool fChecked;                            // CheckBlock()
+    mutable bool m_checked_witness_commitment{false}; // CheckWitnessCommitment()
+    mutable bool m_checked_merkle_root{false};        // CheckMerkleRoot()
 
     CBlock()
     {
@@ -137,6 +139,8 @@ public:
         CBlockHeader::SetNull();
         vtx.clear();
         fChecked = false;
+        m_checked_witness_commitment = false;
+        m_checked_merkle_root = false;
     }
 
     std::pair<COutPoint, unsigned int> GetProofOfStake() const //qtum
