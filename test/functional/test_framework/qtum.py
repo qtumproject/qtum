@@ -21,7 +21,7 @@ def generatesynchronized(node, numblocks, address=None, sync_with_nodes=[], mock
     blockhashes = []
     for i in range(0, max(numblocks//16, 0)):
         blockhashes += node.generatetoaddress(16, address)
-        wait_until_helper(lambda: all(n.getbestblockhash() == node.getbestblockhash() for n in sync_with_nodes))
+        wait_until_helper_internal(lambda: all(n.getbestblockhash() == node.getbestblockhash() for n in sync_with_nodes))
 
         # If more than 60 seconds elapses during the block generation, the nodes will disconnect since
         # the inactivity check for networking mix mocked and non-mocked time.
@@ -29,7 +29,7 @@ def generatesynchronized(node, numblocks, address=None, sync_with_nodes=[], mock
  
     if numblocks % 16:
         blockhashes += node.generatetoaddress(numblocks % 16, address)
-        wait_until_helper(lambda: all(n.getbestblockhash() == node.getbestblockhash() for n in sync_with_nodes))
+        wait_until_helper_internal(lambda: all(n.getbestblockhash() == node.getbestblockhash() for n in sync_with_nodes))
     return blockhashes
 
 def generateinitial(node, numblocks, address=None, sync_with_nodes=[]):

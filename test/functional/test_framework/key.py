@@ -190,7 +190,7 @@ class ECKey:
         if der_sig:
             return b'\x30' + bytes([4 + len(rb) + len(sb), 2, len(rb)]) + rb + bytes([2, len(sb)]) + sb
         else:
-            v = R[1] & 1
+            v = int(R.y) & 1
             v ^= high
             return bytes([27 + v + (4 if self.compressed else 0)]) + r.to_bytes(32, 'big') + s.to_bytes(32, 'big')
 
