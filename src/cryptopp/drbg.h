@@ -120,12 +120,12 @@ public:
 	virtual unsigned int GetMaxNonce() const=0;
 
 	//! \brief Provides the maximum size of a request to GenerateBlock
-	//! \returns The the maximum size of a request to GenerateBlock(), in bytes
+	//! \returns The maximum size of a request to GenerateBlock(), in bytes
 	//! \details The equivalent class constant is <tt>MAXIMUM_BYTES_PER_REQUEST</tt>
 	virtual unsigned int GetMaxBytesPerRequest() const=0;
 
 	//! \brief Provides the maximum number of requests before a reseed
-	//! \returns The the maximum number of requests before a reseed, in bytes
+	//! \returns The maximum number of requests before a reseed, in bytes
 	//! \details The equivalent class constant is <tt>MAXIMUM_REQUESTS_BEFORE_RESEED</tt>.
 	//!   <tt>MAXIMUM_REQUESTS_BEFORE_RESEED</tt> has been reduced from 2<sup>48</sup> to <tt>INT_MAX</tt>
 	//!   to fit the underlying C++ datatype.
