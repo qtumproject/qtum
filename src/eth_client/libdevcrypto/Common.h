@@ -113,7 +113,7 @@ inline bytesSec decryptSymNoAuth(SecureFixedHash<32> const& _k, h128 const& _iv,
 /// Recovers Public key from signed message hash.
 Public recover(Signature const& _sig, h256 const& _hash);
     
-/// Returns siganture of message hash.
+/// Returns signature of message hash.
 Signature sign(Secret const& _k, h256 const& _hash);
     
 /// Verify signature.
