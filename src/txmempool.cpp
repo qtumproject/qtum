@@ -1292,7 +1292,8 @@ void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewC
             }
             valtype addressBytes(32);
             std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
-            CMempoolAddressDeltaKey key(dest.index(), uint256(addressBytes), txhash, j, 1);
+            int addressIndexType = GetAddressIndexType(dest);
+            CMempoolAddressDeltaKey key(addressIndexType, uint256(addressBytes), txhash, j, 1);
             CMempoolAddressDelta delta(entry.GetTime().count(), prevout.nValue * -1, input.prevout.hash, input.prevout.n);
             mapAddress.insert(std::make_pair(key, delta));
             inserted.push_back(key);
@@ -1310,7 +1311,8 @@ void CTxMemPool::addAddressIndex(const CTxMemPoolEntry &entry, const CCoinsViewC
             }
             valtype addressBytes(32);
             std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
-            CMempoolAddressDeltaKey key(dest.index(), uint256(addressBytes), txhash, k, 0);
+            int addressIndexType = GetAddressIndexType(dest);
+            CMempoolAddressDeltaKey key(addressIndexType, uint256(addressBytes), txhash, k, 0);
             mapAddress.insert(std::make_pair(key, CMempoolAddressDelta(entry.GetTime().count(), out.nValue)));
             inserted.push_back(key);
         }

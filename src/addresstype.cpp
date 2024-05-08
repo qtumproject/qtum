@@ -270,3 +270,10 @@ bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, C
     }
     return false;
 }
+
+int GetAddressIndexType(const CTxDestination &dest)
+{
+    if(dest.index() > 1)
+        return dest.index() - 1; // PubKeyDestination and PKHash are considered the same
+    return dest.index();
+}

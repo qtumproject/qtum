@@ -185,4 +185,6 @@ struct DataVisitor
 
 bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet = NULL);
 
+int GetAddressIndexType(const CTxDestination& dest);
+
 #endif // BITCOIN_ADDRESSTYPE_H

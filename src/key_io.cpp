@@ -358,6 +358,13 @@ bool DecodeIndexKey(const std::string &str, uint256 &hashBytes, int &type)
             type = 4;
             return true;
         }
+
+        if (std::holds_alternative<WitnessV1Taproot>(dest)) {
+            const WitnessV1Taproot witnessV1Taproot = std::get<WitnessV1Taproot>(dest);
+            memcpy(hashBytes.data(), &witnessV1Taproot, 32);
+            type = 5;
+            return true;
+        }
     }
 
     return false;

@@ -577,6 +577,10 @@ bool getAddressFromIndex(const int &type, const uint256 &hash, std::string &addr
     } else if (type == 4) {
         std::vector<unsigned char> addressBytes(hash.begin(), hash.begin() + 20);
         address = EncodeDestination(WitnessV0KeyHash(uint160(addressBytes)));
+    } else if (type == 5) {
+        WitnessV1Taproot tap;
+        std::copy(hash.begin(), hash.end(), tap.begin());
+        address = EncodeDestination(tap);
     } else {
         return false;
     }

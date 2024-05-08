@@ -2282,10 +2282,11 @@ DisconnectResult Chainstate::DisconnectBlock(const CBlock& block, const CBlockIn
                     }
                     valtype addressBytes(32);
                     std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+                    int addressIndexType = GetAddressIndexType(dest);
                     // undo receiving activity
-                    addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.index(), uint256(addressBytes), pindex->nHeight, i, hash, k, false), out.nValue));
+                    addressIndex.push_back(std::make_pair(CAddressIndexKey(addressIndexType, uint256(addressBytes), pindex->nHeight, i, hash, k, false), out.nValue));
                     // undo unspent index
-                    addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(dest.index(), uint256(addressBytes), hash, k), CAddressUnspentValue()));
+                    addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(addressIndexType, uint256(addressBytes), hash, k), CAddressUnspentValue()));
                 }
             }
         }
@@ -2319,10 +2320,11 @@ DisconnectResult Chainstate::DisconnectBlock(const CBlock& block, const CBlockIn
                         }
                         valtype addressBytes(32);
                         std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+                        int addressIndexType = GetAddressIndexType(dest);
                         // undo spending activity
-                        addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.index(), uint256(addressBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
+                        addressIndex.push_back(std::make_pair(CAddressIndexKey(addressIndexType, uint256(addressBytes), pindex->nHeight, i, hash, j, true), prevout.nValue * -1));
                         // restore unspent index
-                        addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(dest.index(), uint256(addressBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight, isTxCoinStake)));
+                        addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(addressIndexType, uint256(addressBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue(prevout.nValue, prevout.scriptPubKey, undo.nHeight, isTxCoinStake)));
                     }
                 }
             }
@@ -3472,11 +3474,12 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
                         }
                         valtype addressBytes(32);
                         std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
-                        addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.index(), uint256(addressBytes), pindex->nHeight, i, tx.GetHash(), j, true), prevout.nValue * -1));
+                        int addressIndexType = GetAddressIndexType(dest);
+                        addressIndex.push_back(std::make_pair(CAddressIndexKey(addressIndexType, uint256(addressBytes), pindex->nHeight, i, tx.GetHash(), j, true), prevout.nValue * -1));
 
                         // remove address from unspent index
-                        addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(dest.index(), uint256(addressBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue()));
-                        spentIndex.push_back(std::make_pair(CSpentIndexKey(input.prevout.hash, input.prevout.n), CSpentIndexValue(tx.GetHash(), j, pindex->nHeight, prevout.nValue, dest.index(), uint256(addressBytes))));
+                        addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(addressIndexType, uint256(addressBytes), input.prevout.hash, input.prevout.n), CAddressUnspentValue()));
+                        spentIndex.push_back(std::make_pair(CSpentIndexKey(input.prevout.hash, input.prevout.n), CSpentIndexValue(tx.GetHash(), j, pindex->nHeight, prevout.nValue, addressIndexType, uint256(addressBytes))));
                     }
                 }
             }
@@ -3697,10 +3700,11 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
                     }
                     valtype addressBytes(32);
                     std::copy(bytesID.begin(), bytesID.end(), addressBytes.begin());
+                    int addressIndexType = GetAddressIndexType(dest);
                     // record receiving activity
-                    addressIndex.push_back(std::make_pair(CAddressIndexKey(dest.index(), uint256(addressBytes), pindex->nHeight, i, tx.GetHash(), k, false), out.nValue));
+                    addressIndex.push_back(std::make_pair(CAddressIndexKey(addressIndexType, uint256(addressBytes), pindex->nHeight, i, tx.GetHash(), k, false), out.nValue));
                     // record unspent output
-                    addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(dest.index(), uint256(addressBytes), tx.GetHash(), k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight, isTxCoinStake)));
+                    addressUnspentIndex.push_back(std::make_pair(CAddressUnspentKey(addressIndexType, uint256(addressBytes), tx.GetHash(), k), CAddressUnspentValue(out.nValue, out.scriptPubKey, pindex->nHeight, isTxCoinStake)));
                 }
             }
         }
