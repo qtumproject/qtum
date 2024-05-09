@@ -1103,10 +1103,10 @@ public:
                 // Address map
                 std::map<uint160, bool> mapAddress;
 
-                // Get all addreses with coins
+                // Get all addresses with coins
                 SelectAddress(mapAddress, nHeight);
 
-                // Get all addreses for delegations in the GUI
+                // Get all addresses for delegations in the GUI
                 for(auto item : pwallet->mapDelegation)
                 {
                     uint160 address = item.second.delegateAddress;
@@ -1943,7 +1943,7 @@ protected:
 
         if (SignBlock(d->pblockfilled, *(d->pwallet), d->nTotalFees, blockTime, d->setCoins, d->mapSolveSelectedCoins[blockTime], d->mapSolveDelegateCoins[blockTime], true)) {
             // Should always reach here unless we spent too much time processing transactions and the timestamp is now invalid
-            // CheckStake also does CheckBlock and AcceptBlock to propogate it to the network
+            // CheckStake also does CheckBlock and AcceptBlock to propagate it to the network
             bool validBlock = false;
             while(!validBlock) {
                 if (IsStale(d->pblockfilled)) {
