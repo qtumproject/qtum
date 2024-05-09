@@ -23,7 +23,7 @@ template <typename C> class Span;
 //Make sure is always equal or greater than MINIMUM_GAS_LIMIT (which we can't reference here due to insane header dependency chains)
 static const uint64_t STANDARD_MINIMUM_GAS_LIMIT = 10000;
 //contract executions with a price cheaper than this (in satoshis) are not standard
-//TODO this needs to be controlled by DGP and needs to be propogated from consensus parameters
+//TODO this needs to be controlled by DGP and needs to be propagated from consensus parameters
 static const uint64_t STANDARD_MINIMUM_GAS_PRICE = 1;
 
 enum class TxoutType {
