@@ -17,6 +17,11 @@ using node::BlockAssembler;
 
 namespace wallet {
 
+UniValue GetReqNetworkHashPS(const JSONRPCRequest& request, ChainstateManager& chainman)
+{
+    return GetNetworkHashPS(!request.params[0].isNull() ? request.params[0].getInt<int>() : 120, !request.params[1].isNull() ? request.params[1].getInt<int>() : -1, chainman.ActiveChain());
+}
+
 RPCHelpMan getmininginfo()
 {
     return RPCHelpMan{"getmininginfo",
@@ -81,8 +86,8 @@ RPCHelpMan getmininginfo()
     if (BlockAssembler::m_last_block_weight) obj.pushKV("currentblockweight", *BlockAssembler::m_last_block_weight);
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
 
-    diff.pushKV("proof-of-work",   GetDifficulty(GetLastBlockIndex(chainman.m_best_header, false)));
-    diff.pushKV("proof-of-stake",  GetDifficulty(GetLastBlockIndex(chainman.m_best_header, true)));
+    diff.pushKV("proof-of-work",   (double)GetDifficulty(GetLastBlockIndex(chainman.m_best_header, false)));
+    diff.pushKV("proof-of-stake",  (double)GetDifficulty(GetLastBlockIndex(chainman.m_best_header, true)));
     diff.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
     obj.pushKV("difficulty",       diff);
 
@@ -92,7 +97,7 @@ RPCHelpMan getmininginfo()
     obj.pushKV("netmhashps",       GetPoWMHashPS(chainman));
     obj.pushKV("netstakeweight",   GetPoSKernelPS(chainman));
     obj.pushKV("errors",           GetWarnings("statusbar").original);
-    obj.pushKV("networkhashps",    GetNetworkHashPS(self.Arg<int>(0), self.Arg<int>(1), chainman.ActiveChain()));
+    obj.pushKV("networkhashps",    GetReqNetworkHashPS(request, chainman));
     obj.pushKV("pooledtx",         (uint64_t)mempool.size());
 
     weight.pushKV("minimum",       (uint64_t)nWeight);
@@ -168,7 +173,7 @@ RPCHelpMan getstakinginfo()
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
     obj.pushKV("pooledtx", (uint64_t)mempool.size());
 
-    obj.pushKV("difficulty", GetDifficulty(GetLastBlockIndex(chainman.m_best_header, true)));
+    obj.pushKV("difficulty", (double)GetDifficulty(GetLastBlockIndex(chainman.m_best_header, true)));
     obj.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
 
     obj.pushKV("weight", (uint64_t)nStakerWeight);
