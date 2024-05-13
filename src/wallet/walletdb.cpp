@@ -872,41 +872,6 @@ static DBErrors LoadLegacyWalletRecords(CWallet* pwallet, DatabaseBatch& batch, 
     });
     result = std::max(result, wkey_res.m_result);
 
-    // Load token
-    LoadResult token_res = LoadRecords(pwallet, batch, DBKeys::TOKEN,
-        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
-        return LoadToken(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
-    });
-    result = std::max(result, token_res.m_result);
-
-    // Load token transaction
-    LoadResult token_tx_res = LoadRecords(pwallet, batch, DBKeys::TOKENTX,
-        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
-        return LoadTokenTx(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
-    });
-    result = std::max(result, token_tx_res.m_result);
-
-    // Load delegation
-    LoadResult delegation_res = LoadRecords(pwallet, batch, DBKeys::DELEGATION,
-        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
-        return LoadDelegation(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
-    });
-    result = std::max(result, delegation_res.m_result);
-
-    // Load super staker
-    LoadResult super_staker_res = LoadRecords(pwallet, batch, DBKeys::SUPERSTAKER,
-        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
-        return LoadSuperStaker(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
-    });
-    result = std::max(result, super_staker_res.m_result);
-
-    // Load contract data
-    LoadResult contract_data_res = LoadRecords(pwallet, batch, DBKeys::CONTRACTDATA,
-        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
-        return LoadContractData(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
-    });
-    result = std::max(result, contract_data_res.m_result);
-
     if (result <= DBErrors::NONCRITICAL_ERROR) {
         // Only do logging and time first key update if there were no critical errors
         pwallet->WalletLogPrintf("Legacy Wallet Keys: %u plaintext, %u encrypted, %u w/ metadata, %u total.\n",
@@ -1297,6 +1262,49 @@ static DBErrors LoadDecryptionKeys(CWallet* pwallet, DatabaseBatch& batch) EXCLU
     return mkey_res.m_result;
 }
 
+static DBErrors LoadSpecificRecords(CWallet* pwallet, DatabaseBatch& batch) EXCLUSIVE_LOCKS_REQUIRED(pwallet->cs_wallet)
+{
+    AssertLockHeld(pwallet->cs_wallet);
+    DBErrors result = DBErrors::LOAD_OK;
+
+    // Load token
+    LoadResult token_res = LoadRecords(pwallet, batch, DBKeys::TOKEN,
+        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
+        return LoadToken(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, token_res.m_result);
+
+    // Load token transaction
+    LoadResult token_tx_res = LoadRecords(pwallet, batch, DBKeys::TOKENTX,
+        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
+        return LoadTokenTx(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, token_tx_res.m_result);
+
+    // Load delegation
+    LoadResult delegation_res = LoadRecords(pwallet, batch, DBKeys::DELEGATION,
+        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
+        return LoadDelegation(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, delegation_res.m_result);
+
+    // Load super staker
+    LoadResult super_staker_res = LoadRecords(pwallet, batch, DBKeys::SUPERSTAKER,
+        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
+        return LoadSuperStaker(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, super_staker_res.m_result);
+
+    // Load contract data
+    LoadResult contract_data_res = LoadRecords(pwallet, batch, DBKeys::CONTRACTDATA,
+        [] (CWallet* pwallet, DataStream& key, CDataStream& value, std::string& err) {
+        return LoadContractData(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, contract_data_res.m_result);
+
+    return result;
+}
+
 DBErrors WalletBatch::LoadWallet(CWallet* pwallet)
 {
     DBErrors result = DBErrors::LOAD_OK;
@@ -1345,6 +1353,9 @@ DBErrors WalletBatch::LoadWallet(CWallet* pwallet)
 
         // Load decryption keys
         result = std::max(LoadDecryptionKeys(pwallet, *m_batch), result);
+
+        // Load qtum specific records
+        result = std::max(LoadSpecificRecords(pwallet, *m_batch), result);
     } catch (...) {
         // Exceptions that can be ignored or treated as non-critical are handled by the individual loading functions.
         // Any uncaught exceptions will be caught here and treated as critical.
