@@ -1386,7 +1386,9 @@ bool CWallet::AbandonTransaction(const uint256& hashTx)
 
     auto try_updating_state = [](CWalletTx& wtx) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet) {
         // If the orig tx was not in block/mempool, none of its spends can be.
-        assert(!wtx.isConfirmed());
+        if (!wtx.IsCoinStake()) {
+            assert(!wtx.isConfirmed());
+        }
         assert(!wtx.InMempool());
         // If already conflicted or abandoned, no need to set abandoned
         if (!wtx.isConflicted() && !wtx.isAbandoned()) {
