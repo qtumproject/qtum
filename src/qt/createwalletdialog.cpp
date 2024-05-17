@@ -50,6 +50,10 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
     });
 
     connect(ui->external_signer_checkbox, &QCheckBox::toggled, [this](bool checked) {
+        ui->hardware_wallet_checkbox->blockSignals(true);
+        if (checked) ui->hardware_wallet_checkbox->setChecked(false);
+        ui->hardware_wallet_checkbox->blockSignals(false);
+
         ui->encrypt_wallet_checkbox->setEnabled(!checked);
         ui->blank_wallet_checkbox->setEnabled(!checked);
         ui->disable_privkeys_checkbox->setEnabled(!checked);
@@ -96,26 +100,19 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
 #endif
     connect(ui->hardware_wallet_checkbox, &QCheckBox::toggled, [this](bool checked) {
 #ifdef ENABLE_EXTERNAL_SIGNER
-        // Uncheck external signer when hardware wallet is checked
-        if(checked) {
-            ui->external_signer_checkbox->setChecked(false);
-        }
+        ui->external_signer_checkbox->blockSignals(true);
+        if (checked) ui->external_signer_checkbox->setChecked(false);
+        ui->external_signer_checkbox->blockSignals(false);
 #endif
 
-        // Disable and uncheck encrypt_wallet_checkbox when isHardwareWalletChecked is true,
-        // enable and check it if isHardwareWalletChecked is false
-        ui->encrypt_wallet_checkbox->setChecked(!checked);
         ui->encrypt_wallet_checkbox->setEnabled(!checked);
-
-        // Disable disable_privkeys_checkbox
-        // and check it if isHardwareWalletChecked is true or uncheck if isHardwareWalletChecked is false
-        ui->disable_privkeys_checkbox->setEnabled(false);
-        ui->disable_privkeys_checkbox->setChecked(checked);
-
-        // Disable and check blank_wallet_checkbox if isHardwareWalletChecked is true and
-        // enable and uncheck it if isHardwareWalletChecked is false
         ui->blank_wallet_checkbox->setEnabled(!checked);
-        ui->blank_wallet_checkbox->setChecked(checked);
+        ui->disable_privkeys_checkbox->setEnabled(!checked);
+
+        // Toggling it restores the other options to their default.
+        ui->encrypt_wallet_checkbox->setChecked(false);
+        ui->disable_privkeys_checkbox->setChecked(checked);
+        ui->blank_wallet_checkbox->setChecked(false);
     });
 }
 

@@ -166,7 +166,7 @@
       <item>
        <widget class="QCheckBox" name="hardware_wallet_checkbox">
         <property name="toolTip">
-         <string>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</string>
+         <string>Use a hardware wallet device for signing. Configure the HWI tool path in main preferences first.</string>
         </property>
         <property name="text">
          <string>Use a hardware device</string>
