@@ -628,7 +628,13 @@ public:
         };
 
         m_assumeutxo_data = {
-         // TODO to be specified in a future patch.
+            {
+                // For use by test/functional/feature_assumeutxo.py
+                .height = 2199,
+                .hash_serialized = AssumeutxoHash{uint256S("0xa9e20f6c0c6531e44789f7a29df1939fa1c2e7d5c451b25c5201880628c57940")},
+                .nChainTx = 2200,
+                .blockhash = uint256S("0x66832161e18db8b9325ec765201657c4238992f27c36ba37111f1e2d55cc16cb")
+            },
         };
 
         chainTxData = ChainTxData{

@@ -656,7 +656,7 @@ RPCHelpMan listunspent()
     for (const COutput& out : vecOutputs) {
         CTxDestination address;
         const CScript& scriptPubKey = out.txout.scriptPubKey;
-        bool fValidAddress = ExtractDestination(scriptPubKey, address);
+        bool fValidAddress = ExtractDestination(scriptPubKey, address, nullptr, true);
         bool reused = avoid_reuse && pwallet->IsSpentKey(scriptPubKey);
 
         if (destinations.size() && (!fValidAddress || !destinations.count(address)))
