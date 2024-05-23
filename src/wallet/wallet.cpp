@@ -1590,6 +1590,7 @@ void CWallet::blockDisconnected(const interfaces::BlockInfo& block)
 
     for (const CTransactionRef& ptx : Assert(block.data)->vtx) {
         SyncTransaction(ptx, TxStateInactive{false, ptx->IsCoinStake()});
+        if(ptx->IsCoinStake()) continue;
 
         for (const CTxIn& tx_in : ptx->vin) {
             // No other wallet transactions conflicted with this transaction
