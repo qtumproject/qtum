@@ -34,7 +34,7 @@ INVALID_DATA = [
     ),
     (
         convert_btc_bech32_address_to_qtum("BC1QR508D6QEJXTDG4Y5R3ZARVARYV98GJ9P", main=True).upper(),
-        "Invalid Bech32 v0 address program size (16 byte), per BIP141",
+        "Invalid Bech32 v0 address program size (16 bytes), per BIP141",
         [],
     ),
     (
@@ -102,12 +102,12 @@ INVALID_DATA = [
     (convert_btc_bech32_address_to_qtum("bc1pw5dgrnzv", main=True), "Invalid Bech32 address program size (1 byte)", []),
     (
         convert_btc_bech32_address_to_qtum("bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v8n0nx0muaewav253zgeav", main=True),
-        "Invalid Bech32 address program size (41 byte)",
+        "Invalid Bech32 address program size (41 bytes)",
         [],
     ),
     (
         convert_btc_bech32_address_to_qtum("BC1QR508D6QEJXTDG4Y5R3ZARVARYV98GJ9P", main=True).upper(),
-        "Invalid Bech32 v0 address program size (16 byte), per BIP141",
+        "Invalid Bech32 v0 address program size (16 bytes), per BIP141",
         [],
     ),
     (

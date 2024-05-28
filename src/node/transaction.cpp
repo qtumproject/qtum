@@ -122,7 +122,7 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
     return TransactionError::OK;
 }
 
-CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, const Consensus::Params& consensusParams, uint256& hashBlock, Chainstate* chainstate)
+CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, uint256& hashBlock, const BlockManager& blockman, Chainstate* chainstate)
 {
     if (mempool && !block_index) {
         CTransactionRef ptx = mempool->get(hash);
@@ -143,7 +143,7 @@ CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMe
     }
     if (block_index) {
         CBlock block;
-        if (ReadBlockFromDisk(block, block_index, consensusParams)) {
+        if (blockman.ReadBlockFromDisk(block, *block_index)) {
             for (const auto& tx : block.vtx) {
                 if (tx->GetHash() == hash) {
                     hashBlock = block_index->GetBlockHash();
@@ -158,7 +158,7 @@ CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMe
         if (!coin.IsSpent()) pindexSlow = chainstate->m_chain[coin.nHeight];
         if (pindexSlow) {
             CBlock block;
-            if (ReadBlockFromDisk(block, pindexSlow, consensusParams)) {
+            if (blockman.ReadBlockFromDisk(block, *pindexSlow)) {
                 for (const auto& tx : block.vtx) {
                     if (tx->GetHash() == hash) {
                         hashBlock = pindexSlow->GetBlockHash();

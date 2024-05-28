@@ -90,7 +90,7 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(shanghaifork_tests, TestChain100Setup)
 
-void checkChainid(dev::h256& hashTx, ChainstateManager& chainman, const std::string& chain, const qtumutils::ChainIdType& chainId)
+void checkChainid(dev::h256& hashTx, ChainstateManager& chainman, const ChainType chain, const qtumutils::ChainIdType& chainId)
 {
     // Select params
     int nShanghaiHeight = Params().GetConsensus().nShanghaiHeight;
@@ -130,9 +130,9 @@ BOOST_AUTO_TEST_CASE(checking_shanghai_after_fork){
     dev::h256 hashTx(HASHTX);
 
     // Check chainid after fork
-    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::MAIN, qtumutils::ChainIdType::MAIN);
-    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::TESTNET, qtumutils::ChainIdType::TESTNET);
-    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::REGTEST, qtumutils::ChainIdType::REGTEST);
+    checkChainid(hashTx, *m_node.chainman, ChainType::MAIN, qtumutils::ChainIdType::MAIN);
+    checkChainid(hashTx, *m_node.chainman, ChainType::TESTNET, qtumutils::ChainIdType::TESTNET);
+    checkChainid(hashTx, *m_node.chainman, ChainType::REGTEST, qtumutils::ChainIdType::REGTEST);
 
     // Check eip-3855 after fork
     checkOpCode(hashTx, *m_node.chainman, CodeID::push0_1, dev::eth::TransactionException::None, 53018);
@@ -152,9 +152,9 @@ BOOST_AUTO_TEST_CASE(checking_shanghai_before_fork){
     dev::h256 hashTx(HASHTX);
 
     // Check chainid before fork
-    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::MAIN, qtumutils::ChainIdType::MAIN);
-    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::TESTNET, qtumutils::ChainIdType::MAIN);
-    checkChainid(hashTx, *m_node.chainman, CBaseChainParams::REGTEST, qtumutils::ChainIdType::MAIN);
+    checkChainid(hashTx, *m_node.chainman, ChainType::MAIN, qtumutils::ChainIdType::MAIN);
+    checkChainid(hashTx, *m_node.chainman, ChainType::TESTNET, qtumutils::ChainIdType::MAIN);
+    checkChainid(hashTx, *m_node.chainman, ChainType::REGTEST, qtumutils::ChainIdType::MAIN);
 
     // Check eip-3855 before fork
     checkOpCode(hashTx, *m_node.chainman, CodeID::push0_1, dev::eth::TransactionException::BadInstruction, GASLIMIT);

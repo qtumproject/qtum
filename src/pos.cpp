@@ -16,7 +16,8 @@
 #include <consensus/consensus.h>
 #include <util/signstr.h>
 #include <qtum/qtumdelegation.h>
-#include <script/standard.h>
+#include <script/solver.h>
+#include <logging.h>
 
 using namespace std;
 
@@ -37,9 +38,9 @@ uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kerne
     if (!pindexPrev)
         return uint256();  // genesis block's modifier is 0
 
-    CDataStream ss(SER_GETHASH, 0);
+    CHashWriter ss(0);
     ss << kernel << pindexPrev->nStakeModifier;
-    return Hash(ss);
+    return ss.GetHash();
 }
 
 // BlackCoin kernel protocol
@@ -87,10 +88,10 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     uint256 nStakeModifier = pindexPrev->nStakeModifier;
 
     // Calculate hash
-    CDataStream ss(SER_GETHASH, 0);
+    CHashWriter ss(0);
     ss << nStakeModifier;
     ss << blockFromTime << prevout.hash << prevout.n << nTimeBlock;
-    hashProofOfStake = Hash(ss);
+    hashProofOfStake = ss.GetHash();
 
     if (fPrintProofOfStake)
     {
@@ -292,7 +293,7 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
     // If the input does not exactly match the output, it MUST be on P2PKH spent and P2PK out.
     CTxDestination inputAddress;
     TxoutType inputTxType=TxoutType::NONSTANDARD;
-    if(!ExtractDestination(coinIn.out.scriptPubKey, inputAddress, &inputTxType)) {
+    if(!ExtractDestination(coinIn.out.scriptPubKey, inputAddress, &inputTxType, true)) {
         return error("%s: Could not extract address from input", __func__);
     }
 
@@ -302,7 +303,7 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
 
     CTxDestination outputAddress;
     TxoutType outputTxType=TxoutType::NONSTANDARD;
-    if(!ExtractDestination(txout.scriptPubKey, outputAddress, &outputTxType)) {
+    if(!ExtractDestination(txout.scriptPubKey, outputAddress, &outputTxType, true)) {
         return error("%s: Could not extract address from output", __func__);
     }
 
@@ -317,10 +318,10 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
     return true;
 }
 
-bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view, CChain& chain) {
+bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBlockHeader& block, CCoinsViewCache& view, Chainstate& chainstate) {
     Coin coinPrev;
     if(!view.GetCoin(block.prevoutStake, coinPrev)){
-        if(!GetSpentCoinFromMainChain(pindexPrev, block.prevoutStake, &coinPrev, chain)) {
+        if(!GetSpentCoinFromMainChain(pindexPrev, block.prevoutStake, &coinPrev, chainstate)) {
             return error("CheckRecoveredPubKeyFromBlockSignature(): Could not find %s and it was not at the tip", block.prevoutStake.hash.GetHex());
         }
     }
@@ -345,7 +346,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
             CTxDestination address;
             TxoutType txType=TxoutType::NONSTANDARD;
             if(pubkey.RecoverCompact(hash, vchBlockSig) &&
-                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType, true)){
                 if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
                     if(SignStr::VerifyMessage(ToKeyID(std::get<PKHash>(address)), pubkey.GetID().GetReverseHex(), vchPoD)) {
                         return true;
@@ -359,7 +360,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
             CTxDestination address;
             TxoutType txType=TxoutType::NONSTANDARD;
             if(pubkey.RecoverCompact(hash, vchBlockSig) &&
-                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                    ExtractDestination(coinPrev.out.scriptPubKey, address, &txType, true)){
                 if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
                     if(pubkey.GetID() == ToKeyID(std::get<PKHash>(address))) {
                         return true;
@@ -379,7 +380,7 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
 
                 CTxDestination address;
                 TxoutType txType=TxoutType::NONSTANDARD;
-                if(ExtractDestination(coinPrev.out.scriptPubKey, address, &txType)){
+                if(ExtractDestination(coinPrev.out.scriptPubKey, address, &txType, true)){
                     if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
                         if(pubkey.GetID() == ToKeyID(std::get<PKHash>(address))) {
                             return true;
@@ -393,13 +394,13 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
     return false;
 }
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, CChain& chain)
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, Chainstate& chainstate)
 {
     std::map<COutPoint, CStakeCache> tmp;
-    return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view, tmp, chain);
+    return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view, tmp, chainstate);
 }
 
-bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache, CChain& chain)
+bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBlock, const COutPoint& prevout, CCoinsViewCache& view, const std::map<COutPoint, CStakeCache>& cache, Chainstate& chainstate)
 {
     uint256 hashProofOfStake, targetProofOfStake;
     auto it=cache.find(prevout);
@@ -407,7 +408,7 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         //not found in cache (shouldn't happen during staking, only during verification which does not use cache)
         Coin coinPrev;
         if(!view.GetCoin(prevout, coinPrev)){
-            if(!GetSpentCoinFromMainChain(pindexPrev, prevout, &coinPrev, chain)) {
+            if(!GetSpentCoinFromMainChain(pindexPrev, prevout, &coinPrev, chainstate)) {
                 return error("CheckKernel(): Could not find coin and it was not at the tip");
             }
         }
@@ -433,7 +434,7 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         if(CheckStakeKernelHash(pindexPrev, nBits, stake.blockFromTime, stake.amount, prevout,
                                     nTimeBlock, hashProofOfStake, targetProofOfStake)){
             //Cache could potentially cause false positive stakes in the event of deep reorgs, so check without cache also
-            return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view, chain);
+            return CheckKernel(pindexPrev, nBits, nTimeBlock, prevout, view, chainstate);
         }
     }
     return false;

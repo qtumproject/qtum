@@ -13,7 +13,7 @@ Example usage:
 import sys
 from typing import List, Dict
 
-import lief #type:ignore
+import lief
 
 # Debian 10 (Buster) EOL: 2024. https://wiki.debian.org/LTS
 #
@@ -72,6 +72,25 @@ ELF_INTERPRETER_NAMES: Dict[lief.ELF.ARCH, Dict[lief.ENDIANNESS, str]] = {
     },
 }
 
+ELF_ABIS: Dict[lief.ELF.ARCH, Dict[lief.ENDIANNESS, List[int]]] = {
+    lief.ELF.ARCH.x86_64: {
+        lief.ENDIANNESS.LITTLE: [3,2,0],
+    },
+    lief.ELF.ARCH.ARM: {
+        lief.ENDIANNESS.LITTLE: [3,2,0],
+    },
+    lief.ELF.ARCH.AARCH64: {
+        lief.ENDIANNESS.LITTLE: [3,7,0],
+    },
+    lief.ELF.ARCH.PPC64: {
+        lief.ENDIANNESS.LITTLE: [3,10,0],
+        lief.ENDIANNESS.BIG: [3,2,0],
+    },
+    lief.ELF.ARCH.RISCV: {
+        lief.ENDIANNESS.LITTLE: [4,15,0],
+    },
+}
+
 # Allowed NEEDED libraries
 ELF_ALLOWED_LIBRARIES = {
 # bitcoind and bitcoin-qt
@@ -79,7 +98,6 @@ ELF_ALLOWED_LIBRARIES = {
 'libc.so.6', # C library
 'libpthread.so.0', # threading
 'libm.so.6', # math library
-'librt.so.1', # real-time (clock)
 'libatomic.so.1',
 'ld-linux-x86-64.so.2', # 64-bit dynamic linker
 'ld-linux.so.2', # 32-bit dynamic linker
@@ -142,21 +160,21 @@ PE_ALLOWED_LIBRARIES = {
 'KERNEL32.dll', # win32 base APIs
 'msvcrt.dll', # C standard library for MSVC
 'SHELL32.dll', # shell API
-'USER32.dll', # user interface
 'WS2_32.dll', # sockets
 # bitcoin-qt only
 'dwmapi.dll', # desktop window manager
 'GDI32.dll', # graphics device interface
 'IMM32.dll', # input method editor
-'NETAPI32.dll',
+'NETAPI32.dll', # network management
 'ole32.dll', # component object model
 'OLEAUT32.dll', # OLE Automation API
 'SHLWAPI.dll', # light weight shell API
-'USERENV.dll',
-'UxTheme.dll',
+'USER32.dll', # user interface
+'USERENV.dll', # user management
+'UxTheme.dll', # visual style
 'VERSION.dll', # version checking
 'WINMM.dll', # WinMM audio API
-'WTSAPI32.dll',
+'WTSAPI32.dll', # Remote Desktop
 }
 
 def check_version(max_versions, version, arch) -> bool:
@@ -216,12 +234,17 @@ def check_MACHO_libraries(binary) -> bool:
     return ok
 
 def check_MACHO_min_os(binary) -> bool:
-    if binary.build_version.minos == [10,15,0]:
+    if binary.build_version.minos == [11,0,0]:
         return True
     return False
 
 def check_MACHO_sdk(binary) -> bool:
     if binary.build_version.sdk == [11, 0, 0]:
+        return True
+    return False
+
+def check_MACHO_ld64(binary) -> bool:
+    if binary.build_version.tools[0].version == [711, 0, 0]:
         return True
     return False
 
@@ -245,17 +268,25 @@ def check_ELF_interpreter(binary) -> bool:
 
     return binary.concrete.interpreter == expected_interpreter
 
+def check_ELF_ABI(binary) -> bool:
+    expected_abi = ELF_ABIS[binary.header.machine_type][binary.abstract.header.endianness]
+    note = binary.concrete.get(lief.ELF.NOTE_TYPES.ABI_TAG)
+    assert note.details.abi == lief.ELF.NOTE_ABIS.LINUX
+    return note.details.version == expected_abi
+
 CHECKS = {
 lief.EXE_FORMATS.ELF: [
     ('IMPORTED_SYMBOLS', check_imported_symbols),
     ('EXPORTED_SYMBOLS', check_exported_symbols),
     ('LIBRARY_DEPENDENCIES', check_ELF_libraries),
     ('INTERPRETER_NAME', check_ELF_interpreter),
+    ('ABI', check_ELF_ABI),
 ],
 lief.EXE_FORMATS.MACHO: [
     ('DYNAMIC_LIBRARIES', check_MACHO_libraries),
     ('MIN_OS', check_MACHO_min_os),
     ('SDK', check_MACHO_sdk),
+    ('LD64', check_MACHO_ld64),
 ],
 lief.EXE_FORMATS.PE: [
     ('DYNAMIC_LIBRARIES', check_PE_libraries),

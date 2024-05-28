@@ -128,6 +128,7 @@ endif
 .PHONY: FORCE check-symbols check-security
 # bitcoin core #
 BITCOIN_CORE_H = \
+  addresstype.h \
   addrdb.h \
   addrman.h \
   addrman_impl.h \
@@ -135,6 +136,7 @@ BITCOIN_CORE_H = \
   banman.h \
   base58.h \
   bech32.h \
+  bip324.h \
   blockencodings.h \
   blockfilter.h \
   chain.h \
@@ -144,6 +146,7 @@ BITCOIN_CORE_H = \
   checkqueue.h \
   clientversion.h \
   coins.h \
+  common/args.h \
   common/bloom.h \
   common/init.h \
   common/run_command.h \
@@ -153,6 +156,8 @@ BITCOIN_CORE_H = \
   compat/compat.h \
   compat/cpuid.h \
   compat/endian.h \
+  common/settings.h \
+  common/system.h \
   compressor.h \
   consensus/consensus.h \
   consensus/tx_check.h \
@@ -192,10 +197,14 @@ BITCOIN_CORE_H = \
   kernel/coinstats.h \
   kernel/context.h \
   kernel/cs_main.h \
+  kernel/disconnected_transactions.h \
   kernel/mempool_entry.h \
   kernel/mempool_limits.h \
   kernel/mempool_options.h \
   kernel/mempool_persist.h \
+  kernel/mempool_removal_reason.h \
+  kernel/messagestartchars.h \
+  kernel/notifications_interface.h \
   kernel/validation_cache_sizes.h \
   key.h \
   key_io.h \
@@ -212,6 +221,7 @@ BITCOIN_CORE_H = \
   netbase.h \
   netgroup.h \
   netmessagemaker.h \
+  node/abort.h \
   node/blockmanager_args.h \
   node/blockstorage.h \
   node/caches.h \
@@ -224,10 +234,13 @@ BITCOIN_CORE_H = \
   node/database_args.h \
   node/eviction.h \
   node/interface_ui.h \
+  node/kernel_notifications.h \
   node/mempool_args.h \
   node/mempool_persist_args.h \
   node/miner.h \
+  node/mini_miner.h \
   node/minisketchwrapper.h \
+  node/peerman_args.h \
   node/psbt.h \
   node/transaction.h \
   node/txreconciliation.h \
@@ -269,10 +282,11 @@ BITCOIN_CORE_H = \
   script/sigcache.h \
   script/sign.h \
   script/signingprovider.h \
-  script/standard.h \
+  script/solver.h \
   shutdown.h \
   signet.h \
   streams.h \
+  support/allocators/pool.h \
   support/allocators/secure.h \
   support/allocators/zeroafterfree.h \
   support/cleanse.h \
@@ -287,10 +301,13 @@ BITCOIN_CORE_H = \
   txorphanage.h \
   txrequest.h \
   undo.h \
+  util/any.h \
   util/asmap.h \
+  util/batchpriority.h \
   util/bip32.h \
   util/bitdeque.h \
   util/bytevectorhash.h \
+  util/chaintype.h \
   util/check.h \
   util/epochguard.h \
   util/error.h \
@@ -303,6 +320,7 @@ BITCOIN_CORE_H = \
   util/golombrice.h \
   util/hash_type.h \
   util/hasher.h \
+  util/insert.h \
   util/macros.h \
   util/message.h \
   util/moneystr.h \
@@ -312,13 +330,11 @@ BITCOIN_CORE_H = \
   util/readwritefile.h \
   util/result.h \
   util/serfloat.h \
-  util/settings.h \
+  util/signalinterrupt.h \
   util/sock.h \
   util/spanparsing.h \
   util/string.h \
-  util/syscall_sandbox.h \
   util/syserror.h \
-  util/system.h \
   util/thread.h \
   util/threadinterrupt.h \
   util/threadnames.h \
@@ -385,17 +401,18 @@ BITCOIN_CORE_H = \
 
 obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
-	@$(top_srcdir)/share/genbuild.sh "$(abs_top_builddir)/src/obj/build.h" \
+	$(AM_V_GEN) $(top_srcdir)/share/genbuild.sh "$(abs_top_builddir)/src/obj/build.h" \
 	  "$(abs_top_srcdir)"
 libqtum_util_a-clientversion.$(OBJEXT): obj/build.h
 
 # node #
-libbitcoin_node_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(NATPMP_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libbitcoin_node_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(LEVELDB_CPPFLAGS) $(MINIUPNPC_CPPFLAGS) $(NATPMP_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libbitcoin_node_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_node_a_SOURCES = \
   addrdb.cpp \
   addrman.cpp \
   banman.cpp \
+  bip324.cpp \
   blockencodings.cpp \
   blockfilter.cpp \
   chain.cpp \
@@ -418,10 +435,12 @@ libbitcoin_node_a_SOURCES = \
   kernel/context.cpp \
   kernel/cs_main.cpp \
   kernel/mempool_persist.cpp \
+  kernel/mempool_removal_reason.cpp \
   mapport.cpp \
   net.cpp \
   net_processing.cpp \
   netgroup.cpp \
+  node/abort.cpp \
   node/blockmanager_args.cpp \
   node/blockstorage.cpp \
   node/caches.cpp \
@@ -435,10 +454,13 @@ libbitcoin_node_a_SOURCES = \
   node/eviction.cpp \
   node/interface_ui.cpp \
   node/interfaces.cpp \
+  node/kernel_notifications.cpp \
   node/mempool_args.cpp \
   node/mempool_persist_args.cpp \
   node/miner.cpp \
+  node/mini_miner.cpp \
   node/minisketchwrapper.cpp \
+  node/peerman_args.cpp \
   node/psbt.cpp \
   node/transaction.cpp \
   node/txreconciliation.cpp \
@@ -568,10 +590,10 @@ crypto_libbitcoin_crypto_base_la_LDFLAGS = $(AM_LDFLAGS) -static
 crypto_libbitcoin_crypto_base_la_SOURCES = \
   crypto/aes.cpp \
   crypto/aes.h \
-  crypto/chacha_poly_aead.h \
-  crypto/chacha_poly_aead.cpp \
   crypto/chacha20.h \
   crypto/chacha20.cpp \
+  crypto/chacha20poly1305.h \
+  crypto/chacha20poly1305.cpp \
   crypto/common.h \
   crypto/hkdf_sha256_32.cpp \
   crypto/hkdf_sha256_32.h \
@@ -681,14 +703,19 @@ libbitcoin_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -DQTUM_BUILD
 libbitcoin_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_common_a_CFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -std=c99
 libbitcoin_common_a_SOURCES = \
+  addresstype.cpp \
   base58.cpp \
   bech32.cpp \
   chainparams.cpp \
   coins.cpp \
+  common/args.cpp \
   common/bloom.cpp \
+  common/config.cpp \
   common/init.cpp \
   common/interfaces.cpp \
   common/run_command.cpp \
+  common/settings.cpp \
+  common/system.cpp \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
@@ -719,7 +746,7 @@ libbitcoin_common_a_SOURCES = \
   script/miniscript.cpp \
   script/sign.cpp \
   script/signingprovider.cpp \
-  script/standard.cpp \
+  script/solver.cpp \
   warnings.cpp \
   qtum/qtumutils.cpp \
   qtum/qtumDGP.cpp \
@@ -934,11 +961,14 @@ libqtum_util_a_SOURCES = \
   logging.cpp \
   random.cpp \
   randomenv.cpp \
+  streams.cpp \
   support/cleanse.cpp \
   sync.cpp \
   util/asmap.cpp \
+  util/batchpriority.cpp \
   util/bip32.cpp \
   util/bytevectorhash.cpp \
+  util/chaintype.cpp \
   util/check.cpp \
   util/error.cpp \
   util/exception.cpp \
@@ -949,12 +979,11 @@ libqtum_util_a_SOURCES = \
   util/hasher.cpp \
   util/sock.cpp \
   util/syserror.cpp \
-  util/system.cpp \
   util/message.cpp \
   util/moneystr.cpp \
   util/rbf.cpp \
   util/readwritefile.cpp \
-  util/settings.cpp \
+  util/signalinterrupt.cpp \
   util/thread.cpp \
   util/threadinterrupt.cpp \
   util/threadnames.cpp \
@@ -962,7 +991,6 @@ libqtum_util_a_SOURCES = \
   util/spanparsing.cpp \
   util/strencodings.cpp \
   util/string.cpp \
-  util/syscall_sandbox.cpp \
   util/time.cpp \
   util/tokenpipe.cpp \
   util/tokenstr.cpp \
@@ -1133,8 +1161,8 @@ if BUILD_BITCOIN_KERNEL_LIB
 lib_LTLIBRARIES += $(LIBBITCOINKERNEL)
 
 libbitcoinkernel_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(PTHREAD_FLAGS)
-libbitcoinkernel_la_LIBADD = $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) $(LIBSECP256K1)
-libbitcoinkernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT)
+libbitcoinkernel_la_LIBADD = $(LIBBITCOIN_CRYPTO) $(LIBLEVELDB) $(LIBMEMENV) $(LIBSECP256K1)
+libbitcoinkernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
 # libbitcoinkernel requires default symbol visibility, explicitly specify that
 # here so that things still work even when user configures with
@@ -1151,8 +1179,6 @@ libbitcoinkernel_la_SOURCES = \
   kernel/bitcoinkernel.cpp \
   arith_uint256.cpp \
   chain.cpp \
-  chainparamsbase.cpp \
-  chainparams.cpp \
   clientversion.cpp \
   coins.cpp \
   compressor.cpp \
@@ -1172,11 +1198,11 @@ libbitcoinkernel_la_SOURCES = \
   kernel/context.cpp \
   kernel/cs_main.cpp \
   kernel/mempool_persist.cpp \
+  kernel/mempool_removal_reason.cpp \
   key.cpp \
   logging.cpp \
   node/blockstorage.cpp \
   node/chainstate.cpp \
-  node/interface_ui.cpp \
   node/utxo_snapshot.cpp \
   policy/feerate.cpp \
   policy/fees.cpp \
@@ -1195,15 +1221,17 @@ libbitcoinkernel_la_SOURCES = \
   script/script.cpp \
   script/script_error.cpp \
   script/sigcache.cpp \
-  script/standard.cpp \
-  shutdown.cpp \
+  script/solver.cpp \
   signet.cpp \
+  streams.cpp \
   support/cleanse.cpp \
   support/lockedpool.cpp \
   sync.cpp \
   txdb.cpp \
   txmempool.cpp \
   uint256.cpp \
+  util/batchpriority.cpp \
+  util/chaintype.cpp \
   util/check.cpp \
   util/exception.cpp \
   util/fs.cpp \
@@ -1213,12 +1241,10 @@ libbitcoinkernel_la_SOURCES = \
   util/moneystr.cpp \
   util/rbf.cpp \
   util/serfloat.cpp \
-  util/settings.cpp \
+  util/signalinterrupt.cpp \
   util/strencodings.cpp \
   util/string.cpp \
-  util/syscall_sandbox.cpp \
   util/syserror.cpp \
-  util/system.cpp \
   util/thread.cpp \
   util/threadnames.cpp \
   util/time.cpp \
@@ -1295,7 +1321,7 @@ clean-local:
 	-rm -rf test/__pycache__
 
 .rc.o:
-	@test -f $(WINDRES)
+	@test -f $(WINDRES) || (echo "windres $(WINDRES) not found, but is required to compile windows resource files"; exit 1)
 	## FIXME: How to get the appropriate modulename_CPPFLAGS in here?
 	$(AM_V_GEN) $(WINDRES) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CPPFLAGS) -DWINDRES_PREPROC -i $< -o $@
 
@@ -1350,12 +1376,11 @@ endif
 
 %.raw.h: %.raw
 	@$(MKDIR_P) $(@D)
-	@{ \
+	$(AM_V_GEN) { \
 	 echo "static unsigned const char $(*F)_raw[] = {" && \
 	 $(HEXDUMP) -v -e '8/1 "0x%02x, "' -e '"\n"' $< | $(SED) -e 's/0x  ,//g' && \
 	 echo "};"; \
 	} > "$@.new" && mv -f "$@.new" "$@"
-	@echo "Generated $@"
 
 include Makefile.minisketch.include
 

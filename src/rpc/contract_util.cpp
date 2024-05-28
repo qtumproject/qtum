@@ -1,6 +1,6 @@
 #include <rpc/contract_util.h>
 #include <rpc/util.h>
-#include <util/system.h>
+#include <common/system.h>
 #include <key_io.h>
 #include <rpc/server.h>
 #include <txdb.h>

@@ -58,15 +58,7 @@
         <translation type="unfinished">தே&amp;ர்வுசெய் </translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">முகவரிகள் அனுப்பப்படுகின்றன</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">முகவரிகள் பெறப்படுகின்றன</translation>
-    </message>
-    <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source> 
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">இவை பணம் அனுப்புவதற்கு உங்களின் பிட்காயின் முகவரிகள். பிட்காயின்களை அனுப்புவதற்கு முன் எப்பொழுதும் தொகையும் பெறுதலையும் சரிபார்க்கவும்.</translation>
     </message>
     <message>
@@ -164,7 +156,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">பணப்பை குறியாக்கத்தை உறுதிப்படுத்துக</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source> 
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">எச்சரிக்கை: உங்கள் பணப்பையை குறியாக்கி உங்கள் கடவுச்சொற்றொடரை இழந்தால், நீங்கள் உங்கள் பைட்கோனை இழக்கலாம்!</translation>
     </message>
     <message>
@@ -287,7 +279,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">விலை</translation>
     </message>
     <message>
-        <source>Enter a Qtum address (e.g. %1)</source> 
+        <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">ஒரு விக்கிபீடியா முகவரியை உள்ளிடவும் (எ.கா. %1)</translation>
     </message>
     <message>
@@ -419,7 +411,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ப்ராக்ஸி இயக்கப்பட்டது: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source> 
+        <source>Send coins to a Qtum address</source>
         <translation type="unfinished">ஒரு விக்கிபீடியா முகவரிக்கு நாணயங்களை அனுப்பவும்</translation>
     </message>
     <message>
@@ -481,7 +473,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">கொடுப்பனவுகளை கோருதல் (QR குறியீடுகள் மற்றும் qtum உருவாக்குகிறது: URI கள்)</translation>
-   </message>
+    </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
         <translation type="unfinished">பயன்படுத்தப்பட்ட அனுப்புதல்கள் மற்றும் லேபிள்களின் பட்டியலைக் காட்டு</translation>
@@ -530,7 +522,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">தேதி வரை</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction</source> 
+        <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished"> ஓரளவு கையொப்பமிடப்பட்ட பிட்காயின் பரிவர்த்தனையை ஏற்றவும்
 </translation>
     </message>
@@ -726,10 +718,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">கட்டணம்:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">டஸ்ட்</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">கட்டணத்திறகுப் பின்:</translation>
     </message>
@@ -794,28 +782,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">நகல் கட்டணம்</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">தூசி நகலெடுக்கவும்</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">மாற்றத்தை நகலெடுக்கவும்</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 பூட்டப்பட்டது)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">ஆம்</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">இல்லை</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">நடப்பு தூசி நிலையை விட குறைவான அளவு பெறுநரை பெறுமானால் இந்த லேபிள் சிவப்பு நிறமாக மாறும்.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -967,7 +939,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">முகவரியை அனுப்புவதைத் திருத்து</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source> 
+        <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">உள்ளிட்ட முகவரி "%1" என்பது செல்லுபடியாகும் விக்கிபீடியா முகவரி அல்ல.</translation>
     </message>
     <message>
@@ -1120,11 +1092,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">படிவம்</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source> 
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">சமீபத்திய பரிவர்த்தனைகள் இன்னும் காணப்படாமல் இருக்கலாம், எனவே உங்கள் பணப்பையின் சமநிலை தவறாக இருக்கலாம். கீழே விவரிக்கப்பட்டுள்ளபடி, உங்கள் பணப்பை பிட்ஃபோனை நெட்வொர்க்குடன் ஒத்திசைக்க முடிந்ததும் இந்த தகவல் சரியாக இருக்கும்.</translation>
     </message>
     <message>
-        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source> 
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">இதுவரை காட்டப்படாத பரிவர்த்தனைகளால் பாதிக்கப்படும் பிட்னிக்களை செலவிடுவதற்கு முயற்சி பிணையத்தால் ஏற்கப்படாது.</translation>
     </message>
     <message>
@@ -1155,7 +1127,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open qtum URI</source> 
+        <source>Open qtum URI</source>
         <translation type="unfinished">பிட்காயின் யூ. ஆர். ஐ.யை திர</translation>
     </message>
     <message>
@@ -1407,7 +1379,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">படிவம்</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source> 
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">காட்டப்படும் தகவல் காலாவதியானதாக இருக்கலாம். ஒரு இணைப்பு நிறுவப்பட்ட பிறகு, உங்கள் பணப்பை தானாக பிட்கோடு நெட்வொர்க்குடன் ஒத்திசைக்கிறது, ஆனால் இந்த செயல்முறை இன்னும் முடிவடையவில்லை.</translation>
     </message>
     <message>
@@ -1482,6 +1454,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">நெருக்கமான</translation>
     </message>
     <message>
+        <source>own address</source>
+        <translation type="unfinished">சொந்த முகவரி</translation>
+    </message>
+    <message>
         <source>Total Amount</source>
         <translation type="unfinished">முழு தொகை</translation>
     </message>
@@ -1499,7 +1475,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Qtum தொடங்க முடியாது: கிளிக் க்கு ஊதியம் கையாளுதல்</translation>
-   </message>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">URI கையாளுதல்</translation>
@@ -1509,7 +1485,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">'qtum: //' சரியான URI அல்ல. அதற்கு பதிலாக 'பிட்கின்:' பயன்படுத்தவும்.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source> 
+        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">URI அலச முடியாது! தவறான பிட்கின் முகவரி அல்லது தவறான URI அளவுருக்கள் காரணமாக இது ஏற்படலாம்.</translation>
     </message>
     <message>
@@ -2068,13 +2044,9 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">படிவத்தின் அனைத்து துறையையும் அழி.</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">டஸ்ட்</translation>
-    </message>
-    <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">தொகுதிகள் உள்ள இடத்தை விட குறைவான பரிவர்த்தனை அளவு இருக்கும் போது, ​​சுரங்க தொழிலாளர்கள் மற்றும் ரிலேடிங் முனைகள் குறைந்தபட்ச கட்டணத்தைச் செயல்படுத்தலாம். இந்த குறைந்தபட்ச கட்டணத்தை மட்டும் செலுத்துவது நன்றாக உள்ளது, ஆனால் நெட்வொர்க்கில் செயல்படுவதை விட qtum பரிவர்த்தனைகளுக்கு இன்னும் கோரிக்கை தேவைப்பட்டால் இது ஒருபோதும் உறுதிப்படுத்தாத பரிவர்த்தனைக்கு காரணமாக இருக்கலாம்.</translation>
-   </message>
+    </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
         <translation type="unfinished">ஒரு மிக குறைந்த கட்டணம் ஒரு உறுதி பரிவர்த்தனை விளைவாக (உதவிக்குறிப்பு வாசிக்க)</translation>
@@ -2126,10 +2098,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">நகல் கட்டணம்</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">தூசி நகலெடுக்கவும்</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -2247,7 +2215,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">முன்பு பயன்படுத்திய முகவரியைத் தேர்வுசெய்</translation>
     </message>
     <message>
-        <source>The Qtum address to send the payment to</source> 
+        <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">கட்டணத்தை அனுப்ப பிட்காயின் முகவரி</translation>
     </message>
     <message>
@@ -2259,7 +2227,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">இந்த உள்ளீட்டை அகற்று</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source> 
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">அனுப்பப்படும் தொகையிலிருந்து கட்டணம் கழிக்கப்படும். நீங்கள் உள்ளிடும் தொகையை விட பெறுநர் குறைவான பிட்காயின்களைப் பெறுவார். பல பெறுநர்கள் தேர்ந்தெடுக்கப்பட்டால், கட்டணம் சமமாக பிரிக்கப்படும்.</translation>
     </message>
     <message>
@@ -2279,7 +2247,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">இந்த முகவரியை பயன்படுத்தப்பட்ட முகவரிகளின் பட்டியலில் சேர்க்க ஒரு லேபிளை உள்ளிடவும்.</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source> 
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">பிட்காயினுடன் இணைக்கப்பட்ட செய்தி: உங்கள் எதிர்கால குறிப்புக்காக பரிவர்த்தனையுடன் யூஆர்ஐ சேமிக்கப்படும். குறிப்பு: இந்த செய்தி பிட்காயின் வலையமைப்பிற்கு அனுப்பப்படாது.</translation>
     </message>
 </context>
@@ -2301,11 +2269,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;செய்தியை கையொப்பமிடுங்கள்</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source> 
+        <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">மற்றவர்களுக்கு அனுப்பப்பட்ட பிட்காயின்களைப் நீங்கள் பெறலாம் என்பதை நிரூபிக்க உங்கள் முகவரிகளுடன் செய்திகள் / ஒப்பந்தங்களில் கையொப்பமிடலாம். தெளிவற்ற அல்லது சீரற்ற எதையும் கையொப்பமிடாமல் கவனமாக இருங்கள், ஏனெனில் ஃபிஷிங் தாக்குதல்கள் உங்கள் அடையாளத்தை அவர்களிடம் கையொப்பமிட்டு ஏமாற்ற முயற்சிக்கும். நீங்கள் ஒப்புக்கொள்ளும் முழுமையான மற்றும் விரிவான அறிக்கைகளில் மட்டுமே கையொப்பமிடுங்கள்.</translation>
     </message>
     <message>
-        <source>The Qtum address to sign the message with</source> 
+        <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">செய்தியை கையொப்பமிட பிட்காயின் முகவரி</translation>
     </message>
     <message>
@@ -2357,7 +2325,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">சரிபார்க்க கையொப்பமிடப்பட்ட செய்தி</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Qtum address</source> 
+        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">குறிப்பிட்ட பிட்காயின் முகவரியுடன் கையொப்பமிடப்பட்டதா என்பதை உறுதிப்படுத்த இந்த செய்தியைச் சரிபார்க்கவும்</translation>
     </message>
     <message>
@@ -2640,10 +2608,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">அனுப்பப்பட்டது</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">உனக்கே பணம் செலுத்து</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">மைன் செய்யப்பட்டது</translation>
     </message>
@@ -2717,10 +2681,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sent to</source>
         <translation type="unfinished">அனுப்பப்பட்டது</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">உங்களுக்கே</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -2911,10 +2871,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation type="unfinished">எம்ஐடி சாப்ட்வேர் விதிமுறைகளின் கீழ் பகிர்ந்தளிக்கப்படுகிறது, அதனுடன் கொடுக்கப்பட்டுள்ள %s அல்லது %s பைல் ஐ பார்க்கவும்</translation>
-    </message>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">%s படிப்பதில் பிழை! எல்லா விசைகளும் சரியாகப் படிக்கப்படுகின்றன, ஆனால் பரிவர்த்தனை டேட்டா அல்லது முகவரி புத்தக உள்ளீடுகள் காணவில்லை அல்லது தவறாக இருக்கலாம்.</translation>
     </message>
     <message>
         <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>

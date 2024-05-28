@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">Adresi veya etiketi düzenlemek için sağ tıklayın</translation>
+        <translation type="unfinished">Adresi veya etiketi düzenlemek için sağ tıklayın.</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -58,21 +58,13 @@
         <translation type="unfinished">S&amp;eç</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Gönderici adresler</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Alıcı adresler</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Bunlar ödemeleri gönderdiğiniz Qtum adreslerinizdir. Para göndermeden önce her zaman tutarı ve alıcı adresi kontrol ediniz.</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Bunlar ödeme almak için kullanacağınız Qtum adreslerinizdir. Yeni adres oluşturmak için ödeme alma sekmesindeki 'Yeni alıcı adresi oluşturun' kısmına tıklayın.
+        <translation type="unfinished">Bunlar ödeme almak için kullanacağınız qtum adreslerinizdir. Yeni adres oluşturmak için ödeme alma sekmesindeki 'Yeni alıcı adresi oluşturun' kısmına tıklayın.
 İmzalama sadece 'legacy' tipindeki adreslerle mümkündür.</translation>
     </message>
     <message>
@@ -149,7 +141,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>This operation needs your wallet passphrase to unlock the wallet.</source>
-        <translation type="unfinished">kilidi açmakparolaBu işlemi yapabilmek için cüzdan parolanızı girmeniz gerekmektedir
+        <translation type="unfinished">Bu işlemi yapabilmek için cüzdan parolanızı girmeniz gerekmektedir
 Cüzdan kilidini aç.</translation>
     </message>
     <message>
@@ -167,7 +159,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Uyarı: Cüzdanınızı şifreler ve parolanızı unutursanız &lt;b&gt;TÜM QTUMLERINIZI KAYBEDERSİNİZ&lt;/b&gt;!</translation>
-   </message>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Cüzdanınızı şifrelemek istediğinizden emin misiniz?</translation>
@@ -187,7 +179,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Cüzdanınızı şifrelemenin bilgisayarınıza bulaşan kötü amaçlı yazılımlar tarafından qtumlerinizin çalınmasına karşı tamamen koruyamayacağını unutmayın.</translation>
-   </message>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
         <translation type="unfinished">Şifrelenecek cüzdan</translation>
@@ -495,7 +487,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Qtum adreslerine sahip olduğunuzu kanıtlamak için mesajlarınızı imzalayın</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Mesajı doğrula...</translation>
@@ -503,7 +495,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Belirtilen Qtum adresleriyle imzalandıklarından emin olmak için mesajları doğrulayın</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
         <translation type="unfinished">&amp;PSBT'yi dosyadan yükle...</translation>
@@ -605,7 +597,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Kısmen İmzalanmış Qtum İşlemini Yükle </translation>
-   </message>
+    </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">PSBT'yi &amp;panodan yükle...</translation>
@@ -613,7 +605,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Kısmen İmzalanmış Qtum işlemini panodan yükle</translation>
-   </message>
+    </message>
     <message>
         <source>Node window</source>
         <translation type="unfinished">Düğüm penceresi</translation>
@@ -632,8 +624,8 @@ Cüzdan kilidini aç.</translation>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">Qtum’i aç.</translation> 
-   </message>
+        <translation type="unfinished">Qtum’i aç.</translation>
+    </message>
     <message>
         <source>Open Wallet</source>
         <translation type="unfinished">Cüzdanı Aç</translation>
@@ -721,7 +713,7 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">G&amp;öster</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>Qtum ağına %n etkin bağlantı.</numerusform>
@@ -731,6 +723,11 @@ Cüzdan kilidini aç.</translation>
         <source>Click for more actions.</source>
         <extracomment>A substring of the tooltip. "More actions" are available via the context menu.</extracomment>
         <translation type="unfinished">daha fazla seçenek için tıklayın.</translation>
+    </message>
+    <message>
+        <source>Show Peers tab</source>
+        <extracomment>A context menu item. The "Peers tab" is an element of the "Node window".</extracomment>
+        <translation type="unfinished">Eşler sekmesini göster</translation>
     </message>
     <message>
         <source>Disable network activity</source>
@@ -849,10 +846,6 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">Ücret</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Toz:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Ücret sonrası:</translation>
     </message>
@@ -933,28 +926,12 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">Bitleri kopyala</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">toz kopyala</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Para üstünü kopyala</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1'i kilitli)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">evet</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">hayır</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Herhangi bir alıcı mevcut toz eşiğinden daha düşük bir miktar alırsa bu etiket kırmızıya döner.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -992,6 +969,10 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Create wallet warning</source>
         <translation type="unfinished">Cüzdan oluşturma uyarısı</translation>
+    </message>
+    <message>
+        <source>Can't list signers</source>
+        <translation type="unfinished">İmzalayanlar listelenmiyor</translation>
     </message>
     <message>
         <source>Too many external signers found</source>
@@ -1130,20 +1111,16 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">Boş Cüzdan Oluştur</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">scriptPubKey yönetimi için tanımlayıcıları kullanın</translation>
+        <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
+        <translation type="unfinished">Donanım cüzdanı gibi harici bir imzalama cihazı kullanın. Önce cüzdan tercihlerinde harici imzalayan komut dosyasını yapılandırın.</translation>
     </message>
     <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Tanımlayıcı Cüzdan </translation>
+        <source>External signer</source>
+        <translation type="unfinished">Harici imzalaycı</translation>
     </message>
     <message>
         <source>Create</source>
         <translation type="unfinished">Oluştur</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Sqlite desteği olmadan derlenmiş. (tanımlayıcı cüzdanlar için gereklidir)</translation>
     </message>
     </context>
 <context>
@@ -1183,7 +1160,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Girilen "%1" adresi geçerli bir Qtum adresi değildir.</translation>
-   </message>
+    </message>
     <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">Cüzdanın kilidi açılamadı.</translation>
@@ -1323,19 +1300,19 @@ Cüzdan kilidini aç.</translation>
     </message>
     <message>
         <source>Do not shut down the computer until this window disappears.</source>
-        <translation type="unfinished">Bu pencere kalkıncaya dek bilgisayarı kapatmayınız.</translation>
+        <translation type="unfinished">Bu pencere kapanıncaya dek bilgisayarı kapatmayınız.</translation>
     </message>
 </context>
 <context>
     <name>ModalOverlay</name>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Son işlemler henüz görünmeyebilir ve bu nedenle cüzdanınızın bakiyesi yanlış olabilir. Bu bilgiler, aşağıda detaylandırıldığı gibi, cüzdanınız qtum ağı ile senkronizasyonunu tamamladığında doğru olacaktır. </translation> 
-   </message>
+        <translation type="unfinished">Son işlemler henüz görünmeyebilir ve bu nedenle cüzdanınızın bakiyesi yanlış olabilir. Bu bilgiler, aşağıda detaylandırıldığı gibi, cüzdanınız qtum ağı ile senkronizasyonunu tamamladığında doğru olacaktır. </translation>
+    </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Henüz görüntülenmeyen işlemlerden etkilenen qtumleri harcama girişiminde bulunmak ağ tarafından kabul edilmeyecektir.</translation>
-  </message>
+    </message>
     <message>
         <source>Number of blocks left</source>
         <translation type="unfinished">Kalan blok sayısı</translation>
@@ -1377,8 +1354,8 @@ Cüzdan kilidini aç.</translation>
     <name>OpenURIDialog</name>
     <message>
         <source>Open qtum URI</source>
-        <translation type="unfinished">Qtum URI aç</translation> 
-  </message>
+        <translation type="unfinished">Qtum URI aç</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -1638,6 +1615,11 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">Değişikliklerin uygulanması için istemcinin yeniden başlatılması lazımdır.</translation>
     </message>
     <message>
+        <source>Current settings will be backed up at "%1".</source>
+        <extracomment>Text explaining to the user that the client's current settings will be backed up at a specific location. %1 is a stand-in argument for the backup location's path.</extracomment>
+        <translation type="unfinished">Mevcut ayarlar şu adreste yedeklenecek: "%1".</translation>
+    </message>
+    <message>
         <source>Client will be shut down. Do you want to proceed?</source>
         <extracomment>Text asking the user to confirm if they would like to proceed with a client shutdown.</extracomment>
         <translation type="unfinished">İstemci kapanacaktır. Devam etmek istiyor musunuz?</translation>
@@ -1822,6 +1804,10 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">PSBT diske kaydedildi.</translation>
     </message>
     <message>
+        <source>own address</source>
+        <translation type="unfinished">kendi adresiniz</translation>
+    </message>
+    <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
         <translation type="unfinished">İşlem ücretini veya toplam işlem miktarını hesaplayamıyor.</translation>
     </message>
@@ -1867,7 +1853,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Qtum başlatılamadı: tıkla-ve-öde yöneticisi</translation>
-   </message>
+    </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">URI yönetimi</translation>
@@ -2060,6 +2046,10 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Select a peer to view detailed information.</source>
         <translation type="unfinished">Ayrıntılı bilgi görmek için bir eş seçin.</translation>
+    </message>
+    <message>
+        <source>Transport</source>
+        <translation type="unfinished">Aktar</translation>
     </message>
     <message>
         <source>Version</source>
@@ -2323,7 +2313,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Talep açıldığında gösterilecek, isteğinize dayalı, ödeme talebi ile ilişkilendirilecek bir ileti. Not: Bu ileti ödeme ile birlikte Qtum ağı üzerinden gönderilmeyecektir.</translation>
-   </message>
+    </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
         <translation type="unfinished">Yeni alım adresi ile ilişkili, seçiminize dayalı etiket.</translation>
@@ -2483,7 +2473,7 @@ Cüzdan kilidini aç.</translation>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation type="unfinished">Qtumi Gönder</translation> 
+        <translation type="unfinished">Qtumi Gönder</translation>
     </message>
     <message>
         <source>Coin Control Features</source>
@@ -2570,10 +2560,6 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">Girdiler...</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Toz:</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">Seç...</translation>
     </message>
@@ -2620,10 +2606,6 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Bitleri kopyala</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">toz kopyala</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -2724,7 +2706,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">Uyarı: geçersiz Qtum adresi</translation>
-   </message>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Uyarı: Bilinmeyen para üstü adresi</translation>
@@ -2775,7 +2757,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">Ücret yollanan tutardan alınacaktır. Alıcı tutar alanına girdiğinizden daha az qtum alacaktır. Eğer birden çok alıcı seçiliyse ücret eşit olarak bölünecektir.</translation>
-   </message>
+    </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
         <translation type="unfinished">Ücreti tutardan düş</translation>
@@ -2821,7 +2803,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Adreslerinize yollanan qtumleri alabileceğiniz ispatlamak için adreslerinizle iletiler/anlaşmalar imzalayabilirsiniz. Oltalama saldırılarının kimliğinizi imzanızla elde etmeyi deneyebilecekleri için belirsiz ya da rastgele hiçbir şey imzalamamaya dikkat ediniz. Sadece ayrıntılı açıklaması olan ve tümüne katıldığınız ifadeleri imzalayınız.</translation>
-   </message>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">İletinin imzalanmasında kullanılacak Qtum adresi</translation>
@@ -2873,7 +2855,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">İletinin imzalanmasında kullanılan Qtum adresi</translation>
-   </message>
+    </message>
     <message>
         <source>The signed message to verify</source>
         <translation type="unfinished">Doğrulamak için imzalanmış mesaj</translation>
@@ -2881,7 +2863,7 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
         <translation type="unfinished">Belirtilen Qtum adresi ile imzalandığını doğrulamak için iletiyi kontrol et</translation>
-   </message>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">&amp;Mesajı Denetle</translation>
@@ -3191,10 +3173,6 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">Gönderildiği adres</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Kendinize ödeme</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Madenden</translation>
     </message>
@@ -3268,10 +3246,6 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Gönderildiği adres</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Kendinize</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3387,7 +3361,7 @@ Cüzdan kilidini aç.</translation>
     <name>WalletModel</name>
     <message>
         <source>Send Coins</source>
-        <translation type="unfinished">Qtumi Gönder</translation> 
+        <translation type="unfinished">Qtumi Gönder</translation>
     </message>
     <message>
         <source>Fee bump error</source>
@@ -3440,7 +3414,7 @@ Cüzdan kilidini aç.</translation>
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">Dışa aktar</translation>
+        <translation type="unfinished">&amp;Dışa aktar</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
@@ -3491,10 +3465,6 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">MIT yazılım lisansı altında dağıtılmıştır, beraberindeki %s ya da %s dosyasına bakınız.</translation>
     </message>
     <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">%s dosyasının okunması sırasında bir hata meydana geldi! Tüm anahtarlar doğru bir şekilde okundu, ancak işlem verileri ya da adres defteri ögeleri hatalı veya eksik olabilir.</translation>
-    </message>
-    <message>
         <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
         <translation type="unfinished">%s okuma hatası! İşlem verileri eksik veya yanlış olabilir. Cüzdan yeniden taranıyor.</translation>
     </message>
@@ -3527,12 +3497,12 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">Blok veritabanı gelecekten gibi görünen bir blok içermektedir. Bu, bilgisayarınızın saat ve tarihinin yanlış ayarlanmış olmasından kaynaklanabilir. Blok veritabanını sadece bilgisayarınızın tarih ve saatinin doğru olduğundan eminseniz yeniden derleyin.</translation>
     </message>
     <message>
-        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
-        <translation type="unfinished">Blok dizini db, eski bir 'txindex' içerir. Dolu disk alanını temizlemek için full -reindex çalıştırın, aksi takdirde bu hatayı yok sayın. Bu hata mesajı tekrar görüntülenmeyecek.</translation>
-    </message>
-    <message>
         <source>The transaction amount is too small to send after the fee has been deducted</source>
         <translation type="unfinished">Bu işlem, tutar düşüldükten sonra göndermek için çok düşük</translation>
+    </message>
+    <message>
+        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
+        <translation type="unfinished">Bu hata, bu cüzdan düzgün bir şekilde kapatılmadıysa ve en son Berkeley DB'nin daha yeni bir sürümü kullanılarak yüklendiyse oluşabilir. Öyleyse, lütfen bu cüzdanı en son sürümünü kullanın.</translation>
     </message>
     <message>
         <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
@@ -3573,10 +3543,6 @@ Cüzdan kilidini aç.</translation>
     <message>
         <source>Cannot write to data directory '%s'; check permissions.</source>
         <translation type="unfinished">Veriler '%s' klasörüne yazılamıyor ; yetkilendirmeyi kontrol edin.</translation>
-    </message>
-    <message>
-        <source>The -txindex upgrade started by a previous version cannot be completed. Restart with the previous version or run a full -reindex.</source>
-        <translation type="unfinished">Önceki bir sürüm tarafından başlatılan -txindex yükseltmesi tamamlanamaz. Önceki sürümle yeniden başlatın veya full -reindex çalıştırın.</translation>
     </message>
     <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>

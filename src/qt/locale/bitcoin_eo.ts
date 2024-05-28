@@ -58,21 +58,13 @@
         <translation type="unfinished">&amp;Elekti</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Sendaj adresoj</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Ricevaj adresoj</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Jen viaj Qtum-adresoj por sendi pagojn. Zorge kontrolu la sumon kaj la alsendan adreson antaŭ ol sendi.</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Jen viaj qtumaj adresoj por ricevi pagojn. Estas konsilinde uzi apartan ricevan adreson por ĉiu transakcio.</translation> 
+        <translation type="unfinished">Jen viaj qtumaj adresoj por ricevi pagojn. Estas konsilinde uzi apartan ricevan adreson por ĉiu transakcio.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -506,7 +498,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Ĉefa Fenestro</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -601,10 +593,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Krompago:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Polvo:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Post krompago:</translation>
     </message>
@@ -669,24 +657,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Kopii bajtojn</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopii polvon</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopii restmonon</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 ŝlosita)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">jes</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ne</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -1164,6 +1140,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Fermi</translation>
     </message>
     <message>
+        <source>own address</source>
+        <translation type="unfinished">propra adreso</translation>
+    </message>
+    <message>
         <source>Total Amount</source>
         <translation type="unfinished">Totala Sumo</translation>
     </message>
@@ -1179,7 +1159,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Eraro dum pagopeto</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source> 
+        <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Ne eblas lanĉi la ilon 'klaki-por-pagi'</translation>
     </message>
     <message>
@@ -1479,7 +1459,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>SendCoinsDialog</name>
     <message>
         <source>Send Coins</source>
-        <translation type="unfinished">Sendi Qtumon</translation> 
+        <translation type="unfinished">Sendi Qtumon</translation>
     </message>
     <message>
         <source>Coin Control Features</source>
@@ -1534,10 +1514,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Malplenigi ĉiujn kampojn de la formularo.</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Polvo:</translation>
-    </message>
-    <message>
         <source>Clear &amp;All</source>
         <translation type="unfinished">&amp;Forigi Ĉion</translation>
     </message>
@@ -1574,10 +1550,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Kopii bajtojn</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopii polvon</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopii restmonon</translation>
     </message>
@@ -1599,7 +1571,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Confirm send coins</source>
-        <translation type="unfinished">Konfirmi sendon de qtumo</translation> 
+        <translation type="unfinished">Konfirmi sendon de qtumo</translation>
     </message>
     <message>
         <source>The amount to pay must be larger than 0.</source>
@@ -1956,10 +1928,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Sendita al</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Pago al vi mem</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Minita</translation>
     </message>
@@ -2021,10 +1989,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Sendita al</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Al vi mem</translation>
     </message>
     <message>
         <source>Mined</source>

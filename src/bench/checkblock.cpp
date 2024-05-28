@@ -6,9 +6,10 @@
 #include <bench/data.h>
 
 #include <chainparams.h>
+#include <common/args.h>
 #include <consensus/validation.h>
 #include <streams.h>
-#include <util/system.h>
+#include <util/chaintype.h>
 #include <validation.h>
 #include <test/util/setup_common.h>
 
@@ -37,8 +38,8 @@ static void DeserializeAndCheckBlockTest(benchmark::Bench& bench)
     stream.write({&a, 1}); // Prevent compaction
 
     ArgsManager bench_args;
-    const auto chainParams = CreateChainParams(bench_args, CBaseChainParams::MAIN);
-    const auto testing_setup = MakeNoLogFileContext<const TestingSetup>(CBaseChainParams::MAIN);
+    const auto chainParams = CreateChainParams(bench_args, ChainType::MAIN);
+    const auto testing_setup = MakeNoLogFileContext<const TestingSetup>(ChainType::MAIN);
     Chainstate& chainstate = testing_setup->m_node.chainman->ActiveChainstate();
 
     bench.unit("block").run([&] {

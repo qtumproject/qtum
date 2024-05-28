@@ -24,7 +24,7 @@ const TestingSetup* g_setup;
 void initialize_process_messages()
 {
     static const auto testing_setup = MakeNoLogFileContext<const TestingSetup>(
-            /*chain_name=*/CBaseChainParams::UNITTEST,
+            /*chain_type=*/ChainType::UNITTEST,
             /*extra_args=*/{"-txreconciliation"});
     g_setup = testing_setup.get();
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
@@ -34,14 +34,14 @@ void initialize_process_messages()
     SyncWithValidationInterfaceQueue();
 }
 
-FUZZ_TARGET_INIT(process_messages, initialize_process_messages)
+FUZZ_TARGET(process_messages, .init = initialize_process_messages)
 {
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
 
     ConnmanTestMsg& connman = *static_cast<ConnmanTestMsg*>(g_setup->m_node.connman.get());
-    TestChainState& chainstate = *static_cast<TestChainState*>(&g_setup->m_node.chainman->ActiveChainstate());
+    auto& chainman = static_cast<TestChainstateManager&>(*g_setup->m_node.chainman);
     SetMockTime(1610000000); // any time to successfully reset ibd
-    chainstate.ResetIbd();
+    chainman.ResetIbd();
 
     LOCK(NetEventsInterface::g_msgproc_mutex);
 
@@ -68,7 +68,8 @@ FUZZ_TARGET_INIT(process_messages, initialize_process_messages)
 
         CNode& random_node = *PickValue(fuzzed_data_provider, peers);
 
-        (void)connman.ReceiveMsgFrom(random_node, net_msg);
+        connman.FlushSendBuffer(random_node);
+        (void)connman.ReceiveMsgFrom(random_node, std::move(net_msg));
         random_node.fPauseSend = false;
 
         try {

@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <string>
 #include <type_traits>
+#include <unordered_set>
 #include <vector>
 
 extern int nConnectTimeout;
@@ -65,6 +66,61 @@ struct ProxyCredentials
 };
 
 /**
+ * List of reachable networks. Everything is reachable by default.
+ */
+class ReachableNets {
+public:
+    void Add(Network net) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex)
+    {
+        AssertLockNotHeld(m_mutex);
+        LOCK(m_mutex);
+        m_reachable.insert(net);
+    }
+
+    void Remove(Network net) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex)
+    {
+        AssertLockNotHeld(m_mutex);
+        LOCK(m_mutex);
+        m_reachable.erase(net);
+    }
+
+    void RemoveAll() EXCLUSIVE_LOCKS_REQUIRED(!m_mutex)
+    {
+        AssertLockNotHeld(m_mutex);
+        LOCK(m_mutex);
+        m_reachable.clear();
+    }
+
+    [[nodiscard]] bool Contains(Network net) const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex)
+    {
+        AssertLockNotHeld(m_mutex);
+        LOCK(m_mutex);
+        return m_reachable.count(net) > 0;
+    }
+
+    [[nodiscard]] bool Contains(const CNetAddr& addr) const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex)
+    {
+        AssertLockNotHeld(m_mutex);
+        return Contains(addr.GetNetwork());
+    }
+
+private:
+    mutable Mutex m_mutex;
+
+    std::unordered_set<Network> m_reachable GUARDED_BY(m_mutex){
+        NET_UNROUTABLE,
+        NET_IPV4,
+        NET_IPV6,
+        NET_ONION,
+        NET_I2P,
+        NET_CJDNS,
+        NET_INTERNAL
+    };
+};
+
+extern ReachableNets g_reachable_nets;
+
+/**
  * Wrapper for getaddrinfo(3). Do not use directly: call Lookup/LookupHost/LookupNumeric/LookupSubNet.
  */
 std::vector<CNetAddr> WrappedGetAddrInfo(const std::string& name, bool allow_lookup);
@@ -105,24 +161,25 @@ extern DNSLookupFn g_dns_lookup;
  * @param name    The string representing a host. Could be a name or a numerical
  *                IP address (IPv6 addresses in their bracketed form are
  *                allowed).
- * @param[out] vIP The resulting network addresses to which the specified host
- *                 string resolved.
  *
- * @returns Whether or not the specified host string successfully resolved to
- *          any resulting network addresses.
+ * @returns The resulting network addresses to which the specified host
+ *          string resolved.
  *
- * @see Lookup(const std::string&, std::vector<CService>&, uint16_t, bool, unsigned int, DNSLookupFn)
+ * @see Lookup(const std::string&, uint16_t, bool, unsigned int, DNSLookupFn)
  *      for additional parameter descriptions.
  */
-bool LookupHost(const std::string& name, std::vector<CNetAddr>& vIP, unsigned int nMaxSolutions, bool fAllowLookup, DNSLookupFn dns_lookup_function = g_dns_lookup);
+std::vector<CNetAddr> LookupHost(const std::string& name, unsigned int nMaxSolutions, bool fAllowLookup, DNSLookupFn dns_lookup_function = g_dns_lookup);
 
 /**
  * Resolve a host string to its first corresponding network address.
  *
- * @see LookupHost(const std::string&, std::vector<CNetAddr>&, uint16_t, bool, DNSLookupFn)
+ * @returns The resulting network address to which the specified host
+ *          string resolved or std::nullopt if host does not resolve to an address.
+ *
+ * @see LookupHost(const std::string&, unsigned int, bool, DNSLookupFn)
  *      for additional parameter descriptions.
  */
-bool LookupHost(const std::string& name, CNetAddr& addr, bool fAllowLookup, DNSLookupFn dns_lookup_function = g_dns_lookup);
+std::optional<CNetAddr> LookupHost(const std::string& name, bool fAllowLookup, DNSLookupFn dns_lookup_function = g_dns_lookup);
 
 /**
  * Resolve a service string to its corresponding service.
@@ -132,8 +189,6 @@ bool LookupHost(const std::string& name, CNetAddr& addr, bool fAllowLookup, DNSL
  *                disambiguated bracketed form), optionally followed by a uint16_t port
  *                number. (e.g. example.com:8333 or
  *                [2001:db8:85a3:8d3:1319:8a2e:370:7348]:420)
- * @param[out] vAddr The resulting services to which the specified service string
- *                   resolved.
  * @param portDefault The default port for resulting services if not specified
  *                    by the service string.
  * @param fAllowLookup Whether or not hostname lookups are permitted. If yes,
@@ -141,18 +196,18 @@ bool LookupHost(const std::string& name, CNetAddr& addr, bool fAllowLookup, DNSL
  * @param nMaxSolutions The maximum number of results we want, specifying 0
  *                      means "as many solutions as we get."
  *
- * @returns Whether or not the service string successfully resolved to any
- *          resulting services.
+ * @returns The resulting services to which the specified service string
+ *          resolved.
  */
-bool Lookup(const std::string& name, std::vector<CService>& vAddr, uint16_t portDefault, bool fAllowLookup, unsigned int nMaxSolutions, DNSLookupFn dns_lookup_function = g_dns_lookup);
+std::vector<CService> Lookup(const std::string& name, uint16_t portDefault, bool fAllowLookup, unsigned int nMaxSolutions, DNSLookupFn dns_lookup_function = g_dns_lookup);
 
 /**
  * Resolve a service string to its first corresponding service.
  *
- * @see Lookup(const std::string&, std::vector<CService>&, uint16_t, bool, unsigned int, DNSLookupFn)
+ * @see Lookup(const std::string&, uint16_t, bool, unsigned int, DNSLookupFn)
  *      for additional parameter descriptions.
  */
-bool Lookup(const std::string& name, CService& addr, uint16_t portDefault, bool fAllowLookup, DNSLookupFn dns_lookup_function = g_dns_lookup);
+std::optional<CService> Lookup(const std::string& name, uint16_t portDefault, bool fAllowLookup, DNSLookupFn dns_lookup_function = g_dns_lookup);
 
 /**
  * Resolve a service string with a numeric IP to its first corresponding
@@ -160,7 +215,7 @@ bool Lookup(const std::string& name, CService& addr, uint16_t portDefault, bool 
  *
  * @returns The resulting CService if the resolution was successful, [::]:0 otherwise.
  *
- * @see Lookup(const std::string&, std::vector<CService>&, uint16_t, bool, unsigned int, DNSLookupFn)
+ * @see Lookup(const std::string&, uint16_t, bool, unsigned int, DNSLookupFn)
  *      for additional parameter descriptions.
  */
 CService LookupNumeric(const std::string& name, uint16_t portDefault = 0, DNSLookupFn dns_lookup_function = g_dns_lookup);
@@ -251,5 +306,14 @@ bool Socks5(const std::string& strDest, uint16_t port, const ProxyCredentials* a
  * @returns whether the port is bad
  */
 bool IsBadPort(uint16_t port);
+
+/**
+ * If an IPv6 address belongs to the address range used by the CJDNS network and
+ * the CJDNS network is reachable (-cjdnsreachable config is set), then change
+ * the type from NET_IPV6 to NET_CJDNS.
+ * @param[in] service Address to potentially convert.
+ * @return a copy of `service` either unmodified or changed to CJDNS.
+ */
+CService MaybeFlipIPv6toCJDNS(const CService& service);
 
 #endif // BITCOIN_NETBASE_H

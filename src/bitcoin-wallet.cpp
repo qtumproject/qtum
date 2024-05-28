@@ -9,6 +9,8 @@
 #include <chainparams.h>
 #include <chainparamsbase.h>
 #include <clientversion.h>
+#include <common/args.h>
+#include <common/system.h>
 #include <common/url.h>
 #include <compat/compat.h>
 #include <interfaces/init.h>
@@ -17,7 +19,6 @@
 #include <pubkey.h>
 #include <tinyformat.h>
 #include <util/exception.h>
-#include <util/system.h>
 #include <util/translation.h>
 #include <wallet/wallettool.h>
 
@@ -90,7 +91,7 @@ static std::optional<int> WalletAppInit(ArgsManager& args, int argc, char* argv[
         return EXIT_FAILURE;
     }
     // Check for chain settings (Params() calls are only valid after this clause)
-    SelectParams(args.GetChainName());
+    SelectParams(args.GetChainType());
 
     return std::nullopt;
 }
@@ -99,7 +100,7 @@ MAIN_FUNCTION
 {
     ArgsManager& args = gArgs;
 #ifdef WIN32
-    util::WinCmdLineArgs winArgs;
+    common::WinCmdLineArgs winArgs;
     std::tie(argc, argv) = winArgs.get();
 #endif
 

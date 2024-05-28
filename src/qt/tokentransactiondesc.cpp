@@ -19,7 +19,7 @@ public:
         itemNameColor = GetStringStyleValue("tokentransactiondesc/item-name-color", "#ffffff");
         itemColor = GetStringStyleValue("tokentransactiondesc/item-color", "#ffffff");
         itemFontBold = GetIntStyleValue("tokentransactiondesc/item-font-bold", true);
-        network = Params().NetworkIDString();
+        network = Params().GetChainTypeString();
     }
 
     static const TokenTransactionFormater& instance()

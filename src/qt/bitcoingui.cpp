@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -36,15 +36,17 @@
 #include <qt/macdockiconhandler.h>
 #endif
 
-#include <functional>
 #include <chain.h>
 #include <chainparams.h>
+#include <common/system.h>
+#include <common/args.h>
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
 #include <node/interface_ui.h>
-#include <util/system.h>
 #include <util/translation.h>
 #include <validation.h>
+
+#include <functional>
 
 #include <QAction>
 #include <QActionGroup>
@@ -89,7 +91,6 @@ const std::string BitcoinGUI::DEFAULT_UIPLATFORM =
 
 const int DISPLAY_UNIT_CONTROL_MARGIN = 25;
 const int DISPLAY_UNIT_CONTROL_HEIGHT = 24;
-
 BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
     m_node(node),
@@ -119,10 +120,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     {
         /** Create wallet frame and make it the central widget */
         walletFrame = new WalletFrame(_platformStyle, this);
-        connect(walletFrame, &WalletFrame::createWalletButtonClicked, [this] {
-            auto activity = new CreateWalletActivity(getWalletController(), this);
-            activity->create();
-        });
+        connect(walletFrame, &WalletFrame::createWalletButtonClicked, this, &BitcoinGUI::createWallet);
         connect(walletFrame, &WalletFrame::message, [this](const QString& title, const QString& message, unsigned int style) {
             this->message(title, message, style);
         });
@@ -137,6 +135,8 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         setCentralWidget(rpcConsole);
         Q_EMIT consoleShown(rpcConsole);
     }
+
+    modalOverlay = new ModalOverlay(enableWallet, this);
 
     // Accept D&D of URIs
     setAcceptDrops(true);
@@ -153,7 +153,6 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 
     // Create the title bar
     createTitleBars();
-
     // Create system tray icon and notification
     if (QSystemTrayIcon::isSystemTrayAvailable()) {
         createTrayIcon();
@@ -162,23 +161,27 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 
     // Create status bar
     statusBar();
-
     // Enable the size grip (right size grip), add new size grip (left size grip) and set the status bar style
     statusBar()->setSizeGripEnabled(true);
     statusBar()->addWidget(new QSizeGrip(statusBar()));
     statusBar()->setStyleSheet("QSizeGrip { width: 3px; height: 25px; border: 0px solid black; } \n QStatusBar::item { border: 0px solid black; }");
+
     // Status bar notification icons
     QFrame *frameBlocks = new QFrame();
     frameBlocks->setObjectName("frameBlocks");
     frameBlocks->setContentsMargins(0,0,0,0);
+
     frameBlocks->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QVBoxLayout *frameBlocksLayout = new QVBoxLayout(frameBlocks);
     QHBoxLayout *hLayIcons = new QHBoxLayout();
     frameBlocksLayout->setContentsMargins(0,20,0,20);
     frameBlocksLayout->setSpacing(10);
+
     unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
+
     unitDisplayControl->setObjectName("unitDisplayControl");
     labelLedgerIcon = new QLabel();
+
     labelWalletEncryptionIcon = new GUIUtil::ThemedLabel(platformStyle);
     labelWalletHDStatusIcon = new GUIUtil::ThemedLabel(platformStyle);
     labelProxyIcon = new GUIUtil::ClickableLabel(platformStyle);
@@ -186,7 +189,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
     labelBlocksIcon = new GUIUtil::ClickableLabel(platformStyle);
     labelStakingIcon = new QLabel();
     hLayIcons->addStretch();
-    if(enableWallet)
+   if(enableWallet)
     {
         QHBoxLayout *hLayUnit = new QHBoxLayout();
         hLayUnit->addStretch();
@@ -259,9 +262,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         openOptionsDialogWithTab(OptionsDialog::TAB_NETWORK);
     });
 
-    modalOverlay = new ModalOverlay(enableWallet, this);
     qtumVersionChecker = new QtumVersionChecker(this);
-
     connect(labelBlocksIcon, &GUIUtil::ClickableLabel::clicked, this, &BitcoinGUI::showModalOverlay);
     connect(progressBar, &GUIUtil::ClickableProgressBar::clicked, this, &BitcoinGUI::showModalOverlay);
 
@@ -274,7 +275,6 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 #endif
 
     setStyleSheet("QMainWindow::separator { width: 1px; height: 1px; margin: 0px; padding: 0px; }");
-
 #ifdef Q_OS_MACOS
     m_app_nap_inhibitor = new CAppNapInhibitor;
 #endif
@@ -285,7 +285,6 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
         showModalBackupOverlay();
         settings.setValue("ShowBackupOverlay", false);
     }
-
     GUIUtil::handleCloseWindowShortcut(this);
 }
 
@@ -365,7 +364,6 @@ void BitcoinGUI::createActions()
     QRCTokenAction->setCheckable(true);
     QRCTokenAction->setShortcut(QKeySequence(QStringLiteral("Alt+5")));
     tabGroup->addAction(QRCTokenAction);
-
 #ifdef ENABLE_WALLET
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
@@ -377,7 +375,6 @@ void BitcoinGUI::createActions()
     connect(receiveCoinsAction, &QAction::triggered, this, &BitcoinGUI::gotoReceiveCoinsPage);
     connect(historyAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
     connect(historyAction, &QAction::triggered, this, &BitcoinGUI::gotoHistoryPage);
-
     connect(createContractAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(createContractAction, SIGNAL(triggered()), this, SLOT(gotoCreateContractPage()));
     connect(sendToContractAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -392,7 +389,6 @@ void BitcoinGUI::createActions()
     connect(delegationAction, SIGNAL(triggered()), this, SLOT(gotoDelegationPage()));
     connect(superStakerAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(superStakerAction, SIGNAL(triggered()), this, SLOT(gotoSuperStakerPage()));
-
 #endif // ENABLE_WALLET
 
     quitAction = new QAction(tr("E&xit"), this);
@@ -433,6 +429,7 @@ void BitcoinGUI::createActions()
     m_load_psbt_action->setStatusTip(tr("Load Partially Signed Qtum Transaction"));
     m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from &clipboard…"), this);
     m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed Qtum Transaction from clipboard"));
+
     signTxHardwareAction = new QAction(tr("Sign with &hardware..."), this);
     signTxHardwareAction->setStatusTip(tr("Sign transaction with hardware wallet"));
 
@@ -470,6 +467,10 @@ void BitcoinGUI::createActions()
 
     m_close_all_wallets_action = new QAction(tr("Close All Wallets…"), this);
     m_close_all_wallets_action->setStatusTip(tr("Close all wallets"));
+
+    m_migrate_wallet_action = new QAction(tr("Migrate Wallet"), this);
+    m_migrate_wallet_action->setEnabled(false);
+    m_migrate_wallet_action->setStatusTip(tr("Migrate a wallet"));
 
     showHelpMessageAction = new QAction(tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
@@ -528,6 +529,7 @@ void BitcoinGUI::createActions()
                 connect(action, &QAction::triggered, [this, path] {
                     auto activity = new OpenWalletActivity(m_wallet_controller, this);
                     connect(activity, &OpenWalletActivity::opened, this, &BitcoinGUI::setCurrentWallet, Qt::QueuedConnection);
+                    connect(activity, &OpenWalletActivity::opened, rpcConsole, &RPCConsole::setCurrentWallet, Qt::QueuedConnection);
                     activity->open(path);
                 });
             }
@@ -557,6 +559,7 @@ void BitcoinGUI::createActions()
 
             auto activity = new RestoreWalletActivity(m_wallet_controller, this);
             connect(activity, &RestoreWalletActivity::restored, this, &BitcoinGUI::setCurrentWallet, Qt::QueuedConnection);
+            connect(activity, &RestoreWalletActivity::restored, rpcConsole, &RPCConsole::setCurrentWallet, Qt::QueuedConnection);
 
             auto backup_file_path = fs::PathFromString(backup_file.toStdString());
             activity->restore(backup_file_path, wallet_name.toStdString());
@@ -564,13 +567,14 @@ void BitcoinGUI::createActions()
         connect(m_close_wallet_action, &QAction::triggered, [this] {
             m_wallet_controller->closeWallet(walletFrame->currentWalletModel(), this);
         });
-        connect(m_create_wallet_action, &QAction::triggered, [this] {
-            auto activity = new CreateWalletActivity(m_wallet_controller, this);
-            connect(activity, &CreateWalletActivity::created, this, &BitcoinGUI::setCurrentWallet);
-            activity->create();
-        });
+        connect(m_create_wallet_action, &QAction::triggered, this, &BitcoinGUI::createWallet);
         connect(m_close_all_wallets_action, &QAction::triggered, [this] {
             m_wallet_controller->closeAllWallets(this);
+        });
+        connect(m_migrate_wallet_action, &QAction::triggered, [this] {
+            auto activity = new MigrateWalletActivity(m_wallet_controller, this);
+            connect(activity, &MigrateWalletActivity::migrated, this, &BitcoinGUI::setCurrentWallet);
+            activity->migrate(walletFrame->currentWalletModel());
         });
         connect(m_mask_values_action, &QAction::toggled, this, &BitcoinGUI::setPrivacy);
         connect(m_mask_values_action, &QAction::toggled, this, &BitcoinGUI::enableHistoryAction);
@@ -593,6 +597,7 @@ void BitcoinGUI::createMenuBar()
         file->addAction(m_open_wallet_action);
         file->addAction(m_close_wallet_action);
         file->addAction(m_close_all_wallets_action);
+        file->addAction(m_migrate_wallet_action);
         file->addSeparator();
         file->addAction(backupWalletAction);
         file->addAction(restoreWalletAction);
@@ -740,7 +745,6 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndH
     this->clientModel = _clientModel;
     if(_clientModel)
     {
-
         // Check for updates
         if(_clientModel->getOptionsModel()->getCheckForUpdates() && qtumVersionChecker->newVersionAvailable())
         {
@@ -748,7 +752,6 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndH
             QString message(tr("New version of Qtum wallet is available on the Qtum source code repository: <br /> %1. <br />It is recommended to download it and update this application").arg(link));
             QMessageBox::information(this, tr("Check for updates"), message);
         }
-
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,
         // while the client has not yet fully loaded
         createTrayIconMenu();
@@ -803,8 +806,9 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndH
 
         modalOverlay->setKnownBestHeight(clientModel->getHeaderTipHeight(), QDateTime::fromTime_t(clientModel->getHeaderTipTime()), /*presync=*/false);
 
-    } else {
-        if(trayIconMenu)
+        } else {
+        // Shutdown requested, disable menus
+        if (trayIconMenu)
         {
             // Disable context menu on tray icon
             trayIconMenu->clear();
@@ -818,18 +822,19 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndH
         }
 #endif // ENABLE_WALLET
         unitDisplayControl->setOptionsModel(nullptr);
+        // Disable top bar menu actions
+        appMenuBar->clear();
     }
 }
 
 #ifdef ENABLE_WALLET
-
 void BitcoinGUI::enableHistoryAction(bool privacy)
 {
     historyAction->setEnabled(!privacy);
     if (historyAction->isChecked()) gotoOverviewPage();
 }
 
-void BitcoinGUI::setWalletController(WalletController* wallet_controller)
+void BitcoinGUI::setWalletController(WalletController* wallet_controller, bool show_loading_minimized)
 {
     assert(!m_wallet_controller);
     assert(wallet_controller);
@@ -843,14 +848,13 @@ void BitcoinGUI::setWalletController(WalletController* wallet_controller)
 
     GUIUtil::ExceptionSafeConnect(wallet_controller, &WalletController::walletAdded, this, &BitcoinGUI::addWallet);
     connect(wallet_controller, &WalletController::walletRemoved, this, &BitcoinGUI::removeWallet);
-    
     connect(wallet_controller, &WalletController::destroyed, this, [this] {
         // wallet_controller gets destroyed manually, but it leaves our member copy dangling
         m_wallet_controller = nullptr;
     });
 
     auto activity = new LoadWalletsActivity(m_wallet_controller, this);
-    activity->load();
+    activity->load(show_loading_minimized);
 }
 
 WalletController* BitcoinGUI::getWalletController()
@@ -892,13 +896,11 @@ void BitcoinGUI::addWallet(WalletModel* walletModel)
     enableHistoryAction(privacy);
     const QString display_name = walletModel->getDisplayName();
     m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
-
     appTitleBar->addWallet(walletModel);
     if(!(clientModel->fBatchProcessingMode))
         QTimer::singleShot(MODEL_UPDATE_DELAY, clientModel, SLOT(updateTip()));
 
     m_wallet_selector->setCurrentIndex(m_wallet_selector->count()-1);
-
 }
 
 void BitcoinGUI::removeWallet(WalletModel* walletModel)
@@ -914,6 +916,7 @@ void BitcoinGUI::removeWallet(WalletModel* walletModel)
         setWalletActionsEnabled(false);
         overviewAction->setChecked(true);
     } else if (m_wallet_selector->count() == 1) {
+
         m_wallet_selector_label->setVisible(false);
         m_wallet_selector->setVisible(false);
     }
@@ -937,6 +940,7 @@ void BitcoinGUI::setCurrentWallet(WalletModel* wallet_model)
         }
     }
     updateWindowTitle();
+    m_migrate_wallet_action->setEnabled(wallet_model->wallet().isLegacy());
 }
 
 void BitcoinGUI::setCurrentWalletBySelectorIndex(int index)
@@ -982,6 +986,7 @@ void BitcoinGUI::setWalletActionsEnabled(bool enabled)
     signTxHardwareAction->setEnabled(enabled);
     m_close_wallet_action->setEnabled(enabled);
     m_close_all_wallets_action->setEnabled(enabled);
+    m_migrate_wallet_action->setEnabled(enabled);
 }
 
 void BitcoinGUI::createTrayIcon()
@@ -1150,7 +1155,6 @@ void BitcoinGUI::gotoSuperStakerPage()
     superStakerAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSuperStakerPage();
 }
-
 void BitcoinGUI::gotoReceiveCoinsPage()
 {
     receiveCoinsAction->setChecked(true);
@@ -1183,7 +1187,6 @@ void BitcoinGUI::gotoStakePage()
     stakeAction->setChecked(true);
     if (walletFrame) walletFrame->gotoStakePage();
 }
-
 void BitcoinGUI::gotoSignMessageTab(QString addr)
 {
     if (walletFrame) walletFrame->gotoSignMessageTab(addr);
@@ -1197,12 +1200,10 @@ void BitcoinGUI::gotoLoadPSBT(bool from_clipboard)
 {
     if (walletFrame) walletFrame->gotoLoadPSBT(from_clipboard);
 }
-
 void BitcoinGUI::signTxHardware(const QString& tx)
 {
     if (walletFrame) walletFrame->signTxHardware(tx);
 }
-
 #endif // ENABLE_WALLET
 
 void BitcoinGUI::updateNetworkState()
@@ -1417,6 +1418,21 @@ void BitcoinGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVer
     progressBar->setToolTip(tooltip);
 }
 
+void BitcoinGUI::createWallet()
+{
+#ifdef ENABLE_WALLET
+#ifndef USE_SQLITE
+    // Compiled without sqlite support (required for descriptor wallets)
+    message(tr("Error creating wallet"), tr("Cannot create new wallet, the software was compiled without sqlite support (required for descriptor wallets)"), CClientUIInterface::MSG_ERROR);
+    return;
+#endif // USE_SQLITE
+    auto activity = new CreateWalletActivity(getWalletController(), this);
+    connect(activity, &CreateWalletActivity::created, this, &BitcoinGUI::setCurrentWallet);
+    connect(activity, &CreateWalletActivity::created, rpcConsole, &RPCConsole::setCurrentWallet);
+    activity->create();
+#endif // ENABLE_WALLET
+}
+
 void BitcoinGUI::message(const QString& title, QString message, unsigned int style, bool* ret, const QString& detailed_message)
 {
     // Default title. On macOS, the window title is ignored (as required by the macOS Guidelines).
@@ -1479,6 +1495,7 @@ void BitcoinGUI::message(const QString& title, QString message, unsigned int sty
 
 void BitcoinGUI::changeEvent(QEvent *e)
 {
+
     QMainWindow::changeEvent(e);
 
 #ifndef Q_OS_MACOS // Ignored on Mac
@@ -1550,7 +1567,6 @@ void BitcoinGUI::incomingTransaction(const QString& date, BitcoinUnit unit, cons
     message((amount)<0 ? tr("Sent transaction") : tr("Incoming transaction"),
              msg, CClientUIInterface::MSG_INFORMATION);
 }
-
 void BitcoinGUI::incomingTokenTransaction(const QString& date, const QString& amount, const QString& type, const QString& address, const QString& label, const QString& walletName, const QString& title)
 {
     // On new transaction, make an info balloon
@@ -1566,7 +1582,6 @@ void BitcoinGUI::incomingTokenTransaction(const QString& date, const QString& am
         msg += tr("Address: %1\n").arg(address);
     message(title, msg, CClientUIInterface::MSG_INFORMATION);
 }
-
 #endif // ENABLE_WALLET
 
 void BitcoinGUI::dragEnterEvent(QDragEnterEvent *event)
@@ -1739,7 +1754,7 @@ void BitcoinGUI::toggleHidden()
 #ifdef ENABLE_WALLET
 void BitcoinGUI::updateLedgerIcon()
 {
-    if(m_node.shutdownRequested() || !clientModel || clientModel->fBatchProcessingMode)
+    if(!clientModel || clientModel->fBatchProcessingMode || m_node.shutdownRequested())
         return;
 
     WalletView * const walletView = walletFrame ? walletFrame->currentWalletView() : 0;
@@ -1783,7 +1798,7 @@ void BitcoinGUI::updateLedgerIcon()
 
 void BitcoinGUI::updateStakingIcon()
 {
-    if(m_node.shutdownRequested() || !clientModel || clientModel->fBatchProcessingMode)
+    if(!clientModel || clientModel->fBatchProcessingMode || m_node.shutdownRequested())
         return;
 
     WalletView * const walletView = walletFrame ? walletFrame->currentWalletView() : 0;
@@ -1851,7 +1866,6 @@ void BitcoinGUI::updateStakingIcon()
     }
 }
 #endif // ENABLE_WALLET
-
 void BitcoinGUI::detectShutdown()
 {
     if (m_node.shutdownRequested())
@@ -1892,7 +1906,6 @@ void BitcoinGUI::showModalBackupOverlay()
     if (modalBackupOverlay)
         modalBackupOverlay->toggleVisibility();
 }
-
 static bool ThreadSafeMessageBox(BitcoinGUI* gui, const bilingual_str& message, const std::string& caption, unsigned int style)
 {
     bool modal = (style & CClientUIInterface::MODAL);
@@ -1943,7 +1956,6 @@ void BitcoinGUI::addDockWindows(Qt::DockWidgetArea area, QWidget* widget)
     dock->setWidget(widget);
     addDockWidget(area, dock);
 }
-
 bool BitcoinGUI::isPrivacyModeActivated() const
 {
     assert(m_mask_values_action);
@@ -1958,7 +1970,6 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle* pl
     iconHeight = GetIntStyleValue("unitdisplaystatusbarcontrol/icon-height", 0);
     iconWidth = GetIntStyleValue("unitdisplaystatusbarcontrol/icon-width", 0);
     iconPath = GetStringStyleValue("unitdisplaystatusbarcontrol/icon-path", "");
-
     createContextMenu();
     setToolTip(tr("Unit to show amounts in. Click to select another unit."));
     QList<BitcoinUnit> units = BitcoinUnits::availableUnits();
@@ -1975,13 +1986,13 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle* pl
 /** So that it responds to button clicks */
 void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *)
 {
-
     menu->adjustSize();
     onDisplayUnitsClicked(QPoint((width() -menu->width())/2, -menu->height() -menuMargin));
 }
 
 void UnitDisplayStatusBarControl::changeEvent(QEvent* e)
 {
+
     QLabel::changeEvent(e);
 }
 

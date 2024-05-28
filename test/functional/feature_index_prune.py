@@ -3,6 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test indices in conjunction with prune."""
+import os
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
@@ -26,6 +27,7 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
             'basic block filter index': {'synced': True, 'best_block_height': height},
         }
         self.wait_until(lambda: self.nodes[0].getindexinfo() == expected_filter)
+
         expected_stats = {
             'coinstatsindex': {'synced': True, 'best_block_height': height}
         }
@@ -65,6 +67,7 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
 
         self.mine_batches(1000)
         self.sync_index(height=3100)
+
         self.log.info("prune some blocks")
         for node in self.nodes[:2]:
             with node.assert_debug_log(['limited pruning to height 3089']):
@@ -90,7 +93,7 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
         # mine and sync index up to a height that will later be the pruneheight
         self.generate(self.nodes[0], 51)
         self.sync_index(height=3151)
-        
+
         self.restart_without_indices()
 
         self.log.info("make sure trying to access the indices throws errors")
@@ -125,8 +128,9 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
         self.log.info("make sure we get an init error when starting the nodes again with the indices")
         filter_msg = "Error: basic block filter index best block of the index goes beyond pruned data. Please disable the index or reindex (which will download the whole blockchain again)"
         stats_msg = "Error: coinstatsindex best block of the index goes beyond pruned data. Please disable the index or reindex (which will download the whole blockchain again)"
+        end_msg = f"{os.linesep}Error: Failed to start indexes, shutting down.."
         for i, msg in enumerate([filter_msg, stats_msg, filter_msg]):
-            self.nodes[i].assert_start_raises_init_error(extra_args=self.extra_args[i], expected_msg=msg)
+            self.nodes[i].assert_start_raises_init_error(extra_args=self.extra_args[i], expected_msg=msg+end_msg)
 
         self.log.info("make sure the nodes start again with the indices and an additional -reindex arg")
         for i in range(3):
@@ -134,7 +138,7 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
             self.restart_node(i, extra_args=restart_args)
             # The nodes need to be reconnected to the non-pruning node upon restart, otherwise they will be stuck
             self.connect_nodes(i, 3)
-        
+
         self.sync_blocks(timeout=300)
         self.sync_index(height=6900)
 

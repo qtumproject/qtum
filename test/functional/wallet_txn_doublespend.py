@@ -91,8 +91,8 @@ class TxnMallTest(BitcoinTestFramework):
         assert_equal(doublespend["complete"], True)
 
         # Create two spends using 1 50 BTC coin each
-        txid1 = self.nodes[0].sendtoaddress(node1_address, (INITIAL_BLOCK_REWARD/5) * 4)
-        txid2 = self.nodes[0].sendtoaddress(node1_address, (INITIAL_BLOCK_REWARD/5) * 2)
+        txid1 = self.spend_txid(fund_foo_txid, find_vout_for_address(self.nodes[0], fund_foo_txid, node0_address_foo), {node1_address: (INITIAL_BLOCK_REWARD/5) * 4})
+        txid2 = self.spend_txid(fund_bar_txid, find_vout_for_address(self.nodes[0], fund_bar_txid, node0_address_bar), {node1_address: (INITIAL_BLOCK_REWARD/5) * 2})
 
         # Have node0 mine a block:
         if (self.options.mine_block):

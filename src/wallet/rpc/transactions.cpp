@@ -401,6 +401,7 @@ static void ListTransactions(const CWallet& wallet, const CWalletTx& wtx, int nM
                 entry.pushKV("label", label);
             }
             entry.pushKV("vout", r.vout);
+            entry.pushKV("abandoned", wtx.isAbandoned());
             if (fLong)
                 WalletTxToJSON(wallet, wtx, entry);
             ret.push_back(entry);
@@ -474,8 +475,7 @@ RPCHelpMan listtransactions()
                         },
                         TransactionDescriptionString()),
                         {
-                            {RPCResult::Type::BOOL, "abandoned", /*optional=*/true, "'true' if the transaction has been abandoned (inputs are respendable). Only available for the \n"
-                                 "'send' category of transactions."},
+                            {RPCResult::Type::BOOL, "abandoned", "'true' if the transaction has been abandoned (inputs are respendable)."},
                         })},
                     }
                 },
@@ -588,8 +588,7 @@ RPCHelpMan listsinceblock()
                             },
                             TransactionDescriptionString()),
                             {
-                                {RPCResult::Type::BOOL, "abandoned", /*optional=*/true, "'true' if the transaction has been abandoned (inputs are respendable). Only available for the \n"
-                                     "'send' category of transactions."},
+                                {RPCResult::Type::BOOL, "abandoned", "'true' if the transaction has been abandoned (inputs are respendable)."},
                                 {RPCResult::Type::STR, "label", /*optional=*/true, "A comment for the address/transaction, if any"},
                             })},
                         }},
@@ -734,8 +733,7 @@ RPCHelpMan gettransaction()
                                 {RPCResult::Type::NUM, "vout", "the vout value"},
                                 {RPCResult::Type::STR_AMOUNT, "fee", /*optional=*/true, "The amount of the fee in " + CURRENCY_UNIT + ". This is negative and only available for the \n"
                                     "'send' category of transactions."},
-                                {RPCResult::Type::BOOL, "abandoned", /*optional=*/true, "'true' if the transaction has been abandoned (inputs are respendable). Only available for the \n"
-                                     "'send' category of transactions."},
+                                {RPCResult::Type::BOOL, "abandoned", "'true' if the transaction has been abandoned (inputs are respendable)."},
                                 {RPCResult::Type::ARR, "parent_descs", /*optional=*/true, "Only if 'category' is 'received'. List of parent descriptors for the scriptPubKey of this coin.", {
                                     {RPCResult::Type::STR, "desc", "The descriptor string."},
                                 }},
@@ -746,6 +744,7 @@ RPCHelpMan gettransaction()
                         {
                             {RPCResult::Type::ELISION, "", "Equivalent to the RPC decoderawtransaction method, or the RPC getrawtransaction method when `verbose` is passed."},
                         }},
+                        RESULT_LAST_PROCESSED_BLOCK,
                     })
                 },
                 RPCExamples{
@@ -873,6 +872,7 @@ RPCHelpMan gettransaction()
         entry.pushKV("decoded", decoded);
     }
 
+    AppendLastProcessedBlock(entry, *pwallet);
     return entry;
 },
     };

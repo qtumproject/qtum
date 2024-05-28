@@ -9,11 +9,15 @@
 #include <qt/bitcoin.h>
 
 #include <chainparams.h>
+#include <common/args.h>
 #include <common/init.h>
+#include <common/system.h>
 #include <init.h>
 #include <interfaces/handler.h>
 #include <interfaces/init.h>
 #include <interfaces/node.h>
+#include <logging.h>
+#include <node/context.h>
 #include <node/interface_ui.h>
 #include <noui.h>
 #include <qt/bitcoingui.h>
@@ -31,12 +35,10 @@
 #include <uint256.h>
 #include <util/exception.h>
 #include <util/string.h>
-#include <util/system.h>
 #include <util/threadnames.h>
 #include <util/translation.h>
 #include <validation.h>
 #include <qt/styleSheet.h>
-
 #ifdef ENABLE_WALLET
 #include <qt/paymentserver.h>
 #include <qt/walletcontroller.h>
@@ -245,7 +247,6 @@ void removeParam(QStringList& list, const QString& param, bool startWith)
         }
     }
 }
-
 static int qt_argc = 1;
 static const char* qt_argv = "qtum-qt";
 
@@ -404,7 +405,6 @@ void BitcoinApplication::requestShutdown()
 #endif
     // Get restart wallet
     if(optionsModel) restartApp = optionsModel->getRestartApp();
-
     // Request node shutdown, which can interrupt long operations, like
     // rescanning a wallet.
     node().startShutdown();
@@ -435,9 +435,7 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
 {
     qDebug() << __func__ << ": Initialization result: " << success;
 
-    // Set exit result.
-    returnValue = success ? EXIT_SUCCESS : EXIT_FAILURE;
-    if(success) {
+    if (success) {
         delete m_splash;
         m_splash = nullptr;
 
@@ -445,18 +443,21 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
         qInfo() << "Platform customization:" << platformStyle->getName();
         clientModel = new ClientModel(node(), optionsModel);
         window->setClientModel(clientModel, &tip_info);
+
+        // If '-min' option passed, start window minimized (iconified) or minimized to tray
+        bool start_minimized = gArgs.GetBoolArg("-min", false);
 #ifdef ENABLE_WALLET
         if (WalletModel::isWalletEnabled()) {
             m_wallet_controller = new WalletController(*clientModel, platformStyle, this);
-            window->setWalletController(m_wallet_controller);
+            window->setWalletController(m_wallet_controller, /*show_loading_minimized=*/start_minimized);
             if (paymentServer) {
                 paymentServer->setOptionsModel(optionsModel);
             }
         }
 #endif // ENABLE_WALLET
 
-        // If -min option passed, start window minimized (iconified) or minimized to tray
-        if (!gArgs.GetBoolArg("-min", false)) {
+        // Show or minimize window
+        if (!start_minimized) {
             window->show();
         } else if (clientModel->getOptionsModel()->getMinimizeToTray() && window->hasTrayIcon()) {
             // do nothing as the window is managed by the tray icon
@@ -611,7 +612,7 @@ static void SetupUIArgs(ArgsManager& argsman)
 int GuiMain(int argc, char* argv[])
 {
 #ifdef WIN32
-    util::WinCmdLineArgs winArgs;
+    common::WinCmdLineArgs winArgs;
     std::tie(argc, argv) = winArgs.get();
 #endif
 
@@ -660,6 +661,7 @@ int GuiMain(int argc, char* argv[])
             QString::fromStdString("Error parsing command line arguments: %1.").arg(QString::fromStdString(error)));
         return EXIT_FAILURE;
     }
+
 
     /// 3. Application identification
     // must be set before OptionsModel is initialized or translations are loaded,
@@ -715,14 +717,12 @@ int GuiMain(int argc, char* argv[])
     PaymentServer::ipcParseCommandLine(argc, argv);
 #endif
 
-    QScopedPointer<const NetworkStyle> networkStyle(NetworkStyle::instantiate(Params().NetworkIDString()));
+    QScopedPointer<const NetworkStyle> networkStyle(NetworkStyle::instantiate(Params().GetChainType()));
     assert(!networkStyle.isNull());
     // Allow for separate UI settings for testnets
     QApplication::setApplicationName(networkStyle->getAppName());
-
     // Now that the QApplication is setup and we have parsed our parameters, we can set the platform style
     app.setupPlatformStyle();
-
     // Re-initialize translations after changing application name (language in network-specific settings can be different)
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
 
@@ -771,11 +771,9 @@ int GuiMain(int argc, char* argv[])
         app.InitPruneSetting(prune_MiB);
     }
 
-    int rv = EXIT_SUCCESS;
     try
     {
         SetObjectStyleSheet(&app, StyleSheetNames::App);
-
         app.createWindow(networkStyle.data());
         // Perform base initialization before spinning up initialization/shutdown thread
         // This is acceptable because this function only contains steps that are quick to execute,
@@ -786,10 +784,9 @@ int GuiMain(int argc, char* argv[])
             WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("%1 didn't yet exit safely…").arg(PACKAGE_NAME), (HWND)app.getMainWinId());
 #endif
             app.exec();
-            rv = app.getReturnValue();
         } else {
             // A dialog with detailed error will have been shown by InitError()
-            rv = EXIT_FAILURE;
+            return EXIT_FAILURE;
         }
     } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "Runaway exception");
@@ -799,5 +796,5 @@ int GuiMain(int argc, char* argv[])
         app.handleRunawayException(QString::fromStdString(app.node().getWarnings().translated));
     }
     app.restartWallet();
-    return rv;
+    return app.node().getExitStatus();
 }

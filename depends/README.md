@@ -15,6 +15,7 @@ For example:
 **Bitcoin Core's `configure` script by default will ignore the depends output.** In
 order for it to pick up libraries, tools, and settings from the depends build,
 you must set the `CONFIG_SITE` environment variable to point to a `config.site` settings file.
+Make sure that `CONFIG_SITE` is an absolute path.
 In the above example, a file named `depends/x86_64-w64-mingw32/share/config.site` will be
 created. To use it during compilation:
 
@@ -47,7 +48,7 @@ The paths are automatically configured and no other options are needed unless ta
 
 #### For macOS cross compilation
 
-    sudo apt-get install curl bsdmainutils cmake libz-dev python3-setuptools libtinfo5 xorriso
+    sudo apt-get install curl bsdmainutils cmake libz-dev python3-setuptools zip
 
 Note: You must obtain the macOS SDK before proceeding with a cross-compile.
 Under the depends directory, create a subdirectory named `SDKs`.

@@ -1,5 +1,5 @@
 #include <qtum/qtumledger.h>
-#include <util/system.h>
+#include <common/system.h>
 #include <chainparams.h>
 #include <univalue.h>
 #include <util/strencodings.h>
@@ -19,6 +19,7 @@
 #include <boost/process/windows.hpp>
 #endif
 #include <univalue.h>
+#include <common/args.h>
 
 RecursiveMutex cs_ledger;
 
@@ -214,12 +215,12 @@ public:
         toolExists = boost::filesystem::exists(toolPath);
         initToolPath();
 
-        if(gArgs.GetChainName() != CBaseChainParams::MAIN)
+        if(gArgs.GetChainType() != ChainType::MAIN)
         {
             ledgerMainPath = false;
         }
 
-        arguments << "--chain" << gArgs.GetChainName();
+        arguments << "--chain" << gArgs.GetChainTypeString();
 
         if(!toolExists)
         {

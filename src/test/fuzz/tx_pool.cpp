@@ -44,12 +44,12 @@ void initialize_tx_pool()
 
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     for (int i = 0; i < 2 * coinbaseMaturity; ++i) {
-        CTxIn in = MineBlock(g_setup->m_node, P2WSH_OP_TRUE);
+        COutPoint prevout{MineBlock(g_setup->m_node, P2WSH_OP_TRUE)};
         // Remember the txids to avoid expensive disk access later on
         auto& outpoints = i < coinbaseMaturity ?
                               g_outpoints_coinbase_init_mature :
                               g_outpoints_coinbase_init_immature;
-        outpoints.push_back(in.prevout);
+        outpoints.push_back(prevout);
     }
     SyncWithValidationInterfaceQueue();
 }
@@ -133,7 +133,7 @@ CTxMemPool MakeMempool(FuzzedDataProvider& fuzzed_data_provider, const NodeConte
     return CTxMemPool{mempool_opts};
 }
 
-FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
+FUZZ_TARGET(tx_pool_standard, .init = initialize_tx_pool)
 {
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
     const auto& node = g_setup->m_node;
@@ -310,7 +310,7 @@ FUZZ_TARGET_INIT(tx_pool_standard, initialize_tx_pool)
     Finish(fuzzed_data_provider, tx_pool, chainstate);
 }
 
-FUZZ_TARGET_INIT(tx_pool, initialize_tx_pool)
+FUZZ_TARGET(tx_pool, .init = initialize_tx_pool)
 {
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
     const auto& node = g_setup->m_node;

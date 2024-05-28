@@ -58,21 +58,13 @@
         <translation type="unfinished">&amp;Izaberite</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Adrese pošiljalaca</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Adrese primalaca</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Ovo su vaše Qtum adrese za slanje novca. Uvijek provjerite iznos i adresu primaoca prije slanja novca.</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Ovo su vaše Qtum adrese za primanje uplata. Upotrijebite dugme 'Stvori novu adresu prijema' na kartici primanja da biste kreirali nove adrese. Potpisivanje je moguće samo s adresama tipa 'legacy'.</translation> 
+        <translation type="unfinished">Ovo su vaše Qtum adrese za primanje uplata. Upotrijebite dugme 'Stvori novu adresu prijema' na kartici primanja da biste kreirali nove adrese. Potpisivanje je moguće samo s adresama tipa 'legacy'.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -163,7 +155,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Potvrdite šifriranje novčanika</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source> 
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Upozorenje: Ako šifrirate novčanik i izgubite lozinku, &lt;b&gt;IZGUBIT ĆETE SVE SVOJE BITKOINE!&lt;/b&gt;</translation>
     </message>
     <message>
@@ -631,7 +623,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 klijent</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -752,10 +744,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Naknada:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Prašina:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Poslije Naknade:</translation>
     </message>
@@ -820,28 +808,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Kopiraj bajte</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopiraj prašinu</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopiraj promjenu</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 zaključano)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">da</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ne</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Ova naljepnica postaje crvena ako bilo koji primatelj primi količinu manju od trenutnog praga prašine.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -942,20 +914,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Napravi Prazan Novčanik</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Koristite deskriptore za upravljanje scriptPubKey</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Deskriptor Novčanik</translation>
-    </message>
-    <message>
         <source>Create</source>
         <translation type="unfinished">Napravi</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Sastavljeno bez podrške za sqlite (potrebno za deskriptorske novčanike)</translation>
     </message>
     </context>
 <context>
@@ -1421,10 +1381,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Sakrij</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Prašina:</translation>
-    </message>
-    <message>
         <source>Copy quantity</source>
         <translation type="unfinished">Kopiraj količinu</translation>
     </message>
@@ -1443,10 +1399,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Kopiraj bajte</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopiraj prašinu</translation>
     </message>
     <message>
         <source>Copy change</source>
