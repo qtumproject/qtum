@@ -1,0 +1,308 @@
+defaults:
+
+  environment-info: &environment-info
+    run:
+      name: "Environment info"
+      command: |
+        echo CXX: $CXX
+        $CXX --version
+        $CXX --version > compiler.version
+
+  update-submodules: &update-submodules
+    run:
+      name: "Update git submodules"
+      command: |
+        git submodule update --init --recursive
+
+  install-m32: &install-m32
+    run:
+      name: "Install 32-bit toolchain"
+      command: |
+        sudo apt -q update
+        sudo apt -qy install g++-multilib
+
+  install-mips64: &install-mips64
+    run:
+      name: "Install mips64 toolchain"
+      command: |
+        sudo apt -q update
+        sudo apt -qy install g++-mips64-linux-gnuabi64 qemu
+
+  install-powerpc64: &install-powerpc64
+    run:
+      name: "Install powerpc64 toolchain"
+      command: |
+        sudo apt -q update
+        sudo apt -qy install g++-powerpc64-linux-gnu qemu
+
+  configure: &configure
+    run:
+      name: "Configure"
+      # Build "out-of-source" to have better coverage report
+      # (ninja is using relative paths otherwise).
+      working_directory: ~/build
+      command: |
+        cmake ../project -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=/tmp/local $CMAKE_OPTIONS
+
+  build: &build
+    run:
+      name: "Build"
+      working_directory: ~/build
+      command: |
+        cmake --build . -- -j $BUILD_PARALLEL_JOBS
+        cmake --build . --target install
+
+  build-tests: &build-tests
+    run:
+      name: "Build ethash-test"
+      working_directory: ~/build
+      command: |
+        cmake --build . --target ethash-test -- -j $BUILD_PARALLEL_JOBS
+
+  test: &test
+    run:
+      name: "Test"
+      working_directory: ~/build
+      command: |
+        if [ -z "$GTEST_FILTER" ]; then
+          test/ethash-test
+        else
+          test/ethash-test --gtest_filter=$GTEST_FILTER
+        fi
+
+  test-cmake-config: &test-cmake-config
+    run:
+      name: "Test CMake config"
+      working_directory: ~/project/test/integration/cmake-config
+      command: |
+        cmake -DCMAKE_PREFIX_PATH=/tmp/local .
+        cmake --build .
+        ./ethash-cmake-config-test
+
+  test-mips64: &test-mips64
+    run:
+      name: "Test (mips64)"
+      working_directory: ~/build
+      command: |
+        qemu-mips64 -L /usr/mips64-linux-gnuabi64 test/ethash-test
+
+  benchmark: &benchmark
+    run:
+      name: "Benchmark"
+      working_directory: ~/build
+      command: |
+        test/ethash-bench
+
+  upload-coverage-data: &upload-coverage-data
+    run:
+      name: "Upload coverage data"
+      command: |
+        codecov --required --gcov-exec "$GCOV" --gcov-root ~/build
+
+
+  macos-defaults: &macos-defaults
+    environment:
+      - BUILD_PARALLEL_JOBS: 2
+    steps:
+      - run:
+          name: "Install CMake"
+          command: |
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install -q cmake ninja
+      - run:
+          name: "Install Python3"
+          # Python3 and requests are needed for Hunter upload.
+          command: |
+            export HOMEBREW_NO_AUTO_UPDATE=1
+            if ! brew install -q python3; then
+              brew upgrade -q python
+            fi
+            pip3 install -q requests
+      - checkout
+      - *configure
+      - *build
+      - *test
+
+
+version: 2
+jobs:
+
+  linux-gcc6-coverage:
+    environment:
+      - CXX: g++-6
+      - CC:  gcc-6
+      - GCOV: gcov-6
+      - BUILD_PARALLEL_JOBS: 2
+      - BUILD_TYPE: Debug
+      - CMAKE_OPTIONS: -DCOVERAGE=ON
+    docker:
+      - image: ethereum/cpp-build-env
+    steps:
+      - checkout
+      - *configure
+      - *build
+      - *test
+      - *upload-coverage-data
+
+  linux-clang6-ubsan:
+    environment:
+      - CXX: clang++-6.0
+      - CC:  clang-6.0
+      - BUILD_PARALLEL_JOBS: 2
+      - CMAKE_OPTIONS: -DSANITIZE=undefined,integer,nullability
+      - UBSAN_OPTIONS: halt_on_error=1
+    docker:
+      - image: ethereum/cpp-build-env
+    steps:
+      - checkout
+      - *configure
+      - *build
+      - *test
+      - *benchmark
+
+  linux-clang6-asan:
+    environment:
+      - CXX: clang++-6.0
+      - CC:  clang-6.0
+      - BUILD_PARALLEL_JOBS: 2
+      - CMAKE_OPTIONS: -DSANITIZE=address
+      - ASAN_OPTIONS: allocator_may_return_null=1
+    docker:
+      - image: ethereum/cpp-build-env
+    steps:
+      - checkout
+      - *configure
+      - *build
+      - *test
+      - *benchmark
+
+  linux-gcc4.8:
+    environment:
+      - CXX: g++-4.8
+      - CC:  gcc-4.8
+      - BUILD_PARALLEL_JOBS: 2
+    docker:
+      - image: ethereum/cpp-build-env
+    steps:
+      - checkout
+      - *configure
+      - *build
+      - *test-cmake-config
+      - *test
+
+  linux-clang3.8:
+    environment:
+      - CXX: clang++-3.8
+      - CC:  clang-3.8
+      - BUILD_PARALLEL_JOBS: 2
+      - CMAKE_OPTIONS: -DETHASH_BUILD_TESTS=OFF
+    docker:
+      - image: ethereum/cpp-build-env
+    steps:
+      - checkout
+      - *configure
+      - *build
+      - *test-cmake-config
+
+  linux-32bit-asan:
+    environment:
+      - BUILD_PARALLEL_JOBS: 2
+      - CMAKE_OPTIONS: -DTOOLCHAIN=cxx11-32bit
+      - CMAKE_OPTIONS: -DSANITIZE=address
+      - GTEST_FILTER: -*_oom
+    docker:
+      - image: ethereum/cpp-build-env
+    steps:
+      - checkout
+      - *install-m32
+      - *configure
+      - *build
+      - *test
+
+  linux-32bit-ubsan:
+    environment:
+      - BUILD_PARALLEL_JOBS: 2
+      - CMAKE_OPTIONS: -DTOOLCHAIN=cxx11-32bit
+      - CMAKE_OPTIONS: -DSANITIZE=undefined
+      - UBSAN_OPTIONS: halt_on_error=1
+    docker:
+      - image: ethereum/cpp-build-env
+    steps:
+      - checkout
+      - *install-m32
+      - *configure
+      - *build
+      - *test
+
+  mips64:
+    environment:
+      - BUILD_PARALLEL_JOBS: 2
+      - TEST_PARALLEL_JOBS: 2
+      - CMAKE_OPTIONS: -DTOOLCHAIN=mips64 -DCMAKE_EXE_LINKER_FLAGS=-static
+    docker:
+      - image: ethereum/cpp-build-env
+    steps:
+      - checkout
+      - *install-mips64
+      - *configure
+      - *build-tests
+      - store_artifacts:
+          path: ~/build/test/ethash-test
+          destination: ethash-test
+      - run:
+          name: "Test mips64"
+          working_directory: ~/build
+          command: |  # Software emulation in qemu will not handle threads.
+            qemu-mips64 test/ethash-test --gtest_filter='-*_multithreaded.*'
+
+  powerpc64:
+    environment:
+      - BUILD_PARALLEL_JOBS: 2
+      - TEST_PARALLEL_JOBS: 2
+      - CMAKE_OPTIONS: -DTOOLCHAIN=powerpc64 -DCMAKE_EXE_LINKER_FLAGS=-static
+    docker:
+      - image: ethereum/cpp-build-env
+    steps:
+      - checkout
+      - *install-powerpc64
+      - *configure
+      - *build-tests
+      - store_artifacts:
+          path: ~/build/test/ethash-test
+          destination: ethash-test
+      - run:
+          name: "Test powerpc64"
+          working_directory: ~/build
+          command: |  # Software emulation in qemu will not handle threads.
+            qemu-ppc64 test/ethash-test --gtest_filter='-*_multithreaded.*'
+
+
+  macos-xcode-tsan:
+    <<: *macos-defaults
+    environment:
+      - BUILD_PARALLEL_JOBS: 2
+      - CMAKE_OPTIONS: -DSANITIZE=thread
+      - TSAN_OPTIONS: allocator_may_return_null=1
+    macos:
+      xcode: "10.0.0"
+
+  macos-xcode83:
+    <<: *macos-defaults
+    macos:
+      xcode: "8.3.3"
+
+
+workflows:
+  version: 2
+  ethash:
+    jobs:
+      - linux-gcc6-coverage
+      - linux-clang6-ubsan
+      - linux-clang6-asan
+      - linux-gcc4.8
+      - linux-clang3.8
+      - linux-32bit-asan
+      - linux-32bit-ubsan
+      - mips64
+      - powerpc64
+      - macos-xcode-tsan
+      - macos-xcode83
