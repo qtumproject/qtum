@@ -32,10 +32,10 @@ static void LoadExternalBlockFile(benchmark::Bench& bench)
     DataStream ss{};
     auto params{testing_setup->m_node.chainman->GetParams()};
     ss << params.MessageStart();
-    ss << static_cast<uint32_t>(benchmark::data::block413567.size());
-    // We can't use the streaming serialization (ss << benchmark::data::block413567)
+    ss << static_cast<uint32_t>(benchmark::data::blockbench.size());
+    // We can't use the streaming serialization (ss << benchmark::data::blockbench)
     // because that first writes a compact size.
-    ss << Span{benchmark::data::block413567};
+    ss << Span{benchmark::data::blockbench};
 
     // Create the test file.
     {

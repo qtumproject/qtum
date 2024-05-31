@@ -1,0 +1,56 @@
+# bash programmable completion for qtumd(1) and qtum-qt(1)
+# Copyright (c) 2012-2022 The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+_qtumd() {
+    local cur prev words=() cword
+    local qtumd
+
+    # save and use original argument to invoke qtumd for -help
+    # it might not be in $PATH
+    qtumd="$1"
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n = cur prev words cword
+
+    case "$cur" in
+        -conf=*|-pid=*|-loadblock=*|-rpccookiefile=*|-wallet=*)
+            cur="${cur#*=}"
+            _filedir
+            return 0
+            ;;
+        -datadir=*)
+            cur="${cur#*=}"
+            _filedir -d
+            return 0
+            ;;
+        -*=*)	# prevent nonsense completions
+            return 0
+            ;;
+        *)
+
+            # only parse -help if sensible
+            if [[ -z "$cur" || "$cur" =~ ^- ]]; then
+                local helpopts
+                helpopts=$($qtumd -help 2>&1 | awk '$1 ~ /^-/ { sub(/=.*/, "="); print $1 }' )
+                COMPREPLY=( $( compgen -W "$helpopts" -- "$cur" ) )
+            fi
+
+            # Prevent space if an argument is desired
+            if [[ $COMPREPLY == *= ]]; then
+                compopt -o nospace
+            fi
+            return 0
+            ;;
+    esac
+} &&
+complete -F _qtumd qtumd qtum-qt
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
