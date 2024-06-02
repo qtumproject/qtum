@@ -72,7 +72,7 @@ class CoinStatsIndexTest(BitcoinTestFramework):
 
         # Generate a normal transaction and mine it
         self.generate(self.wallet, COINBASE_MATURITY + 1)
-        self.wallet.send_self_transfer(from_node=node)
+        self.wallet.send_self_transfer(from_node=node, fee_rate=31200)
         self.generate(node, 1)
 
         self.log.info("Test that gettxoutsetinfo() output is consistent with or without coinstatsindex option")
@@ -137,8 +137,8 @@ class CoinStatsIndexTest(BitcoinTestFramework):
             assert_equal(res5['block_info'], {
                 'unspendable': Decimal('0E-8'),
                 'prevout_spent': Decimal('20000.00000000'),
-                'new_outputs_ex_coinbase': Decimal('19999.99688000'),
-                'coinbase': Decimal('20000.00312000'),
+                'new_outputs_ex_coinbase': Decimal('16755.20000000'),
+                'coinbase': Decimal('23244.80000000'),
                 'unspendables': {
                     'genesis_block': Decimal('0E-8'),
                     'bip30': Decimal('0E-8'),
