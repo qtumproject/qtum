@@ -90,7 +90,7 @@ class BIP68Test(BitcoinTestFramework):
     # the first sequence bit is set.
     def test_disable_flag(self):
         # Create some unconfirmed inputs
-        utxo = self.wallet.send_self_transfer(from_node=self.nodes[0])["new_utxo"]
+        utxo = self.wallet.send_self_transfer(from_node=self.nodes[0], fee_rate=31200)["new_utxo"]
 
         tx1 = CTransaction()
         value = int((utxo["value"] - self.relayfee) * COIN)
@@ -224,7 +224,7 @@ class BIP68Test(BitcoinTestFramework):
 
         # Create a mempool tx.
         self.wallet.rescan_utxos()
-        tx1 = self.wallet.send_self_transfer(from_node=self.nodes[0])["tx"]
+        tx1 = self.wallet.send_self_transfer(from_node=self.nodes[0], fee_rate=31200)["tx"]
         tx1.rehash()
 
         # Anyone-can-spend mempool tx.
@@ -411,7 +411,7 @@ class BIP68Test(BitcoinTestFramework):
     def test_version2_relay(self):
         mini_wallet = MiniWallet(self.nodes[1])
         mini_wallet.rescan_utxos()
-        tx = mini_wallet.create_self_transfer()["tx"]
+        tx = mini_wallet.create_self_transfer(fee_rate=31200)["tx"]
         tx.nVersion = 2
         mini_wallet.sendrawtransaction(from_node=self.nodes[1], tx_hex=tx.serialize().hex())
 
