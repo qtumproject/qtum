@@ -111,8 +111,8 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         """Simple doublespend"""
         # we use MiniWallet to create a transaction template with inputs correctly set,
         # and modify the output (amount, scriptPubKey) according to our needs
-        tx = self.wallet.create_self_transfer()["tx"]
-        tx1a_txid = self.nodes[0].sendrawtransaction(tx.serialize().hex())
+        tx = self.wallet.create_self_transfer(fee_rate=31200)["tx"]
+        tx1a_txid = self.nodes[0].sendrawtransaction(tx.serialize().hex(), maxfeerate=41600)
 
         # Should fail because we haven't changed the fee
         tx.vout[0].scriptPubKey[-1] ^= 1
@@ -438,6 +438,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
                     child_tx = wallet.send_self_transfer(
                         from_node=normal_node,
                         utxo_to_spend=utxo,
+                        fee_rate=Decimal("0.004")
                     )
 
                     assert normal_node.getmempoolentry(child_tx['txid'])
