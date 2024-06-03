@@ -6,6 +6,7 @@
 Test transaction download behavior
 """
 import time
+from decimal import Decimal
 
 from test_framework.messages import (
     CInv,
@@ -86,7 +87,7 @@ class TxDownloadTest(BitcoinTestFramework):
 
     def test_inv_block(self):
         self.log.info("Generate a transaction on node 0")
-        tx = self.wallet.create_self_transfer()
+        tx = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))
         txid = int(tx['txid'], 16)
 
         self.log.info(
