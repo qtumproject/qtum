@@ -332,7 +332,7 @@ class RESTTest (BitcoinTestFramework):
         input_txid = txid
         for _ in range(3):
             utxo_to_spend = self.wallet.get_utxo(txid=input_txid)
-            txs.append(self.wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_to_spend)['txid'])
+            txs.append(self.wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_to_spend, fee_rate=31200)['txid'])
             input_txid = txs[-1]
         self.sync_all()
 
