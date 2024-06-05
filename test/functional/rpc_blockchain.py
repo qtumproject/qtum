@@ -205,37 +205,29 @@ class BlockchainTest(BitcoinTestFramework):
             'segwit': {'type': 'buried', 'active': True, 'height': 0},
             'testdummy': {
                 'type': 'bip9',
+                'height': 432,
+                'active': True,
                 'bip9': {
-                    'bit': 28,
                     'start_time': 0,
                     'timeout': 9223372036854775807,
                     'min_activation_height': 0,
-                    'status': 'started',
-                    'status_next': status_next,
+                    'status': 'active',
                     'since': 432,
-                    'statistics': {
-                        'period': 144,
-                        'threshold': 108,
-                        'elapsed': height - 143,
-                        'count': height - 143,
-                        'possible': True,
-                    },
-                    'signalling': '#'*(height-143),
-                },
-                'active': False
+                    'status_next': 'active'
+                }
             },
             'taproot': {
                 'type': 'bip9',
+                'height': 0,
+                'active': True,
                 'bip9': {
                     'start_time': -1,
                     'timeout': 9223372036854775807,
                     'min_activation_height': 0,
                     'status': 'active',
-                    'status_next': 'active',
                     'since': 0,
-                },
-                'height': 0,
-                'active': True
+                    'status_next': 'active'
+                }
             }
           }
         })
