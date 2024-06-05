@@ -17,6 +17,10 @@ class NetDeadlockTest(BitcoinTestFramework):
         node0 = self.nodes[0]
         node1 = self.nodes[1]
 
+        self.log.info("Connecting nodes")
+        self.connect_nodes(0, 1)
+        self.sync_all()
+
         self.log.info("Simultaneously send a large message on both sides")
         rand_msg = random_bytes(4000000).hex()
 
