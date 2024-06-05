@@ -126,7 +126,7 @@ class RPCPackagesTest(BitcoinTestFramework):
     def test_chain(self):
         node = self.nodes[0]
 
-        chain = self.wallet.create_self_transfer_chain(chain_length=25)
+        chain = self.wallet.create_self_transfer_chain(chain_length=25, fee_rate=Decimal("0.004"))
         chain_hex = [t["hex"] for t in chain]
         chain_txns = [t["tx"] for t in chain]
 
@@ -157,11 +157,11 @@ class RPCPackagesTest(BitcoinTestFramework):
         assert node.testmempoolaccept([parent_tx["hex"]])[0]["allowed"]
 
         # Child A
-        child_a_tx = self.wallet.create_self_transfer(utxo_to_spend=parent_tx["new_utxos"][0])
+        child_a_tx = self.wallet.create_self_transfer(utxo_to_spend=parent_tx["new_utxos"][0], fee_rate=Decimal("0.004"))
         assert not node.testmempoolaccept([child_a_tx["hex"]])[0]["allowed"]
 
         # Child B
-        child_b_tx = self.wallet.create_self_transfer(utxo_to_spend=parent_tx["new_utxos"][1])
+        child_b_tx = self.wallet.create_self_transfer(utxo_to_spend=parent_tx["new_utxos"][1], fee_rate=Decimal("0.004"))
         assert not node.testmempoolaccept([child_b_tx["hex"]])[0]["allowed"]
 
         self.log.info("Testmempoolaccept with entire package, should work with children in either order")
@@ -189,7 +189,7 @@ class RPCPackagesTest(BitcoinTestFramework):
 
             for _ in range(num_parents):
                 # Package accept should work with the parents in any order (as long as parents come before child)
-                parent_tx = self.wallet.create_self_transfer()
+                parent_tx = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))
                 parent_coins.append(parent_tx["new_utxo"])
                 package_hex.append(parent_tx["hex"])
 
