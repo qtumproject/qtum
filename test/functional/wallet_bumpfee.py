@@ -202,7 +202,7 @@ class BumpFeeTest(BitcoinTestFramework):
         self.generate(self.nodes[0], 1)
 
         # Create a tx with two outputs. recipient and change.
-        tx = wallet.send(outputs={wallet.getnewaddress(): 9}, fee_rate=2)
+        tx = wallet.send(outputs={wallet.getnewaddress(): 9}, fee_rate=500)
         tx_info = wallet.gettransaction(txid=tx["txid"], verbose=True)
         assert_equal(len(tx_info["decoded"]["vout"]), 2)
         assert_equal(len(tx_info["decoded"]["vin"]), 2)
@@ -210,7 +210,7 @@ class BumpFeeTest(BitcoinTestFramework):
         # Bump tx, send coins back to change address.
         change_addr = get_change_address(tx["txid"], wallet)[0]
         out_amount = 10
-        bumped = wallet.bumpfee(txid=tx["txid"], options={"fee_rate": 20, "outputs": [{change_addr: out_amount}]})
+        bumped = wallet.bumpfee(txid=tx["txid"], options={"fee_rate": 1000, "outputs": [{change_addr: out_amount}]})
         bumped_tx = wallet.gettransaction(txid=bumped["txid"], verbose=True)
         assert_equal(len(bumped_tx["decoded"]["vout"]), 1)
         assert_equal(len(bumped_tx["decoded"]["vin"]), 2)
@@ -218,7 +218,7 @@ class BumpFeeTest(BitcoinTestFramework):
 
         # Bump tx again, now test send fewer coins back to change address.
         out_amount = 6
-        bumped = wallet.bumpfee(txid=bumped["txid"], options={"fee_rate": 40, "outputs": [{change_addr: out_amount}]})
+        bumped = wallet.bumpfee(txid=bumped["txid"], options={"fee_rate": 2000, "outputs": [{change_addr: out_amount}]})
         bumped_tx = wallet.gettransaction(txid=bumped["txid"], verbose=True)
         assert_equal(len(bumped_tx["decoded"]["vout"]), 2)
         assert_equal(len(bumped_tx["decoded"]["vin"]), 2)
@@ -228,7 +228,7 @@ class BumpFeeTest(BitcoinTestFramework):
 
         # Bump tx again, send more coins back to change address. The process will add another input to cover the target.
         out_amount = 12
-        bumped = wallet.bumpfee(txid=bumped["txid"], options={"fee_rate": 80, "outputs": [{change_addr: out_amount}]})
+        bumped = wallet.bumpfee(txid=bumped["txid"], options={"fee_rate": 4000, "outputs": [{change_addr: out_amount}]})
         bumped_tx = wallet.gettransaction(txid=bumped["txid"], verbose=True)
         assert_equal(len(bumped_tx["decoded"]["vout"]), 2)
         assert_equal(len(bumped_tx["decoded"]["vin"]), 3)
@@ -274,32 +274,32 @@ class BumpFeeTest(BitcoinTestFramework):
         wallet = node.get_wallet_rpc("single_out_rbf")
 
         addr = wallet.getnewaddress()
-        amount = Decimal("0.001")
+        amount = Decimal("0.002")
         # Make 2 UTXOs
         self.nodes[0].sendtoaddress(addr, amount)
         self.nodes[0].sendtoaddress(addr, amount)
         self.generate(self.nodes[0], 1)
         utxos = wallet.listunspent()
 
-        tx = wallet.sendall(recipients=[wallet.getnewaddress()], fee_rate=2, options={"inputs": [utxos[0]]})
+        tx = wallet.sendall(recipients=[wallet.getnewaddress()], fee_rate=500, options={"inputs": [utxos[0]]})
 
         # Set the only output with a crazy high feerate as change, should fail as the output would be dust
         assert_raises_rpc_error(-4, "The transaction amount is too small to pay the fee", wallet.bumpfee, txid=tx["txid"], options={"fee_rate": 1100, "original_change_index": 0})
 
         # Specify single output as change successfully
-        bumped = wallet.bumpfee(txid=tx["txid"], options={"fee_rate": 10, "original_change_index": 0})
-        bumped_tx = wallet.gettransaction(txid=bumped["txid"], verbose=True)
-        assert_equal(len(bumped_tx["decoded"]["vout"]), 1)
-        assert_equal(len(bumped_tx["decoded"]["vin"]), 1)
-        assert_equal(bumped_tx["decoded"]["vout"][0]["value"] + bumped["fee"], amount)
-        assert_fee_amount(bumped["fee"], bumped_tx["decoded"]["vsize"], Decimal(10) / Decimal(1e8) * 1000)
-
-        # Bumping without specifying change adds a new input and output
-        bumped = wallet.bumpfee(txid=bumped["txid"], options={"fee_rate": 20})
+        bumped = wallet.bumpfee(txid=tx["txid"], options={"fee_rate": 550, "original_change_index": 0})
         bumped_tx = wallet.gettransaction(txid=bumped["txid"], verbose=True)
         assert_equal(len(bumped_tx["decoded"]["vout"]), 2)
-        assert_equal(len(bumped_tx["decoded"]["vin"]), 2)
-        assert_fee_amount(bumped["fee"], bumped_tx["decoded"]["vsize"], Decimal(20) / Decimal(1e8) * 1000)
+        assert_equal(len(bumped_tx["decoded"]["vin"]), 1)
+        assert_equal(bumped_tx["decoded"]["vout"][0]["value"] + bumped_tx["decoded"]["vout"][1]["value"] + bumped["fee"], amount)
+        assert_fee_amount(bumped["fee"], bumped_tx["decoded"]["vsize"], Decimal(550) / Decimal(1e8) * 1000)
+
+        # Bumping without specifying change adds a new input and output
+        bumped = wallet.bumpfee(txid=bumped["txid"], options={"fee_rate": 600})
+        bumped_tx = wallet.gettransaction(txid=bumped["txid"], verbose=True)
+        assert_equal(len(bumped_tx["decoded"]["vout"]), 2)
+        assert_equal(len(bumped_tx["decoded"]["vin"]), 1)
+        assert_fee_amount(bumped["fee"], bumped_tx["decoded"]["vsize"], Decimal(600) / Decimal(1e8) * 1000)
 
         wallet.unloadwallet()
 
@@ -432,7 +432,7 @@ def test_bumpfee_with_descendant_fails(self, rbf_node, rbf_node_address, dest_ad
     parent_id = spend_one_input(rbf_node, miniwallet.get_address())
     tx = rbf_node.gettransaction(txid=parent_id, verbose=True)['decoded']
     miniwallet.scan_tx(tx)
-    miniwallet.send_self_transfer(from_node=rbf_node)
+    miniwallet.send_self_transfer(from_node=rbf_node, fee_rate=Decimal("0.004"))
     assert_raises_rpc_error(-8, "Transaction has descendants in the mempool", rbf_node.bumpfee, parent_id)
     self.clear_mempool()
 
