@@ -74,19 +74,19 @@ class LoggingTest(BitcoinTestFramework):
         self.nodes[0].assert_start_raises_init_error(
             extra_args=["-debug=abc"],
             expected_msg="Error: Unsupported logging category -debug=abc.",
-            match=ErrorMatch.FULL_REGEX,
+            match=ErrorMatch.FULL_TEXT,
         )
         self.nodes[0].assert_start_raises_init_error(
             extra_args=["-debugexclude=abc"],
             expected_msg="Error: Unsupported logging category -debugexclude=abc.",
-            match=ErrorMatch.FULL_REGEX,
+            match=ErrorMatch.FULL_TEXT,
         )
 
         self.log.info("Test -loglevel raises when invalid values are passed")
         self.nodes[0].assert_start_raises_init_error(
             extra_args=["-loglevel=abc"],
             expected_msg="Error: Unsupported global logging level -loglevel=abc. Valid values: info, debug, trace.",
-            match=ErrorMatch.FULL_REGEX,
+            match=ErrorMatch.FULL_TEXT,
         )
         self.nodes[0].assert_start_raises_init_error(
             extra_args=["-loglevel=net:abc"],
