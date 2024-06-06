@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test dust limit mempool policy (`-dustrelayfee` parameter)"""
@@ -53,7 +52,7 @@ class DustRelayFeeTest(BitcoinTestFramework):
         self.log.info(f"-> Test {type_desc} output (size {len(output_script)}, limit {dust_threshold})")
 
         # amount right on the dust threshold should pass
-        tx = self.wallet.create_self_transfer()["tx"]
+        tx = self.wallet.create_self_transfer(fee_rate=Decimal("0.04"))["tx"]
         tx.vout.append(CTxOut(nValue=dust_threshold, scriptPubKey=output_script))
         tx.vout[0].nValue -= dust_threshold  # keep total output value constant
         tx_good_hex = tx.serialize().hex()
