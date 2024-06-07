@@ -5,9 +5,9 @@ define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_RC, 0)
 define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_COPYRIGHT_YEAR, 2024)
-define(_COPYRIGHT_HOLDERS,[The %s developers])
-define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Bitcoin Core]])
-AC_INIT([Bitcoin Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/bitcoin/bitcoin/issues],[bitcoin],[https://bitcoincore.org/])
+define(_COPYRIGHT_HOLDERS,[The %s Developers])
+define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Qtum Core]])
+AC_INIT([Qtum Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/qtumproject/qtum/issues],[qtum],[https://qtum.org/])
 AC_CONFIG_SRCDIR([src/validation.cpp])
 AC_CONFIG_HEADERS([src/config/bitcoin-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -29,17 +29,17 @@ if test -n "$PKG_CONFIG_LIBDIR"; then
   PKG_CONFIG="env PKG_CONFIG_LIBDIR=$PKG_CONFIG_LIBDIR $PKG_CONFIG"
 fi
 
-BITCOIN_DAEMON_NAME=bitcoind
-BITCOIN_GUI_NAME=bitcoin-qt
-BITCOIN_TEST_NAME=test_bitcoin
-BITCOIN_CLI_NAME=bitcoin-cli
-BITCOIN_TX_NAME=bitcoin-tx
-BITCOIN_UTIL_NAME=bitcoin-util
-BITCOIN_CHAINSTATE_NAME=bitcoin-chainstate
-BITCOIN_WALLET_TOOL_NAME=bitcoin-wallet
+BITCOIN_DAEMON_NAME=qtumd
+BITCOIN_GUI_NAME=qtum-qt
+BITCOIN_TEST_NAME=test_qtum
+BITCOIN_CLI_NAME=qtum-cli
+BITCOIN_TX_NAME=qtum-tx
+BITCOIN_UTIL_NAME=qtum-util
+BITCOIN_CHAINSTATE_NAME=qtum-chainstate
+BITCOIN_WALLET_TOOL_NAME=qtum-wallet
 dnl Multi Process
-BITCOIN_MP_NODE_NAME=bitcoin-node
-BITCOIN_MP_GUI_NAME=bitcoin-gui
+BITCOIN_MP_NODE_NAME=qtum-node
+BITCOIN_MP_GUI_NAME=qtum-gui
 
 dnl Unless the user specified ARFLAGS, force it to be cr
 dnl This is also the default as-of libtool 2.4.7
@@ -269,7 +269,7 @@ AC_ARG_WITH([mpgen],
 
 AC_ARG_ENABLE([multiprocess],
   [AS_HELP_STRING([--enable-multiprocess],
-  [build multiprocess bitcoin-node, bitcoin-wallet, and bitcoin-gui executables in addition to monolithic bitcoind and bitcoin-qt executables. Requires libmultiprocess library. Experimental (default is no)])],
+  [build multiprocess qtum-node, qtum-wallet, and qtum-gui executables in addition to monolithic qtumd and qtum-qt executables. Requires libmultiprocess library. Experimental (default is no)])],
   [enable_multiprocess=$enableval],
   [enable_multiprocess=no])
 
@@ -393,6 +393,8 @@ if test "$use_sanitizers" != ""; then
     ]],[[]])])
 fi
 
+CPPFLAGS="$CPPFLAGS -DQTUM_BUILD"
+
 ERROR_CXXFLAGS=
 if test "$enable_werror" = "yes"; then
   if test "$CXXFLAG_WERROR" = ""; then
@@ -432,6 +434,10 @@ if test "$CXXFLAGS_overridden" = "no"; then
   if test "$suppress_external_warnings" != "yes" ; then
     AX_CHECK_COMPILE_FLAG([-Wdeprecated-copy], [NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-deprecated-copy"], [], [$CXXFLAG_WERROR])
   fi
+  AX_CHECK_COMPILE_FLAG([-Wno-unknown-pragmas],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-unknown-pragmas"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wno-strict-aliasing],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-strict-aliasing"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wno-duplicated-branches],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-duplicated-branches"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wno-c++11-narrowing],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-c++11-narrowing"],,[[$CXXFLAG_WERROR]])
 fi
 
 dnl Don't allow extended (non-ASCII) symbols in identifiers. This is easier for code review.
@@ -592,37 +598,37 @@ CORE_CPPFLAGS="$CORE_CPPFLAGS -DHAVE_BUILD_INFO"
 
 AC_ARG_WITH([utils],
   [AS_HELP_STRING([--with-utils],
-  [build bitcoin-cli bitcoin-tx bitcoin-util bitcoin-wallet (default=yes)])],
+  [build qtum-cli qtum-tx qtum-util qtum-wallet (default=yes)])],
   [build_bitcoin_utils=$withval],
   [build_bitcoin_utils=yes])
 
 AC_ARG_ENABLE([util-cli],
   [AS_HELP_STRING([--enable-util-cli],
-  [build bitcoin-cli])],
+  [build qtum-cli])],
   [build_bitcoin_cli=$enableval],
   [build_bitcoin_cli=$build_bitcoin_utils])
 
 AC_ARG_ENABLE([util-tx],
   [AS_HELP_STRING([--enable-util-tx],
-  [build bitcoin-tx])],
+  [build qtum-tx])],
   [build_bitcoin_tx=$enableval],
   [build_bitcoin_tx=$build_bitcoin_utils])
 
 AC_ARG_ENABLE([util-wallet],
   [AS_HELP_STRING([--enable-util-wallet],
-  [build bitcoin-wallet])],
+  [build qtum-wallet])],
   [build_bitcoin_wallet=$enableval],
   [build_bitcoin_wallet=$build_bitcoin_utils])
 
 AC_ARG_ENABLE([util-util],
   [AS_HELP_STRING([--enable-util-util],
-  [build bitcoin-util])],
+  [build qtum-util])],
   [build_bitcoin_util=$enableval],
   [build_bitcoin_util=$build_bitcoin_utils])
 
 AC_ARG_ENABLE([experimental-util-chainstate],
   [AS_HELP_STRING([--enable-experimental-util-chainstate],
-  [build experimental bitcoin-chainstate executable (default=no)])],
+  [build experimental qtum-chainstate executable (default=no)])],
   [build_bitcoin_chainstate=$enableval],
   [build_bitcoin_chainstate=no])
 
@@ -640,7 +646,7 @@ AC_ARG_WITH([experimental-kernel-lib],
 
 AC_ARG_WITH([daemon],
   [AS_HELP_STRING([--with-daemon],
-  [build bitcoind daemon (default=yes)])],
+  [build qtumd daemon (default=yes)])],
   [build_bitcoind=$withval],
   [build_bitcoind=yes])
 
@@ -678,7 +684,7 @@ case $host in
 
      CORE_CPPFLAGS="$CORE_CPPFLAGS -DSECP256K1_STATIC"
 
-     CORE_CPPFLAGS="$CORE_CPPFLAGS -D_MT -DWIN32 -D_WINDOWS -D_WIN32_WINNT=0x0601 -D_WIN32_IE=0x0501 -DWIN32_LEAN_AND_MEAN"
+     CORE_CPPFLAGS="$CORE_CPPFLAGS -D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB -D_WIN32_WINNT=0x0601 -D_WIN32_IE=0x0501 -DWIN32_LEAN_AND_MEAN"
      dnl Prevent the definition of min/max macros.
      dnl We always want to use the standard library.
      CORE_CPPFLAGS="$CORE_CPPFLAGS -DNOMINMAX"
@@ -720,6 +726,14 @@ case $host in
            AX_CHECK_PREPROC_FLAG([-Xclang -internal-isystem -Xclang /usr/local/include/], [CORE_CPPFLAGS="$CORE_CPPFLAGS -Xclang -internal-isystem -Xclang /usr/local/include/"], [], [$CXXFLAG_WERROR])
          fi
 
+         openssl_prefix=`$BREW --prefix openssl 2>/dev/null`
+         bdb_prefix=$($BREW --prefix berkeley-db4 2>/dev/null)
+         qt5_prefix=$($BREW --prefix qt5 2>/dev/null)
+         if test x$openssl_prefix != x; then
+           PKG_CONFIG_PATH="$openssl_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
+           export PKG_CONFIG_PATH
+         fi
+
          if test "$use_bdb" != "no" && $BREW list --versions berkeley-db@4 >/dev/null && test "$BDB_CFLAGS" = "" && test "$BDB_LIBS" = ""; then
            bdb_prefix=$($BREW --prefix berkeley-db@4 2>/dev/null)
            dnl This must precede the call to BITCOIN_FIND_BDB48 below.
@@ -729,6 +743,13 @@ case $host in
 
          if $BREW list --versions qt@5 >/dev/null; then
            export PKG_CONFIG_PATH="$($BREW --prefix qt@5 2>/dev/null)/lib/pkgconfig:$PKG_CONFIG_PATH"
+         fi
+
+         gmp_prefix=`$BREW --prefix gmp 2>/dev/null`
+         if test x$gmp_prefix != x; then
+           GMP_CFLAGS="-I$gmp_prefix/include"
+           GMP_LIBS="-L$gmp_prefix/lib -lgmp"
+           GMPXX_LIBS="-L$gmp_prefix/lib -lgmpxx"
          fi
 
          case $host in
@@ -802,6 +823,8 @@ case $host in
      TARGET_OS=linux
      ;;
 esac
+
+LIBFF_TARGET_FLAGS=""
 
 if test "$use_extended_functional_tests" != "no"; then
   AC_SUBST(EXTENDED_FUNCTIONAL_TESTS, --extended)
@@ -1224,6 +1247,18 @@ if test "$have_any_system" != "no"; then
   AC_DEFINE([HAVE_SYSTEM], [1], [Define to 1 if std::system or ::wsystem is available.])
 fi
 
+CRYPTOPP_CPPFLAGS=
+LIBCRYPTOPP=
+AM_CONDITIONAL([EMBEDDED_CRYPTOPP],[true])
+AC_SUBST(CRYPTOPP_CPPFLAGS)
+AC_SUBST(LIBCRYPTOPP)
+
+LIBFF_CPPFLAGS=
+LIBFF=
+AM_CONDITIONAL([EMBEDDED_LIBFF],[true])
+AC_SUBST(LIBFF_CPPFLAGS)
+AC_SUBST(LIBFF)
+
 dnl SUPPRESSED_CPPFLAGS=SUPPRESS_WARNINGS([$SOME_CPPFLAGS])
 dnl Replace -I with -isystem in $SOME_CPPFLAGS to suppress warnings from
 dnl headers from its include directories and return the result.
@@ -1418,9 +1453,18 @@ if test "$use_boost" = "yes"; then
   AX_CHECK_PREPROC_FLAG([-DBOOST_NO_CXX98_FUNCTION_BASE], [BOOST_CPPFLAGS="$BOOST_CPPFLAGS -DBOOST_NO_CXX98_FUNCTION_BASE"], [], [$CXXFLAG_WERROR],
                         [AC_LANG_PROGRAM([[#include <boost/config.hpp>]])])
 
+  AX_BOOST_SYSTEM
+  AX_BOOST_FILESYSTEM
+  AX_BOOST_PROGRAM_OPTIONS
+  AX_BOOST_THREAD
+  AX_BOOST_RANDOM
+  AX_BOOST_CHRONO
+
   if test "$suppress_external_warnings" != "no"; then
     BOOST_CPPFLAGS=SUPPRESS_WARNINGS($BOOST_CPPFLAGS)
   fi
+
+  BOOST_LIBS="$BOOST_LDFLAGS $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_PROGRAM_OPTIONS_LIB $BOOST_THREAD_LIB $BOOST_CHRONO_LIB $BOOST_RANDOM_LIB"
 fi
 
 if test "$use_external_signer" != "no"; then
@@ -1524,6 +1568,8 @@ if test x$use_libevent = xyes; then
   CXXFLAGS="$TEMP_CXXFLAGS"
 fi
 
+PKG_CHECK_MODULES([SSL], [libssl],, [AC_MSG_ERROR(openssl not found.)])
+PKG_CHECK_MODULES([CRYPTO], [libcrypto],,[AC_MSG_ERROR(libcrypto not found.)])
 dnl QR Code encoding library check
 
 if test "$use_qr" != "no"; then
@@ -1549,6 +1595,25 @@ if test "$use_zmq" = "yes"; then
 fi
 
 AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
+
+# These packages don't provide pkgconfig config files across all
+# platforms, so we use older autoconf detection mechanisms:
+if test "x$GMP_LIBS" = "x"; then
+  AC_CHECK_HEADER([gmp.h],,AC_MSG_ERROR(libgmp headers missing))
+  AC_CHECK_LIB([gmp],[__gmpn_sub_n],GMP_LIBS=-lgmp, [AC_MSG_ERROR(libgmp missing)])
+fi
+
+if test "x$GMPXX_LIBS" = "x"; then
+  AC_CHECK_HEADER([gmpxx.h],,AC_MSG_ERROR(libgmpxx headers missing))
+  AC_CHECK_LIB([gmpxx],[main],GMPXX_LIBS=-lgmpxx, [AC_MSG_ERROR(libgmpxx missing)])
+fi
+
+save_CXXFLAGS="${CXXFLAGS}"
+CXXFLAGS="${CXXFLAGS} ${CRYPTO_CFLAGS} ${SSL_CFLAGS}"
+AC_CHECK_DECLS([EVP_MD_CTX_new],,,[AC_INCLUDES_DEFAULT
+#include <openssl/x509_vfy.h>
+])
+CXXFLAGS="${save_CXXFLAGS}"
 
 dnl libmultiprocess library check
 
@@ -1590,30 +1655,30 @@ if test "$build_multiprocess" != "no"; then
   AC_SUBST(MPGEN_PREFIX)
 fi
 
-AC_MSG_CHECKING([whether to build bitcoind])
+AC_MSG_CHECKING([whether to build qtumd])
 AM_CONDITIONAL([BUILD_BITCOIND], [test $build_bitcoind = "yes"])
 AC_MSG_RESULT($build_bitcoind)
 
-AC_MSG_CHECKING([whether to build bitcoin-cli])
+AC_MSG_CHECKING([whether to build qtum-cli])
 AM_CONDITIONAL([BUILD_BITCOIN_CLI], [test $build_bitcoin_cli = "yes"])
 AC_MSG_RESULT($build_bitcoin_cli)
 
-AC_MSG_CHECKING([whether to build bitcoin-tx])
+AC_MSG_CHECKING([whether to build qtum-tx])
 AM_CONDITIONAL([BUILD_BITCOIN_TX], [test $build_bitcoin_tx = "yes"])
 AC_MSG_RESULT($build_bitcoin_tx)
 
-AC_MSG_CHECKING([whether to build bitcoin-wallet])
+AC_MSG_CHECKING([whether to build qtum-wallet])
 AM_CONDITIONAL([BUILD_BITCOIN_WALLET], [test $build_bitcoin_wallet = "yes"])
 AC_MSG_RESULT($build_bitcoin_wallet)
 
-AC_MSG_CHECKING([whether to build bitcoin-util])
+AC_MSG_CHECKING([whether to build qtum-util])
 AM_CONDITIONAL([BUILD_BITCOIN_UTIL], [test $build_bitcoin_util = "yes"])
 AC_MSG_RESULT($build_bitcoin_util)
 
 AC_MSG_CHECKING([whether to build experimental bitcoin-chainstate])
 if test "$build_bitcoin_chainstate" = "yes"; then
   if test "$build_experimental_kernel_lib" = "no"; then
-    AC_MSG_ERROR([experimental bitcoin-chainstate cannot be built without the experimental bitcoinkernel library. Use --with-experimental-kernel-lib]);
+    AC_MSG_ERROR([experimental qtum-chainstate cannot be built without the experimental bitcoinkernel library. Use --with-experimental-kernel-lib]);
   fi
 fi
 AM_CONDITIONAL([BUILD_BITCOIN_CHAINSTATE], [test $build_bitcoin_chainstate = "yes"])
@@ -1735,7 +1800,7 @@ if test "$bitcoin_enable_qt" != "no"; then
     AC_MSG_WARN([xgettext is required to update qt translations])
   fi
 
-  AC_MSG_CHECKING([whether to build test_bitcoin-qt])
+  AC_MSG_CHECKING([whether to build test_qtum-qt])
   if test "$use_gui_tests$bitcoin_enable_qt_test" = "yesyes"; then
     AC_MSG_RESULT([yes])
     BUILD_TEST_QT="yes"
@@ -1744,7 +1809,7 @@ if test "$bitcoin_enable_qt" != "no"; then
   fi
 fi
 
-AC_MSG_CHECKING([whether to build test_bitcoin])
+AC_MSG_CHECKING([whether to build test_qtum])
 if test "$use_tests" = "yes"; then
   if test "$enable_fuzz" = "yes"; then
     AC_MSG_RESULT([no, because fuzzing is enabled])
@@ -1858,11 +1923,18 @@ AC_SUBST(USE_BDB)
 AC_SUBST(ENABLE_EXTERNAL_SIGNER)
 AC_SUBST(USE_UPNP)
 AC_SUBST(USE_QRCODE)
+AC_SUBST(BOOST_LIBS)
 AC_SUBST(TESTDEFS)
+AC_SUBST(CRYPTOPP_TARGET_FLAGS)
 AC_SUBST(MINIUPNPC_CPPFLAGS)
 AC_SUBST(MINIUPNPC_LIBS)
 AC_SUBST(NATPMP_CPPFLAGS)
 AC_SUBST(NATPMP_LIBS)
+AC_SUBST(CRYPTO_LIBS)
+AC_SUBST(SSL_LIBS)
+AC_SUBST(GMP_LIBS)
+AC_SUBST(GMPXX_LIBS)
+AC_SUBST(GMP_CFLAGS)
 AC_SUBST(HAVE_GMTIME_R)
 AC_SUBST(HAVE_FDATASYNC)
 AC_SUBST(HAVE_FULLFSYNC)
@@ -1897,7 +1969,7 @@ CPPFLAGS="$CPPFLAGS_TEMP"
 if test -n "$use_sanitizers"; then
   export SECP_CFLAGS="$SECP_CFLAGS $SANITIZER_CFLAGS"
 fi
-ac_configure_args="${ac_configure_args} --disable-shared --with-pic --enable-benchmark=no --enable-module-recovery --disable-module-ecdh"
+ac_configure_args="${ac_configure_args} --disable-shared --with-pic --enable-benchmark=no --enable-module-recovery"
 AC_CONFIG_SUBDIRS([src/secp256k1])
 
 AC_OUTPUT
@@ -1939,7 +2011,7 @@ echo "  with zmq        = $use_zmq"
 if test $enable_fuzz = "no"; then
     echo "  with test       = $use_tests"
 else
-    echo "  with test       = not building test_bitcoin because fuzzing is enabled"
+    echo "  with test       = not building test_qtum because fuzzing is enabled"
 fi
 echo "  with fuzz binary = $enable_fuzz_binary"
 echo "  with bench      = $use_bench"
