@@ -45,7 +45,11 @@ ThreadLocalStorage::ThreadLocalStorage()
 ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 {
 #ifdef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
+    #ifdef QTUM_BUILD
+	if (!std::uncaught_exceptions())
+    #else
 	if (!std::uncaught_exception())
+    #endif
 #else
 	try
 #endif
