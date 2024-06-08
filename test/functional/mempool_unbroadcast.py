@@ -6,6 +6,7 @@
 to peers until a GETDATA is received."""
 
 import time
+from decimal import Decimal
 
 from test_framework.p2p import P2PTxInvStore
 from test_framework.test_framework import BitcoinTestFramework
@@ -40,7 +41,7 @@ class MempoolUnbroadcastTest(BitcoinTestFramework):
         wallet_tx_hsh = node.sendtoaddress(addr, 0.01)
 
         # generate a txn using sendrawtransaction
-        txFS = self.wallet.create_self_transfer()
+        txFS = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))
         rpc_tx_hsh = node.sendrawtransaction(txFS["hex"])
 
         # check transactions are in unbroadcast using rpc
