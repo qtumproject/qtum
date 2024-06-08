@@ -35,7 +35,7 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
         sender = self.node.getnewaddress()
         sender_pkh = p2pkh_to_hex_hash(sender)
         self.node.sendtoaddress(sender, 1)
-        self.node.generate(1)
+        self.node.generate(5)
         """
         Function signatures:
         
