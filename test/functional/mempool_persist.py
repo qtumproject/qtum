@@ -72,7 +72,7 @@ class MempoolPersistTest(BitcoinTestFramework):
         self.log.debug("Send 5 transactions from node2 (to its own address)")
         tx_creation_time_lower = int(time.time())
         for _ in range(5):
-            last_txid = self.mini_wallet.send_self_transfer(from_node=self.nodes[2])["txid"]
+            last_txid = self.mini_wallet.send_self_transfer(from_node=self.nodes[2], fee_rate=Decimal("0.004"))["txid"]
         if self.is_sqlite_compiled():
             self.nodes[2].syncwithvalidationinterfacequeue()  # Flush mempool to wallet
             node2_balance = wallet_watch.getbalance()
@@ -105,11 +105,11 @@ class MempoolPersistTest(BitcoinTestFramework):
         self.disconnect_nodes(0, 1)
         assert_equal(len(self.nodes[0].getpeerinfo()), 0)
         assert_equal(len(self.nodes[0].p2ps), 0)
-        self.mini_wallet.send_self_transfer(from_node=self.nodes[0])
+        self.mini_wallet.send_self_transfer(from_node=self.nodes[0], fee_rate=Decimal("0.004"))
 
         # Test persistence of prioritisation for transactions not in the mempool.
         # Create a tx and prioritise but don't submit until after the restart.
-        tx_prioritised_not_submitted = self.mini_wallet.create_self_transfer()
+        tx_prioritised_not_submitted = self.mini_wallet.create_self_transfer(fee_rate=Decimal("0.004"))
         self.nodes[0].prioritisetransaction(txid=tx_prioritised_not_submitted['txid'], fee_delta=9999)
 
         self.log.debug("Stop-start the nodes. Verify that node0 has the transactions in its mempool and node1 does not. Verify that node2 calculates its balance correctly after loading wallet transactions.")
@@ -211,7 +211,7 @@ class MempoolPersistTest(BitcoinTestFramework):
         # make a transaction that will remain in the unbroadcast set
         assert_equal(len(node0.getpeerinfo()), 0)
         assert_equal(len(node0.p2ps), 0)
-        self.mini_wallet.send_self_transfer(from_node=node0)
+        self.mini_wallet.send_self_transfer(from_node=node0, fee_rate=Decimal("0.004"))
 
         # shutdown, then startup with wallet disabled
         self.restart_node(0, extra_args=["-disablewallet"])
@@ -225,10 +225,10 @@ class MempoolPersistTest(BitcoinTestFramework):
         self.log.debug("Submit different transactions to node0 and node1's mempools")
         self.start_node(0)
         self.start_node(2)
-        tx_node0 = self.mini_wallet.send_self_transfer(from_node=self.nodes[0])
-        tx_node1 = self.mini_wallet.send_self_transfer(from_node=self.nodes[1])
-        tx_node01 = self.mini_wallet.create_self_transfer()
-        tx_node01_secret = self.mini_wallet.create_self_transfer()
+        tx_node0 = self.mini_wallet.send_self_transfer(from_node=self.nodes[0], fee_rate=Decimal("0.004"))
+        tx_node1 = self.mini_wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.004"))
+        tx_node01 = self.mini_wallet.create_self_transfer(fee_rate=Decimal("0.004"))
+        tx_node01_secret = self.mini_wallet.create_self_transfer(fee_rate=Decimal("0.004"))
         self.nodes[0].prioritisetransaction(tx_node01["txid"], 0, COIN)
         self.nodes[0].prioritisetransaction(tx_node01_secret["txid"], 0, 2 * COIN)
         self.nodes[1].prioritisetransaction(tx_node01_secret["txid"], 0, 3 * COIN)
