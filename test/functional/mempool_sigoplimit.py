@@ -145,7 +145,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
 
         def create_bare_multisig_tx(utxo_to_spend=None):
             _, pubkey = generate_keypair()
-            amount_for_bare = 50000
+            amount_for_bare = 50000000
             tx_dict = self.wallet.create_self_transfer(fee=Decimal("3"), utxo_to_spend=utxo_to_spend)
             tx_utxo = tx_dict["new_utxo"]
             tx = tx_dict["tx"]
