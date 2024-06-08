@@ -46,7 +46,7 @@ class MempoolPackagesTest(BitcoinTestFramework):
         peer_inv_store = self.nodes[0].add_p2p_connection(P2PTxInvStore()) # keep track of invs
 
         # DEFAULT_ANCESTOR_LIMIT transactions off a confirmed tx should be fine
-        chain = self.wallet.create_self_transfer_chain(chain_length=DEFAULT_ANCESTOR_LIMIT)
+        chain = self.wallet.create_self_transfer_chain(chain_length=DEFAULT_ANCESTOR_LIMIT, fee_rate=Decimal("0.004"))
         witness_chain = [t["wtxid"] for t in chain]
         ancestor_vsize = 0
         ancestor_fees = Decimal(0)
@@ -73,7 +73,7 @@ class MempoolPackagesTest(BitcoinTestFramework):
         assert_equal(ancestor_fees, sum([mempool[tx]['fees']['base'] for tx in mempool]))
 
         # Adding one more transaction on to the chain should fail.
-        next_hop = self.wallet.create_self_transfer(utxo_to_spend=chain[-1]["new_utxo"])["hex"]
+        next_hop = self.wallet.create_self_transfer(utxo_to_spend=chain[-1]["new_utxo"], fee_rate=31200)["hex"]
         assert_raises_rpc_error(-26, "too-long-mempool-chain", lambda: self.nodes[0].sendrawtransaction(next_hop))
 
         descendants = []
@@ -233,7 +233,7 @@ class MempoolPackagesTest(BitcoinTestFramework):
             assert_equal(mempool[child]['depends'], [parent_transaction])
 
         # Sending one more chained transaction will fail
-        next_hop = self.wallet.create_self_transfer(utxo_to_spend=transaction_package.pop(0))["hex"]
+        next_hop = self.wallet.create_self_transfer(utxo_to_spend=transaction_package.pop(0), fee_rate=Decimal("0.004"))["hex"]
         assert_raises_rpc_error(-26, "too-long-mempool-chain", lambda: self.nodes[0].sendrawtransaction(next_hop))
 
         # Check that node1's mempool is as expected, containing:
@@ -277,10 +277,10 @@ class MempoolPackagesTest(BitcoinTestFramework):
         tx0 = self.wallet.send_self_transfer_multi(from_node=self.nodes[0], num_outputs=2)
 
         # Create tx1
-        tx1 = self.wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=tx0["new_utxos"][0])
+        tx1 = self.wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=tx0["new_utxos"][0], fee_rate=Decimal("0.004"))
 
         # Create tx2-7
-        tx7 = self.wallet.send_self_transfer_chain(from_node=self.nodes[0], utxo_to_spend=tx0["new_utxos"][1], chain_length=6)[-1]
+        tx7 = self.wallet.send_self_transfer_chain(from_node=self.nodes[0], utxo_to_spend=tx0["new_utxos"][1], chain_length=6, fee_rate=Decimal("0.004"))[-1]
 
         # Mine these in a block
         self.generate(self.nodes[0], 1)
