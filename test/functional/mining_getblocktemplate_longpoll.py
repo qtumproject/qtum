@@ -6,6 +6,7 @@
 
 import random
 import threading
+from decimal import Decimal
 
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import get_rpc_proxy
@@ -68,7 +69,7 @@ class GetBlockTemplateLPTest(BitcoinTestFramework):
         with self.nodes[0].assert_debug_log(["ThreadRPCServer method=getblocktemplate"], timeout=3):
             thr.start()
         # generate a transaction and submit it
-        self.miniwallet.send_self_transfer(from_node=random.choice(self.nodes))
+        self.miniwallet.send_self_transfer(from_node=random.choice(self.nodes), fee_rate=Decimal("0.004"))
         # after one minute, every 10 seconds the mempool is probed, so in 80 seconds it should have returned
         thr.join(60 + 20)
         assert not thr.is_alive()

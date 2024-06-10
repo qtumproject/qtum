@@ -39,7 +39,7 @@ class PrioritiseTransactionTest(BitcoinTestFramework):
     def test_replacement(self):
         self.log.info("Test tx prioritisation stays after a tx is replaced")
         conflicting_input = self.wallet.get_utxo()
-        tx_replacee = self.wallet.create_self_transfer(utxo_to_spend=conflicting_input, fee_rate=Decimal("0.0001"))
+        tx_replacee = self.wallet.create_self_transfer(utxo_to_spend=conflicting_input, fee_rate=Decimal("0.004"))
         tx_replacement = self.wallet.create_self_transfer(utxo_to_spend=conflicting_input, fee_rate=Decimal("0.005"))
         # Add 1 satoshi fee delta to replacee
         self.nodes[0].prioritisetransaction(tx_replacee["txid"], 0, 100)
@@ -79,6 +79,7 @@ class PrioritiseTransactionTest(BitcoinTestFramework):
         tx_o_b, tx_o_c = [self.wallet.send_self_transfer(
             from_node=self.nodes[0],
             utxo_to_spend=u,
+            fee_rate=Decimal("0.004")
         ) for u in tx_o_a["new_utxos"]]
         txid_b = tx_o_b["txid"]
         txid_c = tx_o_c["txid"]
