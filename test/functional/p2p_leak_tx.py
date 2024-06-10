@@ -4,6 +4,8 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test transaction upload"""
 
+from decimal import Decimal
+
 from test_framework.messages import msg_getdata, CInv, MSG_TX, MSG_WTX
 from test_framework.p2p import p2p_lock, P2PDataStore, P2PTxInvStore
 from test_framework.test_framework import BitcoinTestFramework
@@ -36,10 +38,10 @@ class P2PLeakTxTest(BitcoinTestFramework):
 
         self.log.debug("Generate transaction and block")
         inbound_peer.last_message.pop("inv", None)
-        wtxid = self.miniwallet.send_self_transfer(from_node=self.gen_node)["wtxid"]
+        wtxid = self.miniwallet.send_self_transfer(from_node=self.gen_node, fee_rate=Decimal("0.004"))["wtxid"]
         inbound_peer.wait_until(lambda: "inv" in inbound_peer.last_message and inbound_peer.last_message.get("inv").inv[0].hash == int(wtxid, 16))
         want_tx = msg_getdata(inv=inbound_peer.last_message.get("inv").inv)
-        self.generate(self.gen_node, 1)
+        # self.generate(self.gen_node, 1)
 
         self.log.debug("Request transaction")
         inbound_peer.last_message.pop("tx", None)
@@ -51,7 +53,7 @@ class P2PLeakTxTest(BitcoinTestFramework):
         inbound_peer = self.gen_node.add_p2p_connection(P2PTxInvStore())
 
         self.log.info("Transaction tx_a is broadcast")
-        tx_a = self.miniwallet.send_self_transfer(from_node=self.gen_node)
+        tx_a = self.miniwallet.send_self_transfer(from_node=self.gen_node, fee_rate=Decimal("0.004"))
         inbound_peer.wait_for_broadcast(txns=[tx_a["wtxid"]])
 
         tx_b = tx_a["tx"]
@@ -83,7 +85,7 @@ class P2PLeakTxTest(BitcoinTestFramework):
         self.log.info("Running test up to {} times.".format(MAX_REPEATS))
         for i in range(MAX_REPEATS):
             self.log.info('Run repeat {}'.format(i + 1))
-            txid = self.miniwallet.send_self_transfer(from_node=self.gen_node)["wtxid"]
+            txid = self.miniwallet.send_self_transfer(from_node=self.gen_node, fee_rate=Decimal("0.004"))["wtxid"]
 
             want_tx = msg_getdata()
             want_tx.inv.append(CInv(t=MSG_TX, h=int(txid, 16)))
