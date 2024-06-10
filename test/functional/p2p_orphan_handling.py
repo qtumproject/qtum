@@ -4,6 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 import time
+from decimal import Decimal
 
 from test_framework.messages import (
     CInv,
@@ -27,7 +28,7 @@ from test_framework.p2p import (
 from test_framework.util import (
     assert_equal,
 )
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BitcoinTestFramework, COINBASE_MATURITY
 from test_framework.wallet import (
     MiniWallet,
     MiniWalletMode,
@@ -131,8 +132,8 @@ class OrphanHandlingTest(BitcoinTestFramework):
     def test_arrival_timing_orphan(self):
         self.log.info("Test missing parents that arrive during delay are not requested")
         node = self.nodes[0]
-        tx_parent_arrives = self.wallet.create_self_transfer()
-        tx_parent_doesnt_arrive = self.wallet.create_self_transfer()
+        tx_parent_arrives = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))
+        tx_parent_doesnt_arrive = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))
         # Fake orphan spends nonexistent outputs of the two parents
         tx_fake_orphan = self.wallet.create_self_transfer_multi(utxos_to_spend=[
             {"txid": tx_parent_doesnt_arrive["txid"], "vout": 10, "value": tx_parent_doesnt_arrive["new_utxo"]["value"]},
@@ -177,7 +178,7 @@ class OrphanHandlingTest(BitcoinTestFramework):
         peer2 = node.add_p2p_connection(PeerTxRelayer())
 
         self.log.info("Test orphan handling when a nonsegwit parent is known to be invalid")
-        parent_low_fee_nonsegwit = self.wallet_nonsegwit.create_self_transfer(fee_rate=0)
+        parent_low_fee_nonsegwit = self.wallet_nonsegwit.create_self_transfer(fee_rate=Decimal("0.003"))
         assert_equal(parent_low_fee_nonsegwit["txid"], parent_low_fee_nonsegwit["tx"].getwtxid())
         parent_other = self.wallet_nonsegwit.create_self_transfer()
         child_nonsegwit = self.wallet_nonsegwit.create_self_transfer_multi(
@@ -217,9 +218,9 @@ class OrphanHandlingTest(BitcoinTestFramework):
         peer2.wait_for_getdata([int(parent_low_fee["tx"].rehash(), 16)])
 
         self.log.info("Test orphan handling when a parent was previously downloaded with witness stripped")
-        parent_normal = self.wallet.create_self_transfer()
+        parent_normal = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))
         parent1_witness_stripped = tx_from_hex(parent_normal["tx"].serialize_without_witness().hex())
-        child_invalid_witness = self.wallet.create_self_transfer(utxo_to_spend=parent_normal["new_utxo"])
+        child_invalid_witness = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"), utxo_to_spend=parent_normal["new_utxo"])
 
         # Relay the parent with witness stripped. It should not be accepted.
         self.relay_transaction(peer1, parent1_witness_stripped)
@@ -246,7 +247,7 @@ class OrphanHandlingTest(BitcoinTestFramework):
 
         self.log.info("Test orphan parent requests with a mixture of confirmed, in-mempool and missing parents")
         # This UTXO confirmed a long time ago.
-        utxo_conf_old = self.wallet.send_self_transfer(from_node=node)["new_utxo"]
+        utxo_conf_old = self.wallet.send_self_transfer(from_node=node, fee_rate=Decimal("0.004"))["new_utxo"]
         txid_conf_old = utxo_conf_old["txid"]
         self.generate(self.wallet, 10)
 
@@ -258,16 +259,16 @@ class OrphanHandlingTest(BitcoinTestFramework):
         node.syncwithvalidationinterfacequeue()
 
         # This UTXO confirmed recently.
-        utxo_conf_recent = self.wallet.send_self_transfer(from_node=node)["new_utxo"]
+        utxo_conf_recent = self.wallet.send_self_transfer(from_node=node, fee_rate=Decimal("0.004"))["new_utxo"]
         self.generate(node, 1)
 
         # This UTXO is unconfirmed and in the mempool.
         assert_equal(len(node.getrawmempool()), 0)
-        mempool_tx = self.wallet.send_self_transfer(from_node=node)
+        mempool_tx = self.wallet.send_self_transfer(from_node=node, fee_rate=Decimal("0.004"))
         utxo_unconf_mempool = mempool_tx["new_utxo"]
 
         # This UTXO is unconfirmed and missing.
-        missing_tx = self.wallet.create_self_transfer()
+        missing_tx = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))
         utxo_unconf_missing = missing_tx["new_utxo"]
         assert missing_tx["txid"] not in node.getrawmempool()
 
@@ -403,7 +404,7 @@ class OrphanHandlingTest(BitcoinTestFramework):
         self.wallet_nonsegwit = MiniWallet(self.nodes[0], mode=MiniWalletMode.RAW_P2PK)
         self.generate(self.wallet_nonsegwit, 10)
         self.wallet = MiniWallet(self.nodes[0])
-        self.generate(self.wallet, 160)
+        self.generate(self.wallet, COINBASE_MATURITY + 160)
         self.test_arrival_timing_orphan()
         self.test_orphan_rejected_parents_exceptions()
         self.test_orphan_multiple_parents()
