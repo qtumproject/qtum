@@ -41,7 +41,7 @@ uint64_t GetBogoSize(const CScript& script_pub_key)
 {
     return 32 /* txid */ +
            4 /* vout index */ +
-           4 /* height + coinbase */ +
+           4 /* height + coinbase + coinstake*/ +
            8 /* amount */ +
            2 /* scriptPubKey len */ +
            script_pub_key.size() /* scriptPubKey */;
@@ -51,7 +51,7 @@ template <typename T>
 static void TxOutSer(T& ss, const COutPoint& outpoint, const Coin& coin)
 {
     ss << outpoint;
-    ss << static_cast<uint32_t>((coin.nHeight << 1) + coin.fCoinBase);
+    ss << static_cast<uint32_t>((coin.nHeight << 2) + (coin.fCoinBase ? 1u : 0u) + (coin.fCoinStake ? 2u : 0u));
     ss << coin.out;
 }
 
