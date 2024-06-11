@@ -7,6 +7,8 @@
 Test that permissions are correctly calculated and applied
 """
 
+from decimal import Decimal
+
 from test_framework.messages import (
     SEQUENCE_FINAL,
 )
@@ -98,7 +100,7 @@ class P2PPermissionsTests(BitcoinTestFramework):
         p2p_rebroadcast_wallet = self.nodes[1].add_p2p_connection(P2PDataStore())
 
         self.log.debug("Send a tx from the wallet initially")
-        tx = self.wallet.create_self_transfer(sequence=SEQUENCE_FINAL)['tx']
+        tx = self.wallet.create_self_transfer(sequence=SEQUENCE_FINAL, fee_rate=Decimal("0.004"))['tx']
         txid = tx.rehash()
 
         self.log.debug("Wait until tx is in node[1]'s mempool")
