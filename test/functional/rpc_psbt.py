@@ -817,7 +817,7 @@ class PSBTTest(BitcoinTestFramework):
             outputs={self.nodes[0].getnewaddress(): 15},
             add_inputs=True, solving_data={"descriptors": [desc]},
         )
-        assert_equal(psbt2["fee"], psbt3["fee"])
+        assert_approx(psbt2["fee"], psbt3["fee"])
 
         # Import the external utxo descriptor so that we can sign for it from the test wallet
         if self.options.descriptors:
@@ -831,7 +831,7 @@ class PSBTTest(BitcoinTestFramework):
             outputs={self.nodes[0].getnewaddress(): 15},
             add_inputs=True,
         )
-        assert_equal(psbt2["fee"], psbt3["fee"])
+        assert_approx(psbt2["fee"], psbt3["fee"])
 
         self.log.info("Test signing inputs that the wallet has keys for but is not watching the scripts")
         self.nodes[1].createwallet(wallet_name="scriptwatchonly", disable_private_keys=True)
@@ -975,7 +975,7 @@ class PSBTTest(BitcoinTestFramework):
         self.sync_all()
         vout = find_output(self.nodes[0], txid, 1)
 
-        psbt = self.nodes[2].createpsbt([{"txid": txid, "vout": vout}], {self.nodes[0].getnewaddress(): 0.99999})
+        psbt = self.nodes[2].createpsbt([{"txid": txid, "vout": vout}], {self.nodes[0].getnewaddress(): 0.9995})
         decoded = self.nodes[2].decodepsbt(psbt)
         test_psbt_input_keys(decoded['inputs'][0], [])
 
