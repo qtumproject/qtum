@@ -48,14 +48,14 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         peer1 = self.nodes[1].add_p2p_connection(P2PTxInvStore())
 
         # Create a transaction that is included in a block.
-        tx_disconnected = self.wallet.send_self_transfer(from_node=self.nodes[1])
+        tx_disconnected = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.004"))
         self.generate(self.nodes[1], 1, sync_fun=self.no_op)
 
         # Create a transaction and submit it to node1's mempool.
-        tx_before_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1])
+        tx_before_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.004"))
 
         # Create a child of that transaction and submit it to node1's mempool.
-        tx_child = self.wallet.send_self_transfer(utxo_to_spend=tx_disconnected["new_utxo"], from_node=self.nodes[1])
+        tx_child = self.wallet.send_self_transfer(utxo_to_spend=tx_disconnected["new_utxo"], from_node=self.nodes[1], fee_rate=Decimal("0.004"))
         assert_equal(self.nodes[1].getmempoolentry(tx_child["txid"])["ancestorcount"], 1)
         assert_equal(len(peer1.get_invs()), 0)
 
@@ -103,7 +103,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
             peer1.sync_with_ping()
         last_tx_received = peer1.last_message["tx"]
 
-        tx_after_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1])
+        tx_after_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.004"))
         request_after_reorg = msg_getdata([CInv(t=MSG_WTX, h=int(tx_after_reorg["tx"].getwtxid(), 16))])
         assert tx_after_reorg["txid"] in self.nodes[1].getrawmempool()
         peer1.send_and_ping(request_after_reorg)
@@ -193,6 +193,9 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         assert_equal(set(self.nodes[0].getrawmempool()), set())
         self.sync_all()
 
+        # Ensure the wallet on node 1 has UTXOs
+        self.wallet = MiniWallet(self.nodes[1])
+        self.generate(self.nodes[1], COINBASE_MATURITY + 10)
         self.test_reorg_relay()
 
 
