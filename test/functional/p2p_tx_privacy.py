@@ -20,6 +20,8 @@ if it was received after spy's version handshake completed.
 5. tx_originator sends tx2
 6. We check that only tx2 is announced on the spy interface
 """
+from decimal import Decimal
+
 from test_framework.messages import (
     msg_wtxidrelay,
     msg_verack,
@@ -59,14 +61,14 @@ class TxPrivacyTest(BitcoinTestFramework):
         spy.wait_for_verack()
 
         # tx_originator sends tx1
-        tx1 = self.wallet.create_self_transfer()["tx"]
+        tx1 = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))["tx"]
         tx_originator.send_and_ping(msg_tx(tx1))
 
         # Spy sends the verack
         spy.send_and_ping(msg_verack())
 
         # tx_originator sends tx2
-        tx2 = self.wallet.create_self_transfer()["tx"]
+        tx2 = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))["tx"]
         tx_originator.send_and_ping(msg_tx(tx2))
 
         # Spy should only get an inv for the second transaction as the first

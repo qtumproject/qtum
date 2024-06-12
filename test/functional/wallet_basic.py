@@ -800,7 +800,7 @@ class WalletTest(BitcoinTestFramework):
         watch_wallet.importaddress(self.wallet.get_address())
 
         # DEFAULT_ANCESTOR_LIMIT transactions off a confirmed tx should be fine
-        chain = self.wallet.create_self_transfer_chain(chain_length=DEFAULT_ANCESTOR_LIMIT)
+        chain = self.wallet.create_self_transfer_chain(chain_length=DEFAULT_ANCESTOR_LIMIT, fee_rate=Decimal("0.004"))
         ancestor_vsize = 0
         ancestor_fees = Decimal(0)
 
