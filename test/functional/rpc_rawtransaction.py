@@ -100,7 +100,7 @@ class RawTransactionsTest(BitcoinTestFramework):
 
 
     def getrawtransaction_tests(self):
-        tx = self.wallet.send_self_transfer(from_node=self.nodes[0])
+        tx = self.wallet.send_self_transfer(from_node=self.nodes[0], fee_rate=Decimal("0.004"))
         self.generate(self.nodes[0], 1)
         txId = tx['txid']
         err_msg = (
@@ -146,7 +146,7 @@ class RawTransactionsTest(BitcoinTestFramework):
             assert_raises_rpc_error(-3, "not of expected type number", self.nodes[n].getrawtransaction, txId, {})
 
         # Make a tx by sending, then generate 2 blocks; block1 has the tx in it
-        tx = self.wallet.send_self_transfer(from_node=self.nodes[2])['txid']
+        tx = self.wallet.send_self_transfer(from_node=self.nodes[2], fee_rate=Decimal("0.004"))['txid']
         block1, block2 = self.generate(self.nodes[2], 2)
         for n in [0, 2]:
             self.log.info(f"Test getrawtransaction {'with' if n == 0 else 'without'} -txindex, with blockhash")
@@ -185,7 +185,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         assert_raises_rpc_error(-5, "The genesis block coinbase is not considered an ordinary transaction", self.nodes[0].getrawtransaction, block['merkleroot'])
 
     def getrawtransaction_verbosity_tests(self):
-        tx = self.wallet.send_self_transfer(from_node=self.nodes[1])['txid']
+        tx = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.004"))['txid']
         [block1] = self.generate(self.nodes[1], 1)
         fields = [
             'blockhash',
@@ -251,7 +251,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         # Do this with a pruned chain, as a regression test for https://github.com/bitcoin/bitcoin/pull/29003
         self.generate(self.nodes[2], 400)
         assert_greater_than(self.nodes[2].pruneblockchain(250), 0)
-        mempool_tx = self.wallet.send_self_transfer(from_node=self.nodes[2])['txid']
+        mempool_tx = self.wallet.send_self_transfer(from_node=self.nodes[2], fee_rate=Decimal("0.004"))['txid']
         gottx = self.nodes[2].getrawtransaction(txid=mempool_tx, verbosity=2)
         assert 'fee' not in gottx
 
@@ -355,7 +355,7 @@ class RawTransactionsTest(BitcoinTestFramework):
 
 
         # Test that spendable transaction with default maxburnamount (0) gets sent
-        tx = self.wallet.create_self_transfer()['tx']
+        tx = self.wallet.create_self_transfer(fee_rate=Decimal("0.004"))['tx']
         tx_hex = tx.serialize().hex()
         self.nodes[2].sendrawtransaction(hexstring=tx_hex)
 
