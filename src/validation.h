@@ -62,10 +62,19 @@ namespace util {
 class SignalInterrupt;
 } // namespace util
 
+/** Minimum gas limit that is allowed in a transaction within a block - prevent various types of tx and mempool spam **/
+static const uint64_t MINIMUM_GAS_LIMIT = 10000;
+
+static const uint64_t MEMPOOL_MIN_GAS_LIMIT = 22000;
+
+static const uint64_t ADD_DELEGATION_MIN_GAS_LIMIT = 2200000;
+
 /** Block files containing a block-height within MIN_BLOCKS_TO_KEEP of ActiveChain().Tip() will not be pruned. */
 static const unsigned int MIN_BLOCKS_TO_KEEP = 288;
 static const signed int DEFAULT_CHECKBLOCKS = 6;
 static constexpr int DEFAULT_CHECKLEVEL{3};
+static const bool DEFAULT_ADDRINDEX = false;
+static const bool DEFAULT_LOGEVENTS = false;
 // Require that user allocate at least 550 MiB for block & undo files (blk???.dat and rev???.dat)
 // At 1MB per block, 288 blocks = 288MB.
 // Add 15% for Undo data = 331MB
@@ -75,6 +84,19 @@ static constexpr int DEFAULT_CHECKLEVEL{3};
 // one 128MB block file + added 15% undo data = 147MB greater for a total of 545MB
 // Setting the target to >= 550 MiB will make it likely we can respect the target.
 static const uint64_t MIN_DISK_SPACE_FOR_BLOCK_FILES = 550 * 1024 * 1024;
+
+static const uint64_t DEFAULT_GAS_LIMIT_OP_CREATE=2500000;
+static const uint64_t DEFAULT_GAS_LIMIT_OP_SEND=250000;
+static const CAmount DEFAULT_GAS_PRICE=0.00000040*COIN;
+static const CAmount MAX_RPC_GAS_PRICE=0.00000100*COIN;
+
+static const size_t MAX_CONTRACT_VOUTS = 1000; // qtum
+
+//! -stakingminutxovalue default
+static const CAmount DEFAULT_STAKING_MIN_UTXO_VALUE = 100 * COIN;
+
+//! -forceinitialblocksdownloadmode default
+static const bool DEFAULT_FORCE_INITIAL_BLOCKS_DOWNLOAD_MODE = false;
 
 /** Current sync state passed to tip changed callbacks. */
 enum class SynchronizationState {
@@ -87,6 +109,8 @@ extern GlobalMutex g_best_block_mutex;
 extern std::condition_variable g_best_block_cv;
 /** Used to notify getblocktemplate RPC of new tips. */
 extern uint256 g_best_block;
+extern bool fAddressIndex;
+extern bool fLogEvents;
 
 /** Documentation for argument 'checklevel'. */
 extern const std::vector<std::string> CHECKLEVEL_DOC;

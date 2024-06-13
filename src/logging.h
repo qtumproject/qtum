@@ -26,7 +26,9 @@ static const bool DEFAULT_LOGTIMESTAMPS = true;
 static const bool DEFAULT_LOGTHREADNAMES = false;
 static const bool DEFAULT_LOGSOURCELOCATIONS = false;
 static constexpr bool DEFAULT_LOGLEVELALWAYS = false;
+static const bool DEFAULT_SHOWEVMLOGS   = false;
 extern const char * const DEFAULT_DEBUGLOGFILE;
+extern const char * const DEFAULT_DEBUGVMLOGFILE;
 
 extern bool fLogIPs;
 
