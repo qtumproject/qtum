@@ -149,6 +149,15 @@ public:
      * we do not have a confirmed set of service flags.
     */
     virtual ServiceFlags GetDesirableServiceFlags(ServiceFlags services) const = 0;
+
+    /** Initialize clean block index */
+    virtual void InitCleanBlockIndex() = 0;
+
+    /** Stop clean block index thread */
+    virtual void StopCleanBlockIndex() = 0;
 };
+
+/** Default for -headerspamfiltermaxsize, maximum size of the list of indexes in the header spam filter */
+unsigned int GefaultHeaderSpamFilterMaxSize();
 
 #endif // BITCOIN_NET_PROCESSING_H

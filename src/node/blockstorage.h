@@ -60,6 +60,8 @@ public:
     bool ReadFlag(const std::string& name, bool& fValue);
     bool LoadBlockIndexGuts(const Consensus::Params& consensusParams, std::function<CBlockIndex*(const uint256&)> insertBlockIndex, const util::SignalInterrupt& interrupt)
         EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
+
+    bool EraseBlockIndex(const std::vector<uint256>&vect);
 };
 } // namespace kernel
 
@@ -359,6 +361,15 @@ public:
      *  Actually unlink the specified files
      */
     void UnlinkPrunedFiles(const std::set<int>& setFilesToPrune) const;
+
+    //! Checks that the block hash at height nHeight matches the expected hardened checkpoint
+    bool CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+
+    //! Returns last CBlockIndex* from the auto selected checkpoint
+    const CBlockIndex* AutoSelectSyncCheckpoint(const CBlockIndex *pindexBest) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+
+    //! Check against automatically selected checkpoint
+    bool CheckSync(int nHeight, const CBlockIndex *pindexBest) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 
     /** Functions for disk access for blocks */
     bool ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos) const;

@@ -145,6 +145,10 @@ bool BlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, s
 
     return true;
 }
+bool BlockTreeDB::EraseBlockIndex(const std::vector<uint256> &vect)
+{
+    return {};
+}
 } // namespace kernel
 
 namespace node {
@@ -615,6 +619,38 @@ bool BlockManager::CheckBlockDataAvailability(const CBlockIndex& upper_block, co
 {
     if (!(upper_block.nStatus & BLOCK_HAVE_DATA)) return false;
     return GetFirstStoredBlock(upper_block, &lower_block) == &lower_block;
+}
+
+bool BlockManager::CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data)
+{
+    const MapCheckpoints& checkpoints = data.mapCheckpoints;
+
+    MapCheckpoints::const_iterator i = checkpoints.find(nHeight);
+    if (i == checkpoints.end()) return true;
+    return hash == i->second;
+}
+
+// Automatically select a suitable sync-checkpoint 
+const CBlockIndex* BlockManager::AutoSelectSyncCheckpoint(const CBlockIndex *pindexBest)
+{
+    const CBlockIndex *pindex = pindexBest;
+    // Search backward for a block within max span and maturity window
+    int checkpointSpan = GetConsensus().CheckpointSpan(pindexBest->nHeight);
+    while (pindex->pprev && pindex->nHeight + checkpointSpan > pindexBest->nHeight)
+        pindex = pindex->pprev;
+    return pindex;
+}
+
+// Check against synchronized checkpoint
+bool BlockManager::CheckSync(int nHeight, const CBlockIndex *pindexBest)
+{
+    const CBlockIndex* pindexSync = nullptr;
+    if(nHeight)
+        pindexSync = AutoSelectSyncCheckpoint(pindexBest);
+
+    if(nHeight && nHeight <= pindexSync->nHeight)
+        return false;
+    return true;
 }
 
 // If we're using -prune with -reindex, then delete block files that will be ignored by the
