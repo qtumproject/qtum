@@ -65,6 +65,11 @@ const std::string WALLETDESCRIPTORCKEY{"walletdescriptorckey"};
 const std::string WALLETDESCRIPTORKEY{"walletdescriptorkey"};
 const std::string WATCHMETA{"watchmeta"};
 const std::string WATCHS{"watchs"};
+const std::string TOKEN{"token"};
+const std::string TOKENTX{"tokentx"};
+const std::string CONTRACTDATA{"contractdata"};
+const std::string DELEGATION{"delegation"};
+const std::string SUPERSTAKER{"superstaker"};
 const std::unordered_set<std::string> LEGACY_TYPES{CRYPTED_KEY, CSCRIPT, DEFAULTKEY, HDCHAIN, KEYMETA, KEY, OLD_KEY, POOL, WATCHMETA, WATCHS};
 } // namespace DBKeys
 
@@ -451,6 +456,120 @@ bool LoadHDChain(CWallet* pwallet, DataStream& ssValue, std::string& strErr)
     return true;
 }
 
+bool LoadToken(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr)
+{
+    LOCK(pwallet->cs_wallet);
+    try {
+        uint256 hash;
+        ssKey >> hash;
+        CTokenInfo wtoken;
+        ssValue >> SER_INFO(wtoken);
+        if (wtoken.GetHash() != hash)
+        {
+            strErr = "Error reading wallet database: CTokenInfo corrupt";
+            return false;
+        }
+        pwallet->LoadToken(wtoken);
+    } catch (const std::exception& e) {
+        if (strErr.empty()) {
+            strErr = e.what();
+        }
+        return false;
+    }
+    return true;
+}
+
+bool LoadTokenTx(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr)
+{
+    LOCK(pwallet->cs_wallet);
+    try {
+        uint256 hash;
+        ssKey >> hash;
+        CTokenTx wTokenTx;
+        ssValue >> SER_INFO(wTokenTx);
+        if (wTokenTx.GetHash() != hash)
+        {
+            strErr = "Error reading wallet database: CTokenTx corrupt";
+            return false;
+        }
+        pwallet->LoadTokenTx(wTokenTx);
+    } catch (const std::exception& e) {
+        if (strErr.empty()) {
+            strErr = e.what();
+        }
+        return false;
+    }
+    return true;
+}
+
+bool LoadDelegation(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr)
+{
+    LOCK(pwallet->cs_wallet);
+    try {
+        uint256 hash;
+        ssKey >> hash;
+        CDelegationInfo wdelegation;
+        ssValue >> SER_INFO(wdelegation);
+        if (wdelegation.GetHash() != hash)
+        {
+            strErr = "Error reading wallet database: CDelegationInfo corrupt";
+            return false;
+        }
+        pwallet->LoadDelegation(wdelegation);
+    } catch (const std::exception& e) {
+        if (strErr.empty()) {
+            strErr = e.what();
+        }
+        return false;
+    }
+    return true;
+}
+
+bool LoadSuperStaker(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr)
+{
+    LOCK(pwallet->cs_wallet);
+    try {
+        uint256 hash;
+        ssKey >> hash;
+        CSuperStakerInfo wsuperStaker;
+        ssValue >> SER_INFO(wsuperStaker);
+        if (wsuperStaker.GetHash() != hash)
+        {
+            strErr = "Error reading wallet database: CSuperStakerInfo corrupt";
+            return false;
+        }
+        pwallet->LoadSuperStaker(wsuperStaker);
+    } catch (const std::exception& e) {
+        if (strErr.empty()) {
+            strErr = e.what();
+        }
+        return false;
+    }
+    return true;
+}
+
+bool LoadContractData(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr)
+{
+    LOCK(pwallet->cs_wallet);
+    try {
+        std::string strAddress, strKey, strValue;
+        ssKey >> strAddress;
+        ssKey >> strKey;
+        ssValue >> strValue;
+        if (!pwallet->LoadContractData(strAddress, strKey, strValue))
+        {
+            strErr = "Error reading wallet database: LoadContractData failed";
+            return false;
+        }
+    } catch (const std::exception& e) {
+        if (strErr.empty()) {
+            strErr = e.what();
+        }
+        return false;
+    }
+    return true;
+}
+
 static DBErrors LoadMinVersion(CWallet* pwallet, DatabaseBatch& batch) EXCLUSIVE_LOCKS_REQUIRED(pwallet->cs_wallet)
 {
     AssertLockHeld(pwallet->cs_wallet);
@@ -631,15 +750,15 @@ static DBErrors LoadLegacyWalletRecords(CWallet* pwallet, DatabaseBatch& batch, 
                 }
 
                 // Extract the index and internal from the path
-                // Path string is m/0'/k'/i'
-                // Path vector is [0', k', i'] (but as ints OR'd with the hardened bit
+                // Path string is m/88'/k'/i'
+                // Path vector is [88', k', i'] (but as ints OR'd with the hardened bit
                 // k == 0 for external, 1 for internal. i is the index
                 if (path.size() != 3) {
                     strErr = "Error reading wallet database: keymeta found with unexpected path";
                     return DBErrors::NONCRITICAL_ERROR;
                 }
-                if (path[0] != 0x80000000) {
-                    strErr = strprintf("Unexpected path index of 0x%08x (expected 0x80000000) for the element at index 0", path[0]);
+                if (path[0] != 0x80000058) {
+                    strErr = strprintf("Unexpected path index of 0x%08x (expected 0x80000058) for the element at index 0", path[0]);
                     return DBErrors::NONCRITICAL_ERROR;
                 }
                 if (path[1] != 0x80000000 && path[1] != (1 | 0x80000000)) {
@@ -1147,6 +1266,49 @@ static DBErrors LoadDecryptionKeys(CWallet* pwallet, DatabaseBatch& batch) EXCLU
     return mkey_res.m_result;
 }
 
+static DBErrors LoadSpecificRecords(CWallet* pwallet, DatabaseBatch& batch) EXCLUSIVE_LOCKS_REQUIRED(pwallet->cs_wallet)
+{
+    AssertLockHeld(pwallet->cs_wallet);
+    DBErrors result = DBErrors::LOAD_OK;
+
+    // Load token
+    LoadResult token_res = LoadRecords(pwallet, batch, DBKeys::TOKEN,
+        [] (CWallet* pwallet, DataStream& key, DataStream& value, std::string& err) {
+        return LoadToken(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, token_res.m_result);
+
+    // Load token transaction
+    LoadResult token_tx_res = LoadRecords(pwallet, batch, DBKeys::TOKENTX,
+        [] (CWallet* pwallet, DataStream& key, DataStream& value, std::string& err) {
+        return LoadTokenTx(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, token_tx_res.m_result);
+
+    // Load delegation
+    LoadResult delegation_res = LoadRecords(pwallet, batch, DBKeys::DELEGATION,
+        [] (CWallet* pwallet, DataStream& key, DataStream& value, std::string& err) {
+        return LoadDelegation(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, delegation_res.m_result);
+
+    // Load super staker
+    LoadResult super_staker_res = LoadRecords(pwallet, batch, DBKeys::SUPERSTAKER,
+        [] (CWallet* pwallet, DataStream& key, DataStream& value, std::string& err) {
+        return LoadSuperStaker(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, super_staker_res.m_result);
+
+    // Load contract data
+    LoadResult contract_data_res = LoadRecords(pwallet, batch, DBKeys::CONTRACTDATA,
+        [] (CWallet* pwallet, DataStream& key, DataStream& value, std::string& err) {
+        return LoadContractData(pwallet, key, value, err) ? DBErrors:: LOAD_OK : DBErrors::CORRUPT;
+    });
+    result = std::max(result, contract_data_res.m_result);
+
+    return result;
+}
+
 DBErrors WalletBatch::LoadWallet(CWallet* pwallet)
 {
     DBErrors result = DBErrors::LOAD_OK;
@@ -1195,6 +1357,9 @@ DBErrors WalletBatch::LoadWallet(CWallet* pwallet)
 
         // Load decryption keys
         result = std::max(LoadDecryptionKeys(pwallet, *m_batch), result);
+
+        // Load qtum specific records
+        result = std::max(LoadSpecificRecords(pwallet, *m_batch), result);
     } catch (...) {
         // Exceptions that can be ignored or treated as non-critical are handled by the individual loading functions.
         // Any uncaught exceptions will be caught here and treated as critical.
@@ -1345,6 +1510,56 @@ bool WalletBatch::TxnCommit()
 bool WalletBatch::TxnAbort()
 {
     return m_batch->TxnAbort();
+}
+
+bool WalletBatch::WriteToken(const CTokenInfo &wtoken)
+{
+    return WriteIC(std::make_pair(DBKeys::TOKEN, wtoken.GetHash()), SER_INFO(wtoken));
+}
+
+bool WalletBatch::EraseToken(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::TOKEN, hash));
+}
+
+bool WalletBatch::WriteTokenTx(const CTokenTx &wTokenTx)
+{
+    return WriteIC(std::make_pair(DBKeys::TOKENTX, wTokenTx.GetHash()), SER_INFO(wTokenTx));
+}
+
+bool WalletBatch::EraseTokenTx(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::TOKENTX, hash));
+}
+
+bool WalletBatch::WriteContractData(const std::string &address, const std::string &key, const std::string &value)
+{
+    return WriteIC(std::make_pair(DBKeys::CONTRACTDATA, std::make_pair(address, key)), value);
+}
+
+bool WalletBatch::EraseContractData(const std::string &address, const std::string &key)
+{
+    return EraseIC(std::make_pair(DBKeys::CONTRACTDATA, std::make_pair(address, key)));
+}
+
+bool WalletBatch::WriteDelegation(const CDelegationInfo &wdelegation)
+{
+    return WriteIC(std::make_pair(DBKeys::DELEGATION, wdelegation.GetHash()), SER_INFO(wdelegation));
+}
+
+bool WalletBatch::EraseDelegation(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::DELEGATION, hash));
+}
+
+bool WalletBatch::WriteSuperStaker(const CSuperStakerInfo &wsuperStaker)
+{
+    return WriteIC(std::make_pair(DBKeys::SUPERSTAKER, wsuperStaker.GetHash()), SER_INFO(wsuperStaker));
+}
+
+bool WalletBatch::EraseSuperStaker(uint256 hash)
+{
+    return EraseIC(std::make_pair(DBKeys::SUPERSTAKER, hash));
 }
 
 std::unique_ptr<WalletDatabase> MakeDatabase(const fs::path& path, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error)
