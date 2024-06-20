@@ -52,15 +52,19 @@ bool BCLog::Logger::StartLogging()
 
     assert(m_buffering);
     assert(m_fileout == nullptr);
+    assert(m_fileoutVM == nullptr); // qtum
 
     if (m_print_to_file) {
         assert(!m_file_path.empty());
+        assert(!m_file_pathVM.empty()); // qtum
         m_fileout = fsbridge::fopen(m_file_path, "a");
-        if (!m_fileout) {
+        m_fileoutVM = fsbridge::fopen(m_file_pathVM, "a");
+        if (!m_fileout || !m_fileoutVM) {
             return false;
         }
 
         setbuf(m_fileout, nullptr); // unbuffered
+        setbuf(m_fileoutVM, nullptr); // unbuffered
 
         // Add newlines to the logfile to distinguish this execution from the
         // last one.
@@ -70,12 +74,15 @@ bool BCLog::Logger::StartLogging()
     // dump buffered messages from before we opened the log
     m_buffering = false;
     while (!m_msgs_before_open.empty()) {
-        const std::string& s = m_msgs_before_open.front();
+        LogMsg logmsg= m_msgs_before_open.front();
 
-        if (m_print_to_file) FileWriteStr(s, m_fileout);
-        if (m_print_to_console) fwrite(s.data(), 1, s.size(), stdout);
+        FILE* file = logmsg.useVMLog ? m_fileoutVM : m_fileout;
+        if (file && m_print_to_file) FileWriteStr(logmsg.msg, file);
+        bool print_to_console = m_print_to_console;
+        if(print_to_console && logmsg.useVMLog && !m_show_evm_logs) print_to_console = false;
+        if (print_to_console) fwrite(logmsg.msg.data(), 1, logmsg.msg.size(), stdout);
         for (const auto& cb : m_print_callbacks) {
-            cb(s);
+            cb(logmsg.msg);
         }
 
         m_msgs_before_open.pop_front();
@@ -91,6 +98,8 @@ void BCLog::Logger::DisconnectTestLogger()
     m_buffering = true;
     if (m_fileout != nullptr) fclose(m_fileout);
     m_fileout = nullptr;
+    if (m_fileoutVM != nullptr) fclose(m_fileoutVM);
+    m_fileoutVM = nullptr;
     m_print_callbacks.clear();
 }
 
@@ -184,6 +193,9 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::TXRECONCILIATION, "txreconciliation"},
     {BCLog::SCAN, "scan"},
     {BCLog::TXPACKAGES, "txpackages"},
+    {BCLog::COINSTAKE, "coinstake"},
+    {BCLog::HTTPPOLL, "http-poll"},
+    {BCLog::INDEX, "index"},
     {BCLog::ALL, "1"},
     {BCLog::ALL, "all"},
 };
@@ -288,6 +300,12 @@ std::string LogCategoryToStr(BCLog::LogFlags category)
         return "scan";
     case BCLog::LogFlags::TXPACKAGES:
         return "txpackages";
+    case BCLog::LogFlags::COINSTAKE:
+        return "coinstake";
+    case BCLog::LogFlags::HTTPPOLL:
+        return "http-poll";
+    case BCLog::LogFlags::INDEX:
+        return "index";
     case BCLog::LogFlags::ALL:
         return "all";
     }
@@ -425,7 +443,12 @@ void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& loggi
     }
 
     if (m_log_sourcelocations && m_started_new_line) {
-        str_prefixed.insert(0, "[" + RemovePrefix(source_file, "./") + ":" + ToString(source_line) + "] [" + logging_function + "] ");
+        if(useVMLog) {
+            str_prefixed.insert(0, "[" + logging_function + "] ");
+        }
+        else {
+            str_prefixed.insert(0, "[" + RemovePrefix(source_file, "./") + ":" + ToString(source_line) + "] [" + logging_function + "] ");
+        }
     }
 
     if (m_log_threadnames && m_started_new_line) {
@@ -439,11 +462,15 @@ void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& loggi
 
     if (m_buffering) {
         // buffer if we haven't started logging yet
-        m_msgs_before_open.push_back(str_prefixed);
+        LogMsg logmsg(str_prefixed, useVMLog);
+        m_msgs_before_open.push_back(logmsg);
         return;
     }
 
-    if (m_print_to_console) {
+    bool print_to_console = m_print_to_console;
+    if(print_to_console && useVMLog && !m_show_evm_logs) print_to_console = false;
+
+    if (print_to_console) {
         // print to console
         fwrite(str_prefixed.data(), 1, str_prefixed.size(), stdout);
         fflush(stdout);
@@ -453,6 +480,7 @@ void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& loggi
     }
     if (m_print_to_file) {
         assert(m_fileout != nullptr);
+        assert(m_fileoutVM != nullptr);
 
         // reopen the log file, if requested
         if (m_reopen_file) {
@@ -463,8 +491,22 @@ void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& loggi
                 fclose(m_fileout);
                 m_fileout = new_fileout;
             }
+            FILE* new_fileoutVM = fsbridge::fopen(m_file_pathVM, "a");
+            if (new_fileoutVM) {
+                setbuf(new_fileoutVM, nullptr); // unbuffered
+                fclose(m_fileoutVM);
+                m_fileoutVM = new_fileoutVM;
+            }
         }
-        FileWriteStr(str_prefixed, m_fileout);
+
+        //////////////////////////////// // qtum
+        FILE* file = m_fileout;
+        if(useVMLog){
+            file = m_fileoutVM;
+        }
+        ////////////////////////////////
+
+        FileWriteStr(str_prefixed, file);
     }
 }
 

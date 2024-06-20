@@ -38,7 +38,7 @@ struct LogCategory {
 };
 
 namespace BCLog {
-    enum LogFlags : uint32_t {
+    enum LogFlags : uint64_t {
         NONE        = 0,
         NET         = (1 <<  0),
         TOR         = (1 <<  1),
@@ -72,7 +72,10 @@ namespace BCLog {
         TXRECONCILIATION = (1 << 27),
         SCAN        = (1 << 28),
         TXPACKAGES  = (1 << 29),
-        ALL         = ~(uint32_t)0,
+        COINSTAKE   = (1 << 30),
+        HTTPPOLL    = ((uint64_t)1 << 31),
+        INDEX       = ((uint64_t)1 << 32),
+        ALL         = ~(uint64_t)0,
     };
     enum class Level {
         Trace = 0, // High-volume or detailed logging for development/debugging
@@ -83,13 +86,25 @@ namespace BCLog {
     };
     constexpr auto DEFAULT_LOG_LEVEL{Level::Debug};
 
+    struct LogMsg
+    {
+        LogMsg(const std::string& _msg, bool _useVMLog) :
+            msg(_msg),
+            useVMLog(_useVMLog)
+        {}
+
+        std::string msg;
+        bool useVMLog;
+    };
+
     class Logger
     {
     private:
         mutable StdMutex m_cs; // Can not use Mutex from sync.h because in debug mode it would cause a deadlock when a potential deadlock was detected
 
         FILE* m_fileout GUARDED_BY(m_cs) = nullptr;
-        std::list<std::string> m_msgs_before_open GUARDED_BY(m_cs);
+        FILE* m_fileoutVM GUARDED_BY(m_cs) = nullptr;
+        std::list<LogMsg> m_msgs_before_open GUARDED_BY(m_cs);
         bool m_buffering GUARDED_BY(m_cs) = true; //!< Buffer messages before logging can be started.
 
         /**
@@ -107,7 +122,7 @@ namespace BCLog {
         std::atomic<Level> m_log_level{DEFAULT_LOG_LEVEL};
 
         /** Log categories bitfield. */
-        std::atomic<uint32_t> m_categories{0};
+        std::atomic<uint64_t> m_categories{0};
 
         std::string LogTimestampStr(const std::string& str);
 
@@ -179,7 +194,7 @@ namespace BCLog {
         void SetLogLevel(Level level) { m_log_level = level; }
         bool SetLogLevel(const std::string& level);
 
-        uint32_t GetCategoryMask() const { return m_categories.load(); }
+        uint64_t GetCategoryMask() const { return m_categories.load(); }
 
         void EnableCategory(LogFlags flag);
         bool EnableCategory(const std::string& str);
