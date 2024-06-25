@@ -33,6 +33,9 @@
 #include <wallet/transaction.h>
 #include <wallet/types.h>
 #include <wallet/walletutil.h>
+#include <validation.h>
+#include <consensus/params.h>
+#include <qtum/posutils.h>
 
 #include <atomic>
 #include <cassert>
@@ -804,6 +807,7 @@ public:
     int64_t m_last_coin_stake_search_time{0};
     int64_t m_last_coin_stake_search_interval{0};
     std::atomic<bool> m_enabled_staking{false};
+    CAmount m_staking_min_utxo_value{DEFAULT_STAKING_MIN_UTXO_VALUE};
     CAmount m_staker_min_utxo_size{DEFAULT_STAKER_MIN_UTXO_SIZE};
     int32_t m_staker_max_utxo_script_cache{DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE};
     uint8_t m_staking_min_fee{DEFAULT_STAKING_MIN_FEE};
