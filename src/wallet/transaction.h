@@ -32,6 +32,7 @@ struct TxStateConfirmed {
     uint256 confirmed_block_hash;
     int confirmed_block_height;
     int position_in_block;
+    bool has_delegation;
 
     explicit TxStateConfirmed(const uint256& block_hash, int height, int index) : confirmed_block_hash(block_hash), confirmed_block_height(height), position_in_block(index) {}
     std::string toString() const { return strprintf("Confirmed (block=%s, height=%i, index=%i)", confirmed_block_hash.ToString(), confirmed_block_height, position_in_block); }

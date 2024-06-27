@@ -245,6 +245,12 @@ public:
     virtual SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const { return SigningResult::SIGNING_FAILED; };
     /** Adds script and derivation path information to a PSBT, and optionally signs it. */
     virtual TransactionError FillPSBT(PartiallySignedTransaction& psbt, const PrecomputedTransactionData& txdata, int sighash_type = SIGHASH_DEFAULT, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr, bool finalize = true) const { return TransactionError::INVALID_PSBT; }
+    /** Creates new output signatures and adds them to the transaction. Returns whether all op_sender outputs were signed */
+    virtual bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const { return false; }
+    /** Creates new coinstake signatures and adds them to the transaction. Returns whether all op_sender outputs were signed */
+    virtual bool SignTransactionStake(CMutableTransaction& tx, const std::vector<std::pair<CTxOut,unsigned int>>& coins) const { return false; }
+    /** Creates new coinstake block signature and adds it to the header. Returns whether the block was signed */
+    virtual bool SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const { return false; }
 
     virtual uint256 GetID() const { return uint256(); }
 
@@ -423,6 +429,9 @@ public:
     bool SignTransaction(CMutableTransaction& tx, const std::map<COutPoint, Coin>& coins, int sighash, std::map<int, bilingual_str>& input_errors) const override;
     SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const override;
     TransactionError FillPSBT(PartiallySignedTransaction& psbt, const PrecomputedTransactionData& txdata, int sighash_type = SIGHASH_DEFAULT, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr, bool finalize = true) const override;
+    bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const override;
+    bool SignTransactionStake(CMutableTransaction& tx, const std::vector<std::pair<CTxOut,unsigned int>>& coins) const override;
+    bool SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const override;
 
     uint256 GetID() const override;
 
@@ -650,6 +659,9 @@ public:
     bool SignTransaction(CMutableTransaction& tx, const std::map<COutPoint, Coin>& coins, int sighash, std::map<int, bilingual_str>& input_errors) const override;
     SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const override;
     TransactionError FillPSBT(PartiallySignedTransaction& psbt, const PrecomputedTransactionData& txdata, int sighash_type = SIGHASH_DEFAULT, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr, bool finalize = true) const override;
+    bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const override;
+    bool SignTransactionStake(CMutableTransaction& tx, const std::vector<std::pair<CTxOut,unsigned int>>& coins) const override;
+    bool SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const override;
 
     uint256 GetID() const override;
 
