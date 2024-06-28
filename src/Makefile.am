@@ -344,6 +344,8 @@ BITCOIN_CORE_H = \
   util/types.h \
   util/ui_change_type.h \
   util/vector.h \
+  util/convert.h \
+  util/signstr.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -377,7 +379,10 @@ BITCOIN_CORE_H = \
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h \
   zmq/zmqrpc.h \
-  zmq/zmqutil.h
+  zmq/zmqutil.h \
+  qtum/posutils.h \
+  qtum/qtumutils.h \
+  qtum/delegationutils.h
 
 
 obj/build.h: FORCE
@@ -723,6 +728,8 @@ libbitcoin_common_a_SOURCES = \
   script/signingprovider.cpp \
   script/solver.cpp \
   warnings.cpp \
+  qtum/qtumutils.cpp \
+  qtum/delegationutils.cpp \
   libff/libff/algebra/curves/public_params.hpp \
   libff/libff/algebra/curves/curve_utils.hpp \
   evmone/include/evmone/evmone.h \

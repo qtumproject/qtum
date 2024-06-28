@@ -34,8 +34,8 @@ struct TxStateConfirmed {
     int position_in_block;
     bool has_delegation;
 
-    explicit TxStateConfirmed(const uint256& block_hash, int height, int index) : confirmed_block_hash(block_hash), confirmed_block_height(height), position_in_block(index) {}
-    std::string toString() const { return strprintf("Confirmed (block=%s, height=%i, index=%i)", confirmed_block_hash.ToString(), confirmed_block_height, position_in_block); }
+    explicit TxStateConfirmed(const uint256& block_hash, int height, int index, bool delegation) : confirmed_block_hash(block_hash), confirmed_block_height(height), position_in_block(index), has_delegation(delegation) {}
+    std::string toString() const { return strprintf("Confirmed (block=%s, height=%i, index=%i, delegation=%i)", confirmed_block_hash.ToString(), confirmed_block_height, position_in_block, has_delegation); }
 };
 
 //! State of transaction added to mempool.
@@ -58,9 +58,10 @@ struct TxStateConflicted {
 //! reason.
 struct TxStateInactive {
     bool abandoned;
+    bool disabled;
 
-    explicit TxStateInactive(bool abandoned = false) : abandoned(abandoned) {}
-    std::string toString() const { return strprintf("Inactive (abandoned=%i)", abandoned); }
+    explicit TxStateInactive(bool abandoned = false, bool disabled = false) : abandoned(abandoned), disabled(disabled) {}
+    std::string toString() const { return strprintf("Inactive (abandoned=%i, disabled=%i)", abandoned, disabled); }
 };
 
 //! State of transaction loaded in an unrecognized state with unexpected hash or
@@ -89,7 +90,7 @@ static inline TxState TxStateInterpretSerialized(TxStateUnrecognized data)
     } else if (data.block_hash == uint256::ONE) {
         if (data.index == -1) return TxStateInactive{/*abandoned=*/true};
     } else if (data.index >= 0) {
-        return TxStateConfirmed{data.block_hash, /*height=*/-1, data.index};
+        return TxStateConfirmed{data.block_hash, /*height=*/-1, data.index, /*delegation=*/false};
     } else if (data.index == -1) {
         return TxStateConflicted{data.block_hash, /*height=*/-1};
     }

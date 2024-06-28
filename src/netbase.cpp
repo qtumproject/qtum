@@ -517,6 +517,11 @@ bool ConnectSocketDirectly(const CService &addrConnect, const Sock& sock, int nT
 
     // Connect to the addrConnect service on the hSocket socket.
     if (sock.Connect(reinterpret_cast<struct sockaddr*>(&sockaddr), len) == SOCKET_ERROR) {
+        if (!sock.IsSelectable()) {
+            LogPrintf("Cannot create connection: non-selectable socket created (fd >= FD_SETSIZE ?)\n");
+            return false;
+        }
+
         int nErr = WSAGetLastError();
         // WSAEINVAL is here because some legacy version of winsock uses it
         if (nErr == WSAEINPROGRESS || nErr == WSAEWOULDBLOCK || nErr == WSAEINVAL)
