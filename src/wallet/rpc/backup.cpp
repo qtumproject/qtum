@@ -181,6 +181,8 @@ RPCHelpMan importprivkey()
 
         CKey key = DecodeSecret(strSecret);
         if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
+        if (pwallet->m_wallet_unlock_staking_only)
+            throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Wallet is unlocked for staking only.");
 
         CPubKey pubkey = key.GetPubKey();
         CHECK_NONFATAL(key.VerifyPubKey(pubkey));
@@ -232,7 +234,7 @@ RPCHelpMan importaddress()
             "Note: Use \"getwalletinfo\" to query the scanning progress.\n"
             "Note: This command is only compatible with legacy wallets. Use \"importdescriptors\" for descriptor wallets.\n",
                 {
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The Bitcoin address (or hex-encoded script)"},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The Qtum address (or hex-encoded script)"},
                     {"label", RPCArg::Type::STR, RPCArg::Default{""}, "An optional label"},
                     {"rescan", RPCArg::Type::BOOL, RPCArg::Default{true}, "Scan the chain and mempool for wallet transactions."},
                     {"p2sh", RPCArg::Type::BOOL, RPCArg::Default{false}, "Add the P2SH version of the script as well"},
@@ -305,7 +307,7 @@ RPCHelpMan importaddress()
 
             pwallet->ImportScriptPubKeys(strLabel, scripts, /*have_solving_data=*/false, /*apply_label=*/true, /*timestamp=*/1);
         } else {
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address or script");
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address or script");
         }
     }
     if (fRescan)
@@ -646,7 +648,7 @@ RPCHelpMan dumpprivkey()
                 "Then the importprivkey can be used with this output\n"
                 "Note: This command is only compatible with legacy wallets.\n",
                 {
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The bitcoin address for the private key"},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address for the private key"},
                 },
                 RPCResult{
                     RPCResult::Type::STR, "key", "The private key"
@@ -670,7 +672,9 @@ RPCHelpMan dumpprivkey()
     std::string strAddress = request.params[0].get_str();
     CTxDestination dest = DecodeDestination(strAddress);
     if (!IsValidDestination(dest)) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
+        if (pwallet->m_wallet_unlock_staking_only)
+            throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Wallet is unlocked for staking only.");
     }
     auto keyid = GetKeyForDestination(spk_man, dest);
     if (keyid.IsNull()) {
@@ -915,6 +919,10 @@ static std::string RecurseImportData(const CScript& script, ImportData& import_d
     case TxoutType::NONSTANDARD:
     case TxoutType::WITNESS_UNKNOWN:
     case TxoutType::WITNESS_V1_TAPROOT:
+    case TxoutType::CREATE_SENDER:
+    case TxoutType::CALL_SENDER:
+    case TxoutType::CREATE:
+    case TxoutType::CALL:
         return "unrecognized script";
     } // no default case, so the compiler can warn about missing cases
     NONFATAL_UNREACHABLE();
@@ -1431,7 +1439,7 @@ RPCHelpMan importmulti()
                                       "block from time %d, which is after or within %d seconds of key creation, and "
                                       "could contain transactions pertaining to the key. As a result, transactions "
                                       "and coins using this key may not appear in the wallet. This error could be "
-                                      "caused by pruning or data corruption (see bitcoind log for details) and could "
+                                      "caused by pruning or data corruption (see qtumd log for details) and could "
                                       "be dealt with by downloading and rescanning the relevant blocks (see -reindex "
                                       "option and rescanblockchain RPC).",
                                 GetImportTimestamp(request, now), scannedTime - TIMESTAMP_WINDOW - 1, TIMESTAMP_WINDOW)));
@@ -1461,6 +1469,14 @@ static UniValue ProcessDescriptorImport(CWallet& wallet, const UniValue& data, c
         const bool active = data.exists("active") ? data["active"].get_bool() : false;
         const bool internal = data.exists("internal") ? data["internal"].get_bool() : false;
         const std::string label{LabelFromValue(data["label"])};
+        const bool importForStaking = data.exists("importforstaking") ? data["importforstaking"].get_bool() : false;
+
+        // Check import for staking param
+        bool isLegacy = (descriptor.rfind("pkh(", 0) == 0 || descriptor.rfind("pk(", 0) == 0);
+        if(importForStaking && !isLegacy)
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "importforstaking can only be used for pkh or pk descriptors.");
+        }
 
         // Parse descriptor string
         FlatSigningProvider keys;
@@ -1578,12 +1594,61 @@ static UniValue ProcessDescriptorImport(CWallet& wallet, const UniValue& data, c
             }
         }
 
+        // Refresh address stake cache
+        if(isLegacy)
+        {
+            wallet.RefreshAddressStakeCache();
+        }
+
         result.pushKV("success", UniValue(true));
     } catch (const UniValue& e) {
         result.pushKV("success", UniValue(false));
         result.pushKV("error", e);
     }
     PushWarnings(warnings, result);
+    return result;
+}
+
+static UniValue ProcessDescriptorData(CWallet& wallet, UniValue data, const int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
+{
+    // Insert descriptor
+    UniValue result = ProcessDescriptorImport(wallet, data, timestamp);
+
+    // Insert pk or pkh descriptor if needed
+    const bool importForStaking = data.exists("importforstaking") ? data["importforstaking"].get_bool() : false;
+    if(result["success"].get_bool() && importForStaking)
+    {
+        // Check if is pk or pkh descriptor
+        std::string descriptor = data["desc"].get_str();
+        std::string tmpDesc;
+        bool isPkh = false;
+        if(descriptor.rfind("pkh(", 0) == 0)
+        {
+            tmpDesc = "pk";
+            isPkh = true;
+        }
+        else if(descriptor.rfind("pk(", 0) == 0)
+        {
+            tmpDesc = "pkh";
+            isPkh = false;
+        }
+        else
+        {
+            return result;
+        }
+
+        // Compute second descriptor
+        size_t checksize = GetDescriptorChecksum(descriptor).size() + 1;
+        size_t pos = isPkh ? 3 : 2;
+        size_t len = descriptor.size() - checksize - pos;
+        tmpDesc = tmpDesc + descriptor.substr(pos, len);
+        tmpDesc = tmpDesc + "#" + GetDescriptorChecksum(tmpDesc);
+
+        // Insert second descriptor
+        data.pushKV("desc", tmpDesc);
+        result = ProcessDescriptorImport(wallet, data, timestamp);
+    }
+
     return result;
 }
 
@@ -1612,6 +1677,7 @@ RPCHelpMan importdescriptors()
                                     },
                                     {"internal", RPCArg::Type::BOOL, RPCArg::Default{false}, "Whether matching outputs should be treated as not incoming payments (e.g. change)"},
                                     {"label", RPCArg::Type::STR, RPCArg::Default{""}, "Label to assign to the address, only allowed with internal=false. Disabled for ranged descriptors"},
+                                    {"importforstaking", RPCArg::Type::BOOL, RPCArg::Default{false}, "Import corresponding pk or pkh descriptor as both are needed for staking, only apply for pk or pkh descriptors."},
                                 },
                             },
                         },
@@ -1637,7 +1703,8 @@ RPCHelpMan importdescriptors()
                 RPCExamples{
                     HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"internal\": true }, "
                                           "{ \"desc\": \"<my descriptor 2>\", \"label\": \"example 2\", \"timestamp\": 1455191480 }]'") +
-                    HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"active\": true, \"range\": [0,100], \"label\": \"<my bech32 wallet>\" }]'")
+                    HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"active\": true, \"range\": [0,100], \"label\": \"<my bech32 wallet>\" }]'") +
+                    HelpExampleCli("importdescriptors", "'[{ \"desc\": \"<my descriptor>\", \"timestamp\":1455191478, \"importforstaking\":true}]'")
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& main_request) -> UniValue
 {
@@ -1679,7 +1746,7 @@ RPCHelpMan importdescriptors()
         for (const UniValue& request : requests.getValues()) {
             // This throws an error if "timestamp" doesn't exist
             const int64_t timestamp = std::max(GetImportTimestamp(request, now), minimum_timestamp);
-            const UniValue result = ProcessDescriptorImport(*pwallet, request, timestamp);
+            const UniValue result = ProcessDescriptorData(*pwallet, request, timestamp);
             response.push_back(result);
 
             if (lowest_timestamp > timestamp ) {
@@ -1729,7 +1796,7 @@ RPCHelpMan importdescriptors()
                                       "block from time %d, which is after or within %d seconds of key creation, and "
                                       "could contain transactions pertaining to the desc. As a result, transactions "
                                       "and coins using this desc may not appear in the wallet. This error could be "
-                                      "caused by pruning or data corruption (see bitcoind log for details) and could "
+                                      "caused by pruning or data corruption (see qtumd log for details) and could "
                                       "be dealt with by downloading and rescanning the relevant blocks (see -reindex "
                                       "option and rescanblockchain RPC).",
                                 GetImportTimestamp(request, now), scanned_time - TIMESTAMP_WINDOW - 1, TIMESTAMP_WINDOW)));
