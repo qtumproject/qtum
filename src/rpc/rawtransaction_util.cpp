@@ -302,6 +302,10 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keyst
     }
 }
 
+void CheckSenderSignatures(CMutableTransaction& mtx)
+{
+}
+
 void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, const std::map<COutPoint, Coin>& coins, const UniValue& hashType, UniValue& result)
 {
     int nHashType = ParseSighashString(hashType);
@@ -333,4 +337,8 @@ void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const 
         }
         result.pushKV("errors", vErrors);
     }
+}
+
+void SignTransactionOutputResultToJSON(CMutableTransaction &mtx, bool complete, std::map<int, std::string> &output_errors, UniValue &result)
+{
 }
