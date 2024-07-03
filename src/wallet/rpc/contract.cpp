@@ -358,7 +358,7 @@ RPCHelpMan createcontract()
         }
 
         // Serialize the PSBT
-        CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+        DataStream ssTx;
         ssTx << psbtx;
         result.pushKV("psbt", EncodeBase64(ssTx.str()));
 
@@ -382,7 +382,8 @@ RPCHelpMan createcontract()
 
     std::vector<unsigned char> SHA256TxVout(32);
     std::vector<unsigned char> contractAddress(20);
-    std::vector<unsigned char> txIdAndVout(tx->GetHash().begin(), tx->GetHash().end());
+    uint256 txHash = tx->GetHash().ToUint256();
+    std::vector<unsigned char> txIdAndVout(txHash.begin(), txHash.end());
     uint32_t voutNumber=0;
     for (const CTxOut& txout : tx->vout) {
         if(txout.scriptPubKey.HasOpCreate()){
@@ -398,7 +399,7 @@ RPCHelpMan createcontract()
     CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
     result.pushKV("address", HexStr(contractAddress));
     }else{
-    std::string strHex = EncodeHexTx(*tx, RPCSerializationFlags());
+    std::string strHex = EncodeHexTx(*tx);
     result.pushKV("raw transaction", strHex);
     }
     return result;
@@ -621,7 +622,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
         }
 
         // Serialize the PSBT
-        CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+        DataStream ssTx;
         ssTx << psbtx;
         result.pushKV("psbt", EncodeBase64(ssTx.str()));
 
@@ -643,7 +644,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
         result.pushKV("sender", EncodeDestination(txSenderAdress));
         result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
     }else{
-        std::string strHex = EncodeHexTx(*tx, RPCSerializationFlags());
+        std::string strHex = EncodeHexTx(*tx);
         result.pushKV("raw transaction", strHex);
     }
 

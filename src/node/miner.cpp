@@ -23,6 +23,11 @@
 #include <util/moneystr.h>
 #include <util/time.h>
 #include <validation.h>
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <wallet/receive.h>
+#include <wallet/stake.h>
+#endif
 
 #include <algorithm>
 #include <utility>
@@ -428,4 +433,13 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         nDescendantsUpdated += UpdatePackagesForAdded(mempool, ancestors, mapModifiedTx);
     }
 }
+#ifdef ENABLE_WALLET
+void StakeQtums(bool fStake, wallet::CWallet *pwallet)
+{
+}
+
+void RefreshDelegates(wallet::CWallet *pwallet, bool refreshMyDelegates, bool refreshStakerDelegates)
+{
+}
+#endif
 } // namespace node
