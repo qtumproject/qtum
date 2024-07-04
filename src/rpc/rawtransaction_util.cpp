@@ -129,7 +129,7 @@ std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& out
     return parsed_outputs;
 }
 
-void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in)
+void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawContract* rawContract)
 {
     UniValue outputs(UniValue::VOBJ);
     outputs = NormalizeOutputs(outputs_in);
@@ -143,7 +143,7 @@ void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in)
     }
 }
 
-CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, std::optional<bool> rbf)
+CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, std::optional<bool> rbf, IRawContract* rawContract)
 {
     CMutableTransaction rawTx;
 
@@ -155,7 +155,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
     }
 
     AddInputs(rawTx, inputs_in, rbf);
-    AddOutputs(rawTx, outputs_in);
+    AddOutputs(rawTx, outputs_in, rawContract);
 
     if (rbf.has_value() && rbf.value() && rawTx.vin.size() > 0 && !SignalsOptInRBF(CTransaction(rawTx))) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter combination: Sequence number(s) contradict replaceable option");
@@ -304,6 +304,22 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keyst
 
 void CheckSenderSignatures(CMutableTransaction& mtx)
 {
+    // Check the sender signatures are inside the outputs, before signing the inputs
+    if(mtx.HasOpSender())
+    {
+        int nOut = 0;
+        for (const auto& output : mtx.vout)
+        {
+            if(output.scriptPubKey.HasOpSender())
+            {
+                CScript senderPubKey, senderSig;
+                if(!ExtractSenderData(output.scriptPubKey, &senderPubKey, &senderSig))
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, "Missing contract sender signature,"
+                                                              "use signrawsendertransactionwithwallet or signrawsendertransactionwithkey to sign the outputs");
+            }
+            nOut++;
+        }
+    }
 }
 
 void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, const std::map<COutPoint, Coin>& coins, const UniValue& hashType, UniValue& result)
@@ -339,6 +355,40 @@ void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const 
     }
 }
 
+static void TxOutErrorToJSON(const CTxOut& output, UniValue& vErrorsRet, const std::string& strMessage)
+{
+    UniValue entry(UniValue::VOBJ);
+    entry.pushKV("amount", ValueFromAmount(output.nValue));
+    entry.pushKV("scriptPubKey", HexStr(MakeUCharSpan(output.scriptPubKey)));
+    entry.pushKV("error", strMessage);
+    vErrorsRet.push_back(entry);
+}
+
+void SignTransactionOutput(CMutableTransaction &mtx, FillableSigningProvider *keystore, const UniValue &hashType, UniValue &result)
+{
+    int nHashType = ParseSighashString(hashType);
+
+    // Script verification errors
+    std::map<int, std::string> output_errors;
+
+    bool complete = SignTransactionOutput(mtx, keystore, nHashType, output_errors);
+    SignTransactionOutputResultToJSON(mtx, complete, output_errors, result);
+}
+
 void SignTransactionOutputResultToJSON(CMutableTransaction &mtx, bool complete, std::map<int, std::string> &output_errors, UniValue &result)
 {
+    // Make errors UniValue
+    UniValue vErrors(UniValue::VARR);
+    for (const auto& err_pair : output_errors) {
+        TxOutErrorToJSON(mtx.vout.at(err_pair.first), vErrors, err_pair.second);
+    }
+
+    result.pushKV("hex", EncodeHexTx(CTransaction(mtx)));
+    result.pushKV("complete", complete);
+    if (!vErrors.empty()) {
+        if (result.exists("errors")) {
+            vErrors.push_backV(result["errors"].getValues());
+        }
+        result.pushKV("errors", vErrors);
+    }
 }

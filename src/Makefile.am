@@ -508,7 +508,8 @@ libbitcoin_node_a_SOURCES = \
 if ENABLE_WALLET
 libbitcoin_node_a_SOURCES += wallet/init.cpp \
   wallet/stake.cpp \
-  wallet/rpc/contract.cpp
+  wallet/rpc/contract.cpp \
+  wallet/rpc/mining.cpp
 libbitcoin_node_a_CPPFLAGS += $(BDB_CPPFLAGS)
 endif
 if !ENABLE_WALLET
@@ -742,6 +743,7 @@ libbitcoin_common_a_SOURCES = \
   rpc/rawtransaction_util.cpp \
   rpc/request.cpp \
   rpc/util.cpp \
+  rpc/contract_util.cpp \
   scheduler.cpp \
   script/descriptor.cpp \
   script/miniscript.cpp \

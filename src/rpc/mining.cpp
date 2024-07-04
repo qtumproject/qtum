@@ -56,7 +56,7 @@ using node::UpdateTime;
  * If 'height' is -1, compute the estimate from current chain tip.
  * If 'height' is a valid block height, compute the estimate at the time when a given block was found.
  */
-static UniValue GetNetworkHashPS(int lookup, int height, const CChain& active_chain) {
+UniValue GetNetworkHashPS(int lookup, int height, const CChain& active_chain) {
     if (lookup < -1 || lookup == 0) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid nblocks. Must be a positive number or -1.");
     }

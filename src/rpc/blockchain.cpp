@@ -61,16 +61,6 @@ using node::BlockManager;
 using node::NodeContext;
 using node::SnapshotMetadata;
 
-struct CUpdatedBlock
-{
-    uint256 hash;
-    int height;
-};
-
-static GlobalMutex cs_blockchange;
-static std::condition_variable cond_blockchange;
-static CUpdatedBlock latestblock GUARDED_BY(cs_blockchange);
-
 /* Calculate the difficulty for a given block index.
  */
 double GetDifficulty(const CBlockIndex& blockindex)
@@ -91,6 +81,105 @@ double GetDifficulty(const CBlockIndex& blockindex)
     }
 
     return dDiff;
+}
+
+double GetPoWMHashPS(ChainstateManager& chainman)
+{
+    if (chainman.m_best_header && chainman.m_best_header->nHeight >= Params().GetConsensus().nLastPOWBlock)
+        return 0;
+
+    int nPoWInterval = 72;
+    int64_t nTargetSpacingWorkMin = 30, nTargetSpacingWork = 30;
+
+    CChain& active_chain = chainman.ActiveChain();
+    CBlockIndex* pindexGenesisBlock = active_chain.Genesis();
+    CBlockIndex* pindex = pindexGenesisBlock;
+    CBlockIndex* pindexPrevWork = pindexGenesisBlock;
+
+    while (pindex)
+    {
+        if (pindex->IsProofOfWork())
+        {
+            int64_t nActualSpacingWork = pindex->GetBlockTime() - pindexPrevWork->GetBlockTime();
+            nTargetSpacingWork = ((nPoWInterval - 1) * nTargetSpacingWork + nActualSpacingWork + nActualSpacingWork) / (nPoWInterval + 1);
+            nTargetSpacingWork = std::max(nTargetSpacingWork, nTargetSpacingWorkMin);
+            pindexPrevWork = pindex;
+        }
+
+        pindex = pindex->pnext;
+    }
+
+    return GetDifficulty(*CHECK_NONFATAL(active_chain.Tip())) * 4294.967296 / nTargetSpacingWork;
+}
+
+double GetPoSKernelPS(ChainstateManager& chainman)
+{
+    int nPoSInterval = 72;
+    double dStakeKernelsTriedAvg = 0;
+    int nStakesHandled = 0, nStakesTime = 0;
+
+    CBlockIndex* pindex = chainman.m_best_header;
+    CBlockIndex* pindexPrevStake = NULL;
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    bool dynamicStakeSpacing = true;
+    uint32_t stakeTimestampMask=consensusParams.StakeTimestampMask(0);
+    if(pindex)
+    {
+        dynamicStakeSpacing = pindex->nHeight < consensusParams.QIP9Height;
+        stakeTimestampMask=consensusParams.StakeTimestampMask(pindex->nHeight);
+    }
+
+    while (pindex && nStakesHandled < nPoSInterval)
+    {
+        if (pindex->IsProofOfStake())
+        {
+            if (pindexPrevStake)
+            {
+                dStakeKernelsTriedAvg += GetDifficulty(*CHECK_NONFATAL(pindexPrevStake)) * 4294967296.0;
+                if(dynamicStakeSpacing)
+                    nStakesTime += pindexPrevStake->nTime - pindex->nTime;
+                nStakesHandled++;
+            }
+            pindexPrevStake = pindex;
+        }
+
+        pindex = pindex->pprev;
+    }
+
+    if(!dynamicStakeSpacing)
+    {
+        // Using a fixed denominator reduces the variation spikes
+        nStakesTime = consensusParams.TargetSpacing(chainman.m_best_header->nHeight) * nStakesHandled;
+    }
+
+    double result = 0;
+
+    if (nStakesTime)
+        result = dStakeKernelsTriedAvg / nStakesTime;
+    
+    result *= stakeTimestampMask + 1;
+
+    return result;
+}
+
+double GetEstimatedAnnualROI(ChainstateManager& chainman)
+{
+    double result = 0;
+    double networkWeight = GetPoSKernelPS(chainman);
+    CChain& active_chain = chainman.ActiveChain();
+    CBlockIndex* pindex = chainman.m_best_header == 0 ? active_chain.Tip() : chainman.m_best_header;
+    int nHeight = pindex ? pindex->nHeight : 0;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    double subsidy = GetBlockSubsidy(nHeight, consensusParams);
+    int nBlocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(nHeight);
+    if(networkWeight > 0)
+    {
+        // Formula: 100 * 675 blocks/day * 365 days * subsidy) / Network Weight
+        result = nBlocktimeDownscaleFactor * 24637500 * subsidy / networkWeight;
+    }
+
+    return result;
 }
 
 static int ComputeNextBlockAndDepth(const CBlockIndex& tip, const CBlockIndex& blockindex, const CBlockIndex*& next)
@@ -500,6 +589,171 @@ static RPCHelpMan getblockhash()
 
     const CBlockIndex* pblockindex = active_chain[nHeight];
     return pblockindex->GetBlockHash().GetHex();
+},
+    };
+}
+
+static RPCHelpMan getaccountinfo()
+{
+    return RPCHelpMan{"getaccountinfo",
+                "\nGet contract details including balance, storage data and code.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "address", "The address of the contract"},
+                        {RPCResult::Type::NUM, "balance", "The balance of the contract"},
+                        {RPCResult::Type::STR_HEX, "code", "The bytecode of the contract"},
+                        {RPCResult::Type::OBJ_DYN, "storage", "The storage data of the contract",
+                        {
+                            {RPCResult::Type::OBJ_DYN, "data", "The storage data entry",
+                            {
+                                {RPCResult::Type::STR_HEX, "hex", "The hex data"},
+                            }},
+                        }},
+                        {RPCResult::Type::OBJ, "vin", /*optional=*/true, "",
+                        {
+                            {RPCResult::Type::STR_HEX, "hash", "The data hash"},
+                            {RPCResult::Type::NUM, "nVout", "The vout index"},
+                            {RPCResult::Type::NUM, "value", "The vout value"},
+                        }},
+                    }},
+                RPCExamples{
+                    HelpExampleCli("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    LOCK(cs_main);
+
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    UniValue result(UniValue::VOBJ);
+
+    result.pushKV("address", strAddr);
+    result.pushKV("balance", CAmount(globalState->balance(addrAccount)));
+    std::vector<uint8_t> code(globalState->code(addrAccount));
+    auto storage(globalState->storage(addrAccount));
+
+    UniValue storageUV(UniValue::VOBJ);
+    for (auto j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
+        storageUV.pushKV(j.first.hex(), e);
+    }
+        
+    result.pushKV("storage", storageUV);
+
+    result.pushKV("code", HexStr(code));
+
+    std::unordered_map<dev::Address, Vin> vins = globalState->vins();
+    if(vins.count(addrAccount)){
+        UniValue vin(UniValue::VOBJ);
+        valtype vchHash(vins[addrAccount].hash.asBytes());
+        std::reverse(vchHash.begin(), vchHash.end());
+        vin.pushKV("hash", HexStr(vchHash));
+        vin.pushKV("nVout", uint64_t(vins[addrAccount].nVout));
+        vin.pushKV("value", uint64_t(vins[addrAccount].value));
+        result.pushKV("vin", vin);
+    }
+    return result;
+},
+    };
+}
+
+static RPCHelpMan getstorage()
+{
+    return RPCHelpMan{"getstorage",
+                "\nGet contract storage data.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"blocknum", RPCArg::Type::NUM,  RPCArg::Default{-1}, "Number of block to get state from."},
+                    {"index", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "Zero-based index position of the storage"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ_DYN, "", "The storage data of the contract",
+                    {
+                        {RPCResult::Type::OBJ_DYN, "data", "The storage data entry",
+                        {
+                            {RPCResult::Type::STR_HEX, "hex", "The hex data"},
+                        }},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+
+    CChain& active_chain = chainman.ActiveChain();
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address"); 
+
+    TemporaryState ts(globalState);
+    if (!request.params[1].isNull())
+    {
+        if (request.params[1].isNum())
+        {
+            auto blockNum = request.params[1].getInt<int>();
+            if((blockNum < 0 && blockNum != -1) || blockNum > active_chain.Height())
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+
+            if(blockNum != -1)
+                ts.SetRoot(uintToh256(active_chain[blockNum]->hashStateRoot), uintToh256(active_chain[blockNum]->hashUTXORoot));
+                
+        } else {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+        }
+    }
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    UniValue result(UniValue::VOBJ);
+
+    bool onlyIndex = !request.params[2].isNull();
+    unsigned index = 0;
+    if (onlyIndex)
+        index = request.params[2].getInt<int>();
+
+    auto storage(globalState->storage(addrAccount));
+
+    if (onlyIndex)
+    {
+        if (index >= storage.size())
+        {
+            std::ostringstream stringStream;
+            stringStream << "Storage size: " << storage.size() << " got index: " << index;
+            throw JSONRPCError(RPC_INVALID_PARAMS, stringStream.str());
+        }
+        auto elem = std::next(storage.begin(), index);
+        UniValue e(UniValue::VOBJ);
+
+        storage = {{elem->first, {elem->second.first, elem->second.second}}};
+    } 
+    for (const auto& j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
+        result.pushKV(j.first.hex(), e);
+    }
+    return result;
 },
     };
 }

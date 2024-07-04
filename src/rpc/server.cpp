@@ -20,6 +20,7 @@
 #include <util/strencodings.h>
 #include <util/string.h>
 #include <util/time.h>
+#include <httpserver.h>
 
 #include <boost/signals2/signal.hpp>
 
@@ -30,7 +31,6 @@
 #include <unordered_map>
 
 static GlobalMutex g_rpc_warmup_mutex;
-static std::atomic<bool> g_rpc_running{false};
 static bool fRPCInWarmup GUARDED_BY(g_rpc_warmup_mutex) = true;
 static std::string rpcWarmupStatus GUARDED_BY(g_rpc_warmup_mutex) = "RPC server started";
 /* Timer-creating functions */
@@ -324,11 +324,6 @@ void StopRPC()
     });
 }
 
-bool IsRPCRunning()
-{
-    return g_rpc_running;
-}
-
 void RpcInterruptionPoint()
 {
     if (!IsRPCRunning()) throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "Shutting down");
@@ -353,6 +348,49 @@ bool RPCIsInWarmup(std::string *outStatus)
     if (outStatus)
         *outStatus = rpcWarmupStatus;
     return fRPCInWarmup;
+}
+
+JSONRPCRequestLong::JSONRPCRequestLong(HTTPRequest *_req) {
+	httpreq = _req;
+}
+
+bool JSONRPCRequestLong::PollAlive() {
+    return !req()->isConnClosed();
+}
+
+void JSONRPCRequestLong::PollStart() {
+    // send an empty space to the client to ensure that it's still alive.
+    assert(!isLongPolling);
+    req()->WriteHeader("Content-Type", "application/json");
+    req()->WriteHeader("Connection", "close");
+    req()->Chunk(std::string(" "));
+    isLongPolling = true;
+}
+
+void JSONRPCRequestLong::PollPing() {
+    assert(isLongPolling);
+    // send an empty space to the client to ensure that it's still alive.
+    req()->Chunk(std::string(" "));
+}
+
+void JSONRPCRequestLong::PollCancel() {
+    assert(isLongPolling);
+    req()->ChunkEnd();
+}
+
+void JSONRPCRequestLong::PollReply(const UniValue& result) {
+    assert(isLongPolling);
+    UniValue reply(UniValue::VOBJ);
+    reply.pushKV("result", result);
+    reply.pushKV("error", NullUniValue);
+    reply.pushKV("id", id);
+
+    req()->Chunk(reply.write() + "\n");
+    req()->ChunkEnd();
+}
+
+HTTPRequest* JSONRPCRequestLong::req() {
+    return (HTTPRequest*)httpreq;
 }
 
 bool IsDeprecatedRPCEnabled(const std::string& method)
@@ -398,9 +436,10 @@ std::string JSONRPCExecBatch(const JSONRPCRequest& jreq, const UniValue& vReq)
  * Process named arguments into a vector of positional arguments, based on the
  * passed-in specification for the RPC call's arguments.
  */
-static inline JSONRPCRequest transformNamedArguments(const JSONRPCRequest& in, const std::vector<std::pair<std::string, bool>>& argNames)
+static inline JSONRPCRequest& transformNamedArguments(const JSONRPCRequest& _in, const std::vector<std::pair<std::string, bool>>& argNames)
 {
-    JSONRPCRequest out = in;
+    JSONRPCRequest in = _in;
+    JSONRPCRequest& out = (JSONRPCRequest&)_in;
     out.params = UniValue(UniValue::VARR);
     // Build a map of parameters, and remove ones that have been processed, so that we can throw a focused error if
     // there is an unknown one.

@@ -8,6 +8,8 @@
 #include <functional>
 #include <optional>
 #include <string>
+#include <mutex>
+#include <condition_variable>
 
 namespace util {
 class SignalInterrupt;
@@ -63,6 +65,14 @@ private:
     struct evhttp_request* req;
     const util::SignalInterrupt& m_interrupt;
     bool replySent;
+    bool startedChunkTransfer;
+    bool connClosed;
+
+    std::mutex cs;
+    std::condition_variable closeCv;
+
+    void startDetectClientClose();
+    void waitClientClose();
 
 public:
     explicit HTTPRequest(struct evhttp_request* req, const util::SignalInterrupt& interrupt, bool replySent = false);
@@ -75,6 +85,10 @@ public:
         HEAD,
         PUT
     };
+
+    void setConnClosed();
+    bool isConnClosed();
+    bool isChunkMode();
 
     /** Get requested URI.
      */
@@ -129,6 +143,21 @@ public:
      * main thread, do not call any other HTTPRequest methods after calling this.
      */
     void WriteReply(int nStatus, const std::string& strReply = "");
+
+    /**
+     * Start chunk transfer. Assume to be 200.
+     */
+    void Chunk(const std::string& chunk);
+
+    /**
+	 * End chunk transfer.
+	 */
+    void ChunkEnd();
+
+    /**
+     * Is reply sent?
+     */
+    bool ReplySent();
 };
 
 /** Get the query parameter value from request uri for a specified key, or std::nullopt if the key
@@ -163,7 +192,7 @@ public:
      * deleteWhenTriggered deletes this event object after the event is triggered (and the handler called)
      * handler is the handler to call when the event is triggered.
      */
-    HTTPEvent(struct event_base* base, bool deleteWhenTriggered, const std::function<void()>& handler);
+    HTTPEvent(struct event_base* base, bool deleteWhenTriggered, struct evbuffer *_databuf, const std::function<void()>& handler);
     ~HTTPEvent();
 
     /** Trigger the event. If tv is 0, trigger it immediately. Otherwise trigger it after
@@ -174,6 +203,7 @@ public:
     bool deleteWhenTriggered;
     std::function<void()> handler;
 private:
+    struct evbuffer *databuf;
     struct event* ev;
 };
 

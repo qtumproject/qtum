@@ -466,6 +466,10 @@ bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutSt
 
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
 
+void writeVMlog(const std::vector<ResultExecute>& res, CChain& chain, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+
+std::string exceptedMessage(const dev::eth::TransactionException& excepted, const dev::bytes& output);
+
 enum DisconnectResult
 {
     DISCONNECT_OK,      // All good.

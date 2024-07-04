@@ -65,6 +65,8 @@
 #include <validationinterface.h>
 #include <warnings.h>
 
+#include <libethcore/ABI.h>
+
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -2205,6 +2207,9 @@ bool GetSpentCoinFromMainChain(const CBlockIndex* pforkPrev, COutPoint prevoutSt
 
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, const dev::Address& sender, uint64_t gasLimit, CAmount nAmount){
     return {};
+}
+
+void writeVMlog(const std::vector<ResultExecute>& res, CChain& chain, const CTransaction& tx, const CBlock& block){
 }
 
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
@@ -5261,6 +5266,30 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex *pin
     }
 
     return std::min<double>(pindex->nChainTx / fTxTotal, 1.0);
+}
+
+std::string exceptedMessage(const dev::eth::TransactionException& excepted, const dev::bytes& output)
+{
+    std::string message;
+    try
+    {
+        // Process the revert message from the output
+        if(excepted == dev::eth::TransactionException::RevertInstruction)
+        {
+            // Get function: Error(string)
+            dev::bytesConstRef oRawData(&output);
+            dev::bytes errorFunc = oRawData.cropped(0, 4).toBytes();
+            if(dev::toHex(errorFunc) == "08c379a0")
+            {
+                dev::bytesConstRef oData = oRawData.cropped(4);
+                message = dev::eth::ABIDeserialiser<std::string>::deserialise(oData);
+            }
+        }
+    }
+    catch(...)
+    {}
+
+    return message;
 }
 
 std::optional<uint256> ChainstateManager::SnapshotBlockhash() const
