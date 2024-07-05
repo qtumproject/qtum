@@ -6215,3 +6215,13 @@ bool GetAddressUnspent(uint256 addressHash, int type, std::vector<std::pair<CAdd
 {
     return {};
 }
+
+bool GetAddressWeight(uint256 addressHash, int type, const std::map<COutPoint, uint32_t>& immatureStakes, int32_t nHeight, uint64_t& nWeight, node::BlockManager& blockman)
+{
+    return {};
+}
+
+std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman)
+{
+    return {};
+}

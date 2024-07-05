@@ -41,7 +41,7 @@ enum class LockResult {
     ErrorWrite,
     ErrorLock,
 };
-[[nodiscard]] LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only = false);
+[[nodiscard]] LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only = false, bool try_lock = true);
 } // namespace util
 void UnlockDirectory(const fs::path& directory, const fs::path& lockfile_name);
 bool CheckDiskSpace(const fs::path& dir, uint64_t additional_bytes = 0);
