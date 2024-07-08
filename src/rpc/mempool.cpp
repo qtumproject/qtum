@@ -50,9 +50,26 @@ static RPCHelpMan sendrawtransaction()
              "Reject transactions with provably unspendable outputs (e.g. 'datacarrier' outputs that use the OP_RETURN opcode) greater than the specified value, expressed in " + CURRENCY_UNIT + ".\n"
              "If burning funds through unspendable outputs is desired, increase this value.\n"
              "This check is based on heuristics and does not guarantee spendability of outputs.\n"},
+            {"showcontractdata", RPCArg::Type::BOOL, RPCArg::Default{false}, "Show created contract data, ignored when no contracts created"},
         },
-        RPCResult{
-            RPCResult::Type::STR_HEX, "", "The transaction hash in hex"
+        {
+            RPCResult{
+                RPCResult::Type::STR_HEX, "", "The transaction hash in hex"
+            },
+            RPCResult{"for create contract with showcontractdata = true",
+                RPCResult::Type::OBJ, "", "",
+                {
+                    {RPCResult::Type::STR_HEX, "txid", "The transaction hash in hex"},
+                    {RPCResult::Type::ARR, "contracts", "",
+                    {
+                        {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR_HEX, "address", "The expected contract address"},
+                            {RPCResult::Type::NUM, "index", "The index of the output"},
+                        }}
+                    }},
+                }
+            },
         },
         RPCExamples{
             "\nCreate a transaction\n"
@@ -74,7 +91,8 @@ static RPCHelpMan sendrawtransaction()
             }
 
             for (const auto& out : mtx.vout) {
-                if((out.scriptPubKey.IsUnspendable() || !out.scriptPubKey.HasValidOps()) && out.nValue > max_burn_amount) {
+                bool isContract = out.scriptPubKey.HasOpCreate() || out.scriptPubKey.HasOpCall();
+                if(!isContract && (out.scriptPubKey.IsUnspendable() || !out.scriptPubKey.HasValidOps()) && out.nValue > max_burn_amount) {
                     throw JSONRPCTransactionError(TransactionError::MAX_BURN_EXCEEDED);
                 }
             }
@@ -94,7 +112,48 @@ static RPCHelpMan sendrawtransaction()
                 throw JSONRPCTransactionError(err, err_string);
             }
 
-            return tx->GetHash().GetHex();
+            std::string txid = tx->GetHash().GetHex();
+
+            bool showcontractdata = false;
+            if (!request.params[3].isNull()) showcontractdata = request.params[3].get_bool();
+
+            if(showcontractdata && tx->HasOpCreate()){
+                uint32_t voutNumber=0;
+                UniValue result(UniValue::VOBJ);
+                result.pushKV("txid", txid);
+
+                UniValue contracts(UniValue::VARR);
+                for (const CTxOut& txout : tx->vout) {
+                    if(txout.scriptPubKey.HasOpCreate()){
+                        std::vector<unsigned char> SHA256TxVout(32);
+                        std::vector<unsigned char> contractAddress(20);
+                        const uint256& txHash = tx->GetHash().ToUint256();
+                        std::vector<unsigned char> txIdAndVout(txHash.begin(), txHash.end());
+                        std::vector<unsigned char> voutNumberChrs;
+
+                        if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+                        std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+                        txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
+                        CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
+                        CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
+
+                        UniValue contract(UniValue::VOBJ);
+                        contract.pushKV("address", HexStr(contractAddress));
+                        contract.pushKV("index", (int64_t)voutNumber);
+                        contracts.push_back(contract);
+
+                        SHA256TxVout.clear();
+                        contractAddress.clear();
+                        txIdAndVout.clear();
+                    }
+                    voutNumber++;
+                }
+                result.pushKV("contracts", contracts);
+
+                return result;
+            }
+
+            return txid;
         },
     };
 }
