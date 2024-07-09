@@ -831,12 +831,442 @@ static RPCHelpMan getaddressbalance()
 },
     };
 }
+
+static RPCHelpMan getaddressutxos()
+{
+    return RPCHelpMan{"getaddressutxos",
+                "\nReturns all unspent outputs for an address (requires addressindex to be enabled).\n",
+                {
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
+                        {
+                            {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                                {
+                                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                                }
+                            },
+                            {"chainInfo", RPCArg::Type::BOOL, RPCArg::Optional::OMITTED, "Include chain info with results"},
+                        }
+                    }
+                },
+                {
+                    RPCResult{"if chainInfo is set to false",
+                        RPCResult::Type::ARR, "", "",
+                        {
+                            {RPCResult::Type::OBJ, "", "",
+                            {
+                                {RPCResult::Type::STR, "address", "The address base58check encoded"},
+                                {RPCResult::Type::STR_HEX, "txid", "The output txid"},
+                                {RPCResult::Type::NUM, "height", "The block height"},
+                                {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                                {RPCResult::Type::STR_HEX, "script", "The script hex encoded"},
+                                {RPCResult::Type::NUM, "satoshis", "The number of satoshis of the output"},
+                                {RPCResult::Type::BOOL, "isStake", "Is coinstake output"},
+                            }}
+                        },
+                    },
+                    RPCResult{"if chainInfo is set to true",
+                        RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::ARR, "utxos", "List of utxo",
+                            {
+                                {RPCResult::Type::OBJ, "", "",
+                                {
+                                    {RPCResult::Type::STR, "address", "The address base58check encoded"},
+                                    {RPCResult::Type::STR_HEX, "txid", "The output txid"},
+                                    {RPCResult::Type::NUM, "height", "The block height"},
+                                    {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                                    {RPCResult::Type::STR_HEX, "script", "The script hex encoded"},
+                                    {RPCResult::Type::NUM, "satoshis", "The number of satoshis of the output"},
+                                    {RPCResult::Type::BOOL, "isStake", "Is coinstake output"},
+                                }}
+                            }},
+                            {RPCResult::Type::STR_HEX, "hash", "The tip block hash"},
+                            {RPCResult::Type::NUM, "height", "The tip block height"},
+                        },
+                    },
+                },
+                RPCExamples{
+                    HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
+            + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}") +
+                    HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"chainInfo\": true}'")
+            + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"chainInfo\": true}")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+
+    bool includeChainInfo = false;
+    if (request.params[0].isObject()) {
+        UniValue chainInfo = request.params[0].get_obj().find_value("chainInfo");
+        if (chainInfo.isBool()) {
+            includeChainInfo = chainInfo.get_bool();
+        }
+    }
+
+    std::vector<std::pair<uint256, int> > addresses;
+
+    if (!getAddressesFromParams(request.params, addresses)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    }
+
+    std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
+
+    for (std::vector<std::pair<uint256, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
+        if (!GetAddressUnspent((*it).first, (*it).second, unspentOutputs, chainman.m_blockman)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
+        }
+    }
+
+    std::sort(unspentOutputs.begin(), unspentOutputs.end(), heightSort);
+
+    UniValue utxos(UniValue::VARR);
+
+    for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator it=unspentOutputs.begin(); it!=unspentOutputs.end(); it++) {
+        UniValue output(UniValue::VOBJ);
+        std::string address;
+        if (!getAddressFromIndex(it->first.type, it->first.hashBytes, address)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unknown address type");
+        }
+
+        output.pushKV("address", address);
+        output.pushKV("txid", it->first.txhash.GetHex());
+        output.pushKV("outputIndex", (int)it->first.index);
+        output.pushKV("script", HexStr(MakeUCharSpan(it->second.script)));
+        output.pushKV("satoshis", it->second.satoshis);
+        output.pushKV("height", it->second.blockHeight);
+        output.pushKV("isStake", it->second.coinStake);
+        utxos.push_back(output);
+    }
+
+    if (includeChainInfo) {
+        UniValue result(UniValue::VOBJ);
+        result.pushKV("utxos", utxos);
+
+        ChainstateManager& chainman = EnsureAnyChainman(request.context);
+        LOCK(cs_main);
+        CChain& active_chain = chainman.ActiveChain();
+        result.pushKV("hash", active_chain.Tip()->GetBlockHash().GetHex());
+        result.pushKV("height", (int)active_chain.Height());
+        return result;
+    } else {
+        return utxos;
+    }
+},
+    };
+}
+
+static RPCHelpMan getaddressmempool()
+{
+    return RPCHelpMan{"getaddressmempool",
+                "\nReturns all mempool deltas for an address (requires addressindex to be enabled).\n",
+                {
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
+                        {
+                            {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                                {
+                                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                                }
+                            },
+                        }
+                    }
+                },
+                RPCResult{
+                    RPCResult::Type::ARR, "", "",
+                    {
+                        {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR, "address", "The qtum address"},
+                            {RPCResult::Type::STR_HEX, "txid", "The related txid"},
+                            {RPCResult::Type::NUM, "index", "The related input or output index"},
+                            {RPCResult::Type::NUM, "satoshis", "The difference of satoshis"},
+                            {RPCResult::Type::NUM, "timestamp", "The time the transaction entered the mempool (seconds)"},
+                            {RPCResult::Type::STR_HEX, "prevtxid", /*optional=*/true, "The previous txid (if spending)"},
+                            {RPCResult::Type::NUM, "prevout", /*optional=*/true, "The previous transaction output index (if spending)"},
+                        }}
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
+            + HelpExampleRpc("getaddressmempool", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    const NodeContext& node = EnsureAnyNodeContext(request.context);
+    std::vector<std::pair<uint256, int> > addresses;
+
+    if (!getAddressesFromParams(request.params, addresses)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    }
+
+    std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> > indexes;
+
+    if (!node.mempool->getAddressIndex(addresses, indexes)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
+    }
+
+    std::sort(indexes.begin(), indexes.end(), timestampSort);
+
+    UniValue result(UniValue::VARR);
+
+    for (std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> >::iterator it = indexes.begin();
+         it != indexes.end(); it++) {
+
+        std::string address;
+        if (!getAddressFromIndex(it->first.type, it->first.addressBytes, address)) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unknown address type");
+        }
+
+        UniValue delta(UniValue::VOBJ);
+        delta.pushKV("address", address);
+        delta.pushKV("txid", it->first.txhash.GetHex());
+        delta.pushKV("index", (int)it->first.index);
+        delta.pushKV("satoshis", it->second.amount);
+        delta.pushKV("timestamp", it->second.time);
+        if (it->second.amount < 0) {
+            delta.pushKV("prevtxid", it->second.prevhash.GetHex());
+            delta.pushKV("prevout", (int)it->second.prevout);
+        }
+        result.push_back(delta);
+    }
+
+    return result;
+},
+    };
+}
+
+static RPCHelpMan getspentinfo()
+{
+    return RPCHelpMan{"getspentinfo",
+                "\nReturns the txid and index where an output is spent.\n",
+                {
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Transaction data",
+                        {
+                            {"txid", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The hex string of the txid"},
+                            {"index", RPCArg::Type::NUM, RPCArg::Optional::NO, "The start block height"},
+                        },
+                    },
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR_HEX, "txid", "The transaction id"},
+                        {RPCResult::Type::NUM, "index", "The spending input index"},
+                        {RPCResult::Type::NUM, "height", "The spending block height"},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("getspentinfo", "'{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}'")
+            + HelpExampleRpc("getspentinfo", "{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    const NodeContext& node = EnsureAnyNodeContext(request.context);
+    const CTxMemPool& mempool = EnsureMemPool(node);
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+
+    UniValue txidValue = request.params[0].get_obj().find_value("txid");
+    UniValue indexValue = request.params[0].get_obj().find_value("index");
+
+    if (!txidValue.isStr() || !indexValue.isNum()) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid txid or index");
+    }
+
+    uint256 txid = ParseHashV(txidValue, "txid");
+    int outputIndex = indexValue.getInt<int>();
+
+    CSpentIndexKey key(txid, outputIndex);
+    CSpentIndexValue value;
+
+    if (!GetSpentIndex(key, value, mempool, chainman.m_blockman)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unable to get spent info");
+    }
+
+    UniValue obj(UniValue::VOBJ);
+    obj.pushKV("txid", value.txid.GetHex());
+    obj.pushKV("index", (int)value.inputIndex);
+    obj.pushKV("height", value.blockHeight);
+
+    return obj;
+},
+    };
+}
+
+static RPCHelpMan getaddresstxids()
+{
+    return RPCHelpMan{"getaddresstxids",
+                "\nReturns the txids for an address(es) (requires addressindex to be enabled).\n",
+                {
+                    {"argument", RPCArg::Type::OBJ, RPCArg::Optional::NO, "Json object",
+                        {
+                            {"addresses", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses",
+                                {
+                                    {"address", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The qtum address"},
+                                }
+                            },
+                            {"start", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "The start block height"},
+                            {"end", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "The end block height"},
+                        }
+                    }
+                },
+                RPCResult{
+                    RPCResult::Type::ARR, "", "",
+                    {
+                        {RPCResult::Type::STR_HEX, "transactionid", "The transaction id"},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}'")
+            + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"]}") +
+                    HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500}'")
+            + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"QD1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XX\"], \"start\": 5000, \"end\": 5500}")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+
+    std::vector<std::pair<uint256, int> > addresses;
+
+    if (!getAddressesFromParams(request.params, addresses)) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
+    }
+
+    int start = 0;
+    int end = 0;
+    if (request.params[0].isObject()) {
+        UniValue startValue = request.params[0].get_obj().find_value("start");
+        UniValue endValue = request.params[0].get_obj().find_value("end");
+        if (startValue.isNum() && endValue.isNum()) {
+            start = startValue.getInt<int>();
+            end = endValue.getInt<int>();
+        }
+    }
+
+    std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+
+    for (std::vector<std::pair<uint256, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
+        if (start > 0 && end > 0) {
+            if (!GetAddressIndex((*it).first, (*it).second, addressIndex, chainman.m_blockman, start, end)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
+            }
+        } else {
+            if (!GetAddressIndex((*it).first, (*it).second, addressIndex, chainman.m_blockman)) {
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
+            }
+        }
+    }
+
+    std::set<std::pair<int, std::string> > txids;
+    UniValue result(UniValue::VARR);
+
+    for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
+        int height = it->first.blockHeight;
+        std::string txid = it->first.txhash.GetHex();
+
+        if (addresses.size() > 1) {
+            txids.insert(std::make_pair(height, txid));
+        } else {
+            if (txids.insert(std::make_pair(height, txid)).second) {
+                result.push_back(txid);
+            }
+        }
+    }
+
+    if (addresses.size() > 1) {
+        for (std::set<std::pair<int, std::string> >::const_iterator it=txids.begin(); it!=txids.end(); it++) {
+            result.push_back(it->second);
+        }
+    }
+
+    return result;
+},
+    };
+}
+
+std::vector<std::string> getListArgsType()
+{
+    std::vector<std::string> ret = { "-rpcwallet",
+                                     "-rpcauth",
+                                     "-rpcwhitelist",
+                                     "-rpcallowip",
+                                     "-rpcbind",
+                                     "-blockfilterindex",
+                                     "-whitebind",
+                                     "-bind",
+                                     "-debug",
+                                     "-debugexclude",
+                                     "-stakingallowlist",
+                                     "-stakingexcludelist",
+                                     "-uacomment",
+                                     "-onlynet",
+                                     "-externalip",
+                                     "-loadblock",
+                                     "-addnode",
+                                     "-whitelist",
+                                     "-seednode",
+                                     "-connect",
+                                     "-deprecatedrpc",
+                                     "-wallet" };
+    return ret;
+}
+
+static RPCHelpMan listconf()
+{
+    return RPCHelpMan{"listconf",
+                "\nReturns the current options that qtumd was started with.\n",
+                {},
+                RPCResult{
+                    RPCResult::Type::OBJ_DYN, "", "",
+                    {
+                        {RPCResult::Type::STR, "param", "Value for param"},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("listconf", "")
+            + HelpExampleRpc("listconf", "")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    UniValue ret(UniValue::VOBJ);
+
+    std::vector<std::string> paramListType = getListArgsType();
+    for (const auto& arg : gArgs.getArgsList(paramListType)) {
+        UniValue listValues(UniValue::VARR);
+        for (const auto& value : arg.second) {
+            std::optional<unsigned int> flags = gArgs.GetArgFlags('-' + arg.first);
+            if (flags) {
+                UniValue value_param = (*flags & gArgs.SENSITIVE) ? "****" : value;
+                listValues.push_back(value_param);
+            }
+        }
+
+        int size = listValues.size();
+        if(size > 0)
+        {
+            ret.pushKV(arg.first, size == 1 ? listValues[0] : listValues);
+        }
+    }
+    return ret;
+},
+    };
+}
+
 void RegisterNodeRPCCommands(CRPCTable& t)
 {
     static const CRPCCommand commands[]{
         {"control", &getmemoryinfo},
         {"control", &logging},
+        {"control", &getdgpinfo},
         {"util", &getindexinfo},
+        {"util", &getblockhashes},
+        {"util", &getaddresstxids},
+        {"util", &getaddressdeltas},
+        {"util", &getaddressbalance},
+        {"util", &getaddressutxos},
+        {"util", &getaddressmempool},
+        {"util", &getspentinfo},
+        {"util", &listconf},
         {"hidden", &setmocktime},
         {"hidden", &mockscheduler},
         {"hidden", &echo},

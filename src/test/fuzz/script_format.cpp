@@ -15,7 +15,7 @@
 
 void initialize_script_format()
 {
-    SelectParams(ChainType::REGTEST);
+    SelectParams(ChainType::UNITTEST);
 }
 
 FUZZ_TARGET(script_format, .init = initialize_script_format)

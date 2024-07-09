@@ -27,7 +27,7 @@
 void initialize_script_sign()
 {
     ECC_Start();
-    SelectParams(ChainType::REGTEST);
+    SelectParams(ChainType::UNITTEST);
 }
 
 FUZZ_TARGET(script_sign, .init = initialize_script_sign)

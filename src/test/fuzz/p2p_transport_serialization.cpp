@@ -26,7 +26,7 @@ std::vector<std::string> g_all_messages;
 void initialize_p2p_transport_serialization()
 {
     ECC_Start();
-    SelectParams(ChainType::REGTEST);
+    SelectParams(ChainType::UNITTEST);
     g_all_messages = getAllNetMessageTypes();
     std::sort(g_all_messages.begin(), g_all_messages.end());
 }
