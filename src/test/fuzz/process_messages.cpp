@@ -71,7 +71,7 @@ FUZZ_TARGET(process_messages, .init = initialize_process_messages)
 
         CSerializedNetMsg net_msg;
         net_msg.m_type = random_message_type;
-        net_msg.data = ConsumeRandomLengthByteVector(fuzzed_data_provider, MAX_PROTOCOL_MESSAGE_LENGTH);
+        net_msg.data = ConsumeRandomLengthByteVector(fuzzed_data_provider, dgpMaxProtoMsgLength);
 
         CNode& random_node = *PickValue(fuzzed_data_provider, peers);
 

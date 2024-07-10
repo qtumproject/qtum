@@ -13,15 +13,16 @@
 // contrib/devtools/headerssync-params.py.
 
 //! Store one header commitment per HEADER_COMMITMENT_PERIOD blocks.
-constexpr size_t HEADER_COMMITMENT_PERIOD{606};
+constexpr size_t HEADER_COMMITMENT_PERIOD{59};
 
 //! Only feed headers to validation once this many headers on top have been
 //! received and validated against commitments.
-constexpr size_t REDOWNLOAD_BUFFER_SIZE{14441}; // 14441/606 = ~23.8 commitments
+constexpr size_t REDOWNLOAD_BUFFER_SIZE{741}; // 741/59 = ~12.6 commitments
 
-// Our memory analysis assumes 48 bytes for a CompressedHeader (so we should
+// Our memory analysis assumes 176 bytes for a CompressedHeader (so we should
 // re-calculate parameters if we compress further)
-static_assert(sizeof(CompressedHeader) == 48);
+// 160 bytes for a CompressedHeader is for ARM Linux
+static_assert(sizeof(CompressedHeader) == 176 || sizeof(CompressedHeader) == 160);
 
 HeadersSyncState::HeadersSyncState(NodeId id, const Consensus::Params& consensus_params,
         const CBlockIndex* chain_start, const arith_uint256& minimum_required_work) :
@@ -146,7 +147,8 @@ bool HeadersSyncState::ValidateAndStoreHeadersCommitments(const std::vector<CBlo
     Assume(m_download_state == State::PRESYNC);
     if (m_download_state != State::PRESYNC) return false;
 
-    if (headers[0].hashPrevBlock != m_last_header_received.GetHash()) {
+    if (headers[0].hashPrevBlock != m_last_header_received.GetHash() ||
+            (headers[0].IsProofOfStake() && headers[0].GetBlockTime() <= m_last_header_received.GetBlockTime())) {
         // Somehow our peer gave us a header that doesn't connect.
         // This might be benign -- perhaps our peer reorged away from the chain
         // they were on. Give up on this sync for now (likely we will start a

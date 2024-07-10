@@ -63,6 +63,11 @@ extern bool fRecordLogOpcodes;
 extern bool fIsVMlogFile;
 extern bool fGettingValuesDGP;
 
+struct EthTransactionParams;
+using valtype = std::vector<unsigned char>;
+using ExtractQtumTX = std::pair<std::vector<QtumTransaction>, std::vector<EthTransactionParams>>;
+///////////////////////////////////////////
+
 class Chainstate;
 class CTxMemPool;
 class ChainstateManager;
@@ -88,12 +93,12 @@ static const uint64_t MEMPOOL_MIN_GAS_LIMIT = 22000;
 
 static const uint64_t ADD_DELEGATION_MIN_GAS_LIMIT = 2200000;
 
+static const bool DEFAULT_ADDRINDEX = false;
+static const bool DEFAULT_LOGEVENTS = false;
 /** Block files containing a block-height within MIN_BLOCKS_TO_KEEP of ActiveChain().Tip() will not be pruned. */
 static const unsigned int MIN_BLOCKS_TO_KEEP = 288;
 static const signed int DEFAULT_CHECKBLOCKS = 6;
 static constexpr int DEFAULT_CHECKLEVEL{3};
-static const bool DEFAULT_ADDRINDEX = false;
-static const bool DEFAULT_LOGEVENTS = false;
 // Require that user allocate at least 550 MiB for block & undo files (blk???.dat and rev???.dat)
 // At 1MB per block, 288 blocks = 288MB.
 // Add 15% for Undo data = 331MB
@@ -148,6 +153,12 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex* pin
 
 /** Prune block files up to a given height */
 void PruneBlockFilesManual(Chainstate& active_chainstate, int nManualPruneHeight);
+
+/** Check if the transaction is confirmed in N previous blocks */
+bool IsConfirmedInNPrevBlocks(const CDiskTxPos& txindex, const CBlockIndex* pindexFrom, int nMaxDepth, int& nActualDepth);
+
+/** Check if the header proof is valid */
+bool CheckHeaderProof(const CBlockHeader& block, const Consensus::Params& consensusParams, Chainstate& chainstate);
 
 /**
 * Validation result for a transaction evaluated by MemPoolAccept (single or package).
@@ -431,6 +442,9 @@ std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman);
 
 /** Context-independent validity checks */
 bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, Chainstate& chainstate, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool fCheckSig=true);
+bool CheckFirstCoinstakeOutput(const CBlock& block);
+bool GetBlockPublicKey(const CBlock& block, std::vector<unsigned char>& vchPubKey);
+bool GetBlockDelegation(const CBlock& block, const uint160& staker, uint160& address, uint8_t& fee, CCoinsViewCache& view, Chainstate& chainstate);
 bool CheckCanonicalBlockSignature(const CBlockHeader* pblock);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block) */
@@ -765,6 +779,7 @@ public:
         EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
     bool ConnectBlock(const CBlock& block, BlockValidationState& state, CBlockIndex* pindex,
                       CCoinsViewCache& view, bool fJustCheck = false) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+    bool UpdateHashProof(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, CBlockIndex* pindex, CCoinsViewCache& view);
 
     // Apply the effects of a block disconnection on the UTXO set.
     bool DisconnectTip(BlockValidationState& state, DisconnectedBlockTransactions* disconnectpool) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_mempool->cs);
