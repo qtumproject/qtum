@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <vector>
 
-static const int64_t DEFAULT_MAX_TIME_ADJUSTMENT = 70 * 60;
+static const int64_t DEFAULT_MAX_TIME_ADJUSTMENT = 0;
 
 class CNetAddr;
 
@@ -78,5 +78,7 @@ void AddTimeData(const CNetAddr& ip, int64_t nTime);
  * Reset the internal state of GetTimeOffset() and AddTimeData().
  */
 void TestOnlyResetTimeData();
+
+int64_t GetAdjustedTimeSeconds();
 
 #endif // BITCOIN_TIMEDATA_H
