@@ -126,7 +126,7 @@ static bool ParseArgs(ArgsManager& args, int argc, char* argv[])
     // Error out when loose non-argument tokens are encountered on command line
     for (int i = 1; i < argc; i++) {
         if (!IsSwitchChar(argv[i][0])) {
-            return InitError(Untranslated(strprintf("Command line contains unexpected token '%s', see bitcoind -h for a list of options.", argv[i])));
+            return InitError(Untranslated(strprintf("Command line contains unexpected token '%s', see qtumd -h for a list of options.", argv[i])));
         }
     }
     return true;
@@ -141,7 +141,7 @@ static bool ProcessInitCommands(ArgsManager& args)
         if (args.IsArgSet("-version")) {
             strUsage += FormatParagraph(LicenseInfo());
         } else {
-            strUsage += "\nUsage:  bitcoind [options]                     Start " PACKAGE_NAME "\n"
+            strUsage += "\nUsage:  qtumd [options]                     Start " PACKAGE_NAME "\n"
                 "\n";
             strUsage += args.GetHelpMessage();
         }

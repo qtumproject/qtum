@@ -13,6 +13,7 @@
 #include <sync.h>
 #include <util/fs.h>
 #include <util/syserror.h>
+#include <util/strencodings.h>
 
 #include <cerrno>
 #include <fstream>
@@ -21,6 +22,7 @@
 #include <string>
 #include <system_error>
 #include <utility>
+#include <random.h>
 
 #ifndef WIN32
 // for posix_fallocate, in configure.ac we check if it is present after this
@@ -89,6 +91,26 @@ void ReleaseDirectoryLocks()
 {
     LOCK(cs_dir_locks);
     dir_locks.clear();
+}
+
+fs::path GetUniquePath(const fs::path& base)
+{
+    FastRandomContext rnd;
+    fs::path tmpFile = base / fs::u8path(HexStr(rnd.randbytes(8)));
+    return tmpFile;
+}
+
+bool DirIsWritable(const fs::path& directory)
+{
+    fs::path tmpFile = GetUniquePath(directory);
+
+    FILE* file = fsbridge::fopen(tmpFile, "a");
+    if (!file) return false;
+
+    fclose(file);
+    remove(tmpFile);
+
+    return true;
 }
 
 bool CheckDiskSpace(const fs::path& dir, uint64_t additional_bytes)

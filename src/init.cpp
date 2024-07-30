@@ -273,6 +273,8 @@ void Interrupt(NodeContext& node)
 
 void Shutdown(NodeContext& node)
 {
+    (void)(*Assert(g_shutdown))();
+
     static Mutex g_shutdown_mutex;
     TRY_LOCK(g_shutdown_mutex, lock_shutdown);
     if (!lock_shutdown) return;
@@ -283,7 +285,20 @@ void Shutdown(NodeContext& node)
     /// for example if the data directory was found to be locked.
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
-    util::ThreadRename("shutoff");
+    util::ThreadRename("qtum-shutoff");
+
+#ifdef ENABLE_WALLET
+    if(node.wallet_loader && node.wallet_loader->context())
+    {
+        // Force stop the stakers before any other components
+        for (const std::shared_ptr<wallet::CWallet>& pwallet : GetWallets(*node.wallet_loader->context()))
+        {
+            pwallet->StopStake();
+        }
+    }
+#endif
+    if(node.peerman) node.peerman->StopCleanBlockIndex();
+
     if (node.mempool) node.mempool->AddTransactionsUpdated(1);
 
     StopHTTPRPC();
@@ -366,6 +381,9 @@ void Shutdown(NodeContext& node)
                 chainstate->ResetCoinsViews();
             }
         }
+        pstorageresult.reset();
+        globalState.reset();
+        globalSealEngine.reset();
     }
     for (const auto& client : node.chain_clients) {
         client->stop();
@@ -1343,11 +1361,11 @@ bool AppInitParameterInteraction(const ArgsManager& args)
     return true;
 }
 
-static bool LockDataDirectory(bool probeOnly)
+static bool LockDataDirectory(bool probeOnly, bool try_lock = true)
 {
     // Make sure only a single Bitcoin process is using the data directory.
     const fs::path& datadir = gArgs.GetDataDirNet();
-    switch (util::LockDirectory(datadir, ".lock", probeOnly)) {
+    switch (util::LockDirectory(datadir, ".lock", probeOnly, try_lock)) {
     case util::LockResult::ErrorWrite:
         return InitError(strprintf(_("Cannot write to data directory '%s'; check permissions."), fs::PathToString(datadir)));
     case util::LockResult::ErrorLock:
@@ -2030,6 +2048,8 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
         }
     });
 
+    node.peerman->InitCleanBlockIndex();
+
     // Wait for genesis block to be processed
     {
         WAIT_LOCK(g_genesis_wait_mutex, lock);
@@ -2291,4 +2311,9 @@ bool StartIndexBackgroundSync(NodeContext& node)
 
 void UnlockDataDirectory()
 {
+    // Unlock
+    const fs::path& datadir = gArgs.GetDataDirNet();
+    if (DirIsWritable(datadir)) {
+        UnlockDirectory(datadir, ".lock");
+    }
 }
