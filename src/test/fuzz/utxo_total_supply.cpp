@@ -21,7 +21,7 @@ FUZZ_TARGET(utxo_total_supply)
 {
     /** The testing setup that creates a chainman only (no chainstate) */
     ChainTestingSetup test_setup{
-        ChainType::REGTEST,
+        ChainType::UNITTEST,
         {
             "-testactivationheight=bip34@2",
         },
@@ -94,7 +94,8 @@ FUZZ_TARGET(utxo_total_supply)
     // Get at which height we duplicate the coinbase
     // Assuming that the fuzzer will mine relatively short chains (less than 200 blocks), we want the duplicate coinbase to be not too high.
     // Up to 300 seems reasonable.
-    int64_t duplicate_coinbase_height = fuzzed_data_provider.ConsumeIntegralInRange(0, 300);
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
+    int64_t duplicate_coinbase_height = fuzzed_data_provider.ConsumeIntegralInRange(0, 3 * coinbaseMaturity);
     // Always pad with OP_0 at the end to avoid bad-cb-length error
     const CScript duplicate_coinbase_script = CScript() << duplicate_coinbase_height << OP_0;
     // Mine the first block with this duplicate
