@@ -1143,7 +1143,7 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         const bilingual_str& err = util::ErrorString(select_coins_res);
         return util::Error{err.empty() ?_("Insufficient funds") : err};
     }
-    const SelectionResult& result = *select_coins_res;
+    SelectionResult& result = *select_coins_res;
     TRACE5(coin_selection, selected_coins,
            wallet.GetName().c_str(),
            GetAlgorithmName(result.GetAlgo()).c_str(),
@@ -1151,8 +1151,26 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
            result.GetWaste(),
            result.GetSelectedValue());
 
+    std::set<std::shared_ptr<COutput>> setCoins = result.GetInputSet();
+    std::vector<std::shared_ptr<COutput>> vCoins;
+
     const CAmount change_amount = result.GetChange(coin_selection_params.min_viable_change, coin_selection_params.m_change_fee);
     if (change_amount > 0) {
+
+        // send change to existing address
+        if (!wallet.m_use_change_address &&
+                !std::holds_alternative<CNoDestination>(coin_control.destChange) &&
+                setCoins.size() > 0)
+        {
+            // setCoins will be added as inputs to the new transaction
+            // Set the first input script as change script for the new transaction
+            auto pcoin = setCoins.begin();
+            scriptChange = (*pcoin)->txout.scriptPubKey;
+
+            change_prototype_txout = CTxOut(0, scriptChange);
+            coin_selection_params.change_output_size = GetSerializeSize(change_prototype_txout);
+        }
+
         CTxOut newTxOut(change_amount, scriptChange);
         if (!change_pos) {
             // Insert change txn at random position:
@@ -1165,15 +1183,35 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         change_pos = std::nullopt;
     }
 
+    // Move sender input to position 0
+    std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
+    if(hasSender && coin_control.HasSelected()){
+        for (std::vector<std::shared_ptr<COutput>>::size_type i = 0 ; i != vCoins.size(); i++){
+            if(vCoins[i]->outpoint==senderInput){
+                if(i==0)break;
+                iter_swap(vCoins.begin(),vCoins.begin()+i);
+                break;
+            }
+        }
+    }
+
     // Shuffle selected coins and fill in final vin
-    std::vector<std::shared_ptr<COutput>> selected_coins = result.GetShuffledInputVector();
+    int shuffleOffset = 0;
+    if(hasSender && coin_control.HasSelected() && vCoins.size() > 0 && vCoins[0]->outpoint==senderInput){
+        shuffleOffset = 1;
+    }
+    setCoins = std::set<std::shared_ptr<COutput>>(vCoins.begin(), vCoins.end());
+    result.SetInputSet(setCoins);
+    vCoins.clear();
+    setCoins.clear();
+    std::vector<std::shared_ptr<COutput>> selected_coins = result.GetShuffledInputVector(shuffleOffset);
 
     if (coin_control.HasSelected() && coin_control.HasSelectedOrder()) {
         // When there are preselected inputs, we need to move them to be the first UTXOs
         // and have them be in the order selected. We can use stable_sort for this, where we
         // compare with the positions stored in coin_control. The COutputs that have positions
         // will be placed before those that don't, and those positions will be in order.
-        std::stable_sort(selected_coins.begin(), selected_coins.end(),
+        std::stable_sort(selected_coins.begin() + shuffleOffset, selected_coins.end(),
             [&coin_control](const std::shared_ptr<COutput>& a, const std::shared_ptr<COutput>& b) {
                 auto a_pos = coin_control.GetSelectionPos(a->outpoint);
                 auto b_pos = coin_control.GetSelectionPos(b->outpoint);

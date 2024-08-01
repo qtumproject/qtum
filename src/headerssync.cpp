@@ -5,6 +5,7 @@
 #include <headerssync.h>
 #include <logging.h>
 #include <pow.h>
+#include <timedata.h>
 #include <util/check.h>
 #include <util/time.h>
 #include <util/vector.h>
@@ -42,7 +43,25 @@ HeadersSyncState::HeadersSyncState(NodeId id, const Consensus::Params& consensus
     // exceeds this bound, because it's not possible for a consensus-valid
     // chain to be longer than this (at the current time -- in the future we
     // could try again, if necessary, to sync a longer chain).
-    m_max_commitments = 6*(Ticks<std::chrono::seconds>(NodeClock::now() - NodeSeconds{std::chrono::seconds{chain_start->GetMedianTimePast()}}) + MAX_FUTURE_BLOCK_TIME) / HEADER_COMMITMENT_PERIOD;
+    if(consensus_params.nLastPOWBlock != consensus_params.nLastBigReward)
+    {
+        // Regtest mode, so use the Bitcoin formula for max commitments
+        m_max_commitments = 6*(Ticks<std::chrono::seconds>(NodeClock::now() - NodeSeconds{std::chrono::seconds{chain_start->GetMedianTimePast()}}) + MAX_FUTURE_BLOCK_TIME) / HEADER_COMMITMENT_PERIOD;
+    }
+    else
+    {
+        // Mainnet or testnet, so use the Qtum formula
+        int64_t numberOfBlocks = (GetAdjustedTimeSeconds() + MAX_FUTURE_BLOCK_TIME - chain_start->GetBlockTime()) / (consensus_params.MinStakeTimestampMask() + 1);
+        if(numberOfBlocks > 0)
+        {
+            if(chain_start->nHeight <= consensus_params.nLastPOWBlock)
+            {
+                // Add the PoW block, they take no time
+                numberOfBlocks += consensus_params.nLastPOWBlock;
+            }
+            m_max_commitments = 1 + numberOfBlocks / HEADER_COMMITMENT_PERIOD;
+        }
+    }
 
     LogPrint(BCLog::NET, "Initial headers sync started with peer=%d: height=%i, max_commitments=%i, min_work=%s\n", m_id, m_current_height, m_max_commitments, m_minimum_required_work.ToString());
 }
