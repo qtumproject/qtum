@@ -15,6 +15,17 @@ TEST_BINARY=test/test_qtum$(EXEEXT)
 FUZZ_BINARY=test/fuzz/fuzz$(EXEEXT)
 
 JSON_TEST_FILES = \
+  test/qtumtests/data/btc_ecrecover.json \
+  test/qtumtests/data/ecrecover.json \
+  test/qtumtests/data/sha256.json \
+  test/qtumtests/data/ripemd160.json \
+  test/qtumtests/data/identity.json \
+  test/qtumtests/data/modexp.json \
+  test/qtumtests/data/modexp_eip2565.json \
+  test/qtumtests/data/alt_bn128_G1_add.json \
+  test/qtumtests/data/alt_bn128_G1_mul.json \
+  test/qtumtests/data/alt_bn128_pairing_product.json \
+  test/qtumtests/data/blake2_compression.json \
   test/data/script_tests.json \
   test/data/bip341_wallet_vectors.json \
   test/data/base58_encode_decode.json \
@@ -174,7 +185,20 @@ BITCOIN_TESTS =\
   test/validation_tests.cpp \
   test/validationinterface_tests.cpp \
   test/versionbits_tests.cpp \
-  test/xoroshiro128plusplus_tests.cpp
+  test/xoroshiro128plusplus_tests.cpp \
+  test/qtumtests/test_utils.h \
+  test/qtumtests/precompiled_utils.h \
+  test/qtumtests/qtumtxconverter_tests.cpp \
+  test/qtumtests/bytecodeexec_tests.cpp \
+  test/qtumtests/condensingtransaction_tests.cpp \
+  test/qtumtests/dgp_tests.cpp \
+  test/qtumtests/constantinoplefork_tests.cpp \
+  test/qtumtests/btcecrecoverfork_tests.cpp \
+  test/qtumtests/delegations_tests.cpp \
+  test/qtumtests/istanbulfork_tests.cpp \
+  test/qtumtests/londonfork_tests.cpp \
+  test/qtumtests/evmone_tests.cpp \
+  test/qtumtests/shanghaifork_tests.cpp
 
 if ENABLE_WALLET
 BITCOIN_TESTS += \
