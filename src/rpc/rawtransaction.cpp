@@ -664,7 +664,7 @@ public:
         chainman(_chainman)
     {}
 
-    void addContract(CMutableTransaction& rawTx, const UniValue& Contract) override
+    void addContract(std::vector<std::pair<CTxDestination, CAmount>>& parsed_outputs, const UniValue& Contract) override
     {
         if(!Contract.isObject())
             throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, need to be object: contract"));
@@ -780,8 +780,8 @@ public:
             scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(keyID) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
         }
 
-        CTxOut out(nAmount, scriptPubKey);
-        rawTx.vout.push_back(out);
+        CTxDestination destination{CNoDestination{scriptPubKey}};
+        parsed_outputs.emplace_back(destination, nAmount);
     }
 
 private:

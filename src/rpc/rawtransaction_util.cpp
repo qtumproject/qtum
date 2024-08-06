@@ -97,12 +97,14 @@ UniValue NormalizeOutputs(const UniValue& outputs_in)
     return outputs;
 }
 
-std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs)
+std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs, IRawContract* rawContract)
 {
     // Duplicate checking
     std::set<CTxDestination> destinations;
     std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs;
     bool has_data{false};
+
+    int i = 0;
     for (const std::string& name_ : outputs.getKeys()) {
         if (name_ == "data") {
             if (has_data) {
@@ -113,11 +115,15 @@ std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& out
             CTxDestination destination{CNoDestination{CScript() << OP_RETURN << data}};
             CAmount amount{0};
             parsed_outputs.emplace_back(destination, amount);
+        } else if (rawContract && name_ == "contract") {
+            // Get the contract object
+            UniValue contract = outputs[i];
+            rawContract->addContract(parsed_outputs, contract);
         } else {
             CTxDestination destination{DecodeDestination(name_)};
             CAmount amount{AmountFromValue(outputs[name_])};
             if (!IsValidDestination(destination)) {
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Bitcoin address: ") + name_);
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Qtum address: ") + name_);
             }
 
             if (!destinations.insert(destination).second) {
@@ -125,6 +131,7 @@ std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& out
             }
             parsed_outputs.emplace_back(destination, amount);
         }
+        ++i;
     }
     return parsed_outputs;
 }
@@ -134,7 +141,7 @@ void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawCont
     UniValue outputs(UniValue::VOBJ);
     outputs = NormalizeOutputs(outputs_in);
 
-    std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs = ParseOutputs(outputs);
+    std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs = ParseOutputs(outputs, rawContract);
     for (const auto& [destination, nAmount] : parsed_outputs) {
         CScript scriptPubKey = GetScriptForDestination(destination);
 

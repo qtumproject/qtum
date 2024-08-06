@@ -25,7 +25,7 @@ class SigningProvider;
 class IRawContract
 {
 public:
-    virtual void addContract(CMutableTransaction& rawTx, const UniValue& contract) = 0;
+    virtual void addContract(std::vector<std::pair<CTxDestination, CAmount>>& parsed_outputs, const UniValue& contract) = 0;
 };
 
 /**
@@ -56,7 +56,7 @@ void AddInputs(CMutableTransaction& rawTx, const UniValue& inputs_in, bool rbf);
 UniValue NormalizeOutputs(const UniValue& outputs_in);
 
 /** Parse normalized outputs into destination, amount tuples */
-std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs);
+std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs, IRawContract* rawContract = nullptr);
 
 /** Normalize, parse, and add outputs to the transaction */
 void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawContract* rawContract = nullptr);
