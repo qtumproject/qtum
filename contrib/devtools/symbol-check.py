@@ -47,7 +47,7 @@ MAX_VERSIONS = {
 # Ignore symbols that are exported as part of every executable
 IGNORE_EXPORTS = {
 'environ', '_environ', '__environ', '_fini', '_init', 'stdin',
-'stdout', 'stderr',
+'stdout', 'stderr', 'in6addr_any',
 }
 
 # Expected linker-loader names can be found here:
@@ -144,10 +144,13 @@ MACHO_ALLOWED_LIBRARIES = {
 'ImageIO', # read and write image file formats.
 'IOKit', # user-space access to hardware devices and drivers.
 'IOSurface', # cross process image/drawing buffers
+'Security', # secure the data your app manages, and control access to your app.
 'libobjc.A.dylib', # Objective-C runtime library
 'Metal', # 3D graphics
 'Security', # access control and authentication
 'QuartzCore', # animation
+'SystemConfiguration', # allow applications to access a device’s network configuration settings.
+'GSS', # conduct secure, authenticated network transactions.
 }
 
 PE_ALLOWED_LIBRARIES = {
