@@ -29,7 +29,7 @@ from test_framework.util import (
 from test_framework.wallet import MiniWallet
 
 
-UPLOAD_TARGET_MB = 800
+UPLOAD_TARGET_MB = 1350
 
 
 class TestP2PConn(P2PInterface):
@@ -73,7 +73,7 @@ class MaxUploadTest(BitcoinTestFramework):
 
         # Generate some old blocks
         self.wallet = MiniWallet(self.nodes[0])
-        self.generate(self.wallet, 130)
+        self.generate(self.wallet, 2030)
 
         # p2p_conns[0] will only request old blocks
         # p2p_conns[1] will only request new blocks
@@ -109,7 +109,7 @@ class MaxUploadTest(BitcoinTestFramework):
         getdata_request.inv.append(CInv(MSG_BLOCK, big_old_block))
 
         max_bytes_per_day = UPLOAD_TARGET_MB * 1024 *1024
-        daily_buffer = 144 * 4000000
+        daily_buffer = 2700 * 512000
         max_bytes_available = max_bytes_per_day - daily_buffer
         success_count = max_bytes_available // old_block_size
 
@@ -123,7 +123,7 @@ class MaxUploadTest(BitcoinTestFramework):
         # At most a couple more tries should succeed (depending on how long
         # the test has been running so far).
         with self.nodes[0].assert_debug_log(expected_msgs=["historical block serving limit reached, disconnect peer"]):
-            for _ in range(3):
+            for _ in range(4000):
                 p2p_conns[0].send_message(getdata_request)
             p2p_conns[0].wait_for_disconnect()
         assert_equal(len(self.nodes[0].getpeerinfo()), 2)

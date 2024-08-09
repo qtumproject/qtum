@@ -45,9 +45,9 @@ from test_framework.wallet import (
     MiniWallet,
 )
 
-START_HEIGHT = 199
-SNAPSHOT_BASE_HEIGHT = 299
-FINAL_HEIGHT = 399
+START_HEIGHT = 2099
+SNAPSHOT_BASE_HEIGHT = 2199
+FINAL_HEIGHT = 2299
 COMPLETE_IDX = {'synced': True, 'best_block_height': FINAL_HEIGHT}
 
 
@@ -96,7 +96,7 @@ class AssumeutxoTest(BitcoinTestFramework):
                 f.write(valid_snapshot_contents[:32])
                 f.write((valid_num_coins + off).to_bytes(8, "little"))
                 f.write(valid_snapshot_contents[32 + 8:])
-            expected_error(log_msg=f"bad snapshot - coins left over after deserializing 298 coins" if off == -1 else f"bad snapshot format or truncated snapshot after deserializing 299 coins")
+            expected_error(log_msg=f"bad snapshot - coins left over after deserializing 2198 coins" if off == -1 else f"bad snapshot format or truncated snapshot after deserializing 2199 coins")
 
         self.log.info("  - snapshot file with alternated UTXO data")
         cases = [
@@ -111,7 +111,7 @@ class AssumeutxoTest(BitcoinTestFramework):
                 f.write(valid_snapshot_contents[:(32 + 8 + offset)])
                 f.write(content)
                 f.write(valid_snapshot_contents[(32 + 8 + offset + len(content)):])
-            expected_error(log_msg=f"[snapshot] bad snapshot content hash: expected a4bf3407ccb2cc0145c49ebba8fa91199f8a3903daf0883875941497d2493c27, got {wrong_hash}")
+            expected_error(log_msg=f"[snapshot] bad snapshot content hash: expected a9e20f6c0c6531e44789f7a29df1939fa1c2e7d5c451b25c5201880628c57940, got {wrong_hash}")
 
     def test_invalid_chainstate_scenarios(self):
         self.log.info("Test different scenarios of invalid snapshot chainstate in datadir")
@@ -197,8 +197,8 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         assert_equal(
             dump_output['txoutset_hash'],
-            "a4bf3407ccb2cc0145c49ebba8fa91199f8a3903daf0883875941497d2493c27")
-        assert_equal(dump_output["nchaintx"], 334)
+            "a9e20f6c0c6531e44789f7a29df1939fa1c2e7d5c451b25c5201880628c57940")
+        assert_equal(dump_output["nchaintx"], 2200)
         assert_equal(n0.getblockchaininfo()["blocks"], SNAPSHOT_BASE_HEIGHT)
 
         # Mine more blocks on top of the snapshot that n1 hasn't yet seen. This
