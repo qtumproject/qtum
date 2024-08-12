@@ -75,8 +75,8 @@ class MempoolLimitTest(BitcoinTestFramework):
         assert tx_to_be_evicted_id not in node.getrawmempool()
 
         self.log.debug("Check that mempoolminfee is larger than minrelaytxfee")
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_greater_than(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_greater_than(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
     def test_rbf_carveout_disallowed(self):
         node = self.nodes[0]
@@ -136,8 +136,8 @@ class MempoolLimitTest(BitcoinTestFramework):
         self.restart_node(0, extra_args=self.extra_args[0])
 
         # Restarting the node resets mempool minimum feerate
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         self.fill_mempool()
         current_info = node.getmempoolinfo()
@@ -226,8 +226,8 @@ class MempoolLimitTest(BitcoinTestFramework):
         self.restart_node(0, extra_args=self.extra_args[0])
 
         # Restarting the node resets mempool minimum feerate
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         self.fill_mempool()
         current_info = node.getmempoolinfo()
@@ -300,8 +300,8 @@ class MempoolLimitTest(BitcoinTestFramework):
 
         relayfee = node.getnetworkinfo()['relayfee']
         self.log.info('Check that mempoolminfee is minrelaytxfee')
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         self.fill_mempool()
 

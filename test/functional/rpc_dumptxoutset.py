@@ -12,6 +12,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
     sha256sum_file,
 )
+from test_framework.qtumconfig import *
 
 
 class DumptxoutsetTest(BitcoinTestFramework):
@@ -32,22 +33,22 @@ class DumptxoutsetTest(BitcoinTestFramework):
 
         assert expected_path.is_file()
 
-        assert_equal(out['coins_written'], 100)
-        assert_equal(out['base_height'], 100)
+        assert_equal(out['coins_written'], COINBASE_MATURITY)
+        assert_equal(out['base_height'], COINBASE_MATURITY)
         assert_equal(out['path'], str(expected_path))
         # Blockhash should be deterministic based on mocked time.
         assert_equal(
             out['base_hash'],
-            '09abf0e7b510f61ca6cf33bab104e9ee99b3528b371d27a2d4b39abb800fba7e')
+            '1c6a2bd16896a6dbaa571008982248288bd049df79ae97e8303d942044f37dc7')
 
         # UTXO snapshot hash should be deterministic based on mocked time.
         assert_equal(
             sha256sum_file(str(expected_path)).hex(),
-            'b1bacb602eacf5fbc9a7c2ef6eeb0d229c04e98bdf0c2ea5929012cd0eae3830')
+            'f150758e2b321b537f31356d1e2d34bda29b72823cd4eeb6fc9cffcd8690e344')
 
         assert_equal(
-            out['txoutset_hash'], 'a0b7baa3bf5ccbd3279728f230d7ca0c44a76e9923fca8f32dbfd08d65ea496a')
-        assert_equal(out['nchaintx'], 101)
+            out['txoutset_hash'], '159651f48a0b0bdfadc9280a7b086b7689ed0898266606091635b7eb483fea5c')
+        assert_equal(out['nchaintx'], 2001)
 
         # Specifying a path to an existing or invalid file will fail.
         assert_raises_rpc_error(

@@ -37,6 +37,7 @@ from test_framework.util import (
 )
 from test_framework.wallet import MiniWallet
 from test_framework.wallet_util import generate_keypair
+from test_framework.blocktools import COINBASE_MATURITY
 
 DEFAULT_BYTES_PER_SIGOP = 20  # default setting
 MAX_PUBKEYS_PER_MULTISIG = 20
@@ -45,7 +46,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         # allow large datacarrier output to pad transactions
-        self.extra_args = [['-datacarriersize=100000']]
+        self.extra_args = [['-datacarriersize=100000', '-minrelaytxfee=0']]
 
     def create_p2wsh_spending_tx(self, witness_script, output_script):
         """Create a 1-input-1-output P2WSH spending transaction with only the
@@ -178,6 +179,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
 
     def run_test(self):
         self.wallet = MiniWallet(self.nodes[0])
+        self.generate(self.wallet, COINBASE_MATURITY + 1000)
 
         for bytes_per_sigop in (DEFAULT_BYTES_PER_SIGOP, 43, 81, 165, 327, 649, 1072):
             if bytes_per_sigop == DEFAULT_BYTES_PER_SIGOP:

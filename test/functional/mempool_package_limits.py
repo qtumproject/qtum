@@ -3,8 +3,10 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test logic for limiting mempool and package ancestors/descendants."""
+from decimal import Decimal
 from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.messages import (
+    COIN,
     WITNESS_SCALE_FACTOR,
 )
 from test_framework.test_framework import BitcoinTestFramework
@@ -263,11 +265,11 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
             for _ in range(4): # Make mempool transactions M(4i+1)...M(4i+4)
                 pc_grandparent_utxos.append(self.wallet.send_self_transfer(from_node=node)["new_utxo"])
             # Package transaction Pi
-            pi_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=pc_grandparent_utxos)
+            pi_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=pc_grandparent_utxos, fee_per_output=int(Decimal("0.2") * COIN))
             package_hex.append(pi_tx["hex"])
             pc_parent_utxos.append(pi_tx["new_utxos"][0])
         # Package transaction PC
-        pc_hex = self.wallet.create_self_transfer_multi(utxos_to_spend=pc_parent_utxos)["hex"]
+        pc_hex = self.wallet.create_self_transfer_multi(utxos_to_spend=pc_parent_utxos, fee_per_output=int(Decimal("0.2") * COIN))["hex"]
         package_hex.append(pc_hex)
 
         assert_equal(20, node.getmempoolinfo()["size"])
@@ -289,20 +291,20 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         node = self.nodes[0]
         parent_utxos = []
         target_vsize = 30_000
-        high_fee = 10 * target_vsize  # 10 sats/vB
+        high_fee = Decimal("0.3")  # 10 sats/vB
         target_weight = target_vsize * WITNESS_SCALE_FACTOR
         self.log.info("Check that in-mempool and in-package ancestor size limits are calculated properly in packages")
         # Mempool transactions A and B
         for _ in range(2):
-            bulked_tx = self.wallet.create_self_transfer(target_weight=target_weight)
+            bulked_tx = self.wallet.create_self_transfer(target_weight=target_weight, fee=high_fee)
             self.wallet.sendrawtransaction(from_node=node, tx_hex=bulked_tx["hex"])
             parent_utxos.append(bulked_tx["new_utxo"])
 
         # Package transaction C
-        pc_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_utxos, fee_per_output=high_fee, target_weight=target_weight)
+        pc_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_utxos, fee_per_output=int(high_fee * COIN), target_weight=target_weight)
 
         # Package transaction D
-        pd_tx = self.wallet.create_self_transfer(utxo_to_spend=pc_tx["new_utxos"][0], target_weight=target_weight)
+        pd_tx = self.wallet.create_self_transfer(utxo_to_spend=pc_tx["new_utxos"][0], target_weight=target_weight, fee=high_fee)
 
         assert_equal(2, node.getmempoolinfo()["size"])
         return [pc_tx["hex"], pd_tx["hex"]]
@@ -320,21 +322,21 @@ class MempoolPackageLimitsTest(BitcoinTestFramework):
         """
         node = self.nodes[0]
         target_vsize = 21_000
-        high_fee = 10 * target_vsize  # 10 sats/vB
+        high_fee = Decimal("0.21")  # 10 sats/vB
         target_weight = target_vsize * WITNESS_SCALE_FACTOR
         self.log.info("Check that in-mempool and in-package descendant sizes are calculated properly in packages")
         # Top parent in mempool, Ma
-        ma_tx = self.wallet.create_self_transfer_multi(num_outputs=2, fee_per_output=high_fee // 2, target_weight=target_weight)
+        ma_tx = self.wallet.create_self_transfer_multi(num_outputs=2, fee_per_output=int(high_fee / 2 * COIN) // 2, target_weight=target_weight)
         self.wallet.sendrawtransaction(from_node=node, tx_hex=ma_tx["hex"])
 
         package_hex = []
         for j in range(2): # Two legs (left and right)
             # Mempool transaction (Mb and Mc)
-            mempool_tx = self.wallet.create_self_transfer(utxo_to_spend=ma_tx["new_utxos"][j], target_weight=target_weight)
+            mempool_tx = self.wallet.create_self_transfer(utxo_to_spend=ma_tx["new_utxos"][j], target_weight=target_weight, fee=high_fee)
             self.wallet.sendrawtransaction(from_node=node, tx_hex=mempool_tx["hex"])
 
             # Package transaction (Pd and Pe)
-            package_tx = self.wallet.create_self_transfer(utxo_to_spend=mempool_tx["new_utxo"], target_weight=target_weight)
+            package_tx = self.wallet.create_self_transfer(utxo_to_spend=mempool_tx["new_utxo"], target_weight=target_weight, fee=high_fee)
             package_hex.append(package_tx["hex"])
 
         assert_equal(3, node.getmempoolinfo()["size"])

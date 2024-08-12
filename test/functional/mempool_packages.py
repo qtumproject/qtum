@@ -286,7 +286,7 @@ class MempoolPackagesTest(BitcoinTestFramework):
         self.generate(self.nodes[0], 1)
 
         # Now generate tx8, with a big fee
-        self.wallet.send_self_transfer_multi(from_node=self.nodes[0], utxos_to_spend=[tx1["new_utxo"], tx7["new_utxo"]], fee_per_output=40000)
+        self.wallet.send_self_transfer_multi(from_node=self.nodes[0], utxos_to_spend=[tx1["new_utxo"], tx7["new_utxo"]], fee_per_output=70000)
         self.sync_mempools()
 
         # Now try to disconnect the tip on each node...

@@ -13,7 +13,6 @@ from test_framework.messages import (
     CInv,
     MAX_HEADERS_RESULTS,
     MAX_INV_SIZE,
-    MAX_PROTOCOL_MESSAGE_LENGTH,
     MSG_TX,
     from_hex,
     msg_getdata,
@@ -32,6 +31,7 @@ from test_framework.util import (
     assert_equal,
 )
 
+MAX_PROTOCOL_MESSAGE_LENGTH = 2000000
 VALID_DATA_LIMIT = MAX_PROTOCOL_MESSAGE_LENGTH - 5  # Account for the 5-byte length prefix
 
 
@@ -144,8 +144,8 @@ class InvalidMessagesTest(BitcoinTestFramework):
         self.log.info("Test message with oversized payload disconnects peer")
         conn = self.nodes[0].add_p2p_connection(P2PDataStore())
         error_msg = (
-            ['V2 transport error: packet too large (4000014 bytes)'] if self.options.v2transport
-            else ['Header error: Size too large (badmsg, 4000001 bytes)']
+            ['V2 transport error: packet too large (2000014 bytes)'] if self.options.v2transport
+            else ['Header error: Size too large (badmsg, 2000001 bytes)']
         )
         with self.nodes[0].assert_debug_log(error_msg):
             msg = msg_unrecognized(str_data="d" * (VALID_DATA_LIMIT + 1))
