@@ -33,6 +33,8 @@ from test_framework.wallet_util import (
 from decimal import (
     Decimal,
 )
+from test_framework.qtum import convert_btc_address_to_qtum
+from test_framework.wallet import MiniWallet
 
 INPUTS = [
     # Valid pay-to-pubkey scripts
@@ -41,12 +43,18 @@ INPUTS = [
     {'txid': '83a4f6a6b73660e13ee6cb3c6063fa3759c50c9b7521d0536022961898f4fb02', 'vout': 0,
      'scriptPubKey': '76a914669b857c03a5ed269d5d85a1ffac9ed5d663072788ac'},
 ]
-OUTPUTS = {'mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB': 0.1}
+OUTPUTS = {convert_btc_address_to_qtum('mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB'): 0.1}
 
 class SignRawTransactionWithKeyTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def send_to_address(self, addr, amount):
         input = {"txid": self.nodes[0].getblock(self.block_hash[self.blk_idx])["tx"][0], "vout": 0}
@@ -79,6 +87,7 @@ class SignRawTransactionWithKeyTest(BitcoinTestFramework):
         self.log.info("Test signing transaction to P2SH-P2WSH addresses without wallet")
         # Create a new P2SH-P2WSH 1-of-1 multisig address:
         embedded_privkey, embedded_pubkey = generate_keypair(wif=True)
+        self.wallet = MiniWallet(self.nodes[0])
         p2sh_p2wsh_address = self.nodes[1].createmultisig(1, [embedded_pubkey.hex()], "p2sh-segwit")
         # send transaction to P2SH-P2WSH 1-of-1 multisig address
         self.block_hash = self.generate(self.nodes[0], COINBASE_MATURITY + 1)
