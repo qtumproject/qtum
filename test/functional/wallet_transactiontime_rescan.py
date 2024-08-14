@@ -71,12 +71,12 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
         self.log.info('Start transactions')
 
         # check blockcount
-        assert_equal(minernode.getblockcount(), 200)
+        assert_equal(minernode.getblockcount(), 2100)
 
         # generate some btc to create transactions and check blockcount
         initial_mine = COINBASE_MATURITY + 1
         self.generatetoaddress(minernode, initial_mine, m1)
-        assert_equal(minernode.getblockcount(), initial_mine + 200)
+        assert_equal(minernode.getblockcount(), initial_mine + 2100)
 
         # synchronize nodes and time
         self.sync_all()
@@ -87,7 +87,7 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
 
         # generate blocks and check blockcount
         self.generatetoaddress(minernode, COINBASE_MATURITY, m1)
-        assert_equal(minernode.getblockcount(), initial_mine + 300)
+        assert_equal(minernode.getblockcount(), initial_mine + 4100)
 
         # synchronize nodes and time
         self.sync_all()
@@ -98,7 +98,7 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
 
         # generate blocks and check blockcount
         self.generatetoaddress(minernode, COINBASE_MATURITY, m1)
-        assert_equal(minernode.getblockcount(), initial_mine + 400)
+        assert_equal(minernode.getblockcount(), initial_mine + 6100)
 
         # synchronize nodes and time
         self.sync_all()
@@ -109,7 +109,7 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
 
         # generate more blocks and check blockcount
         self.generatetoaddress(minernode, COINBASE_MATURITY, m1)
-        assert_equal(minernode.getblockcount(), initial_mine + 500)
+        assert_equal(minernode.getblockcount(), initial_mine + 8100)
 
         self.log.info('Check user\'s final balance and transaction count')
         assert_equal(wo_wallet.getbalance(), 16)
@@ -202,7 +202,7 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
             encrypted_wallet.sethdseed(seed=hd_seed)
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as thread:
-                with minernode.assert_debug_log(expected_msgs=["Rescan started from block 0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206... (slow variant inspecting all blocks)"], timeout=5):
+                with minernode.assert_debug_log(expected_msgs=["Rescan started from block 665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943... (slow variant inspecting all blocks)"], timeout=5):
                     rescanning = thread.submit(encrypted_wallet.rescanblockchain)
 
                 # set the passphrase timeout to 1 to test that the wallet remains unlocked during the rescan
@@ -218,7 +218,7 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
                 except JSONRPCException as e:
                     assert e.error["code"] == -4 and "Error: the wallet is currently being used to rescan the blockchain for related transactions. Please call `abortrescan` before changing the passphrase." in e.error["message"]
 
-                assert_equal(rescanning.result(), {"start_height": 0, "stop_height": 803})
+                assert_equal(rescanning.result(), {"start_height": 0, "stop_height": 14103})
 
             assert_equal(encrypted_wallet.getbalance(), temp_wallet.getbalance())
 

@@ -17,6 +17,7 @@ from test_framework.util import (
 from test_framework.wallet_util import generate_keypair
 
 from decimal import Decimal
+from test_framework.qtum import generatesynchronized
 
 class ListSinceBlockTest(BitcoinTestFramework):
     def add_options(self, parser):
@@ -35,7 +36,7 @@ class ListSinceBlockTest(BitcoinTestFramework):
         # All nodes are in IBD from genesis, so they'll need the miner (node2) to be an outbound connection, or have
         # only one connection. (See fPreferredDownload in net_processing)
         self.connect_nodes(1, 2)
-        self.generate(self.nodes[2], COINBASE_MATURITY + 1)
+        generatesynchronized(self.nodes[2], COINBASE_MATURITY+1, None, self.nodes)
 
         self.test_no_blockhash()
         self.test_invalid_blockhash()
@@ -214,9 +215,9 @@ class ListSinceBlockTest(BitcoinTestFramework):
         self.split_network()
 
         # send from nodes[1] using utxo to nodes[0]
-        change = '%.8f' % (float(utxo['amount']) - 1.0003)
+        change = '%.8f' % (float(utxo['amount']) - 1.03)
         recipient_dict = {
-            self.nodes[0].getnewaddress(): 1,
+            self.nodes[0].getnewaddress("", "bech32"): 1,
             self.nodes[1].getnewaddress(): change,
         }
         utxo_dicts = [{
@@ -290,7 +291,7 @@ class ListSinceBlockTest(BitcoinTestFramework):
         # create and sign a transaction
         utxos = self.nodes[2].listunspent()
         utxo = utxos[0]
-        change = '%.8f' % (float(utxo['amount']) - 1.0003)
+        change = '%.8f' % (float(utxo['amount']) - 1.03)
         recipient_dict = {
             self.nodes[0].getnewaddress(): 1,
             self.nodes[2].getnewaddress(): change,
@@ -356,8 +357,8 @@ class ListSinceBlockTest(BitcoinTestFramework):
         tx_input = dict(
             sequence=MAX_BIP125_RBF_SEQUENCE, **next(u for u in spending_node.listunspent()))
         rawtx = spending_node.createrawtransaction(
-            [tx_input], {dest_address: tx_input["amount"] - Decimal("0.00051000"),
-                         spending_node.getrawchangeaddress(): Decimal("0.00050000")})
+            [tx_input], {dest_address: tx_input["amount"] - Decimal("0.05100000"),
+                         spending_node.getrawchangeaddress(): Decimal("0.05000000")})
         signedtx = spending_node.signrawtransactionwithwallet(rawtx)
         orig_tx_id = spending_node.sendrawtransaction(signedtx["hex"])
         original_tx = spending_node.gettransaction(orig_tx_id)

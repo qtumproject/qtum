@@ -209,6 +209,9 @@ class WalletMiniscriptTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.rpc_timeout = 180
+        self.extra_args = [
+            ["-addresstype=bech32"],
+        ]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -241,7 +244,7 @@ class WalletMiniscriptTest(BitcoinTestFramework):
         )
 
         self.log.info("Testing we detect funds sent to one of them")
-        addr = self.ms_wo_wallet.getnewaddress()
+        addr = self.ms_wo_wallet.getnewaddress(address_type="bech32")
         txid = self.funder.sendtoaddress(addr, 0.01)
         self.wait_until(
             lambda: len(self.ms_wo_wallet.listunspent(minconf=0, addresses=[addr])) == 1
