@@ -5,10 +5,11 @@
 #include <qt/qvalidatedlineedit.h>
 
 #include <qt/bitcoinaddressvalidator.h>
-#include <qt/guiconstants.h>
+#include <qt/styleSheet.h>
 
 QValidatedLineEdit::QValidatedLineEdit(QWidget* parent)
-    : QLineEdit(parent)
+    : QLineEdit(parent),
+    emptyIsValid(true)
 {
     connect(this, &QValidatedLineEdit::textChanged, this, &QValidatedLineEdit::markValid);
 }
@@ -28,11 +29,31 @@ void QValidatedLineEdit::setValid(bool _valid)
 
     if(_valid)
     {
-        setStyleSheet("");
+
+        QWidget *widget = this->parentWidget();
+        if(widget && widget->inherits("QComboBox"))
+        {
+            widget->setStyleSheet("");
+        }
+        else
+        {
+
+            setStyleSheet("");
+        }
+
     }
     else
     {
-        setStyleSheet("QValidatedLineEdit { " STYLE_INVALID "}");
+        QWidget *widget = this->parentWidget();
+        if(widget && widget->inherits("QComboBox"))
+        {
+            SetObjectStyleSheet(widget, StyleSheetNames::Invalid);
+        }
+        else
+        {
+            SetObjectStyleSheet(this, StyleSheetNames::Invalid);
+        }
+
     }
     this->valid = _valid;
 }
@@ -50,6 +71,17 @@ void QValidatedLineEdit::focusOutEvent(QFocusEvent *evt)
     checkValidity();
 
     QLineEdit::focusOutEvent(evt);
+}
+
+
+bool QValidatedLineEdit::getEmptyIsValid() const
+{
+    return emptyIsValid;
+}
+
+void QValidatedLineEdit::setEmptyIsValid(bool value)
+{
+    emptyIsValid = value;
 }
 
 void QValidatedLineEdit::markValid()
@@ -82,7 +114,7 @@ void QValidatedLineEdit::setEnabled(bool enabled)
 
 void QValidatedLineEdit::checkValidity()
 {
-    if (text().isEmpty())
+    if (emptyIsValid && text().isEmpty())
     {
         setValid(true);
     }

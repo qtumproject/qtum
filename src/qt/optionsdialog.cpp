@@ -15,14 +15,19 @@
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
 
+#ifdef ENABLE_WALLET
+#include <qt/hardwaresigntx.h>
+#endif
 #include <common/system.h>
 #include <interfaces/node.h>
 #include <node/chainstatemanager_args.h>
 #include <netbase.h>
 #include <txdb.h>
 
+#include <qt/styleSheet.h>
+#include <chainparams.h>
 #include <chrono>
-
+#include <node/miner.h>
 #include <QApplication>
 #include <QDataWidgetMapper>
 #include <QDir>
@@ -92,6 +97,10 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
       ui(new Ui::OptionsDialog)
 {
     ui->setupUi(this);
+    SetObjectStyleSheet(ui->resetButton, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->openBitcoinConfButton, StyleSheetNames::ButtonLight);
+    SetObjectStyleSheet(ui->okButton, StyleSheetNames::ButtonGray);
+    SetObjectStyleSheet(ui->cancelButton, StyleSheetNames::ButtonGray);
 
     /* Main elements init */
     ui->databaseCache->setMinimum(nMinDbCache);
@@ -113,19 +122,28 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
 #endif
 
     ui->proxyIp->setEnabled(false);
+    ui->proxyIpLabel->setEnabled(false);
     ui->proxyPort->setEnabled(false);
+    ui->proxyPortLabel->setEnabled(false);
     ui->proxyPort->setValidator(new QIntValidator(1, 65535, this));
 
     ui->proxyIpTor->setEnabled(false);
+    ui->proxyIpTorLabel->setEnabled(false);
     ui->proxyPortTor->setEnabled(false);
+    ui->proxyPortTorLabel->setEnabled(false);
     ui->proxyPortTor->setValidator(new QIntValidator(1, 65535, this));
 
+    ui->reserveBalance->setNotifyAlways(false);
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyIp, &QWidget::setEnabled);
+    connect(ui->connectSocks, &QPushButton::toggled, ui->proxyIpLabel, &QWidget::setEnabled);
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyPort, &QWidget::setEnabled);
+    connect(ui->connectSocks, &QPushButton::toggled, ui->proxyPortLabel, &QWidget::setEnabled);
     connect(ui->connectSocks, &QPushButton::toggled, this, &OptionsDialog::updateProxyValidationState);
 
     connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyIpTor, &QWidget::setEnabled);
+    connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyIpTorLabel, &QWidget::setEnabled);
     connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyPortTor, &QWidget::setEnabled);
+    connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyPortTorLabel, &QWidget::setEnabled);
     connect(ui->connectSocksTor, &QPushButton::toggled, this, &OptionsDialog::updateProxyValidationState);
 
     /* Window elements init */
@@ -134,7 +152,7 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabWindow));
     /* hide launch at startup option on macOS */
     ui->bitcoinAtStartup->setVisible(false);
-    ui->verticalLayout_Main->removeWidget(ui->bitcoinAtStartup);
+    ui->tabMain->layout()->removeWidget(ui->bitcoinAtStartup);
     ui->verticalLayout_Main->removeItem(ui->horizontalSpacer_0_Main);
 #endif
 
@@ -143,6 +161,26 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
         ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabWallet));
         ui->thirdPartyTxUrlsLabel->setVisible(false);
         ui->thirdPartyTxUrls->setVisible(false);
+        ui->reserveBalanceLabel->setVisible(false);
+        ui->reserveBalance->setVisible(false);
+        ui->superStaking->setVisible(false);
+        ui->txtHWIToolPath->setVisible(false);
+        ui->toolHWIPath->setVisible(false);
+        ui->HWIToolLabel->setVisible(false);
+        ui->txtStakeLedgerId->setVisible(false);
+        ui->toolStakeLedgerId->setVisible(false);
+        ui->stakeLedgerIdlabel->setVisible(false);
+    }
+    else {
+        bool fHasHardwareWalletSupport = ::Params().HasHardwareWalletSupport();
+        ui->txtHWIToolPath->setVisible(fHasHardwareWalletSupport);
+        ui->toolHWIPath->setVisible(fHasHardwareWalletSupport);
+        ui->HWIToolLabel->setVisible(fHasHardwareWalletSupport);
+        ui->signPSBTHWITool->setVisible(fHasHardwareWalletSupport);
+        bool fHasHardwareStakeSupport = fHasHardwareWalletSupport && node::ENABLE_HARDWARE_STAKE;
+        ui->txtStakeLedgerId->setVisible(fHasHardwareStakeSupport);
+        ui->toolStakeLedgerId->setVisible(fHasHardwareStakeSupport);
+        ui->stakeLedgerIdlabel->setVisible(fHasHardwareStakeSupport);
     }
 
 #ifdef ENABLE_EXTERNAL_SIGNER
@@ -179,6 +217,20 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
         }
     }
     ui->unit->setModel(new BitcoinUnits(this));
+    ui->theme->setToolTip(ui->theme->toolTip().arg(tr(PACKAGE_NAME)));
+    ui->theme->addItem(QString("(") + tr("default") + QString(")"), QVariant(""));
+    QStringList themes = StyleSheet::getSupportedThemes();
+    QStringList themesNames = StyleSheet::getSupportedThemesNames();
+    for(int i = 0; i < themes.size(); i++)
+    {
+        QString themeStr = themes[i];
+        QString themeName = themeStr;
+        if(themesNames.size() > i)
+        {
+            themeName = themesNames[i];
+        }
+        ui->theme->addItem(tr(themeName.toStdString().c_str()), QVariant(themeStr));
+    }
 
     /* Widget-to-option mapper */
     mapper = new QDataWidgetMapper(this);
@@ -206,6 +258,10 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
 
     setupFontOptions(ui->moneyFont, ui->moneyFont_preview);
 
+    if(enableWallet)
+    {
+        connect(ui->superStaking, &QCheckBox::clicked, this, &OptionsDialog::updateLogEvents);
+    }
     GUIUtil::handleCloseWindowShortcut(this);
 }
 
@@ -246,6 +302,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
         setFontChoice(ui->moneyFont, font_for_money);
 
         updateDefaultProxyNets();
+        updateLogEvents();
     }
 
     /* warn when one of the following settings changes by user action (placed here so init via mapper doesn't trigger them) */
@@ -256,9 +313,16 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->pruneSize, qOverload<int>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
     connect(ui->databaseCache, qOverload<int>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
     connect(ui->externalSignerPath, &QLineEdit::textChanged, [this]{ showRestartWarning(); });
+    connect(ui->logEvents, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
+    connect(ui->superStaking, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->threadsScriptVerif, qOverload<int>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
+    connect(ui->reserveBalance, SIGNAL(valueChanged()), this, SLOT(showRestartWarning()));
+    connect(ui->txtHWIToolPath, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
+    connect(ui->txtStakeLedgerId, SIGNAL(textChanged(const QString &)), this, SLOT(showRestartWarning()));
     /* Wallet */
     connect(ui->spendZeroConfChange, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
+    connect(ui->useChangeAddress, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
+    connect(ui->signPSBTHWITool, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Network */
     connect(ui->allowIncoming, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->enableServer, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
@@ -267,6 +331,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     /* Display */
     connect(ui->lang, qOverload<>(&QValueComboBox::valueChanged), [this]{ showRestartWarning(); });
     connect(ui->thirdPartyTxUrls, &QLineEdit::textChanged, [this]{ showRestartWarning(); });
+    connect(ui->theme, static_cast<void (QValueComboBox::*)()>(&QValueComboBox::valueChanged), [this]{ showRestartWarning(); });
 }
 
 void OptionsDialog::setCurrentTab(OptionsDialog::Tab tab)
@@ -288,12 +353,20 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->prune, OptionsModel::Prune);
     mapper->addMapping(ui->pruneSize, OptionsModel::PruneSize);
 
+    mapper->addMapping(ui->logEvents, OptionsModel::LogEvents);
+    mapper->addMapping(ui->superStaking, OptionsModel::SuperStaking);
+    mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance, "valueText");
+    mapper->addMapping(ui->txtHWIToolPath, OptionsModel::HWIToolPath);
+    mapper->addMapping(ui->txtStakeLedgerId, OptionsModel::StakeLedgerId);
     /* Wallet */
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
     mapper->addMapping(ui->coinControlFeatures, OptionsModel::CoinControlFeatures);
     mapper->addMapping(ui->subFeeFromAmount, OptionsModel::SubFeeFromAmount);
     mapper->addMapping(ui->externalSignerPath, OptionsModel::ExternalSignerPath);
-    mapper->addMapping(ui->m_enable_psbt_controls, OptionsModel::EnablePSBTControls);
+    mapper->addMapping(ui->zeroBalanceAddressToken, OptionsModel::ZeroBalanceAddressToken);
+    mapper->addMapping(ui->useChangeAddress, OptionsModel::UseChangeAddress);
+    mapper->addMapping(ui->checkForUpdates, OptionsModel::CheckForUpdates);
+    mapper->addMapping(ui->signPSBTHWITool, OptionsModel::SignPSBTWithHWITool);
 
     /* Network */
     mapper->addMapping(ui->mapPortUpnp, OptionsModel::MapPortUPnP);
@@ -322,6 +395,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->lang, OptionsModel::Language);
     mapper->addMapping(ui->unit, OptionsModel::DisplayUnit);
     mapper->addMapping(ui->thirdPartyTxUrls, OptionsModel::ThirdPartyTxUrls);
+    mapper->addMapping(ui->theme, OptionsModel::Theme);
 }
 
 void OptionsDialog::setOkButtonState(bool fState)
@@ -386,8 +460,21 @@ void OptionsDialog::on_okButton_clicked()
     model->setData(model->index(OptionsModel::FontForMoney, 0), ui->moneyFont->itemData(ui->moneyFont->currentIndex()));
 
     mapper->submit();
-    accept();
     updateDefaultProxyNets();
+    if (model && model->isRestartRequired()) {
+        QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet restart"),
+                 QString("%1<br><br>%2").arg(tr("Client restart required to activate changes."), tr("Are you sure you wish to restart your wallet?")),
+                 QMessageBox::Yes|QMessageBox::Cancel,
+                 QMessageBox::Cancel);
+        if(retval == QMessageBox::Yes)
+        {
+            model->setRestartApp(true);
+            qApp->setQuitOnLastWindowClosed(true);
+            qApp->closeAllWindows();
+        }
+    }
+
+    accept();
 }
 
 void OptionsDialog::on_cancelButton_clicked()
@@ -395,6 +482,32 @@ void OptionsDialog::on_cancelButton_clicked()
     reject();
 }
 
+void OptionsDialog::on_toolHWIPath_clicked()
+{
+    QString filename = GUIUtil::getOpenFileName(this,
+        tr("Select HWI tool path"), QDir::homePath(),
+        tr("HWI tool (hwi hwi.py hwi.exe)"), NULL);
+
+    if (filename.isEmpty())
+        return;
+
+    ui->txtHWIToolPath->setText(filename);
+}
+
+void OptionsDialog::on_toolStakeLedgerId_clicked()
+{
+#ifdef ENABLE_WALLET
+    // Get staking device
+    HardwareSignTx hardware(this);
+    QString fingerprint;
+    hardware.askDevice(true, &fingerprint);
+
+    if (fingerprint.isEmpty())
+        return;
+
+    ui->txtStakeLedgerId->setText(fingerprint);
+#endif
+}
 void OptionsDialog::on_showTrayIcon_stateChanged(int state)
 {
     if (state == Qt::Checked) {
@@ -485,4 +598,14 @@ QValidator::State ProxyAddressValidator::validate(QString &input, int &pos) cons
         return QValidator::Acceptable;
 
     return QValidator::Invalid;
+}
+
+void OptionsDialog::updateLogEvents(bool)
+{
+    bool checked = ui->superStaking->isChecked();
+    if(checked)
+    {
+        ui->logEvents->setChecked(checked);
+    }
+    ui->logEvents->setEnabled(!checked);
 }

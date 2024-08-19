@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     //
     // All tests must use their own testing setup (if needed).
     fs::create_directories([] {
-        BasicTestingSetup dummy{ChainType::REGTEST};
+        BasicTestingSetup dummy{ChainType::UNITTEST};
         return gArgs.GetDataDirNet() / "blocks";
     }());
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     #endif
 
     BitcoinApplication app;
-    app.setApplicationName("Bitcoin-Qt-test");
+    app.setApplicationName("Qtum-Qt-test");
     app.createNode(*init);
 
     int num_test_failures{0};

@@ -9,6 +9,7 @@
 #include <interfaces/node.h>
 #include <qt/createwalletdialog.h>
 #include <qt/forms/ui_createwalletdialog.h>
+#include <chainparams.h>
 
 #include <qt/guiutil.h>
 
@@ -22,6 +23,7 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Create"));
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     ui->wallet_name_line_edit->setFocus(Qt::ActiveWindowFocusReason);
+    ui->hardware_wallet_checkbox->setVisible(::Params().HasHardwareWalletSupport());
 
     connect(ui->wallet_name_line_edit, &QLineEdit::textEdited, [this](const QString& text) {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!text.isEmpty());
@@ -44,9 +46,14 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
             ui->external_signer_checkbox->setChecked(false);
         }
 
+        if(checked) ui->hardware_wallet_checkbox->setChecked(false);
     });
 
     connect(ui->external_signer_checkbox, &QCheckBox::toggled, [this](bool checked) {
+        ui->hardware_wallet_checkbox->blockSignals(true);
+        if (checked) ui->hardware_wallet_checkbox->setChecked(false);
+        ui->hardware_wallet_checkbox->blockSignals(false);
+
         ui->encrypt_wallet_checkbox->setEnabled(!checked);
         ui->blank_wallet_checkbox->setEnabled(!checked);
         ui->disable_privkeys_checkbox->setEnabled(!checked);
@@ -91,7 +98,22 @@ CreateWalletDialog::CreateWalletDialog(QWidget* parent) :
         ui->external_signer_checkbox->setEnabled(false);
         ui->external_signer_checkbox->setChecked(false);
 #endif
+    connect(ui->hardware_wallet_checkbox, &QCheckBox::toggled, [this](bool checked) {
+#ifdef ENABLE_EXTERNAL_SIGNER
+        ui->external_signer_checkbox->blockSignals(true);
+        if (checked) ui->external_signer_checkbox->setChecked(false);
+        ui->external_signer_checkbox->blockSignals(false);
+#endif
 
+        ui->encrypt_wallet_checkbox->setEnabled(!checked);
+        ui->blank_wallet_checkbox->setEnabled(!checked);
+        ui->disable_privkeys_checkbox->setEnabled(!checked);
+
+        // Toggling it restores the other options to their default.
+        ui->encrypt_wallet_checkbox->setChecked(false);
+        ui->disable_privkeys_checkbox->setChecked(checked);
+        ui->blank_wallet_checkbox->setChecked(false);
+    });
 }
 
 CreateWalletDialog::~CreateWalletDialog()
@@ -143,4 +165,9 @@ bool CreateWalletDialog::isMakeBlankWalletChecked() const
 bool CreateWalletDialog::isExternalSignerChecked() const
 {
     return ui->external_signer_checkbox->isChecked();
+}
+
+bool CreateWalletDialog::isHardwareWalletChecked() const
+{
+    return ui->hardware_wallet_checkbox->isChecked();
 }
