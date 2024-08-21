@@ -153,7 +153,6 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     /* hide launch at startup option on macOS */
     ui->bitcoinAtStartup->setVisible(false);
     ui->tabMain->layout()->removeWidget(ui->bitcoinAtStartup);
-    ui->verticalLayout_Main->removeItem(ui->horizontalSpacer_0_Main);
 #endif
 
     /* remove Wallet tab and 3rd party-URL textbox in case of -disablewallet */

@@ -60,7 +60,7 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     });
     connect(m_thread, &QThread::finished, timer, &QObject::deleteLater);
     connect(m_thread, &QThread::started, [timer] { timer->start(); });
-    connect(this, &ClientModel::tipChanged, this, &ClientModel::updateTip)
+    connect(this, &ClientModel::tipChanged, this, &ClientModel::updateTip);
     // move timer to thread so that polling doesn't disturb main event loop
     timer->moveToThread(m_thread);
     m_thread->start();

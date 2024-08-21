@@ -576,7 +576,7 @@ void BitcoinApplication::restartWallet()
             path += restoreName.toStdString();
         }
         path /= "wallet.dat";
-        QString pathWallet = QString::fromStdString(path.u8string());
+        QString pathWallet = QString::fromStdString(path.utf8string());
         bool ret = QFile::exists(restorePath) && QFile::exists(pathWallet);
         if(ret && QFileInfo(restorePath) != QFileInfo(pathWallet))
         {
@@ -694,9 +694,6 @@ int GuiMain(int argc, char* argv[])
             return EXIT_FAILURE;
         }
     }
-
-    // Now that the QApplication is setup and we have parsed our parameters, we can set the platform style
-    app.setupPlatformStyle();
 
     /// 3. Application identification
     // must be set before OptionsModel is initialized or translations are loaded,

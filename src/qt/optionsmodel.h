@@ -74,7 +74,7 @@ public:
         LogEvents,              // bool
         SuperStaking,           // bool
         SpendZeroConfChange,    // bool
-ZeroBalanceAddressToken,// bool
+        ZeroBalanceAddressToken,// bool
         Listen,                 // bool
         Server,                 // bool
         EnablePSBTControls,     // bool
@@ -173,6 +173,7 @@ Q_SIGNALS:
     void showTrayIconChanged(bool);
     void fontForMoneyChanged(const QFont&);
     void zeroBalanceAddressTokenChanged(bool);
+};
 
 Q_DECLARE_METATYPE(OptionsModel::FontChoice)
 

@@ -558,7 +558,7 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
             assert(err == TransactionError::OK);
 
             // Serialize the PSBT
-            CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+            DataStream ssTx;
             ssTx << psbtx;
             QString psbt = EncodeBase64(ssTx.str()).c_str();
 
