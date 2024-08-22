@@ -58,11 +58,11 @@
         <translation type="unfinished">C&amp;Aagga</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Kuwani waa cinwaanada Seeraar aad ku direyso lacagaha. Marwalba caddadka ama cinwaanka laga soo hubiyo inta aadan dirin lacagta qadaadiicda ah ka hor inta aadan dirin.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Kuwani waa cinwaanada Seeraar in aad ku direyso lacagaha. Marwalba waxaa ka mid ah masuuliyiinta kubadda cagta ah ee hubinaya in ay ka soo horjeedaan tacaddiyadeeda, taas oo ay ku tallaabsato in ay ka qayb qaataan isbedelka taleemooyinka.</translation>
     </message>
@@ -139,8 +139,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Xaqiiji encryption jeebka</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Digniin: Haddii aad jeebka jeebkaaga qarisid, Oo aad lumiso ereygii,Adigaa sameyn doontaa&lt;b&gt;Lumin oo dhan BITCOINS AAD&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Digniin: Haddii aad jeebka jeebkaaga qarisid, Oo aad lumiso ereygii,Adigaa sameyn doontaa&lt;b&gt;Lumin oo dhan QTUMS AAD&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -155,8 +155,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">sideed ula kacsan ama kabadan</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Xusuusnow in encrypting jeebka si buuxda ma uu ilaalin karo bitcoins aad ka xado by furin qaadsiinaya aad computer.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Xusuusnow in encrypting jeebka si buuxda ma uu ilaalin karo qtums aad ka xado by furin qaadsiinaya aad computer.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -298,7 +298,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
