@@ -617,7 +617,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">أطلب دفعات (يولد كودات الرمز المربع وبيت كوين: العناوين المعطاة)</translation>
+        <translation type="unfinished">‫أطلب مدفوعات (أنشئ رموز استجابة (QR Codes) وعناوين بتكوين)‬</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -729,7 +729,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">إغلاق جميع المحافظ ...</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
+        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">‫اعرض %1 رسالة المساعدة للحصول على قائمة من خيارات سطر أوامر البتكوين المحتملة‬</translation>
     </message>
     <message>
@@ -796,13 +796,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-
             <numerusform>%n active connection(s) to Qtum network.</numerusform>
             <numerusform>%n active connection(s) to Qtum network.</numerusform>
             <numerusform>%n active connection(s) to Qtum network.</numerusform>
             <numerusform>%n active connection(s) to Qtum network.</numerusform>
             <numerusform>%n active connection(s) to Qtum network.</numerusform>
-
             <numerusform>%n اتصال نشط بشبكة البتكوين.</numerusform>
         </translation>
     </message>

@@ -1508,8 +1508,8 @@ El proceso de migración creará una copia de seguridad de la billetera antes de
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
-        <translation type="unfinished">Abrir URI de bitcoin</translation>
+        <source>Open qtum URI</source>
+        <translation type="unfinished">Abrir URI de qtum</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -2077,7 +2077,7 @@ El proceso de migración creará una copia de seguridad de la billetera antes de
     </message>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
-        <translation type="unfinished">No se puede iniciar Qtum: controlador de clic para pagar</translation>
+        <translation type="unfinished">No se puede iniciar el controlador "qtum: click-to-pay"</translation>
     </message>
     <message>
         <source>URI handling</source>
@@ -3060,7 +3060,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     </message>
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Crea una transacción de Qtum parcialmente firmada (PSBT) para usarla, por ejemplo, con una billetera %1 sin conexión o una billetera de hardware compatible con PSBT.</translation>
+        <translation type="unfinished">Crea una transacción de Qtum parcialmente firmada (TBPF) para usarla, por ejemplo, con una billetera %1 sin conexión o una billetera de hardware compatible con TBPF.</translation>
     </message>
     <message>
         <source>%1 to '%2'</source>
@@ -3120,6 +3120,10 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
         <translation type="unfinished">Revisa por favor la propuesta de transacción. Esto producirá una transacción de Qtum parcialmente firmada (TBPF) que puedes guardar o copiar y, luego, firmar; por ejemplo, una billetera %1 fuera de línea o una billetera de hardware compatible con TBPF.</translation>
     </message>
     <message>
+        <source>%1 from wallet '%2'</source>
+        <translation type="unfinished">%1 desde monedero "%2"</translation>
+    </message>
+    <message>
         <source>Do you want to create this transaction?</source>
         <extracomment>Message displayed when attempting to create a transaction. Cautionary text to prompt the user to verify that the displayed transaction details represent the transaction the user intends to create.</extracomment>
         <translation type="unfinished">¿Quieres crear esta transacción?</translation>
@@ -3127,7 +3131,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     <message>
         <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">Revisa la transacción. Puedes crear y enviar esta transacción de Qtum parcialmente firmada (PSBT), que además puedes guardar o copiar y, luego, firmar; por ejemplo, una billetera %1 sin conexión o una billetera de hardware compatible con PSBT.</translation>
+        <translation type="unfinished">Revisa la transacción. Puedes crear y enviar esta transacción de Qtum parcialmente firmada (TBPF), que además puedes guardar o copiar y, luego, firmar; por ejemplo, una billetera %1 sin conexión o una billetera de hardware compatible con TBPF.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -4083,7 +4087,7 @@ Ir a "Archivo &gt; Abrir billetera" para cargar una.
     </message>
     <message>
         <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Error: La versión del archivo volcado no es compatible. Esta versión de la billetera de Qtum solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
+        <translation type="unfinished">Error: La versión del archivo de volcado no es compatible. Esta versión de la billetera de Qtum solo admite archivos de volcado de la versión 1. Se obtuvo un archivo de volcado con la versión %s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

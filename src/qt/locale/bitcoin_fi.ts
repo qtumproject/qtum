@@ -1852,6 +1852,7 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     </message>
     <message>
         <source>PSBT saved to disk.</source>
+        <translation type="unfinished">PSBT (osittain tallennettu qtum-siirto) tallennettiin levylle.</translation>
     </message>
     <message>
         <source>own address</source>
@@ -2743,10 +2744,6 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">Luo osittain allekirjoitetun qtum-siirtotapahtuman (PSBT) käytettäväksi mm. offline %1 lompakko tai PSBT-yhteensopiva hardware-lompakko.</translation>
-    </message>
-    <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished"> lompakosta '%1'</translation>
     </message>
     <message>
         <source>%1 to '%2'</source>

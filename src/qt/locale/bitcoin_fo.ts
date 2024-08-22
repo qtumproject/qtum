@@ -186,7 +186,7 @@
     </message>
     <message>
         <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Undirskriva boðini við tíni Qtum-adressu til tess at prógva at tey eru tíni</translation>
+        <translation type="unfinished">Undirrita boðini við tíni Qtum-adressu fyri at prógva at tey eru tíni</translation>
     </message>
     <message>
         <source>&amp;File</source>
