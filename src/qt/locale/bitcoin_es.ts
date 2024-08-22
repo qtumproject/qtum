@@ -3131,6 +3131,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Revisa por favor la propuesta de transacción. Esto producirá una transacción de Qtum parcialmente firmada (TBPF) que puedes guardar o copiar y, luego, firmar; por ejemplo, con un monedero %1 fuera de línea o un monedero de hardware compatible con TBPF.</translation>
+    </message>
     <message>
         <source>%1 from wallet '%2'</source>
         <translation type="unfinished">%1 desde el monedero "%2"</translation>

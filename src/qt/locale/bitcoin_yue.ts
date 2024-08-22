@@ -1738,8 +1738,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">第三方交易网址(&amp;T)</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">连接QTUM网络时专门为Tor onion服务使用另一个 SOCKS5 代理。</translation>
+        <source>Whether to show coin control features or not.</source>
+        <translation type="unfinished">是否显示手动选币功能。</translation>
     </message>
     <message>
         <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>

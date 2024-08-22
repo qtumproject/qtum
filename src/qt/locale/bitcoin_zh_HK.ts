@@ -3078,7 +3078,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">创建一个“部分签名QTUM交易”（PSBT），以用于诸如离线%1钱包，或是兼容PSBT的硬件钱包这类用途。</translation>
     </message>
-    </message>
     <message>
         <source>%1 to %2</source>
         <translation type="unfinished">%1 到 %2</translation>

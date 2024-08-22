@@ -3081,6 +3081,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">创建一个“部分签名QTUM交易”（PSBT），以用于诸如离线%1钱包，或是兼容PSBT的硬件钱包这类用途。</translation>
+    </message>
     <message>
         <source>%1 to %2</source>
         <translation type="unfinished">%1 到 %2</translation>
@@ -3274,7 +3275,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">請輸入這個地址的標籤，來把它加進去已使用過地址清單。</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>/
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">附加在 Qtum 付款協議的資源識別碼(URI)中的訊息，會和交易內容一起存起來，給你自己做參考。注意: 這個訊息不會送到 Qtum 網路上。</translation>
     </message>
 </context>

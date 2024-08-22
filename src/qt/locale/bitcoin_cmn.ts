@@ -4005,7 +4005,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
         <translation type="unfinished">错误: 转储文件版本不被支持。这个版本的 qtum-wallet 只支持版本为 1 的转储文件。得到的转储文件版本却是%s</translation>
-。得到的转储文件版本却是%s</translation>
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

@@ -2098,6 +2098,7 @@ Si recibes este error, debes solicitar al comerciante que te proporcione un URI 
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
         <translation type="unfinished">No se puede analizar el URI. Esto se puede deber a una dirección de Qtum inválida o a parámetros de URI con formato incorrecto.</translation>
+    </message>
     <message>
         <source>Payment request file handling</source>
         <translation type="unfinished">Gestión del archivo de solicitud de pago</translation>
@@ -3306,6 +3307,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Puedes firmar mensajes o acuerdos con tus direcciones para demostrar que puedes recibir los qtums que se envíen a ellas. Ten cuidado de no firmar cosas confusas o al azar, ya que los ataques de phishing pueden tratar de engañarte para que les envíes la firma con tu identidad. Firma solo declaraciones totalmente detalladas con las que estés de acuerdo.</translation>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">La dirección de Qtum con la que se firmará el mensaje</translation>
@@ -3357,6 +3359,7 @@ Nota: Dado que la comisión se calcula por byte, una tasa de "100 satoshis por k
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">La dirección de Qtum con la que se firmó el mensaje</translation>
+    </message>
     <message>
         <source>The signed message to verify</source>
         <translation type="unfinished">El mensaje firmado para verificar</translation>

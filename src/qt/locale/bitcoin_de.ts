@@ -63,6 +63,7 @@
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Dies sind Ihre Bitcoin-Adressen für den Empfang von Zahlungen. Verwenden Sie die 'Neue Empfangsadresse erstellen' Taste auf der Registerkarte "Empfangen", um neue Adressen zu erstellen.
 Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
     </message>
