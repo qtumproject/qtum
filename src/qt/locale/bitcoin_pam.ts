@@ -59,7 +59,7 @@
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Reni reng kekang Qtum address king pamagpadalang kabayaran. Lawan mulang masalese reng alaga ampo ing address na ning tumanggap bayu ka magpadalang barya.</translation>
+        <translation type="unfinished">Oreni ring Qtum address mu king pamamarla karing bayad. Lawan mong masalese ring ulaga ra ampon ing address na ning mananggapan bayad bayu ka mamarla.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>

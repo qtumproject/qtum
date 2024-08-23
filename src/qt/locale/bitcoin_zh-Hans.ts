@@ -321,19 +321,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">请输入一个QTUM地址 (例如 %1)</translation>
-
-
-
-
-
-
-
-
-
-
-
-
-
     </message>
     <message>
         <source>Unroutable</source>
@@ -3065,6 +3052,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <translation type="unfinished">当交易量小于可用区块空间时，矿工和中继节点可能会执行最低手续费率限制。按照这个最低费率来支付手续费也是可以的，但请注意，一旦交易需求超出QTUM网络能处理的限度，你的交易可能永远也无法确认。</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -3153,10 +3141,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">创建一个“部分签名QTUM交易”（PSBT），以用于诸如离线%1钱包，或是兼容PSBT的硬件钱包这类用途。</translation>
     </message>
     <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">从钱包%1</translation>
-    </message>
-    <message>
         <source>%1 to '%2'</source>
         <translation type="unfinished">%1 到 '%2'</translation>
     </message>
@@ -3212,6 +3196,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">请务必仔细检查您的交易请求。这会产生一个部分签名QTUM交易(PSBT)，可以把保存下来或复制出去，然后就可以对它进行签名，比如用离线%1钱包，或是用兼容PSBT的硬件钱包。</translation>
+    </message>
+    <message>
+        <source>%1 from wallet '%2'</source>
+        <translation type="unfinished">%1 来自钱包 “%2”</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>

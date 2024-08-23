@@ -1373,8 +1373,8 @@ Il processo di migrazione creerà un backup del portafoglio prima della migrazio
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
-        <translation type="unfinished">%1 scaricherà e salverà una copia della catena di blocchi Bitcoin.</translation>
+        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <translation type="unfinished">%1 scaricherà e salverà una copia della catena di blocchi Qtum.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -3106,6 +3106,10 @@ Nota: poiché la commissione è calcolata su base per byte, una commissione di "
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Per favore, controlla la tua proposta di transazione. Questo produrrà una Partially Signed Qtum Transaction (PSBT) che puoi salvare o copiare e quindi firmare con es. un portafoglio %1 offline o un portafoglio hardware compatibile con PSBT.</translation>
+    </message>
+    <message>
+        <source>%1 from wallet '%2'</source>
+        <translation type="unfinished">%1 dal wallet '%2'</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>

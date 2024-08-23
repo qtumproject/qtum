@@ -175,7 +175,7 @@
     </message>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">याद गर्नुहोस् कि तपाईको वालेट इन्क्रिप्ट गर्नाले तपाईको बिटकोइनलाई तपाईको कम्प्युटरमा मालवेयरले चोरी हुनबाट पूर्णतया सुरक्षित गर्न सक्दैन।</translation>
+        <translation type="unfinished">याद गर्नुहोस् कि तपाईको वालेट इन्क्रिप्ट गर्नाले तपाईको क्तुमलाई तपाईको कम्प्युटरमा मालवेयरले चोरी हुनबाट पूर्णतया सुरक्षित गर्न सक्दैन।</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>

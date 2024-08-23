@@ -3158,6 +3158,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">取引の提案を確認してください。これにより、部分的に署名されたQtum取引（PSBT）が作成されます。これを保存するかコピーして例えばオフラインの %1 ウォレットやPSBTを扱えるハードウェアウォレットで残りの署名が出来ます。</translation>
     </message>
     <message>
+        <source>%1 from wallet '%2'</source>
+        <translation type="unfinished"> ウォレット '%2' の%1</translation>
+    </message>
+    <message>
         <source>Do you want to create this transaction?</source>
         <extracomment>Message displayed when attempting to create a transaction. Cautionary text to prompt the user to verify that the displayed transaction details represent the transaction the user intends to create.</extracomment>
         <translation type="unfinished">この取引を作成しますか？</translation>

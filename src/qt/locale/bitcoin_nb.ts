@@ -3156,10 +3156,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Outputindeks</translation>
     </message>
     <message>
-        <source> (Certificate was not verified)</source>
-        <translation type="unfinished">(sertifikatet ble ikke bekreftet)</translation>
-    </message>
-    <message>
         <source>Merchant</source>
         <translation type="unfinished">Forretningsdrivende</translation>
     </message>

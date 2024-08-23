@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">Adresi veya etiketi düzenlemek için sağ tıklayın.</translation>
+        <translation type="unfinished">Adresi veya etiketi düzenlemek için sağ tıklayın</translation>
     </message>
     <message>
         <source>Create a new address</source>

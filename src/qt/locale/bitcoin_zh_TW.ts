@@ -316,19 +316,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
         <translation type="unfinished">輸入 QTUM地址 (比如說 %1)</translation>
-
-
-
-
-
-
-
-
-
-
-
-
-
     </message>
     <message>
         <source>Unroutable</source>
@@ -1705,7 +1692,7 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">自动在路由器中为比特币客户端打开端口。只有当您的路由器支持 NAT-PMP 功能并开启它，这个功能才会正常工作。外边端口可以是随机的。</translation>
+        <translation type="unfinished">自动在路由器中为QTUM客户端打开端口。只有当您的路由器支持 NAT-PMP 功能并开启它，这个功能才会正常工作。外边端口可以是随机的。</translation>
     </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
@@ -3000,14 +2987,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
         <translation type="unfinished">當交易量小於可用區塊空間時，礦工和節點可能會執行最低手續費率限制。 以這個最低費率來支付手續費也是可以的，但請注意，一旦交易需求超出QTUM網路能處理的限度，你的交易可能永遠無法確認。</translation>
-
-
-
-
-
-
-
-
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -4106,11 +4085,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
         <translation type="unfinished">錯誤: 轉儲文件版本不支援。 這個版本的 qtum-wallet 只支援版本為 1 的轉儲檔案。 得到的轉儲文件版本是%s</translation>
-
-
-
-
-
     </message>
     <message>
         <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>

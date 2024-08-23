@@ -303,8 +303,8 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
         <translation type="unfinished">Intégré « %1 »</translation>
     </message>
     <message>
-        <source>Enter a Qtum address (e.g. %1)</source>
-        <translation type="unfinished">Saisir une adresse Qtum (p. ex. %1)</translation>
+        <source>Default system font "%1"</source>
+        <translation type="unfinished">Police système par défaut « %1 »</translation>
     </message>
     <message>
         <source>Custom…</source>
@@ -315,8 +315,8 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
         <translation type="unfinished">Montant</translation>
     </message>
     <message>
-        <source>Enter a Bitcoin address (e.g. %1)</source>
-        <translation type="unfinished">Saisir une adresse Bitcoin (p. ex. %1)</translation>
+        <source>Enter a Qtum address (e.g. %1)</source>
+        <translation type="unfinished">Saisir une adresse Qtum (p. ex. %1)</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -3079,10 +3079,6 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <translation type="unfinished">Crée une transaction Qtum signée partiellement (TBSP) à utiliser, par exemple, avec un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBSP.</translation>
     </message>
     <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">du porte-monnaie '%1'</translation>
-    </message>
-    <message>
         <source>%1 to '%2'</source>
         <translation type="unfinished">%1 à '%2'</translation>
     </message>
@@ -3138,6 +3134,10 @@ Note : Les frais étant calculés par octet, un taux de frais de « 100 satoshi
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Veuillez réviser votre proposition de transaction. Une transaction Qtum partiellement signée (TBSP) sera produite, que vous pourrez enregistrer ou copier puis signer avec, par exemple, un porte-monnaie %1 hors ligne ou avec un porte-monnaie matériel compatible TBSP.</translation>
+    </message>
+    <message>
+        <source>%1 from wallet '%2'</source>
+        <translation type="unfinished">%1 du porte-monnaie « %2 ».</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>

@@ -559,7 +559,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Backup Wallet…</source>
-        <translation type="unfinished">&amp;Резервне копіювання гаманця</translation>
+        <translation type="unfinished">&amp;Резервне копіювання гаманця…</translation>
     </message>
     <message>
         <source>&amp;Change Passphrase…</source>
@@ -723,7 +723,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-       <translation type="unfinished">Відкрити URI-адресу "qtum:"</translation>
+        <translation type="unfinished">Відкрити URI-адресу "qtum:"</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -3240,6 +3240,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Перевірте запропоновану транзакцію. Буде сформована частково підписана qtum-транзакція (PSBT), яку можна зберегти або скопіювати, а потім підписати з використанням, наприклад, офлайн гаманця %1 або апаратного PSBT-сумісного гаманця.</translation>
+    </message>
+    <message>
+        <source>%1 from wallet '%2'</source>
+        <translation type="unfinished">%1 з гаманця '%2'</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>

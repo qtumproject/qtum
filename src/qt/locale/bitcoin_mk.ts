@@ -435,7 +435,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">Испрати биткоини на Биткоин адреса</translation>
+        <translation type="unfinished">Испрати биткоини на биткоин-адреса</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>

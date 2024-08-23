@@ -1112,11 +1112,11 @@ A migrációs folyamat készít biztonsági mentést a tárcáról migrálás el
         <translation type="unfinished">A '%1' tárca sikeresen migrálva lett.</translation>
     </message>
     <message>
-        <source> Watchonly scripts have been migrated to a new wallet named '%1'.</source>
+        <source>Watchonly scripts have been migrated to a new wallet named '%1'.</source>
         <translation type="unfinished">Figyelő szkriptek az új '%1' nevű tárcába lettek migrálva.</translation>
     </message>
     <message>
-        <source> Solvable but not watched scripts have been migrated to a new wallet named '%1'.</source>
+        <source>Solvable but not watched scripts have been migrated to a new wallet named '%1'.</source>
         <translation type="unfinished">Megoldható de nem megfigyelt szkriptek az új '%1' nevű tárcába lettek migrálva.</translation>
     </message>
     <message>
@@ -3157,6 +3157,10 @@ Megjegyzés: Mivel a díj bájtonként van kiszámítva, egy "100 satoshi kvB-nk
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Kérjük nézze át a tranzakciós javaslatot. Ez létrehoz egy részlegesen aláírt qtum tranzakciót (PSBT) amit elmenthet vagy kimásolhat amit később aláírhatja offline %1 tárcával vagy egy PSBT kompatibilis hardvertárcával.</translation>
+    </message>
+    <message>
+        <source>%1 from wallet '%2'</source>
+        <translation type="unfinished">%1 ebből a tárcából: '%2'</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>

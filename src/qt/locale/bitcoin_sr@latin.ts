@@ -64,7 +64,7 @@
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Ово су твоје Биткоин адресе за приманје уплата. Користи дугме „Направи нову адресу за примање” у картици за примање за креирање нових адреса.
+        <translation type="unfinished">Ово су твоје Qtum адресе за приманје уплата. Користи дугме „Направи нову адресу за примање” у картици за примање за креирање нових адреса.
 Потписивање је могуће само за адресе типа 'legacy'.</translation>
     </message>
     <message>
@@ -185,7 +185,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Упамти, шифрирање новчаника не може у потуности заштити твоје биткоине од крађе од стране малвера инфицира твој рачунар.</translation>
+        <translation type="unfinished">Упамти, шифрирање новчаника не може у потуности заштити твоје qtum од крађе од стране малвера инфицира твој рачунар.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -292,7 +292,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Enter a Qtum address (e.g. %1)</source>
-        <translation type="unfinished">Унеси Биткоин адресу, (нпр %1)</translation>
+        <translation type="unfinished">Унеси Qtum адресу, (нпр %1)</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -655,7 +655,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Open a qtum: URI</source>
-        <translation type="unfinished">Отвори биткоин: URI</translation>
+        <translation type="unfinished">Отвори qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -1354,11 +1354,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">Недавне трансакције можда не буду видљиве, зато салдо твог новчаника може бити нетачан. Ова информација биће тачна када новчаник заврши са синхронизацијом Qtum мреже, приказаном испод.</translation>
+        <translation type="unfinished">Недавне трансакције можда не буду видљиве, зато салдо твог новчаника може бити нетачан. Ова информација биће тачна када новчаник заврши са синхронизацијом qtum мреже, приказаном испод.</translation>
     </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Покушај трошења Qtum на које утичу још увек неприказане трансакције мрежа неће прихватити.</translation>
+        <translation type="unfinished">Покушај трошења qtum на које утичу још увек неприказане трансакције мрежа неће прихватити.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1409,7 +1409,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>OpenURIDialog</name>
     <message>
         <source>Open qtum URI</source>
-        <translation type="unfinished">Отвори Qtum URI</translation>
+        <translation type="unfinished">Отвори qtum URI</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -1906,14 +1906,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Cannot start qtum: click-to-pay handler</source>
-        <translation type="unfinished">Не могу покренути Qtum: "кликни-да-платиш" механизам</translation>
+        <translation type="unfinished">Не могу покренути qtum: "кликни-да-платиш" механизам</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">URI руковање</translation>
     </message>
     <message>
- <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
+        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' није важећи URI. Уместо тога користити  'qtum:'.</translation>
     </message>
     <message>
@@ -3000,8 +3000,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">Унесите ознаку за ову адресу да бисте је додали на листу коришћених адреса</translation>
     </message>
     <message>
-        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">Порука која је приложена биткоину: URI која ће бити сачувана уз трансакцију ради референце. Напомена: Ова порука се шаље преко Qtum мреже.</translation>
+        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
+        <translation type="unfinished">Порука која је приложена qtum: URI која ће бити сачувана уз трансакцију ради референце. Напомена: Ова порука се шаље преко Qtum мреже.</translation>
     </message>
 </context>
 <context>

@@ -2711,10 +2711,6 @@ Om den här plånboken innehåller lösbara</translation>
         <translation type="unfinished">Skapar en delvis signerad Qtum transaktion (PSBT) att använda vid t.ex. en offline %1 plånbok, eller en PSBT-kompatibel hårdvaruplånbok.</translation>
     </message>
     <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">från plånbok: '%1'</translation>
-    </message>
-    <message>
         <source>%1 to '%2'</source>
         <translation type="unfinished">%1 till '%2'</translation>
     </message>

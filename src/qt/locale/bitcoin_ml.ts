@@ -394,7 +394,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">ഒരു ബിറ്റ്കോയിൻ വിലാസത്തിലേക്ക് നാണയങ്ങൾ അയയ്ക്കുക</translation>
+        <translation type="unfinished">ഒരു ബിറ്റ്‌കോയിൻ വിലാസത്തിലേക് പണം അയക്കുക </translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
