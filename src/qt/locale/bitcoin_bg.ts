@@ -1736,10 +1736,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Дали да покаже възможностите за контрол на монетите или не.</translation>
     </message>
     <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">Моноширинен шрифт в раздела Общ преглед:</translation>
-    </message>
-    <message>
         <source>&amp;OK</source>
         <translation type="unfinished">ОК</translation>
     </message>

@@ -2,10 +2,6 @@
 <context>
     <name>AddressBookPage</name>
     <message>
-        <source>Create a new address</source>
-        <translation type="unfinished">Δημιουργία νέας διεύθυνσης </translation>
-    </message>
-    <message>
         <source>&amp;New</source>
         <translation type="unfinished">&amp;Νέo</translation>
     </message>
@@ -88,10 +84,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
         <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
         <translation type="unfinished">Σφάλμα κατά την προσπάθεια αποθήκευσης της λίστας διευθύνσεων στο %1. Παρακαλώ δοκιμάστε ξανά.</translation>
-    </message>
-    <message>
-        <source>Receiving addresses - %1</source>
-        <translation type="unfinished">Διευθύνσεις λήψης - %1</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
@@ -229,7 +221,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>The old passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character.</source>
-        <translation type="unfinished">Ο παλιός κωδικός που εισήχθη για την αποκρυπτογράφηση του πορτοφολιού είναι εσφαλμένος. Περιέχει έναν χαρακτήρα null (δηλαδή, ένα μηδενικό byte). Εάν ο κωδικός ορίστηκε πριν από την έκδοση 25.0 του λογισμικού, δοκιμάστε πάλι μόνο με τους χαρακτήρες έως τον πρώτο χαρακτήρα null — αλλά χωρίς αυτόν.</translation>
+        <translation type="unfinished">Ο παλιός κωδικός που εισήχθη για την αποκρυπτογράφηση του πορτοφολιού είναι εσφαλμένος. Περιέχει έναν χαρακτήρα null (δηλαδή, ένα μηδενικό byte). Εάν ο κωδικός ορίστηκε πριν από την έκδοση 25.0 του λογισμικού, δοκιμάστε ξανά εισαγάγοντας μόνο τους χαρακτήρες έως τον πρώτο χαρακτήρα null — αλλά όχι αυτόν.</translation>
     </message>
     <message>
         <source>Warning: The Caps Lock key is on!</source>
@@ -692,11 +684,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Migrate Wallet</source>
-        <translation type="unfinished">Μετεγκατάσταση Πορτοφολιού</translation>
+        <translation type="unfinished">Μεταφορά Πορτοφολιού</translation>
     </message>
     <message>
         <source>Migrate a wallet</source>
-        <translation type="unfinished">Μετεγκατάσταση ενός πορτοφολιού</translation>
+        <translation type="unfinished">Μεταφορά ενός πορτοφολιού</translation>
     </message>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
@@ -1063,11 +1055,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>MigrateWalletActivity</name>
     <message>
         <source>Migrate wallet</source>
-        <translation type="unfinished">Μεταφορά πορτοφολιού</translation>
+        <translation type="unfinished">Μετεγκατάσταση πορτοφολιού</translation>
     </message>
     <message>
         <source>Are you sure you wish to migrate the wallet &lt;i&gt;%1&lt;/i&gt;?</source>
-        <translation type="unfinished">Είστε σίγουρος/η ότι θέλετε να μεταφέρετε το πορτοφόλι σας; &lt;i&gt;%1&lt;/i&gt;;</translation>
+        <translation type="unfinished">Είστε σίγουρος/η ότι θέλετε να μετεγκαταστήσετε το πορτοφόλι σας; &lt;i&gt;%1&lt;/i&gt;;</translation>
     </message>
     <message>
         <source>Migrating the wallet will convert this wallet to one or more descriptor wallets. A new wallet backup will need to be made.
@@ -1083,7 +1075,7 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Migrate Wallet</source>
-        <translation type="unfinished">Μεταφορά Πορτοφολιού</translation>
+        <translation type="unfinished">Μετεγκατάσταση Πορτοφολιού</translation>
     </message>
     <message>
         <source>Migrating Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
@@ -1094,8 +1086,16 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">Το πορτοφόλι '%1' μετεγκαταστάθηκε επιτυχώς.</translation>
     </message>
     <message>
+        <source>Watchonly scripts have been migrated to a new wallet named '%1'.</source>
+        <translation type="unfinished">Τα σενάρια παρακολούθησης μόνο μετεγκαταστάθηκαν σε νέο πορτοφόλι ονόματι '%1'.</translation>
+    </message>
+    <message>
+        <source>Solvable but not watched scripts have been migrated to a new wallet named '%1'.</source>
+        <translation type="unfinished">Τα επιλύσιμα αλλά όχι για παρακολούθηση σενάρια μετεγκαταστάθηκαν σε νέο πορτοφόλι ονόματι '%1'.</translation>
+    </message>
+    <message>
         <source>Migration failed</source>
-        <translation type="unfinished">Η μετεγκατάσταση απέτυχε</translation>
+        <translation type="unfinished">Αποτυχία μετεγκατάστασης</translation>
     </message>
     <message>
         <source>Migration Successful</source>
@@ -1788,18 +1788,6 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">Χρησιμοποιήστε ξεχωριστό διακομιστή μεσολάβησης SOCKS&amp;5 για σύνδεση με αποδέκτες μέσω των υπηρεσιών onion του Tor:</translation>
     </message>
     <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">Monospaced Γραμματοσειρά στην καρτέλα Επισκόπησης:</translation>
-    </message>
-    <message>
-        <source>embedded "%1"</source>
-        <translation type="unfinished">ενσωματωμένο "%1"</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">πλησιέστερη αντιστοίχιση "%1"</translation>
-    </message>
-    <message>
         <source>&amp;OK</source>
         <translation type="unfinished">&amp;ΟΚ</translation>
     </message>
@@ -2043,8 +2031,8 @@ ID Συναλλαγής: %1</translation>
         <translation type="unfinished">PSBT αποθηκεύτηκε στο δίσκο.</translation>
     </message>
     <message>
-        <source> * Sends %1 to %2</source>
-        <translation type="unfinished">* Στέλνει %1 προς  %2</translation>
+        <source>Sends %1 to %2</source>
+        <translation type="unfinished">Αποστέλλει %1 στο %2</translation>
     </message>
     <message>
         <source>own address</source>
@@ -2942,10 +2930,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">Δη&amp;μιουργία Ανυπόγραφου</translation>
     </message>
     <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">από πορτοφόλι '%1'</translation>
-    </message>
-    <message>
         <source>%1 to '%2'</source>
         <translation type="unfinished">%1 προς το '%2'</translation>
     </message>
@@ -3424,10 +3408,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Output index</source>
         <translation type="unfinished">Δείκτης εξόδου</translation>
-    </message>
-    <message>
-        <source> (Certificate was not verified)</source>
-        <translation type="unfinished">(Το πιστοποιητικό δεν επαληθεύτηκε)</translation>
     </message>
     <message>
         <source>Merchant</source>
@@ -4248,10 +4228,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Transaction amounts must not be negative</source>
         <translation type="unfinished">Τα ποσά των συναλλαγών δεν πρέπει να είναι αρνητικά</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">Η συναλλαγή έχει πολύ μακρά αλυσίδα mempool</translation>
     </message>
     <message>
         <source>Transaction must have at least one recipient</source>

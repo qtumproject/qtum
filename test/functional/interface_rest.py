@@ -71,7 +71,7 @@ class RESTTest (BitcoinTestFramework):
             body: str = '',
             status: int = 200,
             ret_type: RetType = RetType.JSON,
-            query_params: Optional[typing.Dict[str, typing.Any]] = None,
+            query_params: Optional[dict[str, typing.Any]] = None,
             ) -> typing.Union[http.client.HTTPResponse, bytes, str, None]:
         rest_uri = '/rest' + uri
         if req_type in ReqType:
@@ -343,6 +343,9 @@ class RESTTest (BitcoinTestFramework):
         assert_greater_than(json_obj['bytes'], 300)
 
         mempool_info = self.nodes[0].getmempoolinfo()
+        # pop unstable unbroadcastcount before check
+        for obj in [json_obj, mempool_info]:
+            obj.pop("unbroadcastcount")
         assert_equal(json_obj, mempool_info)
 
         # Check that there are our submitted transactions in the TX memory pool

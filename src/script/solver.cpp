@@ -334,7 +334,7 @@ static bool MatchContract(const CScript& scriptPubKey, std::vector<std::vector<u
 
                 // Get the public key for the destination
                 CScript senderPubKey = GetScriptForDestination(dest);
-                CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                DataStream ss;
                 ss << senderPubKey;
                 Span<const uint8_t> sp = MakeUCharSpan(ss);
                 vSolutionsRet.push_back(std::vector<unsigned char>(sp.begin(), sp.end()));
@@ -475,14 +475,14 @@ bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScri
             // Get the sender public key
             if(senderPubKey)
             {
-                CDataStream ss(vSolutions[0], SER_NETWORK, PROTOCOL_VERSION);
+                DataStream ss(vSolutions[0]);
                 ss >> *senderPubKey;
             }
 
             // Get the sender signature
             if(senderSig)
             {
-                CDataStream ss(vSolutions[1], SER_NETWORK, PROTOCOL_VERSION);
+                DataStream ss(vSolutions[1]);
                 ss >> *senderSig;
             }
         }
@@ -513,7 +513,7 @@ bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
                 return false;
 
             // Get the sender public key
-            CDataStream ss(vSolutions[0], SER_NETWORK, PROTOCOL_VERSION);
+            DataStream ss(vSolutions[0]);
             ss >> senderPubKey;
         }
         catch(...)
@@ -525,4 +525,3 @@ bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
     }
     return false;
 }
-

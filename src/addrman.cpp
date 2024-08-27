@@ -3,6 +3,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <addrman.h>
 #include <addrman_impl.h>
 
@@ -585,11 +589,10 @@ bool AddrManImpl::AddSingle(const CAddress& addr, const CNetAddr& source, std::c
             return false;
 
         // stochastic test: previous nRefCount == N: 2^N times harder to increase it
-        int nFactor = 1;
-        for (int n = 0; n < pinfo->nRefCount; n++)
-            nFactor *= 2;
-        if (nFactor > 1 && (insecure_rand.randrange(nFactor) != 0))
-            return false;
+        if (pinfo->nRefCount > 0) {
+            const int nFactor{1 << pinfo->nRefCount};
+            if (insecure_rand.randrange(nFactor) != 0) return false;
+        }
     } else {
         pinfo = Create(addr, source, &nId);
         pinfo->nTime = std::max(NodeSeconds{0s}, pinfo->nTime - time_penalty);
@@ -610,8 +613,9 @@ bool AddrManImpl::AddSingle(const CAddress& addr, const CNetAddr& source, std::c
             ClearNew(nUBucket, nUBucketPos);
             pinfo->nRefCount++;
             vvNew[nUBucket][nUBucketPos] = nId;
-            LogPrint(BCLog::ADDRMAN, "Added %s mapped to AS%i to new[%i][%i]\n",
-                     addr.ToStringAddrPort(), m_netgroupman.GetMappedAS(addr), nUBucket, nUBucketPos);
+            const auto mapped_as{m_netgroupman.GetMappedAS(addr)};
+            LogPrint(BCLog::ADDRMAN, "Added %s%s to new[%i][%i]\n",
+                     addr.ToStringAddrPort(), (mapped_as ? strprintf(" mapped to AS%i", mapped_as) : ""), nUBucket, nUBucketPos);
         } else {
             if (pinfo->nRefCount == 0) {
                 Delete(nId);
@@ -669,8 +673,9 @@ bool AddrManImpl::Good_(const CService& addr, bool test_before_evict, NodeSecond
     } else {
         // move nId to the tried tables
         MakeTried(info, nId);
-        LogPrint(BCLog::ADDRMAN, "Moved %s mapped to AS%i to tried[%i][%i]\n",
-                 addr.ToStringAddrPort(), m_netgroupman.GetMappedAS(addr), tried_bucket, tried_bucket_pos);
+        const auto mapped_as{m_netgroupman.GetMappedAS(addr)};
+        LogPrint(BCLog::ADDRMAN, "Moved %s%s to tried[%i][%i]\n",
+                 addr.ToStringAddrPort(), (mapped_as ? strprintf(" mapped to AS%i", mapped_as) : ""), tried_bucket, tried_bucket_pos);
         return true;
     }
 }
@@ -800,7 +805,7 @@ int AddrManImpl::GetEntry(bool use_tried, size_t bucket, size_t position) const
     return -1;
 }
 
-std::vector<CAddress> AddrManImpl::GetAddr_(size_t max_addresses, size_t max_pct, std::optional<Network> network) const
+std::vector<CAddress> AddrManImpl::GetAddr_(size_t max_addresses, size_t max_pct, std::optional<Network> network, const bool filtered) const
 {
     AssertLockHeld(cs);
 
@@ -830,7 +835,7 @@ std::vector<CAddress> AddrManImpl::GetAddr_(size_t max_addresses, size_t max_pct
         if (network != std::nullopt && ai.GetNetClass() != network) continue;
 
         // Filter for quality
-        if (ai.IsTerrible(now)) continue;
+        if (ai.IsTerrible(now) && filtered) continue;
 
         addresses.push_back(ai);
     }
@@ -1214,11 +1219,11 @@ std::pair<CAddress, NodeSeconds> AddrManImpl::Select(bool new_only, std::optiona
     return addrRet;
 }
 
-std::vector<CAddress> AddrManImpl::GetAddr(size_t max_addresses, size_t max_pct, std::optional<Network> network) const
+std::vector<CAddress> AddrManImpl::GetAddr(size_t max_addresses, size_t max_pct, std::optional<Network> network, const bool filtered) const
 {
     LOCK(cs);
     Check();
-    auto addresses = GetAddr_(max_addresses, max_pct, network);
+    auto addresses = GetAddr_(max_addresses, max_pct, network, filtered);
     Check();
     return addresses;
 }
@@ -1317,9 +1322,9 @@ std::pair<CAddress, NodeSeconds> AddrMan::Select(bool new_only, std::optional<Ne
     return m_impl->Select(new_only, network);
 }
 
-std::vector<CAddress> AddrMan::GetAddr(size_t max_addresses, size_t max_pct, std::optional<Network> network) const
+std::vector<CAddress> AddrMan::GetAddr(size_t max_addresses, size_t max_pct, std::optional<Network> network, const bool filtered) const
 {
-    return m_impl->GetAddr(max_addresses, max_pct, network);
+    return m_impl->GetAddr(max_addresses, max_pct, network, filtered);
 }
 
 std::vector<std::pair<AddrInfo, AddressPosition>> AddrMan::GetEntries(bool use_tried) const

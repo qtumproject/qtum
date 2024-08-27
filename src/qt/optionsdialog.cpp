@@ -14,28 +14,83 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
+
 #ifdef ENABLE_WALLET
 #include <qt/hardwaresigntx.h>
 #endif
 #include <common/system.h>
 #include <interfaces/node.h>
-
+#include <node/chainstatemanager_args.h>
 #include <netbase.h>
 #include <txdb.h>
-#include <validation.h>
 
 #include <qt/styleSheet.h>
 #include <chainparams.h>
 #include <chrono>
 #include <node/miner.h>
-
+#include <QApplication>
 #include <QDataWidgetMapper>
 #include <QDir>
+#include <QFontDialog>
 #include <QIntValidator>
 #include <QLocale>
 #include <QMessageBox>
 #include <QSystemTrayIcon>
 #include <QTimer>
+
+int setFontChoice(QComboBox* cb, const OptionsModel::FontChoice& fc)
+{
+    int i;
+    for (i = cb->count(); --i >= 0; ) {
+        QVariant item_data = cb->itemData(i);
+        if (!item_data.canConvert<OptionsModel::FontChoice>()) continue;
+        if (item_data.value<OptionsModel::FontChoice>() == fc) {
+            break;
+        }
+    }
+    if (i == -1) {
+        // New item needed
+        QFont chosen_font = OptionsModel::getFontForChoice(fc);
+        QSignalBlocker block_currentindexchanged_signal(cb);  // avoid triggering QFontDialog
+        cb->insertItem(0, QFontInfo(chosen_font).family(), QVariant::fromValue(fc));
+        i = 0;
+    }
+
+    cb->setCurrentIndex(i);
+    return i;
+}
+
+void setupFontOptions(QComboBox* cb, QLabel* preview)
+{
+    QFont embedded_font{GUIUtil::fixedPitchFont(true)};
+    QFont system_font{GUIUtil::fixedPitchFont(false)};
+    cb->addItem(QObject::tr("Embedded \"%1\"").arg(QFontInfo(embedded_font).family()), QVariant::fromValue(OptionsModel::FontChoice{OptionsModel::FontChoiceAbstract::EmbeddedFont}));
+    cb->addItem(QObject::tr("Default system font \"%1\"").arg(QFontInfo(system_font).family()), QVariant::fromValue(OptionsModel::FontChoice{OptionsModel::FontChoiceAbstract::BestSystemFont}));
+    cb->addItem(QObject::tr("Custom…"));
+
+    const auto& on_font_choice_changed = [cb, preview](int index) {
+        static int previous_index = -1;
+        QVariant item_data = cb->itemData(index);
+        QFont f;
+        if (item_data.canConvert<OptionsModel::FontChoice>()) {
+            f = OptionsModel::getFontForChoice(item_data.value<OptionsModel::FontChoice>());
+        } else {
+            bool ok;
+            f = QFontDialog::getFont(&ok, GUIUtil::fixedPitchFont(false), cb->parentWidget());
+            if (!ok) {
+                cb->setCurrentIndex(previous_index);
+                return;
+            }
+            index = setFontChoice(cb, OptionsModel::FontChoice{f});
+        }
+        if (preview) {
+            preview->setFont(f);
+        }
+        previous_index = index;
+    };
+    QObject::connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), on_font_choice_changed);
+    on_font_choice_changed(cb->currentIndex());
+}
 
 OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     : QDialog(parent, GUIUtil::dialog_flags),
@@ -79,7 +134,6 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     ui->proxyPortTor->setValidator(new QIntValidator(1, 65535, this));
 
     ui->reserveBalance->setNotifyAlways(false);
-
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyIp, &QWidget::setEnabled);
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyIpLabel, &QWidget::setEnabled);
     connect(ui->connectSocks, &QPushButton::toggled, ui->proxyPort, &QWidget::setEnabled);
@@ -99,7 +153,6 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     /* hide launch at startup option on macOS */
     ui->bitcoinAtStartup->setVisible(false);
     ui->tabMain->layout()->removeWidget(ui->bitcoinAtStartup);
-
 #endif
 
     /* remove Wallet tab and 3rd party-URL textbox in case of -disablewallet */
@@ -202,17 +255,8 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
         ui->minimizeToTray->setEnabled(false);
     }
 
-    QFont embedded_font{GUIUtil::fixedPitchFont(true)};
-    ui->embeddedFont_radioButton->setText(ui->embeddedFont_radioButton->text().arg(QFontInfo(embedded_font).family()));
-    ui->embeddedFont_label_1->setFont(embedded_font);
-    ui->embeddedFont_label_9->setFont(embedded_font);
+    setupFontOptions(ui->moneyFont, ui->moneyFont_preview);
 
-    QFont system_font{GUIUtil::fixedPitchFont(false)};
-    ui->systemFont_radioButton->setText(ui->systemFont_radioButton->text().arg(QFontInfo(system_font).family()));
-    ui->systemFont_label_1->setFont(system_font);
-    ui->systemFont_label_9->setFont(system_font);
-    // Checking the embeddedFont_radioButton automatically unchecks the systemFont_radioButton.
-    ui->systemFont_radioButton->setChecked(true);
     if(enableWallet)
     {
         connect(ui->superStaking, &QCheckBox::clicked, this, &OptionsDialog::updateLogEvents);
@@ -252,6 +296,9 @@ void OptionsDialog::setModel(OptionsModel *_model)
         mapper->setModel(_model);
         setMapper();
         mapper->toFirst();
+
+        const auto& font_for_money = _model->data(_model->index(OptionsModel::FontForMoney, 0), Qt::EditRole).value<OptionsModel::FontChoice>();
+        setFontChoice(ui->moneyFont, font_for_money);
 
         updateDefaultProxyNets();
         updateLogEvents();
@@ -304,6 +351,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->databaseCache, OptionsModel::DatabaseCache);
     mapper->addMapping(ui->prune, OptionsModel::Prune);
     mapper->addMapping(ui->pruneSize, OptionsModel::PruneSize);
+
     mapper->addMapping(ui->logEvents, OptionsModel::LogEvents);
     mapper->addMapping(ui->superStaking, OptionsModel::SuperStaking);
     mapper->addMapping(ui->reserveBalance, OptionsModel::ReserveBalance, "valueText");
@@ -346,7 +394,6 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->lang, OptionsModel::Language);
     mapper->addMapping(ui->unit, OptionsModel::DisplayUnit);
     mapper->addMapping(ui->thirdPartyTxUrls, OptionsModel::ThirdPartyTxUrls);
-    mapper->addMapping(ui->embeddedFont_radioButton, OptionsModel::UseEmbeddedMonospacedFont);
     mapper->addMapping(ui->theme, OptionsModel::Theme);
 }
 
@@ -409,6 +456,8 @@ void OptionsDialog::on_openBitcoinConfButton_clicked()
 
 void OptionsDialog::on_okButton_clicked()
 {
+    model->setData(model->index(OptionsModel::FontForMoney, 0), ui->moneyFont->itemData(ui->moneyFont->currentIndex()));
+
     mapper->submit();
     updateDefaultProxyNets();
     if (model && model->isRestartRequired()) {
@@ -458,7 +507,6 @@ void OptionsDialog::on_toolStakeLedgerId_clicked()
     ui->txtStakeLedgerId->setText(fingerprint);
 #endif
 }
-
 void OptionsDialog::on_showTrayIcon_stateChanged(int state)
 {
     if (state == Qt::Checked) {
@@ -521,7 +569,6 @@ void OptionsDialog::updateDefaultProxyNets()
     const std::optional<CNetAddr> ui_proxy_netaddr{LookupHost(ui->proxyIp->text().toStdString(), /*fAllowLookup=*/false)};
     const CService ui_proxy{ui_proxy_netaddr.value_or(CNetAddr{}), ui->proxyPort->text().toUShort()};
 
-
     Proxy proxy;
     bool has_proxy;
 
@@ -551,6 +598,7 @@ QValidator::State ProxyAddressValidator::validate(QString &input, int &pos) cons
 
     return QValidator::Invalid;
 }
+
 void OptionsDialog::updateLogEvents(bool)
 {
     bool checked = ui->superStaking->isChecked();

@@ -36,17 +36,39 @@ public:
     Status Next(DataStream& key, DataStream& value) override;
 };
 
+/** Class responsible for executing SQL statements in SQLite databases.
+ *  Methods are virtual so they can be overridden by unit tests testing unusual database conditions. */
+class SQliteExecHandler
+{
+public:
+    virtual ~SQliteExecHandler() {}
+    virtual int Exec(SQLiteDatabase& database, const std::string& statement);
+};
+
 /** RAII class that provides access to a WalletDatabase */
 class SQLiteBatch : public DatabaseBatch
 {
 private:
     SQLiteDatabase& m_database;
+    std::unique_ptr<SQliteExecHandler> m_exec_handler{std::make_unique<SQliteExecHandler>()};
 
     sqlite3_stmt* m_read_stmt{nullptr};
     sqlite3_stmt* m_insert_stmt{nullptr};
     sqlite3_stmt* m_overwrite_stmt{nullptr};
     sqlite3_stmt* m_delete_stmt{nullptr};
     sqlite3_stmt* m_delete_prefix_stmt{nullptr};
+
+    /** Whether this batch has started a database transaction and whether it owns SQLiteDatabase::m_write_semaphore.
+     * If the batch starts a db tx, it acquires the semaphore and sets this to true, keeping the semaphore
+     * until the transaction ends to prevent other batch objects from writing to the database.
+     *
+     * If this batch did not start a transaction, the semaphore is acquired transiently when writing and m_txn
+     * is not set.
+     *
+     * m_txn is different from HasActiveTxn() as it is only true when this batch has started the transaction,
+     * not just when any batch has started a transaction.
+     */
+    bool m_txn{false};
 
     void SetupSQLStatements();
     bool ExecStatement(sqlite3_stmt* stmt, Span<const std::byte> blob);
@@ -60,6 +82,8 @@ private:
 public:
     explicit SQLiteBatch(SQLiteDatabase& database);
     ~SQLiteBatch() override { Close(); }
+
+    void SetExecHandler(std::unique_ptr<SQliteExecHandler>&& handler) { m_exec_handler = std::move(handler); }
 
     /* No-op. See comment on SQLiteDatabase::Flush */
     void Flush() override {}
@@ -103,6 +127,10 @@ public:
 
     ~SQLiteDatabase();
 
+    // Batches must acquire this semaphore on writing, and release when done writing.
+    // This ensures that only one batch is modifying the database at a time.
+    CSemaphore m_write_semaphore;
+
     bool Verify(bilingual_str& error);
 
     /** Open the database if it is not already opened */
@@ -141,6 +169,9 @@ public:
 
     /** Make a SQLiteBatch connected to this database */
     std::unique_ptr<DatabaseBatch> MakeBatch(bool flush_on_close = true) override;
+
+    /** Return true if there is an on-going txn in this connection */
+    bool HasActiveTxn();
 
     sqlite3* m_db{nullptr};
     bool m_use_unsafe_sync;

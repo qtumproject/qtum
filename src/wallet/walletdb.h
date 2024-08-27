@@ -301,8 +301,6 @@ public:
     bool EraseContractData(const std::string &address, const std::string &key);
 
     DBErrors LoadWallet(CWallet* pwallet);
-    DBErrors FindWalletTxHashes(std::vector<uint256>& tx_hashes);
-    DBErrors ZapSelectTx(std::vector<uint256>& vHashIn, std::vector<uint256>& vHashOut);
 
     //! write the hdchain model (external chain child index counter)
     bool WriteHDChain(const CHDChain& chain);
@@ -322,6 +320,20 @@ private:
     WalletDatabase& m_database;
 };
 
+/**
+ * Executes the provided function 'func' within a database transaction context.
+ *
+ * This function ensures that all db modifications performed within 'func()' are
+ * atomically committed to the db at the end of the process. And, in case of a
+ * failure during execution, all performed changes are rolled back.
+ *
+ * @param database The db connection instance to perform the transaction on.
+ * @param process_desc A description of the process being executed, used for logging purposes in the event of a failure.
+ * @param func The function to be executed within the db txn context. It returns a boolean indicating whether to commit or roll back the txn.
+ * @return true if the db txn executed successfully, false otherwise.
+ */
+bool RunWithinTxn(WalletDatabase& database, std::string_view process_desc, const std::function<bool(WalletBatch&)>& func);
+
 //! Compacts BDB state so that wallet.dat is self-contained (if there are changes)
 void MaybeCompactWalletDB(WalletContext& context);
 
@@ -329,10 +341,10 @@ bool LoadKey(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::stri
 bool LoadCryptedKey(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
 bool LoadEncryptionKey(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
 bool LoadHDChain(CWallet* pwallet, DataStream& ssValue, std::string& strErr);
-bool LoadToken(CWallet* pwallet, DataStream& ssKey, CDataStream& ssValue, std::string& strErr);
-bool LoadTokenTx(CWallet* pwallet, DataStream& ssKey, CDataStream& ssValue, std::string& strErr);
-bool LoadDelegation(CWallet* pwallet, DataStream& ssKey, CDataStream& ssValue, std::string& strErr);
-bool LoadSuperStaker(CWallet* pwallet, DataStream& ssKey, CDataStream& ssValue, std::string& strErr);
+bool LoadToken(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
+bool LoadTokenTx(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
+bool LoadDelegation(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
+bool LoadSuperStaker(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
 bool LoadContractData(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
 } // namespace wallet
 

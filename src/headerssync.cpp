@@ -7,6 +7,7 @@
 #include <pow.h>
 #include <timedata.h>
 #include <util/check.h>
+#include <util/time.h>
 #include <util/vector.h>
 
 // The two constants below are computed using the simulation script in
@@ -45,7 +46,7 @@ HeadersSyncState::HeadersSyncState(NodeId id, const Consensus::Params& consensus
     if(consensus_params.nLastPOWBlock != consensus_params.nLastBigReward)
     {
         // Regtest mode, so use the Bitcoin formula for max commitments
-        m_max_commitments = 6*(Ticks<std::chrono::seconds>(GetAdjustedTime() - NodeSeconds{std::chrono::seconds{chain_start->GetMedianTimePast()}}) + MAX_FUTURE_BLOCK_TIME) / HEADER_COMMITMENT_PERIOD;
+        m_max_commitments = 6*(Ticks<std::chrono::seconds>(NodeClock::now() - NodeSeconds{std::chrono::seconds{chain_start->GetMedianTimePast()}}) + MAX_FUTURE_BLOCK_TIME) / HEADER_COMMITMENT_PERIOD;
     }
     else
     {

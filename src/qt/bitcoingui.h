@@ -374,7 +374,7 @@ public Q_SLOTS:
     /** Update staking icon **/
     void updateStakingIcon();
 #endif // ENABLE_WALLET
-    /** called by a timer to check if ShutdownRequested() has been set **/
+    /** called by a timer to check if shutdown has been requested */
     void detectShutdown();
 
     /** Show progress dialog e.g. for verifychain */

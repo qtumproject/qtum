@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "testrand.h"
-#include "include/secp256k1_sha256.h"
+"include/secp256k1_sha256.h"
 #include "util.h"
 
 static uint64_t secp256k1_test_state[4];

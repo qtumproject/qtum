@@ -6,7 +6,6 @@ $(1)_objc=$$($$($(1)_type)_OBJC)
 $(1)_objcxx=$$($$($(1)_type)_OBJCXX)
 $(1)_ar=$$($$($(1)_type)_AR)
 $(1)_ranlib=$$($$($(1)_type)_RANLIB)
-$(1)_libtool=$$($$($(1)_type)_LIBTOOL)
 $(1)_nm=$$($$($(1)_type)_NM)
 $(1)_cflags=$$($$($(1)_type)_CFLAGS) \
             $$($$($(1)_type)_$$(release_type)_CFLAGS)
@@ -139,9 +138,9 @@ $(1)_config_env+=PKG_CONFIG_LIBDIR=$($($(1)_type)_prefix)/lib/pkgconfig
 $(1)_config_env+=PKG_CONFIG_PATH=$($($(1)_type)_prefix)/share/pkgconfig
 $(1)_config_env+=PKG_CONFIG_SYSROOT_DIR=/
 $(1)_config_env+=CMAKE_MODULE_PATH=$($($(1)_type)_prefix)/lib/cmake
-$(1)_config_env+=PATH=$(build_prefix)/bin:$(PATH)
-$(1)_build_env+=PATH=$(build_prefix)/bin:$(PATH)
-$(1)_stage_env+=PATH=$(build_prefix)/bin:$(PATH)
+$(1)_config_env+=PATH="$(build_prefix)/bin:$(PATH)"
+$(1)_build_env+=PATH="$(build_prefix)/bin:$(PATH)"
+$(1)_stage_env+=PATH="$(build_prefix)/bin:$(PATH)"
 
 # Setting a --build type that differs from --host will explicitly enable
 # cross-compilation mode. Note that --build defaults to the output of

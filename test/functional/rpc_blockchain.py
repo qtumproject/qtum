@@ -58,6 +58,7 @@ TIME_RANGE_STEP = 32  # ten-minute steps
 TIME_RANGE_MTP = TIME_GENESIS_BLOCK + (HEIGHT - 6) * TIME_RANGE_STEP
 TIME_RANGE_TIP = TIME_GENESIS_BLOCK + (HEIGHT - 1) * TIME_RANGE_STEP
 TIME_RANGE_END = TIME_GENESIS_BLOCK + HEIGHT * TIME_RANGE_STEP
+DIFFICULTY_ADJUSTMENT_INTERVAL = 2016
 
 
 class BlockchainTest(BitcoinTestFramework):
@@ -95,7 +96,7 @@ class BlockchainTest(BitcoinTestFramework):
 
     def mine_chain(self):
         self.log.info(f"Generate {HEIGHT} blocks after the genesis block in ten-minute steps")
-        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 32 * 2100, 32): 
+        for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 32 * 2100, 32):
             self.nodes[0].setmocktime(t)
             self.generate(self.wallet, 1)
         assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 2100)
@@ -437,7 +438,6 @@ class BlockchainTest(BitcoinTestFramework):
 
     def _test_getnetworkhashps(self):
         self.log.info("Test getnetworkhashps")
-        hashes_per_second = self.nodes[0].getnetworkhashps()
         assert_raises_rpc_error(
             -3,
             textwrap.dedent("""
@@ -449,8 +449,46 @@ class BlockchainTest(BitcoinTestFramework):
             """).strip(),
             lambda: self.nodes[0].getnetworkhashps("a", []),
         )
+        assert_raises_rpc_error(
+            -8,
+            "Block does not exist at specified height",
+            lambda: self.nodes[0].getnetworkhashps(100, self.nodes[0].getblockcount() + 1),
+        )
+        assert_raises_rpc_error(
+            -8,
+            "Block does not exist at specified height",
+            lambda: self.nodes[0].getnetworkhashps(100, -10),
+        )
+        assert_raises_rpc_error(
+            -8,
+            "Invalid nblocks. Must be a positive number or -1.",
+            lambda: self.nodes[0].getnetworkhashps(-100),
+        )
+        assert_raises_rpc_error(
+            -8,
+            "Invalid nblocks. Must be a positive number or -1.",
+            lambda: self.nodes[0].getnetworkhashps(0),
+        )
+
+        # Genesis block height estimate should return 0
+        hashes_per_second = self.nodes[0].getnetworkhashps(100, 0)
+        assert_equal(hashes_per_second, 0)
+
         # This should be 2 hashes every 10 minutes or 1/300
+        hashes_per_second = self.nodes[0].getnetworkhashps()
         assert abs(hashes_per_second * 300 - 1) < 20
+
+        # Test setting the first param of getnetworkhashps to -1 returns the average network
+        # hashes per second from the last difficulty change.
+        current_block_height = self.nodes[0].getmininginfo()['blocks']
+        blocks_since_last_diff_change = current_block_height % DIFFICULTY_ADJUSTMENT_INTERVAL + 1
+        expected_hashes_per_second_since_diff_change = self.nodes[0].getnetworkhashps(blocks_since_last_diff_change)
+
+        assert_equal(self.nodes[0].getnetworkhashps(-1), expected_hashes_per_second_since_diff_change)
+
+        # Ensure long lookups get truncated to chain length
+        hashes_per_second = self.nodes[0].getnetworkhashps(self.nodes[0].getblockcount() + 1000)
+        assert hashes_per_second > 0.003
 
     def _test_stopatheight(self):
         self.log.info("Test stopping at height")

@@ -2,10 +2,6 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifdef HAVE_CONFIG_H
-#include <config/bitcoin-config.h>
-#endif
-
 #include <qt/transactiondesc.h>
 
 #include <qt/bitcoinunits.h>
@@ -391,7 +387,7 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
             if (!GetPaymentRequestMerchant(r.second, merchant)) {
                 merchant.clear();
             } else {
-                merchant += tr(" (Certificate was not verified)");
+                merchant = tr("%1 (Certificate was not verified)").arg(merchant);
             }
             if (!merchant.isNull()) {
                 strHTML += TransactionFormater::ItemNameColor(tr("Merchant")) + GUIUtil::HtmlEscape(merchant) + "<br>";
@@ -428,12 +424,12 @@ QString TransactionDesc::toHTML(interfaces::Node& node, interfaces::Wallet& wall
         {
             COutPoint prevout = txin.prevout;
 
-            Coin prev;
-            if(node.getUnspentOutput(prevout, prev))
-            {
+            if (auto prev{node.getUnspentOutput(prevout)}) {
+
+
                 {
                     strHTML += "<li>";
-                    const CTxOut &vout = prev.out;
+                    const CTxOut& vout = prev->out;
                     CTxDestination address;
                     if (ExtractDestination(vout.scriptPubKey, address))
                     {

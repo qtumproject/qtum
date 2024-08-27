@@ -38,7 +38,7 @@ uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kerne
     if (!pindexPrev)
         return uint256();  // genesis block's modifier is 0
 
-    CHashWriter ss(0);
+    HashWriter ss;
     ss << kernel << pindexPrev->nStakeModifier;
     return ss.GetHash();
 }
@@ -88,7 +88,7 @@ bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t 
     uint256 nStakeModifier = pindexPrev->nStakeModifier;
 
     // Calculate hash
-    CHashWriter ss(0);
+    HashWriter ss;
     ss << nStakeModifier;
     ss << blockFromTime << prevout.hash << prevout.n << nTimeBlock;
     hashProofOfStake = ss.GetHash();

@@ -4,6 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test removing undeleted pruned blk files on startup."""
 
+import platform
 import os
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.blocktools import COINBASE_MATURITY
@@ -33,7 +34,7 @@ class FeatureRemovePrunedFilesOnStartupTest(BitcoinTestFramework):
         self.nodes[0].pruneblockchain(COINBASE_MATURITY+500)
 
         # Windows systems will not remove files with an open fd
-        if os.name != 'nt':
+        if platform.system() != 'Windows':
             assert not os.path.exists(blk0)
             assert not os.path.exists(rev0)
             assert not os.path.exists(blk1)

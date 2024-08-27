@@ -56,6 +56,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     </message>
     <message>
+        <source>Sending addresses - %1</source>
+        <translation type="unfinished">Wysyłające adresy - %1</translation>
+    </message>
+    <message>
+        <source>Receiving addresses - %1</source>
+        <translation type="unfinished">Odbierające adresy - %1</translation>
+    </message>
+    <message>
         <source>Exporting Failed</source>
         <translation type="unfinished">Eksportowanie nie powiodło się </translation>
     </message>
@@ -180,6 +188,10 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     <message>
         <source>Passphrase change failed</source>
         <translation type="unfinished">Zmiana hasła nie powiodła się</translation>
+    </message>
+    <message>
+        <source>The old passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character.</source>
+        <translation type="unfinished">Stare hasło wprowadzone do odszyfrowania portfela jest niepoprawne. Zawiera znak null (tj. zerowy bajt). Jeśli hasło zostało ustawione za pomocą wersji tego oprogramowania wcześniejszej niż 25.0, spróbuj ponownie używając tylko znaków do — ale nie włącznie — pierwszego znaku null.</translation>
     </message>
     <message>
         <source>Warning: The Caps Lock key is on!</source>
@@ -1026,6 +1038,18 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Na pewno chcesz przenieść portfel &lt;i&gt;%1&lt;/i&gt;?</translation>
     </message>
     <message>
+        <source>Migrating the wallet will convert this wallet to one or more descriptor wallets. A new wallet backup will need to be made.
+If this wallet contains any watchonly scripts, a new wallet will be created which contains those watchonly scripts.
+If this wallet contains any solvable but not watched scripts, a different and new wallet will be created which contains those scripts.
+
+The migration process will create a backup of the wallet before migrating. This backup file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory for this wallet. In the event of an incorrect migration, the backup can be restored with the "Restore Wallet" functionality.</source>
+        <translation type="unfinished">Migracja portfela przekonwertuje ten portfel na jeden lub więcej portfeli opisowych. Należy utworzyć nową kopię zapasową portfela.
+Jeśli ten portfel zawiera jakiekolwiek skrypty tylko do odczytu, zostanie utworzony nowy portfel, który zawiera te skrypty tylko do odczytu.
+Jeśli ten portfel zawiera jakiekolwiek skrypty rozwiązywalne, ale nie obserwowane, zostanie utworzony inny i nowy portfel, który zawiera te skrypty.
+
+Proces migracji utworzy kopię zapasową portfela przed migracją. Plik kopii zapasowej będzie nosił nazwę &lt;nazwa portfela&gt;-&lt;znacznik czasu&gt;.legacy.bak i można go znaleźć w katalogu tego portfela. W przypadku nieprawidłowej migracji kopię zapasową można przywrócić za pomocą funkcji "Przywróć portfel".</translation>
+    </message>
+    <message>
         <source>Migrate Wallet</source>
         <translation type="unfinished">Przenieś Portfel</translation>
     </message>
@@ -1035,7 +1059,7 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     </message>
     <message>
         <source>The wallet '%1' was migrated successfully.</source>
-        <translation type="unfinished">Portfel '%1' został poprawnie przeniesiony,</translation>
+        <translation type="unfinished">Portfel '%1' został poprawnie przeniesiony.</translation>
     </message>
     <message>
         <source>Migration failed</source>
@@ -1732,14 +1756,6 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Użyj oddzielnego proxy SOCKS&amp;5 aby osiągnąć węzły w ukrytych usługach Tor:</translation>
     </message>
     <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">Czcionka o stałej szerokości w zakładce Przegląd:</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">najbliższy pasujący "%1"</translation>
-    </message>
-    <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Anuluj</translation>
     </message>
@@ -1973,7 +1989,7 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">PSBT zapisane na dysk.</translation>
     </message>
     <message>
-        <source> * Sends %1 to %2</source>
+        <source>Sends %1 to %2</source>
         <translation type="unfinished">Wysyłanie %1 do %2</translation>
     </message>
     <message>
@@ -2987,10 +3003,6 @@ Uwaga: Ponieważ opłata jest naliczana za każdy bajt, opłata "100 satoshi za 
         <translation type="unfinished">Tworzy częściowo podpisaną transakcję (ang. PSBT) używaną np. offline z portfelem %1 lub z innym portfelem zgodnym z PSBT.</translation>
     </message>
     <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">z portfela '%1'</translation>
-    </message>
-    <message>
         <source>%1 to '%2'</source>
         <translation type="unfinished">%1 do '%2'8f0451c0-ec7d-4357-a370-eff72fb0685f</translation>
     </message>
@@ -3046,6 +3058,10 @@ Uwaga: Ponieważ opłata jest naliczana za każdy bajt, opłata "100 satoshi za 
         <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Proszę przejrzeć propozycję transakcji. Zostanie utworzona częściowo podpisana transakcja (ang. PSBT), którą można skopiować, a następnie podpisać np. offline z portfelem %1 lub z innym portfelem zgodnym z PSBT.</translation>
+    </message>
+    <message>
+        <source>%1 from wallet '%2'</source>
+        <translation type="unfinished">%1 z portfela '%2'</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>
@@ -3507,8 +3523,8 @@ Zwróć uwagę, że poprawnie zweryfikowana wiadomość potwierdza to, że nadaw
         <translation type="unfinished">Indeks wyjściowy</translation>
     </message>
     <message>
-        <source> (Certificate was not verified)</source>
-        <translation type="unfinished">(Certyfikat nie został zweryfikowany)</translation>
+        <source>%1 (Certificate was not verified)</source>
+        <translation type="unfinished">%1 (Certyfikat nie został zweryfikowany)</translation>
     </message>
     <message>
         <source>Merchant</source>
@@ -4447,10 +4463,6 @@ Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
     <message>
         <source>Transaction change output index out of range</source>
         <translation type="unfinished">Indeks wyjścia reszty z transakcji poza zakresem</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">Transakcja posiada zbyt długi łańcuch pamięci</translation>
     </message>
     <message>
         <source>Transaction must have at least one recipient</source>

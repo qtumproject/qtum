@@ -7,11 +7,10 @@ a serialized version of the UTXO set at a certain height, which corresponds
 to a hash that has been compiled into bitcoind.
 
 The assumeutxo value generated and used here is committed to in
-`CRegTestParams::m_assumeutxo_data` in `src/chainparams.cpp`.
+`CRegTestParams::m_assumeutxo_data` in `src/kernel/chainparams.cpp`.
 
 ## Possible test improvements
 
-- TODO: test submitting a transaction and verifying it appears in mempool
 - TODO: test what happens with -reindex and -reindex-chainstate before the
       snapshot is validated, and make sure it's deleted successfully.
 
@@ -35,10 +34,15 @@ Interesting starting states could be loading a snapshot when the current chain t
 """
 from shutil import rmtree
 
+from test_framework.messages import tx_from_hex
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
+)
+from test_framework.wallet import (
+    getnewdestination,
+    MiniWallet,
 )
 
 START_HEIGHT = 2099
@@ -56,7 +60,7 @@ class AssumeutxoTest(BitcoinTestFramework):
         self.extra_args = [
             [],
             ["-fastprune", "-prune=1", "-blockfilterindex=1", "-coinstatsindex=1"],
-            ["-txindex=1", "-blockfilterindex=1", "-coinstatsindex=1"],
+            ["-persistmempool=0","-txindex=1", "-blockfilterindex=1", "-coinstatsindex=1"],
         ]
 
     def setup_network(self):
@@ -75,7 +79,7 @@ class AssumeutxoTest(BitcoinTestFramework):
             with self.nodes[1].assert_debug_log([log_msg]):
                 assert_raises_rpc_error(-32603, f"Unable to load UTXO snapshot{rpc_details}", self.nodes[1].loadtxoutset, bad_snapshot_path)
 
-        self.log.info("  - snapshot file refering to a block that is not in the assumeutxo parameters")
+        self.log.info("  - snapshot file referring to a block that is not in the assumeutxo parameters")
         prev_block_hash = self.nodes[0].getblockhash(SNAPSHOT_BASE_HEIGHT - 1)
         bogus_block_hash = "0" * 64  # Represents any unknown block hash
         for bad_block_hash in [bogus_block_hash, prev_block_hash]:
@@ -96,10 +100,10 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         self.log.info("  - snapshot file with alternated UTXO data")
         cases = [
-            [b"\xff" * 32, 0, "05030e506678f2eca8d624ffed97090ab3beadad1b51ee6e5985ba91c5720e37"], # wrong outpoint hash
-            [(1).to_bytes(4, "little"), 32, "7d29cfe2c1e242bc6f103878bb70cfffa8b4dac20dbd001ff6ce24b7de2d2399"], # wrong outpoint index
-            [b"\x81", 36, "f03939a195531f96d5dff983e294a1af62af86049fa7a19a7627246f237c03f1"], # wrong coin code VARINT((coinbase ? 1 : 0) | (height << 1))
-            [b"\x83", 36, "e4577da84590fb288c0f7967e89575e1b0aa46624669640f6f5dfef028d39930"], # another wrong coin code
+            [b"\xff" * 32, 0, "7d52155c9a9fdc4525b637ef6170568e5dad6fabd0b1fdbb9432010b8453095b"],  # wrong outpoint hash
+            [(1).to_bytes(4, "little"), 32, "9f4d897031ab8547665b4153317ae2fdbf0130c7840b66427ebc48b881cb80ad"],  # wrong outpoint index
+            [b"\x81", 36, "3da966ba9826fb6d2604260e01607b55ba44e1a5de298606b08704bc62570ea8"],  # wrong coin code VARINT((coinbase ? 1 : 0) | (height << 1))
+            [b"\x80", 36, "091e893b3ccb4334378709578025356c8bcb0a623f37c7c4e493133c988648e5"],  # another wrong coin code
         ]
 
         for content, offset, wrong_hash in cases:
@@ -112,18 +116,37 @@ class AssumeutxoTest(BitcoinTestFramework):
     def test_invalid_chainstate_scenarios(self):
         self.log.info("Test different scenarios of invalid snapshot chainstate in datadir")
 
-        self.log.info("  - snapshot chainstate refering to a block that is not in the assumeutxo parameters")
+        self.log.info("  - snapshot chainstate referring to a block that is not in the assumeutxo parameters")
         self.stop_node(0)
         chainstate_snapshot_path = self.nodes[0].chain_path / "chainstate_snapshot"
         chainstate_snapshot_path.mkdir()
         with open(chainstate_snapshot_path / "base_blockhash", 'wb') as f:
             f.write(b'z' * 32)
-        expected_error = f"Error: A fatal internal error occurred, see debug.log for details"
-        self.nodes[0].assert_start_raises_init_error(expected_msg=expected_error)
+
+        def expected_error(log_msg="", error_msg=""):
+            with self.nodes[0].assert_debug_log([log_msg]):
+                self.nodes[0].assert_start_raises_init_error(expected_msg=error_msg)
+
+        expected_error_msg = f"Error: A fatal internal error occurred, see debug.log for details"
+        error_details = f"Assumeutxo data not found for the given blockhash"
+        expected_error(log_msg=error_details, error_msg=expected_error_msg)
 
         # resurrect node again
         rmtree(chainstate_snapshot_path)
         self.start_node(0)
+
+    def test_invalid_mempool_state(self, dump_output_path):
+        self.log.info("Test bitcoind should fail when mempool not empty.")
+        node=self.nodes[2]
+        tx = MiniWallet(node).send_self_transfer(from_node=node)
+
+        assert tx['txid'] in node.getrawmempool()
+
+        # Attempt to load the snapshot on Node 2 and expect it to fail
+        with node.assert_debug_log(expected_msgs=["[snapshot] can't activate a snapshot when mempool not empty"]):
+            assert_raises_rpc_error(-32603, "Unable to load UTXO snapshot", node.loadtxoutset, dump_output_path)
+
+        self.restart_node(2, extra_args=self.extra_args[2])
 
     def run_test(self):
         """
@@ -137,6 +160,8 @@ class AssumeutxoTest(BitcoinTestFramework):
         n1 = self.nodes[1]
         n2 = self.nodes[2]
 
+        self.mini_wallet = MiniWallet(n0)
+
         # Mock time for a deterministic chain
         for n in self.nodes:
             n.setmocktime(n.getblockheader(n.getbestblockhash())['time'])
@@ -149,6 +174,8 @@ class AssumeutxoTest(BitcoinTestFramework):
         # isn't waiting forever to see the header of the snapshot's base block
         # while disconnected from n0.
         for i in range(100):
+            if i % 3 == 0:
+                self.mini_wallet.send_self_transfer(from_node=n0)
             self.generate(n0, nblocks=1, sync_fun=self.no_op)
             newblock = n0.getblock(n0.getbestblockhash(), 0)
 
@@ -170,8 +197,8 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         assert_equal(
             dump_output['txoutset_hash'],
-            'a9e20f6c0c6531e44789f7a29df1939fa1c2e7d5c451b25c5201880628c57940')
-        assert_equal(dump_output['nchaintx'], 2200)
+            "a9e20f6c0c6531e44789f7a29df1939fa1c2e7d5c451b25c5201880628c57940")
+        assert_equal(dump_output["nchaintx"], 2200)
         assert_equal(n0.getblockchaininfo()["blocks"], SNAPSHOT_BASE_HEIGHT)
 
         # Mine more blocks on top of the snapshot that n1 hasn't yet seen. This
@@ -183,6 +210,7 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         assert_equal(n0.getblockchaininfo()["blocks"], FINAL_HEIGHT)
 
+        self.test_invalid_mempool_state(dump_output['path'])
         self.test_invalid_snapshot_scenarios(dump_output['path'])
         self.test_invalid_chainstate_scenarios()
 
@@ -200,6 +228,22 @@ class AssumeutxoTest(BitcoinTestFramework):
         assert_equal(snapshot['validated'], False)
 
         assert_equal(n1.getblockchaininfo()["blocks"], SNAPSHOT_BASE_HEIGHT)
+
+        self.log.info("Submit a spending transaction for a snapshot chainstate coin to the mempool")
+        # spend the coinbase output of the first block that is not available on node1
+        spend_coin_blockhash = n1.getblockhash(START_HEIGHT + 1)
+        assert_raises_rpc_error(-1, "Block not found on disk", n1.getblock, spend_coin_blockhash)
+        prev_tx = n0.getblock(spend_coin_blockhash, 3)['tx'][0]
+        prevout = {"txid": prev_tx['txid'], "vout": 0, "scriptPubKey": prev_tx['vout'][0]['scriptPubKey']['hex']}
+        privkey = n0.get_deterministic_priv_key().key
+        raw_tx = n1.createrawtransaction([prevout], {getnewdestination()[2]: 24.99})
+        signed_tx = n1.signrawtransactionwithkey(raw_tx, [privkey], [prevout])['hex']
+        signed_txid = tx_from_hex(signed_tx).rehash()
+
+        assert n1.gettxout(prev_tx['txid'], 0) is not None
+        n1.sendrawtransaction(signed_tx)
+        assert signed_txid in n1.getrawmempool()
+        assert not n1.gettxout(prev_tx['txid'], 0)
 
         PAUSE_HEIGHT = FINAL_HEIGHT - 40
 

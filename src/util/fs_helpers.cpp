@@ -11,19 +11,18 @@
 
 #include <logging.h>
 #include <sync.h>
-#include <tinyformat.h>
 #include <util/fs.h>
-#include <util/getuniquepath.h>
 #include <util/syserror.h>
+#include <util/strencodings.h>
 
 #include <cerrno>
-#include <filesystem>
 #include <fstream>
 #include <map>
 #include <memory>
 #include <string>
 #include <system_error>
 #include <utility>
+#include <random.h>
 
 #ifndef WIN32
 // for posix_fallocate, in configure.ac we check if it is present after this
@@ -53,31 +52,35 @@ static GlobalMutex cs_dir_locks;
  * is called.
  */
 static std::map<std::string, std::unique_ptr<fsbridge::FileLock>> dir_locks GUARDED_BY(cs_dir_locks);
-
-bool LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only, bool try_lock)
+namespace util {
+LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only, bool try_lock)
 {
     LOCK(cs_dir_locks);
     fs::path pathLockFile = directory / lockfile_name;
 
     // If a lock for this directory already exists in the map, don't try to re-lock it
     if (dir_locks.count(fs::PathToString(pathLockFile))) {
-        return true;
+        return LockResult::Success;
     }
 
     // Create empty lock file if it doesn't exist.
-    FILE* file = fsbridge::fopen(pathLockFile, "a");
-    if (file) fclose(file);
+    if (auto created{fsbridge::fopen(pathLockFile, "a")}) {
+        std::fclose(created);
+    } else {
+        return LockResult::ErrorWrite;
+    }
     auto lock = std::make_unique<fsbridge::FileLock>(pathLockFile);
     if (try_lock && !lock->TryLock()) {
-        return error("Error while attempting to lock directory %s: %s", fs::PathToString(directory), lock->GetReason());
+        error("Error while attempting to lock directory %s: %s", fs::PathToString(directory), lock->GetReason());
+        return LockResult::ErrorLock;
     }
     if (!probe_only) {
         // Lock successful and we're not just probing, put it into the map
         dir_locks.emplace(fs::PathToString(pathLockFile), std::move(lock));
     }
-    return true;
+    return LockResult::Success;
 }
-
+} // namespace util
 void UnlockDirectory(const fs::path& directory, const fs::path& lockfile_name)
 {
     LOCK(cs_dir_locks);
@@ -88,6 +91,13 @@ void ReleaseDirectoryLocks()
 {
     LOCK(cs_dir_locks);
     dir_locks.clear();
+}
+
+fs::path GetUniquePath(const fs::path& base)
+{
+    FastRandomContext rnd;
+    fs::path tmpFile = base / fs::u8path(HexStr(rnd.randbytes(8)));
+    return tmpFile;
 }
 
 bool DirIsWritable(const fs::path& directory)
@@ -263,7 +273,7 @@ bool RenameOver(fs::path src, fs::path dest)
 {
 #ifdef __MINGW64__
     // This is a workaround for a bug in libstdc++ which
-    // implements std::filesystem::rename with _wrename function.
+    // implements fs::rename with _wrename function.
     // This bug has been fixed in upstream:
     //  - GCC 10.3: 8dd1c1085587c9f8a21bb5e588dfe1e8cdbba79e
     //  - GCC 11.1: 1dfd95f0a0ca1d9e6cbc00e6cbfd1fa20a98f312

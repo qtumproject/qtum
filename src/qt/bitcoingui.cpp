@@ -2,6 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
 #include <qt/bitcoingui.h>
 
 #include <qt/bitcoinunits.h>
@@ -830,8 +833,10 @@ void BitcoinGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndH
 #ifdef ENABLE_WALLET
 void BitcoinGUI::enableHistoryAction(bool privacy)
 {
-    historyAction->setEnabled(!privacy);
-    if (historyAction->isChecked()) gotoOverviewPage();
+    if (walletFrame->currentWalletModel()) {
+        historyAction->setEnabled(!privacy);
+        if (historyAction->isChecked()) gotoOverviewPage();
+    }
 }
 
 void BitcoinGUI::setWalletController(WalletController* wallet_controller, bool show_loading_minimized)
@@ -1208,6 +1213,7 @@ void BitcoinGUI::signTxHardware(const QString& tx)
 
 void BitcoinGUI::updateNetworkState()
 {
+    if (!clientModel) return;
     int count = clientModel->getNumConnections();
     QString icon;
     switch(count)

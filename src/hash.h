@@ -14,7 +14,6 @@
 #include <serialize.h>
 #include <span.h>
 #include <uint256.h>
-#include <version.h>
 
 #include <string>
 #include <vector>
@@ -143,23 +142,6 @@ public:
     {
         ::Serialize(*this, obj);
         return *this;
-    }
-};
-
-class CHashWriter : public HashWriter
-{
-private:
-    const int nVersion;
-
-public:
-    CHashWriter(int nVersionIn) : nVersion{nVersionIn} {}
-
-    int GetVersion() const { return nVersion; }
-
-    template<typename T>
-    CHashWriter& operator<<(const T& obj) {
-        ::Serialize(*this, obj);
-        return (*this);
     }
 };
 

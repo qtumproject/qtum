@@ -34,7 +34,7 @@ void AddInputs(CMutableTransaction& rawTx, const UniValue& inputs_in, std::optio
         const UniValue& input = inputs[idx];
         const UniValue& o = input.get_obj();
 
-        uint256 txid = ParseHashO(o, "txid");
+        Txid txid = Txid::FromUint256(ParseHashO(o, "txid"));
 
         const UniValue& vout_v = o.find_value("vout");
         if (!vout_v.isNum())
@@ -70,7 +70,7 @@ void AddInputs(CMutableTransaction& rawTx, const UniValue& inputs_in, std::optio
     }
 }
 
-void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawContract* rawContract)
+UniValue NormalizeOutputs(const UniValue& outputs_in)
 {
     if (outputs_in.isNull()) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, output argument must be non-null");
@@ -94,9 +94,14 @@ void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawCont
         }
         outputs = std::move(outputs_dict);
     }
+    return outputs;
+}
 
+std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs, IRawContract* rawContract)
+{
     // Duplicate checking
     std::set<CTxDestination> destinations;
+    std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs;
     bool has_data{false};
 
     int i = 0;
@@ -107,15 +112,16 @@ void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawCont
             }
             has_data = true;
             std::vector<unsigned char> data = ParseHexV(outputs[name_].getValStr(), "Data");
-
-            CTxOut out(0, CScript() << OP_RETURN << data);
-            rawTx.vout.push_back(out);
+            CTxDestination destination{CNoDestination{CScript() << OP_RETURN << data}};
+            CAmount amount{0};
+            parsed_outputs.emplace_back(destination, amount);
         } else if (rawContract && name_ == "contract") {
             // Get the contract object
             UniValue contract = outputs[i];
-            rawContract->addContract(rawTx, contract);
+            rawContract->addContract(parsed_outputs, contract);
         } else {
-            CTxDestination destination = DecodeDestination(name_);
+            CTxDestination destination{DecodeDestination(name_)};
+            CAmount amount{AmountFromValue(outputs[name_])};
             if (!IsValidDestination(destination)) {
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Qtum address: ") + name_);
             }
@@ -123,14 +129,24 @@ void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawCont
             if (!destinations.insert(destination).second) {
                 throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, duplicated address: ") + name_);
             }
-
-            CScript scriptPubKey = GetScriptForDestination(destination);
-            CAmount nAmount = AmountFromValue(outputs[name_]);
-
-            CTxOut out(nAmount, scriptPubKey);
-            rawTx.vout.push_back(out);
+            parsed_outputs.emplace_back(destination, amount);
         }
         ++i;
+    }
+    return parsed_outputs;
+}
+
+void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawContract* rawContract)
+{
+    UniValue outputs(UniValue::VOBJ);
+    outputs = NormalizeOutputs(outputs_in);
+
+    std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs = ParseOutputs(outputs, rawContract);
+    for (const auto& [destination, nAmount] : parsed_outputs) {
+        CScript scriptPubKey = GetScriptForDestination(destination);
+
+        CTxOut out(nAmount, scriptPubKey);
+        rawTx.vout.push_back(out);
     }
 }
 
@@ -191,7 +207,7 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FillableSigningProvider* keyst
                     {"scriptPubKey", UniValueType(UniValue::VSTR)},
                 });
 
-            uint256 txid = ParseHashO(prevOut, "txid");
+            Txid txid = Txid::FromUint256(ParseHashO(prevOut, "txid"));
 
             int nOut = prevOut.find_value("vout").getInt<int>();
             if (nOut < 0) {

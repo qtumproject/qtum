@@ -2,6 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <qt/guiutil.h>
 
 #include <qt/bitcoinaddressvalidator.h>
@@ -795,7 +799,7 @@ fs::path QStringToPath(const QString &path)
 
 QString PathToQString(const fs::path &path)
 {
-    return QString::fromStdString(path.u8string());
+     return QString::fromStdString(path.utf8string());
 }
 
 QString NetworkToQString(Network net)
@@ -849,8 +853,7 @@ QString ConnectionTypeToQString(ConnectionType conn_type, bool prepend_direction
 
 QString formatDurationStr(std::chrono::seconds dur)
 {
-    using days = std::chrono::duration<int, std::ratio<86400>>; // can remove this line after C++20
-    const auto d{std::chrono::duration_cast<days>(dur)};
+    const auto d{std::chrono::duration_cast<std::chrono::days>(dur)};
     const auto h{std::chrono::duration_cast<std::chrono::hours>(dur - d)};
     const auto m{std::chrono::duration_cast<std::chrono::minutes>(dur - d - h)};
     const auto s{std::chrono::duration_cast<std::chrono::seconds>(dur - d - h - m)};

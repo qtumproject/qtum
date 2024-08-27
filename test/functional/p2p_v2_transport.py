@@ -7,12 +7,12 @@ Test v2 transport
 """
 import socket
 
-from test_framework.messages import NODE_P2P_V2
-from test_framework.p2p import MAGIC_BYTES
+from test_framework.messages import MAGIC_BYTES, NODE_P2P_V2
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
     p2p_port,
+    assert_raises_rpc_error
 )
 
 
@@ -48,7 +48,7 @@ class V2TransportTest(BitcoinTestFramework):
         assert_equal(self.nodes[1].getblockcount(), 5)
         # verify there is a v2 connection between node 0 and 1
         node_0_info = self.nodes[0].getpeerinfo()
-        node_1_info = self.nodes[0].getpeerinfo()
+        node_1_info = self.nodes[1].getpeerinfo()
         assert_equal(len(node_0_info), 1)
         assert_equal(len(node_1_info), 1)
         assert_equal(node_0_info[0]["transport_protocol_type"], "v2")
@@ -60,6 +60,11 @@ class V2TransportTest(BitcoinTestFramework):
         # V1 nodes can sync with each other
         assert_equal(self.nodes[2].getblockcount(), 0)
         assert_equal(self.nodes[3].getblockcount(), 0)
+
+        # addnode rpc error when v2transport requested but not enabled
+        ip_port = "127.0.0.1:{}".format(p2p_port(3))
+        assert_raises_rpc_error(-8, "Error: v2transport requested but not enabled (see -v2transport)", self.nodes[2].addnode, node=ip_port, command='add', v2transport=True)
+
         with self.nodes[2].assert_debug_log(expected_msgs=[],
                                             unexpected_msgs=[sending_handshake, downgrading_to_v1]):
             self.connect_nodes(2, 3, peer_advertises_v2=False)
@@ -133,9 +138,8 @@ class V2TransportTest(BitcoinTestFramework):
         V1_PREFIX = MAGIC_BYTES["regtest"] + b"version\x00\x00\x00\x00\x00"
         assert_equal(len(V1_PREFIX), 16)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            num_peers = len(self.nodes[0].getpeerinfo())
-            s.connect(("127.0.0.1", p2p_port(0)))
-            self.wait_until(lambda: len(self.nodes[0].getpeerinfo()) == num_peers + 1)
+            with self.nodes[0].wait_for_new_peer():
+                s.connect(("127.0.0.1", p2p_port(0)))
             s.sendall(V1_PREFIX[:-1])
             assert_equal(self.nodes[0].getpeerinfo()[-1]["transport_protocol_type"], "detecting")
             s.sendall(bytes([V1_PREFIX[-1]]))  # send out last prefix byte
@@ -144,22 +148,23 @@ class V2TransportTest(BitcoinTestFramework):
         # Check wrong network prefix detection (hits if the next 12 bytes correspond to a v1 version message)
         wrong_network_magic_prefix = MAGIC_BYTES["signet"] + V1_PREFIX[4:]
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect(("127.0.0.1", p2p_port(0)))
+            with self.nodes[0].wait_for_new_peer():
+                s.connect(("127.0.0.1", p2p_port(0)))
             with self.nodes[0].assert_debug_log(["V2 transport error: V1 peer with wrong MessageStart"]):
                 s.sendall(wrong_network_magic_prefix + b"somepayload")
 
         # Check detection of missing garbage terminator (hits after fixed amount of data if terminator never matches garbage)
         MAX_KEY_GARB_AND_GARBTERM_LEN = 64 + 4095 + 16
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            num_peers = len(self.nodes[0].getpeerinfo())
-            s.connect(("127.0.0.1", p2p_port(0)))
-            self.wait_until(lambda: len(self.nodes[0].getpeerinfo()) == num_peers + 1)
+            with self.nodes[0].wait_for_new_peer():
+                s.connect(("127.0.0.1", p2p_port(0)))
             s.sendall(b'\x00' * (MAX_KEY_GARB_AND_GARBTERM_LEN - 1))
             self.wait_until(lambda: self.nodes[0].getpeerinfo()[-1]["bytesrecv"] == MAX_KEY_GARB_AND_GARBTERM_LEN - 1)
             with self.nodes[0].assert_debug_log(["V2 transport error: missing garbage terminator"]):
+                peer_id = self.nodes[0].getpeerinfo()[-1]["id"]
                 s.sendall(b'\x00')  # send out last byte
                 # should disconnect immediately
-                self.wait_until(lambda: len(self.nodes[0].getpeerinfo()) == num_peers)
+                self.wait_until(lambda: not peer_id in [p["id"] for p in self.nodes[0].getpeerinfo()])
 
 
 if __name__ == '__main__':

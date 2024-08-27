@@ -63,18 +63,18 @@ jobs:
           echo "TEST_BASE=$(git rev-list -n$((${{ env.MAX_COUNT }} + 1)) --reverse HEAD ^$(git rev-list -n1 --merges HEAD)^@ | head -1)" >> "$GITHUB_ENV"
       - run: |
           sudo apt-get update
-          sudo apt-get install clang ccache build-essential libtool autotools-dev automake pkg-config bsdmainutils python3-zmq libevent-dev libboost-dev libsqlite3-dev libdb++-dev systemtap-sdt-dev libminiupnpc-dev libnatpmp-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools qtwayland5 libqrencode-dev -y
+          sudo apt-get install clang-15 ccache build-essential libtool autotools-dev automake pkg-config bsdmainutils python3-zmq libevent-dev libboost-dev libsqlite3-dev libdb++-dev systemtap-sdt-dev libminiupnpc-dev libnatpmp-dev qtbase5-dev qttools5-dev qttools5-dev-tools qtwayland5 libqrencode-dev -y
       - name: Compile and run tests
         run: |
           # Run tests on commits after the last merge commit and before the PR head commit
           # Use clang++, because it is a bit faster and uses less memory than g++
-          git rebase --exec "echo Running test-one-commit on \$( git log -1 ) && ./autogen.sh && CC=clang CXX=clang++ ./configure && make clean && make -j $(nproc) check && ./test/functional/test_runner.py -j $(( $(nproc) * 2 ))" ${{ env.TEST_BASE }}
+          git rebase --exec "echo Running test-one-commit on \$( git log -1 ) && ./autogen.sh && CC=clang-15 CXX=clang++-15 ./configure && make clean && make -j $(nproc) check && ./test/functional/test_runner.py -j $(( $(nproc) * 2 ))" ${{ env.TEST_BASE }}
 
   macos-native-x86_64:
     name: 'macOS 13 native, x86_64, no depends, sqlite only, gui'
     # Use latest image, but hardcode version to avoid silent upgrades (and breaks).
     # See: https://github.com/actions/runner-images#available-images.
-    runs-on: macos-13  # Use M1 once available https://github.com/github/roadmap/issues/528
+    runs-on: macos-13
 
     # No need to run on the read-only mirror, unless it is a PR.
     if: github.repository != 'bitcoin-core/gui' || github.event_name == 'pull_request'
@@ -107,7 +107,7 @@ jobs:
 
       - name: Restore Ccache cache
         id: ccache-cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ github.job }}-ccache-${{ github.run_id }}
@@ -117,7 +117,7 @@ jobs:
         run: ./ci/test_run_all.sh
 
       - name: Save Ccache cache
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         if: github.event_name != 'pull_request' && steps.ccache-cache.outputs.cache-hit != 'true'
         with:
           path: ${{ env.CCACHE_DIR }}
@@ -137,8 +137,8 @@ jobs:
       CCACHE_MAXSIZE: '200M'
       CI_CCACHE_VERSION: '4.7.5'
       CI_QT_CONF: '-release -silent -opensource -confirm-license -opengl desktop -static -static-runtime -mp -qt-zlib -qt-pcre -qt-libpng -nomake examples -nomake tests -nomake tools -no-angle -no-dbus -no-gif -no-gtk -no-ico -no-icu -no-libjpeg -no-libudev -no-sql-sqlite -no-sql-odbc -no-sqlite -no-vulkan -skip qt3d -skip qtactiveqt -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtdeclarative -skip doc -skip qtdoc -skip qtgamepad -skip qtgraphicaleffects -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtmultimedia -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquickcontrols -skip qtquickcontrols2 -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtsvg -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebglplugin -skip qtwebsockets -skip qtwebview -skip qtx11extras -skip qtxmlpatterns -no-openssl -no-feature-bearermanagement -no-feature-printdialog -no-feature-printer -no-feature-printpreviewdialog -no-feature-printpreviewwidget -no-feature-sql -no-feature-sqlmodel -no-feature-textbrowser -no-feature-textmarkdownwriter -no-feature-textodfwriter -no-feature-xml'
-      CI_QT_DIR: 'qt-everywhere-src-5.15.10'
-      CI_QT_URL: 'https://download.qt.io/official_releases/qt/5.15/5.15.10/single/qt-everywhere-opensource-src-5.15.10.zip'
+      CI_QT_DIR: 'qt-everywhere-src-5.15.11'
+      CI_QT_URL: 'https://download.qt.io/official_releases/qt/5.15/5.15.11/single/qt-everywhere-opensource-src-5.15.11.zip'
       PYTHONUTF8: 1
       TEST_RUNNER_TIMEOUT_FACTOR: 40
 
@@ -146,71 +146,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fix Visual Studio installation
-        # Avoid toolset ambiguity that MSVC can't handle.
-        run: |
-          Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
-          $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
-          $componentsToRemove= @(
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ARM.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ARM"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ARM64.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ARM64"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ATL.ARM.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ATL.ARM"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ATL.ARM64.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ATL.ARM64"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ATL.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.ATL"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.MFC.ARM.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.MFC.ARM"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.MFC.ARM64.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.MFC.ARM64"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.MFC.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.MFC"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.x86.x64.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.37.17.7.x86.x64"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ARM"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ARM.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ARM64"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ARM64.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ATL"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ATL.ARM"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ATL.ARM.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ATL.ARM64"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ATL.ARM64.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.ATL.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.MFC"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.MFC.ARM"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.MFC.ARM.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.MFC.ARM64"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.MFC.ARM64.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.MFC.Spectre"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64"
-            "Microsoft.VisualStudio.Component.VC.14.38.17.8.x86.x64.Spectre"
-          )
-          [string]$workloadArgs = $componentsToRemove | ForEach-Object {" --remove " +  $_}
-          $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
-          # should be run twice
-          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
-          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
-
       - name: Configure Developer Command Prompt for Microsoft Visual C++
         # Using microsoft/setup-msbuild is not enough.
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
-      - name: Check MSBuild and Qt
+      - name: Get tool information
         run: |
           msbuild -version | Out-File -FilePath "$env:GITHUB_WORKSPACE\msbuild_version"
           Get-Content -Path "$env:GITHUB_WORKSPACE\msbuild_version"
+          $env:VCToolsVersion | Out-File -FilePath "$env:GITHUB_WORKSPACE\toolset_version"
+          Write-Host "VCToolsVersion $(Get-Content -Path "$env:GITHUB_WORKSPACE\toolset_version")"
           $env:CI_QT_URL | Out-File -FilePath "$env:GITHUB_WORKSPACE\qt_url"
           $env:CI_QT_CONF | Out-File -FilePath "$env:GITHUB_WORKSPACE\qt_conf"
+          py -3 --version
 
       - name: Restore static Qt cache
         id: static-qt-cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: C:\Qt_static
           key: ${{ github.job }}-static-qt-${{ hashFiles('msbuild_version', 'qt_url', 'qt_conf') }}
@@ -253,14 +207,14 @@ jobs:
 
       - name: Save static Qt cache
         if: steps.static-qt-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: C:\Qt_static
           key: ${{ github.job }}-static-qt-${{ hashFiles('msbuild_version', 'qt_url', 'qt_conf') }}
 
       - name: Ccache installation cache
         id: ccache-installation-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             C:\ProgramData\chocolatey\lib\ccache
@@ -277,7 +231,7 @@ jobs:
 
       - name: Restore Ccache cache
         id: ccache-cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: ~/AppData/Local/ccache
           key: ${{ github.job }}-ccache-${{ github.run_id }}
@@ -287,21 +241,22 @@ jobs:
         run: |
           Set-Location "$env:VCPKG_INSTALLATION_ROOT"
           Add-Content -Path "triplets\x64-windows-static.cmake" -Value "set(VCPKG_BUILD_TYPE release)"
-          vcpkg --vcpkg-root "$env:VCPKG_INSTALLATION_ROOT" integrate install
+          Add-Content -Path "triplets\x64-windows-static.cmake" -Value "set(VCPKG_PLATFORM_TOOLSET_VERSION $env:VCToolsVersion)"
+          .\vcpkg.exe --vcpkg-root "$env:VCPKG_INSTALLATION_ROOT" integrate install
           git rev-parse HEAD | Out-File -FilePath "$env:GITHUB_WORKSPACE\vcpkg_commit"
           Get-Content -Path "$env:GITHUB_WORKSPACE\vcpkg_commit"
 
       - name: vcpkg tools cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: C:/vcpkg/downloads/tools
           key: ${{ github.job }}-vcpkg-tools
 
       - name: vcpkg binary cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/AppData/Local/vcpkg/archives
-          key: ${{ github.job }}-vcpkg-binary-${{ hashFiles('vcpkg_commit', 'msbuild_version', 'build_msvc/vcpkg.json') }}
+          key: ${{ github.job }}-vcpkg-binary-${{ hashFiles('vcpkg_commit', 'msbuild_version', 'toolset_version', 'build_msvc/vcpkg.json') }}
 
       - name: Generate project files
         run: py -3 build_msvc\msvc-autogen.py
@@ -316,7 +271,7 @@ jobs:
         run: ccache --show-stats
 
       - name: Save Ccache cache
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         if: github.event_name != 'pull_request' && steps.ccache-cache.outputs.cache-hit != 'true'
         with:
           path: ~/AppData/Local/ccache
@@ -336,10 +291,7 @@ jobs:
         run: py -3 test\util\rpcauth-test.py
 
       - name: Run functional tests
-        # Don't run functional tests for pull requests.
-        # The test suit regularly fails to complete in windows native github
-        # actions as a child process stops making progress. The root cause has
-        # not yet been determined.
-        # Discussed in https://github.com/bitcoin/bitcoin/pull/28509
-        if: github.event_name != 'pull_request'
-        run: py -3 test\functional\test_runner.py --jobs $env:NUMBER_OF_PROCESSORS --ci --quiet --tmpdirprefix=$env:RUNNER_TEMP --combinedlogslen=99999999 --timeout-factor=$env:TEST_RUNNER_TIMEOUT_FACTOR --extended
+        env:
+          TEST_RUNNER_EXTRA: ${{ github.event_name != 'pull_request' && '--extended' || '' }}
+        shell: cmd
+        run: py -3 test\functional\test_runner.py --jobs %NUMBER_OF_PROCESSORS% --ci --quiet --tmpdirprefix=%RUNNER_TEMP% --combinedlogslen=99999999 --timeout-factor=%TEST_RUNNER_TIMEOUT_FACTOR% %TEST_RUNNER_EXTRA%

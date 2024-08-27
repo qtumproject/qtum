@@ -5,21 +5,26 @@
 #ifndef BITCOIN_WALLET_TRANSACTION_H
 #define BITCOIN_WALLET_TRANSACTION_H
 
-#include <bitset>
-#include <cstdint>
+#include <attributes.h>
 #include <consensus/amount.h>
 #include <primitives/transaction.h>
-#include <serialize.h>
-#include <wallet/types.h>
-#include <threadsafety.h>
 #include <tinyformat.h>
+#include <uint256.h>
 #include <util/overloaded.h>
 #include <util/strencodings.h>
 #include <util/string.h>
+#include <wallet/types.h>
 
-#include <list>
+#include <bitset>
+#include <cstdint>
+#include <map>
+#include <utility>
 #include <variant>
 #include <vector>
+
+namespace interfaces {
+class Chain;
+} // namespace interfaces
 
 namespace wallet {
 //! State of transaction confirmed in a block.
@@ -162,7 +167,7 @@ public:
         std::vector<uint256> vMerkleBranch;
         int nIndex;
 
-        s >> tx >> hashBlock >> vMerkleBranch >> nIndex;
+        s >> TX_WITH_WITNESS(tx) >> hashBlock >> vMerkleBranch >> nIndex;
     }
 };
 
@@ -273,7 +278,7 @@ public:
         bool dummy_bool = false; //!< Used to be fSpent
         uint256 serializedHash = TxStateSerializedBlockHash(m_state);
         int serializedIndex = TxStateSerializedIndex(m_state);
-        s << tx << serializedHash << dummy_vector1 << serializedIndex << dummy_vector2 << mapValueCopy << vOrderForm << fTimeReceivedIsTxTime << nTimeReceived << fFromMe << dummy_bool;
+        s << TX_WITH_WITNESS(tx) << serializedHash << dummy_vector1 << serializedIndex << dummy_vector2 << mapValueCopy << vOrderForm << fTimeReceivedIsTxTime << nTimeReceived << fFromMe << dummy_bool;
     }
 
     template<typename Stream>
@@ -286,7 +291,7 @@ public:
         bool dummy_bool; //! Used to be fSpent
         uint256 serialized_block_hash;
         int serializedIndex;
-        s >> tx >> serialized_block_hash >> dummy_vector1 >> serializedIndex >> dummy_vector2 >> mapValue >> vOrderForm >> fTimeReceivedIsTxTime >> nTimeReceived >> fFromMe >> dummy_bool;
+        s >> TX_WITH_WITNESS(tx) >> serialized_block_hash >> dummy_vector1 >> serializedIndex >> dummy_vector2 >> mapValue >> vOrderForm >> fTimeReceivedIsTxTime >> nTimeReceived >> fFromMe >> dummy_bool;
 
         m_state = TxStateInterpretSerialized({serialized_block_hash, serializedIndex});
 
@@ -327,13 +332,17 @@ public:
     template<typename T> const T* state() const { return std::get_if<T>(&m_state); }
     template<typename T> T* state() { return std::get_if<T>(&m_state); }
 
+    //! Update transaction state when attaching to a chain, filling in heights
+    //! of conflicted and confirmed blocks
+    void updateState(interfaces::Chain& chain);
+
     bool isAbandoned() const { return state<TxStateInactive>() && state<TxStateInactive>()->abandoned; }
     bool isConflicted() const { return state<TxStateConflicted>(); }
     bool isInactive() const { return state<TxStateInactive>(); }
     bool isUnconfirmed() const { return !isAbandoned() && !isConflicted() && !isConfirmed(); }
     bool isConfirmed() const { return state<TxStateConfirmed>(); }
-    const uint256& GetHash() const { return tx->GetHash(); }
-    const uint256& GetWitnessHash() const { return tx->GetWitnessHash(); }
+    const Txid& GetHash() const LIFETIMEBOUND { return tx->GetHash(); }
+    const Wtxid& GetWitnessHash() const LIFETIMEBOUND { return tx->GetWitnessHash(); }
     bool IsCoinBase() const { return tx->IsCoinBase(); }
     bool IsCoinStake() const { return tx->IsCoinStake(); }
 

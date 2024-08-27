@@ -5,14 +5,16 @@
 #ifndef BITCOIN_ADDRESSTYPE_H
 #define BITCOIN_ADDRESSTYPE_H
 
+#include <attributes.h>
 #include <pubkey.h>
 #include <script/script.h>
 #include <uint256.h>
 #include <util/hash_type.h>
 #include <primitives/transaction.h>
 
-#include <variant>
 #include <algorithm>
+#include <variant>
+#include <vector>
 enum class TxoutType;
 
 typedef std::vector<unsigned char> valtype;

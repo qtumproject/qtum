@@ -20,7 +20,6 @@ class ArgsManager;
 struct bilingual_str;
 
 namespace wallet {
-void SplitWalletPath(const fs::path& wallet_path, fs::path& env_directory, std::string& database_filename);
 
 class DatabaseCursor
 {
@@ -67,7 +66,7 @@ public:
         ssKey.reserve(1000);
         ssKey << key;
 
-        CDataStream ssValue(SER_DISK, CLIENT_VERSION);
+        DataStream ssValue{};
         if (!ReadKey(std::move(ssKey), ssValue)) return false;
         try {
             ssValue >> value;
@@ -84,7 +83,7 @@ public:
         ssKey.reserve(1000);
         ssKey << key;
 
-        CDataStream ssValue(SER_DISK, CLIENT_VERSION);
+        DataStream ssValue{};
         ssValue.reserve(10000);
         ssValue << value;
 

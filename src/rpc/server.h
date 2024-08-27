@@ -21,8 +21,6 @@
 #include <univalue.h>
 #include <common/system.h>
 
-static const unsigned int DEFAULT_RPC_SERIALIZE_VERSION = 1;
-
 class CRPCCommand;
 class ChainstateManager;
 class HTTPRequest;
@@ -226,8 +224,5 @@ void StartRPC();
 void InterruptRPC();
 void StopRPC();
 std::string JSONRPCExecBatch(const JSONRPCRequest& jreq, const UniValue& vReq);
-
-// Retrieves any serialization flags requested in command line argument
-int RPCSerializationFlags();
 
 #endif // BITCOIN_RPC_SERVER_H

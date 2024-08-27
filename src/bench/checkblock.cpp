@@ -19,13 +19,13 @@
 
 static void DeserializeBlockTest(benchmark::Bench& bench)
 {
-    CDataStream stream(benchmark::data::blockbench, SER_NETWORK, PROTOCOL_VERSION);
+    DataStream stream(benchmark::data::blockbench);
     std::byte a{0};
     stream.write({&a, 1}); // Prevent compaction
 
     bench.unit("block").run([&] {
         CBlock block;
-        stream >> block;
+        stream >> TX_WITH_WITNESS(block);
         bool rewound = stream.Rewind(benchmark::data::blockbench.size());
         assert(rewound);
     });
@@ -33,7 +33,7 @@ static void DeserializeBlockTest(benchmark::Bench& bench)
 
 static void DeserializeAndCheckBlockTest(benchmark::Bench& bench)
 {
-    CDataStream stream(benchmark::data::blockbench, SER_NETWORK, PROTOCOL_VERSION);
+    DataStream stream(benchmark::data::blockbench);
     std::byte a{0};
     stream.write({&a, 1}); // Prevent compaction
 
@@ -44,7 +44,7 @@ static void DeserializeAndCheckBlockTest(benchmark::Bench& bench)
 
     bench.unit("block").run([&] {
         CBlock block; // Note that CBlock caches its checked state, so we need to recreate it here
-        stream >> block;
+        stream >> TX_WITH_WITNESS(block);
         bool rewound = stream.Rewind(benchmark::data::blockbench.size());
         assert(rewound);
 

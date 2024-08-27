@@ -89,14 +89,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">കോമയാൽ വേർതിരിച്ച ഫയൽ (* .csv)</translation>
     </message>
     <message>
-        <source>Sending addresses - %1</source>
-        <translation type="unfinished">സ്വീകരിക്കുന്ന വിലാസങ്ങൾ - %1</translation>
-    </message>
-    <message>
-        <source>Receiving addresses - %1</source>
-        <translation type="unfinished">സ്വീകരിക്കുന്ന വിലാസങ്ങൾ - %1</translation>
-    </message>
-    <message>
         <source>Exporting Failed</source>
         <translation type="unfinished">കയറ്റുമതി പരാജയപ്പെട്ടു</translation>
     </message>
@@ -389,7 +381,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Wallet:</source>
-        <translation type="unfinished">വാലറ്റ്:</translation>
+        <translation type="unfinished">പണസഞ്ചി </translation>
     </message>
     <message>
         <source>Network activity disabled.</source>
@@ -402,7 +394,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">ഒരു ബിറ്റ്കോയിൻ വിലാസത്തിലേക്ക് നാണയങ്ങൾ അയയ്ക്കുക</translation>
+        <translation type="unfinished">ഒരു ബിറ്റ്‌കോയിൻ വിലാസത്തിലേക് പണം അയക്കുക </translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>

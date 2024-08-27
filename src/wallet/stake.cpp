@@ -506,7 +506,7 @@ void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<uint256>&
         const uint256& wtxid = it->first;
         const CWalletTx* pcoin = &(*it).second;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
-            COutPoint prevout = COutPoint(wtxid, i);
+            COutPoint prevout = COutPoint(Txid::FromUint256(wtxid), i);
             isminetype mine = wallet.IsMine(pcoin->tx->vout[i]);
             if (!(wallet.IsSpent(prevout)) && mine != ISMINE_NO &&
                 !wallet.IsLockedCoin(prevout) && (pcoin->tx->vout[i].nValue > 0) &&
@@ -599,7 +599,7 @@ bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<u
             if(i->second.satoshis < staking_min_utxo_value)
                 continue;
 
-            COutPoint prevout = COutPoint(i->first.txhash, i->first.index);
+            COutPoint prevout = COutPoint(Txid::FromUint256(i->first.txhash), i->first.index);
             if(immatureStakes.find(prevout) == immatureStakes.end())
             {
                 vUnsortedDelegateCoins.push_back(std::make_pair(prevout, i->second.satoshis));
@@ -623,7 +623,7 @@ void AvailableAddress(const CWallet& wallet, const std::vector<uint256> &matured
         const uint256& wtxid = it->first;
         const CWalletTx* pcoin = &(*it).second;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
-            COutPoint prevout = COutPoint(wtxid, i);
+            COutPoint prevout = COutPoint(Txid::FromUint256(wtxid), i);
             isminetype mine = wallet.IsMine(pcoin->tx->vout[i]);
             if (!(wallet.IsSpent(prevout)) && mine != ISMINE_NO &&
                 !wallet.IsLockedCoin(prevout) && (pcoin->tx->vout[i].nValue > 0) &&

@@ -9,8 +9,6 @@
 
 #include <atomic>
 
-static std::atomic<bool> g_initial_block_download_completed(false);
-
 namespace NetMsgType {
 const char* VERSION = "version";
 const char* VERACK = "verack";
@@ -91,9 +89,8 @@ const static std::vector<std::string> g_all_net_message_types{
 };
 
 CMessageHeader::CMessageHeader(const MessageStartChars& pchMessageStartIn, const char* pszCommand, unsigned int nMessageSizeIn)
+    : pchMessageStart{pchMessageStartIn}
 {
-    pchMessageStart = pchMessageStartIn;
-
     // Copy the command name
     size_t i = 0;
     for (; i < COMMAND_SIZE && pszCommand[i] != 0; ++i) pchCommand[i] = pszCommand[i];
@@ -124,18 +121,6 @@ bool CMessageHeader::IsCommandValid() const
     }
 
     return true;
-}
-
-
-ServiceFlags GetDesirableServiceFlags(ServiceFlags services) {
-    if ((services & NODE_NETWORK_LIMITED) && g_initial_block_download_completed) {
-        return ServiceFlags(NODE_NETWORK_LIMITED | NODE_WITNESS);
-    }
-    return ServiceFlags(NODE_NETWORK | NODE_WITNESS);
-}
-
-void SetServiceFlagsIBDCache(bool state) {
-    g_initial_block_download_completed = state;
 }
 
 CInv::CInv()

@@ -28,7 +28,6 @@
 #include <test/fuzz/util.h>
 #include <test/util/setup_common.h>
 #include <undo.h>
-#include <version.h>
 
 #include <exception>
 #include <optional>
@@ -66,7 +65,7 @@ template <typename T, typename P>
 DataStream Serialize(const T& obj, const P& params)
 {
     DataStream ds{};
-    ds << WithParams(params, obj);
+    ds << params(obj);
     return ds;
 }
 
@@ -74,7 +73,7 @@ template <typename T, typename P>
 T Deserialize(DataStream&& ds, const P& params)
 {
     T obj;
-    ds >> WithParams(params, obj);
+    ds >> params(obj);
     return obj;
 }
 
@@ -83,7 +82,7 @@ void DeserializeFromFuzzingInput(FuzzBufferType buffer, T&& obj, const P& params
 {
     DataStream ds{buffer};
     try {
-        ds >> WithParams(params, obj);
+        ds >> params(obj);
     } catch (const std::ios_base::failure&) {
         throw invalid_fuzzing_input_exception();
     }
@@ -91,15 +90,15 @@ void DeserializeFromFuzzingInput(FuzzBufferType buffer, T&& obj, const P& params
 }
 
 template <typename T>
-CDataStream Serialize(const T& obj)
+DataStream Serialize(const T& obj)
 {
-    CDataStream ds{SER_NETWORK, INIT_PROTO_VERSION};
+    DataStream ds{};
     ds << obj;
     return ds;
 }
 
 template <typename T>
-T Deserialize(CDataStream ds)
+T Deserialize(DataStream ds)
 {
     T obj;
     ds >> obj;
@@ -109,16 +108,7 @@ T Deserialize(CDataStream ds)
 template <typename T>
 void DeserializeFromFuzzingInput(FuzzBufferType buffer, T&& obj)
 {
-    CDataStream ds{buffer, SER_NETWORK, INIT_PROTO_VERSION};
-    {
-        try {
-            int version;
-            ds >> version;
-            ds.SetVersion(version);
-        } catch (const std::ios_base::failure&) {
-            throw invalid_fuzzing_input_exception();
-        }
-    }
+    DataStream ds{buffer};
     try {
         ds >> obj;
     } catch (const std::ios_base::failure&) {
@@ -217,7 +207,7 @@ FUZZ_TARGET_DESERIALIZE(psbt_output_deserialize, {
 })
 FUZZ_TARGET_DESERIALIZE(block_deserialize, {
     CBlock block;
-    DeserializeFromFuzzingInput(buffer, block);
+    DeserializeFromFuzzingInput(buffer, TX_WITH_WITNESS(block));
 })
 FUZZ_TARGET_DESERIALIZE(blocklocator_deserialize, {
     CBlockLocator bl;
@@ -225,7 +215,7 @@ FUZZ_TARGET_DESERIALIZE(blocklocator_deserialize, {
 })
 FUZZ_TARGET_DESERIALIZE(blockmerkleroot, {
     CBlock block;
-    DeserializeFromFuzzingInput(buffer, block);
+    DeserializeFromFuzzingInput(buffer, TX_WITH_WITNESS(block));
     bool mutated;
     BlockMerkleRoot(block, &mutated);
 })

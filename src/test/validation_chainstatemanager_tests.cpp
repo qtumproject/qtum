@@ -15,7 +15,6 @@
 #include <test/util/random.h>
 #include <test/util/setup_common.h>
 #include <test/util/validation.h>
-#include <timedata.h>
 #include <uint256.h>
 #include <validation.h>
 #include <validationinterface.h>
@@ -379,11 +378,10 @@ struct SnapshotTestSetup : TestChain100Setup {
             LOCK(::cs_main);
             chainman.ResetChainstates();
             BOOST_CHECK_EQUAL(chainman.GetAll().size(), 0);
-            m_node.notifications = std::make_unique<KernelNotifications>(m_node.exit_status);
+            m_node.notifications = std::make_unique<KernelNotifications>(*Assert(m_node.shutdown), m_node.exit_status);
             const ChainstateManager::Options chainman_opts{
                 .chainparams = ::Params(),
                 .datadir = chainman.m_options.datadir,
-                .adjusted_time_callback = GetAdjustedTime,
                 .notifications = *m_node.notifications,
             };
             const BlockManager::Options blockman_opts{
@@ -394,7 +392,7 @@ struct SnapshotTestSetup : TestChain100Setup {
             // For robustness, ensure the old manager is destroyed before creating a
             // new one.
             m_node.chainman.reset();
-            m_node.chainman = std::make_unique<ChainstateManager>(m_node.kernel->interrupt, chainman_opts, blockman_opts);
+            m_node.chainman = std::make_unique<ChainstateManager>(*Assert(m_node.shutdown), chainman_opts, blockman_opts);
         }
         return *Assert(m_node.chainman);
     }
@@ -579,7 +577,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_init, SnapshotTestSetup)
     // it will initialize instead of attempting to complete validation.
     //
     // Note that this is not a realistic use of DisconnectTip().
-    DisconnectedBlockTransactions unused_pool{MAX_DISCONNECTED_TX_POOL_SIZE * 1000};
+    DisconnectedBlockTransactions unused_pool{MAX_DISCONNECTED_TX_POOL_BYTES};
     BlockValidationState unused_state;
     {
         LOCK2(::cs_main, bg_chainstate.MempoolMutex());
@@ -724,7 +722,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_snapshot_completion_hash_mismatch, Sna
     badcoin.out.nValue = InsecureRand32();
     badcoin.nHeight = 1;
     badcoin.out.scriptPubKey.assign(InsecureRandBits(6), 0);
-    uint256 txid = InsecureRand256();
+    Txid txid = Txid::FromUint256(InsecureRand256());
     ibd_coins.AddCoin(COutPoint(txid, 0), std::move(badcoin), false);
 
     fs::path snapshot_chainstate_dir = gArgs.GetDataDirNet() / "chainstate_snapshot";

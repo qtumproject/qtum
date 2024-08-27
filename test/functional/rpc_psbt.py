@@ -6,6 +6,7 @@
 """
 from decimal import Decimal
 from itertools import product
+from random import randbytes
 from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
 
 from test_framework.descriptors import descsum_create
@@ -39,9 +40,7 @@ from test_framework.util import (
     assert_greater_than,
     assert_greater_than_or_equal,
     assert_raises_rpc_error,
-    find_output,
     find_vout_for_address,
-    random_bytes,
 )
 from test_framework.wallet_util import (
     generate_keypair,
@@ -419,16 +418,17 @@ class PSBTTest(BitcoinTestFramework):
         self.nodes[0].converttopsbt(hexstring=signedtx['hex'], permitsigdata=True)
 
         # Create outputs to nodes 1 and 2
+        # (note that we intentionally create two different txs here, as we want
+        #  to check that each node is missing prevout data for one of the two
+        #  utxos, see "should only have data for one input" test below)
         node1_addr = self.nodes[1].getnewaddress()
         node2_addr = self.nodes[2].getnewaddress()
-        txid1 = self.nodes[0].sendtoaddress(node1_addr, 13)
-        txid2 = self.nodes[0].sendtoaddress(node2_addr, 13)
-        blockhash = self.generate(self.nodes[0], 6)[0]
-        vout1 = find_output(self.nodes[1], txid1, 13, blockhash=blockhash)
-        vout2 = find_output(self.nodes[2], txid2, 13, blockhash=blockhash)
+        utxo1 = self.create_outpoints(self.nodes[0], outputs=[{node1_addr: 13}])[0]
+        utxo2 = self.create_outpoints(self.nodes[0], outputs=[{node2_addr: 13}])[0]
+        self.generate(self.nodes[0], 6)[0]
 
         # Create a psbt spending outputs from nodes 1 and 2
-        psbt_orig = self.nodes[0].createpsbt([{"txid":txid1,  "vout":vout1}, {"txid":txid2, "vout":vout2}], {self.nodes[0].getnewaddress():25.899})
+        psbt_orig = self.nodes[0].createpsbt([utxo1, utxo2], {self.nodes[0].getnewaddress():25.899})
 
         # Update psbts, should only have data for one input and not the other
         psbt1 = self.nodes[1].walletprocesspsbt(psbt_orig, False, "ALL")['psbt']
@@ -612,14 +612,9 @@ class PSBTTest(BitcoinTestFramework):
 
         # Send to all types of addresses
         addr1 = self.nodes[1].getnewaddress("", "bech32")
-        txid1 = self.nodes[0].sendtoaddress(addr1, 11)
-        vout1 = find_output(self.nodes[0], txid1, 11)
         addr2 = self.nodes[1].getnewaddress("", "legacy")
-        txid2 = self.nodes[0].sendtoaddress(addr2, 11)
-        vout2 = find_output(self.nodes[0], txid2, 11)
         addr3 = self.nodes[1].getnewaddress("", "p2sh-segwit")
-        txid3 = self.nodes[0].sendtoaddress(addr3, 11)
-        vout3 = find_output(self.nodes[0], txid3, 11)
+        utxo1, utxo2, utxo3 = self.create_outpoints(self.nodes[1], outputs=[{addr1: 11}, {addr2: 11}, {addr3: 11}])
         self.sync_all()
 
         def test_psbt_input_keys(psbt_input, keys):
@@ -627,7 +622,7 @@ class PSBTTest(BitcoinTestFramework):
             assert_equal(set(keys), set(psbt_input.keys()))
 
         # Create a PSBT. None of the inputs are filled initially
-        psbt = self.nodes[1].createpsbt([{"txid":txid1, "vout":vout1},{"txid":txid2, "vout":vout2},{"txid":txid3, "vout":vout3}], {self.nodes[0].getnewaddress():32.999})
+        psbt = self.nodes[1].createpsbt([utxo1, utxo2, utxo3], {self.nodes[0].getnewaddress():32.999})
         decoded = self.nodes[1].decodepsbt(psbt)
         test_psbt_input_keys(decoded['inputs'][0], [])
         test_psbt_input_keys(decoded['inputs'][1], [])
@@ -650,15 +645,14 @@ class PSBTTest(BitcoinTestFramework):
         test_psbt_input_keys(decoded['inputs'][2], ['non_witness_utxo','witness_utxo', 'bip32_derivs', 'redeem_script'])
 
         # Two PSBTs with a common input should not be joinable
-        psbt1 = self.nodes[1].createpsbt([{"txid":txid1, "vout":vout1}], {self.nodes[0].getnewaddress():Decimal('10.999')})
+        psbt1 = self.nodes[1].createpsbt([utxo1], {self.nodes[0].getnewaddress():Decimal('10.999')})
         assert_raises_rpc_error(-8, "exists in multiple PSBTs", self.nodes[1].joinpsbts, [psbt1, updated])
 
         # Join two distinct PSBTs
         addr4 = self.nodes[1].getnewaddress("", "p2sh-segwit")
-        txid4 = self.nodes[0].sendtoaddress(addr4, 5)
-        vout4 = find_output(self.nodes[0], txid4, 5)
+        utxo4 = self.create_outpoints(self.nodes[0], outputs=[{addr4: 5}])[0]
         self.generate(self.nodes[0], 6)
-        psbt2 = self.nodes[1].createpsbt([{"txid":txid4, "vout":vout4}], {self.nodes[0].getnewaddress():Decimal('4.999')})
+        psbt2 = self.nodes[1].createpsbt([utxo4], {self.nodes[0].getnewaddress():Decimal('4.999')})
         psbt2 = self.nodes[1].walletprocesspsbt(psbt2)['psbt']
         psbt2_decoded = self.nodes[0].decodepsbt(psbt2)
         assert "final_scriptwitness" in psbt2_decoded['inputs'][0] and "final_scriptSig" in psbt2_decoded['inputs'][0]
@@ -678,11 +672,10 @@ class PSBTTest(BitcoinTestFramework):
 
         # Newly created PSBT needs UTXOs and updating
         addr = self.nodes[1].getnewaddress("", "p2sh-segwit")
-        txid = self.nodes[0].sendtoaddress(addr, 7)
+        utxo = self.create_outpoints(self.nodes[0], outputs=[{addr: 7}])[0]
         addrinfo = self.nodes[1].getaddressinfo(addr)
-        blockhash = self.generate(self.nodes[0], 6)[0]
-        vout = find_output(self.nodes[0], txid, 7, blockhash=blockhash)
-        psbt = self.nodes[1].createpsbt([{"txid":txid, "vout":vout}], {self.nodes[0].getnewaddress("", "p2sh-segwit"):Decimal('6.999')})
+        self.generate(self.nodes[0], 6)[0]
+        psbt = self.nodes[1].createpsbt([utxo], {self.nodes[0].getnewaddress("", "p2sh-segwit"):Decimal('6.999')})
         analyzed = self.nodes[0].analyzepsbt(psbt)
         assert not analyzed['inputs'][0]['has_utxo'] and not analyzed['inputs'][0]['is_final'] and analyzed['inputs'][0]['next'] == 'updater' and analyzed['next'] == 'updater'
 
@@ -769,11 +762,16 @@ class PSBTTest(BitcoinTestFramework):
                 break
         psbt_in = dec["inputs"][input_idx]
         # Calculate the input weight
-        # (prevout + sequence + length of scriptSig + scriptsig + 1 byte buffer) * WITNESS_SCALE_FACTOR + num scriptWitness stack items + (length of stack item + stack item) * N stack items + 1 byte buffer
+        # (prevout + sequence + length of scriptSig + scriptsig) * WITNESS_SCALE_FACTOR + len of num scriptWitness stack items + (length of stack item + stack item) * N stack items
+        # Note that occasionally this weight estimate may be slightly larger or smaller than the real weight
+        # as sometimes ECDSA signatures are one byte shorter than expected with a probability of 1/128
         len_scriptsig = len(psbt_in["final_scriptSig"]["hex"]) // 2 if "final_scriptSig" in psbt_in else 0
-        len_scriptsig += len(ser_compact_size(len_scriptsig)) + 1
-        len_scriptwitness = (sum([(len(x) // 2) + len(ser_compact_size(len(x) // 2)) for x in psbt_in["final_scriptwitness"]]) + len(psbt_in["final_scriptwitness"]) + 1) if "final_scriptwitness" in psbt_in else 0
-        input_weight = ((40 + len_scriptsig) * WITNESS_SCALE_FACTOR) + len_scriptwitness
+        len_scriptsig += len(ser_compact_size(len_scriptsig))
+        len_scriptwitness = (sum([(len(x) // 2) + len(ser_compact_size(len(x) // 2)) for x in psbt_in["final_scriptwitness"]]) + len(ser_compact_size(len(psbt_in["final_scriptwitness"])))) if "final_scriptwitness" in psbt_in else 0
+        len_prevout_txid = 32
+        len_prevout_index = 4
+        len_sequence = 4
+        input_weight = ((len_prevout_txid + len_prevout_index + len_sequence + len_scriptsig) * WITNESS_SCALE_FACTOR) + len_scriptwitness
         low_input_weight = input_weight // 2
         high_input_weight = input_weight * 2
 
@@ -881,9 +879,8 @@ class PSBTTest(BitcoinTestFramework):
 
             self.log.info("Test that walletprocesspsbt both updates and signs a non-updated psbt containing Taproot inputs")
             addr = self.nodes[0].getnewaddress("", "bech32m")
-            txid = self.nodes[0].sendtoaddress(addr, 10)
-            vout = find_vout_for_address(self.nodes[0], txid, addr)
-            psbt = self.nodes[0].walletcreatefundedpsbt(inputs=[{"txid": txid, "vout": vout}], outputs=[{self.nodes[0].getnewaddress(): 0.9999}], options={"fee_rate": 40800})["psbt"]
+            utxo = self.create_outpoints(self.nodes[0], outputs=[{addr: 10}])[0]
+            psbt = self.nodes[0].walletcreatefundedpsbt(inputs=[utxo], outputs=[{self.nodes[0].getnewaddress(): 0.9999}], options={"fee_rate": 40800})["psbt"]
             signed = self.nodes[0].walletprocesspsbt(psbt)
             rawtx = signed["hex"]
             self.nodes[0].sendrawtransaction(rawtx)
@@ -902,10 +899,10 @@ class PSBTTest(BitcoinTestFramework):
 
         self.log.info("Test decoding PSBT with per-input preimage types")
         # note that the decodepsbt RPC doesn't check whether preimages and hashes match
-        hash_ripemd160, preimage_ripemd160 = random_bytes(20), random_bytes(50)
-        hash_sha256, preimage_sha256 = random_bytes(32), random_bytes(50)
-        hash_hash160, preimage_hash160 = random_bytes(20), random_bytes(50)
-        hash_hash256, preimage_hash256 = random_bytes(32), random_bytes(50)
+        hash_ripemd160, preimage_ripemd160 = randbytes(20), randbytes(50)
+        hash_sha256, preimage_sha256 = randbytes(32), randbytes(50)
+        hash_hash160, preimage_hash160 = randbytes(20), randbytes(50)
+        hash_hash256, preimage_hash256 = randbytes(32), randbytes(50)
 
         tx = CTransaction()
         tx.vin = [CTxIn(outpoint=COutPoint(hash=int('aa' * 32, 16), n=0), scriptSig=b""),
@@ -971,11 +968,10 @@ class PSBTTest(BitcoinTestFramework):
 
         descriptor = descsum_create(f"wpkh({key})")
 
-        txid = self.nodes[0].sendtoaddress(address, 1)
+        utxo = self.create_outpoints(self.nodes[0], outputs=[{address: 1}])[0]
         self.sync_all()
-        vout = find_output(self.nodes[0], txid, 1)
 
-        psbt = self.nodes[2].createpsbt([{"txid": txid, "vout": vout}], {self.nodes[0].getnewaddress(): 0.99999})
+        psbt = self.nodes[2].createpsbt([utxo], {self.nodes[0].getnewaddress(): 0.99999})
         decoded = self.nodes[2].decodepsbt(psbt)
         test_psbt_input_keys(decoded['inputs'][0], [])
 

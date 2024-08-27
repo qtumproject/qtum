@@ -149,7 +149,7 @@ bool BerkeleyEnvironment::Open(bilingual_str& err)
 
     fs::path pathIn = fs::PathFromString(strPath);
     TryCreateDirectories(pathIn);
-    if (!LockDirectory(pathIn, ".walletlock")) {
+    if (util::LockDirectory(pathIn, ".walletlock") != util::LockResult::Success) {
         LogPrintf("Cannot obtain a lock on wallet directory %s. Another instance may be using it.\n", strPath);
         err = strprintf(_("Error initializing wallet database environment %s!"), fs::quoted(fs::PathToString(Directory())));
         return false;
@@ -887,7 +887,12 @@ bool BerkeleyBatch::HasKey(DataStream&& key)
 
 bool BerkeleyBatch::ErasePrefix(Span<const std::byte> prefix)
 {
-    if (!TxnBegin()) return false;
+    // Because this function erases records one by one, ensure that it is executed within a txn context.
+    // Otherwise, consistency is at risk; it's possible that certain records are removed while others
+    // remain due to an internal failure during the procedure.
+    // Additionally, the Dbc::del() cursor delete call below would fail without an active transaction.
+    if (!Assume(activeTxn)) return false;
+
     auto cursor{std::make_unique<BerkeleyCursor>(m_database, *this)};
     // const_cast is safe below even though prefix_key is an in/out parameter,
     // because we are not using the DB_DBT_USERMEM flag, so BDB will allocate
@@ -901,7 +906,7 @@ bool BerkeleyBatch::ErasePrefix(Span<const std::byte> prefix)
         ret = cursor->dbc()->del(0);
     }
     cursor.reset();
-    return TxnCommit() && (ret == 0 || ret == DB_NOTFOUND);
+    return ret == 0 || ret == DB_NOTFOUND;
 }
 
 void BerkeleyDatabase::AddRef()

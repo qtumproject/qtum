@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation type="unfinished">اختر العنوان الذي ترغب باستلام البتكوين فيه</translation>
+        <translation type="unfinished">اختر العنوان الذي ترغب باستلام بتكوين اليه</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
@@ -216,20 +216,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">‫عبارة المرور التي تم إدخالها لفك تشفير المحفظة غير صحيحة.‬</translation>
     </message>
     <message>
-        <source>The passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character. If this is successful, please set a new passphrase to avoid this issue in the future.</source>
-        <translation type="unfinished">العبارة المدخلة لفك تشفير المحفظة غير صحيحة: تحتوي على خانة فارغة. إذا تم تعيين هذه العبارة في نسخة سابقة لـ 25.0، يرجى المحاولة مجددا بإدخال جميع الخانات السابقة للخانة الفارغة والتوقف عند الخانة الفارغة دون إدخال الفراغ. إذا نجحت المحاولة، يرجى تغيير العبارة لتفادي هذه المشكلة مستقبلا.</translation>
-    </message>
-    <message>
         <source>Wallet passphrase was successfully changed.</source>
-        <translation type="unfinished">لقد تم تغير عبارة مرور المحفظة بنجاح</translation>
-    </message>
-    <message>
-        <source>Passphrase change failed</source>
-        <translation type="unfinished">فشل تغيير العبارة </translation>
-    </message>
-    <message>
-        <source>The old passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character.</source>
-        <translation type="unfinished">العبارة السابقة المدخلة لفك تشفير المحفظة غير صحيحة: تحتوي على خانة فارغة. إذا تم تعيين هذه العبارة في نسخة سابقة لـ 25.0، يرجى المحاولة مجددا بإدخال جميع الخانات السابقة للخانة الفارغة والتوقف عند الخانة الفارغة دون إدخال الفراغ.</translation>
+        <translation type="unfinished">‫لقد تم تغيير عبارة المرور بنجاح.‬</translation>
     </message>
     <message>
         <source>Warning: The Caps Lock key is on!</source>
@@ -625,19 +613,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Connecting to peers…</source>
-        <translation type="unfinished">الاتصال بالأقران ...</translation>
+        <translation type="unfinished">‫الاتصال بالأقران…‬</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">أطلب دفعات (يولد كودات الرمز المربع وبيت كوين: العناوين المعطاة)</translation>
+        <translation type="unfinished">‫أطلب مدفوعات (أنشئ رموز استجابة (QR Codes) وعناوين بتكوين)‬</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
-        <translation type="unfinished">عرض قائمة عناوين الإرسال المستخدمة والملصقات</translation>
+        <translation type="unfinished">‫عرض قائمة العناوين المرسِلة والمذكرات (المستخدمة سابقا)‬</translation>
     </message>
     <message>
         <source>Show the list of used receiving addresses and labels</source>
-        <translation type="unfinished">عرض قائمة عناوين الإستقبال المستخدمة والملصقات</translation>
+        <translation type="unfinished">‫عرض قائمة العناوين المستلمة والمذكرات (المستخدمة سابقا)‬</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
@@ -660,7 +648,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Catching up…</source>
-        <translation type="unfinished">يمسك…</translation>
+        <translation type="unfinished">‫يجري التدارك…‬</translation>
     </message>
     <message>
         <source>Last received block was generated %1 ago.</source>
@@ -1100,7 +1088,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>default wallet</source>
-        <translation type="unfinished">المحفظة الإفتراضية</translation>
+        <translation type="unfinished">‫محفظة افتراضية‬</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -1780,18 +1768,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">استخدم بروكسي SOCKS5 منفصل للوصول إلى الأقران عبر خدمات Tor onion:</translation>
     </message>
     <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">الخط أحادي المسافة في علامة التبويب "نظرة عامة":</translation>
-    </message>
-    <message>
-        <source>embedded "%1"</source>
-        <translation type="unfinished">‫مضمنة "%1"‬</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">‫أقرب تطابق "%1"</translation>
-    </message>
-    <message>
         <source>&amp;OK</source>
         <translation type="unfinished">&amp;تم</translation>
     </message>
@@ -2027,10 +2003,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>PSBT saved to disk.</source>
         <translation type="unfinished">‫تم حفظ المعاملة الموقعة جزئيا على وحدة التخزين.‬</translation>
-    </message>
-    <message>
-        <source> * Sends %1 to %2</source>
-        <translation type="unfinished">* يرسل %1 إلى %2</translation>
     </message>
     <message>
         <source>own address</source>
@@ -3017,10 +2989,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">‫إن&amp;شاء من غير توقيع‬</translation>
     </message>
     <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">من المحفظة '%1'</translation>
-    </message>
-    <message>
         <source>%1 to '%2'</source>
         <translation type="unfinished">%1 الى "%2"</translation>
     </message>
@@ -3523,10 +3491,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">مؤشر المخرجات</translation>
     </message>
     <message>
-        <source> (Certificate was not verified)</source>
-        <translation type="unfinished">(لم يتم التحقق من الشهادة)</translation>
-    </message>
-    <message>
         <source>Merchant</source>
         <translation type="unfinished">تاجر</translation>
     </message>
@@ -3918,7 +3882,7 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
     <message>
         <source>default wallet</source>
-        <translation type="unfinished">المحفظة الإفتراضية</translation>
+        <translation type="unfinished">‫محفظة افتراضية‬</translation>
     </message>
 </context>
 <context>
@@ -4154,14 +4118,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Error reading next record from wallet database</source>
         <translation type="unfinished">خطأ قراءة السجل التالي من قاعدة بيانات المحفظة</translation>
-    </message>
-    <message>
-        <source>Error: Could not add watchonly tx to watchonly wallet</source>
-        <translation type="unfinished">‫خطأ: لا يمكن اضافة عملية المراقبة فقط لمحفظة المراقبة‬</translation>
-    </message>
-    <message>
-        <source>Error: Could not delete watchonly transactions</source>
-        <translation type="unfinished">‫خطأ: لا يمكن حذف عمليات المراقبة فقط‬</translation>
     </message>
     <message>
         <source>Error: Couldn't create cursor into database</source>

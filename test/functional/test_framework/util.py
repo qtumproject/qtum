@@ -14,14 +14,14 @@ import json
 import logging
 import os
 import pathlib
-import random
+import platform
 import re
-import sys
 import time
 
 from . import coverage
 from .authproxy import AuthServiceProxy, JSONRPCException
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
+from typing import Optional
 
 from .qtumconfig import COINBASE_MATURITY
 logger = logging.getLogger("TestFramework.utils")
@@ -295,12 +295,6 @@ def sha256sum_file(filename):
     return h.digest()
 
 
-# TODO: Remove and use random.randbytes(n) instead, available in Python 3.9
-def random_bytes(n):
-    """Return a random bytes object of length n."""
-    return bytes(random.getrandbits(8) for i in range(n))
-
-
 # RPC/P2P connection constants and functions
 ############################################
 
@@ -424,16 +418,16 @@ def get_datadir_path(dirname, n):
     return pathlib.Path(dirname) / f"node{n}"
 
 
-def get_temp_default_datadir(temp_dir: pathlib.Path) -> Tuple[dict, pathlib.Path]:
+def get_temp_default_datadir(temp_dir: pathlib.Path) -> tuple[dict, pathlib.Path]:
     """Return os-specific environment variables that can be set to make the
     GetDefaultDataDir() function return a datadir path under the provided
     temp_dir, as well as the complete path it would return."""
-    if sys.platform == "win32":
+    if platform.system() == "Windows":
         env = dict(APPDATA=str(temp_dir))
         datadir = temp_dir / "Bitcoin"
     else:
         env = dict(HOME=str(temp_dir))
-        if sys.platform == "darwin":
+        if platform.system() == "Darwin":
             datadir = temp_dir / "Library/Application Support/Bitcoin"
         else:
             datadir = temp_dir / ".bitcoin"
@@ -496,18 +490,6 @@ def check_node_connections(*, node, num_in, num_out):
 
 # Transaction/Block functions
 #############################
-
-
-def find_output(node, txid, amount, *, blockhash=None):
-    """
-    Return index to output of txid with value amount
-    Raises exception if there is none.
-    """
-    txdata = node.getrawtransaction(txid, 1, blockhash)
-    for i in range(len(txdata["vout"])):
-        if txdata["vout"][i]["value"] == amount:
-            return i
-    raise RuntimeError("find_output txid %s : %s not found" % (txid, str(amount)))
 
 def sync_blocks(rpc_connections, *, wait=1, timeout=60):
     """

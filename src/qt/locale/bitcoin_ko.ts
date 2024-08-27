@@ -2141,18 +2141,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
         <translation>Tor onion 서비스를 통해 피어에 도달하려면 별도의 SOCKS &amp; 5 프록시를 사용하십시오.</translation>
     </message>
     <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">개요 탭의 고정 폭 글꼴:</translation>
-    </message>
-    <message>
-        <source>embedded "%1"</source>
-        <translation type="unfinished">%1 포함됨</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">가장 가까운 의미 "1%1"</translation>
-    </message>
-    <message>
         <source>&amp;OK</source>
         <translation>확인</translation>
     </message>
@@ -2462,10 +2450,6 @@ Please make sure to keep an updated antivirus and operating system. We can not r
     <message>
         <source>PSBT saved to disk.</source>
         <translation type="unfinished">PSBT가 디스크에 저장 됨</translation>
-    </message>
-    <message>
-        <source> * Sends %1 to %2</source>
-        <translation type="unfinished">* %1을 %2로 보냅니다.</translation>
     </message>
     <message>
         <source>own address</source>
@@ -3799,10 +3783,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation>오프라인 %1 지갑 또는 PSBT가 호환되는 하드웨어 지갑과의 사용을 위한 '부분적으로 서명 된 비트 코인 트랜잭션(PSBT)'를 생성합니다.</translation>
     </message>
     <message>
-        <source> from wallet '%1'</source>
-        <translation>%1 지갑에서</translation>
-    </message>
-    <message>
         <source>%1 to '%2'</source>
         <translation>%1을(를) %2(으)로</translation>
     </message>
@@ -4880,10 +4860,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation>색인 내보내기</translation>
     </message>
     <message>
-        <source> (Certificate was not verified)</source>
-        <translation>(인증서가 확인되지 않았습니다)</translation>
-    </message>
-    <message>
         <source>Merchant</source>
         <translation>제공자</translation>
     </message>
@@ -5884,10 +5860,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Transaction amounts must not be negative</source>
         <translation type="unfinished">거래금액은 마이너스가 될 수 없습니다. </translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">해당 거래의 메모리풀 체인에 과다한 거래들이 연결되어 있습니다. </translation>
     </message>
     <message>
         <source>Transaction must have at least one recipient</source>

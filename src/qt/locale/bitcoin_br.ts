@@ -170,7 +170,7 @@
     </message>
     </context>
 <context>
-    <name>qtum-core</name>
+    <name>bitcoin-core</name>
     <message>
         <source>Error creating %s</source>
         <translation type="unfinished">Fazi en ur grouiñ %s</translation>

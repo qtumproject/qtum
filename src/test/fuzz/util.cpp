@@ -10,7 +10,6 @@
 #include <util/overflow.h>
 #include <util/rbf.h>
 #include <util/time.h>
-#include <version.h>
 
 #include <memory>
 
@@ -40,7 +39,7 @@ int64_t ConsumeTime(FuzzedDataProvider& fuzzed_data_provider, const std::optiona
     return fuzzed_data_provider.ConsumeIntegralInRange<int64_t>(min.value_or(time_min), max.value_or(time_max));
 }
 
-CMutableTransaction ConsumeTransaction(FuzzedDataProvider& fuzzed_data_provider, const std::optional<std::vector<uint256>>& prevout_txids, const int max_num_in, const int max_num_out) noexcept
+CMutableTransaction ConsumeTransaction(FuzzedDataProvider& fuzzed_data_provider, const std::optional<std::vector<Txid>>& prevout_txids, const int max_num_in, const int max_num_out) noexcept
 {
     CMutableTransaction tx_mut;
     const auto p2wsh_op_true = fuzzed_data_provider.ConsumeBool();
@@ -53,7 +52,7 @@ CMutableTransaction ConsumeTransaction(FuzzedDataProvider& fuzzed_data_provider,
     for (int i = 0; i < num_in; ++i) {
         const auto& txid_prev = prevout_txids ?
                                     PickValue(fuzzed_data_provider, *prevout_txids) :
-                                    ConsumeUInt256(fuzzed_data_provider);
+                                    Txid::FromUint256(ConsumeUInt256(fuzzed_data_provider));
         const auto index_out = fuzzed_data_provider.ConsumeIntegralInRange<uint32_t>(0, max_num_out);
         const auto sequence = ConsumeSequence(fuzzed_data_provider);
         const auto script_sig = p2wsh_op_true ? CScript{} : ConsumeScript(fuzzed_data_provider);
@@ -162,6 +161,24 @@ uint32_t ConsumeSequence(FuzzedDataProvider& fuzzed_data_provider) noexcept
                    MAX_BIP125_RBF_SEQUENCE,
                }) :
                fuzzed_data_provider.ConsumeIntegral<uint32_t>();
+}
+
+std::map<COutPoint, Coin> ConsumeCoins(FuzzedDataProvider& fuzzed_data_provider) noexcept
+{
+    std::map<COutPoint, Coin> coins;
+    LIMITED_WHILE(fuzzed_data_provider.ConsumeBool(), 10000) {
+        const std::optional<COutPoint> outpoint{ConsumeDeserializable<COutPoint>(fuzzed_data_provider)};
+        if (!outpoint) {
+            break;
+        }
+        const std::optional<Coin> coin{ConsumeDeserializable<Coin>(fuzzed_data_provider)};
+        if (!coin) {
+            break;
+        }
+        coins[*outpoint] = *coin;
+    }
+
+    return coins;
 }
 
 CTxDestination ConsumeTxDestination(FuzzedDataProvider& fuzzed_data_provider) noexcept

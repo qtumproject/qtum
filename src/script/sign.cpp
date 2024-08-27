@@ -400,7 +400,7 @@ static bool SignTaproot(const SigningProvider& provider, const BaseSignatureCrea
             result_stack.emplace_back(std::begin(script), std::end(script)); // Push the script
             result_stack.push_back(*control_blocks.begin()); // Push the smallest control block
             if (smallest_result_stack.size() == 0 ||
-                GetSerializeSize(result_stack, PROTOCOL_VERSION) < GetSerializeSize(smallest_result_stack, PROTOCOL_VERSION)) {
+                GetSerializeSize(result_stack) < GetSerializeSize(smallest_result_stack)) {
                 smallest_result_stack = std::move(result_stack);
             }
         }
@@ -906,7 +906,7 @@ bool SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, 
 bool UpdateOutput(CTxOut &output, const SignatureData &data)
 {
     bool ret = false;
-    CDataStream streamSig(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream streamSig;
     streamSig << data.scriptSig;
     CScript scriptPubKey;
     if(output.scriptPubKey.UpdateSenderSig(ToByteVector(MakeUCharSpan(streamSig)), scriptPubKey))

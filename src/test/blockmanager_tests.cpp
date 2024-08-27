@@ -27,13 +27,13 @@ BOOST_FIXTURE_TEST_SUITE(blockmanager_tests, BasicTestingSetup)
 BOOST_AUTO_TEST_CASE(blockmanager_find_block_pos)
 {
     const auto params {CreateChainParams(ArgsManager{}, ChainType::MAIN)};
-    KernelNotifications notifications{m_node.exit_status};
+    KernelNotifications notifications{*Assert(m_node.shutdown), m_node.exit_status};
     const BlockManager::Options blockman_opts{
         .chainparams = *params,
         .blocks_dir = m_args.GetBlocksDirPath(),
         .notifications = notifications,
     };
-    BlockManager blockman{m_node.kernel->interrupt, blockman_opts};
+    BlockManager blockman{*Assert(m_node.shutdown), blockman_opts};
     // simulate adding a genesis block normally
     BOOST_CHECK_EQUAL(blockman.SaveBlockToDisk(params->GenesisBlock(), 0, nullptr).nPos, BLOCK_SERIALIZATION_HEADER_SIZE);
     // simulate what happens during reindex
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(blockmanager_find_block_pos)
     // 8 bytes (for serialization header) + 285 (for serialized genesis block) = 293
     // add another 8 bytes for the second block's serialization header and we get 293 + 8 = 301
     FlatFilePos actual{blockman.SaveBlockToDisk(params->GenesisBlock(), 1, nullptr)};
-    BOOST_CHECK_EQUAL(actual.nPos, BLOCK_SERIALIZATION_HEADER_SIZE + ::GetSerializeSize(params->GenesisBlock(), CLIENT_VERSION) + BLOCK_SERIALIZATION_HEADER_SIZE);
+    BOOST_CHECK_EQUAL(actual.nPos, BLOCK_SERIALIZATION_HEADER_SIZE + ::GetSerializeSize(TX_WITH_WITNESS(params->GenesisBlock())) + BLOCK_SERIALIZATION_HEADER_SIZE);
 }
 
 BOOST_FIXTURE_TEST_CASE(blockmanager_scan_unlink_already_pruned_files, TestChain100Setup)
@@ -134,13 +134,13 @@ BOOST_FIXTURE_TEST_CASE(blockmanager_block_data_availability, TestChain100Setup)
 
 BOOST_AUTO_TEST_CASE(blockmanager_flush_block_file)
 {
-    KernelNotifications notifications{m_node.exit_status};
+    KernelNotifications notifications{*Assert(m_node.shutdown), m_node.exit_status};
     node::BlockManager::Options blockman_opts{
         .chainparams = Params(),
         .blocks_dir = m_args.GetBlocksDirPath(),
         .notifications = notifications,
     };
-    BlockManager blockman{m_node.kernel->interrupt, blockman_opts};
+    BlockManager blockman{*Assert(m_node.shutdown), blockman_opts};
 
     // Test blocks with no transactions, not even a coinbase
     CBlock block1;

@@ -15,6 +15,7 @@
 #include <sync.h>
 #include <tinyformat.h>
 #include <util/translation.h>
+#include <util/time.h>
 #include <warnings.h>
 
 static GlobalMutex g_timeoffset_mutex;
@@ -31,11 +32,6 @@ int64_t GetTimeOffset()
 {
     LOCK(g_timeoffset_mutex);
     return nTimeOffset;
-}
-
-NodeClock::time_point GetAdjustedTime()
-{
-    return NodeClock::now() + std::chrono::seconds{GetTimeOffset()};
 }
 
 #define BITCOIN_TIMEDATA_MAX_SAMPLES 200
@@ -122,5 +118,5 @@ void TestOnlyResetTimeData()
 
 int64_t GetAdjustedTimeSeconds()
 {
-    return TicksSinceEpoch<std::chrono::seconds>(GetAdjustedTime());
+    return TicksSinceEpoch<std::chrono::seconds>(NodeClock::now());
 }

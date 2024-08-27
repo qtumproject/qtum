@@ -4,7 +4,6 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test logic for limiting mempool and package ancestors/descendants."""
 from decimal import Decimal
-
 from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.messages import (
     COIN,
@@ -32,7 +31,7 @@ def check_package_limits(func):
         testres_error_expected = node.testmempoolaccept(rawtxs=package_hex)
         assert_equal(len(testres_error_expected), len(package_hex))
         for txres in testres_error_expected:
-            assert_equal(txres["package-error"], "package-mempool-limits")
+            assert "package-mempool-limits" in txres["package-error"]
 
         # Clear mempool and check that the package passes now
         self.generate(node, 1)

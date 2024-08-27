@@ -12,6 +12,7 @@
 #include <tinyformat.h>
 #include <txmempool.h>
 #include <uint256.h>
+#include <util/check.h>
 #include <util/moneystr.h>
 #include <util/rbf.h>
 
@@ -35,7 +36,7 @@ RBFTransactionState IsRBFOptIn(const CTransaction& tx, const CTxMemPool& pool)
 
     // If all the inputs have nSequence >= maxint-1, it still might be
     // signaled for RBF if any unconfirmed parents have signaled.
-    const CTxMemPoolEntry entry{*pool.mapTx.find(tx.GetHash())};
+    const auto& entry{*Assert(pool.GetEntry(tx.GetHash()))};
     auto ancestors{pool.AssumeCalculateMemPoolAncestors(__func__, entry, CTxMemPool::Limits::NoLimits(),
                                                         /*fSearchForParents=*/false)};
 
@@ -114,11 +115,11 @@ std::optional<std::string> HasNoNewUnconfirmed(const CTransaction& tx,
 }
 
 std::optional<std::string> EntriesAndTxidsDisjoint(const CTxMemPool::setEntries& ancestors,
-                                                   const std::set<uint256>& direct_conflicts,
+                                                   const std::set<Txid>& direct_conflicts,
                                                    const uint256& txid)
 {
     for (CTxMemPool::txiter ancestorIt : ancestors) {
-        const uint256& hashAncestor = ancestorIt->GetTx().GetHash();
+        const Txid& hashAncestor = ancestorIt->GetTx().GetHash();
         if (direct_conflicts.count(hashAncestor)) {
             return strprintf("%s spends conflicting transaction %s",
                              txid.ToString(),

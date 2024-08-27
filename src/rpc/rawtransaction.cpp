@@ -65,7 +65,7 @@ static void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& 
     // Blockchain contextual information (confirmations and blocktime) is not
     // available to code in qtum-common, so we query them here and push the
     // data into the returned UniValue.
-    TxToUniv(tx, /*block_hash=*/uint256(), entry, /*include_hex=*/true, RPCSerializationFlags(), txundo, verbosity);
+    TxToUniv(tx, /*block_hash=*/uint256(), entry, /*include_hex=*/true, txundo, verbosity);
 
     if (!hashBlock.IsNull()) {
         LOCK(cs_main);
@@ -89,11 +89,11 @@ void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue&
 {
 
     uint256 txid = tx.GetHash();
-    entry.pushKV("hex", EncodeHexTx(tx, RPCSerializationFlags()));
+    entry.pushKV("hex", EncodeHexTx(tx));
     entry.pushKV("txid", tx.GetHash().GetHex());
     entry.pushKV("hash", tx.GetWitnessHash().GetHex());
     entry.pushKV("version", tx.nVersion);
-    entry.pushKV("size", (int)::GetSerializeSize(tx, PROTOCOL_VERSION));
+    entry.pushKV("size", (int)::GetSerializeSize(TX_WITH_WITNESS(tx)));
     entry.pushKV("vsize", (GetTransactionWeight(tx) + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR);
     entry.pushKV("weight", GetTransactionWeight(tx));
     entry.pushKV("locktime", (int64_t)tx.nLockTime);
@@ -592,7 +592,7 @@ static RPCHelpMan getrawtransaction()
     }
 
     if (verbosity <= 0) {
-        return EncodeHexTx(*tx, RPCSerializationFlags());
+        return EncodeHexTx(*tx);
     }
 
     //////////////////////////////////////////////////////// // qtum
@@ -626,9 +626,9 @@ static RPCHelpMan getrawtransaction()
     // If request is verbosity >= 1 but no blockhash was given, then look up the blockindex
     if (request.params[2].isNull()) {
         LOCK(cs_main);
-        blockindex = chainman.m_blockman.LookupBlockIndex(hash_block);
+        blockindex = chainman.m_blockman.LookupBlockIndex(hash_block); // May be nullptr for mempool transactions
     }
-    if (verbosity == 1 || !blockindex) {
+    if (verbosity == 1) {
         TxToJSON(*tx, hash_block, result, chainman.ActiveChainstate());
         if (fAddressIndex) TxToJSONExpanded(*tx, hash_block, result, mempool, chainman.m_blockman, nHeight, nConfirmations, nBlockTime);
         return result;
@@ -636,9 +636,8 @@ static RPCHelpMan getrawtransaction()
 
     CBlockUndo blockUndo;
     CBlock block;
-    const bool is_block_pruned{WITH_LOCK(cs_main, return chainman.m_blockman.IsBlockPruned(blockindex))};
 
-    if (tx->IsCoinBase() || is_block_pruned ||
+    if (tx->IsCoinBase() || !blockindex || WITH_LOCK(::cs_main, return chainman.m_blockman.IsBlockPruned(*blockindex)) ||
         !(chainman.m_blockman.UndoReadFromDisk(blockUndo, *blockindex) && chainman.m_blockman.ReadBlockFromDisk(block, *blockindex))) {
         TxToJSON(*tx, hash_block, result, chainman.ActiveChainstate());
         if (fAddressIndex) TxToJSONExpanded(*tx, hash_block, result, mempool, chainman.m_blockman, nHeight, nConfirmations, nBlockTime);
@@ -665,7 +664,7 @@ public:
         chainman(_chainman)
     {}
 
-    void addContract(CMutableTransaction& rawTx, const UniValue& Contract) override
+    void addContract(std::vector<std::pair<CTxDestination, CAmount>>& parsed_outputs, const UniValue& Contract) override
     {
         if(!Contract.isObject())
             throw JSONRPCError(RPC_INVALID_PARAMETER, std::string("Invalid parameter, need to be object: contract"));
@@ -781,8 +780,8 @@ public:
             scriptPubKey = (CScript() << CScriptNum(addresstype::PUBKEYHASH) << ToByteVector(keyID) << ToByteVector(scriptSig) << OP_SENDER) + scriptPubKey;
         }
 
-        CTxOut out(nAmount, scriptPubKey);
-        rawTx.vout.push_back(out);
+        CTxDestination destination{CNoDestination{scriptPubKey}};
+        parsed_outputs.emplace_back(destination, nAmount);
     }
 
 private:
@@ -1948,7 +1947,7 @@ static RPCHelpMan combinepsbt()
         throw JSONRPCTransactionError(error);
     }
 
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << merged_psbt;
     return EncodeBase64(ssTx);
 },
@@ -1993,11 +1992,11 @@ static RPCHelpMan finalizepsbt()
     bool complete = FinalizeAndExtractPSBT(psbtx, mtx);
 
     UniValue result(UniValue::VOBJ);
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     std::string result_str;
 
     if (complete && extract) {
-        ssTx << mtx;
+        ssTx << TX_WITH_WITNESS(mtx);
         result_str = HexStr(ssTx);
         result.pushKV("hex", result_str);
     } else {
@@ -2046,7 +2045,7 @@ static RPCHelpMan createpsbt()
     }
 
     // Serialize the PSBT
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << psbtx;
 
     return EncodeBase64(ssTx);
@@ -2113,7 +2112,7 @@ static RPCHelpMan converttopsbt()
     }
 
     // Serialize the PSBT
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << psbtx;
 
     return EncodeBase64(ssTx);
@@ -2160,7 +2159,7 @@ static RPCHelpMan utxoupdatepsbt()
         /*sighash_type=*/SIGHASH_ALL,
         /*finalize=*/false);
 
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << psbtx;
     return EncodeBase64(ssTx);
 },
@@ -2261,7 +2260,7 @@ static RPCHelpMan joinpsbts()
     }
     shuffled_psbt.unknown.insert(merged_psbt.unknown.begin(), merged_psbt.unknown.end());
 
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << shuffled_psbt;
     return EncodeBase64(ssTx);
 },
@@ -2441,7 +2440,7 @@ RPCHelpMan descriptorprocesspsbt()
         complete &= PSBTInputSigned(input);
     }
 
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << psbtx;
 
     UniValue result(UniValue::VOBJ);
@@ -2452,8 +2451,8 @@ RPCHelpMan descriptorprocesspsbt()
         CMutableTransaction mtx;
         PartiallySignedTransaction psbtx_copy = psbtx;
         CHECK_NONFATAL(FinalizeAndExtractPSBT(psbtx_copy, mtx));
-        CDataStream ssTx_final(SER_NETWORK, PROTOCOL_VERSION);
-        ssTx_final << mtx;
+        DataStream ssTx_final;
+        ssTx_final << TX_WITH_WITNESS(mtx);
         result.pushKV("hex", HexStr(ssTx_final));
     }
     return result;

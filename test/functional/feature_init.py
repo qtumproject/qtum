@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# Copyright (c) 2021-2022 The Bitcoin Core developers
+# Copyright (c) 2021-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Stress tests related to node initialization."""
-import os
 from pathlib import Path
+import platform
 import shutil
 
 from test_framework.test_framework import BitcoinTestFramework, SkipTest
@@ -36,7 +36,7 @@ class InitStressTest(BitcoinTestFramework):
         # and other approaches (like below) don't work:
         #
         #   os.kill(node.process.pid, signal.CTRL_C_EVENT)
-        if os.name == 'nt':
+        if platform.system() == 'Windows':
             raise SkipTest("can't SIGTERM on Windows")
 
         self.stop_node(0)
@@ -133,15 +133,12 @@ class InitStressTest(BitcoinTestFramework):
 
             for target_file in target_files:
                 self.log.info(f"Perturbing file to ensure failure {target_file}")
-                with open(target_file, "rb") as tf_read:
-                    contents = tf_read.read()
-                    tweaked_contents = bytearray(contents)
+                with open(target_file, "r+b") as tf:
                     # Since the genesis block is not checked by -checkblocks, the
                     # perturbation window must be chosen such that a higher block
                     # in blk*.dat is affected.
-                    tweaked_contents[150:350] = b'1' * 200
-                with open(target_file, "wb") as tf_write:
-                    tf_write.write(bytes(tweaked_contents))
+                    tf.seek(150)
+                    tf.write(b"1" * 200)
 
             start_expecting_error(err_fragment)
 

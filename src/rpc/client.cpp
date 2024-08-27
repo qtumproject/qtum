@@ -98,6 +98,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "scanblocks", 2, "start_height" },
     { "scanblocks", 3, "stop_height" },
     { "scanblocks", 5, "options" },
+    { "scanblocks", 5, "filter_false_positives" },
     { "scantxoutset", 1, "scanobjects" },
     { "sendmanywithdupes", 1, "amounts" },
     { "sendmanywithdupes", 2, "minconf" },
@@ -379,6 +380,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "sendmsgtopeer", 0, "peer_id" },
     { "stop", 0, "wait" },
     { "addnode", 2, "v2transport" },
+    { "addconnection", 2, "v2transport" },
 };
 // clang-format on
 

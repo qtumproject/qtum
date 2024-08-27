@@ -106,6 +106,7 @@ BITCOIN_TESTS =\
   test/dbwrapper_tests.cpp \
   test/denialofservice_tests.cpp \
   test/descriptor_tests.cpp \
+  test/disconnected_transactions.cpp \
   test/flatfile_tests.cpp \
   test/fs_tests.cpp \
   test/getarg_tests.cpp \
@@ -125,10 +126,12 @@ BITCOIN_TESTS =\
   test/miniscript_tests.cpp \
   test/minisketch_tests.cpp \
   test/multisig_tests.cpp \
+  test/net_peer_connection_tests.cpp \
   test/net_peer_eviction_tests.cpp \
   test/net_tests.cpp \
   test/netbase_tests.cpp \
   test/orphanage_tests.cpp \
+  test/peerman_tests.cpp \
   test/pmt_tests.cpp \
   test/policy_fee_tests.cpp \
   test/policyestimator_tests.cpp \
@@ -158,6 +161,7 @@ BITCOIN_TESTS =\
   test/sigopcount_tests.cpp \
   test/skiplist_tests.cpp \
   test/sock_tests.cpp \
+  test/span_tests.cpp \
   test/streams_tests.cpp \
   test/sync_tests.cpp \
   test/system_tests.cpp \
@@ -229,7 +233,8 @@ FUZZ_WALLET_SRC = \
 
 if USE_SQLITE
 FUZZ_WALLET_SRC += \
- wallet/test/fuzz/notifications.cpp
+ wallet/test/fuzz/notifications.cpp \
+ wallet/test/fuzz/scriptpubkeyman.cpp
 endif # USE_SQLITE
 
 BITCOIN_TEST_SUITE += \
@@ -239,12 +244,48 @@ BITCOIN_TEST_SUITE += \
   wallet/test/init_test_fixture.h
 endif # ENABLE_WALLET
 
+if BUILD_MULTIPROCESS
+# Add boost ipc_tests definition to BITCOIN_TESTS
+BITCOIN_TESTS += test/ipc_tests.cpp
+
+# Build ipc_test code in a separate library so it can be compiled with custom
+# LIBMULTIPROCESS_CFLAGS without those flags affecting other tests
+LIBBITCOIN_IPC_TEST=libbitcoin_ipc_test.a
+EXTRA_LIBRARIES += $(LIBBITCOIN_IPC_TEST)
+libbitcoin_ipc_test_a_SOURCES = \
+  test/ipc_test.cpp \
+  test/ipc_test.h
+libbitcoin_ipc_test_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libbitcoin_ipc_test_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(LIBMULTIPROCESS_CFLAGS)
+
+# Generate various .c++/.h files from the ipc_test.capnp file
+include $(MPGEN_PREFIX)/include/mpgen.mk
+EXTRA_DIST += test/ipc_test.capnp
+libbitcoin_ipc_test_mpgen_output = \
+  test/ipc_test.capnp.c++ \
+  test/ipc_test.capnp.h \
+  test/ipc_test.capnp.proxy-client.c++ \
+  test/ipc_test.capnp.proxy-server.c++ \
+  test/ipc_test.capnp.proxy-types.c++ \
+  test/ipc_test.capnp.proxy-types.h \
+  test/ipc_test.capnp.proxy.h
+nodist_libbitcoin_ipc_test_a_SOURCES = $(libbitcoin_ipc_test_mpgen_output)
+CLEANFILES += $(libbitcoin_ipc_test_mpgen_output)
+endif
+
+# Explicitly list dependencies on generated headers as described in
+# https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html#Recording-Dependencies-manually
+test/libbitcoin_ipc_test_a-ipc_test.$(OBJEXT): test/ipc_test.capnp.h
+
 test_test_qtum_SOURCES = $(BITCOIN_TEST_SUITE) $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
 test_test_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -I$(srcdir)/test/ $(TESTDEFS) $(EVENT_CFLAGS)
 test_test_qtum_LDADD = $(LIBTEST_UTIL)
 if ENABLE_WALLET
 test_test_qtum_LDADD += $(LIBBITCOIN_WALLET)
 test_test_qtum_CPPFLAGS += $(BDB_CPPFLAGS)
+endif
+if BUILD_MULTIPROCESS
+test_test_qtum_LDADD += $(LIBBITCOIN_IPC_TEST) $(LIBMULTIPROCESS_LIBS)
 endif
 
 test_test_qtum_LDADD += $(LIBBITCOIN_NODE) $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CONSENSUS) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) \
@@ -263,7 +304,7 @@ if ENABLE_FUZZ_BINARY
 test_fuzz_fuzz_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 test_fuzz_fuzz_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 test_fuzz_fuzz_LDADD = $(FUZZ_SUITE_LD_COMMON) $(LIBCRYPTOPP) $(LIBFF) $(GMP_LIBS) $(GMPXX_LIBS)
-test_fuzz_fuzz_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS) $(RUNTIME_LDFLAGS)
+test_fuzz_fuzz_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 test_fuzz_fuzz_SOURCES = \
  $(FUZZ_WALLET_SRC) \
  test/fuzz/addition_overflow.cpp \
@@ -405,7 +446,9 @@ qtum_test_check: $(TEST_BINARY) FORCE
 qtum_test_clean : FORCE
 	rm -f $(CLEAN_BITCOIN_TEST) $(test_test_qtum_OBJECTS) $(TEST_BINARY)
 
-check-local: $(BITCOIN_TESTS:.cpp=.cpp.test)
+check-unit: $(BITCOIN_TESTS:.cpp=.cpp.test)
+
+check-local: check-unit
 if BUILD_BITCOIN_TX
 	@echo "Running test/util/test_runner.py..."
 	$(PYTHON) $(top_builddir)/test/util/test_runner.py

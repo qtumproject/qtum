@@ -14,8 +14,6 @@ endif
 .PHONY: deploy FORCE
 .INTERMEDIATE: $(COVERAGE_INFO)
 
-export PYTHONPATH
-
 if BUILD_BITCOIN_LIBS
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libbitcoinconsensus.pc
@@ -192,7 +190,7 @@ $(COV_TOOL_WRAPPER):
 	@chmod +x $(COV_TOOL_WRAPPER)
 
 baseline.info: $(COV_TOOL_WRAPPER)
-	$(LCOV) -c -i -d $(abs_builddir)/src -o $@
+	$(LCOV) $(LCOV_OPTS) -c -i -d $(abs_builddir)/src -o $@
 
 baseline_filtered.info: baseline.info
 	$(abs_builddir)/contrib/filter-lcov.py $(LCOV_FILTER_PATTERN) $< $@
@@ -226,13 +224,13 @@ functional_test_filtered.info: functional_test.info
 	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
 fuzz_coverage.info: fuzz_filtered.info
-	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a fuzz_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
+	$(LCOV) $(LCOV_OPTS) -a baseline_filtered.info -a fuzz_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
 
 test_bitcoin_coverage.info: baseline_filtered.info test_bitcoin_filtered.info
-	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a test_bitcoin_filtered.info -o $@
+	$(LCOV) $(LCOV_OPTS) -a baseline_filtered.info -a test_bitcoin_filtered.info -o $@
 
 total_coverage.info: test_bitcoin_filtered.info functional_test_filtered.info
-	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a test_bitcoin_filtered.info -a functional_test_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
+	$(LCOV) $(LCOV_OPTS) -a baseline_filtered.info -a test_bitcoin_filtered.info -a functional_test_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
 
 fuzz.coverage/.dirstamp: fuzz_coverage.info
 	$(GENHTML) -s $(LCOV_OPTS) $< -o $(@D)
@@ -315,6 +313,10 @@ EXTRA_DIST += \
     test/util/data/txcreatesignv1.hex \
     test/util/data/txcreatesignv1.json \
     test/util/data/txcreatesignv2.hex \
+    test/util/data/txreplace1.hex \
+    test/util/data/txreplacenoinputs.hex \
+    test/util/data/txreplaceomittedn.hex \
+    test/util/data/txreplacesingleinput.hex \
     test/util/rpcauth-test.py
 
 CLEANFILES = $(OSX_ZIP) $(BITCOIN_WIN_INSTALLER)

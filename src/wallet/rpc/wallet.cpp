@@ -3,6 +3,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <core_io.h>
 #include <key_io.h>
 #include <rpc/server.h>
@@ -612,7 +616,7 @@ static RPCHelpMan listwalletdir()
     UniValue wallets(UniValue::VARR);
     for (const auto& path : ListDatabases(GetWalletDir())) {
         UniValue wallet(UniValue::VOBJ);
-        wallet.pushKV("name", path.u8string());
+        wallet.pushKV("name", path.utf8string());
         wallets.push_back(wallet);
     }
 
@@ -1191,13 +1195,13 @@ RPCHelpMan simulaterawtransaction()
 static RPCHelpMan migratewallet()
 {
     return RPCHelpMan{"migratewallet",
-        "EXPERIMENTAL warning: This call may not work as expected and may be changed in future releases\n"
         "\nMigrate the wallet to a descriptor wallet.\n"
         "A new wallet backup will need to be made.\n"
         "\nThe migration process will create a backup of the wallet before migrating. This backup\n"
         "file will be named <wallet name>-<timestamp>.legacy.bak and can be found in the directory\n"
         "for this wallet. In the event of an incorrect migration, the backup can be restored using restorewallet."
-        "\nEncrypted wallets must have the passphrase provided as an argument to this call.",
+        "\nEncrypted wallets must have the passphrase provided as an argument to this call.\n"
+        "\nThis RPC may take a long time to complete. Increasing the RPC client timeout is recommended.",
         {
             {"wallet_name", RPCArg::Type::STR, RPCArg::DefaultHint{"the wallet name from the RPC endpoint"}, "The name of the wallet to migrate. If provided both here and in the RPC endpoint, the two must be identical."},
             {"passphrase", RPCArg::Type::STR, RPCArg::Optional::OMITTED, "The wallet passphrase"},
@@ -1249,7 +1253,7 @@ static RPCHelpMan migratewallet()
             if (res->solvables_wallet) {
                 r.pushKV("solvables_name", res->solvables_wallet->GetName());
             }
-            r.pushKV("backup_path", res->backup_path.u8string());
+            r.pushKV("backup_path", res->backup_path.utf8string());
 
             return r;
         },

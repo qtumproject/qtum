@@ -19,7 +19,6 @@ import sys
 import tempfile
 import time
 
-from typing import List
 from .address import create_deterministic_address_bcrt1_p2tr_op_true
 from .authproxy import JSONRPCException
 from . import coverage
@@ -30,6 +29,7 @@ from .util import (
     PortSeed,
     assert_equal,
     check_json_precision,
+    find_vout_for_address,
     get_datadir_path,
     initialize_datadir,
     p2p_port,
@@ -98,7 +98,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         """Sets test framework defaults. Do not override this method. Instead, override the set_test_params() method"""
         self.chain: str = 'regtest'
         self.setup_clean_chain: bool = False
-        self.nodes: List[TestNode] = []
+        self.nodes: list[TestNode] = []
         self.extra_args = None
         self.network_thread = None
         self.rpc_timeout = 360  # Wait for up to 60 seconds for the RPC server to respond
@@ -511,8 +511,6 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         assert_equal(len(binary_cli), num_nodes)
         for i in range(num_nodes):
             args = list(extra_args[i])
-            if self.options.v2transport and ("-v2transport=0" not in args):
-                args.append("-v2transport=1")
             test_node_i = TestNode(
                 i,
                 get_datadir_path(self.options.tmpdir, i),
@@ -531,6 +529,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 start_perf=self.options.perf,
                 use_valgrind=self.options.valgrind,
                 descriptors=self.options.descriptors,
+                v2transport=self.options.v2transport,
             )
             self.nodes.append(test_node_i)
             if not test_node_i.version_is_at_least(170000):
@@ -605,12 +604,12 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         ip_port = "127.0.0.1:" + str(p2p_port(b))
 
         if peer_advertises_v2 is None:
-            peer_advertises_v2 = self.options.v2transport
+            peer_advertises_v2 = from_connection.use_v2transport
 
-        if peer_advertises_v2:
-            from_connection.addnode(node=ip_port, command="onetry", v2transport=True)
+        if peer_advertises_v2 != from_connection.use_v2transport:
+            from_connection.addnode(node=ip_port, command="onetry", v2transport=peer_advertises_v2)
         else:
-            # skip the optional third argument (default false) for
+            # skip the optional third argument if it matches the default, for
             # compatibility with older clients
             from_connection.addnode(ip_port, "onetry")
 
@@ -700,6 +699,22 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         blocks = generator.generatetodescriptor(*args, invalid_call=False, **kwargs)
         sync_fun() if sync_fun else self.sync_all()
         return blocks
+
+    def create_outpoints(self, node, *, outputs):
+        """Send funds to a given list of `{address: amount}` targets using the bitcoind
+        wallet and return the corresponding outpoints as a list of dictionaries
+        `[{"txid": txid, "vout": vout1}, {"txid": txid, "vout": vout2}, ...]`.
+        The result can be used to specify inputs for RPCs like `createrawtransaction`,
+        `createpsbt`, `lockunspent` etc."""
+        assert all(len(output.keys()) == 1 for output in outputs)
+        send_res = node.send(outputs)
+        assert send_res["complete"]
+        utxos = []
+        for output in outputs:
+            address = list(output.keys())[0]
+            vout = find_vout_for_address(node, send_res["txid"], address)
+            utxos.append({"txid": send_res["txid"], "vout": vout})
+        return utxos
 
     def sync_blocks(self, nodes=None, wait=1, timeout=60):
         """
@@ -836,6 +851,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                     nblocks=25 if i != 7 else 24,
                     address=gen_addresses[i % len(gen_addresses)],
                 )
+
             for i in range(4):
                 generatesynchronized(self.nodes[0], COINBASE_MATURITY // 4 if i != 3 else (COINBASE_MATURITY // 4) - 1, TestNode.PRIV_KEYS[i % 4].address, self.nodes)
             assert_equal(cache_node.getblockchaininfo()["blocks"], 99+COINBASE_MATURITY)
@@ -1011,5 +1027,4 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         return self.config["components"].getboolean("USE_BDB")
 
     def has_blockfile(self, node, filenum: str):
-        blocksdir = node.datadir_path / self.chain / 'blocks'
-        return (blocksdir / f"blk{filenum}.dat").is_file()
+        return (node.blocks_path/ f"blk{filenum}.dat").is_file()

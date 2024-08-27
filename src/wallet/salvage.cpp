@@ -183,7 +183,7 @@ bool RecoverDatabaseFile(const ArgsManager& args, const fs::path& file_path, bil
     {
         /* Filter for only private key type KV pairs to be added to the salvaged wallet */
         DataStream ssKey{row.first};
-        CDataStream ssValue(row.second, SER_DISK, CLIENT_VERSION);
+        DataStream ssValue(row.second);
         std::string strType, strErr;
 
         // We only care about KEY, MASTER_KEY, CRYPTED_KEY, HDCHAIN, TOKEN, TOKENTX and DELEGATION types

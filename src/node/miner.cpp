@@ -21,8 +21,8 @@
 #include <pow.h>
 #include <pos.h>
 #include <primitives/transaction.h>
-#include <timedata.h>
 #include <util/moneystr.h>
+#include <util/time.h>
 #include <validation.h>
 #include <util/threadnames.h>
 #include <key_io.h>
@@ -72,7 +72,7 @@ void updateMinerParams(int nHeight, const Consensus::Params& consensusParams, bo
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
     int64_t nOldTime = pblock->nTime;
-    int64_t nNewTime{std::max<int64_t>(pindexPrev->GetMedianTimePast() + 1, TicksSinceEpoch<std::chrono::seconds>(GetAdjustedTime()))};
+    int64_t nNewTime{std::max<int64_t>(pindexPrev->GetMedianTimePast() + 1, TicksSinceEpoch<std::chrono::seconds>(NodeClock::now()))};
 
     if (nOldTime < nNewTime) {
         pblock->nTime = nNewTime;
@@ -316,7 +316,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     BlockValidationState state;
     if (!fProofOfStake && m_options.test_block_validity && !TestBlockValidity(state, chainparams, m_chainstate, *pblock, pindexPrev,
-                                                  GetAdjustedTime, /*fCheckPOW=*/false, /*fCheckMerkleRoot=*/false)) {
+                                                            /*fCheckPOW=*/false, /*fCheckMerkleRoot=*/false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, state.ToString()));
     }
     const auto time_2{SteadyClock::now()};
@@ -430,7 +430,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock(const CScript& 
     pblocktemplate->vTxSigOpsCost[0] = WITNESS_SCALE_FACTOR * GetLegacySigOpCount(*pblock->vtx[0]);
 
     BlockValidationState state;
-    if (!fProofOfStake && m_options.test_block_validity && !TestBlockValidity(state, chainparams, m_chainstate, *pblock, pindexPrev, GetAdjustedTime, false, false)) {
+    if (!fProofOfStake && m_options.test_block_validity && !TestBlockValidity(state, chainparams, m_chainstate, *pblock, pindexPrev, false, false)) {
         throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, state.ToString()));
     }
 
@@ -441,7 +441,7 @@ void BlockAssembler::onlyUnconfirmed(CTxMemPool::setEntries& testSet)
 {
     for (CTxMemPool::setEntries::iterator iit = testSet.begin(); iit != testSet.end(); ) {
         // Only test txs not already in the block
-        if (inBlock.count(*iit)) {
+        if (inBlock.count((*iit)->GetSharedTx()->GetHash())) {
             testSet.erase(iit++);
         } else {
             iit++;
@@ -602,7 +602,7 @@ bool BlockAssembler::AttemptToAddContractToBlock(CTxMemPool::txiter iter, uint64
     ++nBlockTx;
     this->nBlockSigOpsCost += iter->GetSigOpCost();
     nFees += iter->GetFee();
-    inBlock.insert(iter);
+    inBlock.insert(iter->GetSharedTx()->GetHash());
 
     for (CTransaction &t : bceResult.valueTransfers) {
         pblock->vtx.emplace_back(MakeTransactionRef(std::move(t)));
@@ -629,7 +629,7 @@ void BlockAssembler::AddToBlock(CTxMemPool::txiter iter)
     ++nBlockTx;
     nBlockSigOpsCost += iter->GetSigOpCost();
     nFees += iter->GetFee();
-    inBlock.insert(iter);
+    inBlock.insert(iter->GetSharedTx()->GetHash());
 
     bool fPrintPriority = gArgs.GetBoolArg("-printpriority", DEFAULT_PRINTPRIORITY);
     if (fPrintPriority) {
@@ -698,7 +698,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
     // because some of their txs are already in the block
     indexed_modified_transaction_set mapModifiedTx;
     // Keep track of entries that failed inclusion, to avoid duplicate work
-    CTxMemPool::setEntries failedTx;
+    std::set<Txid> failedTx;
 
     CTxMemPool::indexed_transaction_set::index<ancestor_score_or_gas_price>::type::iterator mi = mempool.mapTx.get<ancestor_score_or_gas_price>().begin();
     CTxMemPool::txiter iter;
@@ -730,7 +730,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         if (mi != mempool.mapTx.get<ancestor_score_or_gas_price>().end()) {
             auto it = mempool.mapTx.project<0>(mi);
             assert(it != mempool.mapTx.end());
-            if (mapModifiedTx.count(it) || inBlock.count(it) || failedTx.count(it)) {
+            if (mapModifiedTx.count(it) || inBlock.count(it->GetSharedTx()->GetHash()) || failedTx.count(it->GetSharedTx()->GetHash())) {
                 ++mi;
                 continue;
             }
@@ -764,7 +764,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
 
         // We skip mapTx entries that are inBlock, and mapModifiedTx shouldn't
         // contain anything that is inBlock.
-        assert(!inBlock.count(iter));
+        assert(!inBlock.count(iter->GetSharedTx()->GetHash()));
 
         uint64_t packageSize = iter->GetSizeWithAncestors();
         CAmount packageFees = iter->GetModFeesWithAncestors();
@@ -786,7 +786,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
                 // we must erase failed entries so that we can consider the
                 // next best entry on the next loop iteration
                 mapModifiedTx.get<ancestor_score_or_gas_price>().erase(modit);
-                failedTx.insert(iter);
+                failedTx.insert(iter->GetSharedTx()->GetHash());
             }
 
             ++nConsecutiveFailed;
@@ -808,7 +808,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         if (!TestPackageTransactions(ancestors)) {
             if (fUsingModified) {
                 mapModifiedTx.get<ancestor_score_or_gas_price>().erase(modit);
-                failedTx.insert(iter);
+                failedTx.insert(iter->GetSharedTx()->GetHash());
             }
             continue;
         }
@@ -837,7 +837,7 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
                         if(fUsingModified) {
                             //this only needs to be done once to mark the whole package (everything in sortedEntries) as failed
                             mapModifiedTx.get<ancestor_score_or_gas_price>().erase(modit);
-                            failedTx.insert(iter);
+                            failedTx.insert(iter->GetSharedTx()->GetHash());
                         }
                     }
                 } else {
@@ -1270,8 +1270,8 @@ bool SignBlockHWI(std::shared_ptr<CBlock> pblock, wallet::CWallet& wallet, std::
 
     // Serialize the PSBT
     if(wallet.IsStakeClosing()) return false;
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
-    ssTx << psbtx_in;
+    DataStream ssTx;
+    ssTx << TX_WITH_WITNESS(psbtx_in);
     std::string psbt = EncodeBase64(ssTx.str());
     if(!device.signCoinStake(wallet.m_ledger_id, psbt)) {
         return false;

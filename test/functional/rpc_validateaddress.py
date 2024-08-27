@@ -16,7 +16,7 @@ INVALID_DATA = [
         "Invalid or unsupported Segwit (Bech32) or Base58 encoding.",  # Invalid hrp
         [],
     ),
-    (   "qc1qyeelyp74mcw5ddm959l5smnzzgf387psv9a2gg", "Invalid Bech32 checksum", [41]),
+    ("qc1qyeelyp74mcw5ddm959l5smnzzgf387psv9a2gg", "Invalid Bech32 checksum", [41]),
     (
         convert_btc_bech32_address_to_qtum("BC13W508D6QEJXTDG4Y5R3ZARVARY0C5XW7KN40WF2", main=True).upper(),
         "Version 1+ witness address must use Bech32m checksum",
@@ -57,8 +57,8 @@ INVALID_DATA = [
         "Invalid or unsupported Segwit (Bech32) or Base58 encoding.",  # tb1, Non-zero padding in 8-to-5 conversion
         [],
     ),
-    	(convert_btc_bech32_address_to_qtum("bc1gmk9yu", main=True), "Empty Bech32 data section", []),
-		# BIP 350
+    (convert_btc_bech32_address_to_qtum("bc1gmk9yu", main=True), "Empty Bech32 data section", []),
+    # BIP 350
     (
         "tb1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vpggkg4j",
         "Invalid or unsupported Segwit (Bech32) or Base58 encoding.",  # Invalid human-readable part

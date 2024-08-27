@@ -81,7 +81,6 @@ struct SignatureData;
 using LoadWalletFn = std::function<void(std::unique_ptr<interfaces::Wallet> wallet)>;
 
 struct bilingual_str;
-static const int SERIALIZE_GETHASH = -1;
 
 namespace wallet {
 struct WalletContext;
@@ -204,7 +203,7 @@ static const std::map<std::string,WalletFlags> WALLET_FLAG_MAP{
  * Instantiating a ReserveDestination does not reserve an address. To do so,
  * GetReservedDestination() needs to be called on the object. Once an address has been
  * reserved, call KeepDestination() on the ReserveDestination object to make sure it is not
- * returned. Call ReturnDestination() to return the address so it can be re-used (for
+ * returned. Call ReturnDestination() to return the address so it can be reused (for
  * example, if the address was used in a new transaction
  * and that transaction was not completed and needed to be aborted).
  *
@@ -335,7 +334,7 @@ class CWallet final : public WalletStorage, public interfaces::Chain::Notificati
 private:
     CKeyingMaterial vMasterKey GUARDED_BY(cs_wallet);
 
-    bool Unlock(const CKeyingMaterial& vMasterKeyIn, bool accept_no_keys = false);
+    bool Unlock(const CKeyingMaterial& vMasterKeyIn);
 
     std::atomic<bool> fAbortRescan{false};
     std::atomic<bool> fScanningWallet{false}; // controlled by WalletRescanReserver
@@ -454,6 +453,12 @@ private:
     // Must be the only method adding data to it.
     void AddScriptPubKeyMan(const uint256& id, std::unique_ptr<ScriptPubKeyMan> spkm_man);
 
+    // Same as 'AddActiveScriptPubKeyMan' but designed for use within a batch transaction context
+    void AddActiveScriptPubKeyManWithDb(WalletBatch& batch, uint256 id, OutputType type, bool internal);
+
+    //! Cache of descriptor ScriptPubKeys used for IsMine. Maps ScriptPubKey to set of spkms
+    std::unordered_map<CScript, std::vector<ScriptPubKeyMan*>, SaltedSipHasher> m_cached_spks;
+
     /**
      * Catch wallet up to current chain, scanning new blocks, updating the best
      * block locator and m_last_block_processed, and registering for
@@ -560,6 +565,13 @@ public:
      * <0  : conflicts with a transaction this deep in the blockchain
      *  0  : in memory pool, waiting to be included in a block
      * >=1 : this many blocks deep in the main chain
+     *
+     * Preconditions: it is only valid to call this function when the wallet is
+     * online and the block index is loaded. So this cannot be called by
+     * bitcoin-wallet tool code or by wallet migration code. If this is called
+     * without the wallet being online, it won't be able able to determine the
+     * the height of the last block processed, or the heights of blocks
+     * referenced in transaction, and might cause assert failures.
      */
     int GetTxDepthInMainChain(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool IsTxInMainChain(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet)
@@ -627,7 +639,7 @@ public:
     // Used to prevent deleting the passphrase from memory when it is still in use.
     RecursiveMutex m_relock_mutex;
 
-    bool Unlock(const SecureString& strWalletPassphrase, bool accept_no_keys = false);
+    bool Unlock(const SecureString& strWalletPassphrase);
     bool ChangeWalletPassphrase(const SecureString& strOldWalletPassphrase, const SecureString& strNewWalletPassphrase);
     bool EncryptWallet(const SecureString& strWalletPassphrase);
 
@@ -886,11 +898,14 @@ public:
     void chainStateFlushed(ChainstateRole role, const CBlockLocator& loc) override;
 
     DBErrors LoadWallet();
-    DBErrors ZapSelectTx(std::vector<uint256>& vHashIn, std::vector<uint256>& vHashOut) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+
+    /** Erases the provided transactions from the wallet. */
+    util::Result<void> RemoveTxs(std::vector<uint256>& txs_to_remove) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 
     bool SetAddressBook(const CTxDestination& address, const std::string& strName, const std::optional<AddressPurpose>& purpose);
 
     bool DelAddressBook(const CTxDestination& address);
+    bool DelAddressBookWithDB(WalletBatch& batch, const CTxDestination& address);
 
     bool IsAddressPreviouslySpent(const CTxDestination& dest) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool SetAddressPreviouslySpent(WalletBatch& batch, const CTxDestination& dest, bool used) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
@@ -1093,7 +1108,8 @@ public:
     //! Make a LegacyScriptPubKeyMan and set it for all types, internal, and external.
     void SetupLegacyScriptPubKeyMan();
 
-    const CKeyingMaterial& GetEncryptionKey() const override;
+    bool WithEncryptionKey(std::function<bool (const CKeyingMaterial&)> cb) const override;
+
     bool HasEncryptionKeys() const override;
 
     /** Get last block processed height */
@@ -1123,7 +1139,7 @@ public:
     void ConnectScriptPubKeyManNotifiers();
 
     //! Instantiate a descriptor ScriptPubKeyMan from the WalletDescriptor and load it
-    void LoadDescriptorScriptPubKeyMan(uint256 id, WalletDescriptor& desc);
+    DescriptorScriptPubKeyMan& LoadDescriptorScriptPubKeyMan(uint256 id, WalletDescriptor& desc);
 
     //! Adds the active ScriptPubKeyMan for the specified type and internal. Writes it to the wallet file
     //! @param[in] id The unique id for the ScriptPubKeyMan
@@ -1174,6 +1190,11 @@ public:
 
     //! Whether the (external) signer performs R-value signature grinding
     bool CanGrindR() const;
+
+    //! Add scriptPubKeys for this ScriptPubKeyMan into the scriptPubKey cache
+    void CacheNewScriptPubKeys(const std::set<CScript>& spks, ScriptPubKeyMan* spkm);
+
+    void TopUpCallback(const std::set<CScript>& spks, ScriptPubKeyMan* spkm) override;
 
     /* Add token entry into the wallet */
     bool AddTokenEntry(const CTokenInfo& token, bool fFlushOnClose=true);
@@ -1312,6 +1333,13 @@ struct MigrationResult {
 //! Do all steps to migrate a legacy wallet to a descriptor wallet
 [[nodiscard]] util::Result<MigrationResult> MigrateLegacyToDescriptor(const std::string& wallet_name, const SecureString& passphrase, WalletContext& context);
 
+struct InfoSerParams {
+    const bool get_hash;
+    SER_PARAMS_OPFUNC
+};
+static constexpr InfoSerParams SER_INFO{.get_hash = false};
+static constexpr InfoSerParams SER_INFO_GETHASH{.get_hash = true};
+
 class CTokenInfo
 {
 public:
@@ -1334,7 +1362,7 @@ public:
     }
 
     SERIALIZE_METHODS(CTokenInfo, obj) {
-        if (s.GetVersion() != SERIALIZE_GETHASH)
+        if (!s.GetParams().get_hash)
         {
             READWRITE(obj.nVersion, obj.nCreateTime, obj.strTokenName, obj.strTokenSymbol, obj.blockHash, obj.blockNumber);
         }
@@ -1380,7 +1408,7 @@ public:
     }
 
     SERIALIZE_METHODS(CTokenTx, obj) {
-        if (s.GetVersion() != SERIALIZE_GETHASH)
+        if (!s.GetParams().get_hash)
         {
             READWRITE(obj.nVersion, obj.nCreateTime, obj.blockHash, obj.blockNumber, LIMITED_STRING(obj.strLabel, 65536));
         }
@@ -1435,7 +1463,7 @@ public:
     }
 
     SERIALIZE_METHODS(CDelegationInfo, obj) {
-        if (s.GetVersion() != SERIALIZE_GETHASH)
+        if (!s.GetParams().get_hash)
         {
             READWRITE(obj.nVersion, obj.nCreateTime, obj.nFee, obj.blockNumber, obj.createTxHash, obj.removeTxHash);
         }
@@ -1478,7 +1506,7 @@ public:
     }
 
     SERIALIZE_METHODS(CSuperStakerInfo, obj) {
-        if (s.GetVersion() != SERIALIZE_GETHASH)
+        if (!s.GetParams().get_hash)
         {
             READWRITE(obj.nVersion, obj.nCreateTime, obj.nMinFee, obj.fCustomConfig, obj.nMinDelegateUtxo, obj.delegateAddressList, obj.nDelegateAddressType);
         }

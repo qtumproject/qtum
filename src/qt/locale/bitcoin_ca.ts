@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation type="unfinished">Trieu l'adreça on rebre les monedes</translation>
+        <translation type="unfinished">Trieu l'adreça on rebre les monedes amb</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
@@ -785,7 +785,7 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
     </message>
     <message>
         <source>Error creating wallet</source>
-        <translation type="unfinished">Error creant la cartera</translation>
+        <translation type="unfinished">Error al crear la cartera</translation>
     </message>
     <message>
         <source>Cannot create new wallet, the software was compiled without sqlite support (required for descriptor wallets)</source>
@@ -1081,6 +1081,14 @@ El procés de migració crearà una còpia de seguretat de la cartera abans de m
     <message>
         <source>The wallet '%1' was migrated successfully.</source>
         <translation type="unfinished">La cartera '%1' s'ha migrat amb èxit.</translation>
+    </message>
+    <message>
+        <source>Watchonly scripts have been migrated to a new wallet named '%1'.</source>
+        <translation type="unfinished">Els scripts de només visualització s'han migrat a una nova cartera anomenada '%1'.</translation>
+    </message>
+    <message>
+        <source>Solvable but not watched scripts have been migrated to a new wallet named '%1'.</source>
+        <translation type="unfinished">Els scripts resolubles però no vigilats s'han migrat a una nova cartera anomenada '%1'.</translation>
     </message>
     <message>
         <source>Migration failed</source>
@@ -1675,18 +1683,6 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation type="unfinished">Utilitzeu el servidor intermediari SOCKS&amp;5 per a arribar als iguals mitjançant els serveis d'onion de Tor:</translation>
     </message>
     <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">Tipus de lletra monoespai a la pestanya Visió general:</translation>
-    </message>
-    <message>
-        <source>embedded "%1"</source>
-        <translation type="unfinished">incrustat "%1"</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">coincidència més propera "%1"</translation>
-    </message>
-    <message>
         <source>&amp;OK</source>
         <translation type="unfinished">&amp;D'acord</translation>
     </message>
@@ -1886,10 +1882,6 @@ Això és ideal per a carteres de mode només lectura.</translation>
     <message>
         <source>PSBT saved to disk.</source>
         <translation type="unfinished">PSBT guardada al disc.</translation>
-    </message>
-    <message>
-        <source> * Sends %1 to %2</source>
-        <translation type="unfinished">*Envia %1 a %2</translation>
     </message>
     <message>
         <source>own address</source>
@@ -2815,10 +2807,6 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <translation type="unfinished">Crea una transacció qtum parcialment signada (PSBT) per a utilitzar, per exemple,  amb una cartera %1 fora de línia o amb una cartera compatible amb PSBT.</translation>
     </message>
     <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">de la cartera "%1"</translation>
-    </message>
-    <message>
         <source>%1 to '%2'</source>
         <translation type="unfinished">%1 a '%2'</translation>
     </message>
@@ -3310,10 +3298,6 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
     <message>
         <source>Output index</source>
         <translation type="unfinished">Índex de resultats</translation>
-    </message>
-    <message>
-        <source> (Certificate was not verified)</source>
-        <translation type="unfinished">(El certificat no s'ha verificat)</translation>
     </message>
     <message>
         <source>Merchant</source>
@@ -4220,10 +4204,6 @@ Ves a Arxiu &gt; Obrir Cartera per a carregar cartera.
     <message>
         <source>Transaction amounts must not be negative</source>
         <translation type="unfinished">Els imports de la transacció no han de ser negatius</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">La transacció té massa temps d'una cadena de mempool</translation>
     </message>
     <message>
         <source>Transaction must have at least one recipient</source>
