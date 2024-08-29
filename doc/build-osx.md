@@ -51,6 +51,20 @@ To install, run the following from your terminal:
 brew install cmake automake berkeley-db@4 libtool boost@1.76 miniupnpc openssl pkg-config protobuf qt@5 libevent imagemagick librsvg qrencode gmp
 ```
 
+For macOS 11 (Big Sur) and 12 (Monterey) you need to install a more recent version of llvm.
+
+``` bash
+brew install llvm
+```
+
+And append the following to the configure commands below:
+
+``` bash
+CC=$(brew --prefix llvm)/bin/clang CXX=$(brew --prefix llvm)/bin/clang++
+```
+
+Try `llvm@17` if compilation fails with the default version of llvm.
+
 Link the specific boost version:
 ``` bash
 brew link boost@1.76

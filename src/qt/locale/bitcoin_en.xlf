@@ -278,7 +278,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
     </group>
   </body></file>
   <file original="../bitcoin.cpp" datatype="cpp" source-language="en"><body>
-    <group restype="x-trolltech-linguist-context" resname="QtumApplication">
+    <group restype="x-trolltech-linguist-context" resname="BitcoinApplication">
       <trans-unit id="_msg61">
         <source xml:space="preserve">Settings file %1 might be corrupt or invalid.</source>
         <context-group purpose="location"><context context-type="linenumber">275</context></context-group>
@@ -322,7 +322,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
     </group>
   </body></file>
   <file original="../bitcoingui.cpp" datatype="cpp" source-language="en"><body>
-    <group restype="x-trolltech-linguist-context" resname="QtumGUI">
+    <group restype="x-trolltech-linguist-context" resname="BitcoinGUI">
       <trans-unit id="_msg70">
         <source xml:space="preserve">&amp;Overview</source>
         <context-group purpose="location"><context context-type="linenumber">250</context></context-group>
@@ -4535,7 +4535,7 @@ Go to File &gt; Open Wallet to load a wallet.
     </group>
   </body></file>
   <file original="../bitcoinstrings.cpp" datatype="cpp" source-language="en"><body>
-    <group restype="x-trolltech-linguist-context" resname="qtum-core">
+    <group restype="x-trolltech-linguist-context" resname="bitcoin-core">
       <trans-unit id="_msg987">
         <source xml:space="preserve">The %s developers</source>
         <context-group purpose="location"><context context-type="linenumber">12</context></context-group>
