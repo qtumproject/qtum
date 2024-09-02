@@ -1,5 +1,0 @@
-$env:project_name="@PROJECT_NAME@"
-$env:project_version="@PROJECT_VERSION@"
-$env:project_version_is_prerelease="@PROJECT_VERSION_IS_PRERELEASE@"
-$env:system_name='@SYSTEM_NAME@'
-$env:system_processor='@SYSTEM_PROCESSOR@'

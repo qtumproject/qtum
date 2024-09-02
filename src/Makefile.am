@@ -897,25 +897,21 @@ libbitcoin_common_a_SOURCES = \
   eth_client/libevm/VMFactory.h \
   eth_client/utils/ethash/include/ethash/ethash.h \
   eth_client/utils/ethash/include/ethash/ethash.hpp \
+  eth_client/utils/ethash/include/ethash/global_context.h \
+  eth_client/utils/ethash/include/ethash/global_context.hpp \
   eth_client/utils/ethash/include/ethash/hash_types.h \
   eth_client/utils/ethash/include/ethash/hash_types.hpp \
   eth_client/utils/ethash/include/ethash/keccak.h \
   eth_client/utils/ethash/include/ethash/keccak.hpp \
-  eth_client/utils/ethash/include/ethash/progpow.hpp \
-  eth_client/utils/ethash/lib/ethash/bit_manipulation.h \
-  eth_client/utils/ethash/lib/ethash/builtins.h \
+  eth_client/utils/ethash/include/ethash/version.h \
   eth_client/utils/ethash/lib/ethash/endianness.hpp \
-  eth_client/utils/ethash/lib/ethash/ethash-internal.hpp \
   eth_client/utils/ethash/lib/ethash/ethash.cpp \
-  eth_client/utils/ethash/lib/ethash/keccak.c \
-  eth_client/utils/ethash/lib/ethash/keccakf1600.c \
-  eth_client/utils/ethash/lib/ethash/keccakf800.c \
-  eth_client/utils/ethash/lib/ethash/kiss99.hpp \
-  eth_client/utils/ethash/lib/ethash/managed.cpp \
+  eth_client/utils/ethash/lib/ethash/ethash-internal.hpp \
   eth_client/utils/ethash/lib/ethash/primes.c \
   eth_client/utils/ethash/lib/ethash/primes.h \
-  eth_client/utils/ethash/lib/ethash/progpow.cpp \
-  eth_client/utils/ethash/lib/ethash/support/attributes.h \
+  eth_client/utils/ethash/lib/global_context/global_context.cpp \
+  eth_client/utils/ethash/lib/keccak/keccak.c \
+  eth_client/utils/ethash/lib/support/attributes.h \
   eth_client/utils/intx/intx.hpp \
   eth_client/utils/json_spirit/JsonSpiritHeaders.h \
   eth_client/utils/json_spirit/json_spirit.h \

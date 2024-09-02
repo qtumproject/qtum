@@ -1,5 +1,6 @@
+// Ethash: C/C++ implementation of Ethash, the Ethereum Proof of Work algorithm.
 // Copyright 2018 Pawel Bylica.
-// Licensed under the Apache License, Version 2.0. See the LICENSE file.
+// Licensed under the Apache License, Version 2.0.
 
 /// @file
 /// Shared test cases.
@@ -19,6 +20,7 @@ struct hash_test_case
     const char* final_hash_hex;
 };
 
+// NOLINTNEXTLINE(misc-definitions-in-headers)
 hash_test_case hash_test_cases[] = {
     {
         0,
