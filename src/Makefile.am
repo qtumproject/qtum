@@ -762,6 +762,7 @@ libbitcoin_common_a_SOURCES = \
   evmone/include/evmone/evmone.h \
   evmone/evmc/lib/instructions/instruction_metrics.c \
   evmone/evmc/lib/instructions/instruction_names.c \
+  evmone/evmc/include/evmc/bytes.hpp \
   evmone/evmc/include/evmc/evmc.h \
   evmone/evmc/include/evmc/evmc.hpp \
   evmone/evmc/include/evmc/filter_iterator.hpp \
@@ -777,10 +778,12 @@ libbitcoin_common_a_SOURCES = \
   evmone/lib/evmone/advanced_execution.cpp \
   evmone/lib/evmone/advanced_execution.hpp \
   evmone/lib/evmone/advanced_instructions.cpp \
-  evmone/lib/evmone/baseline.cpp \
+  evmone/lib/evmone/baseline_analysis.cpp \
+  evmone/lib/evmone/baseline_execution.cpp \
   evmone/lib/evmone/baseline.hpp \
   evmone/lib/evmone/baseline_instruction_table.cpp \
   evmone/lib/evmone/baseline_instruction_table.hpp \
+  evmone/lib/evmone/constants.hpp \
   evmone/lib/evmone/eof.cpp \
   evmone/lib/evmone/eof.hpp \
   evmone/lib/evmone/execution_state.hpp \
@@ -790,7 +793,6 @@ libbitcoin_common_a_SOURCES = \
   evmone/lib/evmone/instructions_storage.cpp \
   evmone/lib/evmone/instructions_traits.hpp \
   evmone/lib/evmone/instructions_xmacro.hpp \
-  evmone/lib/evmone/opcodes_helpers.h \
   evmone/lib/evmone/tracing.cpp \
   evmone/lib/evmone/tracing.hpp \
   evmone/lib/evmone/vm.cpp \

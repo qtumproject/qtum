@@ -18,6 +18,7 @@
 #include <functional>
 #include <set>
 #include <map>
+#include <unordered_map>
 
 namespace dev
 {
@@ -307,6 +308,9 @@ struct AccessAccount
     /// The account storage map.
     std::map<evmc::bytes32, access_value> storage;
 
+    /// The account transient storage.
+    std::unordered_map<evmc::bytes32, evmc::bytes32> transient_storage;
+
     /// Default constructor.
     AccessAccount() noexcept = default;
 };
@@ -349,6 +353,12 @@ public:
 
     evmc_access_status access_storage(const evmc::address& addr,
                                       const evmc::bytes32& key) noexcept final;
+
+    evmc::bytes32 get_transient_storage(const evmc::address& address, const evmc::bytes32& key) const noexcept final;
+
+    void set_transient_storage(const evmc::address& address,
+                               const evmc::bytes32& key,
+                               const evmc::bytes32& value) noexcept final;
 
 private:
     evmc::Result create(evmc_message const& _msg) noexcept;
