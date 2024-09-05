@@ -103,6 +103,7 @@ public:
         consensus.nMuirGlacierHeight = 845000;
         consensus.nLondonHeight = 2080512;
         consensus.nShanghaiHeight = 3385122;
+        consensus.nCancunHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -260,6 +261,7 @@ public:
         consensus.nMuirGlacierHeight = 806600;
         consensus.nLondonHeight = 1967616;
         consensus.nShanghaiHeight = 3298892;
+        consensus.nCancunHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -436,6 +438,7 @@ public:
         consensus.nMuirGlacierHeight = 0;
         consensus.nLondonHeight = 0;
         consensus.nShanghaiHeight = 0;
+        consensus.nCancunHeight = 0;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -544,6 +547,7 @@ public:
         consensus.nMuirGlacierHeight = 0;
         consensus.nLondonHeight = 0;
         consensus.nShanghaiHeight = 0;
+        consensus.nCancunHeight = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9

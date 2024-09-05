@@ -140,6 +140,7 @@ public:
     void UpdateLondonHeight(int nHeight);
     void UpdateTaprootHeight(int nHeight);
     void UpdateShanghaiHeight(int nHeight);
+    void UpdateCancunHeight(int nHeight);
 
     std::optional<AssumeutxoData> AssumeutxoForHeight(int height) const
     {

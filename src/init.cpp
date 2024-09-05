@@ -669,6 +669,7 @@ void SetupServerArgs(ArgsManager& argsman)
     argsman.AddArg("-londonheight=<n>", "Use given block height to check contracts with EVM London (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-taprootheight=<n>", "Use given block height to check taproot (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-shanghaiheight=<n>", "Use given block height to check contracts with EVM Shanghai (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-cancunheight=<n>", "Use given block height to check contracts with EVM Cancun (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions(argsman);
 
@@ -1334,6 +1335,20 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         {
             UpdateShanghaiHeight(shanghaiheight);
             LogPrintf("Activate EVM Shanghai at block height %d\n.", shanghaiheight);
+        }
+    }
+
+    if (args.IsArgSet("-cancunheight")) {
+        // Allow overriding EVM Cancun block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Cancun height may only be overridden on regtest."));
+        }
+
+        int cancunheight = args.GetIntArg("-cancunheight", 0);
+        if(cancunheight >= 0)
+        {
+            UpdateCancunHeight(cancunheight);
+            LogPrintf("Activate EVM Cancun at block height %d\n.", cancunheight);
         }
     }
 

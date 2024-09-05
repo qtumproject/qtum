@@ -146,6 +146,7 @@ std::string CChainParams::EVMGenesisInfo() const
     evmConsensus.nMuirGlacierHeight = consensus.nMuirGlacierHeight;
     evmConsensus.nLondonHeight = consensus.nLondonHeight;
     evmConsensus.nShanghaiHeight = consensus.nShanghaiHeight;
+    evmConsensus.nCancunHeight = consensus.nCancunHeight;
     return dev::eth::genesisInfoQtum(GetEVMNetwork(), evmConsensus);
 }
 
@@ -337,4 +338,14 @@ void CChainParams::UpdateShanghaiHeight(int nHeight)
 void UpdateShanghaiHeight(int nHeight)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdateShanghaiHeight(nHeight);
+}
+
+void CChainParams::UpdateCancunHeight(int nHeight)
+{
+    consensus.nCancunHeight = nHeight;
+}
+
+void UpdateCancunHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateCancunHeight(nHeight);
 }

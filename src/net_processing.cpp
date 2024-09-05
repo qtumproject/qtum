@@ -3678,9 +3678,9 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             return;
         }
 
-        if (m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nShanghaiHeight && nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMSHANGHAI) {
+        if (m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nCancunHeight && nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMCANCUN) {
             // disconnect from peers older than this proto version
-            LogPrint(BCLog::NET, "peer=%d using obsolete version after evm Shanghai hardfork %i; disconnecting\n", pfrom.GetId(), nVersion);
+            LogPrint(BCLog::NET, "peer=%d using obsolete version after evm Cancun hardfork %i; disconnecting\n", pfrom.GetId(), nVersion);
             pfrom.fDisconnect = true;
             return;
         }
@@ -3876,9 +3876,9 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         return;
     }
 
-    if (pfrom.nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMSHANGHAI && m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nShanghaiHeight) {
+    if (pfrom.nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMCANCUN && m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nCancunHeight) {
         // disconnect from peers older than this proto version
-        LogPrint(BCLog::NET, "peer=%d using obsolete version after evm Shanghai hardfork %i; disconnecting\n", pfrom.GetId(), pfrom.nVersion);
+        LogPrint(BCLog::NET, "peer=%d using obsolete version after evm Cancun hardfork %i; disconnecting\n", pfrom.GetId(), pfrom.nVersion);
         pfrom.fDisconnect = true;
         return;
     }

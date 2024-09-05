@@ -31,6 +31,7 @@ struct EVMSchedule
     bool eip2929Mode = false;
     bool eip1559Mode = false;
     bool eip6049Mode = false;
+    bool eip1153Mode = false;
     bool haveBitwiseShifting = false;
     bool haveRevert = false;
     bool haveReturnData = false;
@@ -202,6 +203,14 @@ static const EVMSchedule ShanghaiSchedule = [] {
     EVMSchedule schedule = LondonSchedule;
     // Shanghai revision
     schedule.eip6049Mode = true;
+
+    return schedule;
+}();
+
+static const EVMSchedule CancunSchedule = [] {
+    EVMSchedule schedule = ShanghaiSchedule;
+    // Cancun revision
+    schedule.eip1153Mode = true;
 
     return schedule;
 }();
