@@ -198,7 +198,8 @@ BITCOIN_TESTS =\
   test/qtumtests/istanbulfork_tests.cpp \
   test/qtumtests/londonfork_tests.cpp \
   test/qtumtests/evmone_tests.cpp \
-  test/qtumtests/shanghaifork_tests.cpp
+  test/qtumtests/shanghaifork_tests.cpp \
+  test/qtumtests/cancunfork_tests.cpp
 
 if ENABLE_WALLET
 BITCOIN_TESTS += \
