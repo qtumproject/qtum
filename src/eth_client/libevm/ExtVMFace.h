@@ -210,6 +210,12 @@ public:
     /// Write a value in storage.
     virtual void setStore(u256, u256) {}
 
+    /// Read transient storage location.
+    virtual u256 transientStore(u256) { return 0; }
+
+    /// Write a value in transient storage.
+    virtual void setTransientStore(u256, u256) {}
+
     /// Read original storage value (before modifications in the current transaction).
     virtual u256 originalStorageValue(u256 const&) { return 0; }
 
@@ -307,9 +313,6 @@ struct AccessAccount
 
     /// The account storage map.
     std::map<evmc::bytes32, access_value> storage;
-
-    /// The account transient storage.
-    std::unordered_map<evmc::bytes32, evmc::bytes32> transient_storage;
 
     /// Default constructor.
     AccessAccount() noexcept = default;

@@ -2936,7 +2936,20 @@ void LastHashes::clear()
     m_lastHashes.clear();
 }
 
+class ExecTransientStorage
+{
+public:
+    void init() {
+        globalState->clearTransientStorage();
+    }
+    ~ExecTransientStorage() {
+        globalState->clearTransientStorage();
+    }
+};
+
 bool ByteCodeExec::performByteCode(dev::eth::Permanence type){
+    ExecTransientStorage storage;
+    storage.init();
     for(QtumTransaction& tx : txs){
         //validate VM version
         if(tx.getVersion().toRaw() != VersionVM::GetEVMDefault().toRaw()){

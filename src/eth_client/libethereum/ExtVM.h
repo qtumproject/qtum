@@ -48,6 +48,12 @@ public:
     /// Write a value in storage.
     void setStore(u256 _n, u256 _v) final;
 
+    /// Read transient storage location.
+    u256 transientStore(u256 _n) final { return m_s.transientStorage(myAddress, _n); }
+
+    /// Write a value in transient storage.
+    void setTransientStore(u256 _n, u256 _v) final;
+
     /// Read original storage value (before modifications in the current transaction).
     u256 originalStorageValue(u256 const& _key) final
     {

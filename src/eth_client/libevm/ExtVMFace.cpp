@@ -239,26 +239,22 @@ evmc_access_status EvmCHost::access_storage(const evmc::address& addr,
     return access_status;
 }
 
-evmc::bytes32 EvmCHost::get_transient_storage(const evmc::address& addr, const evmc::bytes32& key) const noexcept
+evmc::bytes32 EvmCHost::get_transient_storage(const evmc::address& _addr, const evmc::bytes32& _key) const noexcept
 {
-    record_account_access(addr);
-
-    const auto account_iter = accounts.find(addr);
-    if (account_iter == accounts.end())
-        return {};
-
-    const auto storage_iter = account_iter->second.transient_storage.find(key);
-    if (storage_iter != account_iter->second.transient_storage.end())
-        return storage_iter->second;
-    return {};
+    assert(fromEvmC(_addr) == m_extVM.myAddress);
+    record_account_access(_addr);
+    return toEvmC(m_extVM.transientStore(fromEvmC(_key)));
 }
 
-void EvmCHost::set_transient_storage(const evmc::address& addr,
-                           const evmc::bytes32& key,
-                           const evmc::bytes32& value) noexcept
+void EvmCHost::set_transient_storage(const evmc::address& _addr,
+                           const evmc::bytes32& _key,
+                           const evmc::bytes32& _value) noexcept
 {
-    record_account_access(addr);
-    accounts[addr].transient_storage[key] = value;
+    assert(fromEvmC(_addr) == m_extVM.myAddress);
+    record_account_access(_addr);
+    u256 const index = fromEvmC(_key);
+    u256 const newValue = fromEvmC(_value);
+    m_extVM.setTransientStore(index, newValue);
 }
 
 void EvmCHost::record_account_access(const evmc::address& addr) const
