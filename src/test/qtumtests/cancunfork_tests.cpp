@@ -37,6 +37,7 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("641579a60000000000000000000000000000000000000000000000000000000000000005")),
     // multiply(7)
     valtype(ParseHex("c6888fa10000000000000000000000000000000000000000000000000000000000000007")),
+
     // EIP-7516
     /*
     pragma solidity 0.8.25;
@@ -52,6 +53,24 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("6080604052348015600e575f80fd5b5060ae80601a5f395ff3fe6080604052348015600e575f80fd5b50600436106026575f3560e01c80631f6d6ef714602a575b5f80fd5b60306044565b604051603b91906061565b60405180910390f35b5f4a905090565b5f819050919050565b605b81604b565b82525050565b5f60208201905060725f8301846054565b9291505056fea2646970667358221220d07c85aaeda13f99ab3684717e3cb625952e90b29aeb1493d1e517a3832d385564736f6c63430008190033")),
     // getBlobBaseFee()
     valtype(ParseHex("1f6d6ef7")),
+
+    // EIP-5656
+    /*
+    pragma solidity 0.8.25;
+
+    contract MemoryCopy {
+        function memoryCopy() external pure returns (bytes32 x) {
+            assembly {
+                mstore(0x20, 0x50)  // Store 0x50 at word 1 in memory
+                mcopy(0, 0x20, 0x20)  // Copies 0x50 to word 0 in memory
+                x := mload(0)    // Returns 32 bytes "0x50"
+            }
+        }
+    }
+    */
+    valtype(ParseHex("6080604052348015600e575f80fd5b5060b980601a5f395ff3fe6080604052348015600e575f80fd5b50600436106026575f3560e01c80632dbaeee914602a575b5f80fd5b60306044565b604051603b9190606c565b60405180910390f35b5f60506020526020805f5e5f51905090565b5f819050919050565b6066816056565b82525050565b5f602082019050607d5f830184605f565b9291505056fea2646970667358221220ec84bee5416d7b140d71e23734f9e1a309a366eb0b1d63b19ee56f026ac3713a64736f6c63430008190033")),
+    // memoryCopy()
+    valtype(ParseHex("2dbaeee9")),
 };
 
 // Codes IDs used to check that london fork is present
@@ -61,7 +80,9 @@ enum class CodeID
     setMultiplier_5,
     multiply_7,
     blobBaseFeeContract,
-    getBlobBaseFee
+    getBlobBaseFee,
+    memoryCopyContract,
+    memoryCopy_80
 };
 
 // Get the code identified by the ID
@@ -198,6 +219,47 @@ BOOST_AUTO_TEST_CASE(checking_blobbasefee_before_fork){
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
     std::vector<QtumTransaction> txCancun;
     txCancun.push_back(createQtumTransaction(getCode(CodeID::getBlobBaseFee), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    result = executeBC(txCancun, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
+}
+
+BOOST_AUTO_TEST_CASE(checking_memory_copy_after_fork){
+    genesisLoading();
+    createNewBlocks(this, 499);
+    dev::h256 hashTx(HASHTX);
+
+    // Create contract
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(getCode(CodeID::memoryCopyContract), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+    auto result = executeBC(txs, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+
+    // Check that memory copy is 80
+    dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+    std::vector<QtumTransaction> txCancun;
+    txCancun.push_back(createQtumTransaction(getCode(CodeID::memoryCopy_80), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    result = executeBC(txCancun, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+    BOOST_CHECK(result.first[0].execRes.gasUsed == 21399);
+    BOOST_CHECK(result.first[0].execRes.output.size() == 32);
+    BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(80));
+}
+
+BOOST_AUTO_TEST_CASE(checking_memory_copy_before_fork){
+    genesisLoading();
+    createNewBlocks(this, 498);
+    dev::h256 hashTx(HASHTX);
+
+    // Create contract
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(getCode(CodeID::memoryCopyContract), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+    auto result = executeBC(txs, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+
+    // Check that memory copy is bad instruction
+    dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+    std::vector<QtumTransaction> txCancun;
+    txCancun.push_back(createQtumTransaction(getCode(CodeID::memoryCopy_80), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
     result = executeBC(txCancun, *m_node.chainman);
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
 }
