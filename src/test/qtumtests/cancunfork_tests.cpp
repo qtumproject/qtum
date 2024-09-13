@@ -71,6 +71,22 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("6080604052348015600e575f80fd5b5060b980601a5f395ff3fe6080604052348015600e575f80fd5b50600436106026575f3560e01c80632dbaeee914602a575b5f80fd5b60306044565b604051603b9190606c565b60405180910390f35b5f60506020526020805f5e5f51905090565b5f819050919050565b6066816056565b82525050565b5f602082019050607d5f830184605f565b9291505056fea2646970667358221220ec84bee5416d7b140d71e23734f9e1a309a366eb0b1d63b19ee56f026ac3713a64736f6c63430008190033")),
     // memoryCopy()
     valtype(ParseHex("2dbaeee9")),
+
+    // EIP-4844
+    /*
+    pragma solidity 0.8.25;
+
+    contract EmptyBlob {
+        function getBlobHash(uint256 index) external view returns (bytes32 x) {
+            assembly {
+                x := blobhash(index)
+            }
+        }
+    }
+    */
+    valtype(ParseHex("6080604052348015600e575f80fd5b506101198061001c5f395ff3fe6080604052348015600e575f80fd5b50600436106026575f3560e01c80634ebf82e514602a575b5f80fd5b60406004803603810190603c91906090565b6054565b604051604b919060cc565b60405180910390f35b5f81499050919050565b5f80fd5b5f819050919050565b6072816062565b8114607b575f80fd5b50565b5f81359050608a81606b565b92915050565b5f6020828403121560a25760a1605e565b5b5f60ad84828501607e565b91505092915050565b5f819050919050565b60c68160b6565b82525050565b5f60208201905060dd5f83018460bf565b9291505056fea2646970667358221220e1794f1ba3bc6a431eab483e401ed5c1562913b49baee8a4d484d87b39c4ae2164736f6c63430008190033")),
+    // getBlobHash(7)
+    valtype(ParseHex("4ebf82e50000000000000000000000000000000000000000000000000000000000000007")),
 };
 
 // Codes IDs used to check that london fork is present
@@ -82,7 +98,9 @@ enum class CodeID
     blobBaseFeeContract,
     getBlobBaseFee,
     memoryCopyContract,
-    memoryCopy_80
+    memoryCopy_80,
+    emptyBlobContract,
+    getBlobHash_7
 };
 
 // Get the code identified by the ID
@@ -260,6 +278,47 @@ BOOST_AUTO_TEST_CASE(checking_memory_copy_before_fork){
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
     std::vector<QtumTransaction> txCancun;
     txCancun.push_back(createQtumTransaction(getCode(CodeID::memoryCopy_80), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    result = executeBC(txCancun, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
+}
+
+BOOST_AUTO_TEST_CASE(checking_blob_hash_after_fork){
+    genesisLoading();
+    createNewBlocks(this, 499);
+    dev::h256 hashTx(HASHTX);
+
+    // Create contract
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(getCode(CodeID::emptyBlobContract), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+    auto result = executeBC(txs, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+
+    // Check that get blob hash is 0 for any index, because it is not a blob transaction
+    dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+    std::vector<QtumTransaction> txCancun;
+    txCancun.push_back(createQtumTransaction(getCode(CodeID::getBlobHash_7), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    result = executeBC(txCancun, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+    BOOST_CHECK(result.first[0].execRes.gasUsed == 21778);
+    BOOST_CHECK(result.first[0].execRes.output.size() == 32);
+    BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(0));
+}
+
+BOOST_AUTO_TEST_CASE(checking_blob_hash_before_fork){
+    genesisLoading();
+    createNewBlocks(this, 498);
+    dev::h256 hashTx(HASHTX);
+
+    // Create contract
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(getCode(CodeID::emptyBlobContract), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+    auto result = executeBC(txs, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+
+    // Check that blob hash is bad instruction
+    dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+    std::vector<QtumTransaction> txCancun;
+    txCancun.push_back(createQtumTransaction(getCode(CodeID::getBlobHash_7), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
     result = executeBC(txCancun, *m_node.chainman);
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
 }
