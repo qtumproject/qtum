@@ -1857,7 +1857,6 @@ CTransactionRef SplitUTXOs(std::shared_ptr<CWallet> const pwallet, const CTxDest
 
     // Split into utxos with nValue
     std::vector<CRecipient> vecSend;
-    constexpr int RANDOM_CHANGE_POSITION = -1;
     int numOfRecipients = static_cast<int>(nTotal / nValue);
 
     // Compute the number of recipients
@@ -1892,7 +1891,7 @@ CTransactionRef SplitUTXOs(std::shared_ptr<CWallet> const pwallet, const CTxDest
     CTransactionRef tx;
     if((nTxAmount + pwallet->m_default_max_tx_fee) <= nTotal)
     {
-        auto res = CreateTransaction(*pwallet, vecSend, RANDOM_CHANGE_POSITION, coin_control, sign, 0, false);
+        auto res = CreateTransaction(*pwallet, vecSend, std::nullopt, coin_control, sign, 0, false);
         if (!res) {
             throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
         }
@@ -1907,7 +1906,7 @@ CTransactionRef SplitUTXOs(std::shared_ptr<CWallet> const pwallet, const CTxDest
         vecSend[vecSend.size() - 1] = lastRecipient;
         CAmount nFeeRequired = 0;
         {
-            auto res = CreateTransaction(*pwallet, vecSend, RANDOM_CHANGE_POSITION, coin_control, sign, 0, false);
+            auto res = CreateTransaction(*pwallet, vecSend, std::nullopt, coin_control, sign, 0, false);
             if (!res) {
                 throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
             }
@@ -1943,7 +1942,7 @@ CTransactionRef SplitUTXOs(std::shared_ptr<CWallet> const pwallet, const CTxDest
                     SplitRemainder(vecSend, nValueLast2, maxValue);
                 }
 
-                auto res = CreateTransaction(*pwallet, vecSend, RANDOM_CHANGE_POSITION, coin_control, sign, 0, false);
+                auto res = CreateTransaction(*pwallet, vecSend, std::nullopt, coin_control, sign, 0, false);
                 if (!res) {
                     throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
                 }
@@ -2237,8 +2236,7 @@ RPCHelpMan sendmanywithdupes()
     std::shuffle(vecSend.begin(), vecSend.end(), FastRandomContext());
 
     // Send
-    constexpr int RANDOM_CHANGE_POSITION = -1;
-    auto res = CreateTransaction(*pwallet, vecSend, RANDOM_CHANGE_POSITION, coin_control);
+    auto res = CreateTransaction(*pwallet, vecSend, std::nullopt, coin_control);
     if (!res) {
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, util::ErrorString(res).original);
     }
