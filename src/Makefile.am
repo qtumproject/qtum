@@ -158,6 +158,7 @@ BITCOIN_CORE_H = \
   compat/endian.h \
   common/settings.h \
   common/system.h \
+  common/threadpriority.h \
   compressor.h \
   consensus/consensus.h \
   consensus/tx_check.h \
