@@ -545,7 +545,6 @@ QFont OptionsModel::getFontForChoice(const FontChoice& fc)
     QFont f;
     if (std::holds_alternative<FontChoiceAbstract>(fc)) {
         f = GUIUtil::fixedPitchFont(fc != UseBestSystemFont);
-        f.setWeight(QFont::Bold);
     } else {
         f = std::get<QFont>(fc);
     }

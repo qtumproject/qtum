@@ -318,12 +318,11 @@ RPCHelpMan createcontract()
 
     // Create and send the transaction
     std::vector<CRecipient> vecSend;
-    int nChangePosRet = -1;
     CRecipient recipient = {CNoDestination(scriptPubKey), 0, false};
     vecSend.push_back(recipient);
 
     bool sign = !fPsbt;
-    auto res = CreateTransaction(*pwallet, vecSend, nChangePosRet, coinControl, sign, nGasFee, true, signSenderAddress);
+    auto res = CreateTransaction(*pwallet, vecSend,  std::nullopt, coinControl, sign, nGasFee, true, signSenderAddress);
     if (!res) {
         throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
     }
@@ -581,12 +580,11 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
 
     // Create and send the transaction
     std::vector<CRecipient> vecSend;
-    int nChangePosRet = -1;
     CRecipient recipient = {CNoDestination(scriptPubKey), nAmount, false};
     vecSend.push_back(recipient);
 
     bool sign = !fPsbt;
-    auto res = CreateTransaction(wallet, vecSend, nChangePosRet, coinControl, sign, nGasFee, true, signSenderAddress);
+    auto res = CreateTransaction(wallet, vecSend,  std::nullopt, coinControl, sign, nGasFee, true, signSenderAddress);
     if (!res) {
         throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
     }
