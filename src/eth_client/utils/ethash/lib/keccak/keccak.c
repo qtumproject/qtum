@@ -278,7 +278,7 @@ static void keccakf1600_generic(uint64_t state[25])
 static void (*keccakf1600_best)(uint64_t[25]) = keccakf1600_generic;
 
 
-#if !defined(_MSC_VER) && defined(__x86_64__) && __has_attribute(target)
+#if !defined(_MSC_VER) && defined(__x86_64__) && __has_attribute(target) && !defined(QTUM_BUILD)
 __attribute__((target("bmi,bmi2"))) static void keccakf1600_bmi(uint64_t state[25])
 {
     keccakf1600_implementation(state);
