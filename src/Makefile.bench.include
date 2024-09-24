@@ -83,7 +83,8 @@ bench_bench_qtum_LDADD = \
   $(CRYPTO_LIBS) \
   $(LIBFF) \
   $(GMP_LIBS) \
-  $(GMPXX_LIBS)
+  $(GMPXX_LIBS) \
+  $(LIBBLST)
 
 if ENABLE_ZMQ
 bench_bench_qtum_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)

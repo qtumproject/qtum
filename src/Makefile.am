@@ -6,7 +6,7 @@
 print-%: FORCE
 	@echo '$*'='$($*)'
 
-DIST_SUBDIRS = secp256k1
+DIST_SUBDIRS = secp256k1 blst
 
 AM_LDFLAGS = $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS) $(CORE_LDFLAGS)
 AM_CXXFLAGS = $(CORE_CXXFLAGS) $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS) -DETH_FATDB=1
@@ -28,6 +28,7 @@ BITCOIN_INCLUDES=-I$(builddir) -I$(srcdir)/$(MINISKETCH_INCLUDE_DIR_INT) -I$(src
 
 BITCOIN_INCLUDES += -I$(srcdir)/libff/libff
 BITCOIN_INCLUDES += -I$(srcdir)/libff
+BITCOIN_INCLUDES += -I$(srcdir)/blst/bindings
 BITCOIN_INCLUDES += -I$(srcdir)/evmone/evmc/include
 BITCOIN_INCLUDES += -I$(srcdir)/evmone/include
 BITCOIN_INCLUDES += -I$(srcdir)/eth_client
@@ -45,6 +46,7 @@ LIBBITCOINQT=qt/libbitcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBCRYPTOPP=cryptopp/libcryptopp.a
 LIBFF=libff/libff.a
+LIBBLST=blst/libblst.a
 
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
@@ -81,6 +83,9 @@ noinst_LTLIBRARIES += $(LIBBITCOIN_CRYPTO)
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
+
+$(LIBBLST):
+	CC='$(CC)' AR='$(AR)' $(MAKE) -C $(@D)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
@@ -785,6 +790,7 @@ libbitcoin_common_a_SOURCES = \
   evmone/lib/evmone/baseline_instruction_table.cpp \
   evmone/lib/evmone/baseline_instruction_table.hpp \
   evmone/lib/evmone/constants.hpp \
+  evmone/lib/evmone/compat.hpp \
   evmone/lib/evmone/eof.cpp \
   evmone/lib/evmone/eof.hpp \
   evmone/lib/evmone/execution_state.hpp \
@@ -798,6 +804,10 @@ libbitcoin_common_a_SOURCES = \
   evmone/lib/evmone/tracing.hpp \
   evmone/lib/evmone/vm.cpp \
   evmone/lib/evmone/vm.hpp \
+  evmone/lib/evmone_precompiles/bls.cpp \
+  evmone/lib/evmone_precompiles/bls.hpp \
+  evmone/lib/evmone_precompiles/kzg.cpp \
+  evmone/lib/evmone_precompiles/kzg.hpp \
   eth_client/libdevcore/Address.cpp \
   eth_client/libdevcore/Address.h \
   eth_client/libdevcore/Assertions.h \
@@ -1032,7 +1042,8 @@ qtum_bin_ldadd = \
   $(LIBMEMENV) \
   $(LIBCRYPTOPP) \
   $(LIBFF) \
-  $(LIBSECP256K1)
+  $(LIBSECP256K1) \
+  $(LIBBLST)
 
 qtum_bin_ldadd += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(SQLITE_LIBS) $(GMP_LIBS) $(GMPXX_LIBS)
 
@@ -1320,6 +1331,7 @@ clean-local:
 	-rm -f cryptopp/*.o libff/*.o
 	-rm -f config.h
 	-rm -rf test/__pycache__
+	-$(MAKE) -C blst clean
 
 .rc.o:
 	@test -f $(WINDRES) || (echo "windres $(WINDRES) not found, but is required to compile windows resource files"; exit 1)
