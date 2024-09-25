@@ -31,6 +31,7 @@ BITCOIN_INCLUDES += -I$(srcdir)/libff
 BITCOIN_INCLUDES += -I$(srcdir)/blst/bindings
 BITCOIN_INCLUDES += -I$(srcdir)/evmone/evmc/include
 BITCOIN_INCLUDES += -I$(srcdir)/evmone/include
+BITCOIN_INCLUDES += -I$(srcdir)/evmone/lib
 BITCOIN_INCLUDES += -I$(srcdir)/eth_client
 BITCOIN_INCLUDES += -I$(srcdir)/eth_client/utils
 BITCOIN_INCLUDES += -I$(srcdir)/eth_client/utils/ethash/include
@@ -808,6 +809,8 @@ libbitcoin_common_a_SOURCES = \
   evmone/lib/evmone_precompiles/bls.hpp \
   evmone/lib/evmone_precompiles/kzg.cpp \
   evmone/lib/evmone_precompiles/kzg.hpp \
+  evmone/lib/evmone_precompiles/sha256.cpp \
+  evmone/lib/evmone_precompiles/sha256.hpp \
   eth_client/libdevcore/Address.cpp \
   eth_client/libdevcore/Address.h \
   eth_client/libdevcore/Assertions.h \
