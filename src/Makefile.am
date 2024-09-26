@@ -862,6 +862,8 @@ libbitcoin_common_a_SOURCES = \
   eth_client/libdevcrypto/Hash.h \
   eth_client/libdevcrypto/LibSnark.cpp \
   eth_client/libdevcrypto/LibSnark.h \
+  eth_client/libdevcrypto/LibKzg.cpp \
+  eth_client/libdevcrypto/LibKzg.h \
   eth_client/libethashseal/GenesisInfo.cpp \
   eth_client/libethashseal/GenesisInfo.h \
   eth_client/libethashseal/genesis/qtumNetwork.cpp \

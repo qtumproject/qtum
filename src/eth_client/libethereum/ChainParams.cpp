@@ -166,6 +166,8 @@ void ChainParams::loadConfig(
         {Address{0x8}, PrecompiledContract{"alt_bn128_pairing_product", byzantiumForkBlock}});
     precompiled.insert(
         {Address{0x9}, PrecompiledContract{"blake2_compression", istanbulForkBlock}});
+    precompiled.insert(
+        {Address{0xa}, PrecompiledContract{"point_evaluation", cancunForkBlock}});
     precompiled.insert({Address{0x85}, PrecompiledContract{"btc_ecrecover", qip6ForkBlock}});
 
     stateRoot = _stateRoot ? _stateRoot : calculateStateRoot(true);
