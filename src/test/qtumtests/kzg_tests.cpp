@@ -4,6 +4,11 @@
 #include <evmone_precompiles/kzg.hpp>
 #include <evmone_precompiles/sha256.hpp>
 #include <intx/intx.hpp>
+#include <validation.h>
+#include <chainparams.h>
+#include <qtumtests/precompiled_utils.h>
+#include <test/qtumtests/data/point_evaluation.json.h>
+
 #include <span>
 
 using namespace evmc::literals;
@@ -29,7 +34,7 @@ auto versioned_hash(std::span<const std::byte> input) noexcept
     return hash;
 }
 
-BOOST_FIXTURE_TEST_SUITE(kzg_tests, BasicTestingSetup)
+BOOST_FIXTURE_TEST_SUITE(kzg_tests, TestChain100Setup)
 
 BOOST_AUTO_TEST_CASE(kzg_verify_proof_hash_invalid){
     const auto r = kzg_verify_proof(ZERO32, ZERO32, ZERO32, POINT_AT_INFINITY, POINT_AT_INFINITY);
@@ -60,6 +65,13 @@ BOOST_AUTO_TEST_CASE(kzg_verify_proof_constant){
     const auto hash = versioned_hash(c);
     const auto r = kzg_verify_proof(hash.data(), z, y, c, POINT_AT_INFINITY);
     BOOST_CHECK(r == true);
+}
+
+BOOST_AUTO_TEST_CASE(checking_point_evaluation){
+    // Call point_evaluation 0xa
+    dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
+    dev::u256 blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    RunPrecompiledTests(point_evaluation, point_evaluation, params, blockNumber);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

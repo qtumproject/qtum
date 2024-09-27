@@ -26,6 +26,8 @@ JSON_TEST_FILES = \
   test/qtumtests/data/alt_bn128_G1_mul.json \
   test/qtumtests/data/alt_bn128_pairing_product.json \
   test/qtumtests/data/blake2_compression.json \
+  test/qtumtests/data/blake2_compression.json \
+  test/qtumtests/data/point_evaluation.json \
   test/data/script_tests.json \
   test/data/bip341_wallet_vectors.json \
   test/data/base58_encode_decode.json \
