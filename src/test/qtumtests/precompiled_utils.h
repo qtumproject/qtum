@@ -53,13 +53,16 @@ public:
                 std::string strExpected = tv["Expected"].get_str();
                 std::string strName = tv["Name"].get_str();
                 int gas = tv["Gas"].getInt<int>();
+                bool result = true;
+                if(tv.exists("Result"))
+                    result = tv["Result"].get_bool();
 
                 dev::bytes in = dev::fromHex(strInput);
                 dev::bytes expected = dev::fromHex(strExpected);
 
                 // Check the precompiled contract
                 pricerTest(in, gas, strName);
-                executorTest(in, expected, strName);
+                executorTest(in, expected, strName, result);
             }
         }
     }
@@ -72,10 +75,10 @@ private:
         BOOST_CHECK_MESSAGE(static_cast<int>(res) == gas, strprintf("Gas not correct for precompiled contract %s in test %s", callName, testName));
     }
 
-    void executorTest(const dev::bytes& in, const dev::bytes& expected, const std::string& testName)
+    void executorTest(const dev::bytes& in, const dev::bytes& expected, const std::string& testName, bool result)
     {
         auto res = exec(dev::bytesConstRef(in.data(), in.size()));
-        BOOST_CHECK(res.first);
+        BOOST_CHECK(res.first == result);
         BOOST_CHECK_EQUAL_COLLECTIONS(res.second.begin(), res.second.end(), expected.begin(), expected.end());
         BOOST_CHECK_MESSAGE(res.second == expected, strprintf("Output not correct for precompiled contract %s in test %s", callName, testName));
     }
