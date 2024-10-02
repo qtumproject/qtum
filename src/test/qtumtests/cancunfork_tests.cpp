@@ -87,6 +87,26 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("6080604052348015600e575f80fd5b506101198061001c5f395ff3fe6080604052348015600e575f80fd5b50600436106026575f3560e01c80634ebf82e514602a575b5f80fd5b60406004803603810190603c91906090565b6054565b604051604b919060cc565b60405180910390f35b5f81499050919050565b5f80fd5b5f819050919050565b6072816062565b8114607b575f80fd5b50565b5f81359050608a81606b565b92915050565b5f6020828403121560a25760a1605e565b5b5f60ad84828501607e565b91505092915050565b5f819050919050565b60c68160b6565b82525050565b5f60208201905060dd5f83018460bf565b9291505056fea2646970667358221220e1794f1ba3bc6a431eab483e401ed5c1562913b49baee8a4d484d87b39c4ae2164736f6c63430008190033")),
     // getBlobHash(7)
     valtype(ParseHex("4ebf82e50000000000000000000000000000000000000000000000000000000000000007")),
+
+    /*
+    pragma solidity ^0.8.0;
+
+    contract PointEvaluation {
+        function verifyKZGCommitment(
+            bytes calldata data
+        ) public view returns (bool) {
+            (bool ok, bytes memory out) = address(10).staticcall(data);
+            require(ok, "Precompile call failed");
+            bool ret = ok && out.length != 0;
+            return ret;
+        }
+    }
+    */
+    valtype(ParseHex("6080604052348015600e575f80fd5b506103108061001c5f395ff3fe608060405234801561000f575f80fd5b5060043610610029575f3560e01c80637b7b86101461002d575b5f80fd5b61004760048036038101906100429190610190565b61005d565b60405161005491906101f5565b60405180910390f35b5f805f600a73ffffffffffffffffffffffffffffffffffffffff16858560405161008892919061024a565b5f60405180830381855afa9150503d805f81146100c0576040519150601f19603f3d011682016040523d82523d5f602084013e6100c5565b606091505b50915091508161010a576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401610101906102bc565b60405180910390fd5b5f82801561011957505f825114155b905080935050505092915050565b5f80fd5b5f80fd5b5f80fd5b5f80fd5b5f80fd5b5f8083601f8401126101505761014f61012f565b5b8235905067ffffffffffffffff81111561016d5761016c610133565b5b60208301915083600182028301111561018957610188610137565b5b9250929050565b5f80602083850312156101a6576101a5610127565b5b5f83013567ffffffffffffffff8111156101c3576101c261012b565b5b6101cf8582860161013b565b92509250509250929050565b5f8115159050919050565b6101ef816101db565b82525050565b5f6020820190506102085f8301846101e6565b92915050565b5f81905092915050565b828183375f83830152505050565b5f610231838561020e565b935061023e838584610218565b82840190509392505050565b5f610256828486610226565b91508190509392505050565b5f82825260208201905092915050565b7f507265636f6d70696c652063616c6c206661696c6564000000000000000000005f82015250565b5f6102a6601683610262565b91506102b182610272565b602082019050919050565b5f6020820190508181035f8301526102d38161029a565b905091905056fea26469706673582212203da8696d22b3251f14701af9901c2d5a0471851a1942e162490ab54450eecc3b64736f6c634300081a0033")),
+    // verifyKZGCommitment(correct_proof)
+    valtype(ParseHex("7b7b8610000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c0012b08a0504a63aac18383db69fe6b52fc833e3d060b87c2726c4140c909d91807dddd3c80995c2bb3012943e2036e77490b1f6ddc58ca39a4fb4f3225ae56ab11dc2c4d89f777f0f5c2a51f45b73ff1538761f9cf23ed74c74472fea625ad8bace1db77e25ceb316d914182e05dd810f112352e1d6ed9e47af28e2f64e22b94c411794359c2273bc10bc0390963fb1a97bb642307bfa4424c66bd90ecc0ecffd5045e492b40304df20346693db7450457e2c72588a6a2b1a16909e2ab1e6284")),
+    // verifyKZGCommitment(incorrect_proof)
+    valtype(ParseHex("7b7b8610000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c001e798154708fe7789429634053cbf9f99b619f9f084048927333fce637f549b5eb7004fe57383e6c88b99d839937fddf3f99279353aaf8d5c9a75f91ce33c624882cf0609af8c7cd4c256e63a35838c95a9ebbf6122540ab344b42fd66d32e18f59a8d2a1a625a17f3fea0fe5eb8c896db3764f3185481bc22f91b4aaffcca25f26936857bc3a7c2539ea8ec3a952b7b8f731ba6a52e419ffc843c50d2947d30e933e3a881b208de54149714ece74a599503f84c6249b5fd8a7c70189882a6b")),
 };
 
 // Codes IDs used to check that london fork is present
@@ -100,7 +120,10 @@ enum class CodeID
     memoryCopyContract,
     memoryCopy_80,
     emptyBlobContract,
-    getBlobHash_7
+    getBlobHash_7,
+    pointEvaluationContract,
+    verifyKzgCorrectProof,
+    verifyKzgIncorrectProof
 };
 
 // Get the code identified by the ID
@@ -321,6 +344,66 @@ BOOST_AUTO_TEST_CASE(checking_blob_hash_before_fork){
     txCancun.push_back(createQtumTransaction(getCode(CodeID::getBlobHash_7), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
     result = executeBC(txCancun, *m_node.chainman);
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
+}
+
+BOOST_AUTO_TEST_CASE(checking_point_evaluation_after_fork){
+    genesisLoading();
+    createNewBlocks(this, 499);
+    dev::h256 hashTx(HASHTX);
+
+    // Create contract
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(getCode(CodeID::pointEvaluationContract), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+    auto result = executeBC(txs, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+
+    // Check that point evaluation precompiled contract exist
+    dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+    std::vector<QtumTransaction> txCancun;
+    txCancun.push_back(createQtumTransaction(getCode(CodeID::verifyKzgCorrectProof), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    txCancun.push_back(createQtumTransaction(getCode(CodeID::verifyKzgIncorrectProof), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    result = executeBC(txCancun, *m_node.chainman);
+
+    // Check point evaluation with valid data
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+    BOOST_CHECK(result.first[0].execRes.gasUsed == 75686);
+    BOOST_CHECK(result.first[0].execRes.output.size() == 32);
+    BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(1));
+
+    // Check point evaluation with not valid data
+    BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::RevertInstruction);
+    BOOST_CHECK(result.first[1].execRes.gasUsed == 492933);
+}
+
+BOOST_AUTO_TEST_CASE(checking_point_evaluation_before_fork){
+    genesisLoading();
+    createNewBlocks(this, 498);
+    dev::h256 hashTx(HASHTX);
+
+    // Create contract
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(getCode(CodeID::pointEvaluationContract), 0, GASLIMIT, dev::u256(1), ++hashTx, dev::Address()));
+    auto result = executeBC(txs, *m_node.chainman);
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+
+    // Check that point evaluation precompiled contract doesn't exist
+    dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
+    std::vector<QtumTransaction> txCancun;
+    txCancun.push_back(createQtumTransaction(getCode(CodeID::verifyKzgCorrectProof), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    txCancun.push_back(createQtumTransaction(getCode(CodeID::verifyKzgIncorrectProof), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    result = executeBC(txCancun, *m_node.chainman);
+
+    // Check point evaluation with valid data
+    BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+    BOOST_CHECK(result.first[0].execRes.gasUsed == 28114);
+    BOOST_CHECK(result.first[0].execRes.output.size() == 32);
+    BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(0));
+
+    // Check point evaluation with not valid data
+    BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::None);
+    BOOST_CHECK(result.first[1].execRes.gasUsed == 28102);
+    BOOST_CHECK(result.first[1].execRes.output.size() == 32);
+    BOOST_CHECK(dev::h256(result.first[1].execRes.output) == dev::h256(0));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

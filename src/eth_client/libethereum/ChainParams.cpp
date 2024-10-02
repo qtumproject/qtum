@@ -167,7 +167,7 @@ void ChainParams::loadConfig(
     precompiled.insert(
         {Address{0x9}, PrecompiledContract{"blake2_compression", istanbulForkBlock}});
     precompiled.insert(
-        {Address{0xa}, PrecompiledContract{"point_evaluation", cancunForkBlock}});
+        {Address{0xa}, PrecompiledContract{"point_evaluation", cancunForkBlock + 1}});
     precompiled.insert({Address{0x85}, PrecompiledContract{"btc_ecrecover", qip6ForkBlock}});
 
     stateRoot = _stateRoot ? _stateRoot : calculateStateRoot(true);
