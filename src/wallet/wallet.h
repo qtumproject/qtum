@@ -770,6 +770,7 @@ public:
         EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 
     CAmount GetTxGasFee(const CMutableTransaction& tx);
+    CAmount GetTxGasFee(const std::vector<CRecipient>& vecSend);
 
     bool ImportScripts(const std::set<CScript> scripts, int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool ImportPrivKeys(const std::map<CKeyID, CKey>& privkey_map, const int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);

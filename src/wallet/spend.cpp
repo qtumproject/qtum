@@ -1480,7 +1480,7 @@ util::Result<CreatedTransactionResult> FundTransaction(CWallet& wallet, const CM
         preset_txin.SetScriptWitness(txin.scriptWitness);
     }
 
-    CAmount nGasFee = wallet.GetTxGasFee(tx);
+    CAmount nGasFee = wallet.GetTxGasFee(vecSend);
     auto res = CreateTransaction(wallet, vecSend, change_pos, coinControl, false, nGasFee);
     if (!res) {
         return res;

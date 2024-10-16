@@ -5666,4 +5666,15 @@ CAmount CWallet::GetTxGasFee(const CMutableTransaction& tx)
     }
     return 0;
 }
+
+CAmount CWallet::GetTxGasFee(const std::vector<CRecipient>& vecSend)
+{
+    CMutableTransaction txNew;
+    for (const auto& recipient : vecSend)
+    {
+        CTxOut txout(recipient.nAmount, GetScriptForDestination(recipient.dest));
+        txNew.vout.push_back(txout);
+    }
+    return GetTxGasFee(txNew);
+}
 } // namespace wallet
