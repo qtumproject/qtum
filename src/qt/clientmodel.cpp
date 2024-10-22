@@ -2,6 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <qt/clientmodel.h>
 
 #include <qt/bantablemodel.h>
@@ -11,15 +15,15 @@
 #include <qt/peertablesortproxy.h>
 
 #include <clientversion.h>
+#include <common/args.h>
+#include <common/system.h>
 #include <interfaces/handler.h>
 #include <interfaces/node.h>
 #include <net.h>
 #include <netbase.h>
-#include <util/system.h>
 #include <util/threadnames.h>
 #include <util/time.h>
 #include <validation.h>
-#include <wallet/wallet.h>
 
 #include <stdint.h>
 
@@ -28,8 +32,8 @@
 #include <QThread>
 #include <QTimer>
 
-static int64_t nLastHeaderTipUpdateNotification = 0;
-static int64_t nLastBlockTipUpdateNotification = 0;
+static SteadyClock::time_point g_last_header_tip_update_notification{};
+static SteadyClock::time_point g_last_block_tip_update_notification{};
 
 ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QObject *parent) :
     QObject(parent),
@@ -67,12 +71,17 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     subscribeToCoreSignals();
 }
 
-ClientModel::~ClientModel()
+void ClientModel::stop()
 {
     unsubscribeFromCoreSignals();
 
     m_thread->quit();
     m_thread->wait();
+}
+
+ClientModel::~ClientModel()
+{
+    stop();
 }
 
 int ClientModel::getNumConnections(unsigned int flags) const
@@ -236,10 +245,10 @@ void ClientModel::TipChanged(SynchronizationState sync_state, interfaces::BlockT
     }
 
     // Throttle GUI notifications about (a) blocks during initial sync, and (b) both blocks and headers during reindex.
-    const bool throttle = (sync_state != SynchronizationState::POST_INIT && synctype == SyncType::BLOCK_SYNC) || sync_state == SynchronizationState::INIT_REINDEX || batchMode;
-    const int64_t now = throttle ? GetTimeMillis() : 0;
-    int64_t& nLastUpdateNotification = synctype != SyncType::BLOCK_SYNC ? nLastHeaderTipUpdateNotification : nLastBlockTipUpdateNotification;
-    if (throttle && now < nLastUpdateNotification + count_milliseconds(MODEL_UPDATE_DELAY)) {
+    const bool throttle = (sync_state != SynchronizationState::POST_INIT && synctype == SyncType::BLOCK_SYNC) || sync_state == SynchronizationState::INIT_REINDEX;
+    const auto now{throttle ? SteadyClock::now() : SteadyClock::time_point{}};
+    auto& nLastUpdateNotification = synctype != SyncType::BLOCK_SYNC ? g_last_header_tip_update_notification : g_last_block_tip_update_notification;
+    if (throttle && now < nLastUpdateNotification + MODEL_UPDATE_DELAY) {
         return;
     }
 
@@ -254,47 +263,41 @@ void ClientModel::TipChanged(SynchronizationState sync_state, interfaces::BlockT
 
 void ClientModel::subscribeToCoreSignals()
 {
-    m_handler_show_progress = m_node.handleShowProgress(
+    m_event_handlers.emplace_back(m_node.handleShowProgress(
         [this](const std::string& title, int progress, [[maybe_unused]] bool resume_possible) {
             Q_EMIT showProgress(QString::fromStdString(title), progress);
-        });
-    m_handler_notify_num_connections_changed = m_node.handleNotifyNumConnectionsChanged(
+        }));
+    m_event_handlers.emplace_back(m_node.handleNotifyNumConnectionsChanged(
         [this](int new_num_connections) {
             Q_EMIT numConnectionsChanged(new_num_connections);
-        });
-    m_handler_notify_network_active_changed = m_node.handleNotifyNetworkActiveChanged(
+        }));
+    m_event_handlers.emplace_back(m_node.handleNotifyNetworkActiveChanged(
         [this](bool network_active) {
             Q_EMIT networkActiveChanged(network_active);
-        });
-    m_handler_notify_alert_changed = m_node.handleNotifyAlertChanged(
+        }));
+    m_event_handlers.emplace_back(m_node.handleNotifyAlertChanged(
         [this]() {
             qDebug() << "ClientModel: NotifyAlertChanged";
             Q_EMIT alertsChanged(getStatusBarWarnings());
-        });
-    m_handler_banned_list_changed = m_node.handleBannedListChanged(
+        }));
+    m_event_handlers.emplace_back(m_node.handleBannedListChanged(
         [this]() {
             qDebug() << "ClienModel: Requesting update for peer banlist";
             QMetaObject::invokeMethod(banTableModel, [this] { banTableModel->refresh(); });
-        });
-    m_handler_notify_block_tip = m_node.handleNotifyBlockTip(
+        }));
+    m_event_handlers.emplace_back(m_node.handleNotifyBlockTip(
         [this](SynchronizationState sync_state, interfaces::BlockTip tip, double verification_progress) {
             TipChanged(sync_state, tip, verification_progress, SyncType::BLOCK_SYNC);
-        });
-    m_handler_notify_header_tip = m_node.handleNotifyHeaderTip(
+        }));
+    m_event_handlers.emplace_back(m_node.handleNotifyHeaderTip(
         [this](SynchronizationState sync_state, interfaces::BlockTip tip, bool presync) {
             TipChanged(sync_state, tip, /*verification_progress=*/0.0, presync ? SyncType::HEADER_PRESYNC : SyncType::HEADER_SYNC);
-        });
+        }));
 }
 
 void ClientModel::unsubscribeFromCoreSignals()
 {
-    m_handler_show_progress->disconnect();
-    m_handler_notify_num_connections_changed->disconnect();
-    m_handler_notify_network_active_changed->disconnect();
-    m_handler_notify_alert_changed->disconnect();
-    m_handler_banned_list_changed->disconnect();
-    m_handler_notify_block_tip->disconnect();
-    m_handler_notify_header_tip->disconnect();
+    m_event_handlers.clear();
 }
 
 bool ClientModel::getProxyInfo(std::string& ip_port) const

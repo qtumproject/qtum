@@ -3,11 +3,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <warnings.h>
 
+#include <common/system.h>
 #include <sync.h>
 #include <util/string.h>
-#include <util/system.h>
 #include <util/translation.h>
 
 #include <vector>

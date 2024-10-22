@@ -1,11 +1,11 @@
 // Copyright (c) 2021-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+#include <common/system.h>
 #include <policy/rbf.h>
 #include <random.h>
 #include <test/util/txmempool.h>
 #include <txmempool.h>
-#include <util/system.h>
 #include <util/time.h>
 
 #include <test/util/setup_common.h>
@@ -27,7 +27,7 @@ static inline CTransactionRef make_tx(const std::vector<CTransactionRef>& inputs
         tx.vin[i].prevout.n = 0;
         // Add a witness so wtxid != txid
         CScriptWitness witness;
-        witness.stack.push_back(std::vector<unsigned char>(i + 10));
+        witness.stack.emplace_back(i + 10);
         tx.vin[i].scriptWitness = witness;
     }
     for (size_t i = 0; i < output_values.size(); ++i) {
@@ -135,8 +135,6 @@ BOOST_FIXTURE_TEST_CASE(rbf_helper_functions, TestChain100Setup)
     // Tests for EntriesAndTxidsDisjoint
     BOOST_CHECK(EntriesAndTxidsDisjoint(empty_set, {tx1->GetHash()}, unused_txid) == std::nullopt);
     BOOST_CHECK(EntriesAndTxidsDisjoint(set_12_normal, {tx3->GetHash()}, unused_txid) == std::nullopt);
-    // EntriesAndTxidsDisjoint uses txids, not wtxids.
-    BOOST_CHECK(EntriesAndTxidsDisjoint({entry2}, {tx2->GetWitnessHash()}, unused_txid) == std::nullopt);
     BOOST_CHECK(EntriesAndTxidsDisjoint({entry2}, {tx2->GetHash()}, unused_txid).has_value());
     BOOST_CHECK(EntriesAndTxidsDisjoint(set_12_normal, {tx1->GetHash()}, unused_txid).has_value());
     BOOST_CHECK(EntriesAndTxidsDisjoint(set_12_normal, {tx2->GetHash()}, unused_txid).has_value());

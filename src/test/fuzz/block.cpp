@@ -11,8 +11,8 @@
 #include <pubkey.h>
 #include <streams.h>
 #include <test/fuzz/fuzz.h>
+#include <util/chaintype.h>
 #include <validation.h>
-#include <version.h>
 #include <test/util/setup_common.h>
 
 #include <cassert>
@@ -23,21 +23,18 @@ const TestingSetup* g_setup;
 
 void initialize_block()
 {
-    SelectParams(CBaseChainParams::UNITTEST);
+    SelectParams(ChainType::UNITTEST);
 
     static const auto testing_setup = MakeNoLogFileContext<const TestingSetup>();
     g_setup = testing_setup.get();
 }
 
-FUZZ_TARGET_INIT(block, initialize_block)
+FUZZ_TARGET(block, .init = initialize_block)
 {
-    CDataStream ds(buffer, SER_NETWORK, INIT_PROTO_VERSION);
+    DataStream ds{buffer};
     CBlock block;
     try {
-        int nVersion;
-        ds >> nVersion;
-        ds.SetVersion(nVersion);
-        ds >> block;
+        ds >> TX_WITH_WITNESS(block);
     } catch (const std::ios_base::failure&) {
         return;
     }

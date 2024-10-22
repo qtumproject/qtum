@@ -3,6 +3,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <arith_uint256.h>
+#include <common/args.h>
+#include <common/system.h>
 #include <compressor.h>
 #include <consensus/amount.h>
 #include <consensus/merkle.h>
@@ -17,7 +19,7 @@
 #include <pow.h>
 #include <protocol.h>
 #include <pubkey.h>
-#include <script/standard.h>
+#include <script/script.h>
 #include <serialize.h>
 #include <streams.h>
 #include <test/fuzz/FuzzedDataProvider.h>
@@ -25,13 +27,12 @@
 #include <test/fuzz/util.h>
 #include <uint256.h>
 #include <univalue.h>
+#include <util/chaintype.h>
 #include <util/check.h>
 #include <util/moneystr.h>
 #include <util/overflow.h>
 #include <util/strencodings.h>
 #include <util/string.h>
-#include <util/system.h>
-#include <version.h>
 
 #include <cassert>
 #include <chrono>
@@ -41,10 +42,10 @@
 
 void initialize_integer()
 {
-    SelectParams(CBaseChainParams::UNITTEST);
+    SelectParams(ChainType::UNITTEST);
 }
 
-FUZZ_TARGET_INIT(integer, initialize_integer)
+FUZZ_TARGET(integer, .init = initialize_integer)
 {
     if (buffer.size() < sizeof(uint256) + sizeof(uint160)) {
         return;
@@ -79,7 +80,6 @@ FUZZ_TARGET_INIT(integer, initialize_integer)
     static const uint256 u256_max(uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
     const std::vector<uint256> v256{u256, u256_min, u256_max};
     (void)ComputeMerkleRoot(v256);
-    (void)CountBits(u64);
     (void)DecompressAmount(u64);
     {
         if (std::optional<CAmount> parsed = ParseMoney(FormatMoney(i64))) {
@@ -212,7 +212,6 @@ FUZZ_TARGET_INIT(integer, initialize_integer)
 
     {
         const ServiceFlags service_flags = (ServiceFlags)u64;
-        (void)HasAllDesirableServiceFlags(service_flags);
         (void)MayHaveUsefulAddressDB(service_flags);
     }
 

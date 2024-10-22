@@ -1,9 +1,9 @@
-25.1 Release Notes
-==================
+27.1 Release Notes
+=====================
 
-Bitcoin Core version 25.1 is now available from:
+Bitcoin Core version 27.1 is now available from:
 
-  <https://bitcoincore.org/bin/bitcoin-core-25.1/>
+  <https://bitcoincore.org/bin/bitcoin-core-27.1/>
 
 This release includes various bug fixes and performance
 improvements, as well as updated translations.
@@ -32,77 +32,83 @@ Compatibility
 ==============
 
 Bitcoin Core is supported and extensively tested on operating systems
-using the Linux kernel, macOS 10.15+, and Windows 7 and newer.  Bitcoin
+using the Linux Kernel 3.17+, macOS 11.0+, and Windows 7 and newer. Bitcoin
 Core should also work on most other Unix-like systems but is not as
-frequently tested on them.  It is not recommended to use Bitcoin Core on
+frequently tested on them. It is not recommended to use Bitcoin Core on
 unsupported systems.
 
 Notable changes
 ===============
 
-### P2P
+### Miniscript
 
-- #27626 Parallel compact block downloads, take 3
-- #27743 p2p: Unconditionally return when compact block status == READ_STATUS_FAILED
-
-### Fees
-
-- #27622 Fee estimation: avoid serving stale fee estimate
+- #29853 sign: don't assume we are parsing a sane TapMiniscript
 
 ### RPC
 
-- #27727 rpc: Fix invalid bech32 address handling
+- #29869 rpc, bugfix: Enforce maximum value for setmocktime
+- #29870 rpc: Reword SighashFromStr error message
+- #30094 rpc: move UniValue in blockToJSON
 
-### Rest
+### Index
 
-- #27853 rest: fix crash error when calling /deploymentinfo
-- #28551 http: bugfix: allow server shutdown in case of remote client disconnection
-
-### Wallet
-
-- #28038 wallet: address book migration bug fixes
-- #28067 descriptors: do not return top-level only funcs as sub descriptors
-- #28125 wallet: bugfix, disallow migration of invalid scripts
-- #28542 wallet: Check for uninitialized last processed and conflicting heights in MarkConflicted
-
-### Build
-
-- #27724 build: disable boost multi index safe mode in debug mode
-- #28097 depends: xcb-proto 1.15.2
-- #28543 build, macos: Fix qt package build with new Xcode 15 linker
-- #28571 depends: fix unusable memory_resource in macos qt build
+- #29776 Fix #29767, set m_synced = true after Commit()
 
 ### Gui
 
-- gui#751 macOS, do not process actions during shutdown
+- #gui812 Fix create unsigned transaction fee bump
+- #gui813 Don't permit port in proxy IP option
 
-### Miscellaneous
+### Test
 
-- #28452 Do not use std::vector = {} to release memory
+- #29892 test: Fix failing univalue float test
+
+### P2P
+
+- #30085 p2p: detect addnode cjdns peers in GetAddedNodeInfo()
+
+### Build
+
+- #29747 depends: fix mingw-w64 Qt DEBUG=1 build
+- #29859 build: Fix false positive CHECK_ATOMIC test
+- #29985 depends: Fix build of Qt for 32-bit platforms with recent glibc
+- #30097 crypto: disable asan for sha256_sse4 with clang and -O0
+- #30151 depends: Fetch miniupnpc sources from an alternative website
+- #30216 build: Fix building fuzz binary on on SunOS / illumos
+- #30217 depends: Update Boost download link
+
+### Doc
+
+- #29934 doc: add LLVM instruction for macOS < 13
 
 ### CI
 
-- #27777 ci: Prune dangling images on RESTART_CI_DOCKER_BEFORE_RUN
-- #27834 ci: Nuke Android APK task, Use credits for tsan
-- #27844 ci: Use podman stop over podman kill
-- #27886 ci: Switch to amd64 container in "ARM" task
+- #29856 ci: Bump s390x to ubuntu:24.04
+
+### Misc
+
+- #29691 Change Luke Dashjr seed to dashjr-list-of-p2p-nodes.us
+- #30149 contrib: Renew Windows code signing certificate
 
 Credits
 =======
 
 Thanks to everyone who directly contributed to this release:
 
-- Abubakar Sadiq Ismail
-- Andrew Chow
-- Bruno Garcia
-- Gregory Sanders
+- Antoine Poinsot
+- Ava Chow
+- Cory Fields
+- dergoegge
+- fanquake
+- furszy
 - Hennadii Stepanov
-- MacroFake
-- Matias Furszyfer
-- Michael Ford
-- Pieter Wuille
-- stickies-v
-- Will Clark
+- Jon Atack
+- laanwj
+- Luke Dashjr
+- MarcoFalke
+- nanlour
+- Sjors Provoost
+- willcl-ark
 
 As well as to everyone that helped with translations on
 [Transifex](https://www.transifex.com/bitcoin/bitcoin/).

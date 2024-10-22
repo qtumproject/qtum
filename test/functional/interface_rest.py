@@ -26,6 +26,7 @@ from test_framework.wallet import (
     MiniWallet,
     getnewdestination,
 )
+from typing import Optional
 from test_framework.messages import CBlockHeader
 
 from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
@@ -70,7 +71,7 @@ class RESTTest (BitcoinTestFramework):
             body: str = '',
             status: int = 200,
             ret_type: RetType = RetType.JSON,
-            query_params: typing.Dict[str, typing.Any] = None,
+            query_params: Optional[dict[str, typing.Any]] = None,
             ) -> typing.Union[http.client.HTTPResponse, bytes, str, None]:
         rest_uri = '/rest' + uri
         if req_type in ReqType:
@@ -102,7 +103,7 @@ class RESTTest (BitcoinTestFramework):
         self.wallet = MiniWallet(self.nodes[0])
 
         self.log.info("Broadcast test transaction and sync nodes")
-        txid, _ = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=getnewdestination()[1], amount=int(0.1 * COIN))
+        txid = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=getnewdestination()[1], amount=int(0.1 * COIN))["txid"]
         self.sync_all()
 
         self.log.info("Test the /tx URI")
@@ -179,7 +180,7 @@ class RESTTest (BitcoinTestFramework):
         # found with or without /checkmempool.
 
         # do a tx and don't sync
-        txid, _ = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=getnewdestination()[1], amount=int(0.1 * COIN), sort_by_height=True)
+        txid = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=getnewdestination()[1], amount=int(0.1 * COIN), sort_by_height=True)["txid"]
         json_obj = self.test_rest_request(f"/tx/{txid}")
         # get the spent output to later check for utxo (should be spent by then)
         spent = (json_obj['vin'][0]['txid'], json_obj['vin'][0]['vout'])
@@ -342,6 +343,9 @@ class RESTTest (BitcoinTestFramework):
         assert_greater_than(json_obj['bytes'], 300)
 
         mempool_info = self.nodes[0].getmempoolinfo()
+        # pop unstable unbroadcastcount before check
+        for obj in [json_obj, mempool_info]:
+            obj.pop("unbroadcastcount")
         assert_equal(json_obj, mempool_info)
 
         # Check that there are our submitted transactions in the TX memory pool

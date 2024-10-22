@@ -11,13 +11,14 @@
 #include <consensus/params.h>
 #include <consensus/consensus.h>
 #include <hash.h>
-#include <chainparamsbase.h>
+#include <kernel/messagestartchars.h>
 #include <logging.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
 #include <script/interpreter.h>
 #include <script/script.h>
 #include <uint256.h>
+#include <util/chaintype.h>
 #include <util/strencodings.h>
 #include <util/convert.h>
 
@@ -80,7 +81,7 @@ static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits
 class CMainParams : public CChainParams {
 public:
     CMainParams() {
-        strNetworkID = CBaseChainParams::MAIN;
+        m_chain_type = ChainType::MAIN;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
@@ -102,6 +103,7 @@ public:
         consensus.nMuirGlacierHeight = 845000;
         consensus.nLondonHeight = 2080512;
         consensus.nShanghaiHeight = 3385122;
+        consensus.nCancunHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -172,9 +174,7 @@ public:
         vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_main), std::end(chainparams_seed_main));
 
         fDefaultConsistencyChecks = false;
-        fRequireStandard = true;
         fMineBlocksOnDemand = false;
-        m_is_test_chain = false;
         m_is_mockable_chain = false;
         fHasHardwareWalletSupport = true;
 
@@ -198,8 +198,8 @@ public:
             }
         };
 
-        m_assumeutxo_data = MapAssumeutxo{
-         // TODO to be specified in a future patch.
+        m_assumeutxo_data = {
+            // TODO to be specified in a future patch.
         };
 
         chainTxData = ChainTxData{
@@ -239,7 +239,7 @@ public:
 class CTestNetParams : public CChainParams {
 public:
     CTestNetParams() {
-        strNetworkID = CBaseChainParams::TESTNET;
+        m_chain_type = ChainType::TESTNET;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
@@ -261,6 +261,7 @@ public:
         consensus.nMuirGlacierHeight = 806600;
         consensus.nLondonHeight = 1967616;
         consensus.nShanghaiHeight = 3298892;
+        consensus.nCancunHeight = 0x7fffffff;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -321,9 +322,7 @@ public:
         vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_test), std::end(chainparams_seed_test));
 
         fDefaultConsistencyChecks = false;
-        fRequireStandard = false;
         fMineBlocksOnDemand = false;
-        m_is_test_chain = true;
         m_is_mockable_chain = false;
         fHasHardwareWalletSupport = true;
 
@@ -345,7 +344,7 @@ public:
             }
         };
 
-        m_assumeutxo_data = MapAssumeutxo{
+        m_assumeutxo_data = {
             // TODO to be specified in a future patch.
         };
 
@@ -420,7 +419,7 @@ public:
             vSeeds = *options.seeds;
         }
 
-        strNetworkID = CBaseChainParams::SIGNET;
+        m_chain_type = ChainType::SIGNET;
         consensus.signet_blocks = true;
         consensus.signet_challenge.assign(bin.begin(), bin.end());
         consensus.nSubsidyHalvingInterval = 985500;
@@ -439,6 +438,7 @@ public:
         consensus.nMuirGlacierHeight = 0;
         consensus.nLondonHeight = 0;
         consensus.nShanghaiHeight = 0;
+        consensus.nCancunHeight = 0;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -469,7 +469,7 @@ public:
         HashWriter h{};
         h << consensus.signet_challenge;
         uint256 hash = h.GetHash();
-        memcpy(pchMessageStart, hash.begin(), 4);
+        std::copy_n(hash.begin(), 4, pchMessageStart.begin());
 
         nDefaultPort = 33888;
         nPruneAfterHeight = 1000;
@@ -481,6 +481,10 @@ public:
 
         vFixedSeeds.clear();
 
+        m_assumeutxo_data = {
+            // TODO to be specified in a future patch.
+        };
+
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,120);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,110);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
@@ -490,9 +494,7 @@ public:
         bech32_hrp = "tq";
 
         fDefaultConsistencyChecks = false;
-        fRequireStandard = true;
         fMineBlocksOnDemand = false;
-        m_is_test_chain = true;
         m_is_mockable_chain = false;
 
         consensus.nBlocktimeDownscaleFactor = 4;
@@ -525,7 +527,7 @@ class CRegTestParams : public CChainParams
 public:
     explicit CRegTestParams(const RegTestOptions& opts)
     {
-        strNetworkID =  CBaseChainParams::REGTEST;
+        m_chain_type = ChainType::REGTEST;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 985500;
@@ -545,6 +547,7 @@ public:
         consensus.nMuirGlacierHeight = 0;
         consensus.nLondonHeight = 0;
         consensus.nShanghaiHeight = 0;
+        consensus.nCancunHeight = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -618,9 +621,7 @@ public:
         vSeeds.emplace_back("dummySeed.invalid.");
 
         fDefaultConsistencyChecks = true;
-        fRequireStandard = true;
         fMineBlocksOnDemand = true;
-        m_is_test_chain = true;
         m_is_mockable_chain = true;
         fHasHardwareWalletSupport = true;
 
@@ -630,8 +631,14 @@ public:
             }
         };
 
-        m_assumeutxo_data = MapAssumeutxo{
-         // TODO to be specified in a future patch.
+        m_assumeutxo_data = {
+            {
+                // For use by test/functional/feature_assumeutxo.py
+                .height = 2199,
+                .hash_serialized = AssumeutxoHash{uint256S("0xa9e20f6c0c6531e44789f7a29df1939fa1c2e7d5c451b25c5201880628c57940")},
+                .nChainTx = 2200,
+                .blockhash = uint256S("0x66832161e18db8b9325ec765201657c4238992f27c36ba37111f1e2d55cc16cb")
+            },
         };
 
         chainTxData = ChainTxData{
@@ -705,15 +712,13 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0;
 
-        m_assumeutxo_data = MapAssumeutxo{
+        m_assumeutxo_data = {
             {
-                2010,
-                {AssumeutxoHash{uint256S("0xf3ad83776715ee9b09a7a43421b6fe17701fb2247370a4ea9fcf0b073639cac9")}, 2010},
-            },
-            {
-                2100,
-                {AssumeutxoHash{uint256S("0x677f8902ca481677862d19fbe8c6214f596c8b475aabfe4273361485fc4e6fb4")}, 2100},
-            },
+                .height = 2010,
+                .hash_serialized = AssumeutxoHash{uint256S("0x62528c92991cbedf47bdf3f0f5a0ad1e07bce4b2a35500beabe3f87fa5cca44f")},
+                .nChainTx = 2011,
+                .blockhash = uint256S("0x292911929ab59409569a86bae416da0ba697fd7086b107ddd0a8eeaddba91b4d")
+            }
         };
     }
 };

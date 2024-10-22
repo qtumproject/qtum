@@ -70,7 +70,7 @@ private Q_SLOTS:
 
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
-    void setMonospacedFont(bool use_embedded_font);
+    void setMonospacedFont(const QFont&);
     void on_showMoreButton_clicked();
     void on_buttonSend_clicked();
     void on_buttonReceive_clicked();
@@ -78,3 +78,4 @@ private Q_SLOTS:
 };
 
 #endif // BITCOIN_QT_OVERVIEWPAGE_H
+

@@ -11,6 +11,7 @@
 #include <libdevcrypto/Common.h>
 #include <libdevcrypto/Hash.h>
 #include <libdevcrypto/LibSnark.h>
+#include <libdevcrypto/LibKzg.h>
 #include <libethcore/Common.h>
 #include <qtum/qtumutils.h>
 using namespace std;
@@ -319,5 +320,16 @@ ETH_REGISTER_PRECOMPILED_PRICER(blake2_compression)
 {
     auto const rounds = fromBigEndian<uint32_t>(_in.cropped(0, 4));
     return rounds;
+}
+
+ETH_REGISTER_PRECOMPILED_PRICER(point_evaluation)
+(bytesConstRef /*_in*/, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
+{
+    return 50000;
+}
+
+ETH_REGISTER_PRECOMPILED(point_evaluation)(bytesConstRef _in)
+{
+    return dev::crypto::point_evaluation_execute(_in);
 }
 }

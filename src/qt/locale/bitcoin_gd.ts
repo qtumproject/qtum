@@ -21,10 +21,6 @@
         <source>Choose the address to send coins to</source>
         <translation type="unfinished">Tagh an seòladh airson buinn a chuir thuige</translation>
     </message>
-    <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">A ’cur sheòlaidhean</translation>
-    </message>
     </context>
 <context>
     <name>AddressTableModel</name>
@@ -119,7 +115,7 @@
         <translation type="unfinished">Ainm Wallet</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />

@@ -39,11 +39,11 @@
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Izvozi</translation>
+        <translation type="unfinished">&amp;Izvezite</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">Iz&amp;brišite</translation>
+        <translation type="unfinished">&amp;Izbrišite</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -56,14 +56,6 @@
     <message>
         <source>C&amp;hoose</source>
         <translation type="unfinished">&amp;Odaberite</translation>
-    </message>
-    <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Adrese pošiljatelja</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Adrese primatelja</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
@@ -640,7 +632,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Učitaj djelomično potpisanu qtum transakciju</translation>
-   </message>
+    </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Učitaj PSBT iz &amp;međuspremnika...</translation>
@@ -875,10 +867,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Naknada:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Prah:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Nakon naknade:</translation>
     </message>
@@ -967,28 +955,12 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Kopirajte količinu bajtova</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopirajte sićušne iznose ("prašinu")</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopirajte ostatak</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 zaključen)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">da</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ne</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Oznaka postane crvene boje ako bilo koji primatelj dobije iznos manji od trenutnog praga "prašine" (sićušnog iznosa).</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1136,14 +1108,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Stvorite prazni novčanik</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Koristi deskriptore za upravljanje scriptPubKey-a</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Deskriptor novčanik</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Koristi vanjski potpisni uređaj kao što je hardverski novčanik.  Prije korištenja konfiguriraj vanjski potpisni skript u postavkama novčanika.</translation>
     </message>
@@ -1154,10 +1118,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>Create</source>
         <translation type="unfinished">Stvorite</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Kompajlirano bez sqlite mogućnosti (potrebno za deskriptor novčanike)</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1202,7 +1162,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Upisana adresa "%1" nije valjana Qtum adresa.</translation>
-   </message>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Adresa "%1" već postoji kao primateljska adresa s oznakom "%2" te se ne može dodati kao pošiljateljska adresa.</translation>
@@ -1288,8 +1248,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     </message>
     <message>
         <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 preuzet će i pohraniti kopiju Qtumovog lanca blokova.</translation> 
-   </message>
+        <translation type="unfinished">%1 preuzet će i pohraniti kopiju Qtumovog lanca blokova.</translation>
+    </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
         <translation type="unfinished">Novčanik bit će pohranjen u ovoj mapi.</translation>
@@ -1374,7 +1334,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Nedavne transakcije možda još nisu vidljive pa vam stanje novčanika može biti netočno. Ove informacije bit će točne nakon što vaš novčanik dovrši sinkronizaciju s Qtumovom mrežom, kako je opisano dolje.</translation>
-   </message>
+    </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Mreža neće prihvatiti pokušaje trošenja qtuma koji su utjecani sa strane transakcija koje još nisu vidljive.</translation>
@@ -1421,7 +1381,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">Otvori qtum: URI</translation>
-   </message>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -1691,18 +1651,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Koristite zaseban SOCKS&amp;5 proxy kako biste dohvatili klijente preko Tora:</translation>
     </message>
     <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">Font fiksne širine u tabu Pregled:</translation>
-    </message>
-    <message>
-        <source>embedded "%1"</source>
-        <translation type="unfinished">ugrađen "%1"</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">najbliže poklapanje "%1"</translation>
-    </message>
-    <message>
         <source>&amp;OK</source>
         <translation type="unfinished">&amp;U redu</translation>
     </message>
@@ -1928,8 +1876,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">PBST spremljen na disk.</translation>
     </message>
     <message>
-        <source> * Sends %1 to %2</source>
-        <translation type="unfinished">* Šalje %1 %2</translation>
+        <source>own address</source>
+        <translation type="unfinished">vlastita adresa</translation>
     </message>
     <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
@@ -1987,7 +1935,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Greška kod zahtjeva za plaćanje</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source> 
+        <source>Cannot start qtum: click-to-pay handler</source>
         <translation type="unfinished">Ne može se pokrenuti klijent: rukovatelj "kliknite da platite"</translation>
     </message>
     <message>
@@ -1997,7 +1945,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' nije ispravan URI. Koristite 'qtum:' umjesto toga.</translation>
-   </message>
+    </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
@@ -2789,10 +2737,6 @@ Za više informacija o korištenju ove konzile, utipkajte %6.
         <translation type="unfinished">Inputi...</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Prah:</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">Odaberi...</translation>
     </message>
@@ -2870,10 +2814,6 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Kopirajte količinu bajtova</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopirajte sićušne iznose ("prašinu")</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopirajte ostatak</translation>
     </message>
@@ -2902,10 +2842,6 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">Stvara djelomično potpisanu Qtum transakciju (Partially Signed Qtum Transaction - PSBT) za upotrebu sa npr. novčanikom %1 koji nije povezan s mrežom ili sa PSBT kompatibilnim hardverskim novčanikom.</translation>
-    </message>
-    <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">iz novčanika '%1'</translation>
     </message>
     <message>
         <source>%1 to '%2'</source>
@@ -3038,7 +2974,7 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     <message>
         <source>Warning: Invalid Qtum address</source>
         <translation type="unfinished">Upozorenje: Nevažeća Qtum adresa</translation>
-   </message>
+    </message>
     <message>
         <source>Warning: Unknown change address</source>
         <translation type="unfinished">Upozorenje: Nepoznata adresa u koju će ostatak biti poslan</translation>
@@ -3076,8 +3012,8 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     </message>
     <message>
         <source>The Qtum address to send the payment to</source>
-        <translation type="unfinished">Qtum adresa na koju ćete poslati uplatu</translation> 
-  </message>
+        <translation type="unfinished">Qtum adresa na koju ćete poslati uplatu</translation>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <translation type="unfinished">Zalijepi adresu iz međuspremnika</translation>
@@ -3139,11 +3075,11 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     <message>
         <source>You can sign messages/agreements with your addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">Možete potpisati poruke/dogovore svojim adresama kako biste dokazali da možete pristupiti qtumima poslanim na te adrese. Budite oprezni da ne potpisujte ništa nejasno ili nasumično, jer napadi phishingom vas mogu prevariti da prepišite svoj identitet njima. Potpisujte samo detaljno objašnjene izjave s kojima se slažete.</translation>
-   </message>
+    </message>
     <message>
         <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">Qtum adresa pomoću koje ćete potpisati poruku</translation>
-   </message>
+    </message>
     <message>
         <source>Choose previously used address</source>
         <translation type="unfinished">Odaberite prethodno korištenu adresu</translation>
@@ -3167,7 +3103,7 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Potpišite poruku kako biste dokazali da posjedujete ovu Qtum adresu</translation>
-   </message>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">&amp;Potpišite poruku</translation>
@@ -3399,10 +3335,6 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Indeks outputa</translation>
     </message>
     <message>
-        <source> (Certificate was not verified)</source>
-        <translation type="unfinished">(Certifikat nije bio ovjeren)</translation>
-    </message>
-    <message>
         <source>Merchant</source>
         <translation type="unfinished">Trgovac</translation>
     </message>
@@ -3501,10 +3433,6 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Poslano za</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Plaćanje samom sebi</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Rudareno</translation>
     </message>
@@ -3578,10 +3506,6 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Poslano za</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Samom sebi</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3876,10 +3800,6 @@ Idi na Datoteka &gt;  Otvori novčanik za učitanje novčanika.
         <translation type="unfinished">Distribuirano pod MIT licencom softvera. Vidite pripadajuću datoteku %s ili %s.</translation>
     </message>
     <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Greška kod iščitanja %s! Svi ključevi su ispravno učitani, ali transakcijski podaci ili zapisi u adresaru mogu biti nepotpuni ili netočni.</translation>
-    </message>
-    <message>
         <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
         <translation type="unfinished">Greška u čitanju %s! Transakcijski podaci nedostaju ili su netočni. Ponovno skeniranje novčanika.</translation>
     </message>
@@ -3946,10 +3866,6 @@ Idi na Datoteka &gt;  Otvori novčanik za učitanje novčanika.
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
         <translation type="unfinished">Baza blokova sadrži blok koji je naizgled iz budućnosti. Može to biti posljedica krivo namještenog datuma i vremena na vašem računalu. Obnovite bazu blokova samo ako ste sigurni da su točni datum i vrijeme na vašem računalu.</translation>
-    </message>
-    <message>
-        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
-        <translation type="unfinished">Index bloka db sadrži legacy 'txindex'. Kako biste očistili zauzeti prostor na disku, pokrenite puni -reindex ili ignorirajte ovu grešku. Ova greška neće biti ponovno prikazana.</translation>
     </message>
     <message>
         <source>The transaction amount is too small to send after the fee has been deducted</source>
@@ -4034,10 +3950,6 @@ Idi na Datoteka &gt;  Otvori novčanik za učitanje novčanika.
     <message>
         <source>Cannot write to data directory '%s'; check permissions.</source>
         <translation type="unfinished">Nije moguće pisati u podatkovnu mapu '%s'; provjerite dozvole.</translation>
-    </message>
-    <message>
-        <source>The -txindex upgrade started by a previous version cannot be completed. Restart with the previous version or run a full -reindex.</source>
-        <translation type="unfinished">Unaprijeđenje  -txindex koje za započela prijašnja verzija nije moguće završiti. Ponovno pokrenite s prethodnom verzijom ili pokrenite potpuni -reindex.</translation>
     </message>
     <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
@@ -4374,10 +4286,6 @@ Idi na Datoteka &gt;  Otvori novčanik za učitanje novčanika.
     <message>
         <source>Transaction change output index out of range</source>
         <translation type="unfinished">Indeks change outputa transakcije je izvan dometa</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">Transakcija ima prevelik lanac memorijskog bazena</translation>
     </message>
     <message>
         <source>Transaction must have at least one recipient</source>

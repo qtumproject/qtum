@@ -2,10 +2,6 @@
 <context>
     <name>AddressBookPage</name>
     <message>
-        <source>Right-click to edit address or label</source>
-        <translation type="unfinished">پتہ یا لیبل کی تصیح کیلیئے داہنا کلک</translation>
-    </message>
-    <message>
         <source>Create a new address</source>
         <translation type="unfinished">نیا پتہ تخلیق کریں</translation>
     </message>
@@ -56,14 +52,6 @@
     <message>
         <source>C&amp;hoose</source>
         <translation type="unfinished">چننا</translation>
-    </message>
-    <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">پتے ارسال کیے جارہے ہیں</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">پتے موصول ہورہے ہیں</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
@@ -163,7 +151,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پرس کی خفیہ کاری کی تصدیق کریں</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source> 
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">انتباہ: اگر آپ اپنا بٹوہ انکرپٹ کرتے ہیں اور اپنا پاس فریز کھو دیتے ہیں تو ، آپ اپنے تمام بٹکوئنز کھو دیں گے.</translation>
     </message>
     <message>
@@ -183,7 +171,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پرس کے لئے پرانا پاسفریج اور نیا پاسفریز درج کریں۔</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source> 
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">یاد رکھیں کہ آپ کے پرس کو خفیہ کرنا آپ کے بٹ کوائنز کو میلویئر/چور سے آپ کے کمپیوٹر میں انفیکشن لگانے کے ذریعہ چوری ہونے سے پوری طرح محفوظ نہیں رکھ سکتا ہے۔</translation>
     </message>
     <message>
@@ -412,7 +400,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پراکسی &lt;b&gt;فعال&lt;/b&gt; ہے:%1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source> 
+        <source>Send coins to a Qtum address</source>
         <translation type="unfinished">بٹ کوائن ایڈریس پر سکے بھیجیں</translation>
     </message>
     <message>
@@ -782,10 +770,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">فیس:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">نہ ہونے کے برابر</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">فیس کے بعد:</translation>
     </message>
@@ -870,28 +854,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">بائٹس کاپی کریں</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">باقی شدہ کاپی کریں</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">تبدیلی کاپی کریں</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">مقفل'%1</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">جی ہاں</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">نہیں</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">یہ لیبل سرخ ہو جاتا ہے اگر کوئی وصول کنندہ موجودہ کم سے کم مقرر کردہ حد سے کم رقم وصول کرتا ہے۔</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1017,14 +985,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">خالی والیٹ بنائیں</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">ScriptPubKeys کے انتظام کے لیے وضاحت کنندگان کا استعمال کریں۔</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">وضاحتی والیٹ</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">بیرونی دستخط کرنے والا آلہ استعمال کریں جیسے ہارڈ ویئر والیٹ۔ پہلے والیٹ کی ترجیحات میں بیرونی دستخط کنندہ اسکرپٹ کو ترتیب دیں۔</translation>
     </message>
@@ -1035,10 +995,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Create</source>
         <translation type="unfinished">بنائیں</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished"> SQliteسپورٹ کے بغیر مرتب کیا گیا (ڈسکرپٹر والیٹس کے لیے درکار)</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1958,10 +1914,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">ایک ساتھ متعدد وصول کنندگان کو بھیجیں۔</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">نہ ہونے کے برابر</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">منتخب کریں…</translation>
     </message>
@@ -2004,10 +1956,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">بائٹس کاپی کریں</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">باقی شدہ کاپی کریں</translation>
     </message>
     <message>
         <source>Copy change</source>

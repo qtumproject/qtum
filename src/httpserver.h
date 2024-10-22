@@ -11,6 +11,10 @@
 #include <mutex>
 #include <condition_variable>
 
+namespace util {
+class SignalInterrupt;
+} // namespace util
+
 static const int DEFAULT_HTTP_THREADS=4;
 static const int DEFAULT_HTTP_WORKQUEUE=16;
 static const int DEFAULT_HTTP_SERVER_TIMEOUT=30;
@@ -23,7 +27,7 @@ class HTTPRequest;
 /** Initialize HTTP server.
  * Call this before RegisterHTTPHandler or EventBase().
  */
-bool InitHTTPServer();
+bool InitHTTPServer(const util::SignalInterrupt& interrupt);
 /** Start HTTP server.
  * This is separate from InitHTTPServer to give users race-condition-free time
  * to register their handlers between InitHTTPServer and StartHTTPServer.
@@ -59,6 +63,7 @@ class HTTPRequest
 {
 private:
     struct evhttp_request* req;
+    const util::SignalInterrupt& m_interrupt;
     bool replySent;
     bool startedChunkTransfer;
     bool connClosed;
@@ -70,7 +75,7 @@ private:
     void waitClientClose();
 
 public:
-    explicit HTTPRequest(struct evhttp_request* req, bool replySent = false);
+    explicit HTTPRequest(struct evhttp_request* req, const util::SignalInterrupt& interrupt, bool replySent = false);
     ~HTTPRequest();
 
     enum RequestMethod {

@@ -1,6 +1,6 @@
 // ethash: C/C++ implementation of Ethash, the Ethereum Proof of Work algorithm.
-// Copyright 2018 Pawel Bylica.
-// Licensed under the Apache License, Version 2.0. See the LICENSE file.
+// Copyright 2018-2019 Pawel Bylica.
+// Licensed under the Apache License, Version 2.0.
 
 /// @file
 ///
@@ -20,16 +20,35 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <string>
+#include <system_error>
+
+namespace std
+{
+/// Template specialization of std::is_error_code_enum for ethash_errc.
+/// This enabled implicit conversions from evmc::hex_errc to std::error_code.
+template <>
+struct is_error_code_enum<ethash_errc> : true_type
+{
+};
+}  // namespace std
+
 
 namespace ethash
 {
-static constexpr int epoch_length = ETHASH_EPOCH_LENGTH;
-static constexpr int light_cache_item_size = ETHASH_LIGHT_CACHE_ITEM_SIZE;
-static constexpr int full_dataset_item_size = ETHASH_FULL_DATASET_ITEM_SIZE;
-static constexpr int num_dataset_accesses = ETHASH_NUM_DATASET_ACCESSES;
+constexpr auto revision = ETHASH_REVISION;
+
+constexpr int epoch_length = ETHASH_EPOCH_LENGTH;
+constexpr int light_cache_item_size = ETHASH_LIGHT_CACHE_ITEM_SIZE;
+constexpr int full_dataset_item_size = ETHASH_FULL_DATASET_ITEM_SIZE;
+constexpr int num_dataset_accesses = ETHASH_NUM_DATASET_ACCESSES;
+
+constexpr int max_epoch_number = ETHASH_MAX_EPOCH_NUMBER;
 
 using epoch_context = ethash_epoch_context;
 using epoch_context_full = ethash_epoch_context_full;
+
+using result = ethash_result;
 
 /// Constructs a 256-bit hash from an array of bytes.
 ///
@@ -42,12 +61,6 @@ inline hash256 hash256_from_bytes(const uint8_t bytes[32]) noexcept
     return h;
 }
 
-struct result
-{
-    hash256 final_hash;
-    hash256 mix_hash;
-};
-
 struct search_result
 {
     bool solution_found = false;
@@ -57,8 +70,8 @@ struct search_result
 
     search_result() noexcept = default;
 
-    search_result(result res, uint64_t nonce) noexcept
-      : solution_found(true), nonce(nonce), final_hash(res.final_hash), mix_hash(res.mix_hash)
+    search_result(result res, uint64_t n) noexcept
+      : solution_found(true), nonce(n), final_hash(res.final_hash), mix_hash(res.mix_hash)
     {}
 };
 
@@ -122,15 +135,40 @@ inline epoch_context_full_ptr create_epoch_context_full(int epoch_number) noexce
 }
 
 
-result hash(const epoch_context& context, const hash256& header_hash, uint64_t nonce) noexcept;
+inline result hash(
+    const epoch_context& context, const hash256& header_hash, uint64_t nonce) noexcept
+{
+    return ethash_hash(&context, &header_hash, nonce);
+}
 
 result hash(const epoch_context_full& context, const hash256& header_hash, uint64_t nonce) noexcept;
 
-bool verify_final_hash(const hash256& header_hash, const hash256& mix_hash, uint64_t nonce,
-    const hash256& boundary) noexcept;
+inline std::error_code verify_final_hash_against_difficulty(const hash256& header_hash,
+    const hash256& mix_hash, uint64_t nonce, const hash256& difficulty) noexcept
+{
+    return ethash_verify_final_hash_against_difficulty(&header_hash, &mix_hash, nonce, &difficulty);
+}
 
-bool verify(const epoch_context& context, const hash256& header_hash, const hash256& mix_hash,
-    uint64_t nonce, const hash256& boundary) noexcept;
+inline std::error_code verify_against_difficulty(const epoch_context& context,
+    const hash256& header_hash, const hash256& mix_hash, uint64_t nonce,
+    const hash256& difficulty) noexcept
+{
+    return ethash_verify_against_difficulty(&context, &header_hash, &mix_hash, nonce, &difficulty);
+}
+
+inline std::error_code verify_against_boundary(const epoch_context& context,
+    const hash256& header_hash, const hash256& mix_hash, uint64_t nonce,
+    const hash256& boundary) noexcept
+{
+    return ethash_verify_against_boundary(&context, &header_hash, &mix_hash, nonce, &boundary);
+}
+
+[[deprecated("use verify_against_boundary()")]] inline std::error_code verify(
+    const epoch_context& context, const hash256& header_hash, const hash256& mix_hash,
+    uint64_t nonce, const hash256& boundary) noexcept
+{
+    return ethash_verify_against_boundary(&context, &header_hash, &mix_hash, nonce, &boundary);
+}
 
 search_result search_light(const epoch_context& context, const hash256& header_hash,
     const hash256& boundary, uint64_t start_nonce, size_t iterations) noexcept;
@@ -150,9 +188,39 @@ search_result search(const epoch_context_full& context, const hash256& header_ha
 int find_epoch_number(const hash256& seed) noexcept;
 
 
-/// Get global shared epoch context.
-const epoch_context& get_global_epoch_context(int epoch_number);
+/// Obtains a reference to the static error category object for ethash errors.
+inline const std::error_category& ethash_category() noexcept
+{
+    struct ethash_category_impl : std::error_category
+    {
+        const char* name() const noexcept final { return "ethash"; }
 
-/// Get global shared epoch context with full dataset initialized.
-const epoch_context_full& get_global_epoch_context_full(int epoch_number);
+        std::string message(int ev) const final
+        {
+            switch (ev)
+            {
+            case ETHASH_SUCCESS:
+                return "";
+            case ETHASH_INVALID_FINAL_HASH:
+                return "invalid final hash";
+            case ETHASH_INVALID_MIX_HASH:
+                return "invalid mix hash";
+            default:
+                return "unknown error";
+            }
+        }
+    };
+
+    static ethash_category_impl category_instance;
+    return category_instance;
+}
 }  // namespace ethash
+
+
+/// Creates error_code object out of an Ethash error code value.
+/// This is used by std::error_code to implement implicit conversion ethash_errc -> std::error_code,
+/// therefore the definition is in the global namespace to match the definition of ethash_errc.
+inline std::error_code make_error_code(ethash_errc errc) noexcept
+{
+    return {errc, ethash::ethash_category()};
+}

@@ -58,14 +58,6 @@
         <translation type="unfinished">Ô&amp;bier</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Adresy posyłaniŏ</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Adresy ôdbiyraniŏ</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Tukej sōm adresy Qtum na kere posyłŏsz płaty. Dycki wybaduj wielość i adresã ôdbiyrŏcza przed posłaniym mōnet.</translation>
     </message>
@@ -353,7 +345,7 @@
         <translation type="unfinished">Szyfruj klucze prywatne, kere sōm we twojim portmanyju</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source> 
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Podpisz wiadōmości swojōm adresōm coby dowiyść jejich posiadanie</translation>
     </message>
     <message>
@@ -541,10 +533,6 @@
         <translation type="unfinished">Ôpłŏcka:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Sztaub:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Po ôpłŏcce:</translation>
     </message>
@@ -609,28 +597,12 @@
         <translation type="unfinished">Kopiyruj wielość bajtōw</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopiyruj sztaub</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopiyruj wydŏwkã</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 zaszperowane)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">ja</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">niy</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Ta etyketa stŏwŏ sie czyrwōnŏ jeźli keryś z ôdbiyrŏczy dostŏwŏ kwotã myńszõ aniżeli terŏźny prōg sztaubu.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -841,7 +813,7 @@
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">Świyże transakcyje mogōm niy być jeszcze widzialne, a tedyć saldo portmanyja może być niynŏleżne. Te detale bydōm nŏleżne, kej portmanyj zakōńczy synchrōnizacyjõ z necym qtum, zgodnie z miyniōnym ôpisym.</translation>
-  </message>
+    </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">Prōba wydaniŏ qtumōw kere niy sōm jeszcze wyświytlōne za transakcyjŏ ôstanie ôdciepniyntŏ bez nec.</translation>
@@ -960,7 +932,7 @@
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Autōmatycznie ôdewrzij port klijynta Qtum na routerze. Ta ôpcyjŏ funguje ino jeźli twōj router podpiyrŏ UPnP i je ôno zapuszczone.</translation>
-   </message>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapuj port przi używaniu &amp;UPnP</translation>
@@ -1032,7 +1004,7 @@
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Wyświytlanŏ informacyjŏ może być niyterŏźnŏ. Twōj portmanyj synchrōnizuje sie autōmatycznie z necym qtum zarŏz po tym, jak zrychtowane je skuplowanie, ale proces tyn niy ôstoł jeszcze skōńczōny.</translation>
-   </message>
+    </message>
     <message>
         <source>Available:</source>
         <translation type="unfinished">Dostympne:</translation>
@@ -1074,7 +1046,7 @@
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' to niyma nŏleżne URI. Użyj 'qtum:'.</translation>
-   </message>
+    </message>
     </context>
 <context>
     <name>PeerTableModel</name>
@@ -1242,7 +1214,7 @@
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
         <translation type="unfinished">Ôpcyjōnalnŏ wiadōmość do prziwstōniŏ do żōndaniŏ płatu, kerŏ bydzie wyświytlanŏ, kej żōndanie ôstanie ôdewrzōne. Napōmniynie: wiadōmość ta niy ôstanie wysłanŏ z płatym w nec Qtum.</translation>
-  </message>
+    </message>
     <message>
         <source>Clear</source>
         <translation type="unfinished">Wypucuj</translation>
@@ -1361,10 +1333,6 @@
         <translation type="unfinished">Włŏsne:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Sztaub:</translation>
-    </message>
-    <message>
         <source>Balance:</source>
         <translation type="unfinished">Saldo:</translation>
     </message>
@@ -1387,10 +1355,6 @@
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Kopiyruj wielość bajtōw</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopiyruj sztaub</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -1436,7 +1400,7 @@
     <message>
         <source>The Qtum address to send the payment to</source>
         <translation type="unfinished">Adresa Qtum, na kerõ chcesz posłać płat</translation>
-   </message>
+    </message>
     <message>
         <source>Use available balance</source>
         <translation type="unfinished">Użyj dostympnego salda</translation>
@@ -1449,7 +1413,7 @@
         <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
         <translation type="unfinished">Wiadōmość, kerŏ ôstała prziwstōnŏ do URI qtum:, kerŏ bydzie przechowowanŏ z transakcyjōm w cylach informacyjnych. Napōmniynie: Ta wiadōmość niy bydzie rozszyrzowanŏ w necu Qtum.</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>SignVerifyMessageDialog</name>
     <message>
@@ -1555,10 +1519,6 @@
     <message>
         <source>Received from</source>
         <translation type="unfinished">Ôdebrane ôd</translation>
-    </message>
-    <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Płat do siebie</translation>
     </message>
     <message>
         <source>(no label)</source>

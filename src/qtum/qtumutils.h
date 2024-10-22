@@ -3,6 +3,7 @@
 
 #include <libdevcore/Common.h>
 #include <libdevcore/FixedHash.h>
+#include <util/chaintype.h>
 
 /**
  * qtumutils Provides utility functions to EVM for functionalities that already exist in qtum
@@ -32,7 +33,7 @@ enum ChainIdType
  * @param chain Network ID
  * @return chain id
  */
-int eth_getChainId(int blockHeight, int shanghaiHeight, const std::string& chain);
+int eth_getChainId(int blockHeight, int shanghaiHeight, const ChainType& chain);
 
 /**
  * @brief eth_getChainId Get eth chain id and cache it

@@ -22,6 +22,10 @@
         <translation type="unfinished">&amp;Sao chép</translation>
     </message>
     <message>
+        <source>C&amp;lose</source>
+        <translation type="unfinished">Đ&amp;óng</translation>
+    </message>
+    <message>
         <source>Delete the currently selected address from the list</source>
         <translation type="unfinished">Xoá địa chỉ được chọn khỏi danh sách</translation>
     </message>
@@ -30,16 +34,24 @@
         <translation type="unfinished">Nhập địa chỉ hoặc nhãn để tìm kiếm</translation>
     </message>
     <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation type="unfinished">Xuất dữ liệu ở thẻ hiện tại ra tập tin.</translation>
+    </message>
+    <message>
         <source>&amp;Export</source>
         <translation type="unfinished">&amp;Xuất</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation type="unfinished">&amp;Xoá</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
         <translation type="unfinished">Chọn địa chỉ để gửi coin đến</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Đang gửi địa chỉ</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Các địa chỉ này là các địa chỉ Qtum dùng để thanh toán.Luôn luôn kiểm tra số dư và địa chỉ nhận trước khi gởi chuyển tiền ảo. </translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -57,7 +69,15 @@
         <source>Export Address List</source>
         <translation type="unfinished">Xuất danh sách địa chỉ</translation>
     </message>
-    </context>
+    <message>
+        <source>Sending addresses - %1</source>
+        <translation type="unfinished">Địa chỉ gửi%1</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation type="unfinished">Quá trình xuất dữ liệu đã thất bại</translation>
+    </message>
+</context>
 <context>
     <name>AddressTableModel</name>
     <message>
@@ -433,6 +453,22 @@
         </translation>
     </message>
     <message>
+        <source>%1 behind</source>
+        <translation type="unfinished">%1 phía sau</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Lỗi</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation type="unfinished">Thông tin</translation>
+    </message>
+    <message>
+        <source>Up to date</source>
+        <translation type="unfinished">cập nhật</translation>
+    </message>
+    <message>
         <source>Load Partially Signed Qtum Transaction</source>
         <translation type="unfinished">Tải một phần giao dịch Qtum đã ký</translation>
     </message>
@@ -461,8 +497,8 @@
         <translation type="unfinished">Các địa chỉ đang &amp;nhận</translation>
     </message>
     <message>
-        <source>Open a Qtum: URI</source>
-        <translation type="unfinished">Mở một Qtum: URI</translation>
+        <source>Open a qtum: URI</source>
+        <translation type="unfinished">Mở một qtum: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -493,6 +529,14 @@
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
         <translation type="unfinished">Hiển thị %1 tin nhắn hỗ trợ để nhận được danh sách Qtum command-line khả dụng</translation>
+    </message>
+    <message>
+        <source>&amp;Mask values</source>
+        <translation type="unfinished">&amp;Giá trị mặt nạ</translation>
+    </message>
+    <message>
+        <source>Mask the values in the Overview tab</source>
+        <translation type="unfinished">Che các giá trị trong tab Tổng quan</translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -554,6 +598,10 @@
     <message>
         <source>Pre-syncing Headers (%1%)…</source>
         <translation type="unfinished">Tiền đồng bộ hóa Headers (%1%)…</translation>
+    </message>
+    <message>
+        <source>Error creating wallet</source>
+        <translation type="unfinished">Lỗi tạo ví</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -619,6 +667,18 @@
     </message>
 </context>
 <context>
+    <name>OpenWalletActivity</name>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">ví mặc định</translation>
+    </message>
+    <message>
+        <source>Open Wallet</source>
+        <extracomment>Title of window indicating the progress of opening of a wallet.</extracomment>
+        <translation type="unfinished">Mớ ví</translation>
+    </message>
+    </context>
+<context>
     <name>RestoreWalletActivity</name>
     <message>
         <source>Restore Wallet</source>
@@ -656,13 +716,13 @@
         <source>Are you sure you wish to close the wallet &lt;i&gt;%1&lt;/i&gt;?</source>
         <translation type="unfinished">Bạn có chắc chắn muốn đóng ví không &lt;i&gt;%1&lt;/i&gt;?</translation>
     </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation type="unfinished">Đóng tất cả ví</translation>
+    </message>
     </context>
 <context>
     <name>CreateWalletDialog</name>
-    <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Sử dụng bộ mô tả để quản lý scriptPubKey</translation>
-    </message>
     <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Sử dụng thiết bị ký bên ngoài chẳng hạn như ví phần cứng. Trước tiên, hãy định cấu hình tập lệnh người ký bên ngoài trong tùy chọn ví.</translation>
@@ -1178,9 +1238,17 @@
         <source>Address</source>
         <translation type="unfinished">Địa chỉ</translation>
     </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation type="unfinished">Quá trình xuất dữ liệu đã thất bại</translation>
+    </message>
     </context>
 <context>
     <name>WalletFrame</name>
+    <message>
+        <source>Create a new wallet</source>
+        <translation type="unfinished">Tạo một ví mới</translation>
+    </message>
     <message>
         <source>Error</source>
         <translation type="unfinished">Lỗi</translation>
@@ -1193,12 +1261,20 @@
         <comment>Fee-bump PSBT saved</comment>
         <translation type="unfinished">Đã sao chép vào bảng tạm.</translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">ví mặc định</translation>
+    </message>
+</context>
 <context>
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
         <translation type="unfinished">&amp;Xuất</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation type="unfinished">Xuất dữ liệu ở thẻ hiện tại ra tập tin.</translation>
     </message>
     </context>
 <context>
@@ -1216,10 +1292,6 @@
         <translation type="unfinished">Chế độ rút gọn không tương thích với -reindex-chainstate. Sử dụng -reindex ở chế độ đầy đủ.</translation>
     </message>
     <message>
-        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
-        <translation type="unfinished">Chỉ mục khối db chứa một 'txindex' kế thừa. Để xóa dung lượng ổ đĩa bị chiếm dụng, hãy chạy -reindex đầy đủ, nếu không, hãy bỏ qua lỗi này. Thông báo lỗi này sẽ không được hiển thị lại.</translation>
-    </message>
-    <message>
         <source>Unsupported chainstate database format found. Please restart with -reindex-chainstate. This will rebuild the chainstate database.</source>
         <translation type="unfinished">Tìm thấy định dạng cơ sở dữ liệu trạng thái chuỗi không được hỗ trợ. Vui lòng khỏi động lại với -reindex-chainstate. Việc này sẽ tái thiết lập cơ sở dữ liệu trạng thái chuỗi.</translation>
     </message>
@@ -1230,22 +1302,6 @@
     <message>
         <source>Cannot set -forcednsseed to true when setting -dnsseed to false.</source>
         <translation type="unfinished">Không thể đặt -forcednsseed thành true khi đặt -dnsseed thành false.</translation>
-    </message>
-    <message>
-        <source>The -txindex upgrade started by a previous version cannot be completed. Restart with the previous version or run a full -reindex.</source>
-        <translation type="unfinished">Không thể hoàn tất nâng cấp -txindex được bắt đầu bởi phiên bản trước. Khởi động lại với phiên bản trước đó hoặc chạy -reindex đầy đủ.</translation>
-    </message>
-    <message>
-        <source>-reindex-chainstate option is not compatible with -blockfilterindex. Please temporarily disable blockfilterindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
-        <translation type="unfinished">reindex-chainstate tùy chọn không tương thích với -blockfilterindex. Vui lòng tạp thời vô hiệu hóa blockfilterindex trong khi sử dụng -reindex-chainstate, hoặc thay thế -reindex-chainstate bởi -reindex để tái thiết lập đẩy đủ tất cả các chỉ số.</translation>
-    </message>
-    <message>
-        <source>-reindex-chainstate option is not compatible with -coinstatsindex. Please temporarily disable coinstatsindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
-        <translation type="unfinished">reindex-chainstate tùy chọn không tương thích với -coinstatsindex. Vui lòng tạp thời vô hiệu hóa coinstatsindex trong khi sử dụng -reindex-chainstate, hoặc thay thế -reindex-chainstate bởi -reindex để tái thiết lập đẩy đủ tất cả các chỉ số.</translation>
-    </message>
-    <message>
-        <source>-reindex-chainstate option is not compatible with -txindex. Please temporarily disable txindex while using -reindex-chainstate, or replace -reindex-chainstate with -reindex to fully rebuild all indexes.</source>
-        <translation type="unfinished">reindex-chainstate tùy chọn không tương thích với -txindex. Vui lòng tạp thời vô hiệu hóa txindex trong khi sử dụng -reindex-chainstate, hoặc thay thế -reindex-chainstate bởi -reindex để tái thiết lập đẩy đủ tất cả các chỉ số.</translation>
     </message>
     <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
@@ -1282,10 +1338,6 @@ Vui lòng thử chạy phiên bản phần mềm mới nhất.
 </translation>
     </message>
     <message>
-        <source>Unsupported category-specific logging level -loglevel=%s. Expected -loglevel=&lt;category&gt;:&lt;loglevel&gt;. Valid categories: %s. Valid loglevels: %s.</source>
-        <translation type="unfinished">Mức độ ghi chú theo danh mục không được hỗ trợ -loglevel=%s. Kỳ vọng -loglevel=&lt;category&gt;:&lt;loglevel&gt;. Các danh mục hợp lệ: %s. Các giá trị loglevels hợp lệ: %s.</translation>
-    </message>
-    <message>
         <source>
 Unable to cleanup failed migration</source>
         <translation type="unfinished">
@@ -1310,20 +1362,8 @@ Không thể khôi phục bản sao lưu của ví.</translation>
         <translation type="unfinished">Lỗi: Không thể trích xuất điểm đến trong mã khóa công khai đã tạo</translation>
     </message>
     <message>
-        <source>Error: Could not add watchonly tx to watchonly wallet</source>
-        <translation type="unfinished">Lỗi: Không thể thêm giao dịch chỉ xem vào ví chỉ xem</translation>
-    </message>
-    <message>
-        <source>Error: Could not delete watchonly transactions</source>
-        <translation type="unfinished">Lỗi: Không thể xóa các giao dịch chỉ xem</translation>
-    </message>
-    <message>
         <source>Error: Failed to create new watchonly wallet</source>
         <translation type="unfinished">Lỗi: Tạo ví chỉ xem mới thất bại</translation>
-    </message>
-    <message>
-        <source>Error: Not all watchonly txs could be deleted</source>
-        <translation type="unfinished">Lỗi: Không phải giao dịch chỉ xem nào cũng xóa được</translation>
     </message>
     <message>
         <source>Error: This wallet already uses SQLite</source>
@@ -1424,10 +1464,6 @@ Không thể khôi phục bản sao lưu của ví.</translation>
     <message>
         <source>Unable to unload the wallet before migrating</source>
         <translation type="unfinished">Không thể gỡ ví trước khi chuyển</translation>
-    </message>
-    <message>
-        <source>Unsupported global logging level -loglevel=%s. Valid values: %s.</source>
-        <translation type="unfinished">Mức độ ghi chú không được hỗ trợ -loglevel=%s. Các giá trị hợp lệ: %s.</translation>
     </message>
     <message>
         <source>Settings file could not be read</source>

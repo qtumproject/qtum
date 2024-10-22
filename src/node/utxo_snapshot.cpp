@@ -11,7 +11,6 @@
 #include <txdb.h>
 #include <uint256.h>
 #include <util/fs.h>
-#include <util/system.h>
 #include <validation.h>
 
 #include <cassert>
@@ -50,7 +49,7 @@ bool WriteSnapshotBaseBlockhash(Chainstate& snapshot_chainstate)
 std::optional<uint256> ReadSnapshotBaseBlockhash(fs::path chaindir)
 {
     if (!fs::exists(chaindir)) {
-        LogPrintf("[snapshot] cannot read base blockhash: no chainstate dir " /* Continued */
+        LogPrintf("[snapshot] cannot read base blockhash: no chainstate dir "
             "exists at path %s\n", fs::PathToString(chaindir));
         return std::nullopt;
     }
@@ -58,7 +57,7 @@ std::optional<uint256> ReadSnapshotBaseBlockhash(fs::path chaindir)
     const std::string read_from_str = fs::PathToString(read_from);
 
     if (!fs::exists(read_from)) {
-        LogPrintf("[snapshot] snapshot chainstate dir is malformed! no base blockhash file " /* Continued */
+        LogPrintf("[snapshot] snapshot chainstate dir is malformed! no base blockhash file "
             "exists at path %s. Try deleting %s and calling loadtxoutset again?\n",
             fs::PathToString(chaindir), read_from_str);
         return std::nullopt;
@@ -82,10 +81,10 @@ std::optional<uint256> ReadSnapshotBaseBlockhash(fs::path chaindir)
     return base_blockhash;
 }
 
-std::optional<fs::path> FindSnapshotChainstateDir()
+std::optional<fs::path> FindSnapshotChainstateDir(const fs::path& data_dir)
 {
     fs::path possible_dir =
-        gArgs.GetDataDirNet() / fs::u8path(strprintf("chainstate%s", SNAPSHOT_CHAINSTATE_SUFFIX));
+        data_dir / fs::u8path(strprintf("chainstate%s", SNAPSHOT_CHAINSTATE_SUFFIX));
 
     if (fs::exists(possible_dir)) {
         return possible_dir;

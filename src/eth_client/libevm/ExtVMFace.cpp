@@ -239,6 +239,24 @@ evmc_access_status EvmCHost::access_storage(const evmc::address& addr,
     return access_status;
 }
 
+evmc::bytes32 EvmCHost::get_transient_storage(const evmc::address& _addr, const evmc::bytes32& _key) const noexcept
+{
+    assert(fromEvmC(_addr) == m_extVM.myAddress);
+    record_account_access(_addr);
+    return toEvmC(m_extVM.transientStore(fromEvmC(_key)));
+}
+
+void EvmCHost::set_transient_storage(const evmc::address& _addr,
+                           const evmc::bytes32& _key,
+                           const evmc::bytes32& _value) noexcept
+{
+    assert(fromEvmC(_addr) == m_extVM.myAddress);
+    record_account_access(_addr);
+    u256 const index = fromEvmC(_key);
+    u256 const newValue = fromEvmC(_value);
+    m_extVM.setTransientStore(index, newValue);
+}
+
 void EvmCHost::record_account_access(const evmc::address& addr) const
 {
     EVMSchedule const& schedule = m_extVM.evmSchedule();

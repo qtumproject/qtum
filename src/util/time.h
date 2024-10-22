@@ -6,8 +6,6 @@
 #ifndef BITCOIN_UTIL_TIME_H
 #define BITCOIN_UTIL_TIME_H
 
-#include <compat/compat.h>
-
 #include <chrono> // IWYU pragma: export
 #include <cstdint>
 #include <string>
@@ -70,9 +68,6 @@ using MillisecondsDouble = std::chrono::duration<double, std::chrono::millisecon
  * - NodeClock                             for mockable system time
  */
 int64_t GetTime();
-
-/** Returns the system time (not mockable) */
-int64_t GetTimeMillis();
 
 /**
  * DEPRECATED

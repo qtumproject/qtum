@@ -6,27 +6,16 @@
 #ifndef BITCOIN_CHAINPARAMS_H
 #define BITCOIN_CHAINPARAMS_H
 
-#include <kernel/chainparams.h>
+#include <kernel/chainparams.h> // IWYU pragma: export
 
-#include <chainparamsbase.h>
-#include <consensus/params.h>
-#include <netaddress.h>
-#include <primitives/block.h>
-#include <protocol.h>
-#include <util/hash_type.h>
-
-#include <cstdint>
 #include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
+
+class ArgsManager;
 
 /**
  * Creates and returns a std::unique_ptr<CChainParams> of the chosen chain.
- * @returns a CChainParams* of the chosen chain.
- * @throws a std::runtime_error if the chain is not supported.
  */
-std::unique_ptr<const CChainParams> CreateChainParams(const ArgsManager& args, const std::string& chain);
+std::unique_ptr<const CChainParams> CreateChainParams(const ArgsManager& args, const ChainType chain);
 
 /**
  * Return the currently selected parameters. This won't change after app
@@ -35,10 +24,9 @@ std::unique_ptr<const CChainParams> CreateChainParams(const ArgsManager& args, c
 const CChainParams &Params();
 
 /**
- * Sets the params returned by Params() to those for the given chain name.
- * @throws std::runtime_error when the chain is not supported.
+ * Sets the params returned by Params() to those for the given chain type.
  */
-void SelectParams(const std::string& chain);
+void SelectParams(const ChainType chain);
 
 /**
  * Allows modifying the Op Sender block height regtest parameter.
@@ -115,5 +103,10 @@ void UpdateTaprootHeight(int nHeight);
  * Allows modifying the shanghai block height regtest parameter.
  */
 void UpdateShanghaiHeight(int nHeight);
+
+/**
+ * Allows modifying the cancun block height regtest parameter.
+ */
+void UpdateCancunHeight(int nHeight);
 
 #endif // BITCOIN_CHAINPARAMS_H

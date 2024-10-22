@@ -176,7 +176,7 @@ class AddressTypeTest(BitcoinTestFramework):
         for deriv in decode['inputs'][0]['bip32_derivs']:
             assert_equal(len(deriv['master_fingerprint']), 8)
             assert_equal(deriv['path'][0], 'm')
-            key_descs[deriv['pubkey']] = '[' + deriv['master_fingerprint'] + deriv['path'][1:] + ']' + deriv['pubkey']
+            key_descs[deriv['pubkey']] = '[' + deriv['master_fingerprint'] + deriv['path'][1:].replace("'","h") + ']' + deriv['pubkey']
 
         # Verify the descriptor checksum against the Python implementation
         assert descsum_check(info['desc'])
@@ -271,7 +271,7 @@ class AddressTypeTest(BitcoinTestFramework):
             self.log.info("Sending from node {} ({}) with{} multisig using {}".format(from_node, self.extra_args[from_node], "" if multisig else "out", "default" if address_type is None else address_type))
             old_balances = self.get_balances()
             self.log.debug("Old balances are {}".format(old_balances))
-            to_send = (old_balances[from_node] / (101)).quantize(Decimal("0.00000001"))
+            to_send = (old_balances[from_node] / (COINBASE_MATURITY + 1)).quantize(Decimal("0.00000001"))
             sends = {}
             addresses = {}
 

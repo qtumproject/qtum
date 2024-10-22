@@ -31,7 +31,8 @@ struct EVMConsensus
         QIP7Height(nHeight),
         nMuirGlacierHeight(nHeight),
         nLondonHeight(nHeight),
-        nShanghaiHeight(nHeight)
+        nShanghaiHeight(nHeight),
+        nCancunHeight(nHeight)
     {}
 
     int QIP6Height = 0x7fffffff;
@@ -39,6 +40,7 @@ struct EVMConsensus
     int nMuirGlacierHeight = 0x7fffffff;
     int nLondonHeight = 0x7fffffff;
     int nShanghaiHeight = 0x7fffffff;
+    int nCancunHeight = 0x7fffffff;
 };
 
 /**

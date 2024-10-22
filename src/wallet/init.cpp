@@ -3,6 +3,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
+#include <common/args.h>
 #include <init.h>
 #include <interfaces/chain.h>
 #include <interfaces/init.h>
@@ -14,7 +19,6 @@
 #include <univalue.h>
 #include <util/check.h>
 #include <util/moneystr.h>
-#include <util/system.h>
 #include <util/translation.h>
 #ifdef USE_BDB
 #include <wallet/bdb.h>
@@ -23,6 +27,7 @@
 #include <wallet/wallet.h>
 #include <walletinitinterface.h>
 #include <node/miner.h>
+#include <validation.h>
 
 using node::NodeContext;
 
@@ -97,8 +102,6 @@ void WalletInit::AddWalletOptions(ArgsManager& argsman) const
     argsman.AddArg("-walletrejectlongchains", strprintf("Wallet will not create transactions that violate mempool chain limits (default: %u)", DEFAULT_WALLET_REJECT_LONG_CHAINS), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
     argsman.AddArg("-walletcrosschain", strprintf("Allow reusing wallet files across chains (default: %u)", DEFAULT_WALLETCROSSCHAIN), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
 
-    argsman.AddHiddenArgs({"-zapwallettxes"});
-
     argsman.AddArg("-staking=<true/false>", "Enables or disables staking (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-stakecache=<true/false>", "Enables or disables the staking cache; significantly improves staking performance, but can use a lot of memory (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-rpcmaxgasprice", strprintf("The max value (in satoshis) for gas price allowed through RPC (default: %u)", MAX_RPC_GAS_PRICE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
@@ -134,10 +137,6 @@ bool WalletInit::ParameterInteraction() const
 
     if (gArgs.GetBoolArg("-blocksonly", DEFAULT_BLOCKSONLY) && gArgs.SoftSetBoolArg("-walletbroadcast", false)) {
         LogPrintf("%s: parameter interaction: -blocksonly=1 -> setting -walletbroadcast=0\n", __func__);
-    }
-
-    if (gArgs.IsArgSet("-zapwallettxes")) {
-        return InitError(Untranslated("-zapwallettxes has been removed. If you are attempting to remove a stuck transaction from your wallet, please use abandontransaction instead."));
     }
 
     return true;

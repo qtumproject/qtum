@@ -58,14 +58,6 @@
         <translation type="unfinished">S&amp;aýla</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Iberýän salgylar</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Kabul edýän salgylar</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Tölegleri ibermek üçin siziň Qtum salgylaryňyz şulardyr. Teňňeleri ibermezden ozal hemişe möçberi we kabul edýän salgyny barlaň.</translation>
     </message>
@@ -164,7 +156,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Gapjygyň şifrlenmegini tassykla</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source> 
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Duýduryş: Eger gapjygyňy şifrleseň we parol sözlemiňi ýitirseň, sen &lt;b&gt;ÄHLI QTUMLERIŇI ÝITIRERSIŇ&lt;/b&gt;!</translation>
     </message>
     <message>
@@ -184,7 +176,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Gapjyk üçin öňki we täze parol sözlemiňi ýaz.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source> 
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Gapjygyňy şifrlemek kompýuteriňe zyýanly programma ýokuşmak arkaly qtumleriň ogurlanmagyndan doly gorap bilmejekdigini ýatdan çykarma.</translation>
     </message>
     <message>
@@ -520,7 +512,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">&amp;Habara gol çek…</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source> 
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
         <translation type="unfinished">Qtum salgylarynyň eýesidigini subut etmek üçin habarlara öz Qtum salgylaryň bilen gol çek</translation>
     </message>
     <message>
@@ -528,7 +520,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">&amp;Habary tassykla…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source> 
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
         <translation type="unfinished">Habarlaryň görkezilen Qtum salgylary bilen gol çekilendigini kepillendirmek üçin habarlary tassykla</translation>
     </message>
     <message>
@@ -588,7 +580,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Deňdeşlere baglanylýar...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source> 
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
         <translation type="unfinished">Tölegleri sora (QR kodlary we qtum: URIleri döredýär)</translation>
     </message>
     <message>
@@ -903,10 +895,6 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Gatanç:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Toz:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Soňundan gatanç:</translation>
     </message>
@@ -995,28 +983,12 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Baýtlary göçür</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Tozy göçür</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Gaýtargyny göçür</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 gulply)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">hawa</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ýok</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Islendik kabul ediji häzirki toz çäginden has kiçi möçberi kabul edip alsa, bu bellik gyzyla öwrülýär.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1196,14 +1168,6 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Boş gapjyk emele getir</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">scriptPubKey dolandyryşy üçin beýan edijileri ulan</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Beýan ediji gapjyk</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Enjam gapjygy ýaly daşyndan gol çekilýän enjamy ulan. Ilki bilen gapjygyň ileri tutmalarynda daşyndan gol çekiji skriptini sazla.</translation>
     </message>
@@ -1214,10 +1178,6 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     <message>
         <source>Create</source>
         <translation type="unfinished">Döret</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Sqlite goldawsyz (beýan ediji gapjyklar üçin gerek) düzüldi</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1260,7 +1220,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Iberýän salgyny rejele</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source> 
+        <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Ýazylan salgy %1 ýaly Qtum salgysy ýok.</translation>
     </message>
     <message>
@@ -1771,18 +1731,6 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Tor onion hyzmatlary arkaly düwünlere aralaşmak üçin SOCKS&amp;5 proksisini ulan:</translation>
     </message>
     <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">Gözden geçir sahypasynda monoaralykly harp görnüşi:</translation>
-    </message>
-    <message>
-        <source>embedded "%1"</source>
-        <translation type="unfinished">içine gurnalan "%1"</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">iň meňzeş gabat gelme "%1"</translation>
-    </message>
-    <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Ýatyr</translation>
     </message>
@@ -2018,10 +1966,6 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     <message>
         <source>PSBT saved to disk.</source>
         <translation type="unfinished">PSBT diskde ýatda saklandy.</translation>
-    </message>
-    <message>
-        <source> * Sends %1 to %2</source>
-        <translation type="unfinished"> * %2-ä %1 iberilýär</translation>
     </message>
     <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
@@ -2463,10 +2407,6 @@ Size bu ýalňyşlyk gelýän bolsa, siz täjirden BIP21-e gabat gelýän URI-ni
         <translation type="unfinished">Gizle</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Toz:</translation>
-    </message>
-    <message>
         <source>Copy quantity</source>
         <translation type="unfinished">Sany göçür</translation>
     </message>
@@ -2485,10 +2425,6 @@ Size bu ýalňyşlyk gelýän bolsa, siz täjirden BIP21-e gabat gelýän URI-ni
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Baýtlary göçür</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Tozy göçür</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -2674,10 +2610,6 @@ Size bu ýalňyşlyk gelýän bolsa, siz täjirden BIP21-e gabat gelýän URI-ni
 </context>
 <context>
     <name>bitcoin-core</name>
-    <message>
-        <source>%s failed to validate the -assumeutxo snapshot state. This indicates a hardware problem, or a bug in the software, or a bad software modification that allowed an invalid snapshot to be loaded. As a result of this, the node will shut down and stop using any state that was built on the snapshot, resetting the chain height from %d to %d. On the next restart, the node will resume syncing from %d without using any snapshot data. Please report this incident to %s, including how you obtained the snapshot. The invalid snapshot chainstate has been left on disk in case it is helpful in diagnosing the issue that caused this error.</source>
-        <translation type="unfinished">%s -assumeutxo çalt suratyň ýagdaýyny barlap bilmedi. Bu nädogry çalt suratyň ýüklenmegine getiren enjamlaýyn meseläniň ýa-da programma üpjünçiliginde näsazlyk ýa-da programma üpjünçiliginiň erbet üýtgetmesiniň bardygyny görkezýär. Munuň netijesinde düwün ýapylar we çalt surata esaslanan islendik ýagdaýy ulanmagy bes edip, zynjyryň boýuny %d-den %d-e çenli getirer. Indiki gezek gaýtadan işledilende düwün hiçhili çalt surat maglumatyny ulanmazdan %d-den başlap sinhronlaşmagy dowam eder. Bu waka, şol sanda çalt suraty nädip alandygyňyz barada %s-a habar beriň. Bu ýalňyşlyga sebäp bolan meseläni derňemekde peýdaly bolar diýip, nädogry çalt suratly zynjyr ýagdaçy diskde galdyryldy.</translation>
-    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">Sazlamalar faýlyny okap bolanok</translation>

@@ -81,7 +81,6 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
                                         TransactionFilterProxy::TYPE(TransactionRecord::RecvFromOther));
     typeWidget->addItem(tr("Sent to"), TransactionFilterProxy::TYPE(TransactionRecord::SendToAddress) |
                                   TransactionFilterProxy::TYPE(TransactionRecord::SendToOther));
-    typeWidget->addItem(tr("To yourself"), TransactionFilterProxy::TYPE(TransactionRecord::SendToSelf));
     typeWidget->addItem(tr("Contract Receive"), TransactionFilterProxy::TYPE(TransactionRecord::ContractRecv));
     typeWidget->addItem(tr("Contract Send"), TransactionFilterProxy::TYPE(TransactionRecord::ContractSend));
     typeWidget->addItem(tr("Mined"), TransactionFilterProxy::TYPE(TransactionRecord::Generated));
@@ -541,6 +540,9 @@ void TransactionView::showDetails()
         TransactionDescDialog *dlg = new TransactionDescDialog(selection.at(0));
         dlg->setAttribute(Qt::WA_DeleteOnClose);
         m_opened_dialogs.append(dlg);
+        connect(dlg, &QObject::destroyed, [this, dlg] {
+            m_opened_dialogs.removeOne(dlg);
+        });
         dlg->show();
     }
 }

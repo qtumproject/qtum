@@ -4,9 +4,11 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the setban rpc call."""
 
+from contextlib import ExitStack
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
-    p2p_port
+    p2p_port,
+    assert_equal,
 )
 
 class SetBanTests(BitcoinTestFramework):
@@ -28,7 +30,13 @@ class SetBanTests(BitcoinTestFramework):
         self.nodes[1].setban("127.0.0.1", "add")
 
         # Node 0 should not be able to reconnect
-        with self.nodes[1].assert_debug_log(expected_msgs=['dropped (banned)\n'], timeout=50):
+        context = ExitStack()
+        context.enter_context(self.nodes[1].assert_debug_log(expected_msgs=['dropped (banned)\n'], timeout=50))
+        # When disconnected right after connecting, a v2 node will attempt to reconnect with v1.
+        # Wait for that to happen so that it cannot mess with later tests.
+        if self.options.v2transport:
+            context.enter_context(self.nodes[0].assert_debug_log(expected_msgs=['trying v1 connection'], timeout=50))
+        with context:
             self.restart_node(1, [])
             self.nodes[0].addnode("127.0.0.1:" + str(p2p_port(1)), "onetry")
 
@@ -70,6 +78,11 @@ class SetBanTests(BitcoinTestFramework):
         assert not self.is_banned(node, tor_addr)
         assert not self.is_banned(node, ip_addr)
 
+        self.log.info("Test -bantime")
+        self.restart_node(1, ["-bantime=1234"])
+        self.nodes[1].setban("127.0.0.1", "add")
+        banned = self.nodes[1].listbanned()[0]
+        assert_equal(banned['ban_duration'], 1234)
 
 if __name__ == '__main__':
     SetBanTests().main()

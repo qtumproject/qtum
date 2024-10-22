@@ -24,7 +24,6 @@ from test_framework.descriptors import descsum_create
 from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
-    find_vout_for_address,
 )
 from test_framework.wallet_util import (
     get_generate_key,
@@ -333,15 +332,15 @@ class ImportDescriptorsTest(BitcoinTestFramework):
             assert_raises_rpc_error(-4, 'This wallet has no available keys', w1.getrawchangeaddress, 'bech32')
             assert_equal(received_addr, expected_addr)
             bech32_addr_info = w1.getaddressinfo(received_addr)
-            assert_equal(bech32_addr_info['desc'][:23], 'wpkh([80002067/0\'/0\'/{}]'.format(i))
+            assert_equal(bech32_addr_info['desc'][:23], 'wpkh([80002067/0h/0h/{}]'.format(i))
 
             shwpkh_addr = w1.getnewaddress('', 'p2sh-segwit')
             shwpkh_addr_info = w1.getaddressinfo(shwpkh_addr)
-            assert_equal(shwpkh_addr_info['desc'][:26], 'sh(wpkh([abcdef12/0\'/0\'/{}]'.format(i))
+            assert_equal(shwpkh_addr_info['desc'][:26], 'sh(wpkh([abcdef12/0h/0h/{}]'.format(i))
 
             pkh_addr = w1.getnewaddress('', 'legacy')
             pkh_addr_info = w1.getaddressinfo(pkh_addr)
-            assert_equal(pkh_addr_info['desc'][:22], 'pkh([12345678/0\'/0\'/{}]'.format(i))
+            assert_equal(pkh_addr_info['desc'][:22], 'pkh([12345678/0h/0h/{}]'.format(i))
 
             assert_equal(w1.getwalletinfo()['keypoolsize'], 4 * 3) # After retrieving a key, we don't refill the keypool again, so it's one less for each address type
         w1.keypoolrefill()
@@ -495,12 +494,10 @@ class ImportDescriptorsTest(BitcoinTestFramework):
         assert_equal(wmulti_pub.getwalletinfo()['keypoolsize'], 999)
 
         # generate some utxos for next tests
-        txid = w0.sendtoaddress(addr, 10)
-        vout = find_vout_for_address(self.nodes[0], txid, addr)
+        utxo = self.create_outpoints(w0, outputs=[{addr: 10}])[0]
 
         addr2 = wmulti_pub.getnewaddress('', 'bech32')
-        txid2 = w0.sendtoaddress(addr2, 10)
-        vout2 = find_vout_for_address(self.nodes[0], txid2, addr2)
+        utxo2 = self.create_outpoints(w0, outputs=[{addr2: 10}])[0]
 
         self.generate(self.nodes[0], 6)
         assert_equal(wmulti_pub.getbalance(), wmulti_priv.getbalance())
@@ -556,7 +553,7 @@ class ImportDescriptorsTest(BitcoinTestFramework):
         assert_equal(res[1]['success'], True)
         assert_equal(res[1]['warnings'][0], 'Not all private keys provided. Some wallet functionality may return unexpected errors')
 
-        rawtx = self.nodes[1].createrawtransaction([{'txid': txid, 'vout': vout}], {w0.getnewaddress(): 9.999})
+        rawtx = self.nodes[1].createrawtransaction([utxo], {w0.getnewaddress(): 9.999})
         tx_signed_1 = wmulti_priv1.signrawtransactionwithwallet(rawtx)
         assert_equal(tx_signed_1['complete'], False)
         tx_signed_2 = wmulti_priv2.signrawtransactionwithwallet(tx_signed_1['hex'])
@@ -650,7 +647,7 @@ class ImportDescriptorsTest(BitcoinTestFramework):
             }])
         assert_equal(res[0]['success'], True)
 
-        rawtx = self.nodes[1].createrawtransaction([{'txid': txid2, 'vout': vout2}], {w0.getnewaddress(): 9.999})
+        rawtx = self.nodes[1].createrawtransaction([utxo2], {w0.getnewaddress(): 9.999})
         tx = wmulti_priv3.signrawtransactionwithwallet(rawtx)
         assert_equal(tx['complete'], True)
         self.nodes[1].sendrawtransaction(tx['hex'])

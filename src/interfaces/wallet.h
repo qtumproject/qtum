@@ -5,11 +5,12 @@
 #ifndef BITCOIN_INTERFACES_WALLET_H
 #define BITCOIN_INTERFACES_WALLET_H
 
+#include <addresstype.h>
 #include <consensus/amount.h>
-#include <interfaces/chain.h>          // For ChainClient
-#include <pubkey.h>                    // For CKeyID and CScriptID (definitions needed in CTxDestination instantiation)
-#include <script/standard.h>           // For CTxDestination
-#include <support/allocators/secure.h> // For SecureString
+#include <interfaces/chain.h>
+#include <pubkey.h>
+#include <script/script.h>
+#include <support/allocators/secure.h>
 #include <util/fs.h>
 #include <util/message.h>
 #include <util/result.h>
@@ -50,6 +51,7 @@ struct WalletBalances;
 struct WalletTx;
 struct WalletTxOut;
 struct WalletTxStatus;
+struct WalletMigrationResult;
 struct TokenInfo;
 struct TokenTx;
 struct ContractBookData;
@@ -124,7 +126,7 @@ public:
         wallet::AddressPurpose* purpose) = 0;
 
     //! Get wallet address list.
-    virtual std::vector<WalletAddress> getAddresses() const = 0;
+    virtual std::vector<WalletAddress> getAddresses() = 0;
 
     //! Get receive requests.
     virtual std::vector<std::string> getAddressReceiveRequests() = 0;
@@ -538,6 +540,9 @@ public:
     //! Restore backup wallet
     virtual util::Result<std::unique_ptr<Wallet>> restoreWallet(const fs::path& backup_file, const std::string& wallet_name, std::vector<bilingual_str>& warnings) = 0;
 
+    //! Migrate a wallet
+    virtual util::Result<WalletMigrationResult> migrateWallet(const std::string& name, const SecureString& passphrase) = 0;
+
     //! Return available wallets in wallet directory.
     virtual std::vector<std::string> listWalletDir() = 0;
 
@@ -596,6 +601,7 @@ struct WalletTx
     CTransactionRef tx;
     std::vector<wallet::isminetype> txin_is_mine;
     std::vector<wallet::isminetype> txout_is_mine;
+    std::vector<bool> txout_is_change;
     std::vector<CTxDestination> txout_address;
     std::vector<wallet::isminetype> txout_address_is_mine;
     CAmount credit;
@@ -639,7 +645,16 @@ struct WalletTxOut
     bool is_spent = false;
 };
 
-// Wallet token information.
+//! Migrated wallet info
+struct WalletMigrationResult
+{
+    std::unique_ptr<Wallet> wallet;
+    std::optional<std::string> watchonly_wallet_name;
+    std::optional<std::string> solvables_wallet_name;
+    fs::path backup_path;
+};
+
+//! Wallet token information.
 struct TokenInfo
 {
     std::string contract_address;
@@ -653,7 +668,7 @@ struct TokenInfo
     uint256 hash;
 };
 
-// Wallet token transaction
+//! Wallet token transaction
 struct TokenTx
 {
     std::string contract_address;
@@ -668,7 +683,7 @@ struct TokenTx
     uint256 hash;
 };
 
-// Wallet contract book data */
+//! Wallet contract book data */
 struct ContractBookData
 {
     std::string address;
@@ -676,7 +691,7 @@ struct ContractBookData
     std::string abi;
 };
 
-// Wallet delegation information.
+//! Wallet delegation information.
 struct DelegationInfo
 {
     std::string delegate_address;
@@ -690,7 +705,7 @@ struct DelegationInfo
     uint256 remove_tx_hash;
 };
 
-// Delegation details.
+//! Delegation details.
 struct DelegationDetails
 {
     // Wallet delegation details

@@ -66,6 +66,7 @@ string const c_networkID = "networkID";
 string const c_allowFutureBlocks = "allowFutureBlocks";
 string const c_qip6ForkBlock = "qip6ForkBlock";
 string const c_shanghaiForkBlock = "shanghaiForkBlock";
+string const c_cancunForkBlock = "cancunForkBlock";
 
 void validateConfigJson(js::mObject const& _obj)
 {

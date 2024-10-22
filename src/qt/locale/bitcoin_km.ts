@@ -58,14 +58,6 @@
         <translation type="unfinished">ជ្រើសរើស(&amp;h)</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">អាសយដ្ឋានសម្រាប់ផ្ញើ</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">អាសយដ្ឋានសម្រាប់ទទួល</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">ទាំងនេះ​គឺជាអាសយដ្ឋាន Qtum របស់អ្នកសម្រាប់ធ្វើការផ្ញើការបង់ប្រាក់។ តែងតែពិនិត្យមើលចំនួនប្រាក់ និងអាសយដ្ឋានដែលទទួល មុនពេលផ្ញើប្រាក់។</translation>
     </message>
@@ -100,6 +92,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
         <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
         <translation type="unfinished">មានបញ្ហាក្នុងការព្យាយាម រក្សាទុកបញ្ជីអាសយដ្ឋានដល់ %1។ សូមព្យាយាមម្ដងទៀត។</translation>
+    </message>
+    <message>
+        <source>Sending addresses - %1</source>
+        <translation type="unfinished">កំពុងផ្ញើអាសយដ្ឋាន%1</translation>
+    </message>
+    <message>
+        <source>Receiving addresses - %1</source>
+        <translation type="unfinished">ទទួលអាសយដ្ឋាន - %1</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
@@ -166,7 +166,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">ការព្រមាន៖ ប្រសិនបើអ្នកអ៊ិនគ្រីបកាបូបចល័តរបស់អ្នក ហើយអ្នកភ្លេចបាត់ឃ្លាសម្ងាត់ នោះអ្នកនិង &lt;b&gt;បាត់បង់ QTUMS របស់អ្នកទាំងអស់&lt;/b&gt;!</translation>
-   </message>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">តើអ្នកពិតជាចង់អ៊ិនគ្រីបកាបូបចល័តរបស់អ្នកឬ?</translation>
@@ -608,7 +608,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;អាសយដ្ឋានទទួល</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source> 
+        <source>Open a qtum: URI</source>
         <translation type="unfinished">បើកប៊ីតខញមួយៈ URl</translation>
     </message>
     <message>
@@ -638,6 +638,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">បិទកាបូបអេឡិចត្រូនិចទាំងអស់</translation>
     </message>
     <message>
+        <source>Migrate Wallet</source>
+        <translation type="unfinished">កាបូបMigrate</translation>
+    </message>
+    <message>
         <source>No wallets available</source>
         <translation type="unfinished">មិនមានកាបូបអេឡិចត្រូនិច</translation>
     </message>
@@ -663,26 +667,18 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation type="unfinished">វិនដូ(&amp;W)</translation>
-    </message>
-    <message>
-        <source>Main Window</source>
-        <translation type="unfinished">វិនដូចម្បង</translation>
-    </message>
-    <message>
-        <source>%1 client</source>
-        <translation type="unfinished">%1 អតិថិជន</translation>
+        <translation type="unfinished">&amp;វិនដូ</translation>
     </message>
     <message>
         <source>&amp;Hide</source>
-        <translation type="unfinished">លាក់(&amp;H)</translation>
+        <translation type="unfinished">&amp;លាក់</translation>
     </message>
     <message>
         <source>S&amp;how</source>
-        <translation type="unfinished">របៀប(&amp;S)</translation>
+        <translation type="unfinished">S&amp;របៀប</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>%n ការតភ្ជាប់សកម្មទៅបណ្តាញ Qtum ។</numerusform>
@@ -708,10 +704,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Enable network activity</source>
         <extracomment>A context menu item. The network activity was disabled previously.</extracomment>
         <translation type="unfinished">បើកសកម្មភាពបណ្តាញ</translation>
-    </message>
-    <message>
-        <source>Error: %1</source>
-        <translation type="unfinished">កំហុស៖%1</translation>
     </message>
     <message>
         <source>Warning: %1</source>
@@ -816,10 +808,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">តម្លៃសេវា៖</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">ធូលី៖</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">បន្ទាប់ពីតម្លៃសេវា៖</translation>
     </message>
@@ -900,30 +888,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ចម្លងតម្លៃ</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">ចម្លងធូលី</translation>
-    </message>
-    <message>
-        <source>Copy change</source>
-        <translation type="unfinished">ចម្លងការផ្លាស់ប្តូរ</translation>
-    </message>
-    <message>
-        <source>(%1 locked)</source>
-        <translation type="unfinished">(%1បានចាក់សោរ)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">បាទ ឬ ចាស</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ទេ</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">ស្លាកសញ្ញានេះបង្ហាញពណ៌ក្រហម ប្រសិនបើអ្នកទទួល ទទួលបានចំនួនមួយតិចជាងចំនួនចាប់ផ្តើមបច្ចុប្បន្ន។</translation>
-    </message>
-    <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
         <translation type="unfinished">អាច +/- %1 satoshi(s)ច្រើនក្នុងការបញ្ជូលមួយ។</translation>
     </message>
@@ -982,6 +946,13 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">កំពុងទាញកាបូប...</translation>
     </message>
 </context>
+<context>
+    <name>MigrateWalletActivity</name>
+    <message>
+        <source>Migrate Wallet</source>
+        <translation type="unfinished">កាបូបMigrate</translation>
+    </message>
+    </context>
 <context>
     <name>OpenWalletActivity</name>
     <message>
@@ -1155,7 +1126,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>Intro</name>
     <message>
-        <source>Qtum</source> 
+        <source>Qtum</source>
         <translation type="unfinished">ប៊ីតខញ</translation>
     </message>
     <message numerus="yes">
@@ -1241,11 +1212,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ទម្រង់</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source> 
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
         <translation type="unfinished">ប្រត្តិបត្តិការថ្មីៗនេះប្រហែលជាមិនអាចមើលឃើញ ហេតុដូច្នេះសមតុល្យនៅក្នងកាបូបអេឡិចត្រូនិចរបស់អ្នកប្រហែលជាមិនត្រឹមត្រូវ។ ព័ត៌មានត្រឹមត្រូវនៅពេលដែលកាបូបអេឡិចត្រូនិចរបស់អ្នកបានធ្វើសមកាលកម្មជាមួយបណ្តាញប៊ឺតខញ  សូមពិនិត្យព័ត៌មានលំម្អិតខាងក្រោម។</translation>
     </message>
     <message>
-        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source> 
+        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">ព្យាយាមក្នុងការចំណាយប៊ីតខញដែលទទួលរងឥទ្ឋិពលពីប្រត្តិបត្តិការមិនទាន់ធ្វើការបង្ហាញ នឹងមិនត្រូវទទួលស្គាល់ពីបណ្តាញ។</translation>
     </message>
     <message>
@@ -1296,7 +1267,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open qtum URI</source> 
+        <source>Open qtum URI</source>
         <translation type="unfinished">បើកប៊ីតខញ​URl</translation>
     </message>
     <message>
@@ -1433,7 +1404,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Window</source>
-        <translation type="unfinished">វិនដូ(&amp;W)</translation>
+        <translation type="unfinished">&amp;វិនដូ</translation>
     </message>
     <message>
         <source>&amp;Display</source>
@@ -1496,7 +1467,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ទម្រង់</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source> 
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">ព័ត៏មានបានបង្ហាញអាចហួសសពុលភាព។ កាបូបអេឡិចត្រូនិចរបស់អ្នកធ្វើសមកាលកម្មជាមួយនឹងបណ្តាញប៊ីតខញដោយស្វ័យប្រវត្ត បន្ទាប់ពីមានការតភ្ជាប់ ប៉ុន្តែដំណើរការនេះមិនទាន់បានបញ្ចប់នៅឡើយ។</translation>
     </message>
     <message>
@@ -1606,6 +1577,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>PSBT saved to disk.</source>
         <translation type="unfinished">PSBT បានរក្សាទុកក្នុងឌីស។</translation>
+    </message>
+    <message>
+        <source>own address</source>
+        <translation type="unfinished">អាសយដ្ឋានផ្ទាល់ខ្លួន</translation>
     </message>
     <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
@@ -1884,7 +1859,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Last block time</source>
-        <translation type="unfinished">ពេលវេលាប្លុកចុងក្រោយ</translation>
+        <translation type="unfinished">ពេវេលាប្លុកជុងក្រោយ</translation>
     </message>
     <message>
         <source>&amp;Network Traffic</source>
@@ -2206,10 +2181,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">ធាតុចូល...</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">ធូលី៖</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">ជ្រើសរើស…</translation>
     </message>
@@ -2260,14 +2231,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Copy fee</source>
         <translation type="unfinished">ចម្លងតម្លៃ</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">ចម្លងធូលី</translation>
-    </message>
-    <message>
-        <source>Copy change</source>
-        <translation type="unfinished">ចម្លងការផ្លាស់ប្តូរ</translation>
     </message>
     <message>
         <source>Sign on device</source>
@@ -2451,7 +2414,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">&amp;ចុះហត្ថលេខា សារ</translation>
     </message>
     <message>
-        <source>The Qtum address to sign the message with</source> 
+        <source>The Qtum address to sign the message with</source>
         <translation type="unfinished">អាសយដ្ឋានប៊ីតខញនេះ ចុះហត្ថលេខានៅលើសារ</translation>
     </message>
     <message>
@@ -2716,10 +2679,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">បានបញ្ចូនទៅកាន់</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">បង់ប្រាក់ទៅខ្លួនអ្នក</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">បានរុករករ៉ែ</translation>
     </message>
@@ -2785,10 +2744,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Sent to</source>
         <translation type="unfinished">បានបញ្ចូនទៅកាន់</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">ទៅកាន់ខ្លូនអ្នក</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3056,10 +3011,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Transaction amounts must not be negative</source>
         <translation type="unfinished">ចំនួនប្រត្តិបត្តិការ មិនអាចអវិជ្ជមានបានទេ</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">ប្រត្តិបត្តិការមានខ្សែចង្វាក់រងចាំដើម្បីធ្វើការផ្ទៀងផ្ទាត់វែង</translation>
     </message>
     <message>
         <source>Transaction must have at least one recipient</source>

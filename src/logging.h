@@ -25,6 +25,7 @@ static const bool DEFAULT_LOGIPS        = false;
 static const bool DEFAULT_LOGTIMESTAMPS = true;
 static const bool DEFAULT_LOGTHREADNAMES = false;
 static const bool DEFAULT_LOGSOURCELOCATIONS = false;
+static constexpr bool DEFAULT_LOGLEVELALWAYS = false;
 static const bool DEFAULT_SHOWEVMLOGS   = false;
 extern const char * const DEFAULT_DEBUGLOGFILE;
 extern const char * const DEFAULT_DEBUGVMLOGFILE;
@@ -67,12 +68,13 @@ namespace BCLog {
         LOCK        = (1 << 24),
 #endif
         UTIL        = (1 << 25),
-        BLOCKSTORE  = (1 << 26),
+        BLOCKSTORAGE = (1 << 26),
         TXRECONCILIATION = (1 << 27),
         SCAN        = (1 << 28),
-        COINSTAKE   = (1 << 29),
-        HTTPPOLL    = (1 << 30),
-        INDEX       = ((uint64_t)1 << 31),
+        TXPACKAGES  = (1 << 29),
+        COINSTAKE   = (1 << 30),
+        HTTPPOLL    = ((uint64_t)1 << 31),
+        INDEX       = ((uint64_t)1 << 32),
         ALL         = ~(uint64_t)0,
     };
     enum class Level {
@@ -81,7 +83,6 @@ namespace BCLog {
         Info,      // Default
         Warning,
         Error,
-        None, // Internal use only
     };
     constexpr auto DEFAULT_LOG_LEVEL{Level::Debug};
 
@@ -121,7 +122,7 @@ namespace BCLog {
         std::atomic<Level> m_log_level{DEFAULT_LOG_LEVEL};
 
         /** Log categories bitfield. */
-        std::atomic<uint32_t> m_categories{0};
+        std::atomic<uint64_t> m_categories{0};
 
         std::string LogTimestampStr(const std::string& str);
 
@@ -136,11 +137,14 @@ namespace BCLog {
         bool m_log_time_micros = DEFAULT_LOGTIMEMICROS;
         bool m_log_threadnames = DEFAULT_LOGTHREADNAMES;
         bool m_log_sourcelocations = DEFAULT_LOGSOURCELOCATIONS;
+        bool m_always_print_category_level = DEFAULT_LOGLEVELALWAYS;
         bool m_show_evm_logs = DEFAULT_SHOWEVMLOGS;
 
         fs::path m_file_path;
         fs::path m_file_pathVM;
         std::atomic<bool> m_reopen_file{false};
+
+        std::string GetLogPrefix(LogFlags category, Level level) const;
 
         /** Send a string to the log output */
         void LogPrintStr(const std::string& str, const std::string& logging_function, const std::string& source_file, int source_line, BCLog::LogFlags category, BCLog::Level level, bool useVMLog = false);
@@ -190,7 +194,7 @@ namespace BCLog {
         void SetLogLevel(Level level) { m_log_level = level; }
         bool SetLogLevel(const std::string& level);
 
-        uint32_t GetCategoryMask() const { return m_categories.load(); }
+        uint64_t GetCategoryMask() const { return m_categories.load(); }
 
         void EnableCategory(LogFlags flag);
         bool EnableCategory(const std::string& str);
@@ -212,7 +216,7 @@ namespace BCLog {
         std::string LogLevelsString() const;
 
         //! Returns the string representation of a log level.
-        std::string LogLevelToStr(BCLog::Level level) const;
+        static std::string LogLevelToStr(BCLog::Level level);
 
         bool DefaultShrinkDebugFile() const;
     };
@@ -252,21 +256,16 @@ static inline void LogPrintf_(const std::string& logging_function, const std::st
 #define LogPrintLevel_(category, level, ...) LogPrintf_(__func__, __FILE__, __LINE__, category, level, __VA_ARGS__)
 
 // Log unconditionally.
-#define LogPrintf(...) LogPrintLevel_(BCLog::LogFlags::NONE, BCLog::Level::None, __VA_ARGS__)
+#define LogInfo(...) LogPrintLevel_(BCLog::LogFlags::ALL, BCLog::Level::Info, __VA_ARGS__)
+#define LogWarning(...) LogPrintLevel_(BCLog::LogFlags::ALL, BCLog::Level::Warning, __VA_ARGS__)
+#define LogError(...) LogPrintLevel_(BCLog::LogFlags::ALL, BCLog::Level::Error, __VA_ARGS__)
 
-// Log unconditionally, prefixing the output with the passed category name.
-#define LogPrintfCategory(category, ...) LogPrintLevel_(category, BCLog::Level::None, __VA_ARGS__)
+// Deprecated unconditional logging.
+#define LogPrintf(...) LogInfo(__VA_ARGS__)
+#define LogPrintfCategory(category, ...) LogPrintLevel_(category, BCLog::Level::Info, __VA_ARGS__)
 
 // Use a macro instead of a function for conditional logging to prevent
 // evaluating arguments when logging for the category is not enabled.
-
-// Log conditionally, prefixing the output with the passed category name.
-#define LogPrint(category, ...)                                        \
-    do {                                                               \
-        if (LogAcceptCategory((category), BCLog::Level::Debug)) {      \
-            LogPrintLevel_(category, BCLog::Level::None, __VA_ARGS__); \
-        }                                                              \
-    } while (0)
 
 // Log conditionally, prefixing the output with the passed category name and severity level.
 #define LogPrintLevel(category, level, ...)               \
@@ -275,6 +274,13 @@ static inline void LogPrintf_(const std::string& logging_function, const std::st
             LogPrintLevel_(category, level, __VA_ARGS__); \
         }                                                 \
     } while (0)
+
+// Log conditionally, prefixing the output with the passed category name.
+#define LogDebug(category, ...) LogPrintLevel(category, BCLog::Level::Debug, __VA_ARGS__)
+#define LogTrace(category, ...) LogPrintLevel(category, BCLog::Level::Trace, __VA_ARGS__)
+
+// Deprecated conditional logging
+#define LogPrint(category, ...)  LogDebug(category, __VA_ARGS__)
 
 template <typename... Args>
 bool error(const char* fmt, const Args&... args)

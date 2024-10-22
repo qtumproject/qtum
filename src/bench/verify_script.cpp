@@ -2,13 +2,17 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <bench/bench.h>
 #include <key.h>
 #if defined(HAVE_CONSENSUS_LIB)
 #include <script/bitcoinconsensus.h>
 #endif
 #include <script/script.h>
-#include <script/standard.h>
+#include <script/interpreter.h>
 #include <streams.h>
 #include <test/util/transaction_utils.h>
 
@@ -61,8 +65,8 @@ static void VerifyScriptBench(benchmark::Bench& bench)
         assert(success);
 
 #if defined(HAVE_CONSENSUS_LIB)
-        CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
-        stream << txSpend;
+        DataStream stream;
+        stream << TX_WITH_WITNESS(txSpend);
         int csuccess = bitcoinconsensus_verify_script_with_amount(
             txCredit.vout[0].scriptPubKey.data(),
             txCredit.vout[0].scriptPubKey.size(),

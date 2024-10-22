@@ -1,5 +1,5 @@
 #include <sstream>
-#include <util/system.h>
+#include <common/system.h>
 #include <validation.h>
 #include <chainparams.h>
 #include <script/script.h>
@@ -121,7 +121,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         //create a refund tx to send back any coins that were suppose to be sent to the contract
         CMutableTransaction refund;
         if(_t.value() > 0) {
-            refund.vin.push_back(CTxIn(h256Touint(_t.getHashWith()), _t.getNVout(), CScript() << OP_SPEND));
+            refund.vin.push_back(CTxIn(Txid::FromUint256(h256Touint(_t.getHashWith())), _t.getNVout(), CScript() << OP_SPEND));
             //note, if sender was a non-standard tx, this will send the coins to pubkeyhash 0x00, effectively destroying the coins
             CScript script(CScript() << OP_DUP << OP_HASH160 << _t.sender().asBytes() << OP_EQUALVERIFY << OP_CHECKSIG);
             refund.vout.push_back(CTxOut(CAmount(_t.value().convert_to<uint64_t>()), script));
@@ -379,7 +379,7 @@ std::vector<CTxIn> CondensingTX::createVins(){
     std::vector<CTxIn> ins;
     for(auto& v : vins){
         if((v.second.value > 0 && v.second.alive) || (v.second.value > 0 && !vins[v.first].alive && !checkDeleteAddress(v.first)))
-            ins.push_back(CTxIn(h256Touint(v.second.hash), v.second.nVout, CScript() << OP_SPEND));
+            ins.push_back(CTxIn(Txid::FromUint256(h256Touint(v.second.hash)), v.second.nVout, CScript() << OP_SPEND));
     }
     return ins;
 }

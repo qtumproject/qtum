@@ -15,14 +15,18 @@
 #include <optional>
 #include <stdint.h>
 
+#include <boost/multi_index/identity.hpp>
+#include <boost/multi_index/indexed_by.hpp>
 #include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/tag.hpp>
 #include <boost/multi_index_container.hpp>
 
 class ArgsManager;
-class ChainstateManager;
 class CBlockIndex;
 class CChainParams;
 class CScript;
+class Chainstate;
+class ChainstateManager;
 #ifdef ENABLE_WALLET
 namespace wallet { class CWallet; };
 #endif
@@ -150,11 +154,11 @@ struct CompareModifiedEntry {
             // high gas limit but a low gas price which has a child with a low gas limit but a high gas price
             // Without this condition that transaction chain would get priority in being included into the block.
             // The two next checks are to see if all our ancestors have been added.
-            if(a.nSizeWithAncestors == a.iter->GetTxSize() && b.nSizeWithAncestors != b.iter->GetTxSize()) {
+            if((int64_t) a.nSizeWithAncestors == a.iter->GetTxSize() && (int64_t) b.nSizeWithAncestors != b.iter->GetTxSize()) {
                 return true;
             }
 
-            if(b.nSizeWithAncestors == b.iter->GetTxSize() && a.nSizeWithAncestors != a.iter->GetTxSize()) {
+            if((int64_t) b.nSizeWithAncestors == b.iter->GetTxSize() && (int64_t) a.nSizeWithAncestors != a.iter->GetTxSize()) {
                 return false;
             }
 
@@ -240,7 +244,7 @@ private:
     uint64_t nBlockTx;
     uint64_t nBlockSigOpsCost;
     CAmount nFees;
-    CTxMemPool::setEntries inBlock;
+    std::unordered_set<Txid, SaltedTxidHasher> inBlock;
 
     // Chain context for the block
     int nHeight;

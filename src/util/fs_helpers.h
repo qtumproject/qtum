@@ -35,7 +35,14 @@ void AllocateFileRange(FILE* file, unsigned int offset, unsigned int length);
  */
 [[nodiscard]] bool RenameOver(fs::path src, fs::path dest);
 
-bool LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only = false, bool try_lock = true);
+namespace util {
+enum class LockResult {
+    Success,
+    ErrorWrite,
+    ErrorLock,
+};
+[[nodiscard]] LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only = false, bool try_lock = true);
+} // namespace util
 void UnlockDirectory(const fs::path& directory, const fs::path& lockfile_name);
 bool DirIsWritable(const fs::path& directory);
 bool CheckDiskSpace(const fs::path& dir, uint64_t additional_bytes = 0);

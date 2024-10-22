@@ -130,6 +130,7 @@ void ChainParams::loadConfig(
     setOptionalU256Parameter(experimentalForkBlock, c_experimentalForkBlock);
     setOptionalU256Parameter(qip6ForkBlock, c_qip6ForkBlock);
     setOptionalU256Parameter(shanghaiForkBlock, c_shanghaiForkBlock);
+    setOptionalU256Parameter(cancunForkBlock, c_cancunForkBlock);
 
     lastForkBlock = findMaxForkBlockNumber(params);
     lastForkWithAdditionalEIPsSchedule = forkScheduleForBlockNumber(lastForkBlock);
@@ -165,6 +166,8 @@ void ChainParams::loadConfig(
         {Address{0x8}, PrecompiledContract{"alt_bn128_pairing_product", byzantiumForkBlock}});
     precompiled.insert(
         {Address{0x9}, PrecompiledContract{"blake2_compression", istanbulForkBlock}});
+    precompiled.insert(
+        {Address{0xa}, PrecompiledContract{"point_evaluation", cancunForkBlock + 1}});
     precompiled.insert({Address{0x85}, PrecompiledContract{"btc_ecrecover", qip6ForkBlock}});
 
     stateRoot = _stateRoot ? _stateRoot : calculateStateRoot(true);

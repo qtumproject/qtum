@@ -4,15 +4,13 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test UTXO set hash value calculation in gettxoutsetinfo."""
 
-import struct
-
 from decimal import Decimal
 from test_framework.messages import (
     CBlock,
     COutPoint,
     from_hex,
 )
-from test_framework.muhash import MuHash3072
+from test_framework.crypto.muhash import MuHash3072
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
 from test_framework.wallet import MiniWallet
@@ -59,7 +57,7 @@ class UTXOSetHashTest(BitcoinTestFramework):
                         continue
 
                     data = COutPoint(int(tx.rehash(), 16), n).serialize()
-                    data += struct.pack("<i", height * 2 + coinbase)
+                    data += (height * 2 + coinbase).to_bytes(4, "little")
                     data += tx_out.serialize()
 
                     muhash.insert(data)
@@ -70,7 +68,7 @@ class UTXOSetHashTest(BitcoinTestFramework):
         assert_equal(finalized[::-1].hex(), node_muhash)
 
         self.log.info("Test deterministic UTXO set hash results")
-        assert_equal(node.gettxoutsetinfo()['hash_serialized_2'], "c7e78ab6b073b92e81ccf19a81aa999f979e39c140d5452a22f6410d8bc79080")
+        assert_equal(node.gettxoutsetinfo()['hash_serialized_3'], "c7e78ab6b073b92e81ccf19a81aa999f979e39c140d5452a22f6410d8bc79080")
         assert_equal(node.gettxoutsetinfo("muhash")['muhash'], "6e8cb792ac86331ee314a7ab1b7d1e89c187d8630569b1625e0802f90876db1a")
 
     def run_test(self):

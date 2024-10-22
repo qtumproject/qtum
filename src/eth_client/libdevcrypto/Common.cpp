@@ -25,11 +25,18 @@ using namespace dev::crypto;
 namespace
 {
 
+struct Secp256k1ContextDeleter
+{
+    void operator()(secp256k1_context* ctx) const {
+        secp256k1_context_destroy(ctx);
+    }
+};
+
 secp256k1_context const* getCtx()
 {
-    static std::unique_ptr<secp256k1_context, decltype(&secp256k1_context_destroy)> s_ctx{
+    static std::unique_ptr<secp256k1_context, Secp256k1ContextDeleter> s_ctx{
         secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY),
-        &secp256k1_context_destroy
+        Secp256k1ContextDeleter{}
     };
     return s_ctx.get();
 }

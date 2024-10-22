@@ -58,14 +58,6 @@
         <translation type="unfinished">&amp;Velg</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Avsender adresser</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Mottager adresser</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Dette er dine Qtum adresser for å sende  å sende betalinger. Husk å sjekke beløp og mottager adresser før du sender mynter.</translation>
     </message>
@@ -165,7 +157,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">Advarsel: Dersom du krypterer lommeboken og mister passordfrasen vil du &lt;b&gt;MISTE ALLE DINE QTUM&lt;/b&gt;!</translation>
-   </message>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Er du sikker på at du vil kryptere lommeboken?</translation>
@@ -856,10 +848,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Gebyr:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Støv:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Totalt:</translation>
     </message>
@@ -944,28 +932,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Kopiér bytes</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopiér støv</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopier veksel</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 låst)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">ja</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">nei</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Denne merkelappen blir rød hvis en mottaker får mindre enn gjeldende støvterskel.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1117,14 +1089,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Lag Tom Lommebok</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Bruk deskriptorer for scriptPubKey styring</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Deskriptor lommebok</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Bruk en ekstern undertegningsenhet, som en fysisk lommebok. Konfigurer det eksterne undertegningskriptet i lommebokinnstillingene først.</translation>
     </message>
@@ -1135,10 +1099,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Create</source>
         <translation type="unfinished">Opprett</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Kompilert uten sqlite støtte (kreves for deskriptor lommebok)</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1358,7 +1318,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Forsøk på å bruke qtums som er påvirket av transaksjoner som ikke er vist enda godtas ikke av nettverket.</translation>
+        <translation type="unfinished">Forsøk på å bruke qtum som er påvirket av transaksjoner som ikke er vist enda godtas ikke av nettverket.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1604,14 +1564,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Bruk separate SOCKS&amp;5 proxy for å nå peers via Tor onion tjenester:</translation>
     </message>
     <message>
-        <source>embedded "%1"</source>
-        <translation type="unfinished">Innebygd "%1"</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">nærmeste treff "%1"</translation>
-    </message>
-    <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Avbryt</translation>
     </message>
@@ -1829,8 +1781,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">PSBT lagret til disk.</translation>
     </message>
     <message>
-        <source> * Sends %1 to %2</source>
-        <translation type="unfinished">* Sender %1 til %2</translation>
+        <source>own address</source>
+        <translation type="unfinished">egen adresse</translation>
     </message>
     <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
@@ -1909,7 +1861,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
-        <translation type="unfinished">URI kan ikke fortolkes! Dette kan være forårsaket av en ugyldig Qtum-adresse eller feilformede URI-parametre.</translation>
+        <translation type="unfinished">URI kan ikke fortolkes! Dette kan være forårsaket av en ugyldig qtum-adresse eller feilformede URI-parametre.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2647,10 +2599,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Inputs...</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Støv:</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">Velg...</translation>
     </message>
@@ -2713,10 +2661,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Kopiér bytes</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopiér støv</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -2855,7 +2799,7 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     </message>
     <message>
         <source>Warning: Invalid Qtum address</source>
-        <translation type="unfinished">Advarsel Ugyldig Qtum-adresse</translation>
+        <translation type="unfinished">Advarsel Ugyldig qtum-adresse</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -3212,10 +3156,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Outputindeks</translation>
     </message>
     <message>
-        <source> (Certificate was not verified)</source>
-        <translation type="unfinished">(sertifikatet ble ikke bekreftet)</translation>
-    </message>
-    <message>
         <source>Merchant</source>
         <translation type="unfinished">Forretningsdrivende</translation>
     </message>
@@ -3306,10 +3246,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <translation type="unfinished">Sendt til</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Betaling til deg selv</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Utvunnet</translation>
     </message>
@@ -3379,10 +3315,6 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Sendt til</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Til deg selv</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3658,10 +3590,6 @@ Gå til Fil &gt; Åpne lommebok for å laste en lommebok.
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation type="unfinished">Lisensiert MIT. Se tilhørende fil %s eller %s</translation>
-    </message>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Feil under lesing av %s! Alle nøkler har blitt lest rett, men transaksjonsdata eller adressebokoppføringer kan mangle eller være uriktige.</translation>
     </message>
     <message>
         <source>Error: Dumpfile format record is incorrect. Got "%s", expected "format".</source>
@@ -4077,10 +4005,6 @@ Mangler løsningsdata for å estimere transaksjonsstørrelse</translation>
     <message>
         <source>Transaction amounts must not be negative</source>
         <translation type="unfinished">Transaksjonsbeløpet kan ikke være negativt</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">Transaksjonen har for lang minnepoolkjede</translation>
     </message>
     <message>
         <source>Transaction must have at least one recipient</source>
