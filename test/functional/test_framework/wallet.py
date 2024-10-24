@@ -346,7 +346,7 @@ class MiniWallet:
     def create_self_transfer(
             self,
             *,
-            fee_rate=Decimal("0.003"),
+            fee_rate=Decimal("0.03"),
             fee=Decimal("0"),
             utxo_to_spend=None,
             target_weight=0,
