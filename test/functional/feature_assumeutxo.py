@@ -47,7 +47,7 @@ from test_framework.wallet import (
 
 START_HEIGHT = 2099
 SNAPSHOT_BASE_HEIGHT = 4099
-FINAL_HEIGHT = 6099
+FINAL_HEIGHT = 4199
 COMPLETE_IDX = {'synced': True, 'best_block_height': FINAL_HEIGHT}
 
 
@@ -173,12 +173,14 @@ class AssumeutxoTest(BitcoinTestFramework):
         # though, we have to ferry over the new headers to n1 so that it
         # isn't waiting forever to see the header of the snapshot's base block
         # while disconnected from n0.
+        blocks = []
         for i in range(2000):
             if i % 3 == 0:
                 self.mini_wallet.send_self_transfer(from_node=n0)
             self.generate(n0, nblocks=1, sync_fun=self.no_op)
             newblock = n0.getblock(n0.getbestblockhash(), 0)
-
+            
+            blocks.append(newblock)
             # make n1 aware of the new header, but don't give it the block.
             n1.submitheader(newblock)
             n2.submitheader(newblock)
@@ -203,7 +205,7 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         # Mine more blocks on top of the snapshot that n1 hasn't yet seen. This
         # will allow us to test n1's sync-to-tip on top of a snapshot.
-        self.generate(n0, nblocks=2000, sync_fun=self.no_op)
+        self.generate(n0, nblocks=100, sync_fun=self.no_op)
 
         assert_equal(n0.getblockcount(), FINAL_HEIGHT)
         assert_equal(n1.getblockcount(), START_HEIGHT)
@@ -250,6 +252,10 @@ class AssumeutxoTest(BitcoinTestFramework):
         self.log.info("Restarting node to stop at height %d", PAUSE_HEIGHT)
         self.restart_node(1, extra_args=[
             f"-stopatheight={PAUSE_HEIGHT}", *self.extra_args[1]])
+        
+        #Qtum sync to a block within rolling checkpoint
+        for i in range(1200):
+            n1.submitblock(blocks[i])
 
         # Finally connect the nodes and let them sync.
         #
@@ -262,7 +268,7 @@ class AssumeutxoTest(BitcoinTestFramework):
         self.log.info("Checking that blocks are segmented on disk")
         assert self.has_blockfile(n1, "00000"), "normal blockfile missing"
         assert self.has_blockfile(n1, "00001"), "assumed blockfile missing"
-        assert not self.has_blockfile(n1, "00012"), "too many blockfiles"
+        assert not self.has_blockfile(n1, "00010"), "too many blockfiles"
 
         self.log.info("Restarted node before snapshot validation completed, reloading...")
         self.restart_node(1, extra_args=self.extra_args[1])
@@ -274,7 +280,7 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         self.log.info("Ensuring background validation completes")
         self.wait_until(lambda: len(n1.getchainstates()['chainstates']) == 1)
-
+            
         # Ensure indexes have synced.
         completed_idx_state = {
             'basic block filter index': COMPLETE_IDX,
@@ -316,7 +322,11 @@ class AssumeutxoTest(BitcoinTestFramework):
         assert_equal(snapshot['blocks'], SNAPSHOT_BASE_HEIGHT)
         assert_equal(snapshot['snapshot_blockhash'], dump_output['base_hash'])
         assert_equal(snapshot['validated'], False)
-
+        
+        #Qtum sync to a block within rolling checkpoint
+        for i in range(1200):
+            n2.submitblock(blocks[i])
+        
         self.connect_nodes(0, 2)
         self.wait_until(lambda: n2.getchainstates()['chainstates'][-1]['blocks'] == FINAL_HEIGHT)
         self.sync_blocks()
