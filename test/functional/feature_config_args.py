@@ -130,7 +130,7 @@ class ConfArgsTest(BitcoinTestFramework):
         # datadir= line pointing at the node datadir.
         node = self.nodes[0]
         conf_text = node.bitcoinconf.read_text()
-        conf_path = default_datadir / "bitcoin.conf"
+        conf_path = default_datadir / "qtum.conf"
         conf_path.write_text(f"datadir={node.datadir_path}\n{conf_text}")
 
         # Drop the node -datadir= argument during this test, because if it is
@@ -326,14 +326,14 @@ class ConfArgsTest(BitcoinTestFramework):
         with tempfile.NamedTemporaryFile(dir=self.options.tmpdir, mode="wt", delete=False) as temp_conf:
             temp_conf.write(f"datadir={node.datadir_path}\n")
         node.assert_start_raises_init_error([f"-conf={temp_conf.name}"], re.escape(
-            f'Error: Data directory "{node.datadir_path}" contains a "bitcoin.conf" file which is ignored, because a '
+            f'Error: Data directory "{node.datadir_path}" contains a "qtum.conf" file which is ignored, because a '
             f'different configuration file "{temp_conf.name}" from command line argument "-conf={temp_conf.name}" '
             f'is being used instead.') + r"[\s\S]*", match=ErrorMatch.FULL_REGEX)
 
         # Test that passing a redundant -conf command line argument pointing to
         # the same bitcoin.conf that would be loaded anyway does not trigger an
         # error.
-        self.start_node(0, [f'-conf={node.datadir_path}/bitcoin.conf'])
+        self.start_node(0, [f'-conf={node.datadir_path}/qtum.conf'])
         self.stop_node(0)
 
     def test_ignored_default_conf(self):
@@ -355,7 +355,7 @@ class ConfArgsTest(BitcoinTestFramework):
         # startup error because the node datadir contains a different
         # bitcoin.conf that would be ignored.
         node = self.nodes[0]
-        (default_datadir / "bitcoin.conf").write_text(f"datadir={node.datadir_path}\n")
+        (default_datadir / "qtum.conf").write_text(f"datadir={node.datadir_path}\n")
 
         # Drop the node -datadir= argument during this test, because if it is
         # specified it would take precedence over the datadir setting in the
@@ -363,14 +363,14 @@ class ConfArgsTest(BitcoinTestFramework):
         node_args = node.args
         node.args = [arg for arg in node.args if not arg.startswith("-datadir=")]
         node.assert_start_raises_init_error([], re.escape(
-            f'Error: Data directory "{node.datadir_path}" contains a "bitcoin.conf" file which is ignored, because a '
-            f'different configuration file "{default_datadir}/bitcoin.conf" from data directory "{default_datadir}" '
+            f'Error: Data directory "{node.datadir_path}" contains a "qtum.conf" file which is ignored, because a '
+            f'different configuration file "{default_datadir}/qtum.conf" from data directory "{default_datadir}" '
             f'is being used instead.') + r"[\s\S]*", env=env, match=ErrorMatch.FULL_REGEX)
         node.args = node_args
 
     def test_acceptstalefeeestimates_arg_support(self):
         self.log.info("Test -acceptstalefeeestimates option support")
-        conf_file = self.nodes[0].datadir_path / "bitcoin.conf"
+        conf_file = self.nodes[0].datadir_path / "qtum.conf"
         for chain, chain_name in {("main", ""), ("test", "testnet3"), ("signet", "signet")}:
             util.write_config(conf_file, n=0, chain=chain_name, extra_config='acceptstalefeeestimates=1\n')
             self.nodes[0].assert_start_raises_init_error(expected_msg=f'Error: acceptstalefeeestimates is not supported on {chain} chain.')

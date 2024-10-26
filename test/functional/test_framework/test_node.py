@@ -234,6 +234,9 @@ class TestNode():
 
         # add environment variable LIBC_FATAL_STDERR_=1 so that libc errors are written to stderr and not the terminal
         subp_env = dict(os.environ, LIBC_FATAL_STDERR_="1")
+        if env is not None:
+            subp_env.update(env)
+            
         if not any(arg.startswith('-staking=') for arg in extra_args):
             extra_args.append('-staking=0')
             
