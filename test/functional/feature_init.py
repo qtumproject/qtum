@@ -48,7 +48,7 @@ class InitStressTest(BitcoinTestFramework):
 
         def start_expecting_error(err_fragment):
             node.assert_start_raises_init_error(
-                extra_args=['-txindex=1', '-blockfilterindex=1', '-coinstatsindex=1', '-checkblocks=200', '-checklevel=4'],
+                extra_args=['-txindex=1', '-blockfilterindex=1', '-coinstatsindex=1', '-checkblocks=2100', '-checklevel=4'],
                 expected_msg=err_fragment,
                 match=ErrorMatch.PARTIAL_REGEX,
             )
@@ -137,7 +137,7 @@ class InitStressTest(BitcoinTestFramework):
                     # Since the genesis block is not checked by -checkblocks, the
                     # perturbation window must be chosen such that a higher block
                     # in blk*.dat is affected.
-                    tf.seek(150)
+                    tf.seek(500)
                     tf.write(b"1" * 200)
 
             start_expecting_error(err_fragment)
