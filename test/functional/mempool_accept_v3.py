@@ -19,17 +19,18 @@ from test_framework.wallet import (
     MiniWallet,
 )
 
-def cleanup(extra_args=None):
+def cleanup(extra_args=[]):
     def decorator(func):
         def wrapper(self):
+            extra_args.append('-minrelaytxfee=0.0000001')
             try:
-                if extra_args is not None:
+                if len(extra_args)>1:
                     self.restart_node(0, extra_args=extra_args)
                 func(self)
             finally:
                 # Clear mempool again after test
                 self.generate(self.nodes[0], 1)
-                if extra_args is not None:
+                if len(extra_args)>1:
                     self.restart_node(0)
         return wrapper
     return decorator
@@ -209,7 +210,7 @@ class MempoolAcceptV3(BitcoinTestFramework):
 
         self.log.info("Test that a decreased limitancestorsize also applies to v3 parent")
         self.restart_node(0, extra_args=["-limitancestorsize=10", "-datacarriersize=40000", "-acceptnonstdtxn=1"])
-        tx_v3_parent_large2 = self.wallet.send_self_transfer(from_node=node, target_weight=99900, version=3)
+        tx_v3_parent_large2 = self.wallet.send_self_transfer(from_node=node, target_weight=99900, version=3, fee_rate=Decimal(1))
         tx_v3_child_large2 = self.wallet.create_self_transfer(utxo_to_spend=tx_v3_parent_large2["new_utxo"], version=3)
         # Child is within v3 limits
         assert_greater_than_or_equal(1000, tx_v3_child_large2["tx"].get_vsize())
@@ -422,7 +423,7 @@ class MempoolAcceptV3(BitcoinTestFramework):
         assert_equal(node.getmempoolentry(ancestor_tx["txid"])["descendantcount"], 3)
 
         # Create a replacement of child_1. It does not conflict with child_2.
-        child_1_conflict = self.wallet.send_self_transfer(from_node=node, version=3, utxo_to_spend=ancestor_tx["new_utxos"][0], fee_rate=Decimal("0.01"))
+        child_1_conflict = self.wallet.send_self_transfer(from_node=node, version=3, utxo_to_spend=ancestor_tx["new_utxos"][0], fee_rate=Decimal("0.04"))
 
         # Ensure child_1 and child_1_conflict are different transactions
         assert (child_1_conflict["txid"] != child_1["txid"])
@@ -433,7 +434,7 @@ class MempoolAcceptV3(BitcoinTestFramework):
         self.log.info("Generate blocks to create UTXOs")
         node = self.nodes[0]
         self.wallet = MiniWallet(node)
-        self.generate(self.wallet, 110)
+        self.generate(self.wallet, 2010)
         self.test_v3_acceptance()
         self.test_v3_replacement()
         self.test_v3_bip125()
