@@ -40,7 +40,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         # Prevent time from moving forward
         self.nodes[1].setmocktime(int(time.time()))
         self.connect_nodes(0, 1)
-        self.generate(self.wallet, 3)
+        self.generate(self.wallet, 2003)
 
         # Disconnect node0 and node1 to create different chains.
         self.disconnect_nodes(0, 1)
@@ -48,14 +48,14 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         peer1 = self.nodes[1].add_p2p_connection(P2PTxInvStore())
 
         # Create a transaction that is included in a block.
-        tx_disconnected = self.wallet.send_self_transfer(from_node=self.nodes[1])
+        tx_disconnected = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.03"))
         self.generate(self.nodes[1], 1, sync_fun=self.no_op)
 
         # Create a transaction and submit it to node1's mempool.
-        tx_before_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1])
+        tx_before_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.03"))
 
         # Create a child of that transaction and submit it to node1's mempool.
-        tx_child = self.wallet.send_self_transfer(utxo_to_spend=tx_disconnected["new_utxo"], from_node=self.nodes[1])
+        tx_child = self.wallet.send_self_transfer(utxo_to_spend=tx_disconnected["new_utxo"], from_node=self.nodes[1], fee_rate=Decimal("0.03"))
         assert_equal(self.nodes[1].getmempoolentry(tx_child["txid"])["ancestorcount"], 1)
         assert_equal(len(peer1.get_invs()), 0)
 
@@ -103,7 +103,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
             peer1.sync_with_ping()
         last_tx_received = peer1.last_message["tx"]
 
-        tx_after_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1])
+        tx_after_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.03"))
         request_after_reorg = msg_getdata([CInv(t=MSG_WTX, h=int(tx_after_reorg["tx"].getwtxid(), 16))])
         assert tx_after_reorg["txid"] in self.nodes[1].getrawmempool()
         peer1.send_and_ping(request_after_reorg)
