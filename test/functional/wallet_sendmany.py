@@ -34,7 +34,7 @@ class SendmanyTest(BitcoinTestFramework):
         self.nodes[0].createwallet("activewallet")
         self.wallet = self.nodes[0].get_wallet_rpc("activewallet")
         self.def_wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
-        self.generate(self.nodes[0], 101)
+        self.generate(self.nodes[0], 2001)
 
         self.test_sffo_repeated_address()
 
