@@ -133,11 +133,20 @@ class WalletMigrationTest(BitcoinTestFramework):
         # So, should have a total of 11 descriptors on it.
         assert_equal(len(basic0.listdescriptors()["descriptors"]), 13)
 
+        # Core 26.1 limitation, message in pull request:
+        # When migrating legacy wallet to descriptor wallet the coin type is changed from 88 to 0 
+        # in the derivation path for the old legacy addresses. For example: "m/88'/0'/0'" to "m/0h/0h/0h".
+        # The result address is the same. Send and receive worked, tested in regtest mode.
+        migr_old_addr_info = old_addr_info
+        migr_old_addr_info["hdkeypath"] = "m/0'/0'/0'"
+        migr_old_change_addr_info = old_change_addr_info
+        migr_old_change_addr_info["hdkeypath"], "m/0'/1'/0'"
+
         # Compare addresses info
         addr_info = basic0.getaddressinfo(addr)
         change_addr_info = basic0.getaddressinfo(change)
-        self.assert_addr_info_equal(addr_info, old_addr_info)
-        self.assert_addr_info_equal(change_addr_info, old_change_addr_info)
+        self.assert_addr_info_equal(addr_info, migr_old_addr_info)
+        self.assert_addr_info_equal(change_addr_info, migr_old_change_addr_info)
 
         addr_info = basic0.getaddressinfo(basic0.getnewaddress("", "bech32"))
         assert_equal(addr_info["hdkeypath"], "m/84h/88h/0h/0/0")
