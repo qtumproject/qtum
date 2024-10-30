@@ -6085,9 +6085,6 @@ bool ChainstateManager::AcceptBlock(const std::shared_ptr<const CBlock>& pblock,
         return error("%s: %s", __func__, state.ToString());
     }
 
-    // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
-    // (but if it does not build on our best tip, let the SendMessages loop relay it)
-
     // Write block to history file
     if (fNewBlock) *fNewBlock = true;
     try {
@@ -6111,6 +6108,11 @@ bool ChainstateManager::AcceptBlock(const std::shared_ptr<const CBlock>& pblock,
     ActiveChainstate().FlushStateToDisk(state, FlushStateMode::NONE);
 
     CheckBlockIndex();
+
+    // Header is valid/has work, merkle tree and segwit merkle tree are good...RELAY NOW
+    // (but if it does not build on our best tip, let the SendMessages loop relay it)
+    if (!IsInitialBlockDownload() && ActiveTip() == pindex->pprev)
+        GetMainSignals().NewPoWValidBlock(pindex, pblock);
 
     return true;
 }
