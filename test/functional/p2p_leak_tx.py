@@ -39,7 +39,7 @@ class P2PLeakTxTest(BitcoinTestFramework):
         wtxid = self.miniwallet.send_self_transfer(from_node=self.gen_node)["wtxid"]
         inbound_peer.wait_until(lambda: "inv" in inbound_peer.last_message and inbound_peer.last_message.get("inv").inv[0].hash == int(wtxid, 16))
         want_tx = msg_getdata(inv=inbound_peer.last_message.get("inv").inv)
-        self.generate(self.gen_node, 1)
+        # self.generate(self.gen_node, 1) Qtum N/A
 
         self.log.debug("Request transaction")
         inbound_peer.last_message.pop("tx", None)
