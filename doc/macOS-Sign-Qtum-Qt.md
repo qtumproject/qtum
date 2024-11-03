@@ -4,7 +4,7 @@ If you have downloaded `Qtum-Qt.app` and want to run it on macOS, you may encoun
 
 ## Steps
 
-### 1. Create a Self-Signed Certificate
+### 1. Create a Self-Signed Certificate (Skip if you already have a certificate for code signing)
 
 1. Open **Keychain Access** (Applications > Utilities > Keychain Access).
 2. In the **Keychain Access** menu, select **Certificate Assistant > Create a Certificate**.
@@ -19,10 +19,10 @@ If you have downloaded `Qtum-Qt.app` and want to run it on macOS, you may encoun
 2. Use the following `codesign` command to sign `Qtum-Qt.app` with the newly created certificate:
    
    ```
-   codesign --force --deep --sign "Qtum Certificate" /path/to/Qtum-Qt.app/
+   codesign --force --deep --sign "Qtum Certificate" /path/to/Qtum-Qt.app
    ```
    
-   Replace "Qtum Certificate" with the name of your self-signed certificate, and ensure /path/to/Qtum-Qt.app/ points to the actual location of the app on your system, note the trailing / in the path.
+   Replace "Qtum Certificate" with the name of your certificate, and ensure /path/to/Qtum-Qt.app/ points to the actual location of the app on your system.
    
 3. Attempt to Open Qtum-Qt.app
 	1.	Try to open Qtum-Qt.app by double-clicking it.
@@ -35,4 +35,4 @@ If you have downloaded `Qtum-Qt.app` and want to run it on macOS, you may encoun
 	4.	Click the Open Anyway button next to this message.
 	5. macOS should prompt you with a different warning. Choose Open Anyway to run the app.
 
-The same procedure can be used to sign `qtumd` and other command line binaries.
+***Note:** The same procedure can be used to sign `qtumd`, `qtum-cli` and other command line binaries.
