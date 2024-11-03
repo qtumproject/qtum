@@ -25,6 +25,7 @@ from io import BytesIO
 import math
 import random
 import socket
+import struct
 import time
 import unittest
 

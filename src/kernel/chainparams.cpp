@@ -103,7 +103,7 @@ public:
         consensus.nMuirGlacierHeight = 845000;
         consensus.nLondonHeight = 2080512;
         consensus.nShanghaiHeight = 3385122;
-        consensus.nCancunHeight = 0x7fffffff;
+        consensus.nCancunHeight = 4590000;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -131,8 +131,8 @@ public:
         // Replace 0xffffc0 with the activation block number
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 2080512;
 
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000004edc867995369c4f3cf"); // 3142000
-        consensus.defaultAssumeValid = uint256S("0x3dc42fcf2e731093ee9b3cbaa2df07d8b8638cdea77758bb28b1130f504a7f43"); // 3142000
+        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000737918e0d51dfef8a1d"); // 4300000
+        consensus.defaultAssumeValid = uint256S("0xcd130baf8762afbebc10ceff9fe13ecb09f7e4bb579508a7e5f13a83ffe1e64d"); // 4300000
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -145,7 +145,7 @@ public:
         pchMessageStart[3] = 0xd3;
         nDefaultPort = 3888;
         nPruneAfterHeight = 100000;
-        m_assumed_blockchain_size = 21;
+        m_assumed_blockchain_size = 24;
         m_assumed_chain_state_size = 1;
 
         genesis = CreateGenesisBlock(1504695029, 8026361, 0x1f00ffff, 1, 50 * COIN);
@@ -195,6 +195,7 @@ public:
                 { 1883974, uint256S("0xefe5b66cd0963b19ed64850884f039ff4d98c49cd63b9ec763d5c336619d5a6d")},
                 { 2636000, uint256S("0x4844cfb8403cdee4994acaab4bf1168339bce5ccd65496d4d9ffc1d262b0d79a")},
                 { 3142000, uint256S("0x3dc42fcf2e731093ee9b3cbaa2df07d8b8638cdea77758bb28b1130f504a7f43")},
+				{ 4300000, uint256S("0xcd130baf8762afbebc10ceff9fe13ecb09f7e4bb579508a7e5f13a83ffe1e64d")},
             }
         };
 
@@ -203,10 +204,10 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 3dc42fcf2e731093ee9b3cbaa2df07d8b8638cdea77758bb28b1130f504a7f43 (height 3142000)
-            .nTime    = 1693268288, // * UNIX timestamp of last known number of transactions
-            .nTxCount = 10429839, // * total number of transactions between genesis and that timestamp
-            .dTxRate  = 0.07664262206369668, // * estimated number of transactions per second after that timestamp
+            // Data as of block cd130baf8762afbebc10ceff9fe13ecb09f7e4bb579508a7e5f13a83ffe1e64d (height 4300000)
+            .nTime    = 1730324440, // * UNIX timestamp of last known number of transactions
+            .nTxCount = 12952860, // * total number of transactions between genesis and that timestamp
+            .dTxRate  = 0.06440551300874305, // * estimated number of transactions per second after that timestamp
         };
 
         consensus.nBlocktimeDownscaleFactor = 4;
@@ -261,7 +262,7 @@ public:
         consensus.nMuirGlacierHeight = 806600;
         consensus.nLondonHeight = 1967616;
         consensus.nShanghaiHeight = 3298892;
-        consensus.nCancunHeight = 0x7fffffff;
+        consensus.nCancunHeight = 4510000;
         consensus.powLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimit = uint256S("0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.QIP9PosLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"); // The new POS-limit activated after QIP9
@@ -289,8 +290,8 @@ public:
         // Replace 0xffffc0 with the activation block number
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 1967616;
 
-        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000213cff04c2108ab7d5a"); // 3180000
-        consensus.defaultAssumeValid = uint256S("0xde6afcb300f7036b67b7446933b8aa7986850058d5927e07ce5df1e270069ef2"); // 3180000
+        consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000000000029aad39021b08dcb926"); // 4330000
+        consensus.defaultAssumeValid = uint256S("0x91750084e54c2a5cf621c0582695e0e51776e5c35068ab23a170a91971edacf22"); // 4330000
 
         pchMessageStart[0] = 0x0d;
         pchMessageStart[1] = 0x22;
@@ -341,6 +342,7 @@ public:
                 {1930000, uint256S("0xf4836510a70e25d5c70554abbbcb346abd66af540f616d806fb1c20335c1e874")},
                 {2686000, uint256S("0xc12594feff0dfae05f5a056cd9248ff5e6fc42d37c4bedf37b212eb17dccb486")},
                 {3180000, uint256S("0xde6afcb300f7036b67b7446933b8aa7986850058d5927e07ce5df1e270069ef2")},
+				{4330000, uint256S("0x91750084e54c2a5cf621c0582695e0e51776e5c35068ab23a170a91971edacf2")},
             }
         };
 
@@ -349,10 +351,10 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 0xde6afcb300f7036b67b7446933b8aa7986850058d5927e07ce5df1e270069ef2 (height 3180000)
-            .nTime    = 1692923320,
-            .nTxCount = 6552961,
-            .dTxRate  = 0.06299127541669518,
+            // Data as of block 91750084e54c2a5cf621c0582695e0e51776e5c35068ab23a170a91971edacf22 (height 4330000)
+            .nTime    = 1729896232,
+            .nTxCount = 8867945,
+            .dTxRate  = 0.06233193794631864,
         };
 
         consensus.nBlocktimeDownscaleFactor = 4;
@@ -634,10 +636,10 @@ public:
         m_assumeutxo_data = {
             {
                 // For use by test/functional/feature_assumeutxo.py
-                .height = 2199,
-                .hash_serialized = AssumeutxoHash{uint256S("0xa9e20f6c0c6531e44789f7a29df1939fa1c2e7d5c451b25c5201880628c57940")},
-                .nChainTx = 2200,
-                .blockhash = uint256S("0x66832161e18db8b9325ec765201657c4238992f27c36ba37111f1e2d55cc16cb")
+                .height = 4099,
+                .hash_serialized = AssumeutxoHash{uint256S("0x73200c9ce4eb500fb90dc57599ed084a1351eb0bf5de133c8a8ed4662e7e8162")},
+                .nChainTx = 4767,
+                .blockhash = uint256S("0x05487442d7c76a7c64070cca8a52742fa7be67566802c55cc4499b15ff8acc0b")
             },
         };
 

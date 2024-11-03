@@ -177,7 +177,7 @@ class ImportRescanTest(BitcoinTestFramework):
         self.import_deterministic_coinbase_privkeys()
         self.stop_nodes()
 
-        self.start_nodes(extra_args=[["-whitelist=noban@127.0.0.1"]] * self.num_nodes)
+        self.start_nodes(extra_args=[["-whitelist=noban@127.0.0.1", "-mintxfee=0.00001"]] * self.num_nodes)
         for i in range(1, self.num_nodes):
             self.connect_nodes(i, 0)
 

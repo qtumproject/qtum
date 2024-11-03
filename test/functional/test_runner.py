@@ -92,6 +92,7 @@ EXTENDED_SCRIPTS = [
     # Longest test should go first, to favor running tests in parallel
     'qtum_evm_london_activation.py',
     'qtum_evm_shanghai_activation.py',
+    'qtum_evm_cancun_activation.py',
     'feature_pruning.py',
     'feature_dbcrash.py',
     'wallet_pruning.py --legacy-wallet',
@@ -409,6 +410,8 @@ BASE_SCRIPTS = [
     # qtum
     'qtum_evm_london_gas_usage.py --legacy-wallet',
     'qtum_evm_london_gas_usage.py --descriptors',
+    'qtum_evm_cancun_gas_usage.py --legacy-wallet',
+    'qtum_evm_cancun_gas_usage.py --descriptors',
     'qtum_dgp.py --legacy-wallet',
     'qtum_dgp.py --descriptors',
     'qtum_pos.py --legacy-wallet',

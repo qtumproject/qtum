@@ -20,6 +20,9 @@ class UnconfirmedInputTest(BitcoinTestFramework):
         getcontext().prec=9
         self.setup_clean_chain = True
         self.num_nodes = 1
+        self.extra_args=[
+            ["-mintxfee=0.000001", "-minrelaytxfee=0.000001", "-blockmintxfee=0.000001"]
+            ]
 
     def setup_and_fund_wallet(self, walletname):
         self.nodes[0].createwallet(walletname)
@@ -470,7 +473,7 @@ class UnconfirmedInputTest(BitcoinTestFramework):
         self.log.info("Starting UnconfirmedInputTest!")
         self.target_fee_rate = 30
         self.def_wallet  = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
-        self.generate(self.nodes[0], 110)
+        self.generate(self.nodes[0], 2010)
 
         self.test_target_feerate_confirmed()
 

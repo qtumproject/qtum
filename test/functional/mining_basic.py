@@ -35,7 +35,7 @@ from test_framework.wallet import MiniWallet
 
 VERSIONBITS_TOP_BITS = 0x20000000
 VERSIONBITS_DEPLOYMENT_TESTDUMMY_BIT = 28
-DEFAULT_BLOCK_MIN_TX_FEE = 1000  # default `-blockmintxfee` setting [sat/kvB]
+DEFAULT_BLOCK_MIN_TX_FEE = 400000  # default `-blockmintxfee` setting [sat/kvB]
 BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
 
 

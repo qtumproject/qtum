@@ -42,12 +42,12 @@ class WalletPruningTest(BitcoinTestFramework):
         height = int(best_block["height"]) + 1
         self.nTime = max(self.nTime, int(best_block["time"])) + 1
         previousblockhash = int(best_block["hash"], 16)
-        big_script = CScript([OP_RETURN] + [OP_TRUE] * 950000)
+        big_script = CScript([OP_RETURN] + [OP_TRUE] * 480000)
         # Set mocktime to accept all future blocks
         for i in self.nodes:
             if i.running:
-                i.setmocktime(self.nTime + 600 * n)
-        for _ in range(n):
+                i.setmocktime(self.nTime + 32 * n)
+        for i in range(n):
             block = create_block(hashprev=previousblockhash, ntime=self.nTime, coinbase=create_coinbase(height, script_pubkey=big_script))
             block.solve()
 
@@ -59,7 +59,11 @@ class WalletPruningTest(BitcoinTestFramework):
 
             # Simulate 10 minutes of work time per block
             # Important for matching a timestamp with a block +- some window
-            self.nTime += 600
+            self.nTime += 32
+            
+            if i%100 == 0:
+                self.sync_all()
+            
         self.sync_all()
 
     def test_wallet_import_pruned(self, wallet_name):
@@ -92,7 +96,7 @@ class WalletPruningTest(BitcoinTestFramework):
         # Make sure wallet cannot be imported because of missing blocks
         # This will try to rescan blocks `TIMESTAMP_WINDOW` (2h) before the wallet birthheight.
         # There are 6 blocks an hour, so 11 blocks (excluding birthheight).
-        assert_raises_rpc_error(-4, f"Pruned blocks from height {wallet_birthheight - 11} required to import keys. Use RPC call getblockchaininfo to determine your pruned height.", self.nodes[1].importwallet, self.nodes[0].datadir_path / wallet_file)
+        assert_raises_rpc_error(-4, f"Pruned blocks from height {wallet_birthheight - 224} required to import keys. Use RPC call getblockchaininfo to determine your pruned height.", self.nodes[1].importwallet, self.nodes[0].datadir_path / wallet_file)
         self.log.info("- Done")
 
     def get_birthheight(self, wallet_file):
@@ -122,18 +126,18 @@ class WalletPruningTest(BitcoinTestFramework):
 
         # A blk*.dat file is 128MB
         # Generate 250 light blocks
-        self.generate(self.nodes[0], 250)
+        self.generate(self.nodes[0], 2250)
         # Generate 50MB worth of large blocks in the blk00000.dat file
-        self.mine_large_blocks(self.nodes[0], 50)
+        self.mine_large_blocks(self.nodes[0], 550)
 
         # Create a wallet which birth's block is in the blk00000.dat file
         wallet_birthheight_1 = "wallet_birthheight_1"
-        assert_equal(self.has_block(1), False)
+        assert_equal(self.has_block(2), False)
         self.create_wallet(wallet_birthheight_1, unload=True)
 
         # Generate enough large blocks to reach pruning disk limit
         # Not pruning yet because we are still below PruneAfterHeight
-        self.mine_large_blocks(self.nodes[0], 600)
+        self.mine_large_blocks(self.nodes[0], 1200)
         self.log.info("- Long chain created")
 
         # Create a wallet with birth height > wallet_birthheight_1
@@ -149,7 +153,7 @@ class WalletPruningTest(BitcoinTestFramework):
         self.mine_large_blocks(self.nodes[0], 5)
 
         # blk00000.dat file is now pruned from node1
-        assert_equal(self.has_block(0), False)
+        assert_equal(self.has_block(7), False)
 
         self.test_wallet_import_pruned(wallet_birthheight_2)
         self.test_wallet_import_pruned_with_missing_blocks(wallet_birthheight_1)

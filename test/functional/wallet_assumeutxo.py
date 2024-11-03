@@ -18,9 +18,9 @@ from test_framework.util import (
 )
 from test_framework.wallet import MiniWallet
 
-START_HEIGHT = 199
-SNAPSHOT_BASE_HEIGHT = 299
-FINAL_HEIGHT = 399
+START_HEIGHT = 2099
+SNAPSHOT_BASE_HEIGHT = 4099
+FINAL_HEIGHT = 4199
 
 
 class AssumeutxoTest(BitcoinTestFramework):
@@ -72,12 +72,14 @@ class AssumeutxoTest(BitcoinTestFramework):
         # though, we have to ferry over the new headers to n1 so that it
         # isn't waiting forever to see the header of the snapshot's base block
         # while disconnected from n0.
-        for i in range(100):
+        blocks = []
+        for i in range(2000):
             if i % 3 == 0:
                 self.mini_wallet.send_self_transfer(from_node=n0)
             self.generate(n0, nblocks=1, sync_fun=self.no_op)
             newblock = n0.getblock(n0.getbestblockhash(), 0)
-
+            
+            blocks.append(newblock)
             # make n1 aware of the new header, but don't give it the block.
             n1.submitheader(newblock)
 
@@ -99,8 +101,8 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         assert_equal(
             dump_output['txoutset_hash'],
-            "a4bf3407ccb2cc0145c49ebba8fa91199f8a3903daf0883875941497d2493c27")
-        assert_equal(dump_output["nchaintx"], 334)
+            "73200c9ce4eb500fb90dc57599ed084a1351eb0bf5de133c8a8ed4662e7e8162")
+        assert_equal(dump_output["nchaintx"], 4767)
         assert_equal(n0.getblockchaininfo()["blocks"], SNAPSHOT_BASE_HEIGHT)
 
         # Mine more blocks on top of the snapshot that n1 hasn't yet seen. This
@@ -129,7 +131,7 @@ class AssumeutxoTest(BitcoinTestFramework):
         assert_equal(n1.getblockchaininfo()["blocks"], SNAPSHOT_BASE_HEIGHT)
 
         self.log.info("Backup can't be loaded during background sync")
-        assert_raises_rpc_error(-4, "Wallet loading failed. Error loading wallet. Wallet requires blocks to be downloaded, and software does not currently support loading wallets while blocks are being downloaded out of order when using assumeutxo snapshots. Wallet should be able to load successfully after node sync reaches height 299", n1.restorewallet, "w", "backup_w.dat")
+        assert_raises_rpc_error(-4, "Wallet loading failed. Error loading wallet. Wallet requires blocks to be downloaded, and software does not currently support loading wallets while blocks are being downloaded out of order when using assumeutxo snapshots. Wallet should be able to load successfully after node sync reaches height 4099", n1.restorewallet, "w", "backup_w.dat")
 
         PAUSE_HEIGHT = FINAL_HEIGHT - 40
 
@@ -141,6 +143,11 @@ class AssumeutxoTest(BitcoinTestFramework):
         #
         # Set `wait_for_connect=False` to avoid a race between performing connection
         # assertions and the -stopatheight tripping.
+        
+        #Qtum sync to a block within rolling checkpoint
+        for i in range(1200):
+            n1.submitblock(blocks[i])
+            
         self.connect_nodes(0, 1, wait_for_connect=False)
 
         n1.wait_until_stopped(timeout=5)

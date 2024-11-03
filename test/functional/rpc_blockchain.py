@@ -196,50 +196,62 @@ class BlockchainTest(BitcoinTestFramework):
         assert height >= 2044 and height <= 2187
 
         assert_equal(gdi_result, {
-          "hash": blockhash,
-          "height": height,
-          "deployments": {
-            'bip34': {'type': 'buried', 'active': True, 'height': 0},
-            'bip66': {'type': 'buried', 'active': True, 'height': 0},
-            'bip65': {'type': 'buried', 'active': True, 'height': 0},
-            'csv': {'type': 'buried', 'active': True, 'height': 432},
-            'segwit': {'type': 'buried', 'active': True, 'height': 0},
-            'testdummy': {
-                'type': 'bip9',
-                'bip9': {
-                    'bit': 28,
-                    'start_time': 0,
-                    'timeout': 9223372036854775807,
-                    'min_activation_height': 0,
-                    'status': 'started',
-                    'status_next': status_next,
-                    'since': 432,
-                    'statistics': {
-                        'period': 144,
-                        'threshold': 108,
-                        'elapsed': height - 143,
-                        'count': height - 143,
-                        'possible': True,
+                'hash': blockhash,
+                'height': height,
+                'deployments': {
+                    'bip34': {
+                        'type': 'buried',
+                        'active': True,
+                        'height': 0
                     },
-                    'signalling': '#'*(height-143),
-                },
-                'active': False
-            },
-            'taproot': {
-                'type': 'bip9',
-                'bip9': {
-                    'start_time': -1,
-                    'timeout': 9223372036854775807,
-                    'min_activation_height': 0,
-                    'status': 'active',
-                    'status_next': 'active',
-                    'since': 0,
-                },
-                'height': 0,
-                'active': True
-            }
-          }
-        })
+                    'bip66': {
+                        'type': 'buried',
+                        'active': True,
+                        'height': 0
+                    },
+                    'bip65': {
+                        'type': 'buried',
+                        'active': True,
+                        'height': 0
+                    },
+                    'csv': {
+                        'type': 'buried',
+                        'active': True,
+                        'height': 432
+                    },
+                    'segwit': {
+                        'type': 'buried',
+                        'active': True,
+                        'height': 0
+                    },
+                    'testdummy': {
+                        'type': 'bip9',
+                        'height': 432,
+                        'active': True,
+                        'bip9': {
+                            'start_time': 0,
+                            'timeout': 9223372036854775807,
+                            'min_activation_height': 0,
+                            'status': 'active',
+                            'since': 432,
+                            'status_next': 'active'
+                        }
+                    },
+                    'taproot': {
+                        'type': 'bip9',
+                        'height': 0,
+                        'active': True,
+                        'bip9': {
+                            'start_time': -1,
+                            'timeout': 9223372036854775807,
+                            'min_activation_height': 0,
+                            'status': 'active',
+                            'since': 0,
+                            'status_next': 'active'
+                        }
+                    }
+                }
+            })
 
     def _test_getdeploymentinfo(self):
         # Note: continues past -stopatheight height, so must be invoked
@@ -480,7 +492,7 @@ class BlockchainTest(BitcoinTestFramework):
 
         # Test setting the first param of getnetworkhashps to -1 returns the average network
         # hashes per second from the last difficulty change.
-        current_block_height = self.nodes[0].getmininginfo()['blocks']
+        current_block_height = self.nodes[0].getblockchaininfo()['blocks']
         blocks_since_last_diff_change = current_block_height % DIFFICULTY_ADJUSTMENT_INTERVAL + 1
         expected_hashes_per_second_since_diff_change = self.nodes[0].getnetworkhashps(blocks_since_last_diff_change)
 

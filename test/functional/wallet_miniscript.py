@@ -210,7 +210,7 @@ class WalletMiniscriptTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.rpc_timeout = 180
         self.extra_args = [
-            ["-addresstype=bech32"],
+            ["-addresstype=bech32", "-minrelaytxfee=0.0000001"],
         ]
 
     def skip_test_if_missing_module(self):

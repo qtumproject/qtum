@@ -17,16 +17,16 @@ pp = pprint.PrettyPrinter()
 class QtumEVMLondonTest(BitcoinTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser, descriptors=False)
-    
+        
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 4
-        shanghai_height=10000
+        cancun_height=10000
         self.extra_args = [
-                ['-txindex', '-logevents=1', '-staking=0','-shanghaiheight={}'.format(shanghai_height), '-addrindex'],
-                ['-txindex', '-logevents=1', '-staking=1', '-shanghaiheight={}'.format(shanghai_height)],
-                ['-txindex', '-logevents=1', '-staking=1', '-shanghaiheight={}'.format(shanghai_height)],
-                ['-txindex', '-logevents=1', '-staking=1', '-shanghaiheight={}'.format(shanghai_height)],
+                ['-txindex', '-logevents=1', '-staking=0','-cancunheight={}'.format(cancun_height), '-addrindex'],
+                ['-txindex', '-logevents=1', '-staking=1', '-cancunheight={}'.format(cancun_height)],
+                ['-txindex', '-logevents=1', '-staking=1', '-cancunheight={}'.format(cancun_height)],
+                ['-txindex', '-logevents=1', '-staking=1', '-cancunheight={}'.format(cancun_height)],
             ]
     
     def skip_test_if_missing_module(self):
@@ -66,13 +66,13 @@ class QtumEVMLondonTest(BitcoinTestFramework):
         
         for n in self.nodes: n.setmocktime(int(time.time()))
     
-        shanghai_height = 4084
+        cancun_height = 4084
     
         self.log.info("Restart nodes")
         self.stop_nodes()
-        self.start_node(0, ['-txindex', '-logevents=1', '-staking=0', '-shanghaiheight={}'.format(shanghai_height), '-addrindex'])
+        self.start_node(0, ['-txindex', '-logevents=1', '-staking=0', '-cancunheight={}'.format(cancun_height), '-addrindex'])
         for i in range(1, self.num_nodes):
-            self.start_node(i, ['-txindex', '-logevents=1', '-staking=1', '-shanghaiheight={}'.format(shanghai_height)])
+            self.start_node(i, ['-txindex', '-logevents=1', '-staking=1', '-cancunheight={}'.format(cancun_height)])
         for i in range(1, self.num_nodes):
             self.connect_nodes(i-1, i)
         
@@ -81,14 +81,14 @@ class QtumEVMLondonTest(BitcoinTestFramework):
         printmempoolwait=False
         while True:
             for i in range(0, self.num_nodes):
-                if(not printforkdone and self.node.getblockcount() >= shanghai_height):
-                    self.log.info("Fork active at height {}, generating more transactions".format(shanghai_height))
+                if(not printforkdone and self.node.getblockcount() >= cancun_height):
+                    self.log.info("Fork active at height {}, generating more transactions".format(cancun_height))
                     printforkdone = True
-                if i>0 and self.node.getblockcount() <= shanghai_height+30:
+                if i>0 and self.node.getblockcount() <= cancun_height+30:
                     self.node.qrc20transfer(self.contract_address, self.sender, self.node_addresses[i-1], "1000000")
                     balances[i-1]["amount"]+=1000000
                     self.nodes[i].sendtoaddress(address=self.node_addresses[i-1], amount=777)
-                elif self.node.getblockcount() > shanghai_height+30 and printforkdone and not printmempoolwait:
+                elif self.node.getblockcount() > cancun_height+30 and printforkdone and not printmempoolwait:
                     self.log.info("Stopped transactions generation, waiting for mempool to be cleared")
                     printmempoolwait= True
             mempoolclear= True;

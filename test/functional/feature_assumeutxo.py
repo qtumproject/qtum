@@ -46,8 +46,8 @@ from test_framework.wallet import (
 )
 
 START_HEIGHT = 2099
-SNAPSHOT_BASE_HEIGHT = 2199
-FINAL_HEIGHT = 2299
+SNAPSHOT_BASE_HEIGHT = 4099
+FINAL_HEIGHT = 4199
 COMPLETE_IDX = {'synced': True, 'best_block_height': FINAL_HEIGHT}
 
 
@@ -96,14 +96,14 @@ class AssumeutxoTest(BitcoinTestFramework):
                 f.write(valid_snapshot_contents[:32])
                 f.write((valid_num_coins + off).to_bytes(8, "little"))
                 f.write(valid_snapshot_contents[32 + 8:])
-            expected_error(log_msg=f"bad snapshot - coins left over after deserializing 2198 coins" if off == -1 else f"bad snapshot format or truncated snapshot after deserializing 2199 coins")
+            expected_error(log_msg=f"bad snapshot - coins left over after deserializing 4098 coins" if off == -1 else f"bad snapshot format or truncated snapshot after deserializing 4099 coins")
 
         self.log.info("  - snapshot file with alternated UTXO data")
         cases = [
-            [b"\xff" * 32, 0, "7d52155c9a9fdc4525b637ef6170568e5dad6fabd0b1fdbb9432010b8453095b"],  # wrong outpoint hash
-            [(1).to_bytes(4, "little"), 32, "9f4d897031ab8547665b4153317ae2fdbf0130c7840b66427ebc48b881cb80ad"],  # wrong outpoint index
-            [b"\x81", 36, "3da966ba9826fb6d2604260e01607b55ba44e1a5de298606b08704bc62570ea8"],  # wrong coin code VARINT((coinbase ? 1 : 0) | (height << 1))
-            [b"\x80", 36, "091e893b3ccb4334378709578025356c8bcb0a623f37c7c4e493133c988648e5"],  # another wrong coin code
+            [b"\xff" * 32, 0, "b5a0110eb8ffa80d08b0a201313a0e09006d0677210b0941e247710506a13cb5"],  # wrong outpoint hash
+            [(1).to_bytes(4, "little"), 32, "4a2d96ddec10d00f9de83dd5b2b26419d464b4639edd4d3dfd33fdb7948e241e"],  # wrong outpoint index
+            [b"\x81", 36, "c67efb6331ae90c591d449c75fa8bdbef2e9c4d283d6f82586d017fbbcae6b71"],  # wrong coin code VARINT((coinbase ? 1 : 0) | (height << 1))
+            [b"\x80", 36, "42d4c50bb80a6c266605b524314879e6f27e0e01fd5bb8340dc9a188ab056b9f"],  # another wrong coin code
         ]
 
         for content, offset, wrong_hash in cases:
@@ -111,7 +111,7 @@ class AssumeutxoTest(BitcoinTestFramework):
                 f.write(valid_snapshot_contents[:(32 + 8 + offset)])
                 f.write(content)
                 f.write(valid_snapshot_contents[(32 + 8 + offset + len(content)):])
-            expected_error(log_msg=f"[snapshot] bad snapshot content hash: expected a9e20f6c0c6531e44789f7a29df1939fa1c2e7d5c451b25c5201880628c57940, got {wrong_hash}")
+            expected_error(log_msg=f"[snapshot] bad snapshot content hash: expected 73200c9ce4eb500fb90dc57599ed084a1351eb0bf5de133c8a8ed4662e7e8162, got {wrong_hash}")
 
     def test_invalid_chainstate_scenarios(self):
         self.log.info("Test different scenarios of invalid snapshot chainstate in datadir")
@@ -173,12 +173,14 @@ class AssumeutxoTest(BitcoinTestFramework):
         # though, we have to ferry over the new headers to n1 so that it
         # isn't waiting forever to see the header of the snapshot's base block
         # while disconnected from n0.
-        for i in range(100):
+        blocks = []
+        for i in range(2000):
             if i % 3 == 0:
                 self.mini_wallet.send_self_transfer(from_node=n0)
             self.generate(n0, nblocks=1, sync_fun=self.no_op)
             newblock = n0.getblock(n0.getbestblockhash(), 0)
-
+            
+            blocks.append(newblock)
             # make n1 aware of the new header, but don't give it the block.
             n1.submitheader(newblock)
             n2.submitheader(newblock)
@@ -197,8 +199,8 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         assert_equal(
             dump_output['txoutset_hash'],
-            "a9e20f6c0c6531e44789f7a29df1939fa1c2e7d5c451b25c5201880628c57940")
-        assert_equal(dump_output["nchaintx"], 2200)
+            "73200c9ce4eb500fb90dc57599ed084a1351eb0bf5de133c8a8ed4662e7e8162")
+        assert_equal(dump_output["nchaintx"], 4767)
         assert_equal(n0.getblockchaininfo()["blocks"], SNAPSHOT_BASE_HEIGHT)
 
         # Mine more blocks on top of the snapshot that n1 hasn't yet seen. This
@@ -236,7 +238,7 @@ class AssumeutxoTest(BitcoinTestFramework):
         prev_tx = n0.getblock(spend_coin_blockhash, 3)['tx'][0]
         prevout = {"txid": prev_tx['txid'], "vout": 0, "scriptPubKey": prev_tx['vout'][0]['scriptPubKey']['hex']}
         privkey = n0.get_deterministic_priv_key().key
-        raw_tx = n1.createrawtransaction([prevout], {getnewdestination()[2]: 24.99})
+        raw_tx = n1.createrawtransaction([prevout], {getnewdestination()[2]: 19999.99})
         signed_tx = n1.signrawtransactionwithkey(raw_tx, [privkey], [prevout])['hex']
         signed_txid = tx_from_hex(signed_tx).rehash()
 
@@ -250,6 +252,10 @@ class AssumeutxoTest(BitcoinTestFramework):
         self.log.info("Restarting node to stop at height %d", PAUSE_HEIGHT)
         self.restart_node(1, extra_args=[
             f"-stopatheight={PAUSE_HEIGHT}", *self.extra_args[1]])
+        
+        #Qtum sync to a block within rolling checkpoint
+        for i in range(1200):
+            n1.submitblock(blocks[i])
 
         # Finally connect the nodes and let them sync.
         #
@@ -262,7 +268,7 @@ class AssumeutxoTest(BitcoinTestFramework):
         self.log.info("Checking that blocks are segmented on disk")
         assert self.has_blockfile(n1, "00000"), "normal blockfile missing"
         assert self.has_blockfile(n1, "00001"), "assumed blockfile missing"
-        assert not self.has_blockfile(n1, "00002"), "too many blockfiles"
+        assert not self.has_blockfile(n1, "00010"), "too many blockfiles"
 
         self.log.info("Restarted node before snapshot validation completed, reloading...")
         self.restart_node(1, extra_args=self.extra_args[1])
@@ -274,7 +280,7 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         self.log.info("Ensuring background validation completes")
         self.wait_until(lambda: len(n1.getchainstates()['chainstates']) == 1)
-
+            
         # Ensure indexes have synced.
         completed_idx_state = {
             'basic block filter index': COMPLETE_IDX,
@@ -316,7 +322,11 @@ class AssumeutxoTest(BitcoinTestFramework):
         assert_equal(snapshot['blocks'], SNAPSHOT_BASE_HEIGHT)
         assert_equal(snapshot['snapshot_blockhash'], dump_output['base_hash'])
         assert_equal(snapshot['validated'], False)
-
+        
+        #Qtum sync to a block within rolling checkpoint
+        for i in range(1200):
+            n2.submitblock(blocks[i])
+        
         self.connect_nodes(0, 2)
         self.wait_until(lambda: n2.getchainstates()['chainstates'][-1]['blocks'] == FINAL_HEIGHT)
         self.sync_blocks()
