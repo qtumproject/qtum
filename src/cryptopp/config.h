@@ -910,7 +910,7 @@ NAMESPACE_END
 // OK to comment the following out, but please report it so we can fix it.
 // C++17 value taken from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4567.pdf.
 #if (defined(__cplusplus) && (__cplusplus >= 199711L) && (__cplusplus < 201402L)) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
-# error "std::uncaught_exceptions is not available. This is likely a configuration error."
+# error "std::uncaught_exception is not available. This is likely a configuration error."
 #endif
 
 #endif

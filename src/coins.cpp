@@ -8,7 +8,6 @@
 #include <logging.h>
 #include <random.h>
 #include <util/trace.h>
-#include <version.h>
 
 bool CCoinsView::GetCoin(const COutPoint &outpoint, Coin &coin) const { return false; }
 uint256 CCoinsView::GetBestBlock() const { return uint256(); }
@@ -34,7 +33,7 @@ size_t CCoinsViewBacked::EstimateSize() const { return base->EstimateSize(); }
 
 CCoinsViewCache::CCoinsViewCache(CCoinsView* baseIn, bool deterministic) :
     CCoinsViewBacked(baseIn), m_deterministic(deterministic),
-    cacheCoins(0, SaltedOutpointHasher(/*deterministic=*/deterministic))
+    cacheCoins(0, SaltedOutpointHasher(/*deterministic=*/deterministic), CCoinsMap::key_equal{}, &m_cache_coins_memory_resource)
 {}
 
 size_t CCoinsViewCache::DynamicMemoryUsage() const {
@@ -119,7 +118,7 @@ void CCoinsViewCache::EmplaceCoinInternalDANGER(COutPoint&& outpoint, Coin&& coi
 void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight, bool check_for_overwrite) {
     bool fCoinbase = tx.IsCoinBase();
     bool fCoinstake = tx.IsCoinStake();
-    const uint256& txid = tx.GetHash();
+    const Txid& txid = tx.GetHash();
     for (size_t i = 0; i < tx.vout.size(); ++i) {
         bool overwrite = check_for_overwrite ? cache.HaveCoin(COutPoint(txid, i)) : fCoinbase;
         // Coinbase transactions can always be overwritten, in order to correctly
@@ -256,9 +255,12 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn
 
 bool CCoinsViewCache::Flush() {
     bool fOk = base->BatchWrite(cacheCoins, hashBlock, /*erase=*/true);
-    if (fOk && !cacheCoins.empty()) {
-        /* BatchWrite must erase all cacheCoins elements when erase=true. */
-        throw std::logic_error("Not all cached coins were erased");
+    if (fOk) {
+        if (!cacheCoins.empty()) {
+            /* BatchWrite must erase all cacheCoins elements when erase=true. */
+            throw std::logic_error("Not all cached coins were erased");
+        }
+        ReallocateCache();
     }
     cachedCoinsUsage = 0;
     return fOk;
@@ -330,7 +332,9 @@ void CCoinsViewCache::ReallocateCache()
     // Cache should be empty when we're calling this.
     assert(cacheCoins.size() == 0);
     cacheCoins.~CCoinsMap();
-    ::new (&cacheCoins) CCoinsMap(0, SaltedOutpointHasher(/*deterministic=*/m_deterministic));
+    m_cache_coins_memory_resource.~CCoinsMapMemoryResource();
+    ::new (&m_cache_coins_memory_resource) CCoinsMapMemoryResource{};
+    ::new (&cacheCoins) CCoinsMap{0, SaltedOutpointHasher{/*deterministic=*/m_deterministic}, CCoinsMap::key_equal{}, &m_cache_coins_memory_resource};
 }
 
 void CCoinsViewCache::SanityCheck() const
@@ -350,10 +354,10 @@ void CCoinsViewCache::SanityCheck() const
     assert(recomputed_usage == cachedCoinsUsage);
 }
 
-static const size_t MIN_TRANSACTION_OUTPUT_WEIGHT = WITNESS_SCALE_FACTOR * ::GetSerializeSize(CTxOut(), PROTOCOL_VERSION);
+static const size_t MIN_TRANSACTION_OUTPUT_WEIGHT = WITNESS_SCALE_FACTOR * ::GetSerializeSize(CTxOut());
 static const size_t MAX_OUTPUTS_PER_BLOCK = dgpMaxBlockWeight / MIN_TRANSACTION_OUTPUT_WEIGHT;
 
-const Coin& AccessByTxid(const CCoinsViewCache& view, const uint256& txid)
+const Coin& AccessByTxid(const CCoinsViewCache& view, const Txid& txid)
 {
     COutPoint iter(txid, 0);
     while (iter.n < MAX_OUTPUTS_PER_BLOCK) {
@@ -364,11 +368,13 @@ const Coin& AccessByTxid(const CCoinsViewCache& view, const uint256& txid)
     return coinEmpty;
 }
 
-bool CCoinsViewErrorCatcher::GetCoin(const COutPoint &outpoint, Coin &coin) const {
+template <typename Func>
+static bool ExecuteBackedWrapper(Func func, const std::vector<std::function<void()>>& err_callbacks)
+{
     try {
-        return CCoinsViewBacked::GetCoin(outpoint, coin);
+        return func();
     } catch(const std::runtime_error& e) {
-        for (const auto& f : m_err_callbacks) {
+        for (const auto& f : err_callbacks) {
             f();
         }
         LogPrintf("Error reading from database: %s\n", e.what());
@@ -378,6 +384,14 @@ bool CCoinsViewErrorCatcher::GetCoin(const COutPoint &outpoint, Coin &coin) cons
         // continue anyway, and all writes should be atomic.
         std::abort();
     }
+}
+
+bool CCoinsViewErrorCatcher::GetCoin(const COutPoint &outpoint, Coin &coin) const {
+    return ExecuteBackedWrapper([&]() { return CCoinsViewBacked::GetCoin(outpoint, coin); }, m_err_callbacks);
+}
+
+bool CCoinsViewErrorCatcher::HaveCoin(const COutPoint &outpoint) const {
+    return ExecuteBackedWrapper([&]() { return CCoinsViewBacked::HaveCoin(outpoint); }, m_err_callbacks);
 }
 
 const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const

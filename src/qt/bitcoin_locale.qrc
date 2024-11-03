@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
     <qresource prefix="/translations">
+        <file alias="af">locale/bitcoin_af.qm</file>
         <file alias="am">locale/bitcoin_am.qm</file>
         <file alias="ar">locale/bitcoin_ar.qm</file>
         <file alias="az">locale/bitcoin_az.qm</file>
@@ -32,6 +33,7 @@
         <file alias="fa">locale/bitcoin_fa.qm</file>
         <file alias="fi">locale/bitcoin_fi.qm</file>
         <file alias="fil">locale/bitcoin_fil.qm</file>
+        <file alias="fo">locale/bitcoin_fo.qm</file>
         <file alias="fr">locale/bitcoin_fr.qm</file>
         <file alias="fr_CM">locale/bitcoin_fr_CM.qm</file>
         <file alias="fr_LU">locale/bitcoin_fr_LU.qm</file>
@@ -53,6 +55,7 @@
         <file alias="ja">locale/bitcoin_ja.qm</file>
         <file alias="ka">locale/bitcoin_ka.qm</file>
         <file alias="kk">locale/bitcoin_kk.qm</file>
+        <file alias="kk@latin">locale/bitcoin_kk@latin.qm</file>
         <file alias="kl">locale/bitcoin_kl.qm</file>
         <file alias="km">locale/bitcoin_km.qm</file>
         <file alias="kn">locale/bitcoin_kn.qm</file>
@@ -61,9 +64,11 @@
         <file alias="ku_IQ">locale/bitcoin_ku_IQ.qm</file>
         <file alias="ky">locale/bitcoin_ky.qm</file>
         <file alias="la">locale/bitcoin_la.qm</file>
+        <file alias="lb">locale/bitcoin_lb.qm</file>
         <file alias="lt">locale/bitcoin_lt.qm</file>
         <file alias="lv">locale/bitcoin_lv.qm</file>
         <file alias="mg">locale/bitcoin_mg.qm</file>
+        <file alias="mi">locale/bitcoin_mi.qm</file>
         <file alias="mk">locale/bitcoin_mk.qm</file>
         <file alias="ml">locale/bitcoin_ml.qm</file>
         <file alias="mn">locale/bitcoin_mn.qm</file>
@@ -84,6 +89,7 @@
         <file alias="ro">locale/bitcoin_ro.qm</file>
         <file alias="ru">locale/bitcoin_ru.qm</file>
         <file alias="sc">locale/bitcoin_sc.qm</file>
+        <file alias="sd">locale/bitcoin_sd.qm</file>
         <file alias="si">locale/bitcoin_si.qm</file>
         <file alias="sk">locale/bitcoin_sk.qm</file>
         <file alias="sl">locale/bitcoin_sl.qm</file>
@@ -98,7 +104,6 @@
         <file alias="szl">locale/bitcoin_szl.qm</file>
         <file alias="ta">locale/bitcoin_ta.qm</file>
         <file alias="te">locale/bitcoin_te.qm</file>
-        <file alias="th">locale/bitcoin_th.qm</file>
         <file alias="tk">locale/bitcoin_tk.qm</file>
         <file alias="tl">locale/bitcoin_tl.qm</file>
         <file alias="tr">locale/bitcoin_tr.qm</file>

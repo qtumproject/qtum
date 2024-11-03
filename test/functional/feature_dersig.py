@@ -6,6 +6,7 @@
 
 Test the DERSIG soft-fork activation on regtest.
 """
+
 from decimal import Decimal
 from test_framework.blocktools import (
     create_block,
@@ -72,6 +73,7 @@ class BIP66Test(BitcoinTestFramework):
         peer = self.nodes[0].add_p2p_connection(P2PInterface())
         self.miniwallet = MiniWallet(self.nodes[0], mode=MiniWalletMode.RAW_P2PK)
 
+
         self.log.info("Mining %d blocks", DERSIG_HEIGHT - 2)
         self.coinbase_txids = [self.nodes[0].getblock(b)['tx'][0] for b in self.generate(self.miniwallet, DERSIG_HEIGHT - 2)]
 
@@ -119,7 +121,7 @@ class BIP66Test(BitcoinTestFramework):
                 'txid': spendtx.hash,
                 'wtxid': spendtx.getwtxid(),
                 'allowed': False,
-                'reject-reason': 'non-mandatory-script-verify-flag (Non-canonical DER signature)',
+                'reject-reason': 'mandatory-script-verify-flag-failed (Non-canonical DER signature)',
             }],
             self.nodes[0].testmempoolaccept(rawtxs=[spendtx.serialize().hex()], maxfeerate=0),
         )
@@ -129,7 +131,7 @@ class BIP66Test(BitcoinTestFramework):
         block.hashMerkleRoot = block.calc_merkle_root()
         block.solve()
 
-        with self.nodes[0].assert_debug_log(expected_msgs=[f'CheckInputScripts on {block.vtx[-1].hash} failed with non-mandatory-script-verify-flag (Non-canonical DER signature)']):
+        with self.nodes[0].assert_debug_log(expected_msgs=[f'CheckInputScripts on {block.vtx[-1].hash} failed with mandatory-script-verify-flag-failed (Non-canonical DER signature)']):
             peer.send_and_ping(msg_block(block))
             assert_equal(int(self.nodes[0].getbestblockhash(), 16), tip)
             peer.sync_with_ping()

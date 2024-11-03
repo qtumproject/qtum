@@ -92,7 +92,7 @@ class PruneTest(BitcoinTestFramework):
     def setup_network(self):
         self.setup_nodes()
 
-        self.prunedir = os.path.join(self.nodes[2].datadir, self.chain, 'blocks', '')
+        self.prunedir = os.path.join(self.nodes[2].blocks_path, '')
 
         self.connect_nodes(0, 1)
         self.connect_nodes(1, 2)
@@ -135,6 +135,10 @@ class PruneTest(BitcoinTestFramework):
             expected_msg='Error: Prune mode is incompatible with -reindex-chainstate. Use full -reindex instead.',
             extra_args=['-prune=550', '-reindex-chainstate'],
         )
+
+    def test_rescan_blockchain(self):
+        self.restart_node(0, ["-prune=550"])
+        assert_raises_rpc_error(-1, "Can't rescan beyond pruned data. Use RPC call getblockchaininfo to determine your pruned height.", self.nodes[0].rescanblockchain)
 
     def test_height_min(self):
         assert os.path.isfile(os.path.join(self.prunedir, "blk00000.dat")), "blk00000.dat is missing, pruning too early"
@@ -287,7 +291,7 @@ class PruneTest(BitcoinTestFramework):
             assert_equal(ret + 1, node.getblockchaininfo()['pruneheight'])
 
         def has_block(index):
-            return os.path.isfile(os.path.join(self.nodes[node_number].datadir, self.chain, "blocks", f"blk{index:05}.dat"))
+            return os.path.isfile(os.path.join(self.nodes[node_number].blocks_path, f"blk{index:05}.dat"))
 
         # should not prune because chain tip of node 3 (995) < PruneAfterHeight (1000)
         # assert_raises_rpc_error(-1, "Blockchain is too short for pruning", node.pruneblockchain, height(3550))
@@ -470,6 +474,9 @@ class PruneTest(BitcoinTestFramework):
             self.log.info("Test wallet re-scan")
             self.wallet_test()
 
+            self.log.info("Test it's not possible to rescan beyond pruned data")
+            self.test_rescan_blockchain()
+
         self.log.info("Test invalid pruning command line options")
         self.test_invalid_command_line_options()
 
@@ -480,8 +487,8 @@ class PruneTest(BitcoinTestFramework):
     def test_scanblocks_pruned(self):
         node = self.nodes[5]
         genesis_blockhash = node.getblockhash(0)
-        false_positive_spk = bytes.fromhex("001400000000000000000000000000000000000cadcb")
-
+        false_positive_spk = bytes.fromhex("d271948696ba4beef1e514e7040f8d5d6a9eb86add")
+        
         assert genesis_blockhash in node.scanblocks(
             "start", [{"desc": f"raw({false_positive_spk.hex()})"}], 0, 0)['relevant_blocks']
 

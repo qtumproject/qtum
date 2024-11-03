@@ -121,6 +121,13 @@ struct Change
 
 using ChangeLog = std::vector<Change>;
 
+class TransientAccount
+{
+public:
+    /// The account transient storage.
+    std::unordered_map<u256, u256> transientStorage;
+};
+
 /**
  * Model of an Ethereum state, essentially a facade for the trie.
  *
@@ -233,6 +240,13 @@ public:
     /// Set the value of a storage position of an account.
     void setStorage(Address const& _contract, u256 const& _location, u256 const& _value);
 
+    /// Get the value of a transient storage position of an account.
+    /// @returns 0 if no account exists at that address.
+    u256 transientStorage(Address const& _contract, u256 const& _memory) const;
+
+    /// Set the value of a transient storage position of an account.
+    void setTransientStorage(Address const& _contract, u256 const& _location, u256 const& _value);
+
     /// Get the original value of a storage position of an account (before modifications saved in
     /// account cache).
     /// @returns 0 if no account exists at that address.
@@ -240,6 +254,9 @@ public:
 
     /// Clear the storage root hash of an account to the hash of the empty trie.
     void clearStorage(Address const& _contract);
+
+    /// Clear the transient storage.
+    void clearTransientStorage();
 
     /// Create a contract at the given address (with unset code and unchanged balance).
     void createContract(Address const& _address);
@@ -340,6 +357,8 @@ protected:
     /// Our address cache. This stores the states of each address that has (or at least might have)
     /// been changed.
     mutable std::unordered_map<Address, Account> m_cache;
+    /// Our address cache. This stores the states of each address that has transient storage.
+    mutable std::unordered_map<Address, TransientAccount> m_transientCache;
     /// Tracks entries in m_cache that can potentially be purged if it grows too large.
     mutable std::vector<Address> m_unchangedCacheEntries;
     /// Tracks addresses that are known to not exist.

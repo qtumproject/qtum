@@ -2,10 +2,6 @@
 <context>
     <name>AddressBookPage</name>
     <message>
-        <source>Right-click to edit address or label</source>
-        <translation type="unfinished">Valitse hiiren oikealla painikkeella muokataksesi osoitetta tai nimikettä</translation>
-    </message>
-    <message>
         <source>Create a new address</source>
         <translation type="unfinished">Luo uusi osoite</translation>
     </message>
@@ -58,14 +54,6 @@
         <translation type="unfinished">V&amp;alitse</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Lähetysosoitteet</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Vastaanotto-osoitteet</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Nämä ovat Qtum-osoitteesi maksujen lähettämistä varten. Tarkista aina määrä ja vastaanotto-osoite ennen kolikoiden lähettämistä.</translation>
     </message>
@@ -100,6 +88,14 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <source>There was an error trying to save the address list to %1. Please try again.</source>
         <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
         <translation type="unfinished">Virhe tallentaessa osoitelistaa kohteeseen %1. Yritä uudelleen.</translation>
+    </message>
+    <message>
+        <source>Sending addresses - %1</source>
+        <translation type="unfinished">Osoitteiden lähettäminen - %1</translation>
+    </message>
+    <message>
+        <source>Receiving addresses - %1</source>
+        <translation type="unfinished">Vastaanottava osoite - %1</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
@@ -262,6 +258,10 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Asetustiedosto %1 saattaa olla vioittunut tai virheellinen.</translation>
     </message>
     <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">Runaway poikkeus</translation>
+    </message>
+    <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Peruuttamaton virhe on tapahtunut. %1 ei voi enää jatkaa turvallisesti ja sammutetaan.</translation>
     </message>
@@ -282,6 +282,11 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Haluatko palauttaa asetukset oletusarvoihin vai keskeyttää tekemättä muutoksia?</translation>
     </message>
     <message>
+        <source>A fatal error occurred. Check that settings file is writable, or try running with -nosettings.</source>
+        <extracomment>Explanatory text shown on startup when the settings file could not be written. Prompts user to check that we have the ability to write to the file. Explains that the user has the option of running without a settings file.</extracomment>
+        <translation type="unfinished">Tapahtui kohtalokas virhe. Tarkista, että asetustiedosto on kirjoitettavissa, tai yritä suorittaa ohjelma -nosettings -asetuksilla.</translation>
+    </message>
+    <message>
         <source>Error: %1</source>
         <translation type="unfinished">Virhe: %1</translation>
     </message>
@@ -292,6 +297,18 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>unknown</source>
         <translation type="unfinished">tuntematon</translation>
+    </message>
+    <message>
+        <source>Embedded "%1"</source>
+        <translation type="unfinished">upotettu "%1"</translation>
+    </message>
+    <message>
+        <source>Default system font "%1"</source>
+        <translation type="unfinished">Järjestelmän oletuskirjasin "%1"</translation>
+    </message>
+    <message>
+        <source>Custom…</source>
+        <translation type="unfinished">Mukautettu…</translation>
     </message>
     <message>
         <source>Amount</source>
@@ -306,6 +323,12 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Reitittämätön</translation>
     </message>
     <message>
+        <source>Onion</source>
+        <comment>network name</comment>
+        <extracomment>Name of Tor network in peer info</extracomment>
+        <translation type="unfinished">Sipuli</translation>
+    </message>
+    <message>
         <source>Inbound</source>
         <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
         <translation type="unfinished">Sisääntuleva</translation>
@@ -316,9 +339,24 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Ulosmenevä</translation>
     </message>
     <message>
+        <source>Full Relay</source>
+        <extracomment>Peer connection type that relays all network information.</extracomment>
+        <translation type="unfinished">Täysi Rele</translation>
+    </message>
+    <message>
+        <source>Block Relay</source>
+        <extracomment>Peer connection type that relays network information about blocks and not transactions or addresses.</extracomment>
+        <translation type="unfinished">Lohko Rele</translation>
+    </message>
+    <message>
         <source>Manual</source>
         <extracomment>Peer connection type established manually through one of several methods.</extracomment>
         <translation type="unfinished">Manuaali</translation>
+    </message>
+    <message>
+        <source>Feeler</source>
+        <extracomment>Short-lived peer connection type that tests the aliveness of known addresses.</extracomment>
+        <translation type="unfinished">Tunturi</translation>
     </message>
     <message>
         <source>Address Fetch</source>
@@ -619,6 +657,10 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Lataa osittain allekirjoitettu qtum-siirtotapahtuma</translation>
     </message>
     <message>
+        <source>Load PSBT from &amp;clipboard…</source>
+        <translation type="unfinished">Lataa PSBT &amp;leikepöydältä…</translation>
+    </message>
+    <message>
         <source>Load Partially Signed Qtum Transaction from clipboard</source>
         <translation type="unfinished">Lataa osittain allekirjoitettu qtum-siirtotapahtuma leikepöydältä</translation>
     </message>
@@ -667,6 +709,14 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>Close all wallets</source>
         <translation type="unfinished">Sulje kaikki lompakot</translation>
+    </message>
+    <message>
+        <source>Migrate Wallet</source>
+        <translation type="unfinished">Siirrä lompakko</translation>
+    </message>
+    <message>
+        <source>Migrate a wallet</source>
+        <translation type="unfinished">Siirrä lompakko</translation>
     </message>
     <message>
         <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
@@ -728,8 +778,12 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <source>&amp;Hide</source>
         <translation type="unfinished">&amp;Piilota</translation>
     </message>
+    <message>
+        <source>S&amp;how</source>
+        <translation type="unfinished">N&amp;äytä</translation>
+    </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source> 
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>%n aktiivinen yhteys Qtum-verkkoon.</numerusform>
@@ -755,6 +809,18 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <source>Enable network activity</source>
         <extracomment>A context menu item. The network activity was disabled previously.</extracomment>
         <translation type="unfinished">Ota verkkotoiminta käyttöön</translation>
+    </message>
+    <message>
+        <source>Pre-syncing Headers (%1%)…</source>
+        <translation type="unfinished">Esi synkronoidaan otsikot (%1%)…</translation>
+    </message>
+    <message>
+        <source>Error creating wallet</source>
+        <translation type="unfinished">Virhe luodessa lompakkoa</translation>
+    </message>
+    <message>
+        <source>Cannot create new wallet, the software was compiled without sqlite support (required for descriptor wallets)</source>
+        <translation type="unfinished">Uutta lompakkoa ei voi luoda, ohjelmisto on käännetty ilman sqlite-tukea (tarvitaan kuvauslompakoissa)</translation>
     </message>
     <message>
         <source>Error: %1</source>
@@ -863,10 +929,6 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Palkkio:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Tomu:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Palkkion jälkeen:</translation>
     </message>
@@ -927,6 +989,14 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Kopioi &amp;määrä</translation>
     </message>
     <message>
+        <source>Copy transaction &amp;ID and output index</source>
+        <translation type="unfinished">Kopioi tapahtumatunnus &amp;ID ja tulosindeksi</translation>
+    </message>
+    <message>
+        <source>L&amp;ock unspent</source>
+        <translation type="unfinished">L&amp;kitse käyttämättömät</translation>
+    </message>
+    <message>
         <source>&amp;Unlock unspent</source>
         <translation type="unfinished">&amp;Avaa käyttämättömien lukitus</translation>
     </message>
@@ -947,28 +1017,12 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Kopioi tavut</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopioi tomu</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopioi vaihtorahat</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 lukittu)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">kyllä</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ei</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Tämä nimike muuttuu punaiseksi, jos jokin vastaanottajista on saamassa tämänhetkistä tomun rajaa pienemmän summan.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1030,6 +1084,37 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     </message>
 </context>
 <context>
+    <name>MigrateWalletActivity</name>
+    <message>
+        <source>Migrate wallet</source>
+        <translation type="unfinished">Siirrä lompakko</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to migrate the wallet &lt;i&gt;%1&lt;/i&gt;?</source>
+        <translation type="unfinished">Oletko varma, että haluat siirtää lompakon &lt;i&gt;%1&lt;/i&gt;?</translation>
+    </message>
+    <message>
+        <source>Migrate Wallet</source>
+        <translation type="unfinished">Siirrä lompakko</translation>
+    </message>
+    <message>
+        <source>Migrating Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <translation type="unfinished">Siirretään lompakkoa &lt;b&gt;%1&lt;/b&gt;...</translation>
+    </message>
+    <message>
+        <source>The wallet '%1' was migrated successfully.</source>
+        <translation type="unfinished">Lompakko '%1' siirrettiin onnistuneesti.</translation>
+    </message>
+    <message>
+        <source>Migration failed</source>
+        <translation type="unfinished">Siirto epäonnistui</translation>
+    </message>
+    <message>
+        <source>Migration Successful</source>
+        <translation type="unfinished">Siirto onnistui</translation>
+    </message>
+</context>
+<context>
     <name>OpenWalletActivity</name>
     <message>
         <source>Open wallet failed</source>
@@ -1071,7 +1156,17 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <extracomment>Title of message box which is displayed when the wallet could not be restored.</extracomment>
         <translation type="unfinished">Lompakon palauttaminen epäonnistui</translation>
     </message>
-    </context>
+    <message>
+        <source>Restore wallet warning</source>
+        <extracomment>Title of message box which is displayed when the wallet is restored with some warning.</extracomment>
+        <translation type="unfinished">Palauta lompakkovaroitus</translation>
+    </message>
+    <message>
+        <source>Restore wallet message</source>
+        <extracomment>Title of message box which is displayed when the wallet is successfully restored.</extracomment>
+        <translation type="unfinished">Palauta lompakkoviesti</translation>
+    </message>
+</context>
 <context>
     <name>WalletController</name>
     <message>
@@ -1096,6 +1191,14 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>Create Wallet</source>
         <translation type="unfinished">Luo lompakko</translation>
+    </message>
+    <message>
+        <source>You are one step away from creating your new wallet!</source>
+        <translation type="unfinished">Olet yhden askeleen päässä uuden lompakon luomisesta!</translation>
+    </message>
+    <message>
+        <source>Please provide a name and, if desired, enable any advanced options</source>
+        <translation type="unfinished">Anna nimi ja ota halutessasi käyttöön lisäasetukset</translation>
     </message>
     <message>
         <source>Wallet Name</source>
@@ -1134,14 +1237,6 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Luo tyhjä lompakko</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Käytä kuvaajia sciptPubKeyn hallinnointiin</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Kuvaajalompakko</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Käytä ulkoista allekirjoituslaitetta, kuten laitteistolompakkoa. Määritä ulkoisen allekirjoittajan skripti ensin lompakon asetuksissa.</translation>
     </message>
@@ -1152,10 +1247,6 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>Create</source>
         <translation type="unfinished">Luo</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Koostettu ilman sqlite-tukea (vaaditaan descriptor-lompakoille)</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1200,7 +1291,7 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Antamasi osoite "%1" ei ole kelvollinen Qtum-osoite.</translation>
-   </message>
+    </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
         <translation type="unfinished">Osoite "%1" on jo vastaanotto-osoitteena nimellä "%2", joten sitä ei voi lisätä lähetysosoitteeksi.</translation>
@@ -1246,8 +1337,8 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
-            <numerusform />
-            <numerusform />
+            <numerusform>%n GB vapaata tilaa</numerusform>
+            <numerusform>%n GB vapaata tilaa</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1263,6 +1354,10 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
             <numerusform>(tarvitaan %n GB koko ketjua varten)</numerusform>
             <numerusform>(tarvitaan %n GB koko ketjua varten)</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Choose data directory</source>
+        <translation type="unfinished">Valitse data-kansio</translation>
     </message>
     <message>
         <source>At least %1 GB of data will be stored in this directory, and it will grow over time.</source>
@@ -1323,6 +1418,10 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>This initial synchronisation is very demanding, and may expose hardware problems with your computer that had previously gone unnoticed. Each time you run %1, it will continue downloading where it left off.</source>
         <translation type="unfinished">Tämä alustava synkronointi on erittäin vaativa ja saattaa tuoda esiin laiteongelmia, joita ei aikaisemmin ole havaittu. Aina kun ajat %1:n, jatketaan siitä kohdasta, mihin viimeksi jäätiin.</translation>
+    </message>
+    <message>
+        <source>When you click OK, %1 will begin to download and process the full %4 block chain (%2 GB) starting with the earliest transactions in %3 when %4 initially launched.</source>
+        <translation type="unfinished">Kun napsautat OK, %1 alkaa ladata ja käsitellä koko %4 lohkoketjun (%2 GB) alkaen ensimmäisistä tapahtumista %3 kun %4 alun perin käynnistetty.</translation>
     </message>
     <message>
         <source>If you have chosen to limit block chain storage (pruning), the historical data must still be downloaded and processed, but will be deleted afterward to keep your disk usage low.</source>
@@ -1421,13 +1520,17 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <source>Unknown. Syncing Headers (%1, %2%)…</source>
         <translation type="unfinished">Tuntematon. Synkronoidaan järjestysnumeroita (%1,%2%)...</translation>
     </message>
-    </context>
+    <message>
+        <source>Unknown. Pre-syncing Headers (%1, %2%)…</source>
+        <translation type="unfinished">Tuntematon. Esi synkronointi otsikot (%1, %2%)...</translation>
+    </message>
+</context>
 <context>
     <name>OpenURIDialog</name>
     <message>
         <source>Open qtum URI</source>
         <translation type="unfinished">Avaa qtum URI</translation>
-   </message>
+    </message>
     <message>
         <source>Paste address from clipboard</source>
         <extracomment>Tooltip text for button that allows you to paste an address that is in your clipboard.</extracomment>
@@ -1465,6 +1568,10 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Säikeiden määrä skriptien &amp;varmistuksessa</translation>
     </message>
     <message>
+        <source>Full path to a %1 compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
+        <translation type="unfinished">Täysi polku %1 yhteensopivaan komentosarjaan (esim. C:\Downloads\hwi.exe tai /Users/you/Downloads/hwi.py). Varo: haittaohjelmat voivat varastaa kolikkosi!</translation>
+    </message>
+    <message>
         <source>IP address of the proxy (e.g. IPv4: 127.0.0.1 / IPv6: ::1)</source>
         <translation type="unfinished">IP osoite proxille (esim. IPv4: 127.0.0.1 / IPv6: ::1)</translation>
     </message>
@@ -1475,6 +1582,10 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>Minimize instead of exit the application when the window is closed. When this option is enabled, the application will be closed only after selecting Exit in the menu.</source>
         <translation type="unfinished">Minimoi ikkuna ohjelman sulkemisen sijasta kun ikkuna suljetaan. Kun tämä asetus on käytössä, ohjelma suljetaan vain valittaessa valikosta Poistu.</translation>
+    </message>
+    <message>
+        <source>Font in the Overview tab: </source>
+        <translation type="unfinished">Fontti Yleiskatsaus-välilehdellä:</translation>
     </message>
     <message>
         <source>Options set in this dialog are overridden by the command line:</source>
@@ -1518,6 +1629,11 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Tietokannan välimuistin enimmäiskoko. Suurempi välimuisti voi nopeuttaa synkronointia, mutta sen jälkeen hyöty ei ole enää niin merkittävä useimmissa käyttötapauksissa. Välimuistin koon pienentäminen vähentää muistin käyttöä. Käyttämätön mempool-muisti jaetaan tätä välimuistia varten.</translation>
     </message>
     <message>
+        <source>Set the number of script verification threads. Negative values correspond to the number of cores you want to leave free to the system.</source>
+        <extracomment>Tooltip text for Options window setting that sets the number of script verification threads. Explains that negative values mean to leave these many cores free to the system.</extracomment>
+        <translation type="unfinished">Aseta komentosarjan vahvistusketjujen määrä. Negatiiviset arvot vastaavat niiden ytimien määrää, jotka haluat jättää järjestelmälle vapaiksi.</translation>
+    </message>
+    <message>
         <source>(0 = auto, &lt;0 = leave that many cores free)</source>
         <translation type="unfinished">(0 = auto, &lt;0 = jätä näin monta ydintä vapaaksi)</translation>
     </message>
@@ -1534,6 +1650,16 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>W&amp;allet</source>
         <translation type="unfinished">&amp;Lompakko</translation>
+    </message>
+    <message>
+        <source>Whether to set subtract fee from amount as default or not.</source>
+        <extracomment>Tooltip text for Options window setting that sets subtracting the fee from a sending amount as default.</extracomment>
+        <translation type="unfinished">Määritetäänkö summasta vähennysmaksu oletusarvoksi vai ei.</translation>
+    </message>
+    <message>
+        <source>Subtract &amp;fee from amount by default</source>
+        <extracomment>An Options window setting to set subtracting the fee from a sending amount as default.</extracomment>
+        <translation type="unfinished">Vähennä &amp;maksu oletuksena summasta</translation>
     </message>
     <message>
         <source>Expert</source>
@@ -1557,8 +1683,17 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Aktivoi &amp;PSBT kontrollit</translation>
     </message>
     <message>
+        <source>Whether to show PSBT controls.</source>
+        <extracomment>Tooltip text for options window setting that enables PSBT controls.</extracomment>
+        <translation type="unfinished">Näytetäänkö PSBT-ohjaimet.</translation>
+    </message>
+    <message>
         <source>External Signer (e.g. hardware wallet)</source>
         <translation type="unfinished">Ulkopuolinen allekirjoittaja (esim. laitelompakko)</translation>
+    </message>
+    <message>
+        <source>&amp;External signer script path</source>
+        <translation type="unfinished">&amp;Ulkoisen allekirjoittajan komentosarjapolku</translation>
     </message>
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
@@ -1587,7 +1722,7 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
         <translation type="unfinished">Yhdistä Qtum-verkkoon SOCKS5-välityspalvelimen kautta.</translation>
-   </message>
+    </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
         <translation type="unfinished">&amp;Yhdistä SOCKS5-välityspalvelimen kautta (oletus välityspalvelin):</translation>
@@ -1646,11 +1781,15 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     </message>
     <message>
         <source>&amp;Unit to show amounts in:</source>
-        <translation type="unfinished">Yksikkö jona qtum-määrät näytetään</translation> 
+        <translation type="unfinished">Yksikkö jona qtum-määrät näytetään</translation>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
         <translation type="unfinished">Valitse mitä yksikköä käytetään ensisijaisesti qtum-määrien näyttämiseen.</translation>
+    </message>
+    <message>
+        <source>&amp;Third-party transaction URLs</source>
+        <translation type="unfinished">&amp;Kolmannen osapuolen tapahtuma-URL-osoitteet</translation>
     </message>
     <message>
         <source>Whether to show coin control features or not.</source>
@@ -1663,18 +1802,6 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation type="unfinished">Käytä erillistä SOCKS&amp;5-välityspalvelinta tavoittaaksesi vertaisia Torin onion-palvelujen kautta:</translation>
-    </message>
-    <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">Monospaced-fontti Overview-välilehdellä:</translation>
-    </message>
-    <message>
-        <source>embedded "%1"</source>
-        <translation type="unfinished">upotettu "%1"</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">lähin vastaavuus "%1"</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -1741,6 +1868,13 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>The supplied proxy address is invalid.</source>
         <translation type="unfinished">Antamasi proxy-osoite on virheellinen.</translation>
+    </message>
+</context>
+<context>
+    <name>OptionsModel</name>
+    <message>
+        <source>Could not read setting "%1", %2.</source>
+        <translation type="unfinished">Ei voinut luke asetusta "%1", %2.</translation>
     </message>
 </context>
 <context>
@@ -1825,6 +1959,10 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
 <context>
     <name>PSBTOperationsDialog</name>
     <message>
+        <source>PSBT Operations</source>
+        <translation type="unfinished">PSBT-toiminnot</translation>
+    </message>
+    <message>
         <source>Sign Tx</source>
         <translation type="unfinished">Allekirjoita Tx</translation>
     </message>
@@ -1882,7 +2020,7 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     </message>
     <message>
         <source>PSBT copied to clipboard.</source>
-        <translation type="unfinished">PSBT (osittain allekirjoitettu qtum-siirto) kopioitiin leikepöydälle.</translation> 
+        <translation type="unfinished">PSBT (osittain allekirjoitettu qtum-siirto) kopioitiin leikepöydälle.</translation>
     </message>
     <message>
         <source>Save Transaction Data</source>
@@ -1895,11 +2033,15 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     </message>
     <message>
         <source>PSBT saved to disk.</source>
-        <translation type="unfinished">PSBT (osittain tallennettu qtum-siirto) tallennettiin levylle.</translation> 
+        <translation type="unfinished">PSBT (osittain tallennettu qtum-siirto) tallennettiin levylle.</translation>
     </message>
     <message>
-        <source> * Sends %1 to %2</source>
-        <translation type="unfinished">*Lähettää %1'n kohteeseen %2</translation>
+        <source>Sends %1 to %2</source>
+        <translation type="unfinished">Lähettää %1 kohteelle %2</translation>
+    </message>
+    <message>
+        <source>own address</source>
+        <translation type="unfinished">oma osoite</translation>
     </message>
     <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
@@ -1967,7 +2109,7 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
         <translation type="unfinished">'qtum://' ei ole kelvollinen URI. Käytä 'qtum:' sen sijaan.</translation>
-   </message>
+    </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
@@ -2001,6 +2143,11 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <source>Peer</source>
         <extracomment>Title of Peers Table column which contains a unique number used to identify a connection.</extracomment>
         <translation type="unfinished">Vertainen</translation>
+    </message>
+    <message>
+        <source>Age</source>
+        <extracomment>Title of Peers Table column which indicates the duration (length of time) since the peer connection started.</extracomment>
+        <translation type="unfinished">Ikä</translation>
     </message>
     <message>
         <source>Direction</source>
@@ -2170,8 +2317,32 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Valitse vertainen eriteltyjä tietoja varten.</translation>
     </message>
     <message>
+        <source>The transport layer version: %1</source>
+        <translation type="unfinished">Kuljetuskerroksen versio: %1</translation>
+    </message>
+    <message>
+        <source>Transport</source>
+        <translation type="unfinished">Kuljetus</translation>
+    </message>
+    <message>
+        <source>The BIP324 session ID string in hex, if any.</source>
+        <translation type="unfinished">BIP324-istunnon tunnusmerkkijono heksadesimaalimuodossa, jos sellainen on.</translation>
+    </message>
+    <message>
+        <source>Session ID</source>
+        <translation type="unfinished">Istunnon tunniste</translation>
+    </message>
+    <message>
         <source>Version</source>
         <translation type="unfinished">Versio</translation>
+    </message>
+    <message>
+        <source>Whether we relay transactions to this peer.</source>
+        <translation type="unfinished">Välitämmekö tapahtumat tälle vertaiselle.</translation>
+    </message>
+    <message>
+        <source>Transaction Relay</source>
+        <translation type="unfinished">Siirtokulu</translation>
     </message>
     <message>
         <source>Starting Block</source>
@@ -2196,6 +2367,36 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
     <message>
         <source>Mapped AS</source>
         <translation type="unfinished">Kartoitettu AS</translation>
+    </message>
+    <message>
+        <source>Whether we relay addresses to this peer.</source>
+        <extracomment>Tooltip text for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
+        <translation type="unfinished">Välitämmekö osoitteet tälle vertaiselle.</translation>
+    </message>
+    <message>
+        <source>Address Relay</source>
+        <extracomment>Text title for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
+        <translation type="unfinished">Osoitevälitys</translation>
+    </message>
+    <message>
+        <source>The total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</source>
+        <extracomment>Tooltip text for the Addresses Processed field in the peer details area, which displays the total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</extracomment>
+        <translation type="unfinished">Tältä vertaiselta käsiteltyjen osoitteiden kokonaismäärä (ei sisällä osoitteita, jotka hylättiin nopeusrajoituksen vuoksi).</translation>
+    </message>
+    <message>
+        <source>The total number of addresses received from this peer that were dropped (not processed) due to rate-limiting.</source>
+        <extracomment>Tooltip text for the Addresses Rate-Limited field in the peer details area, which displays the total number of addresses received from this peer that were dropped (not processed) due to rate-limiting.</extracomment>
+        <translation type="unfinished">Tältä vertaiselta saatujen osoitteiden kokonaismäärä, jotka hylättiin (ei käsitelty) nopeusrajoituksen vuoksi.</translation>
+    </message>
+    <message>
+        <source>Addresses Processed</source>
+        <extracomment>Text title for the Addresses Processed field in the peer details area, which displays the total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</extracomment>
+        <translation type="unfinished">Käsitellyt osoitteet</translation>
+    </message>
+    <message>
+        <source>Addresses Rate-Limited</source>
+        <extracomment>Text title for the Addresses Rate-Limited field in the peer details area, which displays the total number of addresses received from this peer that were dropped (not processed) due to rate-limiting.</extracomment>
+        <translation type="unfinished">Osoitteiden määrärajoitus</translation>
     </message>
     <message>
         <source>User Agent</source>
@@ -2256,6 +2457,11 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
     <message>
         <source>Last Block</source>
         <translation type="unfinished">Viimeisin lohko</translation>
+    </message>
+    <message>
+        <source>Elapsed time since a novel transaction accepted into our mempool was received from this peer.</source>
+        <extracomment>Tooltip text for the Last Transaction field in the peer details area.</extracomment>
+        <translation type="unfinished">Kulunut aika siitä, kun tältä vertaiskumppanilta vastaanotettiin muistiomme hyväksytty uusi tapahtuma.</translation>
     </message>
     <message>
         <source>Last Send</source>
@@ -2327,6 +2533,48 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Saapuva: vertaisen aloittama</translation>
     </message>
     <message>
+        <source>Outbound Full Relay: default</source>
+        <extracomment>Explanatory text for an outbound peer connection that relays all network information. This is the default behavior for outbound connections.</extracomment>
+        <translation type="unfinished">Lähtevä täysi välitys: oletus</translation>
+    </message>
+    <message>
+        <source>Outbound Block Relay: does not relay transactions or addresses</source>
+        <extracomment>Explanatory text for an outbound peer connection that relays network information about blocks and not transactions or addresses.</extracomment>
+        <translation type="unfinished">Outbound Block Relay: ei välitä tapahtumia tai osoitteita</translation>
+    </message>
+    <message>
+        <source>Outbound Feeler: short-lived, for testing addresses</source>
+        <extracomment>Explanatory text for a short-lived outbound peer connection that is used to test the aliveness of known addresses.</extracomment>
+        <translation type="unfinished">Outbound Feeler: lyhytaikainen, osoitteiden testaamiseen</translation>
+    </message>
+    <message>
+        <source>detecting: peer could be v1 or v2</source>
+        <extracomment>Explanatory text for "detecting" transport type.</extracomment>
+        <translation type="unfinished">havaitseminen: vertaiskumppani voi olla v1 tai v2</translation>
+    </message>
+    <message>
+        <source>v1: unencrypted, plaintext transport protocol</source>
+        <extracomment>Explanatory text for v1 transport type.</extracomment>
+        <translation type="unfinished">v1: salaamaton, selväkielinen siirtoprotokolla</translation>
+    </message>
+    <message>
+        <source>v2: BIP324 encrypted transport protocol</source>
+        <extracomment>Explanatory text for v2 transport type.</extracomment>
+        <translation type="unfinished">v2: BIP324-salattu siirtoprotokolla</translation>
+    </message>
+    <message>
+        <source>we selected the peer for high bandwidth relay</source>
+        <translation type="unfinished">valitsimme korkean kaistanleveyden releen vertaislaitteen</translation>
+    </message>
+    <message>
+        <source>the peer selected us for high bandwidth relay</source>
+        <translation type="unfinished">vertaiskumppani valitsi meidät suuren kaistanleveyden välitykseen</translation>
+    </message>
+    <message>
+        <source>no high bandwidth relay selected</source>
+        <translation type="unfinished">suuren kaistanleveyden relettä ei ole valittu</translation>
+    </message>
+    <message>
         <source>Ctrl+=</source>
         <extracomment>Secondary shortcut to increase the RPC console font size.</extracomment>
         <translation type="unfinished">Ctrl+-</translation>
@@ -2345,12 +2593,21 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">1 &amp;tunti</translation>
     </message>
     <message>
+        <source>1 d&amp;ay</source>
+        <translation type="unfinished">1 p&amp;ivä</translation>
+    </message>
+    <message>
         <source>1 &amp;week</source>
         <translation type="unfinished">1 &amp;viikko</translation>
     </message>
     <message>
         <source>1 &amp;year</source>
         <translation type="unfinished">1 &amp;vuosi</translation>
+    </message>
+    <message>
+        <source>&amp;Copy IP/Netmask</source>
+        <extracomment>Context menu action to copy the IP/Netmask of a banned peer. IP/Netmask is the combination of a peer's IP address and its Netmask. For IP address, see: https://en.wikipedia.org/wiki/IP_address.</extracomment>
+        <translation type="unfinished">&amp;Kopioi IP/verkkopeite</translation>
     </message>
     <message>
         <source>&amp;Unban</source>
@@ -2499,6 +2756,18 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
     <message>
         <source>Copy &amp;amount</source>
         <translation type="unfinished">Kopioi &amp;määrä</translation>
+    </message>
+    <message>
+        <source>Base58 (Legacy)</source>
+        <translation type="unfinished">Base58 (Vanha)</translation>
+    </message>
+    <message>
+        <source>Not recommended due to higher fees and less protection against typos.</source>
+        <translation type="unfinished">Ei suositella korkeampien maksujen ja heikomman suojan kirjoitusvirheitä vastaan.</translation>
+    </message>
+    <message>
+        <source>Generates an address compatible with older wallets.</source>
+        <translation type="unfinished">Luo osoitteen, joka on yhteensopiva vanhempien lompakoiden kanssa.</translation>
     </message>
     <message>
         <source>Could not unlock wallet.</source>
@@ -2690,10 +2959,6 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Syötteet...</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Tomu:</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">Valitse...</translation>
     </message>
@@ -2758,10 +3023,6 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Kopioi tavut</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopioi tomu</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopioi vaihtorahat</translation>
     </message>
@@ -2790,10 +3051,6 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
     <message>
         <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">Luo osittain allekirjoitetun qtum-siirtotapahtuman (PSBT) käytettäväksi mm. offline %1 lompakko tai PSBT-yhteensopiva hardware-lompakko.</translation>
-   </message>
-    <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished"> lompakosta '%1'</translation>
     </message>
     <message>
         <source>%1 to '%2'</source>
@@ -2811,6 +3068,11 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <source>External signer not found</source>
         <extracomment>"External signer" means using devices such as hardware wallets.</extracomment>
         <translation type="unfinished">Ulkopuolista allekirjoittajaa ei löydy</translation>
+    </message>
+    <message>
+        <source>External signer failure</source>
+        <extracomment>"External signer" means using devices such as hardware wallets.</extracomment>
+        <translation type="unfinished">Ulkoisen allekirjoittajan virhe</translation>
     </message>
     <message>
         <source>Save Transaction Data</source>
@@ -2839,9 +3101,13 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Voit korottaa palkkiota myöhemmin (osoittaa Replace-By-Fee:tä, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source> 
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Ole hyvä ja tarkista siirtoehdotuksesi. Tämä luo osittain allekirjoitetun Qtum-siirron (PBST), jonka voit tallentaa tai kopioida ja sitten allekirjoittaa esim. verkosta irrannaisella %1-lompakolla tai PBST-yhteensopivalla laitteistolompakolla.</translation> 
+        <translation type="unfinished">Ole hyvä ja tarkista siirtoehdotuksesi. Tämä luo osittain allekirjoitetun Qtum-siirron (PBST), jonka voit tallentaa tai kopioida ja sitten allekirjoittaa esim. verkosta irrannaisella %1-lompakolla tai PBST-yhteensopivalla laitteistolompakolla.</translation>
+    </message>
+    <message>
+        <source>%1 from wallet '%2'</source>
+        <translation type="unfinished">%1 lompakosta '%2'</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>
@@ -2864,6 +3130,16 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
     <message>
         <source>Total Amount</source>
         <translation type="unfinished">Yhteensä</translation>
+    </message>
+    <message>
+        <source>Unsigned Transaction</source>
+        <comment>PSBT copied</comment>
+        <extracomment>Caption of "PSBT has been copied" messagebox</extracomment>
+        <translation type="unfinished">Allekirjoittamaton Siirto</translation>
+    </message>
+    <message>
+        <source>PSBT saved to disk</source>
+        <translation type="unfinished">PSBT tallennettu levylle</translation>
     </message>
     <message>
         <source>Confirm send coins</source>
@@ -3064,7 +3340,7 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
     <message>
         <source>The Qtum address the message was signed with</source>
         <translation type="unfinished">Qtum-osoite jolla viesti on allekirjoitettu</translation>
-   </message>
+    </message>
     <message>
         <source>The signed message to verify</source>
         <translation type="unfinished">Allekirjoitettu viesti vahvistettavaksi</translation>
@@ -3159,6 +3435,16 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <source>conflicted with a transaction with %1 confirmations</source>
         <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that conflicts with a confirmed transaction.</extracomment>
         <translation type="unfinished">ristiriidassa maksutapahtumalle, jolla on %1 varmistusta</translation>
+    </message>
+    <message>
+        <source>0/unconfirmed, in memory pool</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that is in the memory pool.</extracomment>
+        <translation type="unfinished">0/vahvistamatonta, memory poolissa</translation>
+    </message>
+    <message>
+        <source>0/unconfirmed, not in memory pool</source>
+        <extracomment>Text explaining the current status of a transaction, shown in the status field of the details window for this transaction. This status represents an unconfirmed transaction that is not in the memory pool.</extracomment>
+        <translation type="unfinished">0/vahvistamatonta, ei memory poolissa</translation>
     </message>
     <message>
         <source>abandoned</source>
@@ -3275,8 +3561,8 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Ulostulon indeksi</translation>
     </message>
     <message>
-        <source> (Certificate was not verified)</source>
-        <translation type="unfinished"> (Sertifikaattia ei vahvistettu)</translation>
+        <source>%1 (Certificate was not verified)</source>
+        <translation type="unfinished">%1 (Sertifikaattia ei ole todennettu)</translation>
     </message>
     <message>
         <source>Merchant</source>
@@ -3377,10 +3663,6 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Lähetetty vastaanottajalle</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Maksu itsellesi</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Louhittu</translation>
     </message>
@@ -3456,10 +3738,6 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Lähetetty vastaanottajalle</translation>
     </message>
     <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Itsellesi</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Louhittu</translation>
     </message>
@@ -3494,6 +3772,35 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
     <message>
         <source>Copy transaction &amp;ID</source>
         <translation type="unfinished">Kopio transaktio &amp;ID</translation>
+    </message>
+    <message>
+        <source>Copy &amp;raw transaction</source>
+        <translation type="unfinished">Kopioi &amp;raaka tapahtuma</translation>
+    </message>
+    <message>
+        <source>Copy full transaction &amp;details</source>
+        <translation type="unfinished">Kopioi koko tapahtuma  &amp;tiedot</translation>
+    </message>
+    <message>
+        <source>&amp;Show transaction details</source>
+        <translation type="unfinished">&amp;Näytä tapahtuman tiedot</translation>
+    </message>
+    <message>
+        <source>Increase transaction &amp;fee</source>
+        <translation type="unfinished">Lisää tapahtuman &amp;kuluja</translation>
+    </message>
+    <message>
+        <source>A&amp;bandon transaction</source>
+        <translation type="unfinished">H&amp;ylkää tapahtuma</translation>
+    </message>
+    <message>
+        <source>&amp;Edit address label</source>
+        <translation type="unfinished">&amp;Muokkaa osoitekenttää</translation>
+    </message>
+    <message>
+        <source>Show in %1</source>
+        <extracomment>Transactions table context menu action to show the selected transaction in a third-party block explorer. %1 is a stand-in argument for the URL of the explorer.</extracomment>
+        <translation type="unfinished">Näytä %1</translation>
     </message>
     <message>
         <source>Export Transaction History</source>
@@ -3636,6 +3943,11 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">PSBT kopioitu</translation>
     </message>
     <message>
+        <source>Copied to clipboard</source>
+        <comment>Fee-bump PSBT saved</comment>
+        <translation type="unfinished">Kopioi leikepöydälle</translation>
+    </message>
+    <message>
         <source>Can't sign transaction.</source>
         <translation type="unfinished">Siirtoa ei voida allekirjoittaa.</translation>
     </message>
@@ -3713,10 +4025,6 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation type="unfinished">Jaettu MIT -ohjelmistolisenssin alaisuudessa, katso mukana tuleva %s tiedosto tai %s</translation>
-    </message>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Virhe luettaessa %s! Avaimet luetttiin oikein, mutta rahansiirtotiedot tai osoitekirjan sisältö saattavat olla puutteellisia tai vääriä.</translation>
     </message>
     <message>
         <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
@@ -3819,6 +4127,22 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Hakemistoon '%s' ei voida kirjoittaa. Tarkista käyttöoikeudet.</translation>
     </message>
     <message>
+        <source>
+Unable to cleanup failed migration</source>
+        <translation type="unfinished">
+Epäonnistuneen migraation siivoaminen epäonnistui</translation>
+    </message>
+    <message>
+        <source>
+Unable to restore backup of wallet.</source>
+        <translation type="unfinished">
+Ei voinut palauttaa lompakon varmuuskopiota..</translation>
+    </message>
+    <message>
+        <source>Block verification was interrupted</source>
+        <translation type="unfinished">Lohkon vahvistus keskeytettiin</translation>
+    </message>
+    <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>
         <translation type="unfinished">Konfigurointiasetuksen %s käyttöön vain %s -verkossa, kun osassa [%s].</translation>
     </message>
@@ -3891,6 +4215,10 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Virhe avattaessa lohkoindeksiä</translation>
     </message>
     <message>
+        <source>Error reading configuration file: %s</source>
+        <translation type="unfinished">Virhe luettaessa asetustiedostoa 1%s</translation>
+    </message>
+    <message>
         <source>Error reading from database, shutting down.</source>
         <translation type="unfinished">Virheitä tietokantaa luettaessa, ohjelma pysäytetään.</translation>
     </message>
@@ -3919,6 +4247,30 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">virhe: Puuttuva tarkistussumma</translation>
     </message>
     <message>
+        <source>Error: No %s addresses available.</source>
+        <translation type="unfinished">Virhe: Ei %s osoitteita saatavilla.</translation>
+    </message>
+    <message>
+        <source>Error: This wallet already uses SQLite</source>
+        <translation type="unfinished">Virhe: Tämä lompakko käyttää jo SQLite:ä</translation>
+    </message>
+    <message>
+        <source>Error: Unable to make a backup of your wallet</source>
+        <translation type="unfinished">Virhe: Lompakon varmuuskopion luominen epäonnistui</translation>
+    </message>
+    <message>
+        <source>Error: Unable to read all records in the database</source>
+        <translation type="unfinished">Virhe: Kaikkien tietueiden lukeminen tietokannasta ei onnistunut</translation>
+    </message>
+    <message>
+        <source>Error: Unable to write record to new wallet</source>
+        <translation type="unfinished">Virhe: Tiedon kirjoittaminen lompakkoon epäonnistui</translation>
+    </message>
+    <message>
+        <source>Error: address book copy failed for wallet %s</source>
+        <translation type="unfinished">Virhe: osoitekirjan kopiointi epäonnistui lompakolle %s</translation>
+    </message>
+    <message>
         <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
         <translation type="unfinished">Ei onnistuttu kuuntelemaan missään portissa. Käytä -listen=0 jos haluat tätä.</translation>
     </message>
@@ -3927,8 +4279,16 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Lompakkoa ei voitu tarkastaa alustuksen yhteydessä.</translation>
     </message>
     <message>
+        <source>Failed to start indexes, shutting down..</source>
+        <translation type="unfinished">Indeksien käynnistäminen epäonnistui, sammutetaan..</translation>
+    </message>
+    <message>
         <source>Failed to verify database</source>
         <translation type="unfinished">Tietokannan todennus epäonnistui</translation>
+    </message>
+    <message>
+        <source>Failure removing transaction: %s</source>
+        <translation type="unfinished">Siirron poistaminen epäonnistui: %s</translation>
     </message>
     <message>
         <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
@@ -3951,6 +4311,10 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Alustava järkevyyden tarkistus epäonnistui. %s sulkeutuu.</translation>
     </message>
     <message>
+        <source>Insufficient dbcache for block verification</source>
+        <translation type="unfinished">Riittämätön dbcache lohkon vahvistukseen</translation>
+    </message>
+    <message>
         <source>Insufficient funds</source>
         <translation type="unfinished">Lompakon saldo ei riitä</translation>
     </message>
@@ -3971,12 +4335,28 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Virheellinen P2P-lupa: '%s'</translation>
     </message>
     <message>
+        <source>Invalid amount for %s=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">Virheellinen määrä %s=&lt;amount&gt;: '%s'</translation>
+    </message>
+    <message>
         <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
         <translation type="unfinished">Virheellinen määrä -%s=&lt;amount&gt;: '%s'</translation>
     </message>
     <message>
         <source>Invalid netmask specified in -whitelist: '%s'</source>
         <translation type="unfinished">Kelvoton verkkopeite määritelty argumentissa -whitelist: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid port specified in %s: '%s'</source>
+        <translation type="unfinished">Virheellinen portti määritetty %s: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid pre-selected input %s</source>
+        <translation type="unfinished">Virheellinen esivalittu syöte %s</translation>
+    </message>
+    <message>
+        <source>Listening for incoming connections failed (listen returned error %s)</source>
+        <translation type="unfinished">Saapuvien yhteyksien kuuntelu epäonnistui (kuuntelu palasi virheen %s)</translation>
     </message>
     <message>
         <source>Loading P2P addresses…</source>
@@ -3995,6 +4375,14 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Ladataan lompakko...</translation>
     </message>
     <message>
+        <source>Missing amount</source>
+        <translation type="unfinished">Puuttuva summa</translation>
+    </message>
+    <message>
+        <source>Missing solving data for estimating transaction size</source>
+        <translation type="unfinished">Ratkaisutiedot puuttuvat tapahtuman koon arvioimiseksi</translation>
+    </message>
+    <message>
         <source>Need to specify a port with -whitebind: '%s'</source>
         <translation type="unfinished">Pitää määritellä portti argumentilla -whitebind: '%s'</translation>
     </message>
@@ -4005,6 +4393,14 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
     <message>
         <source>Not enough file descriptors available.</source>
         <translation type="unfinished">Ei tarpeeksi tiedostomerkintöjä vapaana.</translation>
+    </message>
+    <message>
+        <source>Not found pre-selected input %s</source>
+        <translation type="unfinished">Esivalittua tuloa ei löydy %s</translation>
+    </message>
+    <message>
+        <source>Not solvable pre-selected input %s</source>
+        <translation type="unfinished">Ei ratkaistavissa esivalittu tulo%s</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>
@@ -4071,6 +4467,14 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Määrättyä lohkohakemistoa "%s" ei ole olemassa.</translation>
     </message>
     <message>
+        <source>Specified data directory "%s" does not exist.</source>
+        <translation type="unfinished">Määritettyä tietohakemistoa %s ei ole olemassa.</translation>
+    </message>
+    <message>
+        <source>Starting network threads…</source>
+        <translation type="unfinished">Aloitetaan verkkosäikeitä…</translation>
+    </message>
+    <message>
         <source>The source code is available from %s.</source>
         <translation type="unfinished">Lähdekoodi löytyy %s.</translation>
     </message>
@@ -4099,6 +4503,10 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Tämä on se siirtomaksu, jonka maksat, mikäli lähetät siirron.</translation>
     </message>
     <message>
+        <source>Transaction %s does not belong to this wallet</source>
+        <translation type="unfinished">Tapahtuma %s ei kuulu tähän lompakkoon</translation>
+    </message>
+    <message>
         <source>Transaction amount too small</source>
         <translation type="unfinished">Siirtosumma liian pieni</translation>
     </message>
@@ -4107,16 +4515,24 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Lähetyksen siirtosumman tulee olla positiivinen</translation>
     </message>
     <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">Maksutapahtumalla on liian pitkä muistialtaan ketju</translation>
+        <source>Transaction change output index out of range</source>
+        <translation type="unfinished">Tapahtuman muutoksen tulosindeksi on alueen ulkopuolella</translation>
     </message>
     <message>
         <source>Transaction must have at least one recipient</source>
         <translation type="unfinished">Lähetyksessä tulee olla ainakin yksi vastaanottaja</translation>
     </message>
     <message>
+        <source>Transaction needs a change address, but we can't generate it.</source>
+        <translation type="unfinished">Tapahtuma vaatii osoitteenmuutoksen, mutta emme voi luoda sitä.</translation>
+    </message>
+    <message>
         <source>Transaction too large</source>
         <translation type="unfinished">Siirtosumma liian iso</translation>
+    </message>
+    <message>
+        <source>Unable to allocate memory for -maxsigcachesize: '%s' MiB</source>
+        <translation type="unfinished">Ei voida varata muistia kohteelle %sMiB</translation>
     </message>
     <message>
         <source>Unable to bind to %s on this computer (bind returned error %s)</source>
@@ -4131,6 +4547,10 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">PID-tiedostoa '%s' ei voitu luoda: %s</translation>
     </message>
     <message>
+        <source>Unable to find UTXO for external input</source>
+        <translation type="unfinished">Ulkoisen tulon UTXO ei löydy</translation>
+    </message>
+    <message>
         <source>Unable to generate initial keys</source>
         <translation type="unfinished">Alkuavaimia ei voi luoda</translation>
     </message>
@@ -4143,8 +4563,16 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
         <translation type="unfinished">Ei pystytä avaamaan %s kirjoittamista varten</translation>
     </message>
     <message>
+        <source>Unable to parse -maxuploadtarget: '%s'</source>
+        <translation type="unfinished">Ei voi lukea -maxuploadtarget: '%s'</translation>
+    </message>
+    <message>
         <source>Unable to start HTTP server. See debug log for details.</source>
         <translation type="unfinished">HTTP-palvelinta ei voitu käynnistää. Katso debug-lokista lisätietoja.</translation>
+    </message>
+    <message>
+        <source>Unable to unload the wallet before migrating</source>
+        <translation type="unfinished">Lompakon lataus epäonnistui ennen siirtoa</translation>
     </message>
     <message>
         <source>Unknown -blockfilterindex value %s.</source>
@@ -4165,6 +4593,14 @@ Siirry osioon Tiedosto &gt; Avaa lompakko ladataksesi lompakon.
     <message>
         <source>Unknown new rules activated (versionbit %i)</source>
         <translation type="unfinished">Tuntemattomia uusia sääntöjä aktivoitu (versiobitti %i)</translation>
+    </message>
+    <message>
+        <source>Wallet file creation failed: %s</source>
+        <translation type="unfinished">Lompakon luominen epäonnistui: %s</translation>
+    </message>
+    <message>
+        <source>acceptstalefeeestimates is not supported on %s chain.</source>
+        <translation type="unfinished">hyväksyttyjä ilmaisia ​​arvioita ei tueta %s ketju.</translation>
     </message>
     <message>
         <source>Unsupported logging category %s=%s.</source>

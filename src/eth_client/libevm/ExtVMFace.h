@@ -18,6 +18,7 @@
 #include <functional>
 #include <set>
 #include <map>
+#include <unordered_map>
 
 namespace dev
 {
@@ -209,6 +210,12 @@ public:
     /// Write a value in storage.
     virtual void setStore(u256, u256) {}
 
+    /// Read transient storage location.
+    virtual u256 transientStore(u256) { return 0; }
+
+    /// Write a value in transient storage.
+    virtual void setTransientStore(u256, u256) {}
+
     /// Read original storage value (before modifications in the current transaction).
     virtual u256 originalStorageValue(u256 const&) { return 0; }
 
@@ -349,6 +356,12 @@ public:
 
     evmc_access_status access_storage(const evmc::address& addr,
                                       const evmc::bytes32& key) noexcept final;
+
+    evmc::bytes32 get_transient_storage(const evmc::address& address, const evmc::bytes32& key) const noexcept final;
+
+    void set_transient_storage(const evmc::address& address,
+                               const evmc::bytes32& key,
+                               const evmc::bytes32& value) noexcept final;
 
 private:
     evmc::Result create(evmc_message const& _msg) noexcept;

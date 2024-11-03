@@ -8,7 +8,7 @@
 #include <key_io.h>
 #include <qt/qvalidatedlineedit.h>
 #include <qt/bitcoinaddressvalidator.h>
-#include <script/standard.h>
+#include <addresstype.h>
 #include <QLineEdit>
 #include <QCompleter>
 

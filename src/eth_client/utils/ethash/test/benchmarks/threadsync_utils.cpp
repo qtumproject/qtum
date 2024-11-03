@@ -1,6 +1,6 @@
 // Ethash: C/C++ implementation of Ethash, the Ethereum Proof of Work algorithm.
 // Copyright 2018 Pawel Bylica.
-// Licensed under the Apache License, Version 2.0. See the LICENSE file.
+// Licensed under the Apache License, Version 2.0.
 
 #include "threadsync_utils.hpp"
 
@@ -22,15 +22,10 @@ std::shared_ptr<fake_cache> build_fake_cache(int id) noexcept
     return handle;
 }
 
-std::shared_ptr<fake_cache> build_sentinel() noexcept
+static std::shared_ptr<fake_cache> build_sentinel() noexcept
 {
     static thread_local fake_cache sentinel;
-    return std::shared_ptr<fake_cache>(&sentinel, [](fake_cache*){});
-}
-
-std::shared_ptr<fake_cache> build_sentinel2() noexcept
-{
-    return std::make_shared<fake_cache>();
+    return {&sentinel, [](fake_cache* /*unused*/) {}};
 }
 
 namespace

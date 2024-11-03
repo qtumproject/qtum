@@ -18,17 +18,19 @@ bench_bench_qtum_SOURCES = \
   bench/bench.cpp \
   bench/bench.h \
   bench/bench_bitcoin.cpp \
+  bench/bip324_ecdh.cpp \
   bench/block_assemble.cpp \
   bench/ccoins_caching.cpp \
   bench/chacha20.cpp \
-  bench/chacha_poly_aead.cpp \
   bench/checkblock.cpp \
   bench/checkqueue.cpp \
   bench/crypto_hash.cpp \
   bench/data.cpp \
   bench/data.h \
   bench/descriptors.cpp \
+  bench/disconnected_transactions.cpp \
   bench/duplicate_inputs.cpp \
+  bench/ellswift.cpp \
   bench/examples.cpp \
   bench/gcs_filter.cpp \
   bench/hashpadding.cpp \
@@ -42,13 +44,17 @@ bench_bench_qtum_SOURCES = \
   bench/nanobench.h \
   bench/peer_eviction.cpp \
   bench/poly1305.cpp \
+  bench/pool.cpp \
   bench/prevector.cpp \
+  bench/readblock.cpp \
   bench/rollingbloom.cpp \
   bench/rpc_blockchain.cpp \
   bench/rpc_mempool.cpp \
+  bench/streams_findbyte.cpp \
   bench/strencodings.cpp \
   bench/util_time.cpp \
-  bench/verify_script.cpp
+  bench/verify_script.cpp \
+  bench/xor.cpp
 
 nodist_bench_bench_qtum_SOURCES = $(GENERATED_BENCH_FILES)
 
@@ -71,7 +77,14 @@ bench_bench_qtum_LDADD = \
   $(EVENT_LIBS) \
   $(MINIUPNPC_LIBS) \
   $(NATPMP_LIBS) \
-  $(LIBCRYPTOPP)
+  $(LIBCRYPTOPP) \
+  $(BOOST_LIBS) \
+  $(SSL_LIBS) \
+  $(CRYPTO_LIBS) \
+  $(LIBFF) \
+  $(GMP_LIBS) \
+  $(GMPXX_LIBS) \
+  $(LIBBLST)
 
 if ENABLE_ZMQ
 bench_bench_qtum_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
@@ -80,9 +93,12 @@ endif
 if ENABLE_WALLET
 bench_bench_qtum_SOURCES += bench/coin_selection.cpp
 bench_bench_qtum_SOURCES += bench/wallet_balance.cpp
+bench_bench_qtum_SOURCES += bench/wallet_create.cpp
 bench_bench_qtum_SOURCES += bench/wallet_loading.cpp
 bench_bench_qtum_SOURCES += bench/wallet_create_tx.cpp
-bench_bench_qtum_LDADD += $(BDB_LIBS) $(SQLITE_LIBS) $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(LIBFF) $(GMP_LIBS) $(GMPXX_LIBS)
+bench_bench_qtum_SOURCES += bench/wallet_ismine.cpp
+
+bench_bench_qtum_LDADD += $(BDB_LIBS) $(SQLITE_LIBS)
 endif
 
 CLEAN_BITCOIN_BENCH = bench/*.gcda bench/*.gcno $(GENERATED_BENCH_FILES)

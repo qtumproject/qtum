@@ -4,6 +4,7 @@
 #include <qtum/qtumledger.h>
 #include <pos.h>
 #include <key_io.h>
+#include <common/args.h>
 
 namespace wallet {
 
@@ -119,7 +120,7 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
         COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChain()))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChainstate()))
         {
             // Found a kernel
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
@@ -322,7 +323,7 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
         boost::this_thread::interruption_point();
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChain()))
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChainstate()))
         {
             // Found a kernel
             LogPrint(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
@@ -330,7 +331,7 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
 
             Coin coinPrev;
             if(!wallet.chain().getUnspentOutput(prevoutStake, coinPrev)){
-                if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev, wallet.chain().chainman().ActiveChain())) {
+                if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev, wallet.chain().chainman().ActiveChainstate())) {
                     return error("CreateCoinStake: Could not find coin and it was not at the tip");
                 }
             }
@@ -505,7 +506,7 @@ void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<uint256>&
         const uint256& wtxid = it->first;
         const CWalletTx* pcoin = &(*it).second;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
-            COutPoint prevout = COutPoint(wtxid, i);
+            COutPoint prevout = COutPoint(Txid::FromUint256(wtxid), i);
             isminetype mine = wallet.IsMine(pcoin->tx->vout[i]);
             if (!(wallet.IsSpent(prevout)) && mine != ISMINE_NO &&
                 !wallet.IsLockedCoin(prevout) && (pcoin->tx->vout[i].nValue > 0) &&
@@ -598,7 +599,7 @@ bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<u
             if(i->second.satoshis < staking_min_utxo_value)
                 continue;
 
-            COutPoint prevout = COutPoint(i->first.txhash, i->first.index);
+            COutPoint prevout = COutPoint(Txid::FromUint256(i->first.txhash), i->first.index);
             if(immatureStakes.find(prevout) == immatureStakes.end())
             {
                 vUnsortedDelegateCoins.push_back(std::make_pair(prevout, i->second.satoshis));
@@ -622,7 +623,7 @@ void AvailableAddress(const CWallet& wallet, const std::vector<uint256> &matured
         const uint256& wtxid = it->first;
         const CWalletTx* pcoin = &(*it).second;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
-            COutPoint prevout = COutPoint(wtxid, i);
+            COutPoint prevout = COutPoint(Txid::FromUint256(wtxid), i);
             isminetype mine = wallet.IsMine(pcoin->tx->vout[i]);
             if (!(wallet.IsSpent(prevout)) && mine != ISMINE_NO &&
                 !wallet.IsLockedCoin(prevout) && (pcoin->tx->vout[i].nValue > 0) &&

@@ -443,6 +443,23 @@ void State::setStorage(Address const& _contract, u256 const& _key, u256 const& _
     m_cache[_contract].setStorage(_key, _value);
 }
 
+u256 State::transientStorage(Address const& _id, u256 const& _key) const
+{
+    const auto accountIter = m_transientCache.find(_id);
+    if (accountIter == m_transientCache.end())
+        return {};
+
+    const auto storageIter = accountIter->second.transientStorage.find(_key);
+    if (storageIter != accountIter->second.transientStorage.end())
+        return storageIter->second;
+    return {};
+}
+
+void State::setTransientStorage(Address const& _contract, u256 const& _key, u256 const& _value)
+{
+    m_transientCache[_contract].transientStorage[_key] = _value;
+}
+
 u256 State::originalStorageValue(Address const& _contract, u256 const& _key) const
 {
     if (Account const* a = account(_contract))
@@ -458,6 +475,11 @@ void State::clearStorage(Address const& _contract)
         return;
     m_changeLog.emplace_back(Change::StorageRoot, _contract, oldHash);
     m_cache[_contract].clearStorage();
+}
+
+void State::clearTransientStorage()
+{
+    m_transientCache.clear();
 }
 
 map<h256, pair<u256, u256>> State::storage(Address const& _id) const
@@ -712,8 +734,16 @@ std::ostream& dev::eth::operator<<(std::ostream& _out, State const& _s)
                 if (r)
                 {
                     SecureTrieDB<h256, OverlayDB> memdb(const_cast<OverlayDB*>(&_s.m_db), r[2].toHash<h256>());     // promise we won't alter the overlay! :)
-                    for (auto const& j: memdb)
-                        mem[j.first] = RLP(j.second).toInt<u256>(), back.insert(j.first);
+                    for (auto const& j: memdb) {
+                        // mem[j.first] = RLP(j.second).toInt<u256>(), back.insert(j.first);
+                        // The above line fails to compile in C++ 20 due to an invalid static_cast, replacement:
+                        if (mem.find(j.first) == mem.end()) {
+                            mem.insert({j.first, RLP(j.second).toInt<u256>()});
+                        } else {
+                            mem.at(j.first) = RLP(j.second).toInt<u256>();
+                        }
+                        back.insert(j.first);
+                    }
                 }
                 if (cache)
                     for (auto const& j: cache->storageOverlay())

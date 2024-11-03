@@ -2,6 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <bench/bench.h>
 #include <interfaces/chain.h>
 #include <node/context.h>
@@ -16,38 +20,12 @@
 
 #include <optional>
 
-using wallet::CWallet;
-using wallet::DatabaseFormat;
-using wallet::DatabaseOptions;
-using wallet::TxStateInactive;
-using wallet::WALLET_FLAG_DESCRIPTORS;
-using wallet::WalletContext;
-using wallet::WalletDatabase;
-
-static std::shared_ptr<CWallet> BenchLoadWallet(std::unique_ptr<WalletDatabase> database, WalletContext& context, DatabaseOptions& options)
-{
-    bilingual_str error;
-    std::vector<bilingual_str> warnings;
-    auto wallet = CWallet::Create(context, "", std::move(database), options.create_flags, error, warnings);
-    NotifyWalletLoaded(context, wallet);
-    if (context.chain) {
-        wallet->postInitProcess();
-    }
-    return wallet;
-}
-
-static void BenchUnloadWallet(std::shared_ptr<CWallet>&& wallet)
-{
-    SyncWithValidationInterfaceQueue();
-    wallet->m_chain_notifications_handler.reset();
-    UnloadWallet(std::move(wallet));
-}
-
+namespace wallet{
 static void AddTx(CWallet& wallet)
 {
     CMutableTransaction mtx;
-    mtx.vout.push_back({COIN, GetScriptForDestination(*Assert(wallet.GetNewDestination(OutputType::BECH32, "")))});
-    mtx.vin.push_back(CTxIn());
+    mtx.vout.emplace_back(COIN, GetScriptForDestination(*Assert(wallet.GetNewDestination(OutputType::BECH32, ""))));
+    mtx.vin.emplace_back();
 
     wallet.AddToWallet(MakeTransactionRef(mtx), TxStateInactive{});
 }
@@ -55,7 +33,6 @@ static void AddTx(CWallet& wallet)
 static void WalletLoading(benchmark::Bench& bench, bool legacy_wallet)
 {
     const auto test_setup = MakeNoLogFileContext<TestingSetup>();
-    test_setup->m_args.ForceSetArg("-unsafesqlitesync", "1");
 
     WalletContext context;
     context.args = &test_setup->m_args;
@@ -63,32 +40,29 @@ static void WalletLoading(benchmark::Bench& bench, bool legacy_wallet)
 
     // Setup the wallet
     // Loading the wallet will also create it
-    DatabaseOptions options;
-    if (legacy_wallet) {
-        options.require_format = DatabaseFormat::BERKELEY;
-    } else {
-        options.create_flags = WALLET_FLAG_DESCRIPTORS;
-        options.require_format = DatabaseFormat::SQLITE;
+    uint64_t create_flags = 0;
+    if (!legacy_wallet) {
+        create_flags = WALLET_FLAG_DESCRIPTORS;
     }
-    auto database = CreateMockWalletDatabase(options);
-    auto wallet = BenchLoadWallet(std::move(database), context, options);
+    auto database = CreateMockableWalletDatabase();
+    auto wallet = TestLoadWallet(std::move(database), context, create_flags);
 
     // Generate a bunch of transactions and addresses to put into the wallet
     for (int i = 0; i < 1000; ++i) {
         AddTx(*wallet);
     }
 
-    database = DuplicateMockDatabase(wallet->GetDatabase(), options);
+    database = DuplicateMockDatabase(wallet->GetDatabase());
 
     // reload the wallet for the actual benchmark
-    BenchUnloadWallet(std::move(wallet));
+    TestUnloadWallet(std::move(wallet));
 
     bench.epochs(5).run([&] {
-        wallet = BenchLoadWallet(std::move(database), context, options);
+        wallet = TestLoadWallet(std::move(database), context, create_flags);
 
         // Cleanup
-        database = DuplicateMockDatabase(wallet->GetDatabase(), options);
-        BenchUnloadWallet(std::move(wallet));
+        database = DuplicateMockDatabase(wallet->GetDatabase());
+        TestUnloadWallet(std::move(wallet));
     });
 }
 
@@ -101,3 +75,4 @@ BENCHMARK(WalletLoadingLegacy, benchmark::PriorityLevel::HIGH);
 static void WalletLoadingDescriptors(benchmark::Bench& bench) { WalletLoading(bench, /*legacy_wallet=*/false); }
 BENCHMARK(WalletLoadingDescriptors, benchmark::PriorityLevel::HIGH);
 #endif
+} // namespace wallet

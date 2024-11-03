@@ -212,7 +212,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.sync_blocks()
 
     def reorg_requires_more_chainwork_test(self):
-        old_size = get_dir_size(self.node.datadir+'/regtest/blocks/')
+        old_size = get_dir_size("{}/regtest/blocks/".format(self.node.datadir_path))
         self.start_p2p_connection()
 
         tip = self.node.getblock(self.node.getblockhash(self.node.getblockcount() - 20))
@@ -246,13 +246,13 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             self.p2p_node.send_message(msg_block(block))
             self.p2p_node.sync_with_ping()
 
-        new_size = get_dir_size(self.node.datadir+'/regtest/blocks/')
+        new_size = get_dir_size("{}/regtest/blocks/".format(self.node.datadir_path))
         assert(new_size-old_size < 1000000)
         self.close_p2p_connection()
 
 
     def spam_same_stake_block_test(self):
-        old_size = get_dir_size(self.node.datadir+'/regtest/blocks/')
+        old_size = get_dir_size("{}/regtest/blocks/".format(self.node.datadir_path))
         self.start_p2p_connection()
 
         tip = self.node.getblock(self.node.getblockhash(self.node.getblockcount()-1))
@@ -276,7 +276,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             self.p2p_node.send_message(msg_block(block))
         time.sleep(10)
 
-        new_size = get_dir_size(self.node.datadir+'/regtest/blocks/')
+        new_size = get_dir_size("{}/regtest/blocks/".format(self.node.datadir_path))
         assert(new_size-old_size < 1000000)
         self.close_p2p_connection()
 

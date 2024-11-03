@@ -2,9 +2,15 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <core_io.h>
 #include <key_io.h>
 #include <rpc/util.h>
+#include <script/script.h>
+#include <script/solver.h>
 #include <util/bip32.h>
 #include <util/translation.h>
 #include <wallet/receive.h>
@@ -219,7 +225,8 @@ RPCHelpMan addmultisigaddress()
                 "Each key is a Qtum address or hex-encoded public key.\n"
                 "This functionality is only intended for use with non-watchonly addresses.\n"
                 "See `importaddress` for watchonly p2sh address support.\n"
-                "If 'label' is specified, assign address to that label.\n",
+                "If 'label' is specified, assign address to that label.\n"
+                "Note: This command is only compatible with legacy wallets.\n",
                 {
                     {"nrequired", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of required signatures out of the n keys or addresses."},
                     {"keys", RPCArg::Type::ARR, RPCArg::Optional::NO, "The qtum addresses or hex-encoded public keys",
@@ -425,6 +432,7 @@ public:
     explicit DescribeWalletAddressVisitor(const SigningProvider* _provider) : provider(_provider) {}
 
     UniValue operator()(const CNoDestination& dest) const { return UniValue(UniValue::VOBJ); }
+    UniValue operator()(const PubKeyDestination& dest) const { return UniValue(UniValue::VOBJ); }
 
     UniValue operator()(const PKHash& pkhash) const
     {
@@ -440,10 +448,9 @@ public:
 
     UniValue operator()(const ScriptHash& scripthash) const
     {
-        CScriptID scriptID(scripthash);
         UniValue obj(UniValue::VOBJ);
         CScript subscript;
-        if (provider && provider->GetCScript(scriptID, subscript)) {
+        if (provider && provider->GetCScript(ToScriptID(scripthash), subscript)) {
             ProcessSubScript(subscript, obj);
         }
         return obj;
@@ -608,7 +615,9 @@ RPCHelpMan getaddressinfo()
         if (const std::unique_ptr<CKeyMetadata> meta = spk_man->GetMetadata(dest)) {
             ret.pushKV("timestamp", meta->nCreateTime);
             if (meta->has_key_origin) {
-                ret.pushKV("hdkeypath", WriteHDKeypath(meta->key_origin.path));
+                // In legacy wallets hdkeypath has always used an apostrophe for
+                // hardened derivation. Perhaps some external tool depends on that.
+                ret.pushKV("hdkeypath", WriteHDKeypath(meta->key_origin.path, /*apostrophe=*/!desc_spk_man));
                 ret.pushKV("hdseedid", meta->hd_seed_id.GetHex());
                 ret.pushKV("hdmasterfingerprint", HexStr(meta->key_origin.fingerprint));
             }
@@ -675,11 +684,11 @@ RPCHelpMan getaddressesbylabel()
             CHECK_NONFATAL(unique);
             // UniValue::pushKV checks if the key exists in O(N)
             // and since duplicate addresses are unexpected (checked with
-            // std::set in O(log(N))), UniValue::__pushKV is used instead,
+            // std::set in O(log(N))), UniValue::pushKVEnd is used instead,
             // which currently is O(1).
             UniValue value(UniValue::VOBJ);
             value.pushKV("purpose", _purpose ? PurposeToString(*_purpose) : "unknown");
-            ret.__pushKV(address, value);
+            ret.pushKVEnd(address, value);
         }
     });
 

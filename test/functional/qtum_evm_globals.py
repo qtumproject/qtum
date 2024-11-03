@@ -85,7 +85,7 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
             coinstake_pubkey = hex_str_to_bytes(coinbase_tx['vout'][authorTxIndexAndVoutIndex]['scriptPubKey']['asm'].split(' ')[0])
             coinbase_pkh = bytes_to_hex_str(hash160(coinstake_pubkey))
         else:
-            coinbase_address = coinbase_tx['vout'][authorTxIndexAndVoutIndex]['scriptPubKey']['addresses'][0]
+            coinbase_address = coinbase_tx['vout'][authorTxIndexAndVoutIndex]['scriptPubKey']['address']
             coinbase_pkh = p2pkh_to_hex_hash(coinbase_address)
 
         #for i in range(self.node.getblockcount(), 0, -1):
@@ -216,7 +216,7 @@ class QtumEVMGlobalsTest(BitcoinTestFramework):
         self.contract_address = self.node.createcontract(bytecode)['address']
         print('verify globals in PoW blocks')
 
-        self.verify_evm_globals_test(use_staking=True)
+        self.verify_evm_globals_test(use_staking=False)
         self.sync_all()
         
         generatesynchronized(self.node, 257, None, self.nodes)

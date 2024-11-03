@@ -9,17 +9,17 @@
 #include <httpserver.h>
 
 #include <chainparamsbase.h>
+#include <common/args.h>
 #include <compat/compat.h>
+#include <logging.h>
 #include <netbase.h>
 #include <node/interface_ui.h>
 #include <rpc/protocol.h> // For HTTP status codes
 #include <rpc/server.h> // For HTTP status codes
-#include <shutdown.h>
 #include <sync.h>
 #include <util/check.h>
+#include <util/signalinterrupt.h>
 #include <util/strencodings.h>
-#include <util/syscall_sandbox.h>
-#include <util/system.h>
 #include <util/threadnames.h>
 #include <util/translation.h>
 
@@ -222,15 +222,10 @@ static bool ClientAllowed(const CNetAddr& netaddr)
 static bool InitHTTPAllowList()
 {
     rpc_allow_subnets.clear();
-    CNetAddr localv4;
-    CNetAddr localv6;
-    LookupHost("127.0.0.1", localv4, false);
-    LookupHost("::1", localv6, false);
-    rpc_allow_subnets.push_back(CSubNet(localv4, 8));      // always allow IPv4 local subnet
-    rpc_allow_subnets.push_back(CSubNet(localv6));         // always allow IPv6 localhost
+    rpc_allow_subnets.emplace_back(LookupHost("127.0.0.1", false).value(), 8);  // always allow IPv4 local subnet
+    rpc_allow_subnets.emplace_back(LookupHost("::1", false).value());  // always allow IPv6 localhost
     for (const std::string& strAllow : gArgs.GetArgs("-rpcallowip")) {
-        CSubNet subnet;
-        LookupSubNet(strAllow, subnet);
+        const CSubNet subnet{LookupSubNet(strAllow)};
         if (!subnet.IsValid()) {
             uiInterface.ThreadSafeMessageBox(
                 strprintf(Untranslated("Invalid -rpcallowip subnet specification: %s. Valid are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24)."), strAllow),
@@ -279,8 +274,10 @@ static void http_request_cb(struct evhttp_request* req, void* arg)
         }, nullptr);
     }
 
-    // Disable reading to work around a libevent bug, fixed in 2.2.0.
-    if (event_get_version_number() >= 0x02010600 && event_get_version_number() < 0x02020001) {
+    // Disable reading to work around a libevent bug, fixed in 2.1.9
+    // See https://github.com/libevent/libevent/commit/5ff8eb26371c4dc56f384b2de35bea2d87814779
+    // and https://github.com/bitcoin/bitcoin/pull/11593.
+    if (event_get_version_number() >= 0x02010600 && event_get_version_number() < 0x02010900) {
         if (conn) {
             bufferevent* bev = evhttp_connection_get_bufferevent(conn);
             if (bev) {
@@ -288,7 +285,7 @@ static void http_request_cb(struct evhttp_request* req, void* arg)
             }
         }
     }
-    std::unique_ptr<HTTPRequest> hreq(new HTTPRequest(req));
+    auto hreq{std::make_unique<HTTPRequest>(req, *static_cast<const util::SignalInterrupt*>(arg))};
 
     // Early address-based allow check
     if (!ClientAllowed(hreq->GetPeer())) {
@@ -353,7 +350,6 @@ static void http_reject_request_cb(struct evhttp_request* req, void*)
 static void ThreadHTTP(struct event_base* base)
 {
     util::ThreadRename("http");
-    SetSyscallSandboxPolicy(SyscallSandboxPolicy::NET_HTTP_SERVER);
     LogPrint(BCLog::HTTP, "Entering http event loop\n");
     event_base_dispatch(base);
     // Event loop will be interrupted by InterruptHTTPServer()
@@ -368,8 +364,8 @@ static bool HTTPBindAddresses(struct evhttp* http)
 
     // Determine what addresses to bind to
     if (!(gArgs.IsArgSet("-rpcallowip") && gArgs.IsArgSet("-rpcbind"))) { // Default to loopback if not allowing external IPs
-        endpoints.push_back(std::make_pair("::1", http_port));
-        endpoints.push_back(std::make_pair("127.0.0.1", http_port));
+        endpoints.emplace_back("::1", http_port);
+        endpoints.emplace_back("127.0.0.1", http_port);
         if (gArgs.IsArgSet("-rpcallowip")) {
             LogPrintf("WARNING: option -rpcallowip was specified without -rpcbind; this doesn't usually make sense\n");
         }
@@ -381,7 +377,7 @@ static bool HTTPBindAddresses(struct evhttp* http)
             uint16_t port{http_port};
             std::string host;
             SplitHostPort(strRPCBind, port, host);
-            endpoints.push_back(std::make_pair(host, port));
+            endpoints.emplace_back(host, port);
         }
     }
 
@@ -390,8 +386,8 @@ static bool HTTPBindAddresses(struct evhttp* http)
         LogPrintf("Binding RPC on address %s port %i\n", i->first, i->second);
         evhttp_bound_socket *bind_handle = evhttp_bind_socket_with_handle(http, i->first.empty() ? nullptr : i->first.c_str(), i->second);
         if (bind_handle) {
-            CNetAddr addr;
-            if (i->first.empty() || (LookupHost(i->first, addr, false) && addr.IsBindAny())) {
+            const std::optional<CNetAddr> addr{LookupHost(i->first, false)};
+            if (i->first.empty() || (addr.has_value() && addr->IsBindAny())) {
                 LogPrintf("WARNING: the RPC server is not safe to expose to untrusted networks such as the public internet\n");
             }
             boundSockets.push_back(bind_handle);
@@ -406,7 +402,6 @@ static bool HTTPBindAddresses(struct evhttp* http)
 static void HTTPWorkQueueRun(WorkQueue<HTTPClosure>* queue, int worker_num)
 {
     util::ThreadRename(strprintf("httpworker.%i", worker_num));
-    SetSyscallSandboxPolicy(SyscallSandboxPolicy::NET_HTTP_SERVER_WORKER);
     queue->Run();
 }
 
@@ -431,7 +426,7 @@ static void libevent_log_cb(int severity, const char *msg)
     LogPrintLevel(BCLog::LIBEVENT, level, "%s\n", msg);
 }
 
-bool InitHTTPServer()
+bool InitHTTPServer(const util::SignalInterrupt& interrupt)
 {
     if (!InitHTTPAllowList())
         return false;
@@ -460,7 +455,7 @@ bool InitHTTPServer()
     evhttp_set_timeout(http, gArgs.GetIntArg("-rpcservertimeout", DEFAULT_HTTP_SERVER_TIMEOUT));
     evhttp_set_max_headers_size(http, MAX_HEADERS_SIZE);
     evhttp_set_max_body_size(http, MAX_SIZE);
-    evhttp_set_gencb(http, http_request_cb, nullptr);
+    evhttp_set_gencb(http, http_request_cb, (void*)&interrupt);
 
     if (!HTTPBindAddresses(http)) {
         LogPrintf("Unable to bind any endpoint for RPC server\n");
@@ -469,7 +464,7 @@ bool InitHTTPServer()
 
     LogPrint(BCLog::HTTP, "Initialized HTTP server\n");
     int workQueueDepth = std::max((long)gArgs.GetIntArg("-rpcworkqueue", DEFAULT_HTTP_WORKQUEUE), 1L);
-    LogPrintfCategory(BCLog::HTTP, "creating work queue of depth %d\n", workQueueDepth);
+    LogDebug(BCLog::HTTP, "creating work queue of depth %d\n", workQueueDepth);
 
     g_work_queue = std::make_unique<WorkQueue<HTTPClosure>>(workQueueDepth);
     // transfer ownership to eventBase/HTTP via .release()
@@ -491,9 +486,8 @@ static std::vector<std::thread> g_thread_http_workers;
 
 void StartHTTPServer()
 {
-    LogPrint(BCLog::HTTP, "Starting HTTP server\n");
     int rpcThreads = std::max((long)gArgs.GetIntArg("-rpcthreads", DEFAULT_HTTP_THREADS), 1L);
-    LogPrintfCategory(BCLog::HTTP, "starting %d worker threads\n", rpcThreads);
+    LogInfo("Starting HTTP server with %d worker threads\n", rpcThreads);
     g_thread_http = std::thread(ThreadHTTP, eventBase);
 
     for (int i = 0; i < rpcThreads; i++) {
@@ -588,7 +582,8 @@ void HTTPEvent::trigger(struct timeval* tv)
     else
         evtimer_add(ev, tv); // trigger after timeval passed
 }
-HTTPRequest::HTTPRequest(struct evhttp_request* _req, bool _replySent) : req(_req), replySent(_replySent), startedChunkTransfer(false), connClosed(false)
+HTTPRequest::HTTPRequest(struct evhttp_request* _req, const util::SignalInterrupt& interrupt, bool _replySent)
+    : req(_req), m_interrupt(interrupt), replySent(_replySent), startedChunkTransfer(false), connClosed(false)
 {
 }
 
@@ -755,7 +750,7 @@ void HTTPRequest::Chunk(const std::string& chunk) {
 void HTTPRequest::WriteReply(int nStatus, const std::string& strReply)
 {
     assert(!replySent && req);
-    if (ShutdownRequested()) {
+    if (m_interrupt) {
         WriteHeader("Connection", "close");
     }
     // Send event to main http thread to send reply message
@@ -767,7 +762,7 @@ void HTTPRequest::WriteReply(int nStatus, const std::string& strReply)
         evhttp_send_reply(req_copy, nStatus, nullptr, nullptr);
         // Re-enable reading from the socket. This is the second part of the libevent
         // workaround above.
-        if (event_get_version_number() >= 0x02010600 && event_get_version_number() < 0x02020001) {
+        if (event_get_version_number() >= 0x02010600 && event_get_version_number() < 0x02010900) {
             evhttp_connection* conn = evhttp_request_get_connection(req_copy);
             if (conn) {
                 bufferevent* bev = evhttp_connection_get_bufferevent(conn);
@@ -797,7 +792,7 @@ CService HTTPRequest::GetPeer() const
         evhttp_connection_get_peer(con, (char**)&address, &port);
 #endif // HAVE_EVHTTP_CONNECTION_GET_PEER_CONST_CHAR
 
-        peer = LookupNumeric(address, port);
+        peer = MaybeFlipIPv6toCJDNS(LookupNumeric(address, port));
     }
     return peer;
 }
@@ -861,7 +856,7 @@ void RegisterHTTPHandler(const std::string &prefix, bool exactMatch, const HTTPR
 {
     LogPrint(BCLog::HTTP, "Registering HTTP handler for %s (exactmatch %d)\n", prefix, exactMatch);
     LOCK(g_httppathhandlers_mutex);
-    pathHandlers.push_back(HTTPPathHandler(prefix, exactMatch, handler));
+    pathHandlers.emplace_back(prefix, exactMatch, handler);
 }
 
 void UnregisterHTTPHandler(const std::string &prefix, bool exactMatch)

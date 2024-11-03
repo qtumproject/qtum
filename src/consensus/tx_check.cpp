@@ -8,7 +8,7 @@
 #include <primitives/transaction.h>
 #include <consensus/validation.h>
 #ifndef BUILD_BITCOIN_INTERNAL
-#include <script/standard.h>
+#include <script/solver.h>
 #endif
 
 bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
@@ -19,9 +19,10 @@ bool CheckTransaction(const CTransaction& tx, TxValidationState& state)
     if (tx.vout.empty())
         return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-vout-empty");
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
-    if (::GetSerializeSize(tx, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_TRANSACTION_BASE_SIZE || 
-        ::GetSerializeSize(tx, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) * WITNESS_SCALE_FACTOR > dgpMaxBlockWeight)
+    if (::GetSerializeSize(TX_NO_WITNESS(tx)) > MAX_TRANSACTION_BASE_SIZE || 
+        ::GetSerializeSize(TX_NO_WITNESS(tx)) * WITNESS_SCALE_FACTOR > dgpMaxBlockWeight) {
         return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-txns-oversize");
+    }
 
     // Check for negative or overflow output values (see CVE-2010-5139)
     CAmount nValueOut = 0;

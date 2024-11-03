@@ -5,12 +5,7 @@
 #ifndef BITCOIN_QT_WALLETMODEL_H
 #define BITCOIN_QT_WALLETMODEL_H
 
-#if defined(HAVE_CONFIG_H)
-#include <config/bitcoin-config.h>
-#endif
-
 #include <key.h>
-#include <script/standard.h>
 
 #include <qt/walletmodeltransaction.h>
 #include <qt/qtumhwitool.h> 
@@ -258,7 +253,7 @@ private:
     QString pathP2SH;
     QString pathBech32;
     QList<HWDevice> devices;
-    int64_t deviceTime = 0;
+    SteadyMilliseconds deviceTime{0ms};
 
     QThread t;
     WalletWorker *worker{nullptr};

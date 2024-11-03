@@ -7,7 +7,7 @@
 from decimal import Decimal
 import re
 
-from test_framework.qtumconfig import INITIAL_BLOCK_REWARD, COINBASE_MATURITY 
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD, COINBASE_MATURITY
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
@@ -21,7 +21,7 @@ import time
 # The block reward of coinbaseoutput.nValue (50) BTC/block matures after
 # COINBASE_MATURITY (100) blocks. Therefore, after mining 101 blocks we expect
 # node 0 to have a balance of (BLOCKS - COINBASE_MATURITY) * 50 BTC/block.
-BLOCKS = COINBASE_MATURITY+1
+BLOCKS = COINBASE_MATURITY + 1
 BALANCE = (BLOCKS - COINBASE_MATURITY) * INITIAL_BLOCK_REWARD
 
 JSON_PARSING_ERROR = 'error: Error parsing JSON: foo'
@@ -94,7 +94,7 @@ class TestBitcoinCli(BitcoinTestFramework):
         assert_equal(self.nodes[0].cli("-named", "echo", "arg0=0", "arg1=1", "arg2=2", "arg1=3").send_cli(), ['0', '3', '2'])
         assert_raises_rpc_error(-8, "Parameter args specified multiple times", self.nodes[0].cli("-named", "echo", "args=[0,1,2,3]", "4", "5", "6", ).send_cli)
 
-        user, password = get_auth_cookie(self.nodes[0].datadir, self.chain)
+        user, password = get_auth_cookie(self.nodes[0].datadir_path, self.chain)
 
         self.log.info("Test -stdinrpcpass option")
         assert_equal(BLOCKS, self.nodes[0].cli(f'-rpcuser={user}', '-stdinrpcpass', input=password).getblockcount())

@@ -37,7 +37,6 @@ class WalletChangeAddressTest(BitcoinTestFramework):
             if (info["ismine"] and info["ischange"]):
                 change_index = int(re.findall(r'\d+', info["hdkeypath"])[-1])
                 break
-            
         assert_equal(change_index, index)
 
     def assert_change_pos(self, wallet, tx, pos):

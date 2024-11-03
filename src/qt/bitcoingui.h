@@ -86,7 +86,7 @@ public:
     */
     void setClientModel(ClientModel *clientModel = nullptr, interfaces::BlockAndHeaderTipInfo* tip_info = nullptr);
 #ifdef ENABLE_WALLET
-    void setWalletController(WalletController* wallet_controller);
+    void setWalletController(WalletController* wallet_controller, bool show_loading_minimized);
     WalletController* getWalletController();
 #endif
 
@@ -110,11 +110,9 @@ public:
     void unsubscribeFromCoreSignals();
 
     WalletFrame *getWalletFrame() const;
-
     bool isPrivacyModeActivated() const;
 
     void join();
-
 protected:
     void changeEvent(QEvent *e) override;
     void closeEvent(QCloseEvent *event) override;
@@ -144,8 +142,8 @@ private:
     QLabel* labelStakingIcon = nullptr;
     QTimer* timerStakingIcon = nullptr;
 
-
     QMenuBar* appMenuBar = nullptr;
+
     TitleBar* appTitleBar = nullptr;
     NavigationBar* appNavigationBar = nullptr;
     QAction* overviewAction = nullptr;
@@ -193,6 +191,8 @@ private:
     QAction* m_wallet_selector_label_action = nullptr;
     QAction* m_wallet_selector_action = nullptr;
     QAction* m_mask_values_action{nullptr};
+    QAction* m_migrate_wallet_action{nullptr};
+    QMenu* m_migrate_wallet_menu{nullptr};
 
     QLabel *m_wallet_selector_label = nullptr;
     QComboBox* m_wallet_selector = nullptr;
@@ -206,7 +206,6 @@ private:
 
     ModalOverlay *modalBackupOverlay = nullptr;
     QtumVersionChecker *qtumVersionChecker = nullptr;
-
 
     QMenu* m_network_context_menu = new QMenu(this);
 
@@ -266,6 +265,8 @@ public Q_SLOTS:
     void setNetworkActive(bool network_active);
     /** Set number of blocks and last block date shown in the UI */
     void setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, SyncType synctype, SynchronizationState sync_state);
+    /** Launch the wallet creation modal (no-op if wallet is not compiled) **/
+    void createWallet();
 
     /** Notify the user of an event from the core network or transaction handling code.
        @param[in] title             the message box / notification title
@@ -373,14 +374,13 @@ public Q_SLOTS:
     /** Update staking icon **/
     void updateStakingIcon();
 #endif // ENABLE_WALLET
-    /** called by a timer to check if ShutdownRequested() has been set **/
+    /** called by a timer to check if shutdown has been requested */
     void detectShutdown();
 
     /** Show progress dialog e.g. for verifychain */
     void showProgress(const QString &title, int nProgress);
 
     void showModalOverlay();
-
     void showModalBackupOverlay();
 };
 

@@ -58,17 +58,17 @@ private:
 
 uint256 CBlockHeader::GetHash() const
 {
-    return SerializeHash(*this);
+    return (HashWriter{} << *this).GetHash();
 }
 
 uint256 CBlockHeader::GetHashWithoutSign() const
 {
-    return SerializeHash(CBlockHeaderSign(*this), SER_GETHASH);
+    return (HashWriter{} << CBlockHeaderSign(*this)).GetHash();
 }
 
 std::string CBlockHeader::GetWithoutSign() const
 {
-    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ss;
     ss << CBlockHeaderSign(*this);
     return EncodeBase64(ss.str());
 }

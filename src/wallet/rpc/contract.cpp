@@ -4,7 +4,7 @@
 #include <rpc/server.h>
 #include <rpc/contract_util.h>
 #include <util/moneystr.h>
-#include <util/system.h>
+#include <common/system.h>
 #include <util/signstr.h>
 #include <util/tokenstr.h>
 #include <wallet/rpc/util.h>
@@ -15,6 +15,7 @@
 #include <qtum/qtumdelegation.h>
 #include <validation.h>
 #include <wallet/rpc/contract.h>
+#include <common/args.h>
 
 #include <univalue.h>
 
@@ -32,7 +33,7 @@ bool SetDefaultPayForContractAddress(const CWallet& wallet, CCoinControl & coinC
     for (const COutput& out : vecOutputs) {
         CTxDestination destAdress;
         const CScript& scriptPubKey = out.txout.scriptPubKey;
-        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress)
+        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress, nullptr, true)
                 && IsValidContractSenderAddress(destAdress);
 
         if (!fValidAddress)
@@ -56,7 +57,7 @@ bool SetDefaultSignSenderAddress(const CWallet& wallet, CTxDestination& destAdre
 
     for (const COutput& out : vecOutputs) {
         const CScript& scriptPubKey = out.txout.scriptPubKey;
-        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress)
+        bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress, nullptr, true)
                 && IsValidContractSenderAddress(destAdress);
 
         if (!fValidAddress)
@@ -237,7 +238,7 @@ RPCHelpMan createcontract()
         for (const COutput& out : vecOutputs) {
             CTxDestination destAdress;
             const CScript& scriptPubKey = out.txout.scriptPubKey;
-            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress);
+            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress, nullptr, true);
 
             if (!fValidAddress || senderAddress != destAdress)
                 continue;
@@ -317,12 +318,11 @@ RPCHelpMan createcontract()
 
     // Create and send the transaction
     std::vector<CRecipient> vecSend;
-    int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, 0, false};
+    CRecipient recipient = {CNoDestination(scriptPubKey), 0, false};
     vecSend.push_back(recipient);
 
     bool sign = !fPsbt;
-    auto res = CreateTransaction(*pwallet, vecSend, nChangePosRet, coinControl, sign, nGasFee, true, signSenderAddress);
+    auto res = CreateTransaction(*pwallet, vecSend,  std::nullopt, coinControl, sign, nGasFee, true, signSenderAddress);
     if (!res) {
         throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
     }
@@ -357,7 +357,7 @@ RPCHelpMan createcontract()
         }
 
         // Serialize the PSBT
-        CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+        DataStream ssTx;
         ssTx << psbtx;
         result.pushKV("psbt", EncodeBase64(ssTx.str()));
 
@@ -381,7 +381,8 @@ RPCHelpMan createcontract()
 
     std::vector<unsigned char> SHA256TxVout(32);
     std::vector<unsigned char> contractAddress(20);
-    std::vector<unsigned char> txIdAndVout(tx->GetHash().begin(), tx->GetHash().end());
+    uint256 txHash = tx->GetHash().ToUint256();
+    std::vector<unsigned char> txIdAndVout(txHash.begin(), txHash.end());
     uint32_t voutNumber=0;
     for (const CTxOut& txout : tx->vout) {
         if(txout.scriptPubKey.HasOpCreate()){
@@ -397,7 +398,7 @@ RPCHelpMan createcontract()
     CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
     result.pushKV("address", HexStr(contractAddress));
     }else{
-    std::string strHex = EncodeHexTx(*tx, RPCSerializationFlags());
+    std::string strHex = EncodeHexTx(*tx);
     result.pushKV("raw transaction", strHex);
     }
     return result;
@@ -498,7 +499,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
 
             CTxDestination destAdress;
             const CScript& scriptPubKey = out.txout.scriptPubKey;
-            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress);
+            bool fValidAddress = out.spendable && ExtractDestination(scriptPubKey, destAdress, nullptr, true);
 
             if (!fValidAddress || senderAddress != destAdress)
                 continue;
@@ -579,12 +580,11 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
 
     // Create and send the transaction
     std::vector<CRecipient> vecSend;
-    int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nAmount, false};
+    CRecipient recipient = {CNoDestination(scriptPubKey), nAmount, false};
     vecSend.push_back(recipient);
 
     bool sign = !fPsbt;
-    auto res = CreateTransaction(wallet, vecSend, nChangePosRet, coinControl, sign, nGasFee, true, signSenderAddress);
+    auto res = CreateTransaction(wallet, vecSend,  std::nullopt, coinControl, sign, nGasFee, true, signSenderAddress);
     if (!res) {
         throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
     }
@@ -620,7 +620,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
         }
 
         // Serialize the PSBT
-        CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+        DataStream ssTx;
         ssTx << psbtx;
         result.pushKV("psbt", EncodeBase64(ssTx.str()));
 
@@ -642,7 +642,7 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
         result.pushKV("sender", EncodeDestination(txSenderAdress));
         result.pushKV("hash160", HexStr(valtype(keyid.begin(),keyid.end())));
     }else{
-        std::string strHex = EncodeHexTx(*tx, RPCSerializationFlags());
+        std::string strHex = EncodeHexTx(*tx);
         result.pushKV("raw transaction", strHex);
     }
 

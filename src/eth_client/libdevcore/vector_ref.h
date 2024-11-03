@@ -28,7 +28,7 @@ public:
 	using element_type = _T;
 	using mutable_value_type = typename std::conditional<std::is_const<_T>::value, typename std::remove_const<_T>::type, _T>::type;
 
-	static_assert(std::is_pod<value_type>::value, "vector_ref can only be used with PODs due to its low-level treatment of data.");
+	static_assert(std::is_trivial<value_type>::value && std::is_standard_layout<value_type>::value, "vector_ref can only be used with PODs due to its low-level treatment of data.");
 
 	vector_ref(): m_data(nullptr), m_count(0) {}
 	/// Creates a new vector_ref to point to @a _count elements starting at @a _data.

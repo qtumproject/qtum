@@ -6,9 +6,10 @@
 #include <bench/data.h>
 
 #include <chainparams.h>
+#include <common/args.h>
 #include <consensus/validation.h>
 #include <streams.h>
-#include <util/system.h>
+#include <util/chaintype.h>
 #include <validation.h>
 #include <test/util/setup_common.h>
 
@@ -18,13 +19,13 @@
 
 static void DeserializeBlockTest(benchmark::Bench& bench)
 {
-    CDataStream stream(benchmark::data::blockbench, SER_NETWORK, PROTOCOL_VERSION);
+    DataStream stream(benchmark::data::blockbench);
     std::byte a{0};
     stream.write({&a, 1}); // Prevent compaction
 
     bench.unit("block").run([&] {
         CBlock block;
-        stream >> block;
+        stream >> TX_WITH_WITNESS(block);
         bool rewound = stream.Rewind(benchmark::data::blockbench.size());
         assert(rewound);
     });
@@ -32,18 +33,18 @@ static void DeserializeBlockTest(benchmark::Bench& bench)
 
 static void DeserializeAndCheckBlockTest(benchmark::Bench& bench)
 {
-    CDataStream stream(benchmark::data::blockbench, SER_NETWORK, PROTOCOL_VERSION);
+    DataStream stream(benchmark::data::blockbench);
     std::byte a{0};
     stream.write({&a, 1}); // Prevent compaction
 
     ArgsManager bench_args;
-    const auto chainParams = CreateChainParams(bench_args, CBaseChainParams::MAIN);
-    const auto testing_setup = MakeNoLogFileContext<const TestingSetup>(CBaseChainParams::MAIN);
+    const auto chainParams = CreateChainParams(bench_args, ChainType::MAIN);
+    const auto testing_setup = MakeNoLogFileContext<const TestingSetup>(ChainType::MAIN);
     Chainstate& chainstate = testing_setup->m_node.chainman->ActiveChainstate();
 
     bench.unit("block").run([&] {
         CBlock block; // Note that CBlock caches its checked state, so we need to recreate it here
-        stream >> block;
+        stream >> TX_WITH_WITNESS(block);
         bool rewound = stream.Rewind(benchmark::data::blockbench.size());
         assert(rewound);
 

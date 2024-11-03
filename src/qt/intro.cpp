@@ -9,15 +9,16 @@
 #include <chainparams.h>
 #include <qt/intro.h>
 #include <qt/forms/ui_intro.h>
+#include <util/chaintype.h>
 #include <util/fs.h>
 
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
 
+#include <common/args.h>
 #include <interfaces/node.h>
 #include <util/fs_helpers.h>
-#include <util/system.h>
 #include <validation.h>
 
 #include <QFileDialog>
@@ -141,8 +142,9 @@ Intro::Intro(QWidget *parent, int64_t blockchain_size_gb, int64_t chain_state_si
 
     const int min_prune_target_GB = std::ceil(MIN_DISK_SPACE_FOR_BLOCK_FILES / 1e9);
     ui->pruneGB->setRange(min_prune_target_GB, std::numeric_limits<int>::max());
-    if (gArgs.GetIntArg("-prune", 0) > 1) { // -prune=1 means enabled, above that it's a size in MiB
-        ui->prune->setChecked(true);
+    if (gArgs.IsArgSet("-prune")) {
+        m_prune_checkbox_is_default = false;
+        ui->prune->setChecked(gArgs.GetIntArg("-prune", 0) >= 1);
         ui->prune->setEnabled(false);
     }
     ui->pruneGB->setValue(m_prune_target_gb);
@@ -151,6 +153,7 @@ Intro::Intro(QWidget *parent, int64_t blockchain_size_gb, int64_t chain_state_si
     UpdatePruneLabels(ui->prune->isChecked());
 
     connect(ui->prune, &QCheckBox::toggled, [this](bool prune_checked) {
+        m_prune_checkbox_is_default = false;
         UpdatePruneLabels(prune_checked);
         UpdateFreeSpaceLabel();
     });
@@ -219,7 +222,7 @@ bool Intro::showIfNeeded(bool& did_show_intro, int64_t& prune_MiB)
     {
         /* Use selectParams here to guarantee Params() can be used by node interface */
         try {
-            SelectParams(gArgs.GetChainName());
+            SelectParams(gArgs.GetChainType());
         } catch (const std::exception&) {
             return false;
         }
@@ -286,7 +289,7 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
         ui->freeSpace->setText("");
     } else {
         m_bytes_available = bytesAvailable;
-        if (ui->prune->isEnabled() && !(gArgs.IsArgSet("-prune") && gArgs.GetIntArg("-prune", 0) == 0)) {
+        if (ui->prune->isEnabled() && m_prune_checkbox_is_default) {
             ui->prune->setChecked(m_bytes_available < (m_blockchain_size_gb + m_chain_state_size_gb + 10) * GB_BYTES);
         }
         UpdateFreeSpaceLabel();

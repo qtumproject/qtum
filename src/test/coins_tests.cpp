@@ -2,10 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <addresstype.h>
 #include <clientversion.h>
 #include <coins.h>
-#include <script/standard.h>
 #include <streams.h>
+#include <test/util/poolresourcetester.h>
 #include <test/util/random.h>
 #include <test/util/setup_common.h>
 #include <txdb.h>
@@ -136,16 +137,16 @@ void SimulationTest(CCoinsView* base, bool fake_best_block)
     stack.push_back(std::make_unique<CCoinsViewCacheTest>(base)); // Start with one cache.
 
     // Use a limited set of random transaction ids, so we do test overwriting entries.
-    std::vector<uint256> txids;
+    std::vector<Txid> txids;
     txids.resize(NUM_SIMULATION_ITERATIONS / 8);
     for (unsigned int i = 0; i < txids.size(); i++) {
-        txids[i] = InsecureRand256();
+        txids[i] = Txid::FromUint256(InsecureRand256());
     }
 
     for (unsigned int i = 0; i < NUM_SIMULATION_ITERATIONS; i++) {
         // Do a random modification.
         {
-            uint256 txid = txids[InsecureRandRange(txids.size())]; // txid we're going to modify in this iteration.
+            auto txid = txids[InsecureRandRange(txids.size())]; // txid we're going to modify in this iteration.
             Coin& coin = result[COutPoint(txid, 0)];
 
             // Determine whether to test HaveCoin before or after Access* (or both). As these functions
@@ -289,7 +290,7 @@ UtxoData utxoData;
 
 UtxoData::iterator FindRandomFrom(const std::set<COutPoint> &utxoSet) {
     assert(utxoSet.size());
-    auto utxoSetIt = utxoSet.lower_bound(COutPoint(InsecureRand256(), 0));
+    auto utxoSetIt = utxoSet.lower_bound(COutPoint(Txid::FromUint256(InsecureRand256()), 0));
     if (utxoSetIt == utxoSet.end()) {
         utxoSetIt = utxoSet.begin();
     }
@@ -612,7 +613,8 @@ void GetCoinsMapEntry(const CCoinsMap& map, CAmount& value, char& flags, const C
 
 void WriteCoinsViewEntry(CCoinsView& view, CAmount value, char flags)
 {
-    CCoinsMap map;
+    CCoinsMapMemoryResource resource;
+    CCoinsMap map{0, CCoinsMap::hasher{}, CCoinsMap::key_equal{}, &resource};
     InsertCoinsMapEntry(map, value, flags);
     BOOST_CHECK(view.BatchWrite(map, {}));
 }
@@ -911,6 +913,7 @@ void TestFlushBehavior(
     CAmount value;
     char flags;
     size_t cache_usage;
+    size_t cache_size;
 
     auto flush_all = [&all_caches](bool erase) {
         // Flush in reverse order to ensure that flushes happen from children up.
@@ -923,7 +926,7 @@ void TestFlushBehavior(
         }
     };
 
-    uint256 txid = InsecureRand256();
+    Txid txid = Txid::FromUint256(InsecureRand256());
     COutPoint outp = COutPoint(txid, 0);
     Coin coin = MakeCoin();
     // Ensure the coins views haven't seen this coin before.
@@ -935,6 +938,8 @@ void TestFlushBehavior(
     view->AddCoin(outp, Coin(coin), false);
 
     cache_usage = view->DynamicMemoryUsage();
+    cache_size = view->map().size();
+
     // `base` shouldn't have coin (no flush yet) but `view` should have cached it.
     BOOST_CHECK(!base.HaveCoin(outp));
     BOOST_CHECK(view->HaveCoin(outp));
@@ -949,6 +954,7 @@ void TestFlushBehavior(
 
     // CoinsMap usage should be unchanged since we didn't erase anything.
     BOOST_CHECK_EQUAL(cache_usage, view->DynamicMemoryUsage());
+    BOOST_CHECK_EQUAL(cache_size, view->map().size());
 
     // --- 3. Ensuring the entry still exists in the cache and has been written to parent
     //
@@ -965,8 +971,10 @@ void TestFlushBehavior(
         //
         flush_all(/*erase=*/ true);
 
-        // Memory usage should have gone down.
-        BOOST_CHECK(view->DynamicMemoryUsage() < cache_usage);
+        // Memory does not necessarily go down due to the map using a memory pool
+        BOOST_TEST(view->DynamicMemoryUsage() <= cache_usage);
+        // Size of the cache must go down though
+        BOOST_TEST(view->map().size() < cache_size);
 
         // --- 5. Ensuring the entry is no longer in the cache
         //
@@ -1009,7 +1017,7 @@ void TestFlushBehavior(
     // --- Bonus check: ensure that a coin added to the base view via one cache
     //     can be spent by another cache which has never seen it.
     //
-    txid = InsecureRand256();
+    txid = Txid::FromUint256(InsecureRand256());
     outp = COutPoint(txid, 0);
     coin = MakeCoin();
     BOOST_CHECK(!base.HaveCoin(outp));
@@ -1032,7 +1040,7 @@ void TestFlushBehavior(
 
     // --- Bonus check 2: ensure that a FRESH, spent coin is deleted by Sync()
     //
-    txid = InsecureRand256();
+    txid = Txid::FromUint256(InsecureRand256());
     outp = COutPoint(txid, 0);
     coin = MakeCoin();
     CAmount coin_val = coin.out.nValue;
@@ -1074,6 +1082,31 @@ BOOST_AUTO_TEST_CASE(ccoins_flush_behavior)
         TestFlushBehavior(view.get(), base, caches, /*do_erasing_flush=*/false);
         TestFlushBehavior(view.get(), base, caches, /*do_erasing_flush=*/true);
     }
+}
+
+BOOST_AUTO_TEST_CASE(coins_resource_is_used)
+{
+    CCoinsMapMemoryResource resource;
+    PoolResourceTester::CheckAllDataAccountedFor(resource);
+
+    {
+        CCoinsMap map{0, CCoinsMap::hasher{}, CCoinsMap::key_equal{}, &resource};
+        BOOST_TEST(memusage::DynamicUsage(map) >= resource.ChunkSizeBytes());
+
+        map.reserve(1000);
+
+        // The resource has preallocated a chunk, so we should have space for at several nodes without the need to allocate anything else.
+        const auto usage_before = memusage::DynamicUsage(map);
+
+        COutPoint out_point{};
+        for (size_t i = 0; i < 1000; ++i) {
+            out_point.n = i;
+            map[out_point];
+        }
+        BOOST_TEST(usage_before == memusage::DynamicUsage(map));
+    }
+
+    PoolResourceTester::CheckAllDataAccountedFor(resource);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -32,7 +32,7 @@ static TransactionError HandleATMPError(const TxValidationState& state, std::str
 
 TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef tx, std::string& err_string, const CAmount& max_tx_fee, bool relay, bool wait_callback)
 {
-    // BroadcastTransaction can be called by either sendrawtransaction RPC or the wallet.
+    // BroadcastTransaction can be called by RPC or by the wallet.
     // chainman, mempool and peerman are initialized before the RPC server and wallet are started
     // and reset after the RPC sever and wallet are stopped.
     assert(node.chainman);
@@ -40,7 +40,7 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
     assert(node.peerman);
 
     std::promise<void> promise;
-    uint256 txid = tx->GetHash();
+    Txid txid = tx->GetHash();
     uint256 wtxid = tx->GetWitnessHash();
     bool callback_set = false;
 
@@ -122,7 +122,7 @@ TransactionError BroadcastTransaction(NodeContext& node, const CTransactionRef t
     return TransactionError::OK;
 }
 
-CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, const Consensus::Params& consensusParams, uint256& hashBlock, Chainstate* chainstate)
+CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, uint256& hashBlock, const BlockManager& blockman, Chainstate* chainstate)
 {
     if (mempool && !block_index) {
         CTransactionRef ptx = mempool->get(hash);
@@ -143,7 +143,7 @@ CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMe
     }
     if (block_index) {
         CBlock block;
-        if (ReadBlockFromDisk(block, block_index, consensusParams)) {
+        if (blockman.ReadBlockFromDisk(block, *block_index)) {
             for (const auto& tx : block.vtx) {
                 if (tx->GetHash() == hash) {
                     hashBlock = block_index->GetBlockHash();
@@ -154,11 +154,11 @@ CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMe
     }
     if (chainstate) { // use coin database to locate block that contains transaction, and scan it
         CBlockIndex* pindexSlow = nullptr;
-        const Coin& coin = AccessByTxid(chainstate->CoinsTip(), hash);
+        const Coin& coin = AccessByTxid(chainstate->CoinsTip(), Txid::FromUint256(hash));
         if (!coin.IsSpent()) pindexSlow = chainstate->m_chain[coin.nHeight];
         if (pindexSlow) {
             CBlock block;
-            if (ReadBlockFromDisk(block, pindexSlow, consensusParams)) {
+            if (blockman.ReadBlockFromDisk(block, *pindexSlow)) {
                 for (const auto& tx : block.vtx) {
                     if (tx->GetHash() == hash) {
                         hashBlock = pindexSlow->GetBlockHash();

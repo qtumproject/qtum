@@ -7,7 +7,6 @@
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
-    find_vout_for_address
 )
 from test_framework.messages import (
     COIN,
@@ -36,8 +35,8 @@ class TxnMallTest(BitcoinTestFramework):
         super().setup_network()
         self.disconnect_nodes(1, 2)
 
-    def spend_txid(self, txid, vout, outputs):
-        inputs = [{"txid": txid, "vout": vout}]
+    def spend_utxo(self, utxo, outputs):
+        inputs = [utxo]
         tx = self.nodes[0].createrawtransaction(inputs, outputs)
         tx = self.nodes[0].fundrawtransaction(tx)
         tx = self.nodes[0].signrawtransactionwithwallet(tx['hex'])
@@ -57,13 +56,13 @@ class TxnMallTest(BitcoinTestFramework):
         self.nodes[0].settxfee(.01)
 
         node0_address1 = self.nodes[0].getnewaddress(address_type=output_type)
-        node0_txid1 = self.nodes[0].sendtoaddress(node0_address1, 487600)
-        node0_tx1 = self.nodes[0].gettransaction(node0_txid1)
-        self.nodes[0].lockunspent(False, [{"txid":node0_txid1, "vout": find_vout_for_address(self.nodes[0], node0_txid1, node0_address1)}])
+        node0_utxo1 = self.create_outpoints(self.nodes[0], outputs=[{node0_address1: 487600}])[0]
+        node0_tx1 = self.nodes[0].gettransaction(node0_utxo1['txid'])
+        self.nodes[0].lockunspent(False, [node0_utxo1])
 
         node0_address2 = self.nodes[0].getnewaddress(address_type=output_type)
-        node0_txid2 = self.nodes[0].sendtoaddress(node0_address2, 11600)
-        node0_tx2 = self.nodes[0].gettransaction(node0_txid2)
+        node0_utxo2 = self.create_outpoints(self.nodes[0], outputs=[{node0_address2: 11600}])[0]
+        node0_tx2 = self.nodes[0].gettransaction(node0_utxo2['txid'])
 
         assert_equal(self.nodes[0].getbalance(),
                      starting_balance + node0_tx1["fee"] + node0_tx2["fee"])
@@ -72,8 +71,8 @@ class TxnMallTest(BitcoinTestFramework):
         node1_address = self.nodes[1].getnewaddress(output_type)
 
         # Send tx1, and another transaction tx2 that won't be cloned
-        txid1 = self.spend_txid(node0_txid1, find_vout_for_address(self.nodes[0], node0_txid1, node0_address1), {node1_address: 16000})
-        txid2 = self.spend_txid(node0_txid2, find_vout_for_address(self.nodes[0], node0_txid2, node0_address2), {node1_address: 8000})
+        txid1 = self.spend_utxo(node0_utxo1, {node1_address: 16000})
+        txid2 = self.spend_utxo(node0_utxo2, {node1_address: 8000})
 
         # Construct a clone of tx1, to be malleated
         rawtx1 = self.nodes[0].getrawtransaction(txid1, 1)

@@ -5,16 +5,11 @@
 
 #include <chainparamsbase.h>
 
+#include <common/args.h>
 #include <tinyformat.h>
-#include <util/system.h>
+#include <util/chaintype.h>
 
 #include <assert.h>
-
-const std::string CBaseChainParams::MAIN = "main";
-const std::string CBaseChainParams::TESTNET = "test";
-const std::string CBaseChainParams::SIGNET = "signet";
-const std::string CBaseChainParams::REGTEST = "regtest";
-const std::string CBaseChainParams::UNITTEST = "unittest";
 
 void SetupChainParamsBaseOptions(ArgsManager& argsman)
 {
@@ -41,24 +36,25 @@ const CBaseChainParams& BaseParams()
  * Port numbers for incoming Tor connections (3891, 13891, 33891, 13891) have
  * been chosen arbitrarily to keep ranges of used ports tight.
  */
-std::unique_ptr<CBaseChainParams> CreateBaseChainParams(const std::string& chain)
+std::unique_ptr<CBaseChainParams> CreateBaseChainParams(const ChainType chain)
 {
-    if (chain == CBaseChainParams::MAIN) {
+    switch (chain) {
+    case ChainType::MAIN:
         return std::make_unique<CBaseChainParams>("", 3889, 3891);
-    } else if (chain == CBaseChainParams::TESTNET) {
+    case ChainType::TESTNET:
         return std::make_unique<CBaseChainParams>("testnet3", 13889, 13891);
-    } else if (chain == CBaseChainParams::SIGNET) {
+    case ChainType::SIGNET:
         return std::make_unique<CBaseChainParams>("signet", 33889, 33891);
-    } else if (chain == CBaseChainParams::REGTEST) {
+    case ChainType::REGTEST:
         return std::make_unique<CBaseChainParams>("regtest", 13889, 13891);
-    } else if (chain == CBaseChainParams::UNITTEST) {
+    case ChainType::UNITTEST:
         return std::make_unique<CBaseChainParams>("regtest", 13889, 13891);
     }
-    throw std::runtime_error(strprintf("%s: Unknown chain %s.", __func__, chain));
+    assert(false);
 }
 
-void SelectBaseParams(const std::string& chain)
+void SelectBaseParams(const ChainType chain)
 {
     globalChainBaseParams = CreateBaseChainParams(chain);
-    gArgs.SelectConfigNetwork(chain);
+    gArgs.SelectConfigNetwork(ChainTypeToString(chain));
 }

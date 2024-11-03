@@ -9,12 +9,18 @@
 #include <pow.h>
 #include <warnings.h>
 #include <chainparams.h>
+#include <common/args.h>
 
 #include <univalue.h>
 
 using node::BlockAssembler;
 
 namespace wallet {
+
+UniValue GetReqNetworkHashPS(const JSONRPCRequest& request, ChainstateManager& chainman)
+{
+    return GetNetworkHashPS(!request.params[0].isNull() ? request.params[0].getInt<int>() : 120, !request.params[1].isNull() ? request.params[1].getInt<int>() : -1, chainman.ActiveChain());
+}
 
 RPCHelpMan getmininginfo()
 {
@@ -80,8 +86,8 @@ RPCHelpMan getmininginfo()
     if (BlockAssembler::m_last_block_weight) obj.pushKV("currentblockweight", *BlockAssembler::m_last_block_weight);
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
 
-    diff.pushKV("proof-of-work",   GetDifficulty(GetLastBlockIndex(chainman.m_best_header, false)));
-    diff.pushKV("proof-of-stake",  GetDifficulty(GetLastBlockIndex(chainman.m_best_header, true)));
+    diff.pushKV("proof-of-work",   GetDifficulty(*CHECK_NONFATAL(GetLastBlockIndex(chainman.m_best_header, false))));
+    diff.pushKV("proof-of-stake",  GetDifficulty(*CHECK_NONFATAL(GetLastBlockIndex(chainman.m_best_header, true))));
     diff.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
     obj.pushKV("difficulty",       diff);
 
@@ -99,7 +105,7 @@ RPCHelpMan getmininginfo()
     weight.pushKV("combined",      (uint64_t)nWeight);
     obj.pushKV("stakeweight",      weight);
 
-    obj.pushKV("chain",            Params().NetworkIDString());
+    obj.pushKV("chain", chainman.GetParams().GetChainTypeString());
     obj.pushKV("warnings",         GetWarnings(false).original);
     return obj;
 },
@@ -167,7 +173,7 @@ RPCHelpMan getstakinginfo()
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
     obj.pushKV("pooledtx", (uint64_t)mempool.size());
 
-    obj.pushKV("difficulty", GetDifficulty(GetLastBlockIndex(chainman.m_best_header, true)));
+    obj.pushKV("difficulty", GetDifficulty(*CHECK_NONFATAL(GetLastBlockIndex(chainman.m_best_header, true))));
     obj.pushKV("search-interval", (int)lastCoinStakeSearchInterval);
 
     obj.pushKV("weight", (uint64_t)nStakerWeight);

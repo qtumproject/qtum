@@ -32,6 +32,7 @@ from test_framework.script import (
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
+    assert_greater_than,
     assert_raises_rpc_error,
 )
 from test_framework.wallet import (
@@ -72,7 +73,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.extra_args = [
             ["-txindex", "-addresstype=legacy", "-minrelaytxfee=0.00000010"],
             ["-txindex", "-addresstype=legacy", "-minrelaytxfee=0.00000010"],
-            [],
+            ["-fastprune", "-prune=1"],
         ]
         # whitelist all peers to speed up tx relay / mempool sync
         for args in self.extra_args:
@@ -87,7 +88,6 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.wallet = MiniWallet(self.nodes[0])
 
         self.getrawtransaction_tests()
-        self.getrawtransaction_verbosity_tests()
         self.createrawtransaction_tests()
         self.sendrawtransaction_tests()
         self.sendrawtransaction_testmempoolaccept_tests()
@@ -96,6 +96,8 @@ class RawTransactionsTest(BitcoinTestFramework):
         if self.is_specified_wallet_compiled() and not self.options.descriptors:
             self.import_deterministic_coinbase_privkeys()
             self.raw_multisig_transaction_legacy_tests()
+        self.getrawtransaction_verbosity_tests()
+
 
     def getrawtransaction_tests(self):
         tx = self.wallet.send_self_transfer(from_node=self.nodes[0])
@@ -244,6 +246,13 @@ class RawTransactionsTest(BitcoinTestFramework):
         # check that coinbase has no fee or does not throw any errors for verbosity 2
         coin_base = self.nodes[1].getblock(block1)['tx'][0]
         gottx = self.nodes[1].getrawtransaction(txid=coin_base, verbosity=2, blockhash=block1)
+        assert 'fee' not in gottx
+        # check that verbosity 2 for a mempool tx will fallback to verbosity 1
+        # Do this with a pruned chain, as a regression test for https://github.com/bitcoin/bitcoin/pull/29003
+        self.generate(self.nodes[2], 4000)
+        assert_greater_than(self.nodes[2].pruneblockchain(2500), 0)
+        mempool_tx = self.wallet.send_self_transfer(from_node=self.nodes[2])['txid']
+        gottx = self.nodes[2].getrawtransaction(txid=mempool_tx, verbosity=2)
         assert 'fee' not in gottx
 
     def createrawtransaction_tests(self):
@@ -420,9 +429,9 @@ class RawTransactionsTest(BitcoinTestFramework):
         # and sendrawtransaction should throw
         assert_raises_rpc_error(-25, fee_exceeds_max, self.nodes[2].sendrawtransaction, tx['hex'])
         # and the following calls should both succeed
-        testres = self.nodes[2].testmempoolaccept(rawtxs=[tx['hex']], maxfeerate='10')[0]
+        testres = self.nodes[2].testmempoolaccept(rawtxs=[tx['hex']], maxfeerate='2')[0]
         assert_equal(testres['allowed'], True)
-        self.nodes[2].sendrawtransaction(hexstring=tx['hex'], maxfeerate='10')
+        self.nodes[2].sendrawtransaction(hexstring=tx['hex'], maxfeerate='2')
 
         self.log.info("Test sendrawtransaction/testmempoolaccept with tx already in the chain")
         self.generate(self.nodes[2], 1)

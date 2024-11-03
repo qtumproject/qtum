@@ -116,6 +116,8 @@ struct Params {
     int nLondonHeight;
     /** Block height at which EVM Shanghai fork becomes active */
     int nShanghaiHeight;
+    /** Block height at which EVM Cancun fork becomes active */
+    int nCancunHeight;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.

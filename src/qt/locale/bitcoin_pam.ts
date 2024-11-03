@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">I-right click ban alilan ing address o libel</translation>
+        <translation type="unfinished">I-right click ban alilan ing address o label</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation type="unfinished">Kopyan me ing salukuyan at makipiling address keng system clipboard</translation>
+        <translation type="unfinished">Kopyan me ing makalage address king system clipboard</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
@@ -27,11 +27,19 @@
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation type="unfinished">Ilako ya ing kasalungsungan makapiling address keng listahan</translation>
+        <translation type="unfinished">Ilako me ing kasalungsungang makalage address king listaan</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
-        <translation type="unfinished">Magpalub kang address o label para pantunan</translation>
+        <translation type="unfinished">Mangana kang address o label ban panintunan</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation type="unfinished">Export me ing data king tab a ini anting metung a file</translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">I&amp;Export</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -39,28 +47,20 @@
     </message>
     <message>
         <source>Choose the address to send coins to</source>
-        <translation type="unfinished">Pilinan ing address a magpadalang coins kang</translation>
+        <translation type="unfinished">Mamili kang address a mamarlang coins</translation>
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation type="unfinished">Pilinan ing address a tumanggap coins a atin</translation>
+        <translation type="unfinished">Mamili kang address a tumanggap coins</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
         <translation type="unfinished">P&amp;ilinan</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Address king pamag-Send</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Address king pamag-Tanggap</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Reni reng kekang Qtum address king pamagpadalang kabayaran. Lawan mulang masalese reng alaga ampo ing address na ning tumanggap bayu ka magpadalang barya.</translation>
-  </message>
+        <translation type="unfinished">Oreni ring Qtum address mu king pamamarla karing bayad. Lawan mong masalese ring ulaga ra ampon ing address na ning mananggapan bayad bayu ka mamarla.</translation>
+    </message>
     <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">&amp;Kopyan ing address</translation>
@@ -121,8 +121,8 @@
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Kapabaluan: Istung in-encrypt me ing kekang wallet at meala ya ing passphrase na, ma-&lt;b&gt;ALA NO NGAN RING KEKANG QTUMS&lt;/b&gt;</translation> 
-   </message>
+        <translation type="unfinished">Kapabaluan: Istung in-encrypt me ing kekang wallet at meala ya ing passphrase na, ma-&lt;b&gt;ALA NO NGAN RING KEKANG QTUMS&lt;/b&gt;</translation>
+    </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
         <translation type="unfinished">Siguradu na kang buri meng i-encrypt ing kekang wallet?</translation>
@@ -244,7 +244,7 @@
     <message>
         <source>Send coins to a Qtum address</source>
         <translation type="unfinished">Magpadalang barya king Qtum address</translation>
-  </message>
+    </message>
     <message>
         <source>Backup wallet to another location</source>
         <translation type="unfinished">I-backup ing wallet king aliwang lugal</translation>
@@ -375,7 +375,7 @@
     <message>
         <source>The entered address "%1" is not a valid Qtum address.</source>
         <translation type="unfinished">Ing pepalub yung address "%1" ali ya katanggap-tanggap a Qtum address.</translation>
-   </message>
+    </message>
     <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">Ali ya bisang mag-unlock ing wallet</translation>
@@ -460,7 +460,7 @@
     <message>
         <source>Automatically open the Qtum client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">Ibuklat yang antimanu ing Qtum client port king router. Gagana yamu ini istung ing router mu susuporta yang UPnP at magsilbi ya.</translation>
-  </message>
+    </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapa ng ning port gamit ing &amp;UPnP</translation>
@@ -519,7 +519,7 @@
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">Ing makaltong impormasion mapalyaring luma ne. Ing kekang wallet otomatiku yang mag-synchronize keng Qtum network istung mekakonekta ne king network, oneng ing prosesung ini ali ya pa kumpletu.</translation>
-   </message>
+    </message>
     <message>
         <source>Your current spendable balance</source>
         <translation type="unfinished">Ing kekang kasalungsungan balanse a malyari mung gastusan</translation>
@@ -539,6 +539,13 @@
     <message>
         <source>Your current total balance</source>
         <translation type="unfinished">Ing kekang kasalungsungan kabuuang balanse</translation>
+    </message>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>own address</source>
+        <translation type="unfinished">sariling address</translation>
     </message>
     </context>
 <context>
@@ -754,7 +761,7 @@
     <message>
         <source>Sign the message to prove you own this Qtum address</source>
         <translation type="unfinished">Pirman ing mensayi ban patune na keka ya ining Qtum address</translation>
-  </message>
+    </message>
     <message>
         <source>Sign &amp;Message</source>
         <translation type="unfinished">Pirman ing &amp;Mensayi</translation>
@@ -773,8 +780,8 @@
     </message>
     <message>
         <source>Verify the message to ensure it was signed with the specified Qtum address</source>
-        <translation type="unfinished">Beripikan ing mensayi ban asiguradu a me pirma ya ini gamit ing mepiling Qtum address</translation> 
-   </message>
+        <translation type="unfinished">Beripikan ing mensayi ban asiguradu a me pirma ya ini gamit ing mepiling Qtum address</translation>
+    </message>
     <message>
         <source>Verify &amp;Message</source>
         <translation type="unfinished">Beripikan ing &amp;Mensayi</translation>
@@ -969,10 +976,6 @@
         <translation type="unfinished">Mipadala kang</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Kabayaran keka</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Me-mina</translation>
     </message>
@@ -1032,10 +1035,6 @@
         <translation type="unfinished">Mipadala kang</translation>
     </message>
     <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Keng sarili mu</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Me-mina</translation>
     </message>
@@ -1080,6 +1079,17 @@
     <message>
         <source>Send Coins</source>
         <translation type="unfinished">Magpadalang Barya</translation>
+    </message>
+    </context>
+<context>
+    <name>WalletView</name>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">I&amp;Export</translation>
+    </message>
+    <message>
+        <source>Export the data in the current tab to a file</source>
+        <translation type="unfinished">Export me ing data king tab a ini anting metung a file</translation>
     </message>
     </context>
 <context>

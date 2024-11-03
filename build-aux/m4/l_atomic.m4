@@ -4,8 +4,10 @@ dnl permitted in any medium without royalty provided the copyright notice
 dnl and this notice are preserved. This file is offered as-is, without any
 dnl warranty.
 
-# Some versions of gcc/libstdc++ require linking with -latomic if
-# using the C++ atomic library.
+# Clang, when building for 32-bit,
+# and linking against libstdc++, requires linking with
+# -latomic if using the C++ atomic library.
+# Can be tested with: clang++ -std=c++20 test.cpp -m32
 #
 # Sourced from http://bugs.debian.org/797228
 
@@ -22,9 +24,14 @@ m4_define([_CHECK_ATOMIC_testbody], [[
 
     std::atomic<std::chrono::seconds> t{0s};
     t.store(2s);
+    auto t1 = t.load();
+    t.compare_exchange_strong(t1, 3s);
+
+    std::atomic<double> d{};
+    d.store(3.14);
+    auto d1 = d.load();
 
     std::atomic<int64_t> a{};
-
     int64_t v = 5;
     int64_t r = a.fetch_add(v);
     return static_cast<int>(r);

@@ -19,7 +19,7 @@ CMutableTransaction createTX(std::vector<CTxOut> vout, uint256 hashprev = uint25
     CMutableTransaction tx;
     tx.vin.resize(1);
     tx.vin[0].scriptSig = CScript() << OP_1;
-    tx.vin[0].prevout.hash = hashprev;
+    tx.vin[0].prevout.hash = Txid::FromUint256(hashprev);
     tx.vin[0].prevout.n = 0;
     tx.vout.resize(1);
     tx.vout = vout;

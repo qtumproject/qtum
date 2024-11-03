@@ -32,7 +32,6 @@ struct ChainstateLoadOptions {
     bool require_full_verification{true};
     int64_t check_blocks{DEFAULT_CHECKBLOCKS};
     int64_t check_level{DEFAULT_CHECKLEVEL};
-    std::function<bool()> check_interrupt;
     std::function<void()> coins_error_cb;
     bool getting_values_dgp{false};
     bool record_log_opcodes{false};
@@ -46,7 +45,8 @@ struct ChainstateLoadOptions {
 //! and exit cleanly in the interrupted case.
 enum class ChainstateLoadStatus {
     SUCCESS,
-    FAILURE,
+    FAILURE, //!< Generic failure which reindexing may fix
+    FAILURE_FATAL, //!< Fatal error which should not prompt to reindex
     FAILURE_INCOMPATIBLE_DB,
     FAILURE_INSUFFICIENT_DBCACHE,
     INTERRUPTED,

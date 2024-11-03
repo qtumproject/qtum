@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>Create a new address</source>
-        <translation type="unfinished">አዲስ አድራሻ ፍጠር</translation>
+        <translation type="unfinished">አዲስ አድራሻ ይፍጠሩ</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -15,19 +15,19 @@
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation type="unfinished">አሁን የተመረጠውን አድራሻ ወደ ስርዓቱ ቅንጥብ ሰሌዳ ቅዳ</translation>
+        <translation type="unfinished">አሁን የተመረጠውን አድራሻ ወደ ስርዓቱ ቅንጥብ ሰሌዳ ይቅዱ</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;ቅዳ</translation>
+        <translation type="unfinished">&amp;ይቅዱ</translation>
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation type="unfinished">ዝጋ</translation>
+        <translation type="unfinished">ይዝጉ</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation type="unfinished">አሁን የተመረጠውን አድራሻ ከዝርዝሩ ውስጥ አጥፋ</translation>
+        <translation type="unfinished">አሁን የተመረጠውን አድራሻ ከዝርዝሩ ውስጥ ያጥፉ</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
@@ -35,15 +35,15 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation type="unfinished">በዚህ ማውጫ ውስጥ ያለውን ውሂብ ወደ አንድ ፋይል ቀይረህ አስቀምጥ</translation>
+        <translation type="unfinished">በዚህ ማውጫ ውስጥ ያለውን ውሂብ ወደ ፋይል አዛውረው ያስቀምጡ</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;ላክ</translation>
+        <translation type="unfinished">&amp;ይላኩ</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">&amp;ሰርዝ</translation>
+        <translation type="unfinished">&amp;ይሰርዙ</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -58,16 +58,8 @@
         <translation type="unfinished">ምረጥ</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">የመላኪያ አድራሻዎች</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">የመቀበያ አድራሻዎች</translation>
-    </message>
-    <message>
         <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">እነኚህ የቢትኮይን ክፍያ የመላኪያ አድራሻዎችዎ ናቸው:: ገንዘብ/ኮይኖች ከመላክዎ በፊት መጠኑን እና የመቀበያ አድራሻውን ሁልጊዜ ያረጋግጡ::</translation>
+        <translation type="unfinished">ክፍያዎችን ለመላክ እነዚህ  የእርስዎ ቢትኮይን አድራሻዎች ናቸው። ሳንቲሞችን/ኮይኖች ከመላክዎ በፊት ሁል ጊዜ መጠኑን እና የተቀባዩን አድራሻ ያረጋግጡ።</translation>
     </message>
     <message>
         <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
@@ -100,6 +92,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
         <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
         <translation type="unfinished">የአድራሻ ዝርዝሩን ወደ %1 ለማስቀመጥ ሲሞከር ስህተት አጋጥሟል:: እባክዎ መልሰው ይሞክሩ::</translation>
+    </message>
+    <message>
+        <source>Sending addresses - %1</source>
+        <translation type="unfinished">አድራሻዎችን በመላክ ላይ - %1</translation>
+    </message>
+    <message>
+        <source>Receiving addresses - %1</source>
+        <translation type="unfinished">አድራሻዎችን በማቀበል ላይ - %1</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
@@ -480,14 +480,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ክፍያው ቅዳ</translation>
     </message>
     <message>
-        <source>yes</source>
-        <translation type="unfinished">አዎ</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">አይ</translation>
-    </message>
-    <message>
         <source>(no label)</source>
         <translation type="unfinished">(መለያ ስም የለም)</translation>
     </message>
@@ -764,11 +756,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;ላክ</translation>
+        <translation type="unfinished">&amp;ይላኩ</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation type="unfinished">በአሁኑ ማውጫ ውስጥ ያለውን መረጃ ወደ አንድ ፋይል ላክ</translation>
+        <translation type="unfinished">በዚህ ማውጫ ውስጥ ያለውን ውሂብ ወደ ፋይል አዛውረው ያስቀምጡ</translation>
     </message>
     </context>
 </TS>

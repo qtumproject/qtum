@@ -100,6 +100,7 @@ public:
     u256 lastForkBlock = c_infiniteBlockNumber;
     u256 qip6ForkBlock = c_infiniteBlockNumber;
     u256 shanghaiForkBlock = c_infiniteBlockNumber;
+    u256 cancunForkBlock = c_infiniteBlockNumber;
     AdditionalEIPs lastForkAdditionalEIPs;
     int chainID = 0;    // Distinguishes different chains (mainnet, Ropsten, etc).
     int networkID = 0;  // Distinguishes different sub protocols.

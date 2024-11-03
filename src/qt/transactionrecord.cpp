@@ -14,6 +14,7 @@
 
 #include <QDateTime>
 
+using wallet::ISMINE_NO;
 using wallet::ISMINE_SPENDABLE;
 using wallet::ISMINE_WATCH_ONLY;
 using wallet::isminetype;
@@ -28,6 +29,7 @@ std::string toStringHash160(const CKeyID& keyid)
  */
 bool TransactionRecord::showTransaction(const interfaces::WalletTx& wtx)
 {
+    // There are currently no cases where we hide transactions, but
     // Ensures we show generated coins / mined transactions at depth 1
     if((wtx.is_coinbase || wtx.is_coinstake) && !wtx.is_in_main_chain)
     {
@@ -49,17 +51,91 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
     uint256 hash = wtx.tx->GetHash();
     std::map<std::string, std::string> mapValue = wtx.value_map;
 
-    if (nNet > 0 || wtx.is_coinbase || wtx.is_coinstake)
-    {
-        //
-        // Credit
-        //
+    bool involvesWatchAddress = false;
+    isminetype fAllFromMe = ISMINE_SPENDABLE;
+    bool any_from_me = false;
+    if (wtx.is_coinbase || wtx.is_coinstake) {
+        fAllFromMe = ISMINE_NO;
+    } else {
+        for (const isminetype mine : wtx.txin_is_mine)
+        {
+            if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
+            if(fAllFromMe > mine) fAllFromMe = mine;
+            if (mine) any_from_me = true;
+        }
+    }
+
+
+    if(nNet < 0 && wtx.has_create_or_call && (fAllFromMe || !any_from_me)) {
+        TransactionRecord sub(hash, nTime);
+        sub.idx = 0;
+        sub.credit = nNet;
+        sub.type = TransactionRecord::ContractSend;
+
+        // Use the same destination address as in the contract RPCs
+        sub.address = toStringHash160(wtx.tx_sender_key);
+
+        parts.append(sub);
+    }
+    else if (fAllFromMe || !any_from_me) {
+        for (const isminetype mine : wtx.txout_is_mine)
+        {
+            if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
+        }
+
+        CAmount nTxFee = nDebit - wtx.tx->GetValueOut();
+
         for(unsigned int i = 0; i < wtx.tx->vout.size(); i++)
         {
             const CTxOut& txout = wtx.tx->vout[i];
+
+            if (fAllFromMe) {
+                // Change is only really possible if we're the sender
+                // Otherwise, someone just sent bitcoins to a change address, which should be shown
+                if (wtx.txout_is_change[i]) {
+                    continue;
+                }
+
+                //
+                // Debit
+                //
+
+                TransactionRecord sub(hash, nTime);
+                sub.idx = i;
+                sub.involvesWatchAddress = involvesWatchAddress;
+
+                if (!std::get_if<CNoDestination>(&wtx.txout_address[i]))
+                {
+                    // Sent to Bitcoin Address
+                    sub.type = TransactionRecord::SendToAddress;
+                    sub.address = EncodeDestination(wtx.txout_address[i]);
+                }
+                else
+                {
+                    // Sent to IP, or other non-address transaction like OP_EVAL
+                    sub.type = TransactionRecord::SendToOther;
+                    sub.address = mapValue["to"];
+                }
+
+                CAmount nValue = txout.nValue;
+                /* Add fee to first output */
+                if (nTxFee > 0)
+                {
+                    nValue += nTxFee;
+                    nTxFee = 0;
+                }
+                sub.debit = -nValue;
+
+                parts.append(sub);
+            }
+
             isminetype mine = wtx.txout_is_mine[i];
             if(mine)
             {
+                //
+                // Credit
+                //
+
                 TransactionRecord sub(hash, nTime);
                 if(wtx.is_coinstake) // Combine into single output for coinstake
                 {
@@ -99,110 +175,16 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
                 }
 
                 parts.append(sub);
-
                 if(wtx.is_coinstake)
                     break; // Single output for coinstake
             }
         }
-    }
-    else
-    {
-        bool involvesWatchAddress = false;
-        isminetype fAllFromMe = ISMINE_SPENDABLE;
-        for (const isminetype mine : wtx.txin_is_mine)
-        {
-            if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
-            if(fAllFromMe > mine) fAllFromMe = mine;
-        }
-
-        isminetype fAllToMe = ISMINE_SPENDABLE;
-        for (const isminetype mine : wtx.txout_is_mine)
-        {
-            if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
-            if(fAllToMe > mine) fAllToMe = mine;
-        }
-
-        if (fAllFromMe && fAllToMe)
-        {
-            // Payment to self
-            std::string address;
-            for (auto it = wtx.txout_address.begin(); it != wtx.txout_address.end(); ++it) {
-                if (it != wtx.txout_address.begin()) address += ", ";
-                address += EncodeDestination(*it);
-            }
-
-            CAmount nChange = wtx.change;
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, address, -(nDebit - nChange), nCredit - nChange));
-            parts.last().involvesWatchAddress = involvesWatchAddress;   // maybe pass to TransactionRecord as constructor argument
-        }
-        else if (fAllFromMe)
-        {
-            //
-            // Debit
-            //
-            CAmount nTxFee = nDebit - wtx.tx->GetValueOut();
-
-            for (unsigned int nOut = 0; nOut < wtx.tx->vout.size(); nOut++)
-            {
-                const CTxOut& txout = wtx.tx->vout[nOut];
-                TransactionRecord sub(hash, nTime);
-                sub.idx = nOut;
-                sub.involvesWatchAddress = involvesWatchAddress;
-
-                if(wtx.txout_is_mine[nOut])
-                {
-                    // Ignore parts sent to self, as this is usually the change
-                    // from a transaction sent back to our own address.
-                    continue;
-                }
-
-                if(wtx.has_create_or_call)
-                    break;
-                if (!std::get_if<CNoDestination>(&wtx.txout_address[nOut]))
-                {
-                    // Sent to Bitcoin Address
-                    sub.type = TransactionRecord::SendToAddress;
-                    sub.address = EncodeDestination(wtx.txout_address[nOut]);
-                }
-                else
-                {
-                    // Sent to IP, or other non-address transaction like OP_EVAL
-                    sub.type = TransactionRecord::SendToOther;
-                    sub.address = mapValue["to"];
-                }
-
-                CAmount nValue = txout.nValue;
-                /* Add fee to first output */
-                if (nTxFee > 0)
-                {
-                    nValue += nTxFee;
-                    nTxFee = 0;
-                }
-                sub.debit = -nValue;
-
-                parts.append(sub);
-            }
-
-            if(wtx.has_create_or_call){
-                TransactionRecord sub(hash, nTime);
-                sub.idx = 0;
-                sub.credit = nNet;
-                sub.type = TransactionRecord::ContractSend;
-
-                // Use the same destination address as in the contract RPCs
-                sub.address = toStringHash160(wtx.tx_sender_key);
-
-                parts.append(sub);
-            }
-        }
-        else
-        {
-            //
-            // Mixed debit transaction, can't break down payees
-            //
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
-            parts.last().involvesWatchAddress = involvesWatchAddress;
-        }
+    } else {
+        //
+        // Mixed debit transaction, can't break down payees
+        //
+        parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
+        parts.last().involvesWatchAddress = involvesWatchAddress;
     }
 
     return parts;
@@ -213,11 +195,21 @@ void TransactionRecord::updateStatus(const interfaces::WalletTxStatus& wtx, cons
     // Determine transaction status
 
     // Sort order, unrecorded transactions sort to the top
-    status.sortKey = strprintf("%010d-%01d-%010u-%03d",
+    int typesort;
+    switch (type) {
+    case SendToAddress: case SendToOther:
+        typesort = 2; break;
+    case RecvWithAddress: case RecvFromOther:
+        typesort = 3; break;
+    default:
+        typesort = 9;
+    }
+    status.sortKey = strprintf("%010d-%01d-%010u-%03d-%d",
         wtx.block_height,
         (wtx.is_coinbase || wtx.is_coinstake) ? 1 : 0,
         wtx.time_received,
-        idx);
+        idx,
+        typesort);
     status.countsForBalance = wtx.is_trusted && !(wtx.blocks_to_maturity > 0);
     status.depth = wtx.depth_in_main_chain;
     status.m_cur_block_hash = block_hash;

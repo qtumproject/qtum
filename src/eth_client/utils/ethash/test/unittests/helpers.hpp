@@ -1,11 +1,11 @@
 // ethash: C/C++ implementation of Ethash, the Ethereum Proof of Work algorithm.
 // Copyright 2018 Pawel Bylica.
-// Licensed under the Apache License, Version 2.0. See the LICENSE file.
+// Licensed under the Apache License, Version 2.0.
 
 #pragma once
 
+#include "../../lib/ethash/endianness.hpp"
 #include <ethash/ethash.hpp>
-
 #include <string>
 
 template <typename Hash>
@@ -45,6 +45,36 @@ inline bool operator==(const ethash::hash256& a, const ethash::hash256& b) noexc
 inline bool operator!=(const ethash::hash256& a, const ethash::hash256& b) noexcept
 {
     return !(a == b);
+}
+
+[[clang::no_sanitize("unsigned-integer-overflow")]] inline ethash::hash256 inc(
+    const ethash::hash256& x) noexcept
+{
+    ethash::hash256 z{};
+    bool carry = true;
+    for (int i = 3; i >= 0; --i)
+    {
+        const auto t = ethash::be::uint64(x.word64s[i]);
+        const auto s = t + carry;
+        carry = s < t;
+        z.word64s[i] = ethash::be::uint64(s);
+    }
+    return z;
+}
+
+[[clang::no_sanitize("unsigned-integer-overflow")]] inline ethash::hash256 dec(
+    const ethash::hash256& x) noexcept
+{
+    ethash::hash256 z{};
+    bool borrow = true;
+    for (int i = 3; i >= 0; --i)
+    {
+        const auto t = ethash::be::uint64(x.word64s[i]);
+        const auto d = t - borrow;
+        borrow = d > t;
+        z.word64s[i] = ethash::be::uint64(d);
+    }
+    return z;
 }
 
 inline const ethash::epoch_context& get_ethash_epoch_context_0() noexcept

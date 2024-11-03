@@ -26,6 +26,8 @@ JSON_TEST_FILES = \
   test/qtumtests/data/alt_bn128_G1_mul.json \
   test/qtumtests/data/alt_bn128_pairing_product.json \
   test/qtumtests/data/blake2_compression.json \
+  test/qtumtests/data/blake2_compression.json \
+  test/qtumtests/data/point_evaluation.json \
   test/data/script_tests.json \
   test/data/bip341_wallet_vectors.json \
   test/data/base58_encode_decode.json \
@@ -88,6 +90,7 @@ BITCOIN_TESTS =\
   test/base64_tests.cpp \
   test/bech32_tests.cpp \
   test/bip32_tests.cpp \
+  test/bip324_tests.cpp \
   test/blockchain_tests.cpp \
   test/blockencodings_tests.cpp \
   test/blockfilter_index_tests.cpp \
@@ -105,6 +108,7 @@ BITCOIN_TESTS =\
   test/dbwrapper_tests.cpp \
   test/denialofservice_tests.cpp \
   test/descriptor_tests.cpp \
+  test/disconnected_transactions.cpp \
   test/flatfile_tests.cpp \
   test/fs_tests.cpp \
   test/getarg_tests.cpp \
@@ -120,16 +124,20 @@ BITCOIN_TESTS =\
   test/merkle_tests.cpp \
   test/merkleblock_tests.cpp \
   test/miner_tests.cpp \
+  test/miniminer_tests.cpp \
   test/miniscript_tests.cpp \
   test/minisketch_tests.cpp \
   test/multisig_tests.cpp \
+  test/net_peer_connection_tests.cpp \
   test/net_peer_eviction_tests.cpp \
   test/net_tests.cpp \
   test/netbase_tests.cpp \
   test/orphanage_tests.cpp \
+  test/peerman_tests.cpp \
   test/pmt_tests.cpp \
   test/policy_fee_tests.cpp \
   test/policyestimator_tests.cpp \
+  test/pool_tests.cpp \
   test/pow_tests.cpp \
   test/prevector_tests.cpp \
   test/raii_event_tests.cpp \
@@ -155,6 +163,7 @@ BITCOIN_TESTS =\
   test/sigopcount_tests.cpp \
   test/skiplist_tests.cpp \
   test/sock_tests.cpp \
+  test/span_tests.cpp \
   test/streams_tests.cpp \
   test/sync_tests.cpp \
   test/system_tests.cpp \
@@ -191,7 +200,9 @@ BITCOIN_TESTS =\
   test/qtumtests/istanbulfork_tests.cpp \
   test/qtumtests/londonfork_tests.cpp \
   test/qtumtests/evmone_tests.cpp \
-  test/qtumtests/shanghaifork_tests.cpp
+  test/qtumtests/shanghaifork_tests.cpp \
+  test/qtumtests/cancunfork_tests.cpp \
+  test/qtumtests/kzg_tests.cpp
 
 if ENABLE_WALLET
 BITCOIN_TESTS += \
@@ -219,12 +230,15 @@ BITCOIN_TESTS += wallet/test/db_tests.cpp
 endif
 
 FUZZ_WALLET_SRC = \
+ wallet/test/fuzz/coincontrol.cpp \
  wallet/test/fuzz/coinselection.cpp \
+ wallet/test/fuzz/fees.cpp \
  wallet/test/fuzz/parse_iso8601.cpp
 
 if USE_SQLITE
 FUZZ_WALLET_SRC += \
- wallet/test/fuzz/notifications.cpp
+ wallet/test/fuzz/notifications.cpp \
+ wallet/test/fuzz/scriptpubkeyman.cpp
 endif # USE_SQLITE
 
 BITCOIN_TEST_SUITE += \
@@ -234,6 +248,39 @@ BITCOIN_TEST_SUITE += \
   wallet/test/init_test_fixture.h
 endif # ENABLE_WALLET
 
+if BUILD_MULTIPROCESS
+# Add boost ipc_tests definition to BITCOIN_TESTS
+BITCOIN_TESTS += test/ipc_tests.cpp
+
+# Build ipc_test code in a separate library so it can be compiled with custom
+# LIBMULTIPROCESS_CFLAGS without those flags affecting other tests
+LIBBITCOIN_IPC_TEST=libbitcoin_ipc_test.a
+EXTRA_LIBRARIES += $(LIBBITCOIN_IPC_TEST)
+libbitcoin_ipc_test_a_SOURCES = \
+  test/ipc_test.cpp \
+  test/ipc_test.h
+libbitcoin_ipc_test_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libbitcoin_ipc_test_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(LIBMULTIPROCESS_CFLAGS)
+
+# Generate various .c++/.h files from the ipc_test.capnp file
+include $(MPGEN_PREFIX)/include/mpgen.mk
+EXTRA_DIST += test/ipc_test.capnp
+libbitcoin_ipc_test_mpgen_output = \
+  test/ipc_test.capnp.c++ \
+  test/ipc_test.capnp.h \
+  test/ipc_test.capnp.proxy-client.c++ \
+  test/ipc_test.capnp.proxy-server.c++ \
+  test/ipc_test.capnp.proxy-types.c++ \
+  test/ipc_test.capnp.proxy-types.h \
+  test/ipc_test.capnp.proxy.h
+nodist_libbitcoin_ipc_test_a_SOURCES = $(libbitcoin_ipc_test_mpgen_output)
+CLEANFILES += $(libbitcoin_ipc_test_mpgen_output)
+endif
+
+# Explicitly list dependencies on generated headers as described in
+# https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html#Recording-Dependencies-manually
+test/libbitcoin_ipc_test_a-ipc_test.$(OBJEXT): test/ipc_test.capnp.h
+
 test_test_qtum_SOURCES = $(BITCOIN_TEST_SUITE) $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
 test_test_qtum_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) -I$(srcdir)/test/ $(TESTDEFS) $(EVENT_CFLAGS)
 test_test_qtum_LDADD = $(LIBTEST_UTIL)
@@ -241,12 +288,15 @@ if ENABLE_WALLET
 test_test_qtum_LDADD += $(LIBBITCOIN_WALLET)
 test_test_qtum_CPPFLAGS += $(BDB_CPPFLAGS)
 endif
+if BUILD_MULTIPROCESS
+test_test_qtum_LDADD += $(LIBBITCOIN_IPC_TEST) $(LIBMULTIPROCESS_LIBS)
+endif
 
 test_test_qtum_LDADD += $(LIBBITCOIN_NODE) $(LIBBITCOIN_CLI) $(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CONSENSUS) $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) \
   $(LIBLEVELDB) $(LIBMEMENV) $(BOOST_LIBS) $(LIBSECP256K1) $(EVENT_LIBS) $(EVENT_PTHREADS_LIBS) $(MINISKETCH_LIBS) $(LIBCRYPTOPP) $(LIBSECP256K1)
 test_test_qtum_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
-test_test_qtum_LDADD += $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(SQLITE_LIBS) $(LIBFF) $(GMP_LIBS) $(GMPXX_LIBS)
+test_test_qtum_LDADD += $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(SQLITE_LIBS) $(LIBFF) $(LIBBLST) $(GMP_LIBS) $(GMPXX_LIBS)
 test_test_qtum_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS) -static
 
 if ENABLE_ZMQ
@@ -255,10 +305,10 @@ FUZZ_SUITE_LD_COMMON += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
 endif
 
 if ENABLE_FUZZ_BINARY
-test_fuzz_fuzz_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+test_fuzz_fuzz_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
 test_fuzz_fuzz_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-test_fuzz_fuzz_LDADD = $(FUZZ_SUITE_LD_COMMON) $(LIBCRYPTOPP) $(LIBFF) $(GMP_LIBS) $(GMPXX_LIBS)
-test_fuzz_fuzz_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS) $(RUNTIME_LDFLAGS)
+test_fuzz_fuzz_LDADD = $(FUZZ_SUITE_LD_COMMON) $(LIBCRYPTOPP) $(LIBFF) $(LIBBLST) $(GMP_LIBS) $(GMPXX_LIBS)
+test_fuzz_fuzz_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 test_fuzz_fuzz_SOURCES = \
  $(FUZZ_WALLET_SRC) \
  test/fuzz/addition_overflow.cpp \
@@ -269,6 +319,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/banman.cpp \
  test/fuzz/base_encode_decode.cpp \
  test/fuzz/bech32.cpp \
+ test/fuzz/bip324.cpp \
  test/fuzz/bitdeque.cpp \
  test/fuzz/block.cpp \
  test/fuzz/block_header.cpp \
@@ -284,7 +335,6 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/crypto_aes256.cpp \
  test/fuzz/crypto_aes256cbc.cpp \
  test/fuzz/crypto_chacha20.cpp \
- test/fuzz/crypto_chacha20_poly1305_aead.cpp \
  test/fuzz/crypto_common.cpp \
  test/fuzz/crypto_diff_fuzz_chacha20.cpp \
  test/fuzz/crypto_hkdf_hmac_sha256_l32.cpp \
@@ -302,7 +352,6 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/headerssync.cpp \
  test/fuzz/hex.cpp \
  test/fuzz/http_request.cpp \
- test/fuzz/i2p.cpp \
  test/fuzz/integer.cpp \
  test/fuzz/key.cpp \
  test/fuzz/key_io.cpp \
@@ -313,6 +362,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/message.cpp \
  test/fuzz/miniscript.cpp \
  test/fuzz/minisketch.cpp \
+ test/fuzz/mini_miner.cpp \
  test/fuzz/muhash.cpp \
  test/fuzz/multiplication_overflow.cpp \
  test/fuzz/net.cpp \
@@ -321,6 +371,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/netbase_dns_lookup.cpp \
  test/fuzz/node_eviction.cpp \
  test/fuzz/p2p_transport_serialization.cpp \
+ test/fuzz/package_eval.cpp \
  test/fuzz/parse_hd_keypath.cpp \
  test/fuzz/parse_numbers.cpp \
  test/fuzz/parse_script.cpp \
@@ -328,6 +379,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/partially_downloaded_block.cpp \
  test/fuzz/policy_estimator.cpp \
  test/fuzz/policy_estimator_io.cpp \
+ test/fuzz/poolresource.cpp \
  test/fuzz/pow.cpp \
  test/fuzz/prevector.cpp \
  test/fuzz/primitives_transaction.cpp \
@@ -369,6 +421,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/txorphan.cpp \
  test/fuzz/txrequest.cpp \
  test/fuzz/utxo_snapshot.cpp \
+ test/fuzz/utxo_total_supply.cpp \
  test/fuzz/validation_load_mempool.cpp \
  test/fuzz/versionbits.cpp
 endif # ENABLE_FUZZ_BINARY
@@ -397,7 +450,9 @@ qtum_test_check: $(TEST_BINARY) FORCE
 qtum_test_clean : FORCE
 	rm -f $(CLEAN_BITCOIN_TEST) $(test_test_qtum_OBJECTS) $(TEST_BINARY)
 
-check-local: $(BITCOIN_TESTS:.cpp=.cpp.test)
+check-unit: $(BITCOIN_TESTS:.cpp=.cpp.test)
+
+check-local: check-unit
 if BUILD_BITCOIN_TX
 	@echo "Running test/util/test_runner.py..."
 	$(PYTHON) $(top_builddir)/test/util/test_runner.py
@@ -446,10 +501,10 @@ endif
 
 %.json.h: %.json
 	@$(MKDIR_P) $(@D)
-	@{ \
+	$(AM_V_GEN) { \
+	 echo "#include <string>" && \
 	 echo "namespace json_tests{" && \
-	 echo "static unsigned const char $(*F)[] = {" && \
+	 echo "static const std::string $(*F){" && \
 	 $(HEXDUMP) -v -e '8/1 "0x%02x, "' -e '"\n"' $< | $(SED) -e 's/0x  ,//g' && \
 	 echo "};};"; \
 	} > "$@.new" && mv -f "$@.new" "$@"
-	@echo "Generated $@"

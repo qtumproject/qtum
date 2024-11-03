@@ -1,15 +1,17 @@
 // ethash: C/C++ implementation of Ethash, the Ethereum Proof of Work algorithm.
 // Copyright 2018 Pawel Bylica.
-// Licensed under the Apache License, Version 2.0. See the LICENSE file.
+// Licensed under the Apache License, Version 2.0.
 
-#pragma GCC diagnostic ignored "-Wpedantic"
-#pragma clang diagnostic ignored "-Wpedantic"
+#ifdef _MSC_VER
+#pragma warning(disable : 4127)
+#endif
 
 #include <ethash/endianness.hpp>
 #include <ethash/ethash-internal.hpp>
 #include <ethash/ethash.hpp>
 #include <ethash/keccak.hpp>
 
+#include "../experimental/difficulty.h"
 #include "helpers.hpp"
 #include "test_cases.hpp"
 
@@ -51,7 +53,6 @@ epoch_context_ptr create_epoch_context_mock(int epoch_number)
         epoch_number,
         light_cache_num_items,
         light_cache,
-        nullptr,
         calculate_full_dataset_num_items(epoch_number),
     };
     return {context, ethash_destroy_epoch_context};
@@ -61,8 +62,44 @@ hash512 copy(const hash512& h) noexcept
 {
     return h;
 }
+}  // namespace
+
+TEST(ethash, revision)
+{
+    static_assert(ethash::revision[0] == '2', "");
+    static_assert(ethash::revision[1] == '3', "");
+    EXPECT_EQ(ethash::revision, "23");
+    EXPECT_EQ(ethash::revision, (std::string{"23"}));
 }
 
+TEST(ethash, error_code)
+{
+    std::ostringstream os;
+    std::error_code ec = ETHASH_SUCCESS;
+    EXPECT_FALSE(ec);
+    EXPECT_EQ(ec.message(), "");
+
+    ec = ETHASH_INVALID_FINAL_HASH;
+    EXPECT_TRUE(ec);
+    EXPECT_EQ(ec.message(), "invalid final hash");
+    os.str({});
+    os << ec;
+    EXPECT_EQ(os.str(), "ethash:1");
+
+    ec = ETHASH_INVALID_MIX_HASH;
+    EXPECT_TRUE(ec);
+    EXPECT_EQ(ec.message(), "invalid mix hash");
+    os.str({});
+    os << ec;
+    EXPECT_EQ(os.str(), "ethash:2");
+
+    ec = static_cast<ethash_errc>(3);
+    EXPECT_TRUE(ec);
+    EXPECT_EQ(ec.message(), "unknown error");
+    os.str({});
+    os << ec;
+    EXPECT_EQ(os.str(), "ethash:3");
+}
 
 TEST(hash, hash256_from_bytes)
 {
@@ -153,7 +190,10 @@ static dataset_size_test_case dataset_size_test_cases[] = {
     {1956, 273153856, 17481857408},
     {2047, 285081536, 18245220736},
     {30000, 3948936512, 252731976832},
-    {32639, 4294836032, 274869514624},
+    {max_epoch_number, 4294836032, 274'869'514'624},
+    {max_epoch_number + 1, 0, 0},
+    {max_epoch_number * 2, 0, 0},
+    {-1, 0, 0},
 };
 
 TEST(ethash, light_cache_size)
@@ -183,13 +223,15 @@ struct epoch_seed_test_case
     const char* const epoch_seed_hex;
 };
 
-static epoch_seed_test_case epoch_seed_test_cases[] = {
+constexpr epoch_seed_test_case epoch_seed_test_cases[] = {
     {0, "0000000000000000000000000000000000000000000000000000000000000000"},
     {1, "290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563"},
     {171, "a9b0e0c9aca72c07ba06b5bbdae8b8f69e61878301508473379bb4f71807d707"},
     {2048, "20a7678ca7b50829183baac2e1e3c43fa3c4bcbc171b11cf5a9f30bebd172920"},
     {29998, "1222b1faed7f93098f8ae498621fb3479805a664b70186063861c46596c66164"},
     {29999, "ee1d0f61b054dff0f3025ebba821d405c8dc19a983e582e9fa5436fc3e7a07d8"},
+    {max_epoch_number - 1, "9472a82f992649315e3977120843a5a246e375715bd70ee98b3dd77c63154e99"},
+    {max_epoch_number, "09b435f2d92d0ddee038c379be8db1f895c904282e9ceb790f519a6aa3f83810"},
 };
 
 TEST(ethash, calculate_epoch_seed)
@@ -197,7 +239,7 @@ TEST(ethash, calculate_epoch_seed)
     for (auto& t : epoch_seed_test_cases)
     {
         const hash256 epoch_seed = calculate_epoch_seed(t.epoch_number);
-        EXPECT_EQ(epoch_seed, to_hash256(t.epoch_seed_hex));
+        EXPECT_EQ(to_hex(epoch_seed), t.epoch_seed_hex);
     }
 }
 
@@ -231,7 +273,7 @@ TEST(ethash, find_epoch_number_double_descending)
 TEST(ethash, find_epoch_number_sequential)
 {
     hash256 seed = {};
-    for (int i = 0; i < 30000; ++i)
+    for (int i = 0; i <= max_epoch_number; ++i)
     {
         auto e = find_epoch_number(seed);
         EXPECT_EQ(e, i);
@@ -239,11 +281,22 @@ TEST(ethash, find_epoch_number_sequential)
     }
 }
 
+TEST(ethash, find_epoch_number_max)
+{
+    const auto seed_max = to_hash256(epoch_seed_test_cases[7].epoch_seed_hex);
+    const auto seed_out_of_range = keccak256(seed_max);
+
+    find_epoch_number({});  // Reset cache.
+    EXPECT_EQ(find_epoch_number(seed_out_of_range), -1);
+    find_epoch_number({});  // Reset cache.
+    EXPECT_EQ(find_epoch_number(seed_max), max_epoch_number);
+}
+
 TEST(ethash, find_epoch_number_sequential_gap)
 {
     constexpr int start_epoch = 200;
     hash256 seed = calculate_epoch_seed(start_epoch);
-    for (int i = start_epoch; i < 30000; ++i)
+    for (int i = start_epoch; i <= max_epoch_number; ++i)
     {
         auto e = find_epoch_number(seed);
         EXPECT_EQ(e, i);
@@ -278,7 +331,7 @@ TEST(ethash, find_epoch_number_invalid)
 
 TEST(ethash, find_epoch_number_epoch_too_high)
 {
-    hash256 seed = calculate_epoch_seed(30000);
+    hash256 seed = calculate_epoch_seed(max_epoch_number + 1);
     int epoch = find_epoch_number(seed);
     EXPECT_EQ(epoch, -1);
 }
@@ -287,7 +340,7 @@ TEST(ethash_multithreaded, find_epoch_number_sequential)
 {
     auto fn = [] {
         hash256 seed = {};
-        for (int i = 0; i < 30000; ++i)
+        for (int i = 0; i <= max_epoch_number; ++i)
         {
             auto e = find_epoch_number(seed);
             EXPECT_EQ(e, i);
@@ -311,6 +364,9 @@ TEST(ethash, get_epoch_number)
     EXPECT_EQ(get_epoch_number(30001), 1);
     EXPECT_EQ(get_epoch_number(30002), 1);
     EXPECT_EQ(get_epoch_number(5000000), 166);
+    EXPECT_EQ(get_epoch_number(max_epoch_number * epoch_length), max_epoch_number);
+    constexpr auto max_block = max_epoch_number * epoch_length + epoch_length - 1;
+    EXPECT_EQ(get_epoch_number(max_block), max_epoch_number);
 }
 
 TEST(ethash, light_cache)
@@ -336,6 +392,12 @@ TEST(ethash, light_cache)
         const hash256 light_cache_hash = keccak256(light_cache_data, light_cache_size);
         EXPECT_EQ(light_cache_hash, to_hash256(t.hash));
     }
+}
+
+TEST(ethash, create_context_invalid_epoch)
+{
+    EXPECT_EQ(create_epoch_context(-1), nullptr);
+    EXPECT_EQ(create_epoch_context(max_epoch_number + 1), nullptr);
 }
 
 TEST(ethash, fake_dataset_partial_items)
@@ -425,7 +487,10 @@ TEST(ethash, fake_dataset_items)
         {740620450,
             "7e4a3533ef6f0d9fa7e41b8304e08fe9e52556334cad0cc861337bd1155bbea211cf0b0198b4f08567cc47fcc964bbbdfb2f851437da1edba7c6f4bd3fd61a3a",
             "f20969bd0407bb76560e7c099224a1ea185214808950519fafdcd02ba2874e9b4ebf1797cafb3b80e903b13a87ddac5d54d67ed58acf49bb12e03b81eb6c99af"},
-        {4294967295,
+        {2147418082,  // Max index for epoch 32639.
+            "a79eaa61a5c2256eb3bf9c78a2b6509929780d8826d7a7d1324328ab786ca9c23fc1437e1efb432ab823c5d5448b4183893d16168aebe21470e3515104eab67f",
+            "496baeac6ea83fdd5a6a20827029ddd73d1be507dc7f210c2aed29f0757eefea72ab7e4c92aab9ee34ed46027bdc9918e047b0f845c7fbbd254b8014141c7605"},
+        {0x7fffffff,  // Max allowed index value.
             "21471504c1f31007c14acd107a8ade1aad6c2a6c2ad879b3aca3b12517105483502d0e3e902acf3b128d294c0a69f2cc199bf8813be1f8bb4b5625822b70ec09",
             "8e4fdb5dc602598f10a42b5061132eec05299380db872a3caf04aa21e3d4970350394dfbd58c5ab54571b1be0cc9001d788c6b14cbf003d7decc2aaef1232b8c"},
     };
@@ -439,16 +504,6 @@ TEST(ethash, fake_dataset_items)
         const hash1024 item1024 = calculate_dataset_item_1024(*context, t.index);
         EXPECT_EQ(to_hex(item1024.hash512s[0]), t.hash1_hex) << "index: " << t.index;
         EXPECT_EQ(to_hex(item1024.hash512s[1]), t.hash2_hex) << "index: " << t.index;
-
-        const hash512 item512_0 = calculate_dataset_item_512(*context, int64_t(t.index) * 2);
-        EXPECT_EQ(to_hex(item512_0), t.hash1_hex) << "index: " << t.index;
-
-        const hash512 item512_1 = calculate_dataset_item_512(*context, int64_t(t.index) * 2 + 1);
-        EXPECT_EQ(to_hex(item512_1), t.hash2_hex) << "index: " << t.index;
-
-        const hash2048 item2048 = calculate_dataset_item_2048(*context, t.index / 2);
-        EXPECT_EQ(to_hex(item2048.hash512s[(t.index % 2) * 2]), t.hash1_hex);
-        EXPECT_EQ(to_hex(item2048.hash512s[(t.index % 2) * 2 + 1]), t.hash2_hex);
     }
 }
 
@@ -500,9 +555,12 @@ TEST(ethash, dataset_items_epoch13)
         {740620450,
             "df0c2e2f4df033a64b1bcd207c30c7ce48c7d8ca8edd1284c87a91d54372ed0cb513d1876b1dbef6fc06c496941039cba6c50676596d6379152689d9841c97e4",
             "357bacef5baf4687c87e7ff07d5ab104ce39badcf9633c22ee31c3c3de0887b296f9385ea27573cb94bc3423cc39ab2a733be97a98e860290c31e94f03f39814"},
-        {4294967295,
-            "11fab5bafdf0e29f199cad053a542f777fcd8b4fb8a0203bf720b9a01718e8c76d0e374e979ebf0e1faf8ce992638a5e92ea8be8000c47e8307acad261df1abb",
-            "164ff9a893a162319f9ccb4294e33fb6ae50ea05d02a753fd4797662676c1fad6d70b11db6d4aa0298d6aa695c9be8dea3dad70f953368cb11b283eb145d17e3"},
+        {2147418082,  // Max index for epoch 32639.
+            "9705a12d9f1a193ffea9b9c6603b8d17315896b84ea6649e613fec1578c867535e6bbfd71cb18ce0c0dd6ca8051f7bfb5cfa2d89b29d1bf25a0b36ae57505844",
+            "c2f3475bf52ec727a0b684d9fbc5ce9234331abc585c383e87fa70e8c860819b35c12e6173df081f3f84bea218633ad54c9da6051ba90efc3985e887530cb89e"},
+        {0x7fffffff,  // Max allowed index value.
+            "d463d63e393e6ccc31b240d3d12301a14e0410377657b0554d6041541303c2ddc8ec026432adf73311b56de486f6fdca808f87f3824587b413a4e4f7a571d046",
+            "9e15d844f137ae66e7fc23934cc51d53a36ec28a5d1a246d50773471252ae9ea30fe20e817434e771bbf77577899cf2cce8de11578b925a12af2ad9dd316f0ec"},
     };
     // clang-format on
 
@@ -520,6 +578,9 @@ TEST(ethash, dataset_items_epoch13)
 
 TEST(ethash, verify_hash_light)
 {
+    const hash256 zero{};
+    const hash256 one = inc(zero);
+
     epoch_context_ptr context{nullptr, ethash_destroy_epoch_context};
 
     for (const auto& t : hash_test_cases)
@@ -529,6 +590,7 @@ TEST(ethash, verify_hash_light)
         const hash256 header_hash = to_hash256(t.header_hash_hex);
         const hash256 mix_hash = to_hash256(t.mix_hash_hex);
         const hash256 boundary = to_hash256(t.final_hash_hex);
+        const hash256 difficulty = ethash_difficulty_to_boundary(&boundary);
 
         if (!context || context->epoch_number != epoch_number)
             context = create_epoch_context(epoch_number);
@@ -537,20 +599,58 @@ TEST(ethash, verify_hash_light)
         EXPECT_EQ(to_hex(r.final_hash), t.final_hash_hex);
         EXPECT_EQ(to_hex(r.mix_hash), t.mix_hash_hex);
 
-        bool v = verify_final_hash(header_hash, mix_hash, nonce, boundary);
-        EXPECT_TRUE(v);
-        v = verify(*context, header_hash, mix_hash, nonce, boundary);
-        EXPECT_TRUE(v);
+        auto ec = verify_final_hash_against_difficulty(header_hash, mix_hash, nonce, difficulty);
+        EXPECT_EQ(ec, ETHASH_SUCCESS);
+        EXPECT_FALSE(ec);
+        EXPECT_EQ(ec.category(), ethash_category());
+
+        ec = verify_final_hash_against_difficulty(header_hash, mix_hash, nonce, inc(difficulty));
+        EXPECT_EQ(ec, ETHASH_INVALID_FINAL_HASH);
+
+        ec = verify_against_boundary(*context, header_hash, mix_hash, nonce, boundary);
+        EXPECT_EQ(ec, ETHASH_SUCCESS);
+
+        ec = verify_against_boundary(*context, header_hash, mix_hash, nonce, dec(boundary));
+        EXPECT_EQ(ec, ETHASH_INVALID_FINAL_HASH);
+
+        ec = verify_against_boundary(*context, header_hash, mix_hash, nonce, inc(boundary));
+        EXPECT_EQ(ec, ETHASH_SUCCESS);
+
+        ec = verify_against_difficulty(*context, header_hash, mix_hash, nonce, difficulty);
+        EXPECT_EQ(ec, ETHASH_SUCCESS);
+
+        ec = verify_against_difficulty(*context, header_hash, mix_hash, nonce, dec(difficulty));
+        EXPECT_EQ(ec, ETHASH_SUCCESS);
+
+        ec = verify_against_difficulty(*context, header_hash, mix_hash, nonce, inc(difficulty));
+        EXPECT_EQ(ec, ETHASH_INVALID_FINAL_HASH);
+
+        ec = verify_against_difficulty(*context, header_hash, mix_hash, nonce, zero);
+        EXPECT_EQ(ec, ETHASH_SUCCESS);
+
+        ec = verify_against_difficulty(*context, header_hash, mix_hash, nonce, one);
+        EXPECT_EQ(ec, ETHASH_SUCCESS);
 
         const bool within_significant_boundary = r.final_hash.bytes[0] == 0;
         if (within_significant_boundary)
         {
-            v = verify_final_hash(header_hash, mix_hash, nonce + 1, boundary);
-            EXPECT_FALSE(v) << t.final_hash_hex;
-        }
+            ec = verify_final_hash_against_difficulty(header_hash, mix_hash, nonce + 1, difficulty);
+            EXPECT_EQ(ec, ETHASH_INVALID_FINAL_HASH);
 
-        v = verify(*context, header_hash, mix_hash, nonce + 1, boundary);
-        EXPECT_FALSE(v);
+            ec = verify_against_boundary(*context, header_hash, mix_hash, nonce + 1, boundary);
+            EXPECT_EQ(ec, ETHASH_INVALID_FINAL_HASH);
+
+            ec = verify_against_difficulty(*context, header_hash, mix_hash, nonce + 1, difficulty);
+            EXPECT_EQ(ec, ETHASH_INVALID_FINAL_HASH);
+        }
+        else
+        {
+            ec = verify_against_boundary(*context, header_hash, mix_hash, nonce + 1, boundary);
+            EXPECT_EQ(ec, ETHASH_INVALID_MIX_HASH);
+
+            ec = verify_against_difficulty(*context, header_hash, mix_hash, nonce + 1, difficulty);
+            EXPECT_EQ(ec, ETHASH_INVALID_MIX_HASH);
+        }
     }
 }
 
@@ -570,13 +670,15 @@ TEST(ethash, verify_hash)
         if (!context || context->epoch_number != epoch_number)
             context = create_epoch_context_full(epoch_number);
 
-#if _WIN32 && !_WIN64
-        // On Windows 32-bit you can only allocate ~ 2GB of memory.
-        static constexpr uint64_t allocation_size_limit = uint64_t(2) * 1024 * 1024 * 1024;
-        if (!context && full_dataset_size > allocation_size_limit)
-            continue;
-#endif
-        ASSERT_NE(context, nullptr);
+        if (sizeof(void*) == 4)
+        {
+            // On 32-bit systems expect failures for allocations > 1GB of memory.
+            static constexpr auto allocation_size_limit = uint64_t{1} * 1024 * 1024 * 1024;
+            if (!context && full_dataset_size > allocation_size_limit)
+                continue;
+        }
+
+        ASSERT_NE(context, nullptr) << full_dataset_size;
         EXPECT_GT(full_dataset_size, 0);
 
         result r = hash(*context, header_hash, nonce);
@@ -591,45 +693,47 @@ TEST(ethash, verify_final_hash_only)
     const hash256 header_hash = {};
     const hash256 mix_hash = {};
     uint64_t nonce = 3221208;
-    const hash256 boundary =
-        to_hash256("000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    const hash256 difficulty =
+        to_hash256("00000000000000000000000000000000000000000000000000000000012853fe");
 
-    EXPECT_TRUE(verify_final_hash(header_hash, mix_hash, nonce, boundary));
-    EXPECT_FALSE(verify(context, header_hash, mix_hash, nonce, boundary));
+    EXPECT_EQ(verify_final_hash_against_difficulty(header_hash, mix_hash, nonce, difficulty),
+        ETHASH_SUCCESS);
+    EXPECT_EQ(verify_against_difficulty(context, header_hash, mix_hash, nonce, difficulty),
+        ETHASH_INVALID_MIX_HASH);
 }
 
 TEST(ethash, verify_boundary)
 {
-    auto& context = get_ethash_epoch_context_0();
-    hash256 example_header_hash =
+    const auto& context = get_ethash_epoch_context_0();
+    const hash256 example_header_hash =
         to_hash256("e74e5e8688d3c6f17885fa5e64eb6718046b57895a2a24c593593070ab71f5fd");
-    uint64_t nonce = 6666;
-    auto r = hash(context, example_header_hash, nonce);
-    hash256 boundary_eq =
+    const uint64_t nonce = 6666;
+    const auto r = hash(context, example_header_hash, nonce);
+    const auto boundary_eq =
         to_hash256("13c5a668bba6b86ed16098113d9d6a7a5cac1802e9c8f2d57c932d8818375eb7");
 
-    hash256 boundary_gt = boundary_eq;
-    ++boundary_gt.bytes[31];
-    auto boundary_gt_hex = "13c5a668bba6b86ed16098113d9d6a7a5cac1802e9c8f2d57c932d8818375eb8";
-    EXPECT_EQ(to_hex(boundary_gt), boundary_gt_hex);
+    const auto boundary_gt = inc(boundary_eq);
+    EXPECT_EQ(
+        to_hex(boundary_gt), "13c5a668bba6b86ed16098113d9d6a7a5cac1802e9c8f2d57c932d8818375eb8");
 
-    hash256 boundary_lt = boundary_eq;
-    --boundary_lt.bytes[31];
-    auto boundary_lt_hex = "13c5a668bba6b86ed16098113d9d6a7a5cac1802e9c8f2d57c932d8818375eb6";
-    EXPECT_EQ(to_hex(boundary_lt), boundary_lt_hex);
+    const auto boundary_lt = dec(boundary_eq);
+    EXPECT_EQ(
+        to_hex(boundary_lt), "13c5a668bba6b86ed16098113d9d6a7a5cac1802e9c8f2d57c932d8818375eb6");
 
     EXPECT_EQ(r.final_hash, boundary_eq);
     EXPECT_EQ(to_hex(r.final_hash), to_hex(boundary_eq));
 
-    EXPECT_TRUE(verify(context, example_header_hash, r.mix_hash, nonce, boundary_eq));
-    EXPECT_TRUE(verify(context, example_header_hash, r.mix_hash, nonce, boundary_gt));
-    EXPECT_FALSE(verify(context, example_header_hash, r.mix_hash, nonce, boundary_lt));
+    EXPECT_EQ(verify_against_boundary(context, example_header_hash, r.mix_hash, nonce, boundary_eq),
+        ETHASH_SUCCESS);
+    EXPECT_EQ(verify_against_boundary(context, example_header_hash, r.mix_hash, nonce, boundary_gt),
+        ETHASH_SUCCESS);
+    EXPECT_EQ(verify_against_boundary(context, example_header_hash, r.mix_hash, nonce, boundary_lt),
+        ETHASH_INVALID_FINAL_HASH);
 }
 
 TEST(ethash_multithreaded, small_dataset)
 {
-    // This test creates an extremely small dataset for full search to discover
-    // sync issues between threads.
+    // This test creates a tiny dataset for full search to discover sync issues between threads.
 
     constexpr size_t num_treads = 8;
     constexpr int num_dataset_items = 501;
@@ -670,17 +774,16 @@ TEST(ethash, small_dataset)
     auto solution = search_light(*context, {}, boundary, 940, 10);
     EXPECT_TRUE(solution.solution_found);
     EXPECT_EQ(solution.nonce, 948);
-    auto final_hash_hex = "004b92ceeb2045f9745917e4d9868a0db16b06d60ee1d8d33b9ff859053f4bb8";
+    const auto final_hash_hex = "004b92ceeb2045f9745917e4d9868a0db16b06d60ee1d8d33b9ff859053f4bb8";
     EXPECT_EQ(to_hex(solution.final_hash), final_hash_hex);
-    auto mix_hash_hex = "a5a4f053b8424f1c0a4403898d106f0488c8a819334c542ac4fabc0d2cbd7f26";
+    const auto mix_hash_hex = "a5a4f053b8424f1c0a4403898d106f0488c8a819334c542ac4fabc0d2cbd7f26";
     EXPECT_EQ(to_hex(solution.mix_hash), mix_hash_hex);
 
     solution = search(*context_full, {}, boundary, 940, 10);
     EXPECT_TRUE(solution.solution_found);
     EXPECT_EQ(solution.nonce, 948);
-    final_hash_hex = "004b92ceeb2045f9745917e4d9868a0db16b06d60ee1d8d33b9ff859053f4bb8";
     EXPECT_EQ(to_hex(solution.final_hash), final_hash_hex);
-    mix_hash_hex = "a5a4f053b8424f1c0a4403898d106f0488c8a819334c542ac4fabc0d2cbd7f26";
+    EXPECT_EQ(to_hex(solution.mix_hash), mix_hash_hex);
 
     solution = search_light(*context, {}, boundary, 483, 10);
     EXPECT_FALSE(solution.solution_found);
@@ -695,7 +798,7 @@ TEST(ethash, small_dataset)
     EXPECT_EQ(solution.nonce, 0);
 }
 
-#if !__APPLE__
+#ifndef __APPLE__
 
 // The Out-Of-Memory tests try to allocate huge memory buffers. This fails on
 // Linux and Windows, but not on macOS. Because the macOS tries too hard
@@ -704,7 +807,7 @@ TEST(ethash, small_dataset)
 // filter) because we don't want developers using macOS to be hit by this
 // behavior.
 
-#if __linux__
+#ifdef __linux__
 #include <sys/resource.h>
 
 namespace
@@ -763,14 +866,14 @@ TEST(ethash, create_context_oom)
 
 namespace
 {
-struct is_less_or_equal_test_case
+struct less_equal_test_case
 {
     const char* a_hex;
     const char* b_hex;
-    bool excected_result;
+    bool expected_result;
 };
 
-is_less_or_equal_test_case is_less_or_equal_test_cases[] = {
+less_equal_test_case less_equal_test_cases[] = {
     {"0000000000000000000000000000000000000000000000000000000000000000",
         "0000000000000000000000000000000000000000000000000000000000000000", true},
     {"0000000000000000000000000000000000000000000000000000000000000001",
@@ -816,12 +919,52 @@ is_less_or_equal_test_case is_less_or_equal_test_cases[] = {
 };
 }  // namespace
 
-TEST(ethash, is_less_or_equal)
+TEST(ethash, less_equal)
 {
-    for (const auto& t : is_less_or_equal_test_cases)
+    for (const auto& t : less_equal_test_cases)
     {
         auto a = to_hash256(t.a_hex);
         auto b = to_hash256(t.b_hex);
-        EXPECT_EQ(is_less_or_equal(a, b), t.excected_result);
+        EXPECT_EQ(less_equal(a, b), t.expected_result);
     }
+}
+
+TEST(ethash, inc)
+{
+    const auto t = [](const char* s) { return to_hex(inc(to_hash256(s))); };
+
+    EXPECT_EQ(t("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+        "0000000000000000000000000000000000000000000000000000000000000000");
+    EXPECT_EQ(t("0000000000000000000000000000000000000000000000000000000000000000"),
+        "0000000000000000000000000000000000000000000000000000000000000001");
+    EXPECT_EQ(t("000000000000000000000000000000000000000000000000ffffffffffffffff"),
+        "0000000000000000000000000000000000000000000000010000000000000000");
+    EXPECT_EQ(t("00000000000000000000000000000000ffffffffffffffffffffffffffffffff"),
+        "0000000000000000000000000000000100000000000000000000000000000000");
+    EXPECT_EQ(t("0000000000000000ffffffffffffffffffffffffffffffffffffffffffffffff"),
+        "0000000000000001000000000000000000000000000000000000000000000000");
+    EXPECT_EQ(t("0fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+        "1000000000000000000000000000000000000000000000000000000000000000");
+    EXPECT_EQ(t("fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"),
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+}
+
+TEST(ethash, dec)
+{
+    const auto t = [](const char* s) { return to_hex(dec(to_hash256(s))); };
+
+    EXPECT_EQ(t("0000000000000000000000000000000000000000000000000000000000000000"),
+        "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    EXPECT_EQ(t("0000000000000000000000000000000000000000000000000000000000000001"),
+        "0000000000000000000000000000000000000000000000000000000000000000");
+    EXPECT_EQ(t("0000000000000000000000000000000000000000000000010000000000000000"),
+        "000000000000000000000000000000000000000000000000ffffffffffffffff");
+    EXPECT_EQ(t("0000000000000000000000000000000100000000000000000000000000000000"),
+        "00000000000000000000000000000000ffffffffffffffffffffffffffffffff");
+    EXPECT_EQ(t("0000000000000001000000000000000000000000000000000000000000000000"),
+        "0000000000000000ffffffffffffffffffffffffffffffffffffffffffffffff");
+    EXPECT_EQ(t("1000000000000000000000000000000000000000000000000000000000000000"),
+        "0fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+    EXPECT_EQ(t("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
+        "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe");
 }
