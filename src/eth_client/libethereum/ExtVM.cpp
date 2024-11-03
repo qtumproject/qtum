@@ -36,7 +36,7 @@ static unsigned const c_offloadPoint = (c_defaultStackSize - c_entryOverhead) / 
 
 void goOnOffloadedStack(Executive& _e, OnOpFunc const& _onOp)
 {
-    // Set new stack size enouth to handle the rest of the calls up to the limit.
+    // Set new stack size enough to handle the rest of the calls up to the limit.
     boost::thread::attributes attrs;
     attrs.set_stack_size((c_depthLimit - c_offloadPoint) * c_singleExecutionStackSize);
 

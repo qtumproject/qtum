@@ -727,7 +727,7 @@ bool GetMPoSOutputs(std::vector<CTxOut>& mposOutputList, int64_t nRewardPiece, i
             int64_t nRewardDelegate, nRewardStaker;
             if(!SplitOfflineStakeReward(nRewardPiece, blockScript.fee, nRewardDelegate, nRewardStaker))
             {
-                LogPrint(BCLog::COINSTAKE, "Fail to to split the offline staking reward\n");
+                LogPrint(BCLog::COINSTAKE, "Fail to split the offline staking reward\n");
                 return false;
             }
 

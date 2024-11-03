@@ -1960,7 +1960,7 @@ protected:
                 }
                 if (d->pblockfilled->GetBlockTime() > FutureDrift(GetAdjustedTimeSeconds(), d->nHeight, d->consensusParams)) {
                     if (d->fAggressiveStaking) {
-                        //if being agressive, then check more often to publish immediately when valid. This might allow you to find more blocks,
+                        //if being aggressive, then check more often to publish immediately when valid. This might allow you to find more blocks,
                         //but also increases the chance of broadcasting invalid blocks and getting DoS banned by nodes,
                         //or receiving more stale/orphan blocks than normal. Use at your own risk.
                         if(!Sleep(100)) break;
