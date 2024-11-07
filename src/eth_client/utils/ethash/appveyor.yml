@@ -1,0 +1,46 @@
+version: "{build}"
+image: Visual Studio 2017
+
+branches:
+  only:
+  - master
+  - appveyor
+  - hunter
+configuration:
+  - Release
+environment:
+  ARCH: amd64
+  matrix:
+    - VS: 2019
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    - VS: 2019
+      CC: clang-cl
+      CXX: clang-cl
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    - VS: 2019
+      PYTHON: true
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+    - VS: 2017
+      CONFIGURATION: Debug
+    - VS: 2017
+      ARCH: x86
+
+install:
+  # Set default Python version.
+  - set PATH=C:\Python37-x64;C:\Python37-x64\Scripts;%PATH%
+
+before_build:
+  - call "%ProgramFiles(x86)%\Microsoft Visual Studio\%VS%\Community\Common7\Tools\vsdevcmd" -arch=%ARCH%
+  - cmake -S . -B build -G Ninja -Wno-dev -DCMAKE_INSTALL_PREFIX=./dist -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DETHASH_TESTING=ON -DHUNTER_CONFIGURATION_TYPES=%CONFIGURATION%
+
+build_script:
+  - cmake --build build --target install
+  - if defined PYTHON bash scripts/ci/python_build_wheels.sh
+
+test_script:
+  - if %CONFIGURATION%==Release C:\projects\ethash\build\test\ethash-test.exe
+  - if defined PYTHON (set ETHASH_PYTHON_SKIP_BUILD=1 && python setup.py test)
+
+artifacts:
+  - path: dist
+    name: dist
