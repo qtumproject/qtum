@@ -15,6 +15,7 @@
              (gnu packages llvm)
              (gnu packages mingw)
              (gnu packages moreutils)
+             (gnu packages perl)
              (gnu packages pkg-config)
              ((gnu packages python) #:select (python-minimal))
              ((gnu packages python-build) #:select (python-tomli))
@@ -527,6 +528,7 @@ inspecting signatures in Mach-O binaries.")
         automake
         pkg-config
         ;; Scripting
+        perl
         python-minimal ;; (3.10)
         ;; Git
         git-minimal
