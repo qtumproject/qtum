@@ -2,18 +2,19 @@
 
 *.exe
 *.pdb
-src/bitcoin
-src/bitcoind
-src/bitcoin-cli
-src/bitcoin-gui
-src/bitcoin-node
-src/bitcoin-tx
-src/bitcoin-util
-src/bitcoin-chainstate
-src/bitcoin-wallet
+src/qtum
+src/qtumd
+src/qtum-cli
+src/qtum-gui
+src/qtum-node
+src/qtum-tx
+src/qtum-util
+src/qtum-chainstate
+src/qtum-wallet
 src/test/fuzz/fuzz
-src/test/test_bitcoin
-src/qt/test/test_bitcoin-qt
+src/test/test_qtum
+src/qt/test/test_qtum-qt
+src/bench/bench_qtum
 
 # autoreconf
 Makefile.in
@@ -50,11 +51,11 @@ src/qt/forms/ui_*.h
 
 src/qt/test/moc*.cpp
 
-src/qt/bitcoin-qt.config
-src/qt/bitcoin-qt.creator
-src/qt/bitcoin-qt.creator.user
-src/qt/bitcoin-qt.files
-src/qt/bitcoin-qt.includes
+src/qt/qtum-qt.config
+src/qt/qtum-qt.creator
+src/qt/qtum-qt.creator.user
+src/qt/qtum-qt.files
+src/qt/qtum-qt.includes
 
 .deps
 .dirstamp
@@ -92,15 +93,15 @@ src/qt/bitcoin-qt.includes
 *.qm
 Makefile
 !depends/Makefile
-src/qt/bitcoin-qt
-Bitcoin-Qt.app
+src/qt/qtum-qt
+Qtum-Qt.app
 
 # Qt Creator
 Makefile.am.user
 
 # Unit-tests
 Makefile.test
-bitcoin-qt_test
+qtum-qt_test
 
 # Resources cpp
 qrc_*.cpp
@@ -116,7 +117,7 @@ releases
 *.gcno
 *.gcda
 /*.info
-test_bitcoin.coverage/
+test_qtum.coverage/
 total.coverage/
 fuzz.coverage/
 coverage_percent.txt
@@ -149,3 +150,11 @@ dist/
 /guix-build-*
 
 /ci/scratch/
+
+.cproject
+.project
+.settings/language.settings.xml
+src/test/buildenv.py
+Debug
+src/secp256k1/gen_context
+src/secp256k1/src/ecmult_static_context.h
