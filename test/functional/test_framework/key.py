@@ -164,7 +164,7 @@ class ECKey:
         ret.compressed = self.compressed
         return ret
 
-    def sign_ecdsa(self, msg, low_s=True, rfc6979=False):
+    def sign_ecdsa(self, msg, low_s=True, der_sig=True, rfc6979=False):
         """Construct a DER-encoded ECDSA signature with this key.
 
         See https://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm for the
@@ -179,14 +179,21 @@ class ECKey:
         R = k * secp256k1.G
         r = int(R.x) % ORDER
         s = (pow(k, -1, ORDER) * (z + self.secret * r)) % ORDER
+        high = 0
         if low_s and s > secp256k1.GE.ORDER_HALF:
             s = ORDER - s
+            high = 1
         # Represent in DER format. The byte representations of r and s have
         # length rounded up (255 bits becomes 32 bytes and 256 bits becomes 33
         # bytes).
         rb = r.to_bytes((r.bit_length() + 8) // 8, 'big')
         sb = s.to_bytes((s.bit_length() + 8) // 8, 'big')
-        return b'\x30' + bytes([4 + len(rb) + len(sb), 2, len(rb)]) + rb + bytes([2, len(sb)]) + sb
+        if der_sig:
+            return b'\x30' + bytes([4 + len(rb) + len(sb), 2, len(rb)]) + rb + bytes([2, len(sb)]) + sb
+        else:
+            v = int(R.y) & 1
+            v ^= high
+            return bytes([27 + v + (4 if self.compressed else 0)]) + r.to_bytes(32, 'big') + s.to_bytes(32, 'big')
 
 def compute_xonly_pubkey(key):
     """Compute an x-only (32 byte) public key from a (32 byte) private key.

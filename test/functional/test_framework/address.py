@@ -10,6 +10,7 @@
 
 import enum
 import unittest
+import binascii
 
 from .script import (
     CScript,
@@ -32,10 +33,10 @@ from test_framework.segwit_addr import (
 )
 
 
-ADDRESS_BCRT1_UNSPENDABLE = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3xueyj'
-ADDRESS_BCRT1_UNSPENDABLE_DESCRIPTOR = 'addr(bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3xueyj)#juyq9d97'
+ADDRESS_BCRT1_UNSPENDABLE = 'qcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqen882c'
+ADDRESS_BCRT1_UNSPENDABLE_DESCRIPTOR = 'addr(qcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqen882c)#uc8x94y3'
 # Coins sent to this address can be spent with a witness stack of just OP_TRUE
-ADDRESS_BCRT1_P2WSH_OP_TRUE = 'bcrt1qft5p2uhsdcdc3l2ua4ap5qqfg4pjaqlp250x7us7a8qqhrxrxfsqseac85'
+ADDRESS_BCRT1_P2WSH_OP_TRUE = 'qcrt1qft5p2uhsdcdc3l2ua4ap5qqfg4pjaqlp250x7us7a8qqhrxrxfsqcvxxf7'
 
 
 class AddressType(enum.Enum):
@@ -59,7 +60,7 @@ def create_deterministic_address_bcrt1_p2tr_op_true(explicit_internal_key=None):
     taproot_info = taproot_construct(internal_key, [("only-path", CScript([OP_TRUE]))])
     address = output_key_to_p2tr(taproot_info.output_pubkey)
     if explicit_internal_key is None:
-        assert_equal(address, 'bcrt1p9yfmy5h72durp7zrhlw9lf7jpwjgvwdg0jr0lqmmjtgg83266lqsekaqka')
+        assert_equal(address, 'qcrt1p9yfmy5h72durp7zrhlw9lf7jpwjgvwdg0jr0lqmmjtgg83266lqs3rx7ch')
     return (address, taproot_info)
 
 
@@ -77,7 +78,39 @@ def byte_to_base58(b, version):
     return result
 
 
-def base58_to_byte(s):
+def base58_to_byte(v, length):
+  """ decode v into a string of len bytes
+  """
+  __b58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+  __b58base = len(__b58chars)
+  long_value = 0
+  for (i, c) in enumerate(v[::-1]):
+    long_value += __b58chars.find(c) * (__b58base**i)
+
+  result = ''
+  while long_value >= 256:
+    div, mod = divmod(long_value, 256)
+    result = chr(mod) + result
+    long_value = div
+  result = chr(long_value) + result
+
+  nPad = 0
+  for c in v:
+    if c == __b58chars[0]: nPad += 1
+    else: break
+
+  result = chr(0)*nPad + result
+  if length is not None and len(result) != length:
+    return None
+
+  hexresult = binascii.hexlify(bytes(result.encode('latin-1')))
+
+  version = int(hexresult[0:2], 16)
+  hsh = hexresult[2:-8]
+  checksum = hexresult[-8:]
+  return (version, hsh, checksum)
+
+def base58_to_byte_btc(s):
     """Converts a base58-encoded string to its data and version.
 
     Throws if the base58 checksum is invalid."""
@@ -109,12 +142,12 @@ def base58_to_byte(s):
 
 def keyhash_to_p2pkh(hash, main=False):
     assert len(hash) == 20
-    version = 0 if main else 111
+    version = 58 if main else 120
     return byte_to_base58(hash, version)
 
 def scripthash_to_p2sh(hash, main=False):
     assert len(hash) == 20
-    version = 5 if main else 196
+    version = 50 if main else 110
     return byte_to_base58(hash, version)
 
 def key_to_p2pkh(key, main=False):
@@ -136,7 +169,7 @@ def program_to_witness(version, program, main=False):
     assert 0 <= version <= 16
     assert 2 <= len(program) <= 40
     assert version > 0 or len(program) in [20, 32]
-    return encode_segwit_address("bc" if main else "bcrt", version, program)
+    return encode_segwit_address("qc" if main else "qcrt", version, program)
 
 def script_to_p2wsh(script, main=False):
     script = check_script(script)
@@ -175,7 +208,7 @@ def check_script(script):
 
 def bech32_to_bytes(address):
     hrp = address.split('1')[0]
-    if hrp not in ['bc', 'tb', 'bcrt']:
+    if hrp not in ['qc', 'tq', 'qcrt']:
         return (None, None)
     version, payload = decode_segwit_address(hrp, address)
     if version is None:
@@ -188,10 +221,10 @@ def address_to_scriptpubkey(address):
     version, payload = bech32_to_bytes(address)
     if version is not None:
         return program_to_witness_script(version, payload) # testnet segwit scriptpubkey
-    payload, version = base58_to_byte(address)
-    if version == 111:  # testnet pubkey hash
+    payload, version = base58_to_byte_btc(address)
+    if version == 120:  # testnet pubkey hash
         return keyhash_to_p2pkh_script(payload)
-    elif version == 196:  # testnet script hash
+    elif version == 110:  # testnet script hash
         return scripthash_to_p2sh_script(payload)
     # TODO: also support other address formats
     else:
@@ -201,7 +234,7 @@ def address_to_scriptpubkey(address):
 class TestFrameworkScript(unittest.TestCase):
     def test_base58encodedecode(self):
         def check_base58(data, version):
-            self.assertEqual(base58_to_byte(byte_to_base58(data, version)), (data, version))
+            self.assertEqual(base58_to_byte_btc(byte_to_base58(data, version)), (data, version))
 
         check_base58(bytes.fromhex('1f8ea1702a7bd4941bca0941b852c4bbfedb2e05'), 111)
         check_base58(bytes.fromhex('3a0b05f4d7f66c3ba7009f453530296c845cc9cf'), 111)
@@ -219,7 +252,7 @@ class TestFrameworkScript(unittest.TestCase):
 
     def test_bech32_decode(self):
         def check_bech32_decode(payload, version):
-            hrp = "tb"
+            hrp = "tq"
             self.assertEqual(bech32_to_bytes(encode_segwit_address(hrp, version, payload)), (version, payload))
 
         check_bech32_decode(bytes.fromhex('36e3e2a33f328de12e4b43c515a75fba2632ecc3'), 0)

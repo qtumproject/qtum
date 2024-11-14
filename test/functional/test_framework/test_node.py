@@ -41,6 +41,8 @@ from .util import (
     p2p_port,
     tor_port,
 )
+from .qtum import convert_btc_address_to_qtum
+from .qtumconfig import ENABLE_REDUCED_BLOCK_TIME
 
 BITCOIND_PROC_WAIT_TIMEOUT = 60
 # The size of the blocks xor key
@@ -84,7 +86,7 @@ class TestNode():
         self.index = i
         self.p2p_conn_index = 1
         self.datadir_path = datadir_path
-        self.bitcoinconf = self.datadir_path / "bitcoin.conf"
+        self.bitcoinconf = self.datadir_path / "qtum.conf"
         self.stdout_dir = self.datadir_path / "stdout"
         self.stderr_dir = self.datadir_path / "stderr"
         self.chain = chain
@@ -169,18 +171,18 @@ class TestNode():
     AddressKeyPair = collections.namedtuple('AddressKeyPair', ['address', 'key'])
     PRIV_KEYS = [
             # address , privkey
-            AddressKeyPair('mjTkW3DjgyZck4KbiRusZsqTgaYTxdSz6z', 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
-            AddressKeyPair('msX6jQXvxiNhx3Q62PKeLPrhrqZQdSimTg', 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
-            AddressKeyPair('mnonCMyH9TmAsSj3M59DsbH8H63U3RKoFP', 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
-            AddressKeyPair('mqJupas8Dt2uestQDvV2NH3RU8uZh2dqQR', 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
-            AddressKeyPair('msYac7Rvd5ywm6pEmkjyxhbCDKqWsVeYws', 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
-            AddressKeyPair('n2rnuUnwLgXqf9kk2kjvVm8R5BZK1yxQBi', 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
-            AddressKeyPair('myzuPxRwsf3vvGzEuzPfK9Nf2RfwauwYe6', 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
-            AddressKeyPair('mumwTaMtbxEPUswmLBBN3vM9oGRtGBrys8', 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
-            AddressKeyPair('mpV7aGShMkJCZgbW7F6iZgrvuPHjZjH9qg', 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
-            AddressKeyPair('mq4fBNdckGtvY2mijd9am7DRsbRB4KjUkf', 'cN55daf1HotwBAgAKWVgDcoppmUNDtQSfb7XLutTLeAgVc3u8hik'),
-            AddressKeyPair('mpFAHDjX7KregM3rVotdXzQmkbwtbQEnZ6', 'cT7qK7g1wkYEMvKowd2ZrX1E5f6JQ7TM246UfqbCiyF7kZhorpX3'),
-            AddressKeyPair('mzRe8QZMfGi58KyWCse2exxEFry2sfF2Y7', 'cPiRWE8KMjTRxH1MWkPerhfoHFn5iHPWVK5aPqjW8NxmdwenFinJ'),
+            AddressKeyPair(convert_btc_address_to_qtum('mjTkW3DjgyZck4KbiRusZsqTgaYTxdSz6z'), 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
+            AddressKeyPair(convert_btc_address_to_qtum('msX6jQXvxiNhx3Q62PKeLPrhrqZQdSimTg'), 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
+            AddressKeyPair(convert_btc_address_to_qtum('mnonCMyH9TmAsSj3M59DsbH8H63U3RKoFP'), 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
+            AddressKeyPair(convert_btc_address_to_qtum('mqJupas8Dt2uestQDvV2NH3RU8uZh2dqQR'), 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
+            AddressKeyPair(convert_btc_address_to_qtum('msYac7Rvd5ywm6pEmkjyxhbCDKqWsVeYws'), 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
+            AddressKeyPair(convert_btc_address_to_qtum('n2rnuUnwLgXqf9kk2kjvVm8R5BZK1yxQBi'), 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
+            AddressKeyPair(convert_btc_address_to_qtum('myzuPxRwsf3vvGzEuzPfK9Nf2RfwauwYe6'), 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
+            AddressKeyPair(convert_btc_address_to_qtum('mumwTaMtbxEPUswmLBBN3vM9oGRtGBrys8'), 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
+            AddressKeyPair(convert_btc_address_to_qtum('mpV7aGShMkJCZgbW7F6iZgrvuPHjZjH9qg'), 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
+            AddressKeyPair(convert_btc_address_to_qtum('mq4fBNdckGtvY2mijd9am7DRsbRB4KjUkf'), 'cN55daf1HotwBAgAKWVgDcoppmUNDtQSfb7XLutTLeAgVc3u8hik'),
+            AddressKeyPair(convert_btc_address_to_qtum('mpFAHDjX7KregM3rVotdXzQmkbwtbQEnZ6'), 'cT7qK7g1wkYEMvKowd2ZrX1E5f6JQ7TM246UfqbCiyF7kZhorpX3'),
+            AddressKeyPair(convert_btc_address_to_qtum('mzRe8QZMfGi58KyWCse2exxEFry2sfF2Y7'), 'cPiRWE8KMjTRxH1MWkPerhfoHFn5iHPWVK5aPqjW8NxmdwenFinJ'),
     ]
 
     def get_deterministic_priv_key(self):
@@ -252,6 +254,13 @@ class TestNode():
         subp_env = dict(os.environ, LIBC_FATAL_STDERR_="1")
         if env is not None:
             subp_env.update(env)
+
+        if not any(arg.startswith('-staking=') for arg in extra_args):
+            extra_args.append('-staking=0')
+            
+        # Disable the spam filter as it may interfere with come tests sending lots and lots of blocks
+        if not any(arg.startswith('-headerspamfilter') for arg in extra_args):
+            extra_args.append('-headerspamfilter=0')
 
         self.process = subprocess.Popen(self.args + extra_args, env=subp_env, stdout=stdout, stderr=stderr, cwd=cwd, **kwargs)
 
@@ -352,15 +361,15 @@ class TestNode():
         self.log.debug("TestNode.generate() dispatches `generate` call to `generatetoaddress`")
         return self.generatetoaddress(nblocks=nblocks, address=self.get_deterministic_priv_key().address, maxtries=maxtries, **kwargs)
 
-    def generateblock(self, *args, invalid_call, **kwargs):
+    def generateblock(self, *args, invalid_call=False, **kwargs):
         assert not invalid_call
         return self.__getattr__('generateblock')(*args, **kwargs)
 
-    def generatetoaddress(self, *args, invalid_call, **kwargs):
+    def generatetoaddress(self, *args, invalid_call=False, **kwargs):
         assert not invalid_call
         return self.__getattr__('generatetoaddress')(*args, **kwargs)
 
-    def generatetodescriptor(self, *args, invalid_call, **kwargs):
+    def generatetodescriptor(self, *args, invalid_call=False, **kwargs):
         assert not invalid_call
         return self.__getattr__('generatetodescriptor')(*args, **kwargs)
 
