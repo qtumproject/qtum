@@ -6,6 +6,7 @@
 
 import time
 
+from decimal import Decimal
 from test_framework.messages import msg_tx, msg_inv, CInv, MSG_WTX
 from test_framework.p2p import P2PInterface, P2PTxInvStore
 from test_framework.test_framework import BitcoinTestFramework
@@ -113,7 +114,7 @@ class P2PBlocksOnly(BitcoinTestFramework):
 
     def check_p2p_tx_violation(self):
         self.log.info('Check that txs from P2P are rejected and result in disconnect')
-        spendtx = self.miniwallet.create_self_transfer()
+        spendtx = self.miniwallet.create_self_transfer(fee_rate=Decimal("0.03"))
 
         with self.nodes[0].assert_debug_log(['transaction sent in violation of protocol peer=0']):
             self.nodes[0].p2ps[0].send_message(msg_tx(spendtx['tx']))

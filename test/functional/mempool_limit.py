@@ -92,8 +92,8 @@ class MempoolLimitTest(BitcoinTestFramework):
         self.restart_node(0, extra_args=self.extra_args[0])
 
         # Restarting the node resets mempool minimum feerate
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         fill_mempool(self, node)
         current_info = node.getmempoolinfo()
@@ -135,7 +135,7 @@ class MempoolLimitTest(BitcoinTestFramework):
         parent_weight = 100000
         num_big_parents = 3
         assert_greater_than(parent_weight * num_big_parents, current_info["maxmempool"] - current_info["bytes"])
-        parent_feerate = 100 * mempoolmin_feerate
+        parent_feerate = 30 * mempoolmin_feerate
 
         big_parent_txids = []
         for i in range(num_big_parents):
@@ -182,8 +182,8 @@ class MempoolLimitTest(BitcoinTestFramework):
         self.restart_node(0, extra_args=self.extra_args[0])
 
         # Restarting the node resets mempool minimum feerate
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         fill_mempool(self, node)
         current_info = node.getmempoolinfo()
@@ -256,8 +256,8 @@ class MempoolLimitTest(BitcoinTestFramework):
 
         relayfee = node.getnetworkinfo()['relayfee']
         self.log.info('Check that mempoolminfee is minrelaytxfee')
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00001000'))
-        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00001000'))
+        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal('0.00400000'))
+        assert_equal(node.getmempoolinfo()['mempoolminfee'], Decimal('0.00400000'))
 
         fill_mempool(self, node)
 
@@ -276,7 +276,7 @@ class MempoolLimitTest(BitcoinTestFramework):
         node.prioritisetransaction(tx_rich["txid"], 0, int(DEFAULT_FEE * COIN))
         package_txns = [tx_rich, tx_poor]
         coins = [tx["new_utxo"] for tx in package_txns]
-        tx_child = miniwallet.create_self_transfer_multi(utxos_to_spend=coins, fee_per_output=10000) #DEFAULT_FEE
+        tx_child = miniwallet.create_self_transfer_multi(utxos_to_spend=coins, fee_per_output=5000000) #DEFAULT_FEE
         package_txns.append(tx_child)
 
         submitpackage_result = node.submitpackage([tx["hex"] for tx in package_txns])

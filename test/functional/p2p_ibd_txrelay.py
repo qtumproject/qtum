@@ -28,8 +28,8 @@ from test_framework.p2p import (
 )
 from test_framework.test_framework import BitcoinTestFramework
 
-MAX_FEE_FILTER = Decimal(9170997) / COIN
-NORMAL_FEE_FILTER = Decimal(100) / COIN
+MAX_FEE_FILTER = Decimal(9957036) / COIN
+NORMAL_FEE_FILTER = Decimal(400000) / COIN
 
 
 class P2PIBDTxRelayTest(BitcoinTestFramework):

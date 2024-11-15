@@ -34,11 +34,10 @@ class MempoolUnbroadcastTest(BitcoinTestFramework):
 
         self.log.info("Generate transactions that only node 0 knows about")
 
-        if self.is_wallet_compiled():
-            self.import_deterministic_coinbase_privkeys()
-            # generate a wallet txn
-            addr = node.getnewaddress()
-            wallet_tx_hsh = node.sendtoaddress(addr, 0.0001)
+        self.import_deterministic_coinbase_privkeys()
+        # generate a wallet txn
+        addr = node.getnewaddress()
+        wallet_tx_hsh = node.sendtoaddress(addr, 0.01)
 
         # generate a txn using sendrawtransaction
         txFS = self.wallet.create_self_transfer()
@@ -99,7 +98,8 @@ class MempoolUnbroadcastTest(BitcoinTestFramework):
 
         # since the node doesn't have any connections, it will not receive
         # any GETDATAs & thus the transaction will remain in the unbroadcast set.
-        txhsh = self.wallet.send_self_transfer(from_node=node)["txid"]
+        addr = node.getnewaddress()
+        txhsh = node.sendtoaddress(addr, 0.01)
 
         # check transaction was removed from unbroadcast set due to presence in
         # a block

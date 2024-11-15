@@ -12,6 +12,8 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
 )
+from test_framework.qtumconfig import * 
+from test_framework.qtum import generatesynchronized
 
 # Linux allow all characters other than \x00
 # Windows disallow control characters (0-31) and /\?%:|"<>
@@ -61,12 +63,12 @@ class NotificationsTest(BitcoinTestFramework):
             seed = "cTdGmKFWpbvpKQ7ejrdzqYT2hhjyb3GPHnLAK7wdi5Em67YLwSm9"
             xpriv = "tprv8ZgxMBicQKsPfHCsTwkiM1KT56RXbGGTqvc2hgqzycpwbHqqpcajQeMRZoBD35kW4RtyCemu6j34Ku5DEspmgjKdt2qe4SvRch5Kk8B8A2v"
             desc_imports = [{
-                "desc": descsum_create(f"wpkh({xpriv}/0/*)"),
+                "desc": descsum_create(f"pkh({xpriv}/0/*)"),
                 "timestamp": 0,
                 "active": True,
                 "keypool": True,
             },{
-                "desc": descsum_create(f"wpkh({xpriv}/1/*)"),
+                "desc": descsum_create(f"pkh({xpriv}/1/*)"),
                 "timestamp": 0,
                 "active": True,
                 "keypool": True,
@@ -116,7 +118,7 @@ class NotificationsTest(BitcoinTestFramework):
             # triggered by node 1
             self.log.info("test -walletnotify with conflicting transactions")
             self.nodes[0].rescanblockchain()
-            self.generatetoaddress(self.nodes[0], 100, ADDRESS_BCRT1_UNSPENDABLE)
+            generatesynchronized(self.nodes[0], COINBASE_MATURITY, ADDRESS_BCRT1_UNSPENDABLE, self.nodes)
 
             # Generate transaction on node 0, sync mempools, and check for
             # notification on node 1.

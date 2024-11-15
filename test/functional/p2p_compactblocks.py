@@ -4,6 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test compact blocks (BIP 152)."""
 import random
+from decimal import Decimal
 
 from test_framework.blocktools import (
     COINBASE_MATURITY,
@@ -59,6 +60,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
     assert_equal,
     softfork_active,
+    satoshi_round,
 )
 from test_framework.wallet import MiniWallet
 
@@ -423,7 +425,7 @@ class CompactBlocksTest(BitcoinTestFramework):
         for _ in range(num_transactions):
             tx = CTransaction()
             tx.vin.append(CTxIn(COutPoint(utxo[0], utxo[1]), b''))
-            tx.vout.append(CTxOut(utxo[2] - 1000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
+            tx.vout.append(CTxOut(utxo[2] - 100000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
             tx.rehash()
             utxo = [tx.sha256, 0, tx.vout[0].nValue]
             block.vtx.append(tx)
@@ -622,7 +624,7 @@ class CompactBlocksTest(BitcoinTestFramework):
     def test_low_work_compactblocks(self, test_node):
         # A compactblock with insufficient work won't get its header included
         node = self.nodes[0]
-        hashPrevBlock = int(node.getblockhash(node.getblockcount() - 150), 16)
+        hashPrevBlock = int(node.getblockhash(node.getblockcount() - 2050), 16)
         block = self.build_block_on_tip(node)
         block.hashPrevBlock = hashPrevBlock
         block.solve()

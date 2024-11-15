@@ -34,7 +34,7 @@ from test_framework.wallet import MiniWallet
 from test_framework.wallet_util import generate_keypair
 
 
-DUST_RELAY_TX_FEE = 3000  # default setting [sat/kvB]
+DUST_RELAY_TX_FEE = 400000  # default setting [sat/kvB]
 
 
 class DustRelayFeeTest(BitcoinTestFramework):
@@ -95,7 +95,7 @@ class DustRelayFeeTest(BitcoinTestFramework):
         )
 
         # test default (no parameter), disabled (=0) and a bunch of arbitrary dust fee rates [sat/kvB]
-        for dustfee_sat_kvb in (DUST_RELAY_TX_FEE, 0, 1, 66, 500, 1337, 12345, 21212, 333333):
+        for dustfee_sat_kvb in (DUST_RELAY_TX_FEE, 0, 133, 8800, 66667, 178267, 1646000, 2828267, 44444400):
             dustfee_btc_kvb = dustfee_sat_kvb / Decimal(COIN)
             if dustfee_sat_kvb == DUST_RELAY_TX_FEE:
                 self.log.info(f"Test default dust limit setting ({dustfee_sat_kvb} sat/kvB)...")

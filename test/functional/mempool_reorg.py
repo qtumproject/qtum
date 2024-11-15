@@ -8,6 +8,8 @@ Test re-org scenarios with a mempool that contains transactions
 that spend (directly or indirectly) coinbase transactions.
 """
 
+from decimal import Decimal
+from test_framework.blocktools import COINBASE_MATURITY
 import time
 
 from test_framework.messages import (
@@ -38,7 +40,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         # Prevent time from moving forward
         self.nodes[1].setmocktime(int(time.time()))
         self.connect_nodes(0, 1)
-        self.generate(self.wallet, 3)
+        self.generate(self.wallet, 2003)
 
         # Disconnect node0 and node1 to create different chains.
         self.disconnect_nodes(0, 1)
@@ -46,14 +48,14 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         peer1 = self.nodes[1].add_p2p_connection(P2PTxInvStore())
 
         # Create a transaction that is included in a block.
-        tx_disconnected = self.wallet.send_self_transfer(from_node=self.nodes[1])
+        tx_disconnected = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.03"))
         self.generate(self.nodes[1], 1, sync_fun=self.no_op)
 
         # Create a transaction and submit it to node1's mempool.
-        tx_before_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1])
+        tx_before_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.03"))
 
         # Create a child of that transaction and submit it to node1's mempool.
-        tx_child = self.wallet.send_self_transfer(utxo_to_spend=tx_disconnected["new_utxo"], from_node=self.nodes[1])
+        tx_child = self.wallet.send_self_transfer(utxo_to_spend=tx_disconnected["new_utxo"], from_node=self.nodes[1], fee_rate=Decimal("0.03"))
         assert_equal(self.nodes[1].getmempoolentry(tx_child["txid"])["ancestorcount"], 1)
         assert_equal(len(peer1.get_invs()), 0)
 
@@ -101,7 +103,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
             peer1.sync_with_ping()
         last_tx_received = peer1.last_message["tx"]
 
-        tx_after_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1])
+        tx_after_reorg = self.wallet.send_self_transfer(from_node=self.nodes[1], fee_rate=Decimal("0.03"))
         request_after_reorg = msg_getdata([CInv(t=MSG_WTX, h=int(tx_after_reorg["tx"].getwtxid(), 16))])
         assert tx_after_reorg["txid"] in self.nodes[1].getrawmempool()
         peer1.send_and_ping(request_after_reorg)
@@ -113,7 +115,7 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         wallet = self.wallet
 
         # Start with a 200 block chain
-        assert_equal(self.nodes[0].getblockcount(), 200)
+        assert_equal(self.nodes[0].getblockcount(), COINBASE_MATURITY+100)
 
         self.log.info("Add 4 coinbase utxos to the miniwallet")
         # Block 76 contains the first spendable coinbase txs.
@@ -131,15 +133,16 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         utxo_2 = wallet.get_utxo(txid=coinbase_txids[2])
         utxo_3 = wallet.get_utxo(txid=coinbase_txids[3])
         self.log.info("Create three transactions spending from coinbase utxos: spend_1, spend_2, spend_3")
-        spend_1 = wallet.create_self_transfer(utxo_to_spend=utxo_1)
-        spend_2 = wallet.create_self_transfer(utxo_to_spend=utxo_2)
-        spend_3 = wallet.create_self_transfer(utxo_to_spend=utxo_3)
+        spend_1 = wallet.create_self_transfer(utxo_to_spend=utxo_1, fee_rate=Decimal("0.03"))
+        spend_2 = wallet.create_self_transfer(utxo_to_spend=utxo_2, fee_rate=Decimal("0.03"))
+        spend_3 = wallet.create_self_transfer(utxo_to_spend=utxo_3, fee_rate=Decimal("0.03"))
 
         self.log.info("Create another transaction which is time-locked to two blocks in the future")
         utxo = wallet.get_utxo(txid=coinbase_txids[0])
         timelock_tx = wallet.create_self_transfer(
             utxo_to_spend=utxo,
             locktime=self.nodes[0].getblockcount() + 2,
+            fee_rate=Decimal("0.03")
         )['hex']
 
         self.log.info("Check that the time-locked transaction is too immature to spend")
@@ -154,8 +157,8 @@ class MempoolCoinbaseTest(BitcoinTestFramework):
         assert_raises_rpc_error(-26, 'non-final', self.nodes[0].sendrawtransaction, timelock_tx)
 
         self.log.info("Create spend_2_1 and spend_3_1")
-        spend_2_1 = wallet.create_self_transfer(utxo_to_spend=spend_2["new_utxo"])
-        spend_3_1 = wallet.create_self_transfer(utxo_to_spend=spend_3["new_utxo"])
+        spend_2_1 = wallet.create_self_transfer(utxo_to_spend=spend_2["new_utxo"], fee_rate=Decimal("0.03"))
+        spend_3_1 = wallet.create_self_transfer(utxo_to_spend=spend_3["new_utxo"], fee_rate=Decimal("0.03"))
 
         self.log.info("Broadcast and mine spend_3_1")
         spend_3_1_id = self.nodes[0].sendrawtransaction(spend_3_1['hex'])

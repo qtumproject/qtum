@@ -14,6 +14,7 @@ from test_framework.blocktools import create_block, create_coinbase
 from test_framework.messages import msg_block
 from test_framework.p2p import P2PInterface
 from test_framework.test_framework import BitcoinTestFramework
+from test_framework.wallet import MiniWallet
 
 VB_PERIOD = 144           # versionbits period length for regtest
 VB_THRESHOLD = 108        # versionbits activation threshold for regtest
@@ -25,9 +26,16 @@ WARN_UNKNOWN_RULES_ACTIVE = f"Unknown new rules activated (versionbit {VB_UNKNOW
 VB_PATTERN = re.compile("Unknown new rules activated.*versionbit")
 
 class VersionBitsWarningTest(BitcoinTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
+        self.requires_wallet = True
         self.num_nodes = 1
+
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
 
     def setup_network(self):
         self.alert_filename = os.path.join(self.options.tmpdir, "alert.txt")
@@ -61,6 +69,7 @@ class VersionBitsWarningTest(BitcoinTestFramework):
 
     def run_test(self):
         node = self.nodes[0]
+        self.wallet = MiniWallet(node)
         peer = node.add_p2p_connection(P2PInterface())
 
         node_deterministic_address = node.get_deterministic_priv_key().address
