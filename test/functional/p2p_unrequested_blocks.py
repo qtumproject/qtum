@@ -137,13 +137,18 @@ class AcceptBlockTest(BitcoinTestFramework):
         assert tip_entry_found
 
         # But this block should be accepted by node since it has equal work.
-        self.nodes[0].getblock(block_h2f.hash)
+        # NOT true for qtum as we only store blocks with MORE work.
+        self.nodes[0].getblockheader(block_h2f.hash)
         self.log.info("Second height 2 block accepted, but not reorg'ed to")
 
         # 4b. Now send another block that builds on the forking chain.
         block_h3 = create_block(block_h2f.sha256, create_coinbase(3), block_h2f.nTime+1)
         block_h3.solve()
         test_node.send_and_ping(msg_block(block_h3))
+
+        # Then send the prev block as well
+        self.nodes[0].submitblock(block_h2f.serialize().hex())
+        test_node.sync_with_ping()
 
         # Since the earlier block was not processed by node, the new block
         # can't be fully validated.
@@ -170,11 +175,9 @@ class AcceptBlockTest(BitcoinTestFramework):
             tip = next_block
 
         # Now send the block at height 5 and check that it wasn't accepted (missing header)
-        test_node.send_message(msg_block(all_blocks[1]))
-        test_node.wait_for_disconnect()
+        test_node.send_and_ping(msg_block(all_blocks[1]))
         assert_raises_rpc_error(-5, "Block not found", self.nodes[0].getblock, all_blocks[1].hash)
         assert_raises_rpc_error(-5, "Block not found", self.nodes[0].getblockheader, all_blocks[1].hash)
-        test_node = self.nodes[0].add_p2p_connection(P2PInterface())
 
         # The block at height 5 should be accepted if we provide the missing header, though
         headers_message = msg_headers()

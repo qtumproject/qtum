@@ -4,6 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test gettxoutproof and verifytxoutproof RPCs."""
 
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.messages import (
     CMerkleBlock,
     from_hex,
@@ -28,7 +29,7 @@ class MerkleBlockTest(BitcoinTestFramework):
         miniwallet = MiniWallet(self.nodes[0])
 
         chain_height = self.nodes[1].getblockcount()
-        assert_equal(chain_height, 200)
+        assert_equal(chain_height, COINBASE_MATURITY+100)
 
         txid1 = miniwallet.send_self_transfer(from_node=self.nodes[0])['txid']
         txid2 = miniwallet.send_self_transfer(from_node=self.nodes[0])['txid']
