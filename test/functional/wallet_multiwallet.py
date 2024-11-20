@@ -23,6 +23,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
     get_rpc_proxy,
 )
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD
 
 got_loading_error = False
 
@@ -197,7 +198,7 @@ class MultiWalletTest(BitcoinTestFramework):
         assert_equal(set(node.listwallets()), {"w4", "w5"})
         w5 = wallet("w5")
         w5_info = w5.getwalletinfo()
-        assert_equal(w5_info['immature_balance'], 50)
+        assert_equal(w5_info['immature_balance'], INITIAL_BLOCK_REWARD)
 
         competing_wallet_dir = os.path.join(self.options.tmpdir, 'competing_walletdir')
         os.mkdir(competing_wallet_dir)
@@ -222,7 +223,7 @@ class MultiWalletTest(BitcoinTestFramework):
         self.generatetoaddress(node, nblocks=1, address=wallets[0].getnewaddress(), sync_fun=self.no_op)
         for wallet_name, wallet in zip(wallet_names, wallets):
             info = wallet.getwalletinfo()
-            assert_equal(info['immature_balance'], 50 if wallet is wallets[0] else 0)
+            assert_equal(info['immature_balance'], INITIAL_BLOCK_REWARD if wallet is wallets[0] else 0)
             assert_equal(info['walletname'], wallet_name)
 
         # accessing invalid wallet fails
@@ -233,7 +234,7 @@ class MultiWalletTest(BitcoinTestFramework):
 
         w1, w2, w3, w4, *_ = wallets
         self.generatetoaddress(node, nblocks=COINBASE_MATURITY + 1, address=w1.getnewaddress(), sync_fun=self.no_op)
-        assert_equal(w1.getbalance(), 100)
+        assert_equal(w1.getbalance(), 2 * INITIAL_BLOCK_REWARD)
         assert_equal(w2.getbalance(), 0)
         assert_equal(w3.getbalance(), 0)
         assert_equal(w4.getbalance(), 0)
@@ -253,9 +254,9 @@ class MultiWalletTest(BitcoinTestFramework):
         self.log.info('Check for per-wallet settxfee call')
         assert_equal(w1.getwalletinfo()['paytxfee'], 0)
         assert_equal(w2.getwalletinfo()['paytxfee'], 0)
-        w2.settxfee(0.001)
+        w2.settxfee(0.01)
         assert_equal(w1.getwalletinfo()['paytxfee'], 0)
-        assert_equal(w2.getwalletinfo()['paytxfee'], Decimal('0.00100000'))
+        assert_equal(w2.getwalletinfo()['paytxfee'], Decimal('0.0100000'))
 
         self.log.info("Test dynamic wallet loading")
 

@@ -16,6 +16,8 @@ from test_framework.util import (
     assert_greater_than,
     assert_raises_rpc_error,
 )
+from test_framework.qtum import convert_btc_bech32_address_to_qtum, convert_btc_address_to_qtum 
+from test_framework.segwit_addr import Encoding
 
 
 class WalletSignerTest(BitcoinTestFramework):
@@ -47,8 +49,8 @@ class WalletSignerTest(BitcoinTestFramework):
         self.num_nodes = 2
 
         self.extra_args = [
-            [],
-            [f"-signer={self.mock_signer_path()}", '-keypool=10'],
+            ["-addresstype=bech32", "-minrelaytxfee=0.00001"],
+            [f"-signer={self.mock_signer_path()}", '-keypool=10', "-addresstype=bech32", "-minrelaytxfee=0.00001"],
         ]
 
     def skip_test_if_missing_module(self):
@@ -102,28 +104,28 @@ class WalletSignerTest(BitcoinTestFramework):
         assert_equal(hww.getwalletinfo()["keypoolsize"], 40)
 
         address1 = hww.getnewaddress(address_type="bech32")
-        assert_equal(address1, "bcrt1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th68x4f8g")
+        assert_equal(address1, convert_btc_bech32_address_to_qtum("bcrt1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th68x4f8g"))
         address_info = hww.getaddressinfo(address1)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/84h/1h/0h/0/0")
 
         address2 = hww.getnewaddress(address_type="p2sh-segwit")
-        assert_equal(address2, "2N2gQKzjUe47gM8p1JZxaAkTcoHPXV6YyVp")
+        assert_equal(address2, convert_btc_address_to_qtum("2N2gQKzjUe47gM8p1JZxaAkTcoHPXV6YyVp"))
         address_info = hww.getaddressinfo(address2)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/49h/1h/0h/0/0")
 
         address3 = hww.getnewaddress(address_type="legacy")
-        assert_equal(address3, "n1LKejAadN6hg2FrBXoU1KrwX4uK16mco9")
+        assert_equal(address3, convert_btc_address_to_qtum("n1LKejAadN6hg2FrBXoU1KrwX4uK16mco9"))
         address_info = hww.getaddressinfo(address3)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/44h/1h/0h/0/0")
 
         address4 = hww.getnewaddress(address_type="bech32m")
-        assert_equal(address4, "bcrt1phw4cgpt6cd30kz9k4wkpwm872cdvhss29jga2xpmftelhqll62ms4e9sqj")
+        assert_equal(address4, convert_btc_bech32_address_to_qtum("bcrt1phw4cgpt6cd30kz9k4wkpwm872cdvhss29jga2xpmftelhqll62ms4e9sqj", encoding=Encoding.BECH32M))
         address_info = hww.getaddressinfo(address4)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)

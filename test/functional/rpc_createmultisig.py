@@ -24,6 +24,7 @@ from test_framework.wallet import (
     getnewdestination,
 )
 
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
 class RpcCreateMultiSigTest(BitcoinTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
@@ -54,7 +55,7 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
             self.check_addmultisigaddress_errors()
 
         self.log.info('Generating blocks ...')
-        self.generate(self.wallet, 149)
+        self.generate(self.wallet, COINBASE_MATURITY + 49)
 
         wallet_multi = self.create_wallet(node1, 'wmulti') if self._requires_wallet else None
         self.create_keys(21)  # max number of allowed keys + 1

@@ -179,7 +179,7 @@ class ReceivedByTest(BitcoinTestFramework):
         label = "label"
         address = self.nodes[0].getnewaddress(label)
 
-        reward = Decimal("25")
+        reward = Decimal("20000")
         self.generatetoaddress(self.nodes[0], 1, address)
         hash = self.nodes[0].getbestblockhash()
 
