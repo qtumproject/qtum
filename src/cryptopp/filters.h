@@ -1317,7 +1317,7 @@ public:
 	//! \brief Construct a SourceTemplate
 	//! \tparam T the class or type
 	//! \param attachment an attached transformation
-	SourceTemplate<T>(BufferedTransformation *attachment)
+	SourceTemplate(BufferedTransformation *attachment)
 		: Source(attachment) {}
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{m_store.IsolatedInitialize(parameters);}

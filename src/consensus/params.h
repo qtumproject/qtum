@@ -97,6 +97,26 @@ struct Params {
     /** Don't warn about unknown BIP 9 activations below this height.
      * This prevents us from warning about the CSV and segwit activations. */
     int MinBIP9WarningHeight;
+    /** Block height at which QIP5 becomes active */
+    int QIP5Height;
+    /** Block height at which QIP6 becomes active */
+    int QIP6Height;
+    /** Block height at which QIP7 becomes active */
+    int QIP7Height;
+    /** Block height at which QIP9 becomes active */
+    int QIP9Height;
+    /** Block height at which Offline Staking becomes active */
+    int nOfflineStakeHeight;
+    /** Block height at which Reduce Block Time becomes active */
+    int nReduceBlocktimeHeight;
+    /** Block height at which EVM Muir Glacier fork becomes active */
+    int nMuirGlacierHeight;
+    /** Block height at which EVM London fork becomes active */
+    int nLondonHeight;
+    /** Block height at which EVM Shanghai fork becomes active */
+    int nShanghaiHeight;
+    /** Block height at which EVM Cancun fork becomes active */
+    int nCancunHeight;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
