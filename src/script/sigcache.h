@@ -73,4 +73,16 @@ public:
     bool VerifySchnorrSignature(Span<const unsigned char> sig, const XOnlyPubKey& pubkey, const uint256& sighash) const override;
 };
 
+class CachingTransactionSignatureOutputChecker : public TransactionSignatureOutputChecker
+{
+private:
+    bool store;
+    SignatureCache& m_signature_cache;
+
+public:
+    CachingTransactionSignatureOutputChecker(const CTransaction* txToIn, unsigned int nOutIn, const CAmount& amountIn, bool storeIn, SignatureCache& signature_cache, PrecomputedTransactionData& txdataIn) : TransactionSignatureOutputChecker(txToIn, nOutIn, amountIn, txdataIn), store(storeIn), m_signature_cache(signature_cache) {}
+
+    bool VerifyECDSASignature(const std::vector<unsigned char>& vchSig, const CPubKey& vchPubKey, const uint256& sighash) const override;
+};
+
 #endif // BITCOIN_SCRIPT_SIGCACHE_H

@@ -29,4 +29,6 @@ void runCommand(const std::string& strCommand);
  */
 int GetNumCores();
 
+bool CheckHex(const std::string& str);
+
 #endif // BITCOIN_COMMON_SYSTEM_H

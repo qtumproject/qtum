@@ -19,6 +19,13 @@
 class CPubKey;
 template <typename C> class Span;
 
+//contract executions with less gas than this are not standard
+//Make sure is always equal or greater than MINIMUM_GAS_LIMIT (which we can't reference here due to insane header dependency chains)
+static const uint64_t STANDARD_MINIMUM_GAS_LIMIT = 10000;
+//contract executions with a price cheaper than this (in satoshis) are not standard
+//TODO this needs to be controlled by DGP and needs to be propagated from consensus parameters
+static const uint64_t STANDARD_MINIMUM_GAS_PRICE = 1;
+
 enum class TxoutType {
     NONSTANDARD,
     // 'standard' transaction types:
@@ -32,6 +39,10 @@ enum class TxoutType {
     WITNESS_V0_KEYHASH,
     WITNESS_V1_TAPROOT,
     WITNESS_UNKNOWN, //!< Only for Witness versions not already defined above
+    CREATE_SENDER,
+    CALL_SENDER,
+    CREATE,
+    CALL,
 };
 
 /** Get the name of a TxoutType as a string */
@@ -41,6 +52,11 @@ constexpr bool IsPushdataOp(opcodetype opcode)
 {
     return opcode > OP_FALSE && opcode <= OP_PUSHDATA4;
 }
+
+/** Parse a output public key for the sender public key and sender signature. */
+bool ExtractSenderData(const CScript& outputPubKey, CScript* senderPubKey, CScript* senderSig);
+
+bool GetSenderPubKey(const CScript& outputPubKey, CScript& senderPubKey);
 
 /**
  * Parse a scriptPubKey and identify script type for standard scripts. If
@@ -52,7 +68,7 @@ constexpr bool IsPushdataOp(opcodetype opcode)
  * @param[out]  vSolutionsRet  Vector of parsed pubkeys and hashes
  * @return                     The script type. TxoutType::NONSTANDARD represents a failed solve.
  */
-TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet);
+TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus=false, bool allowEmptySenderSig=false);
 
 /** Generate a P2PK script for the given pubkey. */
 CScript GetScriptForRawPubKey(const CPubKey& pubkey);
