@@ -74,6 +74,7 @@ struct BIP9Deployment {
 struct Params {
     uint256 hashGenesisBlock;
     int nSubsidyHalvingInterval;
+    int nSubsidyHalvingIntervalV2;
     /**
      * Hashes of blocks that
      * - are known to be consensus valid, and
@@ -127,6 +128,9 @@ struct Params {
     BIP9Deployment vDeployments[MAX_VERSION_BITS_DEPLOYMENTS];
     /** Proof of work parameters */
     uint256 powLimit;
+    uint256 posLimit;
+    uint256 QIP9PosLimit;
+    uint256 RBTPosLimit;
     bool fPowAllowMinDifficultyBlocks;
     /**
       * Enfore BIP94 timewarp attack mitigation. On testnet4 this also enforces
@@ -134,13 +138,21 @@ struct Params {
       */
     bool enforce_BIP94;
     bool fPowNoRetargeting;
+    bool fPoSNoRetargeting;
     int64_t nPowTargetSpacing;
+    int64_t nRBTPowTargetSpacing;
     int64_t nPowTargetTimespan;
+    int64_t nPowTargetTimespanV2;
+    int64_t nRBTPowTargetTimespan;
+    std::chrono::seconds TargetSpacingChrono(int height) const
+    {
+        return std::chrono::seconds{TargetSpacing(height)};
+    }
     std::chrono::seconds PowTargetSpacing() const
     {
         return std::chrono::seconds{nPowTargetSpacing};
     }
-    int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacing; }
+    int64_t DifficultyAdjustmentInterval(int height=0) const { return nPowTargetTimespan / nPowTargetSpacing; }
     /** The best chain should have at least this much work */
     uint256 nMinimumChainWork;
     /** By default assume that the signatures in ancestors of this block are valid */
@@ -168,6 +180,76 @@ struct Params {
             return SegwitHeight;
         } // no default case, so the compiler can warn about missing cases
         return std::numeric_limits<int>::max();
+    }
+
+    int nLastPOWBlock;
+    int nFirstMPoSBlock;
+    int nMPoSRewardRecipients;
+    int nFixUTXOCacheHFHeight;
+    int nEnableHeaderSignatureHeight;
+    /** Block sync-checkpoint span*/
+    int nCheckpointSpan;
+    int nRBTCheckpointSpan;
+    uint160 delegationsAddress;
+    int nLastMPoSBlock;
+    int nLastBigReward;
+    uint32_t nStakeTimestampMask;
+    uint32_t nRBTStakeTimestampMask;
+    int64_t nBlocktimeDownscaleFactor;
+    /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
+    int nCoinbaseMaturity;
+    int nRBTCoinbaseMaturity;
+    int64_t StakeTimestampMask(int height) const
+    {
+        return height < nReduceBlocktimeHeight ? nStakeTimestampMask : nRBTStakeTimestampMask;
+    }
+    int64_t MinStakeTimestampMask() const
+    {
+        return nRBTStakeTimestampMask;
+    }
+    int SubsidyHalvingInterval(int height) const
+    {
+        return height < nReduceBlocktimeHeight ? nSubsidyHalvingInterval : nSubsidyHalvingIntervalV2;
+    }
+    int64_t BlocktimeDownscaleFactor(int height) const
+    {
+        return height < nReduceBlocktimeHeight ? 1 : nBlocktimeDownscaleFactor;
+    }
+    int64_t TargetSpacing(int height) const
+    {
+        return height < nReduceBlocktimeHeight ? nPowTargetSpacing : nRBTPowTargetSpacing;
+    }
+    int SubsidyHalvingWeight(int height) const
+    {
+        if(height <= nLastBigReward)
+            return 0;
+
+        int blocktimeDownscaleFactor = BlocktimeDownscaleFactor(height);
+        int blockCount = height - nLastBigReward;
+        int beforeDownscale = blocktimeDownscaleFactor == 1 ? 0 : nReduceBlocktimeHeight - nLastBigReward - 1;
+        int subsidyHalvingWeight = blockCount - beforeDownscale + beforeDownscale * blocktimeDownscaleFactor;
+        return subsidyHalvingWeight;
+    }
+    int64_t TimestampDownscaleFactor(int height) const
+    {
+        return height < nReduceBlocktimeHeight ? 1 : (nStakeTimestampMask + 1) / (nRBTStakeTimestampMask + 1);
+    }
+    int64_t TargetTimespan(int height) const
+    {
+        return height < QIP9Height ? nPowTargetTimespan : 
+            (height < nReduceBlocktimeHeight ? nPowTargetTimespanV2 : nRBTPowTargetTimespan);
+    }
+    int CheckpointSpan(int height) const
+    {
+        return height < nReduceBlocktimeHeight ? nCheckpointSpan : nRBTCheckpointSpan;
+    }
+    int CoinbaseMaturity(int height) const
+    {
+        return height < nReduceBlocktimeHeight ? nCoinbaseMaturity : nRBTCoinbaseMaturity;
+    }
+    int MaxCheckpointSpan() const
+    {
+        return nCheckpointSpan <= nRBTCheckpointSpan ? nRBTCheckpointSpan : nCheckpointSpan;
     }
 };
 

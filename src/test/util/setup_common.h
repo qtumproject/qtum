@@ -47,7 +47,6 @@ std::ostream& operator<<(typename std::enable_if<std::is_enum<T>::value, std::os
 }
 } // namespace std
 
-static constexpr CAmount CENT{1000000};
 
 struct TestOpts {
     std::vector<const char*> extra_args{};

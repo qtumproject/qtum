@@ -11,11 +11,11 @@
 #include <script/solver.h>
 #include <uint256.h>
 #include <util/hash_type.h>
+#include <qtum/qtumstate.h>
 
 #include <cassert>
 #include <vector>
 
-typedef std::vector<unsigned char> valtype;
 
 ScriptHash::ScriptHash(const CScript& in) : BaseHash(Hash160(in)) {}
 ScriptHash::ScriptHash(const CScriptID& in) : BaseHash{in} {}
@@ -46,16 +46,23 @@ WitnessV0ScriptHash::WitnessV0ScriptHash(const CScript& in)
     CSHA256().Write(in.data(), in.size()).Finalize(begin());
 }
 
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet, bool convertPublicKeyToHash)
 {
     std::vector<valtype> vSolutions;
     TxoutType whichType = Solver(scriptPubKey, vSolutions);
+
+    if(typeRet){
+        *typeRet = whichType;
+    }
 
     switch (whichType) {
     case TxoutType::PUBKEY: {
         CPubKey pubKey(vSolutions[0]);
         if (!pubKey.IsValid()) {
             addressRet = CNoDestination(scriptPubKey);
+        } else if (convertPublicKeyToHash) {
+            addressRet = PKHash(pubKey);
+            return true;
         } else {
             addressRet = PubKeyDestination(pubKey);
         }
@@ -98,6 +105,10 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
     case TxoutType::MULTISIG:
     case TxoutType::NULL_DATA:
     case TxoutType::NONSTANDARD:
+    case TxoutType::CREATE_SENDER:
+    case TxoutType::CALL_SENDER:
+    case TxoutType::CREATE:
+    case TxoutType::CALL:
         addressRet = CNoDestination(scriptPubKey);
         return false;
     } // no default case, so the compiler can warn about missing cases
@@ -170,4 +181,109 @@ CScript GetScriptForDestination(const CTxDestination& dest)
 
 bool IsValidDestination(const CTxDestination& dest) {
     return std::visit(ValidDestinationVisitor(), dest);
+}
+
+PKHash ExtractPublicKeyHash(const CScript& scriptPubKey, bool* OK)
+{
+    if(OK) *OK = false;
+    CTxDestination address;
+    TxoutType txType=TxoutType::NONSTANDARD;
+    if(ExtractDestination(scriptPubKey, address, &txType, true)){
+        if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) && std::holds_alternative<PKHash>(address)) {
+            if(OK) *OK = true;
+            return std::get<PKHash>(address);
+        }
+    }
+
+    return PKHash();
+}
+
+bool IsValidContractSenderAddress(const CTxDestination& dest) {
+    return std::holds_alternative<PKHash>(dest);
+}
+
+valtype DataVisitor::operator()(const CNoDestination& noDest) const { return valtype(); }
+valtype DataVisitor::operator()(const PKHash& keyID) const { return valtype(keyID.begin(), keyID.end()); }
+valtype DataVisitor::operator()(const PubKeyDestination& pubKey) const {
+    PKHash keyID(pubKey.GetPubKey());
+    return valtype(keyID.begin(), keyID.end());
+}
+valtype DataVisitor::operator()(const ScriptHash& scriptID) const { return valtype(scriptID.begin(), scriptID.end()); }
+valtype DataVisitor::operator()(const WitnessV0ScriptHash& witnessScriptHash) const { return valtype(witnessScriptHash.begin(), witnessScriptHash.end()); }
+valtype DataVisitor::operator()(const WitnessV0KeyHash& witnessKeyHash) const { return valtype(witnessKeyHash.begin(), witnessKeyHash.end()); }
+valtype DataVisitor::operator()(const WitnessV1Taproot& witnessTaproot) const { return valtype(witnessTaproot.begin(), witnessTaproot.end()); }
+valtype DataVisitor::operator()(const PayToAnchor& payToAnchor) const { return valtype(); }
+valtype DataVisitor::operator()(const WitnessUnknown&) const { return valtype(); }
+
+bool ExtractDestination(const COutPoint& prevout, const CScript& scriptPubKey, CTxDestination& addressRet, TxoutType* typeRet)
+{
+    std::vector<valtype> vSolutions;
+    TxoutType whichType = Solver(scriptPubKey, vSolutions);
+
+    if(typeRet){
+        *typeRet = whichType;
+    }
+
+
+    if (whichType == TxoutType::PUBKEY)
+    {
+        CPubKey pubKey(vSolutions[0]);
+        if (!pubKey.IsValid())
+            return false;
+
+        addressRet = PKHash(pubKey);
+        return true;
+    }
+    else if (whichType == TxoutType::PUBKEYHASH)
+    {
+        addressRet = PKHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if (whichType == TxoutType::SCRIPTHASH)
+    {
+        addressRet = ScriptHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::CALL){
+        addressRet = PKHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::WITNESS_V0_KEYHASH)
+    {
+        addressRet = WitnessV0KeyHash(uint160(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::WITNESS_V0_SCRIPTHASH)
+    {
+        addressRet = WitnessV0ScriptHash(uint256(vSolutions[0]));
+        return true;
+    }
+    else if(whichType == TxoutType::ANCHOR)
+    {
+        addressRet = PayToAnchor();
+        return true;
+    }
+    else if(whichType == TxoutType::WITNESS_V1_TAPROOT)
+    {
+        WitnessV1Taproot tap;
+        std::copy(vSolutions[0].begin(), vSolutions[0].end(), tap.begin());
+        addressRet = tap;
+        return true;
+    }
+    else if (whichType == TxoutType::WITNESS_UNKNOWN) {
+        addressRet = WitnessUnknown{vSolutions[0][0], vSolutions[1]};
+        return true;
+    }
+    else if (whichType == TxoutType::CREATE) {
+        addressRet = PKHash(uint160(QtumState::createQtumAddress(uintToh256(prevout.hash), prevout.n).asBytes()));
+        return true;
+    }
+    return false;
+}
+
+int GetAddressIndexType(const CTxDestination &dest)
+{
+    if(dest.index() > 1)
+        return dest.index() - 1; // PubKeyDestination and PKHash are considered the same
+    return dest.index();
 }
