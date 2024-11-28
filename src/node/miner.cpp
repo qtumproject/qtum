@@ -9,6 +9,7 @@
 #include <chainparams.h>
 #include <coins.h>
 #include <common/args.h>
+#include <common/threadpriority.h>
 #include <consensus/amount.h>
 #include <consensus/consensus.h>
 #include <consensus/merkle.h>
@@ -28,6 +29,37 @@
 #include <utility>
 
 namespace node {
+unsigned int nMaxStakeLookahead = MAX_STAKE_LOOKAHEAD;
+unsigned int nBytecodeTimeBuffer = BYTECODE_TIME_BUFFER;
+unsigned int nStakeTimeBuffer = STAKE_TIME_BUFFER;
+unsigned int nMinerSleep = STAKER_POLLING_PERIOD;
+unsigned int nMinerWaitWalidBlock = STAKER_WAIT_FOR_WALID_BLOCK;
+unsigned int nMinerWaitBestBlockHeader = STAKER_WAIT_FOR_BEST_BLOCK_HEADER;
+
+void updateMinerParams(int nHeight, const Consensus::Params& consensusParams, bool minDifficulty)
+{
+    static unsigned int timeDownscale = 1;
+    static unsigned int timeDefault = 1;
+    unsigned int timeDownscaleTmp = consensusParams.TimestampDownscaleFactor(nHeight);
+    if(timeDownscale != timeDownscaleTmp)
+    {
+        timeDownscale = timeDownscaleTmp;
+        unsigned int targetSpacing =  consensusParams.TargetSpacing(nHeight);
+        nMaxStakeLookahead = std::max(MAX_STAKE_LOOKAHEAD / timeDownscale, timeDefault);
+        nMaxStakeLookahead = std::min(nMaxStakeLookahead, targetSpacing);
+        nBytecodeTimeBuffer = std::max(BYTECODE_TIME_BUFFER / timeDownscale, timeDefault);
+        nStakeTimeBuffer = std::max(STAKE_TIME_BUFFER / timeDownscale, timeDefault);
+        nMinerSleep = std::max(STAKER_POLLING_PERIOD / timeDownscale, timeDefault);
+        nMinerWaitWalidBlock = std::max(STAKER_WAIT_FOR_WALID_BLOCK / timeDownscale, timeDefault);
+    }
+
+    // Sleep for 20 seconds when mining with minimum difficulty to avoid creating blocks every 4 seconds
+    if(minDifficulty && nMinerSleep != STAKER_POLLING_PERIOD_MIN_DIFFICULTY)
+    {
+        nMinerSleep = STAKER_POLLING_PERIOD_MIN_DIFFICULTY;
+    }
+}
+
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
     int64_t nOldTime = pblock->nTime;
@@ -430,4 +462,18 @@ void BlockAssembler::addPackageTxs(const CTxMemPool& mempool, int& nPackagesSele
         nDescendantsUpdated += UpdatePackagesForAdded(mempool, ancestors, mapModifiedTx);
     }
 }
+
+bool CanStake()
+{
+    bool canStake = gArgs.GetBoolArg("-staking", DEFAULT_STAKE);
+
+    if(canStake)
+    {
+        // Signet is for creating PoW blocks by an authorized signer
+        canStake = !Params().GetConsensus().signet_blocks;
+    }
+
+    return canStake;
+}
+
 } // namespace node

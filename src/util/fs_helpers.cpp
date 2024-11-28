@@ -11,6 +11,7 @@
 #include <sync.h>
 #include <util/fs.h>
 #include <util/syserror.h>
+#include <util/strencodings.h>
 
 #include <cerrno>
 #include <fstream>
@@ -20,6 +21,7 @@
 #include <string>
 #include <system_error>
 #include <utility>
+#include <random.h>
 
 #ifndef WIN32
 // for posix_fallocate, in configure.ac we check if it is present after this
@@ -50,7 +52,7 @@ static GlobalMutex cs_dir_locks;
  */
 static std::map<std::string, std::unique_ptr<fsbridge::FileLock>> dir_locks GUARDED_BY(cs_dir_locks);
 namespace util {
-LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only)
+LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only, bool try_lock)
 {
     LOCK(cs_dir_locks);
     fs::path pathLockFile = directory / lockfile_name;
@@ -67,7 +69,7 @@ LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_nam
         return LockResult::ErrorWrite;
     }
     auto lock = std::make_unique<fsbridge::FileLock>(pathLockFile);
-    if (!lock->TryLock()) {
+    if (try_lock && !lock->TryLock()) {
         LogError("Error while attempting to lock directory %s: %s\n", fs::PathToString(directory), lock->GetReason());
         return LockResult::ErrorLock;
     }
@@ -88,6 +90,26 @@ void ReleaseDirectoryLocks()
 {
     LOCK(cs_dir_locks);
     dir_locks.clear();
+}
+
+fs::path GetUniquePath(const fs::path& base)
+{
+    FastRandomContext rnd;
+    fs::path tmpFile = base / fs::u8path(HexStr(rnd.randbytes(8)));
+    return tmpFile;
+}
+
+bool DirIsWritable(const fs::path& directory)
+{
+    fs::path tmpFile = GetUniquePath(directory);
+
+    FILE* file = fsbridge::fopen(tmpFile, "a");
+    if (!file) return false;
+
+    fclose(file);
+    remove(tmpFile);
+
+    return true;
 }
 
 bool CheckDiskSpace(const fs::path& dir, uint64_t additional_bytes)

@@ -14,6 +14,7 @@ class CTxMemPool;
 namespace Consensus {
 struct Params;
 }
+class Chainstate;
 
 namespace node {
 class BlockManager;
@@ -24,7 +25,7 @@ struct NodeContext;
  * By default, a transaction with a fee rate higher than this will be rejected
  * by these RPCs and the GUI. This can be overridden with the maxfeerate argument.
  */
-static const CFeeRate DEFAULT_MAX_RAW_TX_FEE_RATE{COIN / 10};
+static const CFeeRate DEFAULT_MAX_RAW_TX_FEE_RATE{1 * COIN};
 
 /** Maximum burn value for sendrawtransaction, submitpackage, and testmempoolaccept RPC calls.
  * By default, a transaction with a burn value higher than this will be rejected
@@ -63,7 +64,7 @@ static const CAmount DEFAULT_MAX_BURN_AMOUNT{0};
  * @param[out] hashBlock       The block hash, if the tx was found via -txindex or block_index
  * @returns                    The tx if found, otherwise nullptr
  */
-CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, uint256& hashBlock, const BlockManager& blockman);
+CTransactionRef GetTransaction(const CBlockIndex* const block_index, const CTxMemPool* const mempool, const uint256& hash, uint256& hashBlock, const BlockManager& blockman, Chainstate* chainstate = nullptr);
 } // namespace node
 
 #endif // BITCOIN_NODE_TRANSACTION_H

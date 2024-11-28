@@ -38,6 +38,10 @@ struct ChainstateLoadOptions {
     int64_t check_blocks{DEFAULT_CHECKBLOCKS};
     int64_t check_level{DEFAULT_CHECKLEVEL};
     std::function<void()> coins_error_cb;
+    bool getting_values_dgp{false};
+    bool record_log_opcodes{false};
+    bool addrindex{false};
+    bool logevents{false};
 };
 
 //! Chainstate load status. Simple applications can just check for the success

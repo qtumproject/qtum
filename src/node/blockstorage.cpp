@@ -35,6 +35,7 @@
 #include <util/strencodings.h>
 #include <util/translation.h>
 #include <validation.h>
+#include <chainparams.h>
 
 #include <map>
 #include <ranges>
@@ -50,6 +51,37 @@ static constexpr uint8_t DB_LAST_BLOCK{'l'};
 // BlockTreeDB::DB_TXINDEX_BLOCK{'T'};
 // BlockTreeDB::DB_TXINDEX{'t'}
 // BlockTreeDB::ReadFlag("txindex")
+
+////////////////////////////////////////// // qtum
+static constexpr uint8_t DB_HEIGHTINDEX{'h'};
+static constexpr uint8_t DB_STAKEINDEX{'s'};
+static constexpr uint8_t DB_DELEGATEINDEX{'d'};
+static constexpr uint8_t DB_ADDRESSINDEX{'a'};
+static constexpr uint8_t DB_ADDRESSUNSPENTINDEX{'u'};
+static constexpr uint8_t DB_TIMESTAMPINDEX{'S'};
+static constexpr uint8_t DB_BLOCKHASHINDEX{'z'};
+static constexpr uint8_t DB_SPENTINDEX{'p'};
+
+struct DelegateEntry {
+    uint160 address;
+    uint8_t fee;
+    DelegateEntry(uint160 _address = uint160(), uint8_t _fee = 0) :
+        address(_address), fee(_fee)
+    {}
+
+    template<typename Stream>
+    void Serialize(Stream &s) const {
+        s << address;
+        s << fee;
+    }
+
+    template<typename Stream>
+    void Unserialize(Stream& s) {
+        s >> address;
+        s >> fee;
+    }
+};
+//////////////////////////////////////////
 
 bool BlockTreeDB::ReadBlockFileInfo(int nFile, CBlockFileInfo& info)
 {
@@ -620,6 +652,38 @@ bool BlockManager::CheckBlockDataAvailability(const CBlockIndex& upper_block, co
     return GetFirstBlock(upper_block, BLOCK_HAVE_DATA, &lower_block) == &lower_block;
 }
 
+bool BlockManager::CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data)
+{
+    const MapCheckpoints& checkpoints = data.mapCheckpoints;
+
+    MapCheckpoints::const_iterator i = checkpoints.find(nHeight);
+    if (i == checkpoints.end()) return true;
+    return hash == i->second;
+}
+
+// Automatically select a suitable sync-checkpoint 
+const CBlockIndex* BlockManager::AutoSelectSyncCheckpoint(const CBlockIndex *pindexBest)
+{
+    const CBlockIndex *pindex = pindexBest;
+    // Search backward for a block within max span and maturity window
+    int checkpointSpan = GetConsensus().CheckpointSpan(pindexBest->nHeight);
+    while (pindex->pprev && pindex->nHeight + checkpointSpan > pindexBest->nHeight)
+        pindex = pindex->pprev;
+    return pindex;
+}
+
+// Check against synchronized checkpoint
+bool BlockManager::CheckSync(int nHeight, const CBlockIndex *pindexBest)
+{
+    const CBlockIndex* pindexSync = nullptr;
+    if(nHeight)
+        pindexSync = AutoSelectSyncCheckpoint(pindexBest);
+
+    if(nHeight && nHeight <= pindexSync->nHeight)
+        return false;
+    return true;
+}
+
 // If we're using -prune with -reindex, then delete block files that will be ignored by the
 // reindex.  Since reindexing works by starting at block file 0 and looping until a blockfile
 // is missing, do the same here to delete any later block files after a gap.  Also delete all
@@ -1034,7 +1098,8 @@ bool BlockManager::WriteUndoDataForBlock(const CBlockUndo& blockundo, BlockValid
     return true;
 }
 
-bool BlockManager::ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos) const
+template <typename Block>
+bool BlockManager::ReadBlockFromDisk(Block& block, const FlatFilePos& pos) const
 {
     block.SetNull();
 
@@ -1054,7 +1119,9 @@ bool BlockManager::ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos) cons
     }
 
     // Check the header
-    if (!CheckProofOfWork(block.GetHash(), block.nBits, GetConsensus())) {
+    // PoS blocks can be loaded out of order from disk, which makes PoS impossible to validate. So, do not validate their headers
+    // they will be validated later in CheckBlock and ConnectBlock anyway
+    if (block.IsProofOfWork() && !CheckProofOfWork(block.GetHash(), block.nBits, GetConsensus())) {
         LogError("%s: Errors in block header at %s\n", __func__, pos.ToString());
         return false;
     }

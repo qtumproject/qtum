@@ -10,6 +10,7 @@
 #include <policy/policy.h>
 #include <primitives/block.h>
 #include <txmempool.h>
+#include <validation.h>
 
 #include <memory>
 #include <optional>
@@ -27,11 +28,53 @@ class CChainParams;
 class CScript;
 class Chainstate;
 class ChainstateManager;
+#ifdef ENABLE_WALLET
+namespace wallet { class CWallet; };
+#endif
 
 namespace Consensus { struct Params; };
 
 namespace node {
 static const bool DEFAULT_PRINT_MODIFIED_FEE = false;
+
+static const bool DEFAULT_STAKE = true;
+
+static const bool DEFAULT_STAKE_CACHE = true;
+
+static const bool DEFAULT_SUPER_STAKE = false;
+
+static const bool ENABLE_HARDWARE_STAKE = false;
+
+//How many seconds to look ahead and prepare a block for staking
+//Look ahead up to 3 "timeslots" in the future, 48 seconds
+//Reduce this to reduce computational waste for stakers, increase this to increase the amount of time available to construct full blocks
+static const int32_t MAX_STAKE_LOOKAHEAD = 16 * 3;
+
+//Will not add any more contracts when GetAdjustedTime() >= nTimeLimit-BYTECODE_TIME_BUFFER
+//This does not affect non-contract transactions
+static const int32_t BYTECODE_TIME_BUFFER = 6;
+
+//Will not attempt to add more transactions when GetAdjustedTime() >= nTimeLimit
+//And nTimeLimit = StakeExpirationTime - STAKE_TIME_BUFFER
+static const int32_t STAKE_TIME_BUFFER = 2;
+
+//How often to try to stake blocks in milliseconds
+static const int32_t STAKER_POLLING_PERIOD = 5000;
+
+//How often to try to stake blocks in milliseconds for minimum difficulty
+static const int32_t STAKER_POLLING_PERIOD_MIN_DIFFICULTY = 20000;
+
+//How often to try to check for future walid block
+static const int32_t STAKER_WAIT_FOR_WALID_BLOCK = 3000;
+
+//How much time to wait for best block header to be downloaded to the blockchain
+static const int32_t STAKER_WAIT_FOR_BEST_BLOCK_HEADER = 250;
+
+//How much max time to wait for best block header to be downloaded to the blockchain
+static const int32_t DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER = 4000;
+
+//How much time to spend trying to process transactions when using the generate RPC call
+static const int32_t POW_MINER_MAX_TIME = 60;
 
 struct CBlockTemplate
 {
@@ -156,6 +199,9 @@ private:
     const CChainParams& chainparams;
     const CTxMemPool* const m_mempool;
     Chainstate& m_chainstate;
+#ifdef ENABLE_WALLET
+    wallet::CWallet *pwallet = 0;
+#endif
 
 public:
     struct Options : BlockCreateOptions {
@@ -211,6 +257,9 @@ void RegenerateCommitments(CBlock& block, ChainstateManager& chainman);
 
 /** Apply -blockmintxfee and -blockmaxweight options from ArgsManager to BlockAssembler options. */
 void ApplyArgsManOptions(const ArgsManager& gArgs, BlockAssembler::Options& options);
+
+/** Check if staking is enabled */
+bool CanStake();
 } // namespace node
 
 #endif // BITCOIN_NODE_MINER_H
