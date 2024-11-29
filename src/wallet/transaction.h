@@ -351,6 +351,7 @@ public:
     const Txid& GetHash() const LIFETIMEBOUND { return tx->GetHash(); }
     const Wtxid& GetWitnessHash() const LIFETIMEBOUND { return tx->GetWitnessHash(); }
     bool IsCoinBase() const { return tx->IsCoinBase(); }
+    bool IsCoinStake() const { return tx->IsCoinStake(); }
 
 private:
     // Disable copying of CWalletTx objects to prevent bugs where instances get
