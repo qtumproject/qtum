@@ -51,6 +51,7 @@
 #include <tinyformat.h>
 #include <uint256.h>
 #include <univalue.h>
+#include <util/bip32.h>
 #include <util/check.h>
 #include <util/fs.h>
 #include <util/fs_helpers.h>
@@ -58,6 +59,7 @@
 #include <util/result.h>
 #include <util/string.h>
 #include <util/time.h>
+#include <util/convert.h>
 #include <util/translation.h>
 #include <wallet/coincontrol.h>
 #include <wallet/context.h>
@@ -164,6 +166,7 @@ bool RemoveWallet(WalletContext& context, const std::shared_ptr<CWallet>& wallet
 
     interfaces::Chain& chain = wallet->chain();
     std::string name = wallet->GetName();
+    wallet->StopStake();
 
     // Unregister with the validation interface which also drops shared pointers.
     wallet->m_chain_notifications_handler.reset();
@@ -236,6 +239,7 @@ static void FlushAndDeleteWallet(CWallet* wallet)
 {
     const std::string name = wallet->GetName();
     wallet->WalletLogPrintf("Releasing wallet %s..\n", name);
+    wallet->StopStake();
     wallet->Flush();
     delete wallet;
     // Wallet is now released, notify WaitForDeleteWallet, if any.
@@ -259,6 +263,7 @@ void WaitForDeleteWallet(std::shared_ptr<CWallet>&& wallet)
         // Do not expect to be the only one removing this wallet.
         // Multiple threads could simultaneously be waiting for deletion.
     }
+    wallet->StopStake();
 
     // Time to ditch our shared_ptr and wait for FlushAndDeleteWallet call.
     wallet.reset();
@@ -712,6 +717,7 @@ void CWallet::Flush()
 
 void CWallet::Close()
 {
+    StopStake();
     GetDatabase().Close();
 }
 
@@ -791,6 +797,23 @@ void CWallet::AddToSpends(const COutPoint& outpoint, const uint256& wtxid, Walle
     SyncMetaData(range);
 }
 
+void CWallet::RemoveFromSpends(const COutPoint& outpoint, const uint256& wtxid)
+{
+    std::pair<TxSpends::iterator, TxSpends::iterator> range;
+    range = mapTxSpends.equal_range(outpoint);
+    TxSpends::iterator it = range.first;
+    for(; it != range.second; ++ it)
+    {
+        if(it->second == wtxid)
+        {
+            mapTxSpends.erase(it);
+            break;
+        }
+    }
+    range = mapTxSpends.equal_range(outpoint);
+    if(range.first != range.second)
+        SyncMetaData(range);
+}
 
 void CWallet::AddToSpends(const CWalletTx& wtx, WalletBatch* batch)
 {
@@ -799,6 +822,15 @@ void CWallet::AddToSpends(const CWalletTx& wtx, WalletBatch* batch)
 
     for (const CTxIn& txin : wtx.tx->vin)
         AddToSpends(txin.prevout, wtx.GetHash(), batch);
+}
+
+void CWallet::RemoveFromSpends(const CWalletTx& wtx)
+{
+    if (wtx.IsCoinBase()) // Coinbases don't spend anything!
+        return;
+
+    for(const CTxIn& txin : wtx.tx->vin)
+        RemoveFromSpends(txin.prevout, wtx.GetHash());
 }
 
 bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
@@ -2151,6 +2183,96 @@ void MaybeResendWalletTxs(WalletContext& context)
  * @{
  */
 
+const CScriptCache& CWallet::GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey, std::map<COutPoint, CScriptCache>* _insertScriptCache) const
+{
+    auto it = prevoutScriptCache.find(prevout);
+    if(it == prevoutScriptCache.end())
+    {
+        std::map<COutPoint, CScriptCache>& insertScriptCache = _insertScriptCache == nullptr ? prevoutScriptCache : *_insertScriptCache;
+        if((int32_t)insertScriptCache.size() > m_staker_max_utxo_script_cache)
+        {
+            insertScriptCache.clear();
+        }
+
+        // The script check for utxo is expensive operations, so cache the data for further use
+        CScriptCache scriptCache;
+        scriptCache.contract = scriptPubKey.HasOpCall() || scriptPubKey.HasOpCreate();
+        if(!scriptCache.contract)
+        {
+            scriptCache.keyId = ToKeyID(ExtractPublicKeyHash(scriptPubKey, &(scriptCache.keyIdOk)));
+            if(scriptCache.keyIdOk)
+            {
+                std::unique_ptr<SigningProvider> provider = GetSolvingProvider(scriptPubKey);
+                if(provider)
+                {
+                    auto inferred = InferDescriptor(scriptPubKey, *provider);
+                    scriptCache.solvable = inferred ? inferred->IsSolvable() : false;
+                }
+                else
+                {
+                    scriptCache.solvable = false;
+                }
+            }
+        }
+        insertScriptCache[prevout] = scriptCache;
+        return insertScriptCache[prevout];
+    }
+
+    return it->second;
+}
+
+bool CWallet::HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* _insertAddressStake) const
+{
+    auto it = addressStakeCache.find(keyId);
+    bool hasAddressInCache = it != addressStakeCache.end();
+    if(hasAddressInCache && _insertAddressStake)
+    {
+        it = _insertAddressStake->find(keyId);
+        hasAddressInCache = it != _insertAddressStake->end();
+    }
+
+    if(!hasAddressInCache)
+    {
+        std::map<uint160, bool>& insertAddressStake = _insertAddressStake == nullptr ? addressStakeCache : *_insertAddressStake;
+        PKHash pkhash(keyId);
+        CScript scriptPubKeyHash = GetScriptForDestination(pkhash);
+        bool canAddressStake = false;
+        if(IsMine(scriptPubKeyHash))
+        {
+            CPubKey pubKeyStake;
+            if (GetPubKey(pkhash, pubKeyStake))
+            {
+                CScript scriptPubKey;
+                scriptPubKey << pubKeyStake.getvch() << OP_CHECKSIG;
+                if(IsMine(scriptPubKey))
+                {
+                    canAddressStake = true;
+                }
+            }
+        }
+        insertAddressStake[keyId] = canAddressStake;
+
+        if(!_insertAddressStake && !canAddressStake)
+        {
+            // Log warning that descriptor is missing
+            std::string strAddress = EncodeDestination(PKHash(keyId));
+            WalletLogPrintf("Both pkh and pk descriptors are needed for %s address to do staking\n", strAddress);
+        }
+    }
+
+    return it->second;
+}
+
+void CWallet::RefreshAddressStakeCache()
+{
+    std::map<uint160, bool> tmpAddressStakeCache = addressStakeCache;
+    addressStakeCache.clear();
+    for(std::map<uint160, bool>::iterator it = tmpAddressStakeCache.begin(); it != tmpAddressStakeCache.end(); ++it)
+    {
+        HasAddressStakeScripts(it->first);
+    }
+}
+
 bool CWallet::SignTransaction(CMutableTransaction& tx) const
 {
     AssertLockHeld(cs_wallet);
@@ -2351,6 +2473,74 @@ void CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
     if (!SubmitTxMemoryPoolAndRelay(*wtx, err_string, true)) {
         WalletLogPrintf("CommitTransaction(): Transaction cannot be broadcast immediately, %s\n", err_string);
         // TODO: if we expect the failure to be long term or permanent, instead delete wtx from the wallet and return failure.
+    }
+}
+
+uint64_t CWallet::GetStakeWeight(uint64_t* pStakerWeight, uint64_t* pDelegateWeight) const
+{
+    if(HaveChain())
+    {
+        return chain().getStakeWeight(*this, pStakerWeight, pDelegateWeight);
+    }
+    return 0;
+}
+
+bool CWallet::GetDelegationStaker(const uint160& keyid, Delegation& delegation)
+{
+    std::map<uint160, Delegation>::iterator it = m_delegations_staker.find(keyid);
+    if(it == m_delegations_staker.end())
+        return false;
+
+    delegation = it->second;
+    return true;
+}
+
+const CWalletTx* CWallet::GetCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const PKHash& superStaker, COutPoint& prevout, CAmount& nValueRet)
+{
+    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setCoins)
+    {
+        CAmount nValue = pcoin.first->tx->vout[pcoin.second].nValue;
+        if(nValue < DEFAULT_STAKING_MIN_UTXO_VALUE)
+            continue;
+
+        CScript scriptPubKey = pcoin.first->tx->vout[pcoin.second].scriptPubKey;
+        bool OK = false;
+        PKHash pkhash = ExtractPublicKeyHash(scriptPubKey, &OK);
+        if(OK && pkhash == superStaker)
+        {
+            nValueRet = nValue;
+            prevout = COutPoint(pcoin.first->GetHash(), pcoin.second);
+            return pcoin.first;
+        }
+    }
+
+    return 0;
+}
+
+bool CWallet::CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const
+{
+    bool canSuperStake = false;
+    if(setDelegateCoins.size() > 0)
+    {
+        for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setCoins)
+        {
+            CAmount nValue = pcoin.first->tx->vout[pcoin.second].nValue;
+            if(nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
+            {
+                canSuperStake = true;
+                break;
+            }
+        }
+    }
+
+    return canSuperStake;
+}
+
+void CWallet::RefreshDelegates(bool myDelegates, bool stakerDelegates)
+{
+    if(HaveChain())
+    {
+        chain().refreshDelegates(this, myDelegates, stakerDelegates);
     }
 }
 
@@ -2644,6 +2834,32 @@ std::set<std::string> CWallet::ListAddrBookLabels(const std::optional<AddressPur
         }
     });
     return label_set;
+}
+
+// disable transaction (only for coinstake)
+void CWallet::DisableTransaction(const CTransaction &tx)
+{
+    if (!tx.IsCoinStake() || !IsFromMe(tx))
+        return; // only disconnecting coinstake requires marking input unspent
+
+    uint256 hash = tx.GetHash().ToUint256();
+    if(AbandonTransaction(hash))
+    {
+        LOCK(cs_wallet);
+        CWalletTx& wtx = mapWallet.at(hash);
+        RemoveFromSpends(wtx);
+        for(const CTxIn& txin : tx.vin)
+        {
+            auto it = mapWallet.find(txin.prevout.hash);
+            if (it != mapWallet.end()) {
+                CWalletTx &coin = it->second;
+                coin.MarkDirty();
+                NotifyTransactionChanged(coin.GetHash(), CT_UPDATED);
+            }
+        }
+        wtx.MarkDirty();
+        NotifyTransactionChanged(hash, CT_DELETED);
+    }
 }
 
 util::Result<CTxDestination> ReserveDestination::GetReservedDestination(bool internal)
@@ -3406,6 +3622,9 @@ void CWallet::postInitProcess()
 
     // Update wallet transactions with current mempool transactions.
     WITH_LOCK(cs_wallet, chain().requestMempoolTransactions(*this));
+
+    // Start mine proof-of-stake blocks in the background
+    StartStake();
 }
 
 bool CWallet::BackupWallet(const std::string& strDest) const
@@ -3430,7 +3649,9 @@ CKeyPool::CKeyPool(const CPubKey& vchPubKeyIn, bool internalIn)
 
 int CWallet::GetTxDepthInMainChain(const CWalletTx& wtx) const
 {
+#ifndef DEBUG_LOCKORDER
     AssertLockHeld(cs_wallet);
+#endif
     if (auto* conf = wtx.state<TxStateConfirmed>()) {
         assert(conf->confirmed_block_height >= 0);
         return GetLastBlockHeight() - conf->confirmed_block_height + 1;
@@ -3454,12 +3675,22 @@ int CWallet::GetTxBlocksToMaturity(const CWalletTx& wtx) const
     return std::max(0, (COINBASE_MATURITY+1) - chain_depth);
 }
 
-bool CWallet::IsTxImmatureCoinBase(const CWalletTx& wtx) const
+bool CWallet::IsTxImmature(const CWalletTx& wtx) const
 {
     AssertLockHeld(cs_wallet);
 
     // note GetBlocksToMaturity is 0 for non-coinbase tx
     return GetTxBlocksToMaturity(wtx) > 0;
+}
+
+bool CWallet::IsTxImmatureCoinBase(const CWalletTx& wtx) const
+{
+    return wtx.IsCoinBase() && IsTxImmature(wtx);
+}
+
+bool CWallet::IsTxImmatureCoinStake(const CWalletTx& wtx) const
+{
+    return wtx.IsCoinStake() && IsTxImmature(wtx);
 }
 
 bool CWallet::IsCrypted() const
@@ -4633,5 +4864,275 @@ uint256 CDelegationInfo::GetHash() const
 uint256 CSuperStakerInfo::GetHash() const
 {
     return (HashWriter{} << SER_INFO_GETHASH(*this)).GetHash();
+}
+
+void CWallet::StartStake()
+{
+    if(HaveChain())
+    {
+        chain().startStake(*this);
+    }
+}
+
+void CWallet::StopStake()
+{
+    if(HaveChain())
+    {
+        chain().stopStake(*this);
+    }
+}
+
+bool CWallet::IsStakeClosing()
+{
+    return m_stop_staking_thread;
+}
+
+void CWallet::updateDelegationsStaker(const std::map<uint160, Delegation> &delegations_staker)
+{
+    LOCK(cs_wallet);
+
+    // Notify for updated and deleted delegation items
+    for (std::map<uint160, Delegation>::iterator it=m_delegations_staker.begin(); it!=m_delegations_staker.end();)
+    {
+        uint160 addressDelegate = it->first;
+        std::map<uint160, Delegation>::const_iterator delegation = delegations_staker.find(addressDelegate);
+        if(delegation == delegations_staker.end())
+        {
+            it = m_delegations_staker.erase(it);
+            m_delegations_weight.erase(addressDelegate);
+            NotifyDelegationsStakerChanged(this, addressDelegate, CT_DELETED);
+        }
+        else
+        {
+            if(delegation->second != it->second)
+            {
+                it->second = delegation->second;
+                NotifyDelegationsStakerChanged(this, addressDelegate, CT_UPDATED);
+            }
+            it++;
+        }
+    }
+
+    // Notify for new delegation items
+    for (std::map<uint160, Delegation>::const_iterator it=delegations_staker.begin(); it!=delegations_staker.end(); it++)
+    {
+        if(m_delegations_staker.find(it->first) == m_delegations_staker.end())
+        {
+            m_delegations_staker[it->first] = it->second;
+            NotifyDelegationsStakerChanged(this, it->first, CT_NEW);
+        }
+    }
+}
+
+void CWallet::updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight)
+{
+    LOCK(cs_wallet);
+
+    for (std::map<uint160, CAmount>::const_iterator mi = delegations_weight.begin(); mi != delegations_weight.end(); mi++)
+    {
+        bool updated = true;
+        uint160 delegate = mi->first;
+        CAmount weight = mi->second;
+        std::map<uint160, CAmount>::iterator it = m_delegations_weight.find(delegate);
+        if(it != m_delegations_weight.end())
+        {
+            if(it->second == weight)
+            {
+                updated = false;
+            }
+        }
+
+        m_delegations_weight[delegate] = weight;
+
+        if(updated && m_delegations_staker.find(delegate) != m_delegations_staker.end())
+        {
+            NotifyDelegationsStakerChanged(this, delegate, CT_UPDATED);
+        }
+    }
+
+    for (std::map<uint256, CSuperStakerInfo>::iterator mi = mapSuperStaker.begin(); mi != mapSuperStaker.end(); mi++)
+    {
+        uint256 hash = mi->first;
+        NotifySuperStakerChanged(this, hash, CT_UPDATED);
+    }
+}
+
+uint64_t CWallet::GetSuperStakerWeight(const uint160 &staker) const
+{
+    LOCK(cs_wallet);
+
+    uint64_t nWeight = 0;
+    auto iterator = m_have_coin_superstaker.find(staker);
+    if (iterator != m_have_coin_superstaker.end() && iterator->second)
+    {
+        for (std::map<uint160, Delegation>::const_iterator it=m_delegations_staker.begin(); it!=m_delegations_staker.end(); it++)
+        {
+            if(it->second.staker == staker)
+            {
+                uint160 delegate = it->first;
+                std::map<uint160, CAmount>::const_iterator mi = m_delegations_weight.find(delegate);
+                if(mi != m_delegations_weight.end())
+                {
+                    nWeight += mi->second;
+                }
+            }
+        }
+    }
+
+    return nWeight;
+}
+
+bool CWallet::GetSuperStaker(CSuperStakerInfo &info, const uint160 &stakerAddress) const
+{
+    LOCK(cs_wallet);
+
+    for (std::map<uint256, CSuperStakerInfo>::const_iterator it=mapSuperStaker.begin(); it!=mapSuperStaker.end(); it++)
+    {
+        if(it->second.stakerAddress == stakerAddress)
+        {
+            info = it->second;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void CWallet::updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx *, unsigned int> > &setCoins)
+{
+    LOCK(cs_wallet);
+    m_have_coin_superstaker.clear();
+
+    COutPoint prevout;
+    CAmount nValueRet = 0;
+    for (const auto& entry : mapSuperStaker) {
+        if(GetCoinSuperStaker(setCoins, PKHash(entry.second.stakerAddress), prevout, nValueRet))
+        {
+            m_have_coin_superstaker[entry.second.stakerAddress] = true;
+        }
+    }
+}
+
+bool CWallet::HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly)
+{
+    CScript script = GetScriptForDestination(dest);
+    isminetype mine = IsMine(script);
+    if(!mine) return false;
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    bool solvable = false;
+    if(provider)
+    {
+        auto inferred = InferDescriptor(script, *provider);
+        solvable = inferred ? inferred->IsSolvable() : false;
+    }
+    bool spendable = ((mine & ISMINE_SPENDABLE) != ISMINE_NO) || (((mine & ISMINE_WATCH_ONLY) != ISMINE_NO) && (fAllowWatchOnly && solvable));
+    return spendable;
+}
+
+CKeyID CWallet::GetKeyForDestination(const CTxDestination& dest)
+{
+    CScript script = GetScriptForDestination(dest);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    if(!provider) provider = std::make_unique<FlatSigningProvider>();
+    return ::GetKeyForDestination(*provider, dest);
+}
+
+bool CWallet::GetPubKey(const PKHash& pkhash, CPubKey& pubkey) const
+{
+    CScript script = GetScriptForDestination(pkhash);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    if(provider)
+    {
+        return provider->GetPubKey(ToKeyID(pkhash), pubkey);
+    }
+
+    return false;
+}
+
+bool CWallet::GetKeyOrigin(const PKHash& pkhash, KeyOriginInfo& info) const
+{
+    CScript script = GetScriptForDestination(pkhash);
+    std::unique_ptr<SigningProvider> provider = GetSolvingProvider(script);
+    if(provider)
+    {
+        return provider->GetKeyOrigin(ToKeyID(pkhash), info);
+    }
+
+    return false;
+}
+
+bool CWallet::GetSenderDest(const CTransaction &tx, CTxDestination &txSenderDest, bool sign) const
+{
+    // Initialize variables
+    CScript senderPubKey;
+
+    // Get sender destination
+    if(tx.HasOpSender())
+    {
+        // Get destination from the outputs
+        for(CTxOut out : tx.vout)
+        {
+            if(out.scriptPubKey.HasOpSender())
+            {
+                if(sign)
+                {
+                    ExtractSenderData(out.scriptPubKey, &senderPubKey, 0);
+                }
+                else
+                {
+                    GetSenderPubKey(out.scriptPubKey, senderPubKey);
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        // Get destination from the inputs
+        if(tx.vin.size() > 0 && mapWallet.find(tx.vin[0].prevout.hash) != mapWallet.end())
+        {
+            senderPubKey = mapWallet.at(tx.vin[0].prevout.hash).tx->vout[tx.vin[0].prevout.n].scriptPubKey;
+        }
+    }
+
+    // Extract destination from script
+    return ExtractDestination(senderPubKey, txSenderDest, nullptr, true);
+}
+
+bool CWallet::GetHDKeyPath(const CTxDestination &dest, std::string &hdkeypath) const
+{
+    CScript scriptPubKey = GetScriptForDestination(dest);
+    for (const auto& spk_man : GetScriptPubKeyMans(scriptPubKey)) {
+        if (spk_man) {
+            if (const std::unique_ptr<CKeyMetadata> meta = spk_man->GetMetadata(dest)) {
+                if (meta->has_key_origin) {
+                    hdkeypath = WriteHDKeypath(meta->key_origin.path);
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+CAmount CWallet::GetTxGasFee(const CMutableTransaction& tx)
+{
+    if(HaveChain())
+    {
+        return chain().getTxGasFee(tx);
+    }
+    return 0;
+}
+
+CAmount CWallet::GetTxGasFee(const std::vector<CRecipient>& vecSend)
+{
+    CMutableTransaction txNew;
+    for (const auto& recipient : vecSend)
+    {
+        CTxOut txout(recipient.nAmount, GetScriptForDestination(recipient.dest));
+        txNew.vout.push_back(txout);
+    }
+    return GetTxGasFee(txNew);
 }
 } // namespace wallet

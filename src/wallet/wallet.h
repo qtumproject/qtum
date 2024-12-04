@@ -366,7 +366,9 @@ private:
     typedef std::unordered_multimap<COutPoint, uint256, SaltedOutpointHasher> TxSpends;
     TxSpends mapTxSpends GUARDED_BY(cs_wallet);
     void AddToSpends(const COutPoint& outpoint, const uint256& wtxid, WalletBatch* batch = nullptr) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    void RemoveFromSpends(const COutPoint& outpoint, const uint256& wtxid) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     void AddToSpends(const CWalletTx& wtx, WalletBatch* batch = nullptr) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    void RemoveFromSpends(const CWalletTx& wtx) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 
     /**
      * Add a transaction to the wallet, or update it.  confirm.block_* should
@@ -498,6 +500,9 @@ public:
 
     ~CWallet()
     {
+        // Stop stake
+        StopStake();
+
         // Should not have slots connected at this point.
         assert(NotifyUnload.empty());
     }
@@ -576,7 +581,9 @@ public:
      * >0 : is a coinbase transaction which matures in this many blocks
      */
     int GetTxBlocksToMaturity(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    bool IsTxImmature(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool IsTxImmatureCoinBase(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    bool IsTxImmatureCoinStake(const CWalletTx& wtx) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 
     //! check whether we support the named feature
     bool CanSupportFeature(enum WalletFeature wf) const override EXCLUSIVE_LOCKS_REQUIRED(cs_wallet) { AssertLockHeld(cs_wallet); return IsFeatureSupported(nWalletVersion, wf); }
@@ -728,9 +735,25 @@ public:
      */
     void CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm);
 
+    uint64_t GetStakeWeight(uint64_t* pStakerWeight = nullptr, uint64_t* pDelegateWeight = nullptr) const;
+    uint64_t GetSuperStakerWeight(const uint160& staker) const;
+    bool CanSuperStake(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const std::vector<COutPoint>& setDelegateCoins) const;
+    bool GetSenderDest(const CTransaction& tx, CTxDestination& txSenderDest, bool sign=true) const;
+    bool GetHDKeyPath(const CTxDestination& dest, std::string& hdkeypath) const;
+    bool GetDelegationStaker(const uint160& keyid, Delegation& delegation);
+    const CWalletTx* GetCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, const PKHash& superStaker, COutPoint& prevout, CAmount& nValueRet);
+    const CScriptCache& GetScriptCache(const COutPoint& prevout, const CScript& scriptPubKey, std::map<COutPoint, CScriptCache>* insertScriptCache = nullptr) const;
+    bool HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* insertAddressStake = nullptr) const;
+    void RefreshAddressStakeCache();
+    bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
+    void RefreshDelegates(bool myDelegates, bool stakerDelegates);
+
     /** Pass this transaction to node for mempool insertion and relay to peers if flag set to true */
     bool SubmitTxMemoryPoolAndRelay(CWalletTx& wtx, std::string& err_string, bool relay) const
         EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+
+    CAmount GetTxGasFee(const CMutableTransaction& tx);
+    CAmount GetTxGasFee(const std::vector<CRecipient>& vecSend);
 
     bool ImportScripts(const std::set<CScript> scripts, int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool ImportPrivKeys(const std::map<CKeyID, CKey>& privkey_map, const int64_t timestamp) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
@@ -841,6 +864,10 @@ public:
 
     isminetype IsMine(const CTxDestination& dest) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     isminetype IsMine(const CScript& script) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    bool HasPrivateKey(const CTxDestination& dest, const bool& fAllowWatchOnly) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    CKeyID GetKeyForDestination(const CTxDestination& dest);
+    bool GetPubKey(const PKHash& pkhash, CPubKey& pubkey) const;
+    bool GetKeyOrigin(const PKHash& pkhash, KeyOriginInfo& info) const;
     /**
      * Returns amount of debit if the input matches the
      * filter, otherwise returns 0
@@ -878,6 +905,9 @@ public:
 
     //! get the current wallet format (the oldest client version guaranteed to understand this wallet)
     int GetVersion() const { LOCK(cs_wallet); return nWalletVersion; }
+
+    //! disable transaction for coinstake
+    void DisableTransaction(const CTransaction &tx);
 
     //! Get wallet transactions that conflict with given transaction (spend same outputs)
     std::set<uint256> GetConflicts(const uint256& txid) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
@@ -1157,6 +1187,19 @@ public:
     //! Find the private key for the given key id from the wallet's descriptors, if available
     //! Returns nullopt when no descriptor has the key or if the wallet is locked.
     std::optional<CKey> GetKey(const CKeyID& keyid) const;
+
+    /* Start staking qtums */
+    void StartStake();
+
+    /* Stop staking qtums */
+    void StopStake();
+
+    /* Is staking closing */
+    bool IsStakeClosing();
+
+    void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
+    void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);
+    void updateHaveCoinSuperStaker(const std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins);
 
     std::map<uint160, Delegation> m_delegations_staker;
     std::map<uint160, CAmount> m_delegations_weight;

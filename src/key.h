@@ -325,4 +325,7 @@ public:
     ~ECC_Context();
 };
 
+/** Ensure that the signature is LowS */
+bool EnsureLowS(std::vector<unsigned char>& vchSig);
+
 #endif // BITCOIN_KEY_H
