@@ -186,7 +186,7 @@ bool RecoverDatabaseFile(const ArgsManager& args, const fs::path& file_path, bil
         DataStream ssValue(row.second);
         std::string strType, strErr;
 
-        // We only care about KEY, MASTER_KEY, CRYPTED_KEY, and HDCHAIN types
+        // We only care about KEY, MASTER_KEY, CRYPTED_KEY, HDCHAIN, TOKEN, TOKENTX and DELEGATION types
         ssKey >> strType;
         bool fReadOK = false;
         if (strType == DBKeys::KEY) {
@@ -197,6 +197,12 @@ bool RecoverDatabaseFile(const ArgsManager& args, const fs::path& file_path, bil
             fReadOK = LoadEncryptionKey(&dummyWallet, ssKey, ssValue, strErr);
         } else if (strType == DBKeys::HDCHAIN) {
             fReadOK = LoadHDChain(&dummyWallet, ssValue, strErr);
+        } else if (strType == DBKeys::TOKEN) {
+            fReadOK = LoadToken(&dummyWallet, ssKey, ssValue, strErr);
+        } else if (strType == DBKeys::TOKENTX) {
+            fReadOK = LoadTokenTx(&dummyWallet, ssKey, ssValue, strErr);
+        } else if (strType == DBKeys::DELEGATION) {
+            fReadOK = LoadDelegation(&dummyWallet, ssKey, ssValue, strErr);
         } else {
             continue;
         }

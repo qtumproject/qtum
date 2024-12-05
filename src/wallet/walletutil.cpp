@@ -73,6 +73,10 @@ WalletDescriptor GenerateWalletDescriptor(const CExtPubKey& master_key, const Ou
         desc_prefix = "tr(" + xpub + "/86h";
         break;
     }
+    case OutputType::P2PK: {
+        desc_prefix = "pk(" + xpub + "/44h";
+        break;
+    }
     case OutputType::UNKNOWN: {
         // We should never have a DescriptorScriptPubKeyMan for an UNKNOWN OutputType,
         // so if we get to this point something is wrong
@@ -83,9 +87,9 @@ WalletDescriptor GenerateWalletDescriptor(const CExtPubKey& master_key, const Ou
 
     // Mainnet derives at 0', testnet and regtest derive at 1'
     if (Params().IsTestChain()) {
-        desc_prefix += "/1h";
+        desc_prefix += "/88h";
     } else {
-        desc_prefix += "/0h";
+        desc_prefix += "/88h";
     }
 
     std::string internal_path = internal ? "/1" : "/0";

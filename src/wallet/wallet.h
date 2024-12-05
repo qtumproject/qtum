@@ -641,6 +641,13 @@ public:
     void GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     unsigned int ComputeTimeSmart(const CWalletTx& wtx, bool rescanning_old_block) const;
 
+    bool LoadToken(const CTokenInfo &token);
+
+    bool LoadTokenTx(const CTokenTx &tokenTx);
+
+    //! Adds a contract data tuple to the store, without saving it to disk
+    bool LoadContractData(const std::string &address, const std::string &key, const std::string &value);
+
     /**
      * Increment the next transaction order id
      * @return next transaction order id
@@ -700,6 +707,10 @@ public:
     /** Sign the tx given the input coins and sighash. */
     bool SignTransaction(CMutableTransaction& tx, const std::map<COutPoint, Coin>& coins, int sighash, std::map<int, bilingual_str>& input_errors) const;
     SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const;
+    bool SignTransactionOutput(CMutableTransaction& tx) const;
+    bool SignTransactionOutput(CMutableTransaction& tx, int sighash, std::map<int, std::string>& output_errors) const;
+    bool SignTransactionStake(CMutableTransaction& tx, const std::vector<std::pair<const CWalletTx*,unsigned int>>& vwtxPrev) const;
+    bool SignBlockStake(CBlock& block, const PKHash& pkhash, bool compact) const;
 
     /**
      * Fills out a PSBT with information from the wallet. Fills in UTXOs if we have
@@ -746,6 +757,7 @@ public:
     bool HasAddressStakeScripts(const uint160& keyId, std::map<uint160, bool>* insertAddressStake = nullptr) const;
     void RefreshAddressStakeCache();
     bool GetSuperStaker(CSuperStakerInfo &info, const uint160& stakerAddress) const;
+    void GetStakerAddressBalance(const PKHash& staker, CAmount& balance, CAmount& stake, CAmount& weight) const;
     void RefreshDelegates(bool myDelegates, bool stakerDelegates);
 
     /** Pass this transaction to node for mempool insertion and relay to peers if flag set to true */
@@ -1188,6 +1200,12 @@ public:
     //! Returns nullopt when no descriptor has the key or if the wallet is locked.
     std::optional<CKey> GetKey(const CKeyID& keyid) const;
 
+    /* Load delegation entry into the wallet */
+    bool LoadDelegation(const CDelegationInfo &delegation);
+
+    /* Load super staker entry into the wallet */
+    bool LoadSuperStaker(const CSuperStakerInfo &superStaker);
+
     /* Start staking qtums */
     void StartStake();
 
@@ -1196,6 +1214,12 @@ public:
 
     /* Is staking closing */
     bool IsStakeClosing();
+
+    /* Clean coinstake transactions */
+    void CleanCoinStake();
+
+    /* Clean coinstake transactions when not reindex and not importing */
+    void TryCleanCoinStake();
 
     void updateDelegationsStaker(const std::map<uint160, Delegation>& delegations_staker);
     void updateDelegationsWeight(const std::map<uint160, CAmount>& delegations_weight);

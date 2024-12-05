@@ -42,6 +42,7 @@ const std::string& FormatOutputType(OutputType type)
     case OutputType::P2SH_SEGWIT: return OUTPUT_TYPE_STRING_P2SH_SEGWIT;
     case OutputType::BECH32: return OUTPUT_TYPE_STRING_BECH32;
     case OutputType::BECH32M: return OUTPUT_TYPE_STRING_BECH32M;
+    case OutputType::P2PK: return OUTPUT_TYPE_STRING_LEGACY;
     case OutputType::UNKNOWN: return OUTPUT_TYPE_STRING_UNKNOWN;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
@@ -50,7 +51,8 @@ const std::string& FormatOutputType(OutputType type)
 CTxDestination GetDestinationForKey(const CPubKey& key, OutputType type)
 {
     switch (type) {
-    case OutputType::LEGACY: return PKHash(key);
+    case OutputType::LEGACY: 
+    case OutputType::P2PK: return PKHash(key);
     case OutputType::P2SH_SEGWIT:
     case OutputType::BECH32: {
         if (!key.IsCompressed()) return PKHash(key);
@@ -88,6 +90,7 @@ CTxDestination AddAndGetDestinationForScript(FlatSigningProvider& keystore, cons
 
     switch (type) {
     case OutputType::LEGACY:
+    case OutputType::P2PK:
         return ScriptHash(script);
     case OutputType::P2SH_SEGWIT:
     case OutputType::BECH32: {

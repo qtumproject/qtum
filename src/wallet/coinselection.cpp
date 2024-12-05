@@ -939,10 +939,15 @@ const std::set<std::shared_ptr<COutput>>& SelectionResult::GetInputSet() const
     return m_selected_inputs;
 }
 
-std::vector<std::shared_ptr<COutput>> SelectionResult::GetShuffledInputVector() const
+void SelectionResult::SetInputSet(const std::set<std::shared_ptr<COutput>>& selected_inputs)
+{
+    m_selected_inputs = selected_inputs;
+}
+
+std::vector<std::shared_ptr<COutput>> SelectionResult::GetShuffledInputVector(int shuffleOffset) const
 {
     std::vector<std::shared_ptr<COutput>> coins(m_selected_inputs.begin(), m_selected_inputs.end());
-    std::shuffle(coins.begin(), coins.end(), FastRandomContext());
+    std::shuffle(coins.begin() + shuffleOffset, coins.end(), FastRandomContext());
     return coins;
 }
 

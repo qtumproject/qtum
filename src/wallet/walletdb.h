@@ -26,6 +26,10 @@ class CMasterKey;
 class CWallet;
 class CWalletTx;
 struct WalletContext;
+class CTokenInfo;
+class CTokenTx;
+class CDelegationInfo;
+class CSuperStakerInfo;
 
 /**
  * Overview of wallet database classes:
@@ -88,6 +92,11 @@ extern const std::string WALLETDESCRIPTORCKEY;
 extern const std::string WALLETDESCRIPTORKEY;
 extern const std::string WATCHMETA;
 extern const std::string WATCHS;
+extern const std::string TOKEN;
+extern const std::string TOKENTX;
+extern const std::string CONTRACTDATA;
+extern const std::string DELEGATION;
+extern const std::string SUPERSTAKER;
 
 // Keys in this set pertain only to the legacy wallet (LegacyScriptPubKeyMan) and are removed during migration from legacy to descriptors.
 extern const std::unordered_set<std::string> LEGACY_TYPES;
@@ -234,6 +243,18 @@ public:
     bool WriteTx(const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
 
+    bool WriteToken(const CTokenInfo& wtoken);
+    bool EraseToken(uint256 hash);
+
+    bool WriteTokenTx(const CTokenTx& wTokenTx);
+    bool EraseTokenTx(uint256 hash);
+
+    bool WriteDelegation(const CDelegationInfo& wdelegation);
+    bool EraseDelegation(uint256 hash);
+
+    bool WriteSuperStaker(const CSuperStakerInfo& wsuperStaker);
+    bool EraseSuperStaker(uint256 hash);
+
     bool WriteKeyMetadata(const CKeyMetadata& meta, const CPubKey& pubkey, const bool overwrite);
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata &keyMeta);
     bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
@@ -277,6 +298,11 @@ public:
     bool WriteActiveScriptPubKeyMan(uint8_t type, const uint256& id, bool internal);
     bool EraseActiveScriptPubKeyMan(uint8_t type, bool internal);
 
+    /// Write contract data key,value tuple to database
+    bool WriteContractData(const std::string &address, const std::string &key, const std::string &value);
+    /// Erase contract data tuple from wallet database
+    bool EraseContractData(const std::string &address, const std::string &key);
+
     DBErrors LoadWallet(CWallet* pwallet);
 
     //! write the hdchain model (external chain child index counter)
@@ -318,6 +344,11 @@ bool LoadKey(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::stri
 bool LoadCryptedKey(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
 bool LoadEncryptionKey(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
 bool LoadHDChain(CWallet* pwallet, DataStream& ssValue, std::string& strErr);
+bool LoadToken(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
+bool LoadTokenTx(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
+bool LoadDelegation(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
+bool LoadSuperStaker(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
+bool LoadContractData(CWallet* pwallet, DataStream& ssKey, DataStream& ssValue, std::string& strErr);
 } // namespace wallet
 
 #endif // BITCOIN_WALLET_WALLETDB_H
