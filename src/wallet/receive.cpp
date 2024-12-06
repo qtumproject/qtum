@@ -156,6 +156,17 @@ CAmount CachedTxGetImmatureCredit(const CWallet& wallet, const CWalletTx& wtx, c
     return 0;
 }
 
+CAmount CachedTxGetStakeCredit(const CWallet& wallet, const CWalletTx& wtx, const isminefilter& filter)
+{
+    AssertLockHeld(wallet.cs_wallet);
+
+    if (wallet.IsTxImmatureCoinStake(wtx) && wtx.isConfirmed()) {
+        return GetCachableAmount(wallet, wtx, CWalletTx::IMMATURE_CREDIT, filter);
+    }
+
+    return 0;
+}
+
 CAmount CachedTxGetAvailableCredit(const CWallet& wallet, const CWalletTx& wtx, const isminefilter& filter)
 {
     AssertLockHeld(wallet.cs_wallet);
@@ -164,7 +175,7 @@ CAmount CachedTxGetAvailableCredit(const CWallet& wallet, const CWalletTx& wtx, 
     bool allow_cache = (filter & ISMINE_ALL) && (filter & ISMINE_ALL) != ISMINE_ALL;
 
     // Must wait until coinbase is safely deep enough in the chain before valuing it
-    if (wallet.IsTxImmatureCoinBase(wtx))
+    if (wallet.IsTxImmature(wtx))
         return 0;
 
     if (allow_cache && wtx.m_amounts[CWalletTx::AVAILABLE_CREDIT].m_cached[filter]) {
@@ -314,6 +325,8 @@ Balance GetBalance(const CWallet& wallet, const int min_depth, bool avoid_reuse)
             }
             ret.m_mine_immature += CachedTxGetImmatureCredit(wallet, wtx, ISMINE_SPENDABLE);
             ret.m_watchonly_immature += CachedTxGetImmatureCredit(wallet, wtx, ISMINE_WATCH_ONLY);
+            ret.m_mine_stake += CachedTxGetStakeCredit(wallet, wtx, ISMINE_SPENDABLE);
+            ret.m_watchonly_stake += CachedTxGetStakeCredit(wallet, wtx, ISMINE_WATCH_ONLY);
         }
     }
     return ret;
@@ -333,7 +346,7 @@ std::map<CTxDestination, CAmount> GetAddressBalances(const CWallet& wallet)
             if (!CachedTxIsTrusted(wallet, wtx, trusted_parents))
                 continue;
 
-            if (wallet.IsTxImmatureCoinBase(wtx))
+            if (wallet.IsTxImmature(wtx))
                 continue;
 
             int nDepth = wallet.GetTxDepthInMainChain(wtx);

@@ -30,7 +30,6 @@
 using util::SplitString;
 
 static GlobalMutex g_rpc_warmup_mutex;
-static std::atomic<bool> g_rpc_running{false};
 static bool fRPCInWarmup GUARDED_BY(g_rpc_warmup_mutex) = true;
 static std::string rpcWarmupStatus GUARDED_BY(g_rpc_warmup_mutex) = "RPC server started";
 /* Timer-creating functions */
@@ -322,11 +321,6 @@ void StopRPC()
         DeleteAuthCookie();
         g_rpcSignals.Stopped();
     });
-}
-
-bool IsRPCRunning()
-{
-    return g_rpc_running;
 }
 
 void RpcInterruptionPoint()

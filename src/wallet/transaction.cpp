@@ -32,21 +32,22 @@ int64_t CWalletTx::GetTxTime() const
 void CWalletTx::updateState(interfaces::Chain& chain)
 {
     bool active;
-    auto lookup_block = [&](const uint256& hash, int& height, TxState& state) {
+    auto lookup_block = [&](const uint256& hash, int& height, bool has_delegation, TxState& state) {
         // If tx block (or conflicting block) was reorged out of chain
         // while the wallet was shutdown, change tx status to UNCONFIRMED
         // and reset block height, hash, and index. ABANDONED tx don't have
         // associated blocks and don't need to be updated. The case where a
         // transaction was reorged out while online and then reconfirmed
         // while offline is covered by the rescan logic.
-        if (!chain.findBlock(hash, FoundBlock().inActiveChain(active).height(height)) || !active) {
+        if (!chain.findBlock(hash, FoundBlock().inActiveChain(active).height(height).hasDelegation(has_delegation)) || !active) {
             state = TxStateInactive{};
         }
     };
     if (auto* conf = state<TxStateConfirmed>()) {
-        lookup_block(conf->confirmed_block_hash, conf->confirmed_block_height, m_state);
+        lookup_block(conf->confirmed_block_hash, conf->confirmed_block_height, conf->has_delegation, m_state);
     } else if (auto* conf = state<TxStateBlockConflicted>()) {
-        lookup_block(conf->conflicting_block_hash, conf->conflicting_block_height, m_state);
+        bool has_delegation = false;
+        lookup_block(conf->conflicting_block_hash, conf->conflicting_block_height, has_delegation, m_state);
     }
 }
 
