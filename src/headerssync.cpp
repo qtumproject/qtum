@@ -13,15 +13,16 @@
 // contrib/devtools/headerssync-params.py.
 
 //! Store one header commitment per HEADER_COMMITMENT_PERIOD blocks.
-constexpr size_t HEADER_COMMITMENT_PERIOD{615};
+constexpr size_t HEADER_COMMITMENT_PERIOD{59};
 
 //! Only feed headers to validation once this many headers on top have been
 //! received and validated against commitments.
-constexpr size_t REDOWNLOAD_BUFFER_SIZE{14621}; // 14621/615 = ~23.8 commitments
+constexpr size_t REDOWNLOAD_BUFFER_SIZE{741}; // 741/59 = ~12.6 commitments
 
-// Our memory analysis assumes 48 bytes for a CompressedHeader (so we should
+// Our memory analysis assumes 176 bytes for a CompressedHeader (so we should
 // re-calculate parameters if we compress further)
-static_assert(sizeof(CompressedHeader) == 48);
+// 160 bytes for a CompressedHeader is for ARM Linux
+static_assert(sizeof(CompressedHeader) == 176 || sizeof(CompressedHeader) == 160);
 
 HeadersSyncState::HeadersSyncState(NodeId id, const Consensus::Params& consensus_params,
         const CBlockIndex* chain_start, const arith_uint256& minimum_required_work) :
@@ -41,7 +42,25 @@ HeadersSyncState::HeadersSyncState(NodeId id, const Consensus::Params& consensus
     // exceeds this bound, because it's not possible for a consensus-valid
     // chain to be longer than this (at the current time -- in the future we
     // could try again, if necessary, to sync a longer chain).
-    m_max_commitments = 6*(Ticks<std::chrono::seconds>(NodeClock::now() - NodeSeconds{std::chrono::seconds{chain_start->GetMedianTimePast()}}) + MAX_FUTURE_BLOCK_TIME) / HEADER_COMMITMENT_PERIOD;
+    if(consensus_params.nLastPOWBlock != consensus_params.nLastBigReward)
+    {
+        // Regtest mode, so use the Bitcoin formula for max commitments
+        m_max_commitments = 6*(Ticks<std::chrono::seconds>(NodeClock::now() - NodeSeconds{std::chrono::seconds{chain_start->GetMedianTimePast()}}) + MAX_FUTURE_BLOCK_TIME) / HEADER_COMMITMENT_PERIOD;
+    }
+    else
+    {
+        // Mainnet or testnet, so use the Qtum formula
+        int64_t numberOfBlocks = (TicksSinceEpoch<std::chrono::seconds>(NodeClock::now()) + MAX_FUTURE_BLOCK_TIME - chain_start->GetBlockTime()) / (consensus_params.MinStakeTimestampMask() + 1);
+        if(numberOfBlocks > 0)
+        {
+            if(chain_start->nHeight <= consensus_params.nLastPOWBlock)
+            {
+                // Add the PoW block, they take no time
+                numberOfBlocks += consensus_params.nLastPOWBlock;
+            }
+            m_max_commitments = 1 + numberOfBlocks / HEADER_COMMITMENT_PERIOD;
+        }
+    }
 
     LogPrint(BCLog::NET, "Initial headers sync started with peer=%d: height=%i, max_commitments=%i, min_work=%s\n", m_id, m_current_height, m_max_commitments, m_minimum_required_work.ToString());
 }
@@ -146,7 +165,8 @@ bool HeadersSyncState::ValidateAndStoreHeadersCommitments(const std::vector<CBlo
     Assume(m_download_state == State::PRESYNC);
     if (m_download_state != State::PRESYNC) return false;
 
-    if (headers[0].hashPrevBlock != m_last_header_received.GetHash()) {
+    if (headers[0].hashPrevBlock != m_last_header_received.GetHash() ||
+            (headers[0].IsProofOfStake() && headers[0].GetBlockTime() <= m_last_header_received.GetBlockTime())) {
         // Somehow our peer gave us a header that doesn't connect.
         // This might be benign -- perhaps our peer reorged away from the chain
         // they were on. Give up on this sync for now (likely we will start a
