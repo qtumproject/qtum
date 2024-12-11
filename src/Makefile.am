@@ -394,7 +394,10 @@ BITCOIN_CORE_H = \
   zmq/zmqrpc.h \
   zmq/zmqutil.h \
   qtum/posutils.h \
+  qtum/qtumstate.h \
   qtum/qtumtransaction.h \
+  qtum/qtumDGP.h \
+  qtum/storageresults.h \
   qtum/qtumutils.h \
   qtum/delegationutils.h
 
@@ -499,6 +502,8 @@ libbitcoin_node_a_SOURCES = \
   validation.cpp \
   validationinterface.cpp \
   versionbits.cpp \
+  qtum/qtumstate.cpp \
+  qtum/storageresults.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
@@ -747,6 +752,7 @@ libbitcoin_common_a_SOURCES = \
   script/signingprovider.cpp \
   script/solver.cpp \
   qtum/qtumutils.cpp \
+  qtum/qtumDGP.cpp \
   qtum/delegationutils.cpp \
   libff/libff/algebra/curves/public_params.hpp \
   libff/libff/algebra/curves/curve_utils.hpp \
