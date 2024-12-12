@@ -490,6 +490,8 @@ public:
         int nCheckDepth) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 };
 
+unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams);
+
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
 
 struct EthTransactionParams{

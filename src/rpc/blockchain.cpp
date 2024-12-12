@@ -320,6 +320,26 @@ UniValue blockToJSON(BlockManager& blockman, const CBlock& block, const CBlockIn
     return result;
 }
 
+static RPCHelpMan getestimatedannualroi()
+{
+    return RPCHelpMan{"getestimatedannualroi",
+                "\nReturns the estimated annual roi.\n",
+                {},
+                RPCResult{
+                    RPCResult::Type::NUM, "", "The current estimated annual roi"},
+                RPCExamples{
+                    HelpExampleCli("getestimatedannualroi", "")
+            + HelpExampleRpc("getestimatedannualroi", "")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+    return GetEstimatedAnnualROI(chainman);
+},
+    };
+}
+
 static RPCHelpMan getblockcount()
 {
     return RPCHelpMan{"getblockcount",
@@ -634,6 +654,171 @@ static RPCHelpMan getblockhash()
 
     const CBlockIndex* pblockindex = active_chain[nHeight];
     return pblockindex->GetBlockHash().GetHex();
+},
+    };
+}
+
+static RPCHelpMan getaccountinfo()
+{
+    return RPCHelpMan{"getaccountinfo",
+                "\nGet contract details including balance, storage data and code.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "address", "The address of the contract"},
+                        {RPCResult::Type::NUM, "balance", "The balance of the contract"},
+                        {RPCResult::Type::STR_HEX, "code", "The bytecode of the contract"},
+                        {RPCResult::Type::OBJ_DYN, "storage", "The storage data of the contract",
+                        {
+                            {RPCResult::Type::OBJ_DYN, "data", "The storage data entry",
+                            {
+                                {RPCResult::Type::STR_HEX, "hex", "The hex data"},
+                            }},
+                        }},
+                        {RPCResult::Type::OBJ, "vin", /*optional=*/true, "",
+                        {
+                            {RPCResult::Type::STR_HEX, "hash", "The data hash"},
+                            {RPCResult::Type::NUM, "nVout", "The vout index"},
+                            {RPCResult::Type::NUM, "value", "The vout value"},
+                        }},
+                    }},
+                RPCExamples{
+                    HelpExampleCli("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getaccountinfo", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    LOCK(cs_main);
+
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    UniValue result(UniValue::VOBJ);
+
+    result.pushKV("address", strAddr);
+    result.pushKV("balance", CAmount(globalState->balance(addrAccount)));
+    std::vector<uint8_t> code(globalState->code(addrAccount));
+    auto storage(globalState->storage(addrAccount));
+
+    UniValue storageUV(UniValue::VOBJ);
+    for (auto j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
+        storageUV.pushKV(j.first.hex(), e);
+    }
+        
+    result.pushKV("storage", storageUV);
+
+    result.pushKV("code", HexStr(code));
+
+    std::unordered_map<dev::Address, Vin> vins = globalState->vins();
+    if(vins.count(addrAccount)){
+        UniValue vin(UniValue::VOBJ);
+        valtype vchHash(vins[addrAccount].hash.asBytes());
+        std::reverse(vchHash.begin(), vchHash.end());
+        vin.pushKV("hash", HexStr(vchHash));
+        vin.pushKV("nVout", uint64_t(vins[addrAccount].nVout));
+        vin.pushKV("value", uint64_t(vins[addrAccount].value));
+        result.pushKV("vin", vin);
+    }
+    return result;
+},
+    };
+}
+
+static RPCHelpMan getstorage()
+{
+    return RPCHelpMan{"getstorage",
+                "\nGet contract storage data.\n",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The contract address"},
+                    {"blocknum", RPCArg::Type::NUM,  RPCArg::Default{-1}, "Number of block to get state from."},
+                    {"index", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "Zero-based index position of the storage"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ_DYN, "", "The storage data of the contract",
+                    {
+                        {RPCResult::Type::OBJ_DYN, "data", "The storage data entry",
+                        {
+                            {RPCResult::Type::STR_HEX, "hex", "The hex data"},
+                        }},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+            + HelpExampleRpc("getstorage", "eb23c0b3e6042821da281a2e2364feb22dd543e3")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+
+    CChain& active_chain = chainman.ActiveChain();
+    std::string strAddr = request.params[0].get_str();
+    if(strAddr.size() != 40 || !CheckHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address"); 
+
+    TemporaryState ts(globalState);
+    if (!request.params[1].isNull())
+    {
+        if (request.params[1].isNum())
+        {
+            auto blockNum = request.params[1].getInt<int>();
+            if((blockNum < 0 && blockNum != -1) || blockNum > active_chain.Height())
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+
+            if(blockNum != -1)
+                ts.SetRoot(uintToh256(active_chain[blockNum]->hashStateRoot), uintToh256(active_chain[blockNum]->hashUTXORoot));
+                
+        } else {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+        }
+    }
+
+    dev::Address addrAccount(strAddr);
+    if(!globalState->addressInUse(addrAccount))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+    
+    UniValue result(UniValue::VOBJ);
+
+    bool onlyIndex = !request.params[2].isNull();
+    unsigned index = 0;
+    if (onlyIndex)
+        index = request.params[2].getInt<int>();
+
+    auto storage(globalState->storage(addrAccount));
+
+    if (onlyIndex)
+    {
+        if (index >= storage.size())
+        {
+            std::ostringstream stringStream;
+            stringStream << "Storage size: " << storage.size() << " got index: " << index;
+            throw JSONRPCError(RPC_INVALID_PARAMS, stringStream.str());
+        }
+        auto elem = std::next(storage.begin(), index);
+        UniValue e(UniValue::VOBJ);
+
+        storage = {{elem->first, {elem->second.first, elem->second.second}}};
+    } 
+    for (const auto& j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
+        result.pushKV(j.first.hex(), e);
+    }
+    return result;
 },
     };
 }
