@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(SimpleRoundTripTest)
         CBlockHeaderAndShortTxIDs shortIDs2;
         stream >> shortIDs2;
 
-        PartiallyDownloadedBlock partialBlock(&pool);
+        PartiallyDownloadedBlock partialBlock(&pool, m_node.chainman.get());
         BOOST_CHECK(partialBlock.InitData(shortIDs2, empty_extra_txn) == READ_STATUS_OK);
         BOOST_CHECK( partialBlock.IsTxAvailable(0));
         BOOST_CHECK(!partialBlock.IsTxAvailable(1));
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(NonCoinbasePreforwardRTTest)
         CBlockHeaderAndShortTxIDs shortIDs2;
         stream >> shortIDs2;
 
-        PartiallyDownloadedBlock partialBlock(&pool);
+        PartiallyDownloadedBlock partialBlock(&pool, m_node.chainman.get());
         BOOST_CHECK(partialBlock.InitData(shortIDs2, empty_extra_txn) == READ_STATUS_OK);
         BOOST_CHECK(!partialBlock.IsTxAvailable(0));
         BOOST_CHECK( partialBlock.IsTxAvailable(1));
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(SufficientPreforwardRTTest)
         CBlockHeaderAndShortTxIDs shortIDs2;
         stream >> shortIDs2;
 
-        PartiallyDownloadedBlock partialBlock(&pool);
+        PartiallyDownloadedBlock partialBlock(&pool, m_node.chainman.get());
         BOOST_CHECK(partialBlock.InitData(shortIDs2, empty_extra_txn) == READ_STATUS_OK);
         BOOST_CHECK( partialBlock.IsTxAvailable(0));
         BOOST_CHECK( partialBlock.IsTxAvailable(1));
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(EmptyBlockRoundTripTest)
         CBlockHeaderAndShortTxIDs shortIDs2;
         stream >> shortIDs2;
 
-        PartiallyDownloadedBlock partialBlock(&pool);
+        PartiallyDownloadedBlock partialBlock(&pool, m_node.chainman.get());
         BOOST_CHECK(partialBlock.InitData(shortIDs2, empty_extra_txn) == READ_STATUS_OK);
         BOOST_CHECK(partialBlock.IsTxAvailable(0));
 
@@ -333,8 +333,8 @@ BOOST_AUTO_TEST_CASE(ReceiveWithExtraTransactions) {
 
     {
         const CBlockHeaderAndShortTxIDs cmpctblock{block, rand_ctx.rand64()};
-        PartiallyDownloadedBlock partial_block(&pool);
-        PartiallyDownloadedBlock partial_block_with_extra(&pool);
+        PartiallyDownloadedBlock partial_block(&pool, m_node.chainman.get());
+        PartiallyDownloadedBlock partial_block_with_extra(&pool, m_node.chainman.get());
 
         BOOST_CHECK(partial_block.InitData(cmpctblock, extra_txn) == READ_STATUS_OK);
         BOOST_CHECK( partial_block.IsTxAvailable(0));

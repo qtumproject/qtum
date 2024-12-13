@@ -286,6 +286,7 @@ BITCOIN_CORE_H = \
   rpc/server.h \
   rpc/server_util.h \
   rpc/util.h \
+  rpc/contract_util.h \
   scheduler.h \
   script/descriptor.h \
   script/keyorigin.h \
@@ -359,6 +360,8 @@ BITCOIN_CORE_H = \
   util/vector.h \
   util/convert.h \
   util/signstr.h \
+  util/contractabi.h \
+  util/tokenstr.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
@@ -399,6 +402,8 @@ BITCOIN_CORE_H = \
   qtum/qtumDGP.h \
   qtum/storageresults.h \
   qtum/qtumutils.h \
+  qtum/qtumtoken.h \
+  qtum/qtumledger.h \
   qtum/delegationutils.h
 
 
@@ -504,6 +509,7 @@ libbitcoin_node_a_SOURCES = \
   versionbits.cpp \
   qtum/qtumstate.cpp \
   qtum/storageresults.cpp \
+  qtum/qtumledger.cpp \
   $(BITCOIN_CORE_H)
 
 if ENABLE_WALLET
@@ -744,6 +750,7 @@ libbitcoin_common_a_SOURCES = \
   rpc/rawtransaction_util.cpp \
   rpc/request.cpp \
   rpc/util.cpp \
+  rpc/contract_util.cpp \
   scheduler.cpp \
   script/descriptor.cpp \
   script/miniscript.cpp \
@@ -753,7 +760,9 @@ libbitcoin_common_a_SOURCES = \
   script/solver.cpp \
   qtum/qtumutils.cpp \
   qtum/qtumDGP.cpp \
+  qtum/qtumtoken.cpp \
   qtum/delegationutils.cpp \
+  util/contractabi.cpp \
   libff/libff/algebra/curves/public_params.hpp \
   libff/libff/algebra/curves/curve_utils.hpp \
   evmone/include/evmone/evmone.h \
@@ -989,6 +998,7 @@ libqtum_util_a_SOURCES = \
   util/string.cpp \
   util/time.cpp \
   util/tokenpipe.cpp \
+  util/tokenstr.cpp \
   $(BITCOIN_CORE_H)
 #
 

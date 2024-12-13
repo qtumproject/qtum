@@ -50,7 +50,7 @@ uint64_t CBlockHeaderAndShortTxIDs::GetShortID(const Wtxid& wtxid) const {
 ReadStatus PartiallyDownloadedBlock::InitData(const CBlockHeaderAndShortTxIDs& cmpctblock, const std::vector<CTransactionRef>& extra_txn) {
     if (cmpctblock.header.IsNull() || (cmpctblock.shorttxids.empty() && cmpctblock.prefilledtxn.empty()))
         return READ_STATUS_INVALID;
-    if (cmpctblock.shorttxids.size() + cmpctblock.prefilledtxn.size() > MAX_BLOCK_WEIGHT / MIN_SERIALIZABLE_TRANSACTION_WEIGHT)
+    if (cmpctblock.shorttxids.size() + cmpctblock.prefilledtxn.size() > dgpMaxBlockWeight / MIN_SERIALIZABLE_TRANSACTION_WEIGHT)
         return READ_STATUS_INVALID;
 
     if (!header.IsNull() || !txn_available.empty()) return READ_STATUS_INVALID;
@@ -207,7 +207,7 @@ ReadStatus PartiallyDownloadedBlock::FillBlock(CBlock& block, const std::vector<
 
     BlockValidationState state;
     CheckBlockFn check_block = m_check_block_mock ? m_check_block_mock : CheckBlock;
-    if (!check_block(block, state, Params().GetConsensus(), /*fCheckPoW=*/true, /*fCheckMerkleRoot=*/true)) {
+    if (!check_block(block, state, Params().GetConsensus(), chainman->ActiveChainstate(), /*fCheckPoW=*/true, /*fCheckMerkleRoot=*/true, /*fCheckSig=*/true)) {
         // TODO: We really want to just check merkle tree manually here,
         // but that is expensive, and CheckBlock caches a block's
         // "checked-status" (in the CBlock?). CBlock should be able to

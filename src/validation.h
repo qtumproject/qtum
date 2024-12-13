@@ -445,7 +445,7 @@ public:
 /** Functions for validating blocks and updating the block tree */
 
 /** Context-independent validity checks */
-bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
+bool CheckBlock(const CBlock& block, BlockValidationState& state, const Consensus::Params& consensusParams, Chainstate& chainstate, bool fCheckPOW = true, bool fCheckMerkleRoot = true, bool fCheckSig=true);
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block) */
 bool TestBlockValidity(BlockValidationState& state,
@@ -493,6 +493,10 @@ public:
 unsigned int GetContractScriptFlags(int nHeight, const Consensus::Params& consensusparams);
 
 std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::vector<unsigned char> opcode, Chainstate& chainstate, const dev::Address& sender = dev::Address(), uint64_t gasLimit=0, CAmount nAmount=0);
+
+void writeVMlog(const std::vector<ResultExecute>& res, CChain& chain, const CTransaction& tx = CTransaction(), const CBlock& block = CBlock());
+
+std::string exceptedMessage(const dev::eth::TransactionException& excepted, const dev::bytes& output);
 
 struct EthTransactionParams{
     VersionVM version;

@@ -11,6 +11,7 @@
 #include <streams.h>
 #include <util/chaintype.h>
 #include <validation.h>
+#include <test/util/setup_common.h>
 
 // These are the two major time-sinks which happen after we have fully received
 // a block off the wire, but before we can relay the block on to peers using
@@ -38,6 +39,8 @@ static void DeserializeAndCheckBlockTest(benchmark::Bench& bench)
 
     ArgsManager bench_args;
     const auto chainParams = CreateChainParams(bench_args, ChainType::MAIN);
+    const auto testing_setup = MakeNoLogFileContext<const TestingSetup>(ChainType::MAIN);
+    Chainstate& chainstate = testing_setup->m_node.chainman->ActiveChainstate();
 
     bench.unit("block").run([&] {
         CBlock block; // Note that CBlock caches its checked state, so we need to recreate it here
@@ -46,7 +49,7 @@ static void DeserializeAndCheckBlockTest(benchmark::Bench& bench)
         assert(rewound);
 
         BlockValidationState validationState;
-        bool checked = CheckBlock(block, validationState, chainParams->GetConsensus());
+        bool checked = CheckBlock(block, validationState, chainParams->GetConsensus(), chainstate);
         assert(checked);
     });
 }

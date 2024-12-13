@@ -37,10 +37,10 @@ std::string FormatToken(const unsigned int& decimals, const dev::s256& n)
 
 bool ParseToken(const unsigned int& decimals, const std::string& token_string, dev::s256& nRet)
 {
-    if (!ContainsNoNUL(token_string)) {
+    if (!util::ContainsNoNUL(token_string)) {
         return false;
     }
-    const std::string str = TrimString(token_string);
+    const std::string str = util::TrimString(token_string);
     if (str.empty()) {
         return false;
     }
