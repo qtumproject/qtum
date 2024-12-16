@@ -111,8 +111,10 @@ public:
             for(size_t i = 0; i < values.size(); i++)
             {
                 std::vector<std::string> value = values[i];
-                if(value.size() < 1)
-                    return error("Failed to get delegation output value");
+                if(value.size() < 1) {
+                    LogError("Failed to get delegation output value");
+                    return false;
+                }
 
                 std::string name = func->inputs[i].name;
                 if(name == "_staker")
@@ -137,13 +139,15 @@ public:
                 }
                 else
                 {
-                    return error("Invalid delegation event input name");
+                    LogError("Invalid delegation event input name");
+                    return false;
                 }
             }
         }
         catch(...)
         {
-            return error("Parsing failed for delegation event inputs");
+            LogError("Parsing failed for delegation event inputs");
+            return false;
         }
         event.type = type;
 
@@ -172,12 +176,16 @@ QtumDelegation::~QtumDelegation()
 bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegation, Chainstate& chainstate) const
 {
     // Contract exist check
-    if(!ExistDelegationContract())
-        return error("Delegation contract address does not exist");
+    if(!ExistDelegationContract()) {
+        LogError("Delegation contract address does not exist");
+        return false;
+    }
 
     // Get delegation ABI check
-    if(!priv->m_pfDelegations)
-        return error("Get delegation ABI does not exist");
+    if(!priv->m_pfDelegations) {
+        LogError("Get delegation ABI does not exist");
+        return false;
+    }
 
     // Serialize the input parameters for get delegation
     std::vector<std::vector<std::string>> inputValues;
@@ -186,8 +194,10 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
     inputValues.push_back(paramAddress);
     std::vector<ParameterABI::ErrorType> inputErrors;
     std::string inputData;
-    if(!priv->m_pfDelegations->abiIn(inputValues, inputData, inputErrors))
-        return error("Failed to serialize get delegation input parameters");
+    if(!priv->m_pfDelegations->abiIn(inputValues, inputData, inputErrors)) {
+        LogError("Failed to serialize get delegation input parameters");
+        return false;
+    }
 
     // Get delegation for address
     std::vector<ResultExecute> execResults;
@@ -195,19 +205,25 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
         LOCK(cs_main);
         execResults = CallContract(priv->delegationsAddress, ParseHex(inputData), chainstate);
     }
-    if(execResults.size() < 1)
-        return error("Failed to CallContract to get delegation for address");
+    if(execResults.size() < 1) {
+        LogError("Failed to CallContract to get delegation for address");
+        return false;
+    }
 
     // Deserialize the output parameters for get delegation
     std::string outputData = HexStr(execResults[0].execRes.output);
     std::vector<std::vector<std::string>> outputValues;
     std::vector<ParameterABI::ErrorType> outputErrors;
-    if(!priv->m_pfDelegations->abiOut(outputData, outputValues, outputErrors))
-        return error("Failed to deserialize get delegation output parameters");
+    if(!priv->m_pfDelegations->abiOut(outputData, outputValues, outputErrors)) {
+        LogError("Failed to deserialize get delegation output parameters");
+        return false;
+    }
 
     // Output parameters size check
-    if(outputValues.size() != priv->m_pfDelegations->outputs.size())
-        return error("Failed to deserialize get delegation outputs, size doesn't match");
+    if(outputValues.size() != priv->m_pfDelegations->outputs.size()) {
+        LogError("Failed to deserialize get delegation outputs, size doesn't match");
+        return false;
+    }
 
     // Parse the values of the output parameters for get delegation
     try
@@ -215,8 +231,10 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
         for(size_t i = 0; i < outputValues.size(); i++)
         {
             std::vector<std::string> value = outputValues[i];
-            if(value.size() < 1)
-                return error("Failed to get delegation output value");
+            if(value.size() < 1) {
+                LogError("Failed to get delegation output value");
+                return false;
+            }
 
             std::string name = priv->m_pfDelegations->outputs[i].name;
             if(name == "staker")
@@ -237,13 +255,15 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
             }
             else
             {
-                return error("Invalid get delegation output name");
+                LogError("Invalid get delegation output name");
+                return false;
             }
         }
     }
     catch(...)
     {
-        return error("Parsing failed for get delegation outputs");
+        LogError("Parsing failed for get delegation outputs");
+        return false;
     }
 
     return true;
@@ -260,20 +280,28 @@ bool QtumDelegation::VerifyDelegation(const uint160 &address, const Delegation &
 bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events, const IDelegationFilter &filter, ChainstateManager &chainman, int fromBlock, int toBlock, int minconf) const
 {
     // Check if log events are enabled
-    if(!fLogEvents)
-        return error("Events indexing disabled");
+    if(!fLogEvents) {
+        LogError("Events indexing disabled");
+        return false;
+    }
 
     // Contract exist check
-    if(!ExistDelegationContract())
-        return error("Delegation contract address does not exist");
+    if(!ExistDelegationContract()) {
+        LogError("Delegation contract address does not exist");
+        return false;
+    }
 
     // Add delegation event ABI check
-    if(!priv->m_pfAddDelegationEvent)
-        return error("Add delegation event ABI does not exist");
+    if(!priv->m_pfAddDelegationEvent) {
+        LogError("Add delegation event ABI does not exist");
+        return false;
+    }
 
     // Remove delegation event ABI check
-    if(!priv->m_pfRemoveDelegationEvent)
-        return error("Remove delegation ABI does not exist");
+    if(!priv->m_pfRemoveDelegationEvent) {
+        LogError("Remove delegation ABI does not exist");
+        return false;
+    }
 
     LOCK(cs_main);
     int curheight = 0;
@@ -283,7 +311,8 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
     curheight = chainman.m_blockman.m_block_tree_db->ReadHeightIndex(fromBlock, toBlock, minconf, hashesToBlock, addresses, chainman);
 
     if (curheight == -1) {
-        return error("Incorrect params");
+        LogError("Incorrect params");
+        return false;
     }
 
     // Search for delegation events

@@ -270,6 +270,7 @@ BITCOIN_CORE_H = \
   policy/settings.h \
   policy/truc_policy.h \
   pow.h \
+  pos.h \
   protocol.h \
   psbt.h \
   random.h \
@@ -402,6 +403,7 @@ BITCOIN_CORE_H = \
   qtum/qtumDGP.h \
   qtum/storageresults.h \
   qtum/qtumutils.h \
+  qtum/qtumdelegation.h \
   qtum/qtumtoken.h \
   qtum/qtumledger.h \
   qtum/delegationutils.h
@@ -746,6 +748,7 @@ libbitcoin_common_a_SOURCES = \
   policy/policy.cpp \
   protocol.cpp \
   psbt.cpp \
+  pos.cpp \
   rpc/external_signer.cpp \
   rpc/rawtransaction_util.cpp \
   rpc/request.cpp \
@@ -761,6 +764,7 @@ libbitcoin_common_a_SOURCES = \
   qtum/qtumutils.cpp \
   qtum/qtumDGP.cpp \
   qtum/qtumtoken.cpp \
+  qtum/qtumdelegation.cpp \
   qtum/delegationutils.cpp \
   util/contractabi.cpp \
   libff/libff/algebra/curves/public_params.hpp \

@@ -10,7 +10,6 @@
 #include <validation.h>
 #include <arith_uint256.h>
 #include <hash.h>
-#include <timedata.h>
 #include <chainparams.h>
 #include <script/sign.h>
 #include <consensus/consensus.h>
@@ -66,8 +65,10 @@ uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kerne
 //
 bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t blockFromTime, CAmount prevoutValue, const COutPoint& prevout, unsigned int nTimeBlock, uint256& hashProofOfStake, uint256& targetProofOfStake, bool fPrintProofOfStake)
 {
-    if (nTimeBlock < blockFromTime)  // Transaction timestamp violation
-        return error("CheckStakeKernelHash() : nTime violation");
+    if (nTimeBlock < blockFromTime) {  // Transaction timestamp violation
+        LogError("CheckStakeKernelHash() : nTime violation");
+        return false;
+    }
 
     // Get height
     int nHeight = pindexPrev->nHeight + 1;
@@ -165,8 +166,10 @@ bool GetStakeCoin(const COutPoint& prevout, Coin& coinPrev, CBlockIndex*& blockF
 // Check kernel hash target and coinstake signature
 bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD,  const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, Chainstate& chainstate)
 {
-    if (!tx.IsCoinStake())
-        return error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
+    if (!tx.IsCoinStake()) {
+        LogError("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
+        return false;
+    }
 
     // Kernel (input 0) must match the stake hash target (nBits)
     const CTxIn& txin = tx.vin[0];
@@ -174,8 +177,10 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
     // Get the PoS transaction coin from the first input
     Coin coinTxPrev;
     CBlockIndex* blockTxFrom = 0;
-    if(!GetStakeCoin(txin.prevout, coinTxPrev, blockTxFrom, pindexPrev, state, view))
-        return error("CheckProofOfStake() : fail to get prevout %s", txin.prevout.hash.ToString());
+    if(!GetStakeCoin(txin.prevout, coinTxPrev, blockTxFrom, pindexPrev, state, view)) {
+        LogError("CheckProofOfStake() : fail to get prevout %s", txin.prevout.hash.ToString());
+        return false;
+    }
 
     // Get the PoS header coin from prevoutStake
     Coin coinHeaderPrev;
@@ -188,8 +193,10 @@ bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, con
     else
     {
         // The PoS transaction and PoS header coins are different when proof of delegation exist
-        if(!GetStakeCoin(headerPrevout, coinHeaderPrev, blockHeaderFrom, pindexPrev, state, view))
-            return error("CheckProofOfStake() : fail to get prevout %s", headerPrevout.hash.ToString());
+        if(!GetStakeCoin(headerPrevout, coinHeaderPrev, blockHeaderFrom, pindexPrev, state, view)) {
+            LogError("CheckProofOfStake() : fail to get prevout %s", headerPrevout.hash.ToString());
+            return false;
+        }
     }
 
     int nHeight = pindexPrev->nHeight + 1;
@@ -272,7 +279,8 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
 
     Coin coinIn;
     if(!view.GetCoin(block.prevoutStake, coinIn)) {
-        return error("%s: Could not fetch prevoutStake from UTXO set", __func__);
+        LogError("%s: Could not fetch prevoutStake from UTXO set", __func__);
+        return false;
     }
 
     uint32_t hasDelegation = block.HasProofOfDelegation() ? 1 : 0;
@@ -281,7 +289,8 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
 
     CTransactionRef coinstakeTx = block.vtx[1];
     if(coinstakeTx->vout.size() < 2 + hasDelegation) {
-        return error("%s: coinstake transaction does not have the minimum number of outputs", __func__);
+        LogError("%s: coinstake transaction does not have the minimum number of outputs", __func__);
+        return false;
     }
 
     const CTxOut& txout = coinstakeTx->vout[1 + hasDelegation];
@@ -294,25 +303,30 @@ bool CheckBlockInputPubKeyMatchesOutputPubKey(const CBlock& block, CCoinsViewCac
     CTxDestination inputAddress;
     TxoutType inputTxType=TxoutType::NONSTANDARD;
     if(!ExtractDestination(coinIn.out.scriptPubKey, inputAddress, &inputTxType, true)) {
-        return error("%s: Could not extract address from input", __func__);
+        LogError("%s: Could not extract address from input", __func__);
+        return false;
     }
 
     if(inputTxType != TxoutType::PUBKEYHASH || !std::holds_alternative<PKHash>(inputAddress)) {
-        return error("%s: non-exact match input must be P2PKH", __func__);
+        LogError("%s: non-exact match input must be P2PKH", __func__);
+        return false;
     }
 
     CTxDestination outputAddress;
     TxoutType outputTxType=TxoutType::NONSTANDARD;
     if(!ExtractDestination(txout.scriptPubKey, outputAddress, &outputTxType, true)) {
-        return error("%s: Could not extract address from output", __func__);
+        LogError("%s: Could not extract address from output", __func__);
+        return false;
     }
 
     if(outputTxType != TxoutType::PUBKEY || !std::holds_alternative<PKHash>(outputAddress)) {
-        return error("%s: non-exact match output must be P2PK", __func__);
+        LogError("%s: non-exact match output must be P2PK", __func__);
+        return false;
     }
 
     if(std::get<PKHash>(inputAddress) != std::get<PKHash>(outputAddress)) {
-        return error("%s: input P2PKH pubkey does not match output P2PK pubkey", __func__);
+        LogError("%s: input P2PKH pubkey does not match output P2PK pubkey", __func__);
+        return false;
     }
 
     return true;
@@ -322,7 +336,8 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
     Coin coinPrev;
     if(!view.GetCoin(block.prevoutStake, coinPrev)){
         if(!GetSpentCoinFromMainChain(pindexPrev, block.prevoutStake, &coinPrev, chainstate)) {
-            return error("CheckRecoveredPubKeyFromBlockSignature(): Could not find %s and it was not at the tip", block.prevoutStake.hash.GetHex());
+            LogError("CheckRecoveredPubKeyFromBlockSignature(): Could not find %s and it was not at the tip", block.prevoutStake.hash.GetHex());
+            return false;
         }
     }
 
@@ -333,7 +348,8 @@ bool CheckRecoveredPubKeyFromBlockSignature(CBlockIndex* pindexPrev, const CBloc
     bool hasDelegation = block.HasProofOfDelegation();
 
     if(vchBlockSig.empty()) {
-        return error("CheckRecoveredPubKeyFromBlockSignature(): Signature is empty\n");
+        LogError("CheckRecoveredPubKeyFromBlockSignature(): Signature is empty\n");
+        return false;
     }
 
     // Recover the public key
@@ -409,21 +425,25 @@ bool CheckKernel(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t nTimeBloc
         Coin coinPrev;
         if(!view.GetCoin(prevout, coinPrev)){
             if(!GetSpentCoinFromMainChain(pindexPrev, prevout, &coinPrev, chainstate)) {
-                return error("CheckKernel(): Could not find coin and it was not at the tip");
+                LogError("CheckKernel(): Could not find coin and it was not at the tip");
+                return false;
             }
         }
 
         int nHeight = pindexPrev->nHeight + 1;
         int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
         if(nHeight - coinPrev.nHeight < coinbaseMaturity){
-            return error("CheckKernel(): Coin not matured");
+            LogError("CheckKernel(): Coin not matured");
+            return false;
         }
         CBlockIndex* blockFrom = pindexPrev->GetAncestor(coinPrev.nHeight);
         if(!blockFrom) {
-            return error("CheckKernel(): Could not find block");
+            LogError("CheckKernel(): Could not find block");
+            return false;
         }
         if(coinPrev.IsSpent()){
-            return error("CheckKernel(): Coin is spent");
+            LogError("CheckKernel(): Coin is spent");
+            return false;
         }
 
         return CheckStakeKernelHash(pindexPrev, nBits, blockFrom->nTime, coinPrev.out.nValue, prevout,

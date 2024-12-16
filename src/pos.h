@@ -11,7 +11,6 @@
 #include <validation.h>
 #include <arith_uint256.h>
 #include <hash.h>
-#include <timedata.h>
 #include <chainparams.h>
 #include <script/sign.h>
 #include <consensus/consensus.h>

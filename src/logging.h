@@ -37,7 +37,7 @@ struct LogCategory {
 };
 
 namespace BCLog {
-    enum LogFlags : uint32_t {
+    enum LogFlags : uint64_t {
         NONE        = 0,
         NET         = (1 <<  0),
         TOR         = (1 <<  1),
@@ -70,7 +70,10 @@ namespace BCLog {
         TXRECONCILIATION = (1 << 26),
         SCAN        = (1 << 27),
         TXPACKAGES  = (1 << 28),
-        ALL         = ~(uint32_t)0,
+        COINSTAKE   = (1 << 29),
+        HTTPPOLL    = (1 << 30),
+        INDEX       = ((uint64_t)1 << 31),
+        ALL         = ~(uint64_t)0,
     };
     enum class Level {
         Trace = 0, // High-volume or detailed logging for development/debugging
