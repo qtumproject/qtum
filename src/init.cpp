@@ -75,6 +75,7 @@
 #include <util/check.h>
 #include <util/fs.h>
 #include <util/fs_helpers.h>
+#include <util/convert.h>
 #include <util/moneystr.h>
 #include <util/result.h>
 #include <util/signalinterrupt.h>
@@ -88,6 +89,11 @@
 #include <validation.h>
 #include <validationinterface.h>
 #include <walletinitinterface.h>
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <interfaces/wallet.h>
+#endif
+#include <key_io.h>
 
 #include <algorithm>
 #include <condition_variable>
@@ -157,7 +163,7 @@ static const char* DEFAULT_ASMAP_FILENAME="ip_asn.map";
 /**
  * The PID file facilities.
  */
-static const char* BITCOIN_PID_FILENAME = "bitcoind.pid";
+static const char* BITCOIN_PID_FILENAME = "qtumd.pid";
 /**
  * True if this process has created a PID file.
  * Used to determine whether we should remove the PID file on shutdown.
@@ -267,6 +273,8 @@ void Interrupt(NodeContext& node)
 
 void Shutdown(NodeContext& node)
 {
+    (void)(*Assert(g_shutdown))();
+
     static Mutex g_shutdown_mutex;
     TRY_LOCK(g_shutdown_mutex, lock_shutdown);
     if (!lock_shutdown) return;
@@ -1078,6 +1086,242 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         if (!blockman_result) {
             return InitError(util::ErrorString(blockman_result));
         }
+    }
+
+    if (args.IsArgSet("-opsenderheight")) {
+        // Allow overriding opsender block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Op Sender block height may only be overridden on regtest."));
+        }
+
+        int opsenderBlock = args.GetIntArg("-opsenderheight", 0);
+        if(opsenderBlock >= 0)
+        {
+            UpdateOpSenderBlockHeight(opsenderBlock);
+            LogPrintf("Activate Op Sender at block height %d\n.", opsenderBlock);
+        }
+    }
+
+    if (args.IsArgSet("-btcecrecoverheight")) {
+        // Allow overriding btc_ecrecover block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Btc_ecrecover block height may only be overridden on regtest."));
+        }
+
+        int btcEcrecoverBlock = args.GetIntArg("-btcecrecoverheight", 0);
+        if(btcEcrecoverBlock >= 0)
+        {
+            UpdateBtcEcrecoverBlockHeight(btcEcrecoverBlock);
+            LogPrintf("Activate btc_ecrecover at block height %d\n.", btcEcrecoverBlock);
+        }
+    }
+
+    if (args.IsArgSet("-constantinopleheight")) {
+        // Allow overriding constantinople block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Constantinople block height may only be overridden on regtest."));
+        }
+
+        int constantinopleBlock = args.GetIntArg("-constantinopleheight", 0);
+        if(constantinopleBlock >= 0)
+        {
+            UpdateConstantinopleBlockHeight(constantinopleBlock);
+            LogPrintf("Activate constantinople at block height %d\n.", constantinopleBlock);
+        }
+    }
+
+    if (args.IsArgSet("-difficultychangeheight")) {
+        // Allow overriding difficulty change block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Difficulty change block height may only be overridden on regtest."));
+        }
+
+        int difficultyChangeBlock = args.GetIntArg("-difficultychangeheight", 0);
+        if(difficultyChangeBlock >= 0)
+        {
+            UpdateDifficultyChangeBlockHeight(difficultyChangeBlock);
+            LogPrintf("Activate difficulty change at block height %d\n.", difficultyChangeBlock);
+        }
+    }
+
+    if (args.IsArgSet("-offlinestakingheight")) {
+        // Allow overriding offline staking block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Offline staking block height may only be overridden on regtest."));
+        }
+
+        int offlineStakingBlock = args.GetIntArg("-offlinestakingheight", 0);
+        if(offlineStakingBlock >= 0)
+        {
+            UpdateOfflineStakingBlockHeight(offlineStakingBlock);
+            LogPrintf("Activate offline staking at block height %d\n.", offlineStakingBlock);
+        }
+    }
+
+    if (args.IsArgSet("-delegationsaddress")) {
+        // Allow overriding delegations address for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("delegations address may only be overridden on regtest."));
+        }
+
+        std::string delegationsAddress = args.GetArg("-delegationsaddress", std::string());
+        if(IsHex(delegationsAddress))
+        {
+            UpdateDelegationsAddress(uint160(ParseHex(delegationsAddress)));
+            LogPrintf("Activate delegations address %s\n.", delegationsAddress);
+        }
+    }
+
+    if (args.IsArgSet("-lastmposheight")) {
+        // Allow overriding last MPoS block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Last MPoS block height may only be overridden on regtest."));
+        }
+
+        int lastMPosBlockHeight = args.GetIntArg("-lastmposheight", 0);
+        if(lastMPosBlockHeight >= 0)
+        {
+            UpdateLastMPoSBlockHeight(lastMPosBlockHeight);
+            LogPrintf("Set last MPoS block height %d\n.", lastMPosBlockHeight);
+        }
+    }
+
+    if (args.IsArgSet("-reduceblocktimeheight")) {
+        // Allow overriding short block time block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short block time height may only be overridden on regtest."));
+        }
+
+        int reduceblocktimeheight = args.GetIntArg("-reduceblocktimeheight", 0);
+        if(reduceblocktimeheight >= 0)
+        {
+            UpdateReduceBlocktimeHeight(reduceblocktimeheight);
+            LogPrintf("Activate short block time at block height %d\n.", reduceblocktimeheight);
+        }
+    }
+
+    if (args.IsArgSet("-powallowmindifficultyblocks")) {
+        // Allow overriding pow allow min difficulty blocks parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Pow allow min difficulty blocks parameter may only be overridden on regtest."));
+        }
+
+        bool powallowmindifficultyblocks = args.GetBoolArg("-powallowmindifficultyblocks", 1);
+        UpdatePowAllowMinDifficultyBlocks(powallowmindifficultyblocks);
+        LogPrintf("Use given value for pow allow min difficulty blocks parameter %d\n.", powallowmindifficultyblocks);
+    }
+
+    if (args.IsArgSet("-pownoretargeting")) {
+        // Allow overriding pow no retargeting parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Pow no retargeting parameter may only be overridden on regtest."));
+        }
+
+        bool pownoretargeting = args.GetBoolArg("-pownoretargeting", 1);
+        UpdatePowNoRetargeting(pownoretargeting);
+        LogPrintf("Use given value for pow no retargeting parameter %d\n.", pownoretargeting);
+    }
+
+    if (args.IsArgSet("-posnoretargeting")) {
+        // Allow overriding pos no retargeting parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("PoS no retargeting parameter may only be overridden on regtest."));
+        }
+
+        bool posnoretargeting = args.GetBoolArg("-posnoretargeting", 1);
+        UpdatePoSNoRetargeting(posnoretargeting);
+        LogPrintf("Use given value for pos no retargeting parameter %d\n.", posnoretargeting);
+    }
+
+    if (args.IsArgSet("-muirglacierheight")) {
+        // Allow overriding EVM Muir Glacier block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Muir Glacier height may only be overridden on regtest."));
+        }
+
+        int muirglacierheight = args.GetIntArg("-muirglacierheight", 0);
+        if(muirglacierheight >= 0)
+        {
+            UpdateMuirGlacierHeight(muirglacierheight);
+            LogPrintf("Activate EVM Muir Glacier at block height %d\n.", muirglacierheight);
+        }
+    }
+
+    if (args.IsArgSet("-londonheight")) {
+        // Allow overriding EVM London block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM London height may only be overridden on regtest."));
+        }
+
+        int londonheight = args.GetIntArg("-londonheight", 0);
+        if(londonheight >= 0)
+        {
+            UpdateLondonHeight(londonheight);
+            LogPrintf("Activate EVM London at block height %d\n.", londonheight);
+        }
+    }
+
+    if (args.IsArgSet("-taprootheight")) {
+        // Allow overriding taproot block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Taproot height may only be overridden on regtest."));
+        }
+
+        int taprootheight = args.GetIntArg("-taprootheight", 0);
+        if(taprootheight >= 0)
+        {
+            UpdateTaprootHeight(taprootheight);
+            LogPrintf("Activate taproot at block height %d\n.", taprootheight);
+        }
+    }
+
+    if (args.IsArgSet("-shanghaiheight")) {
+        // Allow overriding EVM Shanghai block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Shanghai height may only be overridden on regtest."));
+        }
+
+        int shanghaiheight = args.GetIntArg("-shanghaiheight", 0);
+        if(shanghaiheight >= 0)
+        {
+            UpdateShanghaiHeight(shanghaiheight);
+            LogPrintf("Activate EVM Shanghai at block height %d\n.", shanghaiheight);
+        }
+    }
+
+    if (args.IsArgSet("-cancunheight")) {
+        // Allow overriding EVM Cancun block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Cancun height may only be overridden on regtest."));
+        }
+
+        int cancunheight = args.GetIntArg("-cancunheight", 0);
+        if(cancunheight >= 0)
+        {
+            UpdateCancunHeight(cancunheight);
+            LogPrintf("Activate EVM Cancun at block height %d\n.", cancunheight);
+        }
+    }
+
+    if(args.IsArgSet("-stakingallowlist") && args.IsArgSet("-stakingexcludelist"))
+    {
+        return InitError(Untranslated("Either -stakingallowlist or -stakingexcludelist parameter can be specified to the staker, not both."));
+    }
+
+    // Check allow list
+    for (const std::string& strAddress : args.GetArgs("-stakingallowlist"))
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if(!std::holds_alternative<PKHash>(dest))
+            return InitError(Untranslated(strprintf("-stakingallowlist, address %s does not refer to public key hash", strAddress)));
+    }
+
+    // Check exclude list
+    for (const std::string& strAddress : args.GetArgs("-stakingexcludelist"))
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if(!std::holds_alternative<PKHash>(dest))
+            return InitError(Untranslated(strprintf("-stakingexcludelist, address %s does not refer to public key hash", strAddress)));
     }
 
     return true;
@@ -2060,4 +2304,13 @@ bool StartIndexBackgroundSync(NodeContext& node)
     // Start threads
     for (auto index : node.indexes) if (!index->StartBackgroundSync()) return false;
     return true;
+}
+
+void UnlockDataDirectory()
+{
+    // Unlock
+    const fs::path& datadir = gArgs.GetDataDirNet();
+    if (DirIsWritable(datadir)) {
+        UnlockDirectory(datadir, ".lock");
+    }
 }

@@ -13,6 +13,7 @@
 #include <util/chaintype.h>
 #include <util/hash_type.h>
 #include <util/vector.h>
+#include <libethashseal/GenesisInfo.h>
 
 #include <cstdint>
 #include <iterator>
@@ -110,7 +111,7 @@ public:
     /** Minimum free space (in GB) needed for data directory when pruned; Does not include prune target*/
     uint64_t AssumedChainStateSize() const { return m_assumed_chain_state_size; }
     /** Whether it is possible to mine blocks on demand (no retargeting) */
-    bool MineBlocksOnDemand() const { return consensus.fPowNoRetargeting; }
+    bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
     /** Return the chain type string */
     std::string GetChainTypeString() const { return ChainTypeToString(m_chain_type); }
     /** Return the chain type */
@@ -121,6 +122,26 @@ public:
     const std::string& Bech32HRP() const { return bech32_hrp; }
     const std::vector<uint8_t>& FixedSeeds() const { return vFixedSeeds; }
     const CCheckpointData& Checkpoints() const { return checkpointData; }
+    std::string EVMGenesisInfo() const;
+    std::string EVMGenesisInfo(int nHeight) const;
+    std::string EVMGenesisInfo(const dev::eth::EVMConsensus& evmConsensus) const;
+    void UpdateOpSenderBlockHeight(int nHeight);
+    void UpdateBtcEcrecoverBlockHeight(int nHeight);
+    void UpdateConstantinopleBlockHeight(int nHeight);
+    void UpdateDifficultyChangeBlockHeight(int nHeight);
+    void UpdateOfflineStakingBlockHeight(int nHeight);
+    void UpdateDelegationsAddress(const uint160& address);
+    void UpdateLastMPoSBlockHeight(int nHeight);
+    void UpdateReduceBlocktimeHeight(int nHeight);
+    void UpdatePowAllowMinDifficultyBlocks(bool fValue);
+    void UpdatePowNoRetargeting(bool fValue);
+    void UpdatePoSNoRetargeting(bool fValue);
+    void UpdateMuirGlacierHeight(int nHeight);
+    bool HasHardwareWalletSupport() const { return fHasHardwareWalletSupport; }
+    void UpdateLondonHeight(int nHeight);
+    void UpdateTaprootHeight(int nHeight);
+    void UpdateShanghaiHeight(int nHeight);
+    void UpdateCancunHeight(int nHeight);
 
     std::optional<AssumeutxoData> AssumeutxoForHeight(int height) const
     {
@@ -164,8 +185,10 @@ public:
     static std::unique_ptr<const CChainParams> Main();
     static std::unique_ptr<const CChainParams> TestNet();
     static std::unique_ptr<const CChainParams> TestNet4();
+    static std::unique_ptr<const CChainParams> UnitTest(const RegTestOptions& options);
 
 protected:
+    dev::eth::Network GetEVMNetwork() const;
     CChainParams() = default;
 
     Consensus::Params consensus;
@@ -181,10 +204,12 @@ protected:
     CBlock genesis;
     std::vector<uint8_t> vFixedSeeds;
     bool fDefaultConsistencyChecks;
+    bool fMineBlocksOnDemand;
     bool m_is_mockable_chain;
     CCheckpointData checkpointData;
     std::vector<AssumeutxoData> m_assumeutxo_data;
     ChainTxData chainTxData;
+    bool fHasHardwareWalletSupport;
 };
 
 std::optional<ChainType> GetNetworkForMagic(const MessageStartChars& pchMessageStart);

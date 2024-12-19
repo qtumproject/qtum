@@ -127,6 +127,11 @@ std::unique_ptr<const CChainParams> CreateChainParams(const ArgsManager& args, c
         ReadRegTestArgs(args, opts);
         return CChainParams::RegTest(opts);
     }
+    case ChainType::UNITTEST: {
+        auto opts = CChainParams::RegTestOptions{};
+        ReadRegTestArgs(args, opts);
+        return CChainParams::UnitTest(opts);
+    }
     }
     assert(false);
 }
@@ -135,4 +140,84 @@ void SelectParams(const ChainType chain)
 {
     SelectBaseParams(chain);
     globalChainParams = CreateChainParams(gArgs, chain);
+}
+
+void UpdateOpSenderBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateOpSenderBlockHeight(nHeight);
+}
+
+void UpdateBtcEcrecoverBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateBtcEcrecoverBlockHeight(nHeight);
+}
+
+void UpdateConstantinopleBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateConstantinopleBlockHeight(nHeight);
+}
+
+void UpdateDifficultyChangeBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateDifficultyChangeBlockHeight(nHeight);
+}
+
+void UpdateOfflineStakingBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateOfflineStakingBlockHeight(nHeight);
+}
+
+void UpdateDelegationsAddress(const uint160& address)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateDelegationsAddress(address);
+}
+
+void UpdateLastMPoSBlockHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateLastMPoSBlockHeight(nHeight);
+}
+
+void UpdateReduceBlocktimeHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateReduceBlocktimeHeight(nHeight);
+}
+
+void UpdatePowAllowMinDifficultyBlocks(bool fValuet)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdatePowAllowMinDifficultyBlocks(fValuet);
+}
+
+void UpdatePowNoRetargeting(bool fValuet)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdatePowNoRetargeting(fValuet);
+}
+
+void UpdatePoSNoRetargeting(bool fValuet)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdatePoSNoRetargeting(fValuet);
+}
+
+void UpdateMuirGlacierHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateMuirGlacierHeight(nHeight);
+}
+
+void UpdateLondonHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateLondonHeight(nHeight);
+}
+
+void UpdateTaprootHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateTaprootHeight(nHeight);
+}
+
+void UpdateShanghaiHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateShanghaiHeight(nHeight);
+}
+
+void UpdateCancunHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateCancunHeight(nHeight);
 }
