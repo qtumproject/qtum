@@ -476,4 +476,13 @@ bool CanStake()
     return canStake;
 }
 
+#ifdef ENABLE_WALLET
+void StakeQtums(bool fStake, wallet::CWallet *pwallet)
+{
+}
+
+void RefreshDelegates(wallet::CWallet *pwallet, bool refreshMyDelegates, bool refreshStakerDelegates)
+{
+}
+#endif
 } // namespace node

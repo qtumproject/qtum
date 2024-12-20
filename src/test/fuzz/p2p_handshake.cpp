@@ -86,7 +86,7 @@ FUZZ_TARGET(p2p_handshake, .init = ::initialize)
 
         CSerializedNetMsg net_msg;
         net_msg.m_type = PickValue(fuzzed_data_provider, ALL_NET_MESSAGE_TYPES);
-        net_msg.data = ConsumeRandomLengthByteVector(fuzzed_data_provider, MAX_PROTOCOL_MESSAGE_LENGTH);
+        net_msg.data = ConsumeRandomLengthByteVector(fuzzed_data_provider, dgpMaxProtoMsgLength);
 
         connman.FlushSendBuffer(connection);
         (void)connman.ReceiveMsgFrom(connection, std::move(net_msg));

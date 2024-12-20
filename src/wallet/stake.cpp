@@ -258,8 +258,10 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
 
     if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
     {
-        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(),  wallet.chain().chainman().m_blockman))
-            return error("CreateCoinStake : failed to create MPoS reward outputs");
+        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(),  wallet.chain().chainman().m_blockman)) {
+            LogError("CreateCoinStake : failed to create MPoS reward outputs");
+            return false;
+        }
     }
 
     // Append the Refunds To Sender to the transaction outputs
@@ -269,8 +271,10 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
     }
 
     // Sign the input coins
-    if(sign && !wallet.SignTransactionStake(txNew, vwtxPrev))
-        return error("CreateCoinStake : failed to sign coinstake");
+    if(sign && !wallet.SignTransactionStake(txNew, vwtxPrev)) {
+        LogError("CreateCoinStake : failed to sign coinstake");
+        return false;
+    }
 
     // Successfully generated coinstake
     tx = txNew;
@@ -332,7 +336,8 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
             Coin coinPrev;
             if(!wallet.chain().getUnspentOutput(prevoutStake, coinPrev)){
                 if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev, wallet.chain().chainman().ActiveChainstate())) {
-                    return error("CreateCoinStake: Could not find coin and it was not at the tip");
+                    LogError("CreateCoinStake: Could not find coin and it was not at the tip");
+                    return false;
                 }
             }
 
@@ -354,8 +359,10 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
                 // convert to pay to public key type
                 uint160 hash160(vSolutions[0]);
 
-                if(!wallet.GetDelegationStaker(hash160, delegation))
-                    return error("CreateCoinStake: Failed to find delegation");
+                if(!wallet.GetDelegationStaker(hash160, delegation)) {
+                    LogError("CreateCoinStake: Failed to find delegation");
+                    return false;
+                }
 
                 pkhash = PKHash(delegation.staker);
                 CPubKey pubKeyStake;
@@ -371,8 +378,10 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
                 valtype& vchPubKey = vSolutions[0];
                 uint160 hash160(Hash160(vchPubKey));;
 
-                if(!wallet.GetDelegationStaker(hash160, delegation))
-                    return error("CreateCoinStake: Failed to find delegation");
+                if(!wallet.GetDelegationStaker(hash160, delegation)) {
+                    LogError("CreateCoinStake: Failed to find delegation");
+                    return false;
+                }
 
                 pkhash = PKHash(delegation.staker);
                 CPubKey pubKeyStake;
@@ -432,8 +441,10 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
         {
             // Keep whole reward
             int64_t nRewardStaker = 0;
-            if(!SplitOfflineStakeReward(nTotalReward, delegation.fee, nRewardOffline, nRewardStaker))
-                return error("CreateCoinStake: Failed to split reward");
+            if(!SplitOfflineStakeReward(nTotalReward, delegation.fee, nRewardOffline, nRewardStaker)) {
+                LogError("CreateCoinStake: Failed to split reward");
+                return false;
+            }
             nCredit += nRewardStaker;
         }
         else
@@ -442,8 +453,10 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
             nRewardPiece = nTotalReward / consensusParams.nMPoSRewardRecipients;
             int64_t nRewardStaker = 0;
             int64_t nReward = nRewardPiece + nTotalReward % consensusParams.nMPoSRewardRecipients;
-            if(!SplitOfflineStakeReward(nReward, delegation.fee, nRewardOffline, nRewardStaker))
-                return error("CreateCoinStake: Failed to split reward");
+            if(!SplitOfflineStakeReward(nReward, delegation.fee, nRewardOffline, nRewardStaker)) {
+                LogError("CreateCoinStake: Failed to split reward");
+                return false;
+            }
             nCredit += nRewardStaker;
         }
     }
@@ -457,8 +470,10 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
 
     if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
     {
-        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(),  wallet.chain().chainman().m_blockman))
-            return error("CreateCoinStake : failed to create MPoS reward outputs");
+        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(),  wallet.chain().chainman().m_blockman)) {
+            LogError("CreateCoinStake : failed to create MPoS reward outputs");
+            return false;
+        }
     }
 
     // Append the Refunds To Sender to the transaction outputs
@@ -468,8 +483,10 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
     }
 
     // Sign the input coins
-    if(sign && !wallet.SignTransactionStake(txNew, vwtxPrev))
-        return error("CreateCoinStake : failed to sign coinstake");
+    if(sign && !wallet.SignTransactionStake(txNew, vwtxPrev)) {
+        LogError("CreateCoinStake : failed to sign coinstake");
+        return false;
+    }
 
     // Successfully generated coinstake
     tx = txNew;
@@ -579,13 +596,15 @@ bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<u
         uint256 hashBytes;
         int type = 0;
         if (!DecodeIndexKey(EncodeDestination(keyid), hashBytes, type)) {
-            return error("Invalid address");
+            LogError("Invalid address");
+            return false;
         }
 
         // Get address utxos
         std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
         if (!GetAddressUnspent(hashBytes, type, unspentOutputs, wallet.chain().chainman().m_blockman)) {
-            throw error("No information available for address");
+            LogError("No information available for address");
+            return false;
         }
 
         // Add the utxos to the list if they are mature and at least the minimum value
@@ -780,7 +799,8 @@ bool SelectDelegateCoinsForStaking(const CWallet& wallet, std::vector<COutPoint>
 
     int32_t const height = wallet.chain().getHeight().value_or(-1);
     if (height == -1) {
-        return error("Invalid blockchain height");
+        LogError("Invalid blockchain height");
+        return false;
     }
 
     std::map<COutPoint, uint32_t> immatureStakes = wallet.chain().getImmatureStakes();
