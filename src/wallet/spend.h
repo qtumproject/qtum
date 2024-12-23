@@ -218,7 +218,7 @@ struct CreatedTransactionResult
  * selected by SelectCoins(); Also create the change output, when needed
  * @note passing change_pos as std::nullopt will result in setting a random position
  */
-util::Result<CreatedTransactionResult> CreateTransaction(CWallet& wallet, const std::vector<CRecipient>& vecSend, std::optional<unsigned int> change_pos, const CCoinControl& coin_control, bool sign = true);
+util::Result<CreatedTransactionResult> CreateTransaction(CWallet& wallet, const std::vector<CRecipient>& vecSend, std::optional<unsigned int> change_pos, const CCoinControl& coin_control, bool sign = true, CAmount nGasFee=0, bool hasSender=false, const CTxDestination& signSenderAddress = CNoDestination());
 
 /**
  * Insert additional inputs into the transaction by

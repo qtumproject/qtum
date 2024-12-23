@@ -1365,7 +1365,10 @@ util::Result<CreatedTransactionResult> CreateTransaction(
         const std::vector<CRecipient>& vecSend,
         std::optional<unsigned int> change_pos,
         const CCoinControl& coin_control,
-        bool sign)
+        bool sign, 
+        CAmount nGasFee, 
+        bool hasSender, 
+        const CTxDestination& signSenderAddress)
 {
     if (vecSend.empty()) {
         return util::Error{_("Transaction must have at least one recipient")};

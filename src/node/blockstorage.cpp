@@ -17,6 +17,7 @@
 #include <kernel/notifications_interface.h>
 #include <logging.h>
 #include <pow.h>
+#include <pos.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
 #include <random.h>
@@ -160,13 +161,23 @@ bool BlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, s
                 pindexNew->nTime          = diskindex.nTime;
                 pindexNew->nBits          = diskindex.nBits;
                 pindexNew->nNonce         = diskindex.nNonce;
+                pindexNew->nMoneySupply   = diskindex.nMoneySupply;
                 pindexNew->nStatus        = diskindex.nStatus;
                 pindexNew->nTx            = diskindex.nTx;
+                pindexNew->hashStateRoot  = diskindex.hashStateRoot; // qtum
+                pindexNew->hashUTXORoot   = diskindex.hashUTXORoot; // qtum
+                pindexNew->nStakeModifier = diskindex.nStakeModifier;
+                pindexNew->prevoutStake   = diskindex.prevoutStake;
+                pindexNew->vchBlockSigDlgt    = diskindex.vchBlockSigDlgt; // qtum
 
-                if (!CheckProofOfWork(pindexNew->GetBlockHash(), pindexNew->nBits, consensusParams)) {
-                    LogError("%s: CheckProofOfWork failed: %s\n", __func__, pindexNew->ToString());
+                if (!CheckIndexProof(*pindexNew, consensusParams)) {
+                    LogError("%s: CheckIndexProof failed: %s\n", __func__, pindexNew->ToString());
                     return false;
                 }
+
+                // NovaCoin: build setStakeSeen
+                if (pindexNew->IsProofOfStake())
+                    setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nTime));
 
                 pcursor->Next();
             } else {
@@ -619,7 +630,8 @@ CBlockIndex* BlockManager::AddToBlockIndex(const CBlockHeader& block, CBlockInde
 {
     AssertLockHeld(cs_main);
 
-    auto [mi, inserted] = m_block_index.try_emplace(block.GetHash(), block);
+    uint256 hash = block.GetHash();
+    auto [mi, inserted] = m_block_index.try_emplace(hash, block);
     if (!inserted) {
         return &mi->second;
     }
@@ -630,6 +642,8 @@ CBlockIndex* BlockManager::AddToBlockIndex(const CBlockHeader& block, CBlockInde
     // competitive advantage.
     pindexNew->nSequenceId = 0;
 
+    if (pindexNew->IsProofOfStake())
+        setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nTime));
     pindexNew->phashBlock = &((*mi).first);
     BlockMap::iterator miPrev = m_block_index.find(block.hashPrevBlock);
     if (miPrev != m_block_index.end()) {
@@ -639,6 +653,7 @@ CBlockIndex* BlockManager::AddToBlockIndex(const CBlockHeader& block, CBlockInde
     }
     pindexNew->nTimeMax = (pindexNew->pprev ? std::max(pindexNew->pprev->nTimeMax, pindexNew->nTime) : pindexNew->nTime);
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
+    pindexNew->nStakeModifier = ComputeStakeModifier(pindexNew->pprev, block.IsProofOfWork() ? hash : block.prevoutStake.hash.ToUint256());
     pindexNew->RaiseValidity(BLOCK_VALID_TREE);
     if (best_header == nullptr || best_header->nChainWork < pindexNew->nChainWork) {
         best_header = pindexNew;
@@ -967,6 +982,14 @@ bool BlockManager::LoadBlockIndexDB(const std::optional<uint256>& snapshot_block
     bool fReindexing = false;
     m_block_tree_db->ReadReindexing(fReindexing);
     if (fReindexing) m_blockfiles_indexed = false;
+
+    ///////////////////////////////////////////////////////////// // qtum
+    m_block_tree_db->ReadFlag("addrindex", fAddressIndex);
+    LogPrintf("LoadBlockIndexDB(): address index %s\n", fAddressIndex ? "enabled" : "disabled");
+    /////////////////////////////////////////////////////////////
+    // Check whether we have a transaction index
+    m_block_tree_db->ReadFlag("logevents", fLogEvents);
+    LogPrintf("%s: log events index %s\n", __func__, fLogEvents ? "enabled" : "disabled");
 
     return true;
 }

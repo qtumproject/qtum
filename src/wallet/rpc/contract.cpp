@@ -351,9 +351,9 @@ RPCHelpMan createcontract()
         // Fill transaction with out data but don't sign
         bool bip32derivs = true;
         bool complete = true;
-        const TransactionError err = pwallet->FillPSBT(psbtx, complete, 1, false, bip32derivs);
-        if (err != TransactionError::OK) {
-            throw JSONRPCTransactionError(err);
+        const auto err{pwallet->FillPSBT(psbtx, complete, 1, false, bip32derivs)};
+        if (err) {
+            throw JSONRPCPSBTError(*err);
         }
 
         // Serialize the PSBT
@@ -614,9 +614,9 @@ UniValue SendToContract(CWallet& wallet, const UniValue& params, ChainstateManag
         // Fill transaction with out data but don't sign
         bool bip32derivs = true;
         bool complete = true;
-        const TransactionError err = wallet.FillPSBT(psbtx, complete, 1, false, bip32derivs);
-        if (err != TransactionError::OK) {
-            throw JSONRPCTransactionError(err);
+        const auto err{wallet.FillPSBT(psbtx, complete, 1, false, bip32derivs)};
+        if (err) {
+            throw JSONRPCPSBTError(*err);
         }
 
         // Serialize the PSBT
