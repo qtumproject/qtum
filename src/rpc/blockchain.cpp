@@ -53,9 +53,12 @@
 #include <versionbits.h>
 #include <libdevcore/CommonData.h>
 #include <pow.h>
+#include <pos.h>
 #include <txdb.h>
 #include <util/convert.h>
+#include <qtum/qtumdelegation.h>
 #include <util/tokenstr.h>
+#include <rpc/contract_util.h>
 
 #include <stdint.h>
 

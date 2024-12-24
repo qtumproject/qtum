@@ -39,7 +39,7 @@ class HTTPRPCTimer : public RPCTimerBase
 {
 public:
     HTTPRPCTimer(struct event_base* eventBase, std::function<void()>& func, int64_t millis) :
-        ev(eventBase, false, func)
+        ev(eventBase, false, nullptr, func)
     {
         struct timeval tv;
         tv.tv_sec = millis/1000;
@@ -95,8 +95,14 @@ static void JSONErrorReply(HTTPRequest* req, UniValue objError, const JSONRPCReq
 
     std::string strReply = JSONRPCReplyObj(NullUniValue, std::move(objError), jreq.id, jreq.m_json_version).write() + "\n";
 
-    req->WriteHeader("Content-Type", "application/json");
-    req->WriteReply(nStatus, strReply);
+    if (req->isChunkMode()) {
+        // in chunk mode, we assume that the handler had already set the response content-type
+        req->Chunk(strReply);
+        req->ChunkEnd();
+    } else {
+        req->WriteHeader("Content-Type", "application/json");
+        req->WriteReply(nStatus, strReply);
+    }
 }
 
 //This function checks username and password against -rpcauth
@@ -169,7 +175,7 @@ static bool HTTPReq_JSONRPC(const std::any& context, HTTPRequest* req)
         return false;
     }
 
-    JSONRPCRequest jreq;
+    JSONRPCRequestLong jreq(req);
     jreq.context = context;
     jreq.peerAddr = req->GetPeer().ToStringAddrPort();
     if (!RPCAuthorized(authHeader.second, jreq.authUser)) {
@@ -216,6 +222,14 @@ static bool HTTPReq_JSONRPC(const std::any& context, HTTPRequest* req)
             // RPC errors, as long as there is not an actual HTTP server error.
             const bool catch_errors{jreq.m_json_version == JSONRPCVersion::V2};
             reply = JSONRPCExec(jreq, catch_errors);
+
+            if (jreq.isLongPolling) {
+                UniValue result = reply["result"];
+                if(!result.isNull()) {
+                    jreq.PollReply(result);
+                    return true;
+                }
+            }
 
             if (jreq.IsNotification()) {
                 // Even though we do execute notifications, we do not respond to them

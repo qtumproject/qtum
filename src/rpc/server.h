@@ -8,16 +8,22 @@
 
 #include <rpc/request.h>
 #include <rpc/util.h>
+#include <uint256.h>
 
 #include <functional>
 #include <map>
 #include <stdint.h>
 #include <string>
+#include <functional>
+#include <condition_variable>
+#include <mutex>
 
 #include <univalue.h>
+#include <common/system.h>
 
 class CRPCCommand;
 class ChainstateManager;
+class HTTPRequest;
 
 namespace RPCServer
 {
@@ -25,6 +31,41 @@ namespace RPCServer
     void OnStopped(std::function<void ()> slot);
 }
 
+class JSONRPCRequestLong : public JSONRPCRequest
+{
+public:
+    JSONRPCRequestLong(HTTPRequest *_req);
+
+    /**
+     * Start long-polling
+     */
+    void PollStart() override;
+
+    /**
+     * Ping long-poll connection with an empty character to make sure it's still alive.
+     */
+    void PollPing() override;
+
+    /**
+     * Returns whether the underlying long-poll connection is still alive.
+     */
+    bool PollAlive() override;
+
+    /**
+     * End a long poll request.
+     */
+    void PollCancel() override;
+
+    /**
+     * Return the JSON result of a long poll request
+     */
+    void PollReply(const UniValue& result) override;
+
+    /**
+     * Return the http request
+     */
+     HTTPRequest* req();
+};
 
 /** Throw JSONRPCError if RPC is not running */
 void RpcInterruptionPoint();

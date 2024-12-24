@@ -18,6 +18,7 @@
 #include <util/strencodings.h>
 #include <util/string.h>
 #include <util/time.h>
+#include <httpserver.h>
 
 #include <boost/signals2/signal.hpp>
 
@@ -349,6 +350,49 @@ bool RPCIsInWarmup(std::string *outStatus)
     return fRPCInWarmup;
 }
 
+JSONRPCRequestLong::JSONRPCRequestLong(HTTPRequest *_req) {
+	httpreq = _req;
+}
+
+bool JSONRPCRequestLong::PollAlive() {
+    return !req()->isConnClosed();
+}
+
+void JSONRPCRequestLong::PollStart() {
+    // send an empty space to the client to ensure that it's still alive.
+    assert(!isLongPolling);
+    req()->WriteHeader("Content-Type", "application/json");
+    req()->WriteHeader("Connection", "close");
+    req()->Chunk(std::string(" "));
+    isLongPolling = true;
+}
+
+void JSONRPCRequestLong::PollPing() {
+    assert(isLongPolling);
+    // send an empty space to the client to ensure that it's still alive.
+    req()->Chunk(std::string(" "));
+}
+
+void JSONRPCRequestLong::PollCancel() {
+    assert(isLongPolling);
+    req()->ChunkEnd();
+}
+
+void JSONRPCRequestLong::PollReply(const UniValue& result) {
+    assert(isLongPolling);
+    UniValue reply(UniValue::VOBJ);
+    reply.pushKV("result", result);
+    reply.pushKV("error", NullUniValue);
+    if (id.has_value()) reply.pushKV("id", id.value());
+
+    req()->Chunk(reply.write() + "\n");
+    req()->ChunkEnd();
+}
+
+HTTPRequest* JSONRPCRequestLong::req() {
+    return (HTTPRequest*)httpreq;
+}
+
 bool IsDeprecatedRPCEnabled(const std::string& method)
 {
     const std::vector<std::string> enabled_methods = gArgs.GetArgs("-deprecatedrpc");
@@ -378,9 +422,10 @@ UniValue JSONRPCExec(const JSONRPCRequest& jreq, bool catch_errors)
  * Process named arguments into a vector of positional arguments, based on the
  * passed-in specification for the RPC call's arguments.
  */
-static inline JSONRPCRequest transformNamedArguments(const JSONRPCRequest& in, const std::vector<std::pair<std::string, bool>>& argNames)
+static inline JSONRPCRequest& transformNamedArguments(const JSONRPCRequest& _in, const std::vector<std::pair<std::string, bool>>& argNames)
 {
-    JSONRPCRequest out = in;
+    JSONRPCRequest in = _in;
+    JSONRPCRequest& out = (JSONRPCRequest&)_in;
     out.params = UniValue(UniValue::VARR);
     // Build a map of parameters, and remove ones that have been processed, so that we can throw a focused error if
     // there is an unknown one.

@@ -20,6 +20,15 @@ class COutPoint;
 class SigningProvider;
 
 /**
+ * @brief The IRawContract class Parse the contract output for raw transaction
+ */
+class IRawContract
+{
+public:
+    virtual void addContract(std::vector<std::pair<CTxDestination, CAmount>>& parsed_outputs, const UniValue& contract) = 0;
+};
+
+/**
  * Sign a transaction with the given keystore and previous transactions
  *
  * @param  mtx           The transaction to-be-signed
@@ -47,12 +56,17 @@ void AddInputs(CMutableTransaction& rawTx, const UniValue& inputs_in, bool rbf);
 UniValue NormalizeOutputs(const UniValue& outputs_in);
 
 /** Parse normalized outputs into destination, amount tuples */
-std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs);
+std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs, IRawContract* rawContract = nullptr);
 
 /** Normalize, parse, and add outputs to the transaction */
-void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in);
+void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawContract* rawContract = nullptr);
 
 /** Create a transaction from univalue parameters */
-CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, std::optional<bool> rbf);
+CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, std::optional<bool> rbf, IRawContract* rawContract = nullptr);
+
+void SignTransactionOutput(CMutableTransaction& mtx, FlatSigningProvider *keystore, const UniValue& hashType, UniValue& result);
+void SignTransactionOutputResultToJSON(CMutableTransaction& mtx, bool complete, std::map<int, std::string>& output_errors, UniValue& result);
+
+void CheckSenderSignatures(CMutableTransaction& mtx);
 
 #endif // BITCOIN_RPC_RAWTRANSACTION_UTIL_H

@@ -97,12 +97,14 @@ UniValue NormalizeOutputs(const UniValue& outputs_in)
     return outputs;
 }
 
-std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs)
+std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs, IRawContract* rawContract)
 {
     // Duplicate checking
     std::set<CTxDestination> destinations;
     std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs;
     bool has_data{false};
+
+    int i = 0;
     for (const std::string& name_ : outputs.getKeys()) {
         if (name_ == "data") {
             if (has_data) {
@@ -113,11 +115,15 @@ std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& out
             CTxDestination destination{CNoDestination{CScript() << OP_RETURN << data}};
             CAmount amount{0};
             parsed_outputs.emplace_back(destination, amount);
+        } else if (rawContract && name_ == "contract") {
+            // Get the contract object
+            UniValue contract = outputs[i];
+            rawContract->addContract(parsed_outputs, contract);
         } else {
             CTxDestination destination{DecodeDestination(name_)};
             CAmount amount{AmountFromValue(outputs[name_])};
             if (!IsValidDestination(destination)) {
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Bitcoin address: ") + name_);
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Qtum address: ") + name_);
             }
 
             if (!destinations.insert(destination).second) {
@@ -125,16 +131,17 @@ std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& out
             }
             parsed_outputs.emplace_back(destination, amount);
         }
+        ++i;
     }
     return parsed_outputs;
 }
 
-void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in)
+void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawContract* rawContract)
 {
     UniValue outputs(UniValue::VOBJ);
     outputs = NormalizeOutputs(outputs_in);
 
-    std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs = ParseOutputs(outputs);
+    std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs = ParseOutputs(outputs, rawContract);
     for (const auto& [destination, nAmount] : parsed_outputs) {
         CScript scriptPubKey = GetScriptForDestination(destination);
 
@@ -143,7 +150,7 @@ void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in)
     }
 }
 
-CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, std::optional<bool> rbf)
+CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, std::optional<bool> rbf, IRawContract* rawContract)
 {
     CMutableTransaction rawTx;
 
@@ -155,7 +162,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
     }
 
     AddInputs(rawTx, inputs_in, rbf);
-    AddOutputs(rawTx, outputs_in);
+    AddOutputs(rawTx, outputs_in, rawContract);
 
     if (rbf.has_value() && rbf.value() && rawTx.vin.size() > 0 && !SignalsOptInRBF(CTransaction(rawTx))) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter combination: Sequence number(s) contradict replaceable option");
@@ -302,6 +309,26 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FlatSigningProvider* keystore,
     }
 }
 
+void CheckSenderSignatures(CMutableTransaction& mtx)
+{
+    // Check the sender signatures are inside the outputs, before signing the inputs
+    if(mtx.HasOpSender())
+    {
+        int nOut = 0;
+        for (const auto& output : mtx.vout)
+        {
+            if(output.scriptPubKey.HasOpSender())
+            {
+                CScript senderPubKey, senderSig;
+                if(!ExtractSenderData(output.scriptPubKey, &senderPubKey, &senderSig))
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, "Missing contract sender signature,"
+                                                              "use signrawsendertransactionwithwallet or signrawsendertransactionwithkey to sign the outputs");
+            }
+            nOut++;
+        }
+    }
+}
+
 void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, const std::map<COutPoint, Coin>& coins, const UniValue& hashType, UniValue& result)
 {
     int nHashType = ParseSighashString(hashType);
@@ -332,5 +359,43 @@ void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const 
             vErrors.push_backV(result["errors"].getValues());
         }
         result.pushKV("errors", std::move(vErrors));
+    }
+}
+
+static void TxOutErrorToJSON(const CTxOut& output, UniValue& vErrorsRet, const std::string& strMessage)
+{
+    UniValue entry(UniValue::VOBJ);
+    entry.pushKV("amount", ValueFromAmount(output.nValue));
+    entry.pushKV("scriptPubKey", HexStr(MakeUCharSpan(output.scriptPubKey)));
+    entry.pushKV("error", strMessage);
+    vErrorsRet.push_back(entry);
+}
+
+void SignTransactionOutput(CMutableTransaction &mtx, FlatSigningProvider *keystore, const UniValue &hashType, UniValue &result)
+{
+    int nHashType = ParseSighashString(hashType);
+
+    // Script verification errors
+    std::map<int, std::string> output_errors;
+
+    bool complete = SignTransactionOutput(mtx, keystore, nHashType, output_errors);
+    SignTransactionOutputResultToJSON(mtx, complete, output_errors, result);
+}
+
+void SignTransactionOutputResultToJSON(CMutableTransaction &mtx, bool complete, std::map<int, std::string> &output_errors, UniValue &result)
+{
+    // Make errors UniValue
+    UniValue vErrors(UniValue::VARR);
+    for (const auto& err_pair : output_errors) {
+        TxOutErrorToJSON(mtx.vout.at(err_pair.first), vErrors, err_pair.second);
+    }
+
+    result.pushKV("hex", EncodeHexTx(CTransaction(mtx)));
+    result.pushKV("complete", complete);
+    if (!vErrors.empty()) {
+        if (result.exists("errors")) {
+            vErrors.push_backV(result["errors"].getValues());
+        }
+        result.pushKV("errors", vErrors);
     }
 }

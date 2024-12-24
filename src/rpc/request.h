@@ -44,9 +44,36 @@ public:
     std::string peerAddr;
     std::any context;
     JSONRPCVersion m_json_version = JSONRPCVersion::V1_LEGACY;
+    bool isLongPolling = false;
+    void *httpreq = nullptr;
 
     void parse(const UniValue& valRequest);
     [[nodiscard]] bool IsNotification() const { return !id.has_value() && m_json_version == JSONRPCVersion::V2; };
+
+    /**
+     * Start long-polling
+     */
+    virtual void PollStart();
+
+    /**
+     * Ping long-poll connection with an empty character to make sure it's still alive.
+     */
+    virtual void PollPing();
+
+    /**
+     * Returns whether the underlying long-poll connection is still alive.
+     */
+    virtual bool PollAlive();
+
+    /**
+     * End a long poll request.
+     */
+    virtual void PollCancel();
+
+    /**
+     * Return the JSON result of a long poll request
+     */
+    virtual void PollReply(const UniValue& result);
 };
 
 #endif // BITCOIN_RPC_REQUEST_H
