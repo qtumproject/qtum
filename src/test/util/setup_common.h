@@ -101,7 +101,7 @@ struct TestingSetup : public ChainTestingSetup {
 /** Identical to TestingSetup, but chain set to regtest */
 struct RegTestingSetup : public TestingSetup {
     RegTestingSetup()
-        : TestingSetup{ChainType::REGTEST} {}
+        : TestingSetup{ChainType::UNITTEST} {}
 };
 
 class CBlock;
@@ -113,7 +113,7 @@ class CScript;
  */
 struct TestChain100Setup : public TestingSetup {
     TestChain100Setup(
-        const ChainType chain_type = ChainType::REGTEST,
+        const ChainType chain_type = ChainType::UNITTEST,
         TestOpts = {});
 
     /**
@@ -226,7 +226,7 @@ struct TestChain100Setup : public TestingSetup {
  * be used in "hot loops", for example fuzzing or benchmarking.
  */
 template <class T = const BasicTestingSetup>
-std::unique_ptr<T> MakeNoLogFileContext(const ChainType chain_type = ChainType::REGTEST, TestOpts opts = {})
+std::unique_ptr<T> MakeNoLogFileContext(const ChainType chain_type = ChainType::UNITTEST, TestOpts opts = {})
 {
     opts.extra_args = Cat(
         {

@@ -100,7 +100,7 @@ void RegenerateCommitments(CBlock& block, ChainstateManager& chainman)
 static BlockAssembler::Options ClampOptions(BlockAssembler::Options options)
 {
     Assert(options.coinbase_max_additional_weight <= DEFAULT_BLOCK_MAX_WEIGHT);
-    Assert(options.coinbase_output_max_additional_sigops <= MAX_BLOCK_SIGOPS_COST);
+    Assert(options.coinbase_output_max_additional_sigops <= dgpMaxBlockSigOps);
     // Limit weight to between coinbase_max_additional_weight and DEFAULT_BLOCK_MAX_WEIGHT for sanity:
     // Coinbase (reserved) outputs can safely exceed -blockmaxweight, but the rest of the block template will be empty.
     options.nBlockMaxWeight = std::clamp<size_t>(options.nBlockMaxWeight, options.coinbase_max_additional_weight, DEFAULT_BLOCK_MAX_WEIGHT);
@@ -237,7 +237,7 @@ bool BlockAssembler::TestPackage(uint64_t packageSize, int64_t packageSigOpsCost
     if (nBlockWeight + WITNESS_SCALE_FACTOR * packageSize >= m_options.nBlockMaxWeight) {
         return false;
     }
-    if (nBlockSigOpsCost + packageSigOpsCost >= MAX_BLOCK_SIGOPS_COST) {
+    if (nBlockSigOpsCost + packageSigOpsCost >= (uint64_t)dgpMaxBlockSigOps) {
         return false;
     }
     return true;
