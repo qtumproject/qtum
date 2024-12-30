@@ -55,15 +55,19 @@ bool BCLog::Logger::StartLogging()
 
     assert(m_buffering);
     assert(m_fileout == nullptr);
+    assert(m_fileoutVM == nullptr); // qtum
 
     if (m_print_to_file) {
         assert(!m_file_path.empty());
+        assert(!m_file_pathVM.empty()); // qtum
         m_fileout = fsbridge::fopen(m_file_path, "a");
-        if (!m_fileout) {
+        m_fileoutVM = fsbridge::fopen(m_file_pathVM, "a");
+        if (!m_fileout || !m_fileoutVM) {
             return false;
         }
 
         setbuf(m_fileout, nullptr); // unbuffered
+        setbuf(m_fileoutVM, nullptr); // unbuffered
 
         // Add newlines to the logfile to distinguish this execution from the
         // last one.
@@ -73,16 +77,19 @@ bool BCLog::Logger::StartLogging()
     // dump buffered messages from before we opened the log
     m_buffering = false;
     if (m_buffer_lines_discarded > 0) {
-        LogPrintStr_(strprintf("Early logging buffer overflowed, %d log lines discarded.\n", m_buffer_lines_discarded), __func__, __FILE__, __LINE__, BCLog::ALL, Level::Info);
+        LogPrintStr_(strprintf("Early logging buffer overflowed, %d log lines discarded.\n", m_buffer_lines_discarded), __func__, __FILE__, __LINE__, BCLog::ALL, Level::Info, false);
     }
     while (!m_msgs_before_open.empty()) {
         const auto& buflog = m_msgs_before_open.front();
+        FILE* file = buflog.useVMLog ? m_fileoutVM : m_fileout;
+        bool print_to_console = m_print_to_console;
+        if(print_to_console && buflog.useVMLog && !m_show_evm_logs) print_to_console = false;
         std::string s{buflog.str};
-        FormatLogStrInPlace(s, buflog.category, buflog.level, buflog.source_file, buflog.source_line, buflog.logging_function, buflog.threadname, buflog.now, buflog.mocktime);
+        FormatLogStrInPlace(s, buflog.category, buflog.level, buflog.source_file, buflog.source_line, buflog.logging_function, buflog.threadname, buflog.now, buflog.mocktime, buflog.useVMLog);
         m_msgs_before_open.pop_front();
 
-        if (m_print_to_file) FileWriteStr(s, m_fileout);
-        if (m_print_to_console) fwrite(s.data(), 1, s.size(), stdout);
+        if (file && m_print_to_file) FileWriteStr(s, file);
+        if (print_to_console) fwrite(s.data(), 1, s.size(), stdout);
         for (const auto& cb : m_print_callbacks) {
             cb(s);
         }
@@ -99,6 +106,8 @@ void BCLog::Logger::DisconnectTestLogger()
     m_buffering = true;
     if (m_fileout != nullptr) fclose(m_fileout);
     m_fileout = nullptr;
+    if (m_fileoutVM != nullptr) fclose(m_fileoutVM);
+    m_fileoutVM = nullptr;
     m_print_callbacks.clear();
     m_max_buffer_memusage = DEFAULT_MAX_LOG_BUFFER;
     m_cur_buffer_memusage = 0;
@@ -200,6 +209,9 @@ static const std::map<std::string, BCLog::LogFlags, std::less<>> LOG_CATEGORIES_
     {"txreconciliation", BCLog::TXRECONCILIATION},
     {"scan", BCLog::SCAN},
     {"txpackages", BCLog::TXPACKAGES},
+    {"coinstake", BCLog::COINSTAKE},
+    {"http-poll", BCLog::HTTPPOLL},
+    {"index", BCLog::INDEX},
 };
 
 static const std::unordered_map<BCLog::LogFlags, std::string> LOG_CATEGORIES_BY_FLAG{
@@ -368,12 +380,17 @@ static size_t MemUsage(const BCLog::Logger::BufferedLog& buflog)
     return buflog.str.size() + buflog.logging_function.size() + buflog.source_file.size() + buflog.threadname.size() + memusage::MallocUsage(sizeof(memusage::list_node<BCLog::Logger::BufferedLog>));
 }
 
-void BCLog::Logger::FormatLogStrInPlace(std::string& str, BCLog::LogFlags category, BCLog::Level level, std::string_view source_file, int source_line, std::string_view logging_function, std::string_view threadname, SystemClock::time_point now, std::chrono::seconds mocktime) const
+void BCLog::Logger::FormatLogStrInPlace(std::string& str, BCLog::LogFlags category, BCLog::Level level, std::string_view source_file, int source_line, std::string_view logging_function, std::string_view threadname, SystemClock::time_point now, std::chrono::seconds mocktime, bool useVMLog) const
 {
     str.insert(0, GetLogPrefix(category, level));
 
     if (m_log_sourcelocations) {
-        str.insert(0, strprintf("[%s:%d] [%s] ", RemovePrefixView(source_file, "./"), source_line, logging_function));
+        if(useVMLog) {
+            str.insert(0, strprintf("[%s] ", logging_function));
+        }
+        else {
+            str.insert(0, strprintf("[%s:%d] [%s] ", RemovePrefixView(source_file, "./"), source_line, logging_function));
+        }
     }
 
     if (m_log_threadnames) {
@@ -383,13 +400,13 @@ void BCLog::Logger::FormatLogStrInPlace(std::string& str, BCLog::LogFlags catego
     str.insert(0, LogTimestampStr(now, mocktime));
 }
 
-void BCLog::Logger::LogPrintStr(std::string_view str, std::string_view logging_function, std::string_view source_file, int source_line, BCLog::LogFlags category, BCLog::Level level)
+void BCLog::Logger::LogPrintStr(std::string_view str, std::string_view logging_function, std::string_view source_file, int source_line, BCLog::LogFlags category, BCLog::Level level, bool useVMLog)
 {
     StdLockGuard scoped_lock(m_cs);
-    return LogPrintStr_(str, logging_function, source_file, source_line, category, level);
+    return LogPrintStr_(str, logging_function, source_file, source_line, category, level, useVMLog);
 }
 
-void BCLog::Logger::LogPrintStr_(std::string_view str, std::string_view logging_function, std::string_view source_file, int source_line, BCLog::LogFlags category, BCLog::Level level)
+void BCLog::Logger::LogPrintStr_(std::string_view str, std::string_view logging_function, std::string_view source_file, int source_line, BCLog::LogFlags category, BCLog::Level level, bool useVMLog)
 {
     std::string str_prefixed = LogEscapeMessage(str);
 
@@ -419,6 +436,7 @@ void BCLog::Logger::LogPrintStr_(std::string_view str, std::string_view logging_
                 .source_line=source_line,
                 .category=category,
                 .level=level,
+                .useVMLog=useVMLog,
             };
             m_cur_buffer_memusage += MemUsage(buf);
             m_msgs_before_open.push_back(std::move(buf));
@@ -438,10 +456,13 @@ void BCLog::Logger::LogPrintStr_(std::string_view str, std::string_view logging_
     }
 
     if (starts_new_line) {
-        FormatLogStrInPlace(str_prefixed, category, level, source_file, source_line, logging_function, util::ThreadGetInternalName(), SystemClock::now(), GetMockTime());
+        FormatLogStrInPlace(str_prefixed, category, level, source_file, source_line, logging_function, util::ThreadGetInternalName(), SystemClock::now(), GetMockTime(), useVMLog);
     }
 
-    if (m_print_to_console) {
+    bool print_to_console = m_print_to_console;
+    if(print_to_console && useVMLog && !m_show_evm_logs) print_to_console = false;
+
+    if (print_to_console) {
         // print to console
         fwrite(str_prefixed.data(), 1, str_prefixed.size(), stdout);
         fflush(stdout);
@@ -451,6 +472,7 @@ void BCLog::Logger::LogPrintStr_(std::string_view str, std::string_view logging_
     }
     if (m_print_to_file) {
         assert(m_fileout != nullptr);
+        assert(m_fileoutVM != nullptr);
 
         // reopen the log file, if requested
         if (m_reopen_file) {
@@ -461,8 +483,22 @@ void BCLog::Logger::LogPrintStr_(std::string_view str, std::string_view logging_
                 fclose(m_fileout);
                 m_fileout = new_fileout;
             }
+            FILE* new_fileoutVM = fsbridge::fopen(m_file_pathVM, "a");
+            if (new_fileoutVM) {
+                setbuf(new_fileoutVM, nullptr); // unbuffered
+                fclose(m_fileoutVM);
+                m_fileoutVM = new_fileoutVM;
+            }
         }
-        FileWriteStr(str_prefixed, m_fileout);
+
+        //////////////////////////////// // qtum
+        FILE* file = m_fileout;
+        if(useVMLog){
+            file = m_fileoutVM;
+        }
+        ////////////////////////////////
+
+        FileWriteStr(str_prefixed, file);
     }
 }
 

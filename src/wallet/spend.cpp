@@ -329,7 +329,7 @@ CoinsResult AvailableCoins(const CWallet& wallet,
         const uint256& txid = entry.first;
         const CWalletTx& wtx = entry.second;
 
-        if (wallet.IsTxImmatureCoinBase(wtx) && !params.include_immature_coinbase)
+        if (wallet.IsTxImmature(wtx) && !params.include_immature_coinbase)
             continue;
 
         int nDepth = wallet.GetTxDepthInMainChain(wtx);
@@ -1007,7 +1007,10 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         const std::vector<CRecipient>& vecSend,
         std::optional<unsigned int> change_pos,
         const CCoinControl& coin_control,
-        bool sign) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
+        bool sign, 
+        CAmount nGasFee = 0, 
+        bool hasSender = false, 
+        const CTxDestination& signSenderAddress = CNoDestination()) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
 {
     AssertLockHeld(wallet.cs_wallet);
 
@@ -1035,6 +1038,11 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
     const OutputType change_type = wallet.TransactionChangeType(coin_control.m_change_type ? *coin_control.m_change_type : wallet.m_default_change_type, vecSend);
     ReserveDestination reservedest(&wallet, change_type);
     unsigned int outputs_to_subtract_fee_from = 0; // The number of outputs which we are subtracting the fee from
+    COutPoint senderInput;
+    if(hasSender && coin_control.HasSelected()){
+    	std::vector<COutPoint> vSenderInputs = coin_control.ListSelected();
+    	senderInput=vSenderInputs[0];
+    }
     for (const auto& recipient : vecSend) {
         if (IsDust(recipient, wallet.chain().relayDustFee())) {
             return util::Error{_("Transaction amount too small")};
@@ -1127,7 +1135,7 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
     coin_selection_params.min_viable_change = std::max(change_spend_fee + 1, dust);
 
     // Include the fees for things that aren't inputs, excluding the change output
-    const CAmount not_input_fees = coin_selection_params.m_effective_feerate.GetFee(coin_selection_params.m_subtract_fee_outputs ? 0 : coin_selection_params.tx_noinputs_size);
+    const CAmount not_input_fees = coin_selection_params.m_effective_feerate.GetFee(coin_selection_params.m_subtract_fee_outputs ? 0 : coin_selection_params.tx_noinputs_size)+nGasFee;
     CAmount selection_target = recipients_sum + not_input_fees;
 
     // This can only happen if feerate is 0, and requested destinations are value of 0 (e.g. OP_RETURN)
@@ -1158,13 +1166,16 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         const bilingual_str& err = util::ErrorString(select_coins_res);
         return util::Error{err.empty() ?_("Insufficient funds") : err};
     }
-    const SelectionResult& result = *select_coins_res;
+    SelectionResult& result = *select_coins_res;
     TRACE5(coin_selection, selected_coins,
            wallet.GetName().c_str(),
            GetAlgorithmName(result.GetAlgo()).c_str(),
            result.GetTarget(),
            result.GetWaste(),
            result.GetSelectedValue());
+
+    std::set<std::shared_ptr<COutput>> setCoins = result.GetInputSet();
+    std::vector<std::shared_ptr<COutput>> vCoins;
 
     // vouts to the payees
     for (const auto& recipient : vecSend)
@@ -1173,6 +1184,21 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
     }
     const CAmount change_amount = result.GetChange(coin_selection_params.min_viable_change, coin_selection_params.m_change_fee);
     if (change_amount > 0) {
+
+        // send change to existing address
+        if (!wallet.m_use_change_address &&
+                !std::holds_alternative<CNoDestination>(coin_control.destChange) &&
+                setCoins.size() > 0)
+        {
+            // setCoins will be added as inputs to the new transaction
+            // Set the first input script as change script for the new transaction
+            auto pcoin = setCoins.begin();
+            scriptChange = (*pcoin)->txout.scriptPubKey;
+
+            change_prototype_txout = CTxOut(0, scriptChange);
+            coin_selection_params.change_output_size = GetSerializeSize(change_prototype_txout);
+        }
+
         CTxOut newTxOut(change_amount, scriptChange);
         if (!change_pos) {
             // Insert change txn at random position:
@@ -1185,15 +1211,35 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         change_pos = std::nullopt;
     }
 
+    // Move sender input to position 0
+    std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
+    if(hasSender && coin_control.HasSelected()){
+        for (std::vector<std::shared_ptr<COutput>>::size_type i = 0 ; i != vCoins.size(); i++){
+            if(vCoins[i]->outpoint==senderInput){
+                if(i==0)break;
+                iter_swap(vCoins.begin(),vCoins.begin()+i);
+                break;
+            }
+        }
+    }
+
     // Shuffle selected coins and fill in final vin
-    std::vector<std::shared_ptr<COutput>> selected_coins = result.GetShuffledInputVector();
+    int shuffleOffset = 0;
+    if(hasSender && coin_control.HasSelected() && vCoins.size() > 0 && vCoins[0]->outpoint==senderInput){
+        shuffleOffset = 1;
+    }
+    setCoins = std::set<std::shared_ptr<COutput>>(vCoins.begin(), vCoins.end());
+    result.SetInputSet(setCoins);
+    vCoins.clear();
+    setCoins.clear();
+    std::vector<std::shared_ptr<COutput>> selected_coins = result.GetShuffledInputVector(shuffleOffset);
 
     if (coin_control.HasSelected() && coin_control.HasSelectedOrder()) {
         // When there are preselected inputs, we need to move them to be the first UTXOs
         // and have them be in the order selected. We can use stable_sort for this, where we
         // compare with the positions stored in coin_control. The COutputs that have positions
         // will be placed before those that don't, and those positions will be in order.
-        std::stable_sort(selected_coins.begin(), selected_coins.end(),
+        std::stable_sort(selected_coins.begin() + shuffleOffset, selected_coins.end(),
             [&coin_control](const std::shared_ptr<COutput>& a, const std::shared_ptr<COutput>& b) {
                 auto a_pos = coin_control.GetSelectionPos(a->outpoint);
                 auto b_pos = coin_control.GetSelectionPos(b->outpoint);
@@ -1248,7 +1294,7 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
     if (nBytes == -1) {
         return util::Error{_("Missing solving data for estimating transaction size")};
     }
-    CAmount fee_needed = coin_selection_params.m_effective_feerate.GetFee(nBytes) + result.GetTotalBumpFees();
+    CAmount fee_needed = coin_selection_params.m_effective_feerate.GetFee(nBytes) + result.GetTotalBumpFees() + nGasFee;
     const CAmount output_value = CalculateOutputValue(txNew);
     Assume(recipients_sum + change_amount == output_value);
     CAmount current_fee = result.GetSelectedValue() - output_value;
@@ -1318,6 +1364,11 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         return util::Error{error};
     }
 
+    // Signing transaction outputs
+    if(sign && txNew.HasOpSender() && !wallet.SignTransactionOutput(txNew)) {
+        return util::Error{_("Signing transaction output failed")};
+    }
+
     if (sign && !wallet.SignTransaction(txNew)) {
         return util::Error{_("Signing transaction failed")};
     }
@@ -1332,7 +1383,7 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         return util::Error{_("Transaction too large")};
     }
 
-    if (current_fee > wallet.m_default_max_tx_fee) {
+    if (!tx->HasCreateOrCall() && current_fee > wallet.m_default_max_tx_fee) {
         return util::Error{TransactionErrorString(TransactionError::MAX_FEE_EXCEEDED)};
     }
 
@@ -1380,7 +1431,7 @@ util::Result<CreatedTransactionResult> CreateTransaction(
 
     LOCK(wallet.cs_wallet);
 
-    auto res = CreateTransactionInternal(wallet, vecSend, change_pos, coin_control, sign);
+    auto res = CreateTransactionInternal(wallet, vecSend, change_pos, coin_control, sign, nGasFee, hasSender, signSenderAddress);
     TRACE4(coin_selection, normal_create_tx_internal,
            wallet.GetName().c_str(),
            bool(res),
@@ -1399,7 +1450,7 @@ util::Result<CreatedTransactionResult> CreateTransaction(
             ExtractDestination(txr_ungrouped.tx->vout[*txr_ungrouped.change_pos].scriptPubKey, tmp_cc.destChange);
         }
 
-        auto txr_grouped = CreateTransactionInternal(wallet, vecSend, change_pos, tmp_cc, sign);
+        auto txr_grouped = CreateTransactionInternal(wallet, vecSend, change_pos, tmp_cc, sign, nGasFee, hasSender, signSenderAddress);
         // if fee of this alternative one is within the range of the max fee, we use this one
         const bool use_aps{txr_grouped.has_value() ? (txr_grouped->fee <= txr_ungrouped.fee + wallet.m_max_aps_fee) : false};
         TRACE5(coin_selection, aps_create_tx_internal,
@@ -1457,7 +1508,8 @@ util::Result<CreatedTransactionResult> FundTransaction(CWallet& wallet, const CM
         preset_txin.SetScriptWitness(txin.scriptWitness);
     }
 
-    auto res = CreateTransaction(wallet, vecSend, change_pos, coinControl, false);
+    CAmount nGasFee = wallet.GetTxGasFee(vecSend);
+    auto res = CreateTransaction(wallet, vecSend, change_pos, coinControl, false, nGasFee);
     if (!res) {
         return res;
     }
