@@ -763,7 +763,7 @@ static RPCHelpMan getcontractcode()
     {
         if (request.params[1].isNum())
         {
-            auto blockNum = request.params[1].get_int();
+            auto blockNum = request.params[1].getInt<int>();
             if((blockNum < 0 && blockNum != -1) || blockNum > active_chain.Height())
                 throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
 
@@ -1639,7 +1639,7 @@ RPCHelpMan getblocktransactionreceipts()
     if (!pblockindex) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
     }
-    const CBlock block = GetBlockChecked(pblockindex);
+    const CBlock block{GetBlockChecked(chainman.m_blockman, *pblockindex)};
 
     UniValue result(UniValue::VARR);
     for (const auto& tx : block.vtx) {

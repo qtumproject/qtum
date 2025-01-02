@@ -97,7 +97,7 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
     int blockNum;
     if (params.size() >= 6) {
         if (params[5].isNum()) {
-            blockNum = params[5].get_int();
+            blockNum = params[5].getInt<int>();
             if ((blockNum < 0 && blockNum != -1) || blockNum > active_chain.Height())
                 throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
             if (blockNum != -1) {
