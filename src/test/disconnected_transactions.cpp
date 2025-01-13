@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(disconnectpool_memory_limits)
     // transactions would realistically be in a block together, they just need distinct txids and
     // uniform size for this test to work.
     std::vector<CTransactionRef> block_vtx(m_coinbase_txns);
-    BOOST_CHECK_EQUAL(block_vtx.size(), 100);
+    BOOST_CHECK_EQUAL(block_vtx.size(), 2000);
 
     // Roughly estimate sizes to sanity check that DisconnectedBlockTransactions::DynamicMemoryUsage
     // is within an expected range.
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(disconnectpool_memory_limits)
     std::unordered_map<uint256, CTransaction*, SaltedTxidHasher> temp_map;
     temp_map.reserve(1);
     const size_t MAP_1{memusage::DynamicUsage(temp_map)};
-    temp_map.reserve(100);
+    temp_map.reserve(2000);
     const size_t MAP_100{memusage::DynamicUsage(temp_map)};
 
     const size_t TX_USAGE{RecursiveDynamicUsage(block_vtx.front())};
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(disconnectpool_memory_limits)
     // Record usage so we can check size limiting in the next test.
     size_t usage_full{0};
     {
-        const size_t USAGE_100_OVERESTIMATE{MAP_100 + ENTRY_USAGE_ESTIMATE * 100};
+        const size_t USAGE_100_OVERESTIMATE{MAP_100 + ENTRY_USAGE_ESTIMATE * 2000};
         DisconnectedBlockTransactions disconnectpool{USAGE_100_OVERESTIMATE};
         auto evicted_txns{disconnectpool.AddTransactionsFromBlock(block_vtx)};
         BOOST_CHECK_EQUAL(evicted_txns.size(), 0);
