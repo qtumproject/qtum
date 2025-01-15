@@ -208,9 +208,9 @@ struct CTxMemPoolModifiedEntry_Indices final : boost::multi_index::indexed_by<
     // sorted by modified ancestor fee rate
     boost::multi_index::ordered_non_unique<
         // Reuse same tag from CTxMemPool's similar index
-        boost::multi_index::tag<ancestor_score>,
+        boost::multi_index::tag<ancestor_score_or_gas_price>,
         boost::multi_index::identity<CTxMemPoolModifiedEntry>,
-        CompareTxMemPoolEntryByAncestorFee
+        CompareModifiedEntry
     >
 >
 {};
@@ -221,7 +221,7 @@ typedef boost::multi_index_container<
 > indexed_modified_transaction_set;
 
 typedef indexed_modified_transaction_set::nth_index<0>::type::iterator modtxiter;
-typedef indexed_modified_transaction_set::index<ancestor_score>::type::iterator modtxscoreiter;
+typedef indexed_modified_transaction_set::index<ancestor_score_or_gas_price>::type::iterator modtxscoreiter;
 
 struct update_for_parent_inclusion
 {
@@ -265,7 +265,7 @@ private:
 public:
     struct Options : BlockCreateOptions {
         // Configuration parameters for the block size
-        size_t nBlockMaxWeight{DEFAULT_BLOCK_MAX_WEIGHT};
+        mutable size_t nBlockMaxWeight{DEFAULT_BLOCK_MAX_WEIGHT};
         CFeeRate blockMinFeeRate{DEFAULT_BLOCK_MIN_TX_FEE};
         // Whether to call TestBlockValidity() at the end of CreateNewBlock().
         bool test_block_validity{true};
@@ -310,7 +310,7 @@ private:
     /** Add transactions based on feerate including unconfirmed ancestors
       * Increments nPackagesSelected / nDescendantsUpdated with corresponding
       * statistics from the package selection (for logging statistics). */
-    void addPackageTxs(const CTxMemPool& mempool, int& nPackagesSelected, int& nDescendantsUpdated) EXCLUSIVE_LOCKS_REQUIRED(mempool.cs);
+    void addPackageTxs(const CTxMemPool& mempool, int& nPackagesSelected, int& nDescendantsUpdated, uint64_t minGasPrice, CBlock* pblock) EXCLUSIVE_LOCKS_REQUIRED(mempool.cs);
 
     /** Rebuild the coinbase/coinstake transaction to account for new gas refunds **/
     void RebuildRefundTransaction(CBlock* pblock);
