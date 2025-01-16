@@ -273,6 +273,9 @@ public:
     };
 
     explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, const Options& options);
+#ifdef ENABLE_WALLET
+    explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, wallet::CWallet *pwallet);
+#endif
 
 ///////////////////////////////////////////// // qtum
     ByteCodeExecResult bceResult;

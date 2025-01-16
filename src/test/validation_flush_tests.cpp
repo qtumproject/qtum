@@ -36,8 +36,8 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
         BOOST_TEST_MESSAGE("CCoinsViewCache memory usage: " << view.DynamicMemoryUsage());
     };
 
-    // PoolResource defaults to 256 KiB that will be allocated, so we'll take that and make it a bit larger.
-    constexpr size_t MAX_COINS_CACHE_BYTES = 262144 + 512;
+    // PoolResource defaults to 512 KiB that will be allocated, so we'll take that and make it a bit larger.
+    constexpr size_t MAX_COINS_CACHE_BYTES = 524288 + 512;
 
     // Without any coins in the cache, we shouldn't need to flush.
     BOOST_TEST(
