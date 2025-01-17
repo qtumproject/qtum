@@ -111,7 +111,9 @@ void runFailingTest(Chainstate& chainstate, CTxMemPool& mempool, bool isCreation
 CTxMemPool& MakeMempool(node::NodeContext& node)
 {
     node.mempool.reset();
-    node.mempool = std::make_unique<CTxMemPool>(MemPoolOptionsForTest(node));
+    bilingual_str error;
+    node.mempool = std::make_unique<CTxMemPool>(MemPoolOptionsForTest(node), error);
+    Assert(error.empty());
     return *node.mempool;
 }
 }
