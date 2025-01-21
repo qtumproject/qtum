@@ -5873,7 +5873,7 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
     if (consensusParams.enforce_BIP94) {
         // Check timestamp for the first block of each difficulty adjustment
         // interval, except the genesis block.
-        if (nHeight % consensusParams.DifficultyAdjustmentInterval() == 0) {
+        if (nHeight % consensusParams.DifficultyAdjustmentInterval(nHeight) == 0) {
             if (block.GetBlockTime() < pindexPrev->GetBlockTime() - MAX_TIMEWARP) {
                 return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "time-timewarp-attack", "block's timestamp is too early on diff adjustment block");
             }
@@ -6255,7 +6255,7 @@ void ChainstateManager::ReportHeadersPresync(const arith_uint256& work, int64_t 
     bool initial_download = IsInitialBlockDownload();
     GetNotifications().headerTip(GetSynchronizationState(initial_download, m_blockman.m_blockfiles_indexed), height, timestamp, /*presync=*/true);
     if (initial_download) {
-        int64_t blocks_left{(NodeClock::now() - NodeSeconds{std::chrono::seconds{timestamp}}) / GetConsensus().PowTargetSpacing()};
+        int64_t blocks_left{(NodeClock::now() - NodeSeconds{std::chrono::seconds{timestamp}}) / GetConsensus().TargetSpacingChrono(height)};
         blocks_left = std::max<int64_t>(0, blocks_left);
         const double progress{100.0 * height / (height + blocks_left)};
         LogInfo("Pre-synchronizing blockheaders, height: %d (~%.2f%%)\n", height, progress);
