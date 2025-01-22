@@ -6,10 +6,12 @@
 #include <wallet/rpc/mining.h>
 #include <wallet/wallet.h>
 #include <node/miner.h>
+#include <node/context.h>
 #include <pow.h>
-#include <warnings.h>
+#include <node/warnings.h>
 #include <chainparams.h>
 #include <common/args.h>
+#include <chainparamsbase.h>
 
 #include <univalue.h>
 
@@ -41,8 +43,15 @@ RPCHelpMan getmininginfo()
                         }},
                         {RPCResult::Type::NUM, "networkhashps", "The network hashes per second"},
                         {RPCResult::Type::NUM, "pooledtx", "The size of the mempool"},
-                        {RPCResult::Type::STR, "chain", "current network name (main, test, signet, regtest)"},
-                        {RPCResult::Type::STR, "warnings", "any network and blockchain warnings"},
+                        {RPCResult::Type::STR, "chain", "current network name (" LIST_CHAIN_NAMES ")"},
+                        (IsDeprecatedRPCEnabled("warnings") ?
+                            RPCResult{RPCResult::Type::STR, "warnings", "any network and blockchain warnings (DEPRECATED)"} :
+                            RPCResult{RPCResult::Type::ARR, "warnings", "any network and blockchain warnings (run with `-deprecatedrpc=warnings` to return the latest warning as a single string)",
+                            {
+                                {RPCResult::Type::STR, "", "warning"},
+                            }
+                            }
+                        ),
                         {RPCResult::Type::NUM, "blockvalue", "The block subsidy"},
                         {RPCResult::Type::NUM, "netmhashps", "Network PoW hash power"},
                         {RPCResult::Type::NUM, "netstakeweight", "Network stake weight"},
@@ -63,6 +72,7 @@ RPCHelpMan getmininginfo()
     std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
+    node::NodeContext& node = *pwallet->chain().context();
     const CTxMemPool& mempool = pwallet->chain().mempool();
     ChainstateManager& chainman = pwallet->chain().chainman();
 
@@ -96,7 +106,7 @@ RPCHelpMan getmininginfo()
 
     obj.pushKV("netmhashps",       GetPoWMHashPS(chainman));
     obj.pushKV("netstakeweight",   GetPoSKernelPS(chainman));
-    obj.pushKV("errors",           GetWarnings("statusbar").original);
+    obj.pushKV("errors",           pwallet->chain().getWarnings().original);
     obj.pushKV("networkhashps",    GetReqNetworkHashPS(request, chainman));
     obj.pushKV("pooledtx",         (uint64_t)mempool.size());
 
@@ -106,7 +116,7 @@ RPCHelpMan getmininginfo()
     obj.pushKV("stakeweight",      weight);
 
     obj.pushKV("chain", chainman.GetParams().GetChainTypeString());
-    obj.pushKV("warnings",         GetWarnings(false).original);
+    obj.pushKV("warnings", node::GetWarningsForRpc(*CHECK_NONFATAL(node.warnings), IsDeprecatedRPCEnabled("warnings")));
     return obj;
 },
     };
@@ -168,7 +178,7 @@ RPCHelpMan getstakinginfo()
 
     obj.pushKV("enabled", gArgs.GetBoolArg("-staking", true));
     obj.pushKV("staking", staking);
-    obj.pushKV("errors", GetWarnings("statusbar").original);
+    obj.pushKV("errors", pwallet->chain().getWarnings().original);
 
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
     obj.pushKV("pooledtx", (uint64_t)mempool.size());

@@ -160,6 +160,9 @@ public:
     //! Get mempool
     virtual const CTxMemPool& mempool() = 0;
 
+    //! Get warnings.
+    virtual bilingual_str getWarnings() = 0;
+
     //! Get current chain height, not including genesis block (returns 0 if
     //! chain only contains genesis block, nullopt if chain does not contain
     //! any blocks)

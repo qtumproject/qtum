@@ -951,6 +951,7 @@ public:
     ChainstateManager& chainman() override { return *Assert(m_node.chainman); }
     ValidationSignals& validation_signals() { return *Assert(m_node.validation_signals); }
     const CTxMemPool& mempool() override { return *Assert(m_node.mempool); }
+    bilingual_str getWarnings() override { return Join(Assert(m_node.warnings)->GetMessages(), Untranslated("<hr />")); }
 
     CBlockIndex* getTip() const override
     {
@@ -1002,7 +1003,7 @@ public:
     }
     Span<const CRPCCommand> getMiningRPCCommands() override
     {
-        return {};
+        return wallet::GetMiningRPCCommands();
     }
 #endif
     bool getDelegation(const uint160& address, Delegation& delegation) override
