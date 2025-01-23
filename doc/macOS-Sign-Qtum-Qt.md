@@ -16,23 +16,28 @@ If you have downloaded `Qtum-Qt.app` and want to run it on macOS, you may encoun
 ### 2. Sign the Qtum-Qt.app Application
 
 1. Open **Terminal**.
+
 2. Use the following `codesign` command to sign `Qtum-Qt.app` with the newly created certificate:
-   
+
    ```
-   codesign --force --deep --sign "Qtum Certificate" /path/to/Qtum-Qt.app
+   codesign --force --deep --sign "Qtum Certificate" /Applications/Qtum-Qt.app
    ```
-   
+
    Replace "Qtum Certificate" with the name of your certificate, and ensure /path/to/Qtum-Qt.app/ points to the actual location of the app on your system.
-   
-3. Attempt to Open Qtum-Qt.app
-	1.	Try to open Qtum-Qt.app by double-clicking it.
-	2.	You may encounter a warning message stating that the app cannot be opened because macOS could not verify it.
-	
-4. Allow Qtum-Qt.app in Privacy & Security Settings
-	1.	Go to System Settings > Privacy & Security.
-	2.	Scroll down to the Security section.
-	3.	You should see an option that says “Qtum-Qt.app was blocked...”.
-	4.	Click the Open Anyway button next to this message.
-	5. macOS should prompt you with a different warning. Choose Open Anyway to run the app.
+
+3. Remove Qtum from Apple's quarantine: `sudo xattr -rd com.apple.quarantine Qtum-Qt.app`
+
+4. Attempt to Open Qtum-Qt.app
+
+   1.	Try to open Qtum-Qt.app by double-clicking it.
+   2.	You may encounter a warning message stating that the app cannot be opened because macOS could not verify it.
+
+5. Allow Qtum-Qt.app in Privacy & Security Settings
+
+   1.	Go to System Settings > Privacy & Security.
+   2.	Scroll down to the Security section.
+   3.	You should see an option that says “Qtum-Qt.app was blocked...”.
+   4.	Click the Open Anyway button next to this message.
+   5.	macOS should prompt you with a different warning. Choose Open Anyway to run the app.
 
 ***Note:** The same procedure can be used to sign `qtumd`, `qtum-cli` and other command line binaries.
