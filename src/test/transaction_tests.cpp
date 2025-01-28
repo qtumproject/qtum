@@ -34,6 +34,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <algorithm>
 
 #include <boost/test/unit_test.hpp>
 
@@ -387,7 +388,7 @@ BOOST_AUTO_TEST_CASE(tx_oversized)
         tx.vout.emplace_back(1, CScript() << OP_RETURN << std::vector<unsigned char>(payloadSize));
         return CTransaction(tx);
     };
-    const auto maxTransactionSize = dgpMaxBlockWeight / WITNESS_SCALE_FACTOR;
+    const auto maxTransactionSize = std::min((int)(dgpMaxBlockWeight / WITNESS_SCALE_FACTOR), MAX_TRANSACTION_BASE_SIZE);
     const auto oversizedTransactionBaseSize = ::GetSerializeSize(TX_NO_WITNESS(createTransaction(maxTransactionSize))) - maxTransactionSize;
 
     auto maxPayloadSize = maxTransactionSize - oversizedTransactionBaseSize;
@@ -1030,9 +1031,9 @@ BOOST_AUTO_TEST_CASE(test_IsStandard)
     // Check anchor outputs
     t.vout[0].scriptPubKey = CScript() << OP_1 << std::vector<unsigned char>{0x4e, 0x73};
     BOOST_CHECK(t.vout[0].scriptPubKey.IsPayToAnchor());
-    t.vout[0].nValue = 240;
+    t.vout[0].nValue = 32000;
     CheckIsStandard(t);
-    t.vout[0].nValue = 239;
+    t.vout[0].nValue = 31999;
     CheckIsNotStandard(t, "dust");
 }
 
