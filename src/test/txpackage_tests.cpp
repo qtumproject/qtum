@@ -943,7 +943,7 @@ BOOST_FIXTURE_TEST_CASE(package_rbf_tests, TestChain100Setup)
     CKey grandchild_key{GenerateRandomKey()};
     CScript child_spk = GetScriptForDestination(WitnessV0KeyHash(grandchild_key.GetPubKey()));
 
-    const CAmount coinbase_value{50 * COIN};
+    const CAmount coinbase_value{20000 * COIN};
     // Test that de-duplication works. This is not actually package rbf.
     {
         // 1 parent paying 200sat, 1 child paying 300sat
@@ -959,9 +959,9 @@ BOOST_FIXTURE_TEST_CASE(package_rbf_tests, TestChain100Setup)
         package1.push_back(tx_parent);
         package2.push_back(tx_parent);
 
-        CTransactionRef tx_child_1 = MakeTransactionRef(CreateValidMempoolTransaction(tx_parent, 0, 101, child_key, child_spk, coinbase_value - low_fee_amt - 300, false));
+        CTransactionRef tx_child_1 = MakeTransactionRef(CreateValidMempoolTransaction(tx_parent, 0, 2001, child_key, child_spk, coinbase_value - low_fee_amt - 44000, false));
         package1.push_back(tx_child_1);
-        CTransactionRef tx_child_2 = MakeTransactionRef(CreateValidMempoolTransaction(tx_parent, 0, 101, child_key, child_spk, coinbase_value - low_fee_amt - 500, false));
+        CTransactionRef tx_child_2 = MakeTransactionRef(CreateValidMempoolTransaction(tx_parent, 0, 2001, child_key, child_spk, coinbase_value - low_fee_amt - 45100, false));
         package2.push_back(tx_child_2);
 
         LOCK(m_node.mempool->cs);
@@ -998,24 +998,25 @@ BOOST_FIXTURE_TEST_CASE(package_rbf_tests, TestChain100Setup)
     {
         CTransactionRef tx_parent_1 = MakeTransactionRef(CreateValidMempoolTransaction(
             m_coinbase_txns[1], /*input_vout=*/0, /*input_height=*/0,
-            coinbaseKey, parent_spk, coinbase_value - 200, /*submit=*/false));
+            coinbaseKey, parent_spk, coinbase_value - 66400, /*submit=*/false));
         CTransactionRef tx_child_1 = MakeTransactionRef(CreateValidMempoolTransaction(
-            tx_parent_1, /*input_vout=*/0, /*input_height=*/101,
-            child_key, child_spk, coinbase_value - 400, /*submit=*/false));
+            tx_parent_1, /*input_vout=*/0, /*input_height=*/2001,
+            child_key, child_spk, coinbase_value - 132800, /*submit=*/false));
 
         CTransactionRef tx_parent_2 = MakeTransactionRef(CreateValidMempoolTransaction(
             m_coinbase_txns[1], /*input_vout=*/0, /*input_height=*/0,
-            coinbaseKey, parent_spk, coinbase_value - 800, /*submit=*/false));
+            coinbaseKey, parent_spk, coinbase_value - 265600, /*submit=*/false));
         CTransactionRef tx_child_2 = MakeTransactionRef(CreateValidMempoolTransaction(
-            tx_parent_2, /*input_vout=*/0, /*input_height=*/101,
-            child_key, child_spk, coinbase_value - 800 - 200, /*submit=*/false));
+            tx_parent_2, /*input_vout=*/0, /*input_height=*/2001,
+            child_key, child_spk, coinbase_value - 265600 - 66400, /*submit=*/false));
 
         CTransactionRef tx_parent_3 = MakeTransactionRef(CreateValidMempoolTransaction(
             m_coinbase_txns[1], /*input_vout=*/0, /*input_height=*/0,
-            coinbaseKey, parent_spk, coinbase_value - 199, /*submit=*/false));
+            coinbaseKey, parent_spk, coinbase_value - 66399, /*submit=*/false));
         CTransactionRef tx_child_3 = MakeTransactionRef(CreateValidMempoolTransaction(
-            tx_parent_3, /*input_vout=*/0, /*input_height=*/101,
-            child_key, child_spk, coinbase_value - 199 - 1300, /*submit=*/false));
+            tx_parent_3, /*input_vout=*/0, /*input_height=*/2001,
+            child_key, child_spk, coinbase_value - 66399 - 431600, /*submit=*/false));
+
 
         // In all packages, the parents conflict with each other
         BOOST_CHECK(tx_parent_1->GetHash() != tx_parent_2->GetHash() && tx_parent_2->GetHash() != tx_parent_3->GetHash());
@@ -1068,8 +1069,8 @@ BOOST_FIXTURE_TEST_CASE(package_rbf_tests, TestChain100Setup)
         const auto package3_total_vsize{GetVirtualTransactionSize(*tx_parent_3) + GetVirtualTransactionSize(*tx_child_3)};
         BOOST_CHECK(it_parent_3->second.m_wtxids_fee_calculations.value() == expected_package3_wtxids);
         BOOST_CHECK(it_child_3->second.m_wtxids_fee_calculations.value() == expected_package3_wtxids);
-        BOOST_CHECK_EQUAL(it_parent_3->second.m_effective_feerate.value().GetFee(package3_total_vsize), 199 + 1300);
-        BOOST_CHECK_EQUAL(it_child_3->second.m_effective_feerate.value().GetFee(package3_total_vsize), 199 + 1300);
+        BOOST_CHECK_EQUAL(it_parent_3->second.m_effective_feerate.value().GetFee(package3_total_vsize), 66399 + 431600);
+        BOOST_CHECK_EQUAL(it_child_3->second.m_effective_feerate.value().GetFee(package3_total_vsize), 66399 + 431600);
 
         BOOST_CHECK_EQUAL(m_node.mempool->size(), expected_pool_size);
     }
