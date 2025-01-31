@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(timeoffsets_warning)
     BOOST_CHECK(IsWarningRaised({5, 11min}));
 
     BOOST_CHECK(!IsWarningRaised({4, 60min}));
-    BOOST_CHECK(!IsWarningRaised({100, 3min}));
+    BOOST_CHECK(!IsWarningRaised({100, 10s}));
 }
 
 
