@@ -323,6 +323,16 @@ void QtumState::deployDelegationsContract(){
         db().commit();
     }
 }
+
+void QtumState::deployBlockHashHistoryContract(){
+    dev::Address historyStorageAddress = uintToh160(Params().GetConsensus().historyStorageAddress);
+    if(!QtumState::addressInUse(historyStorageAddress)){
+        QtumState::createContract(historyStorageAddress);
+        QtumState::setCode(historyStorageAddress, bytes{fromHex(BLOCK_HASH_HISTORY_CONTRACT_CODE)}, QtumState::version(historyStorageAddress));
+        commit(CommitBehaviour::RemoveEmptyAccounts);
+        db().commit();
+    }
+}
 ///////////////////////////////////////////////////////////////////////////////////////////
 CTransaction CondensingTX::createCondensingTX(){
     selectionVin();
