@@ -871,6 +871,7 @@ public:
         consensus.BIP66Height = consensus.nBlocktimeDownscaleFactor*500 + 751; // BIP66 activated on regtest (Used in rpc activation tests)
         consensus.QIP6Height = consensus.nBlocktimeDownscaleFactor*500 + 500;
         consensus.QIP7Height = 0; // QIP7 activated on regtest
+        consensus.nHistoryContractHeight = 2012; // Delay activation because some pure Bitcoin tests doesn't update hashStateRoot and hashUTXORoot
 
         // QTUM have 500 blocks of maturity, increased values for regtest in unit tests in order to correspond with it
         consensus.nSubsidyHalvingInterval = 750;
