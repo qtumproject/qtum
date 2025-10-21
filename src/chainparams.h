@@ -113,4 +113,9 @@ void UpdateCancunHeight(int nHeight);
  * Allows modifying the pectra block height regtest parameter.
  */
 void UpdatePectraHeight(int nHeight);
+
+/**
+ * Allows modifying the history contract height regtest parameter.
+ */
+void UpdateHistoryContractHeight(int nHeight);
 #endif // BITCOIN_CHAINPARAMS_H

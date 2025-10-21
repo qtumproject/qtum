@@ -3503,14 +3503,16 @@ bool SetBlockHashHistory(const CBlock& block, CBlockIndex* pindexPrev, const CCh
     }
 
     // Get fork height
-    int nPectraHeight = params.GetConsensus().nPectraHeight;
+    int nHistoryContractHeight = params.GetConsensus().nHistoryContractHeight;
     int nHeight = pindexPrev->nHeight + 1;
-    if (nHeight < nPectraHeight) {
+    if (nHeight < nHistoryContractHeight) {
         return true;
     }
 
     // Get history contract height
-    int nHistoryContractHeight = nPectraHeight ? nPectraHeight : 1;
+    if (nHistoryContractHeight == 0) {
+        nHistoryContractHeight = 1;
+    }
 
     // Deploy blockhash history contract
     if (nHeight == nHistoryContractHeight) {

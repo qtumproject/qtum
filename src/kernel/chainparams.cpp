@@ -117,6 +117,7 @@ public:
         consensus.nShanghaiHeight = 3385122;
         consensus.nCancunHeight = 4590000;
         consensus.nPectraHeight = 0x7fffffff;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -279,6 +280,7 @@ public:
         consensus.nShanghaiHeight = 3298892;
         consensus.nCancunHeight = 4510000;
         consensus.nPectraHeight = 0x7fffffff;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -426,6 +428,7 @@ public:
         consensus.nShanghaiHeight = 0;
         consensus.nCancunHeight = 0;
         consensus.nPectraHeight = 0;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -600,6 +603,7 @@ public:
         consensus.nShanghaiHeight = 0;
         consensus.nCancunHeight = 0;
         consensus.nPectraHeight = 0;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -711,6 +715,7 @@ public:
         consensus.nShanghaiHeight = 0;
         consensus.nCancunHeight = 0;
         consensus.nPectraHeight = 0;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -1095,4 +1100,9 @@ void CChainParams::UpdateCancunHeight(int nHeight)
 void CChainParams::UpdatePectraHeight(int nHeight)
 {
     consensus.nPectraHeight = nHeight;
+}
+
+void CChainParams::UpdateHistoryContractHeight(int nHeight)
+{
+    consensus.nHistoryContractHeight = nHeight;
 }

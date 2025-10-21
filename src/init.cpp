@@ -677,6 +677,7 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
     argsman.AddArg("-shanghaiheight=<n>", "Use given block height to check contracts with EVM Shanghai (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-cancunheight=<n>", "Use given block height to check contracts with EVM Cancun (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-pectraheight=<n>", "Use given block height to check contracts with EVM Pectra (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-historycontractheight=<n>", "Use given block height for history contract (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions(argsman);
 
@@ -1435,6 +1436,20 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         {
             UpdatePectraHeight(pectraheight);
             LogPrintf("Activate EVM Pectra at block height %d\n.", pectraheight);
+        }
+    }
+
+    if (args.IsArgSet("-historycontractheight")) {
+        // Allow overriding EVM History contract block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM History contract height may only be overridden on regtest."));
+        }
+
+        int historycontractheight = args.GetIntArg("-historycontractheight", 0);
+        if(historycontractheight >= 0)
+        {
+            UpdateHistoryContractHeight(historycontractheight);
+            LogPrintf("Activate EVM History contract at block height %d\n.", historycontractheight);
         }
     }
 
