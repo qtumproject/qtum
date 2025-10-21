@@ -18,6 +18,7 @@ const std::vector<valtype> CODE = {
 void genesisLoading(){
     const CChainParams& chainparams = Params();
     int forkHeight = Params().GetConsensus().CoinbaseMaturity(0) + 499;
+    UpdateHistoryContractHeight(forkHeight);
     dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(forkHeight));
     globalState->populateFrom(cp.genesisState);
     globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());

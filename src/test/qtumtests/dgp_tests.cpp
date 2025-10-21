@@ -286,10 +286,12 @@ const dev::h256 hash = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 void contractLoading(){
     const CChainParams& chainparams = Params();
     int coinbaseMaturity = chainparams.GetConsensus().CoinbaseMaturity(0);
-    dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(coinbaseMaturity + 900));
+    int forkHeight = coinbaseMaturity + 900;
+    dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(forkHeight));
     globalState->populateFrom(cp.genesisState);
     globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
     globalState->db().commit();
+    UpdateHistoryContractHeight(forkHeight);
 }
 
 bool compareEVMSchedule(const dev::eth::EVMSchedule& a, const dev::eth::EVMSchedule& b){

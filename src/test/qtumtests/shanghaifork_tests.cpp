@@ -69,6 +69,7 @@ void genesisLoading(){
     evmConsensus.nLondonHeight = coinbaseMaturity;
     evmConsensus.nShanghaiHeight = forkHeight;
     UpdateShanghaiHeight(forkHeight);
+    UpdateHistoryContractHeight(evmConsensus.nPectraHeight);
     dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(evmConsensus));
     globalState->populateFrom(cp.genesisState);
     globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
