@@ -129,13 +129,9 @@ void genesisLoading(){
 
 void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
     std::function<void(size_t n)> generateBlocks = [&](size_t n){
-        dev::h256 oldHashStateRoot = globalState->rootHash();
-        dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
         for(size_t i = 0; i < n; i++){
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
-        globalState->setRoot(oldHashStateRoot);
-        globalState->setRootUTXO(oldHashUTXORoot);
     };
 
     generateBlocks(n);
@@ -560,6 +556,72 @@ BOOST_AUTO_TEST_CASE(checking_map_fp2_to_G2_bls_before_fork){
     BOOST_CHECK(result.first[1].execRes.gasUsed == 27023);
     BOOST_CHECK(result.first[1].execRes.output.size() == 32);
     BOOST_CHECK(dev::h256(result.first[1].execRes.output) == dev::h256(0));
+}
+
+void CheckHashHistoryContract(ChainstateManager& chainman, dev::h256& hashTx, const dev::Address& storageAddress, int nHeight, bool found, bool notNull)
+{
+    LOCK(::cs_main);
+    CBlockIndex* pindex = found ? chainman.ActiveChain()[nHeight] : nullptr;
+    if (!found) notNull = false;
+    dev::h256 expectedValue = notNull ? uintToh256(*pindex->phashBlock) : dev::h256(0);
+    dev::bytes opcode = ((dev::h256)dev::u256(nHeight)).asBytes();
+
+    std::vector<QtumTransaction> txs;
+    txs.push_back(createQtumTransaction(opcode, 0, GASLIMIT, dev::u256(1), ++hashTx, storageAddress));
+    auto result = executeBC(txs, chainman);
+
+    if (found)
+    {
+        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
+        BOOST_CHECK(result.first[0].execRes.output.size() == 32);
+        BOOST_CHECK(dev::h256(result.first[0].execRes.output) == expectedValue);
+    }
+    else
+    {
+        BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::RevertInstruction);
+    }
+}
+
+int GetActiveHeight(ChainstateManager& chainman)
+{
+    LOCK(::cs_main);
+    return chainman.ActiveHeight();
+}
+
+BOOST_AUTO_TEST_CASE(checking_historical_contract_after_fork){
+    genesisLoading();
+    createNewBlocks(this, 499);
+    dev::h256 hashTx(HASHTX);
+
+    // Check that the historical contract is not present
+    const CChainParams& chainparams = Params();
+    dev::Address storageAddress = uintToh160(chainparams.GetConsensus().historyStorageAddress);
+    BOOST_CHECK(globalState->addressInUse(storageAddress) == true);
+
+    // Check that the block indexes stored after Pectra is activated
+    createNewBlocks(this, 300);
+    int activeHeight = GetActiveHeight(*m_node.chainman);
+    for (int nHeight = 2300; nHeight < activeHeight; nHeight++)
+    {
+        CheckHashHistoryContract(*m_node.chainman, hashTx, storageAddress, nHeight, true, nHeight >= 2498);
+    }
+
+    // Check that the block indexes are not found
+    int checkHeight = activeHeight + 200;
+    for (int nHeight = activeHeight + 150; nHeight < checkHeight; nHeight++)
+    {
+        CheckHashHistoryContract(*m_node.chainman, hashTx, storageAddress, nHeight, false, false);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(checking_historical_contract_before_fork){
+    genesisLoading();
+    createNewBlocks(this, 498);
+
+    // Check that the historical contract is not present
+    const CChainParams& chainparams = Params();
+    dev::Address addr = uintToh160(chainparams.GetConsensus().historyStorageAddress);
+    BOOST_CHECK(globalState->addressInUse(addr) == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
