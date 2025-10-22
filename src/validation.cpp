@@ -3652,6 +3652,12 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
         return false;
     }
 
+    // Add the previous block hash to the hash history storage
+    if (!SetBlockHashHistory(block, pindex->pprev, params, m_chain))
+    {
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "blockhash-history-invalid", "ConnectBlock(): Set VM blockhash history failed");
+    }
+
     bool fScriptChecks = true;
     if (!m_chainman.AssumedValidBlock().IsNull()) {
         // We've been configured with the hash of a block which has been externally verified to have a valid history.
@@ -4195,10 +4201,6 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
 ////////////////////////////////////////////////////////////////// // qtum
     if(pindex->nHeight == params.GetConsensus().nOfflineStakeHeight){
         globalState->deployDelegationsContract();
-    }
-    if (!SetBlockHashHistory(block, pindex->pprev, params, m_chain))
-    {
-        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "blockhash-history-invalid", "ConnectBlock(): Set VM blockhash history failed");
     }
     checkBlock.hashMerkleRoot = BlockMerkleRoot(checkBlock);
     checkBlock.hashStateRoot = h256Touint(globalState->rootHash());
