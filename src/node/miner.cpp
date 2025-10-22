@@ -299,7 +299,10 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(bool fProofOfStak
     if(nHeight == chainparams.GetConsensus().nOfflineStakeHeight){
         globalState->deployDelegationsContract();
     }
-    SetBlockHashHistory(*pblock, pindexPrev, chainparams, m_chainstate.m_chain);
+    if (!SetBlockHashHistory(*pblock, pindexPrev, chainparams, m_chainstate.m_chain) && m_options.test_block_validity)
+    {
+        throw std::runtime_error(strprintf("%s: SetBlockHashHistory failed", __func__));
+    }
     /////////////////////////////////////////////////
     int nPackagesSelected = 0;
     int nDescendantsUpdated = 0;
