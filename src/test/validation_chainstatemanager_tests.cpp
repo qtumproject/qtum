@@ -176,6 +176,7 @@ struct SnapshotTestSetup : TestChain100Setup {
                               },
                           }
     {
+        UpdateHistoryContractHeight(0x7fffffff);
     }
 
     std::tuple<Chainstate*, Chainstate*> SetupSnapshot()

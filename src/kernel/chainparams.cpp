@@ -117,6 +117,7 @@ public:
         consensus.nShanghaiHeight = 3385122;
         consensus.nCancunHeight = 4590000;
         consensus.nPectraHeight = 0x7fffffff;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -242,6 +243,8 @@ public:
         consensus.nCheckpointSpan = consensus.nCoinbaseMaturity;
         consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
+        consensus.historyStorageAddress = uint160(ParseHex("0000F90827F1C53a10cb7A02335B175320002935")); // EVM block hash history contract address
+        consensus.systemAddress = uint160(ParseHex("fffffffffffffffffffffffffffffffffffffffe")); // EVM system address
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 3;
     }
@@ -277,6 +280,7 @@ public:
         consensus.nShanghaiHeight = 3298892;
         consensus.nCancunHeight = 4510000;
         consensus.nPectraHeight = 0x7fffffff;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -389,6 +393,8 @@ public:
         consensus.nCheckpointSpan = consensus.nCoinbaseMaturity;
         consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
+        consensus.historyStorageAddress = uint160(ParseHex("0000F90827F1C53a10cb7A02335B175320002935")); // EVM block hash history contract address
+        consensus.systemAddress = uint160(ParseHex("fffffffffffffffffffffffffffffffffffffffe")); // EVM system address
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 3;
     }
@@ -422,6 +428,7 @@ public:
         consensus.nShanghaiHeight = 0;
         consensus.nCancunHeight = 0;
         consensus.nPectraHeight = 0;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -526,6 +533,8 @@ public:
         consensus.nCheckpointSpan = consensus.nCoinbaseMaturity;
         consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
+        consensus.historyStorageAddress = uint160(ParseHex("0000F90827F1C53a10cb7A02335B175320002935")); // EVM block hash history contract address
+        consensus.systemAddress = uint160(ParseHex("fffffffffffffffffffffffffffffffffffffffe")); // EVM system address
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 3;
     }
@@ -594,6 +603,7 @@ public:
         consensus.nShanghaiHeight = 0;
         consensus.nCancunHeight = 0;
         consensus.nPectraHeight = 0;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -667,6 +677,8 @@ public:
         consensus.nCheckpointSpan = consensus.nCoinbaseMaturity;
         consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
+        consensus.historyStorageAddress = uint160(ParseHex("0000F90827F1C53a10cb7A02335B175320002935")); // EVM block hash history contract address
+        consensus.systemAddress = uint160(ParseHex("fffffffffffffffffffffffffffffffffffffffe")); // EVM system address
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 3;
     }
@@ -703,6 +715,7 @@ public:
         consensus.nShanghaiHeight = 0;
         consensus.nCancunHeight = 0;
         consensus.nPectraHeight = 0;
+        consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -827,6 +840,8 @@ public:
         consensus.nCheckpointSpan = consensus.nCoinbaseMaturity;
         consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity;
         consensus.delegationsAddress = uint160(ParseHex("0000000000000000000000000000000000000086")); // Delegations contract for offline staking
+        consensus.historyStorageAddress = uint160(ParseHex("0000F90827F1C53a10cb7A02335B175320002935")); // EVM block hash history contract address
+        consensus.systemAddress = uint160(ParseHex("fffffffffffffffffffffffffffffffffffffffe")); // EVM system address
         consensus.nStakeTimestampMask = 15;
         consensus.nRBTStakeTimestampMask = 3;
 
@@ -856,6 +871,7 @@ public:
         consensus.BIP66Height = consensus.nBlocktimeDownscaleFactor*500 + 751; // BIP66 activated on regtest (Used in rpc activation tests)
         consensus.QIP6Height = consensus.nBlocktimeDownscaleFactor*500 + 500;
         consensus.QIP7Height = 0; // QIP7 activated on regtest
+        consensus.nHistoryContractHeight = 2012; // Delay activation because some pure Bitcoin tests doesn't update hashStateRoot and hashUTXORoot
 
         // QTUM have 500 blocks of maturity, increased values for regtest in unit tests in order to correspond with it
         consensus.nSubsidyHalvingInterval = 750;
@@ -1085,4 +1101,9 @@ void CChainParams::UpdateCancunHeight(int nHeight)
 void CChainParams::UpdatePectraHeight(int nHeight)
 {
     consensus.nPectraHeight = nHeight;
+}
+
+void CChainParams::UpdateHistoryContractHeight(int nHeight)
+{
+    consensus.nHistoryContractHeight = nHeight;
 }

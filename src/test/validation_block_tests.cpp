@@ -23,6 +23,10 @@ using node::BlockAssembler;
 
 namespace validation_block_tests {
 struct MinerTestingSetup : public RegTestingSetup {
+    MinerTestingSetup() :
+        RegTestingSetup() {
+        UpdateHistoryContractHeight(0x7fffffff);
+    }
     std::shared_ptr<CBlock> Block(const uint256& prev_hash);
     std::shared_ptr<const CBlock> GoodBlock(const uint256& prev_hash);
     std::shared_ptr<const CBlock> BadBlock(const uint256& prev_hash);

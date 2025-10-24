@@ -225,3 +225,8 @@ void UpdatePectraHeight(int nHeight)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdatePectraHeight(nHeight);
 }
+
+void UpdateHistoryContractHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateHistoryContractHeight(nHeight);
+}

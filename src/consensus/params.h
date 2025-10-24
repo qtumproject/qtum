@@ -120,6 +120,8 @@ struct Params {
     int nCancunHeight;
     /** Block height at which EVM Pectra fork becomes active */
     int nPectraHeight;
+    /** Block height at which EVM History contract becomes active */
+    int nHistoryContractHeight;
     /**
      * Minimum blocks including miner confirmation of the total of 2016 blocks in a retargeting period,
      * (nPowTargetTimespan / nPowTargetSpacing) which is also used for BIP9 deployments.
@@ -194,6 +196,8 @@ struct Params {
     int nCheckpointSpan;
     int nRBTCheckpointSpan;
     uint160 delegationsAddress;
+    uint160 historyStorageAddress;
+    uint160 systemAddress;
     int nLastMPoSBlock;
     int nLastBigReward;
     uint32_t nStakeTimestampMask;

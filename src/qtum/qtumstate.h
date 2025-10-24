@@ -128,6 +128,8 @@ public:
 
     void deployDelegationsContract();
 
+    void deployBlockHashHistoryContract();
+
     virtual ~QtumState(){}
 
     friend CondensingTX;

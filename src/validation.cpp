@@ -3495,6 +3495,67 @@ bool CheckDelegationOutput(const CBlock& block, bool& delegateOutputExist, CCoin
     return true;
 }
 
+bool SetBlockHashHistory(const CBlock& block, CBlockIndex* pindexPrev, const CChainParams& params, CChain& chain)
+{
+    // Check pointers
+    if (!globalState || !pindexPrev) {
+        return false;
+    }
+
+    // Get fork height
+    int nHistoryContractHeight = params.GetConsensus().nHistoryContractHeight;
+    int nHeight = pindexPrev->nHeight + 1;
+    if (nHeight < nHistoryContractHeight) {
+        return true;
+    }
+
+    // Get history contract height
+    if (nHistoryContractHeight == 0) {
+        nHistoryContractHeight = 1;
+    }
+
+    // Deploy blockhash history contract
+    if (nHeight == nHistoryContractHeight) {
+        globalState->deployBlockHashHistoryContract();
+    }
+    dev::Address historyStorageAddress = uintToh160(params.GetConsensus().historyStorageAddress);
+    if (!globalState->addressInUse(historyStorageAddress)) {
+        return false;
+    }
+
+    // Store the block hash into the history
+    QtumTransaction txEth;
+    dev::bytes opcode = uintToh256(*pindexPrev->phashBlock).asBytes();
+    txEth = QtumTransaction(0, DEFAULT_GAS_PRICE, DEFAULT_GAS_LIMIT_OP_SEND, historyStorageAddress, opcode, 0);
+    dev::Address senderAddress = uintToh160(params.GetConsensus().systemAddress);
+    txEth.forceSender(senderAddress);
+    txEth.setVersion(VersionVM::GetEVMDefault());
+
+    // Execute the bytecode
+    ByteCodeExec exec(block, std::vector<QtumTransaction>(1, txEth), DEFAULT_GAS_LIMIT_OP_SEND, pindexPrev, chain);
+    if (!exec.performByteCode()) {
+        return false;
+    }
+
+    // Get results
+    std::vector<ResultExecute> resultExec(exec.getResult());
+    if (resultExec.size() != 1) {
+        return false;
+    }
+
+    // Check that there is no exception
+    if (resultExec[0].execRes.excepted != dev::eth::TransactionException::None) {
+        return false;
+    }
+
+    // Check that the output size is zero
+    if (resultExec[0].execRes.output.size() != 0) {
+        return false;
+    }
+
+    return true;
+}
+
 /** Apply the effects of this block (with given index) on the UTXO set represented by coins.
  *  Validity checks that depend on the UTXO set are also done; ConnectBlock()
  *  can fail if those validity checks fail (among other reasons). */
@@ -3589,6 +3650,12 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     if (!UpdateHashProof(block, state, params.GetConsensus(), pindex, view)) {
         LogError("%s: ConnectBlock(): %s", __func__, state.GetRejectReason().c_str());
         return false;
+    }
+
+    // Add the previous block hash to the hash history storage
+    if (!SetBlockHashHistory(block, pindex->pprev, params, m_chain))
+    {
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "blockhash-history-invalid", "ConnectBlock(): Set VM blockhash history failed");
     }
 
     bool fScriptChecks = true;

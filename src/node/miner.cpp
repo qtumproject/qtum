@@ -295,9 +295,13 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(bool fProofOfStak
     
     dev::h256 oldHashStateRoot(globalState->rootHash());
     dev::h256 oldHashUTXORoot(globalState->rootHashUTXO());
-    ////////////////////////////////////////////////// deploy offline staking contract
+    ////////////////////////////////////////////////// deploy offline staking and block hash history contract
     if(nHeight == chainparams.GetConsensus().nOfflineStakeHeight){
         globalState->deployDelegationsContract();
+    }
+    if (!SetBlockHashHistory(*pblock, pindexPrev, chainparams, m_chainstate.m_chain) && m_options.test_block_validity)
+    {
+        throw std::runtime_error(strprintf("%s: SetBlockHashHistory failed", __func__));
     }
     /////////////////////////////////////////////////
     int nPackagesSelected = 0;
