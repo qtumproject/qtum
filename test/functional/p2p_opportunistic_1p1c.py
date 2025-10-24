@@ -223,7 +223,7 @@ class PackageRelayTest(BitcoinTestFramework):
         coin = low_fee_parent["new_utxo"]
         address = node.get_deterministic_priv_key().address
         # Create raw transaction spending the parent, but with no signature (a consensus error).
-        hex_orphan_no_sig = node.createrawtransaction([{"txid": coin["txid"], "vout": coin["vout"]}], {address : coin["value"] - Decimal("0.0001")})
+        hex_orphan_no_sig = node.createrawtransaction([{"txid": coin["txid"], "vout": coin["vout"]}], {address : coin["value"] - Decimal("0.04")})
         tx_orphan_bad_wit = tx_from_hex(hex_orphan_no_sig)
         tx_orphan_bad_wit.wit.vtxinwit.append(CTxInWitness())
         tx_orphan_bad_wit.wit.vtxinwit[0].scriptWitness.stack = [b'garbage']

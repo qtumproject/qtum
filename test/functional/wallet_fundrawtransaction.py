@@ -1331,29 +1331,85 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.nodes[2].createwallet("test_weight_limits")
         wallet = self.nodes[2].get_wallet_rpc("test_weight_limits")
 
-        outputs = []
-        for _ in range(1472):
-            outputs.append({wallet.getnewaddress(address_type="legacy"): 0.1})
-        txid = self.nodes[0].send(outputs=outputs, change_position=0)["txid"]
+        # Create many UTXOs to test weight limits
+        num_txs = 50
+        outputs_per_tx = 400
+        
+        for tx_num in range(num_txs):
+            outputs = [{wallet.getnewaddress(address_type="legacy"): 1} for _ in range(outputs_per_tx)]
+            self.nodes[0].send(outputs=outputs, change_position=0)
+            if tx_num % 5 == 0:
+                self.generate(self.nodes[0], 1)
+        
         self.generate(self.nodes[0], 1)
+        
+        utxos = wallet.listunspent()
+        
+        # Measure actual weight per input
+        test_inputs = utxos[:10]
+        test_tx = wallet.createrawtransaction(
+            [{"txid": inp["txid"], "vout": inp["vout"]} for inp in test_inputs],
+            [{wallet.getnewaddress(): 5}]
+        )
+        test_weight = wallet.decoderawtransaction(test_tx)['weight']
+        
+        base_tx = wallet.createrawtransaction([], [{wallet.getnewaddress(): 5}])
+        base_weight = wallet.decoderawtransaction(base_tx)['weight']
+        
+        actual_weight_per_input = (test_weight - base_weight) // len(test_inputs)
+        
+        # Calculate inputs needed to exceed the limit
+        max_weight = 2000000  # MAX_STANDARD_TX_WEIGHT
+        inputs_needed_to_exceed = (max_weight - base_weight) // actual_weight_per_input + 100
+        
+        # For input_weights parameter, must use at least 165 WU per input
+        min_weight_per_input = 165
+        max_inputs_allowed = (max_weight - base_weight) // min_weight_per_input
 
-        # 272 WU per input (273 when high-s); picking 1471 inputs will exceed the max standard tx weight.
-        rawtx = wallet.createrawtransaction([], [{wallet.getnewaddress(): 0.1 * 1471}])
+        # 1) Test with preset inputs using input_weights (exceeds limit)
+        inputs_to_use = min(max_inputs_allowed + 100, len(utxos))
+        input_weights = [{"txid": utxo["txid"], "vout": utxo["vout"], "weight": min_weight_per_input} 
+                         for utxo in utxos[:inputs_to_use]]
+        
+        assert_raises_rpc_error(-4, "Transaction too large", 
+                                wallet.fundrawtransaction, hexstring=base_tx, input_weights=input_weights)
 
-        # 1) Try to fund transaction only using the preset inputs (pick all 1472 inputs to cover the fee)
-        input_weights = []
-        for i in range(1, 1473):  # skip first output as it is the parent tx change output
-            input_weights.append({"txid": txid, "vout": i, "weight": 273})
-        assert_raises_rpc_error(-4, "Transaction too large", wallet.fundrawtransaction, hexstring=rawtx, input_weights=input_weights)
-
-        # 2) Let the wallet fund the transaction
+        # 2) Test with wallet's automatic coin selection
+        rawtx_large = wallet.createrawtransaction([], [{wallet.getnewaddress(): len(utxos) * 0.5}])
+        
         assert_raises_rpc_error(-4, "The inputs size exceeds the maximum weight. Please try sending a smaller amount or manually consolidating your wallet's UTXOs",
-                                wallet.fundrawtransaction, hexstring=rawtx)
+                                wallet.fundrawtransaction, hexstring=rawtx_large)
 
-        # 3) Pre-select some inputs and let the wallet fill-up the remaining amount
-        inputs = input_weights[0:1000]
-        assert_raises_rpc_error(-4, "The combination of the pre-selected inputs and the wallet automatic inputs selection exceeds the transaction maximum weight. Please try sending a smaller amount or manually consolidating your wallet's UTXOs",
-                                wallet.fundrawtransaction, hexstring=rawtx, input_weights=inputs)
+        # 3) Test with pre-selected inputs and wallet filling the rest
+        inputs = input_weights[:max_inputs_allowed//2]
+        
+        assert_raises_rpc_error(-4, "The inputs size exceeds the maximum weight. Please try sending a smaller amount or manually consolidating your wallet's UTXOs",
+                                wallet.fundrawtransaction, hexstring=rawtx_large, input_weights=inputs)
+
+        # 4) Create and test an actual oversized transaction
+        inputs_for_tx = utxos[:inputs_needed_to_exceed]
+        total_input_value = sum(inp["amount"] for inp in inputs_for_tx)
+        output_value = total_input_value * Decimal('0.9')
+        
+        rawtx_with_inputs = wallet.createrawtransaction(
+            [{"txid": inp["txid"], "vout": inp["vout"]} for inp in inputs_for_tx],
+            [{wallet.getnewaddress(): output_value}]
+        )
+        
+        actual_weight = wallet.decoderawtransaction(rawtx_with_inputs)['weight']
+        assert_greater_than(actual_weight, max_weight)
+        
+        # Verify it gets rejected when broadcast
+        try:
+            signed_tx = wallet.signrawtransactionwithwallet(rawtx_with_inputs)
+            self.nodes[0].sendrawtransaction(signed_tx['hex'])
+            assert False, "Transaction should have been rejected for exceeding weight limit"
+        except Exception as e:
+            error_msg = str(e.error['message']).lower()
+            assert ("tx-size" in error_msg or 
+                    "transaction too large" in error_msg or 
+                    "bad-txns-oversize" in error_msg or
+                    "oversize" in error_msg)
 
         self.nodes[2].unloadwallet("test_weight_limits")
 

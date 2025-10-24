@@ -34,9 +34,11 @@ class ReplaceByFeeTest(BitcoinTestFramework):
                 "-limitancestorsize=101",
                 "-limitdescendantcount=200",
                 "-limitdescendantsize=101",
+                "-minrelaytxfee=0.0000001"
             ],
             # second node has default mempool parameters
             [
+                "-minrelaytxfee=0.0000001"
             ],
         ]
         self.supports_cli = False
@@ -119,7 +121,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
 
         # This will raise an exception due to insufficient fee
         reject_reason = "insufficient fee"
-        reject_details = f"{reject_reason}, rejecting replacement {tx.hash}; new feerate 0.00300000 BTC/kvB <= old feerate 0.00300000 BTC/kvB"
+        reject_details = f"{reject_reason}, rejecting replacement {tx.hash}; new feerate 0.00300000 QTUM/kvB <= old feerate 0.00300000 QTUM/kvB"
         res = self.nodes[0].testmempoolaccept(rawtxs=[tx_hex])[0]
         assert_equal(res["reject-reason"], reject_reason)
         assert_equal(res["reject-details"], reject_details)

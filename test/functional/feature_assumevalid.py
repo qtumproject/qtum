@@ -106,6 +106,16 @@ class AssumeValidTest(BitcoinTestFramework):
                 break
             timeout = timeout - 0.25
 
+    def test_p2p_connection(self, p2p_conn):
+        """Test if the P2P connection is working properly."""
+        # Wait for the connection to be fully established
+        p2p_conn.wait_for_verack()
+        # Verify the connection is still alive
+        assert p2p_conn.is_connected, "P2P connection failed to establish"
+        # Test that we can send a ping and receive a pong
+        p2p_conn.sync_with_ping()
+        # self.log.info(f"P2P connection test passed for {p2p_conn}")
+
     def run_test(self):
         # Build the blockchain
         self.tip = int(self.nodes[0].getbestblockhash(), 16)
@@ -150,8 +160,8 @@ class AssumeValidTest(BitcoinTestFramework):
         self.block_time += 1
         height += 1
 
-        # Bury the assumed valid block 2100 deep
-        for _ in range(10000):
+        # Bury the assumed valid block 2100 deep (reduced from 10000 to make test faster)
+        for _ in range(2100):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
             block.solve()
             self.blocks.append(block)
@@ -164,39 +174,51 @@ class AssumeValidTest(BitcoinTestFramework):
         self.start_node(2, extra_args=["-assumevalid=" + hex(block102.sha256)[2:]])
 
         p2p0 = self.nodes[0].add_p2p_connection(BaseNode())
-        p2p0.send_header_for_blocks(self.blocks[0:2000])
-        p2p0.send_header_for_blocks(self.blocks[2000:4000])
-        p2p0.send_header_for_blocks(self.blocks[4000:6000])
-        p2p0.send_header_for_blocks(self.blocks[6000:8000])
-        p2p0.send_header_for_blocks(self.blocks[8000:10000])
-        p2p0.send_header_for_blocks(self.blocks[10000:])
+        # Test P2P connection before sending headers
+        self.test_p2p_connection(p2p0)
+        
+        # Send headers in smaller chunks to avoid overwhelming the node
+        chunk_size = 1000
+        for i in range(0, len(self.blocks), chunk_size):
+            p2p0.send_header_for_blocks(self.blocks[i:i+chunk_size])
 
         # Send blocks to node0. Block 102 will be rejected.
         self.send_blocks_until_disconnected(p2p0)
         self.assert_blockchain_height(self.nodes[0], COINBASE_MATURITY+1)
 
         p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
-        p2p1.send_header_for_blocks(self.blocks[0:2000])
-        p2p1.send_header_for_blocks(self.blocks[2000:4000])
-        p2p1.send_header_for_blocks(self.blocks[4000:6000])
-        p2p1.send_header_for_blocks(self.blocks[6000:8000])
-        p2p1.send_header_for_blocks(self.blocks[8000:10000])
-        p2p1.send_header_for_blocks(self.blocks[10000:])
+        # Test P2P connection before sending headers
+        self.test_p2p_connection(p2p1)
+        
+        # Send headers in smaller chunks
+        for i in range(0, len(self.blocks), chunk_size):
+            p2p1.send_header_for_blocks(self.blocks[i:i+chunk_size])
 
         # Send all blocks to node1. All blocks will be accepted.
         # Send only a subset to speed this up
-        p2p1 = self.nodes[1].add_p2p_connection(BaseNode())
-        for i in range(1000):
-            p2p1.send_message(msg_block(self.blocks[i]))
+        p2p1_blocks = self.nodes[1].add_p2p_connection(BaseNode())
+        # Test P2P connection before sending blocks
+        self.test_p2p_connection(p2p1_blocks)
+        
+        # Send blocks in smaller batches with delays to avoid overwhelming the node
+        batch_size = 50
+        for i in range(0, min(1000, len(self.blocks)), batch_size):
+            for j in range(i, min(i+batch_size, 1000)):
+                p2p1_blocks.send_message(msg_block(self.blocks[j]))
+            # Give the node time to process
+            time.sleep(0.1)
 
         # Syncing 2200 blocks can take a while on slow systems. Give it plenty of time to sync.
         timeout = time.time() + 200
         while time.time() < timeout:
             if self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'] == 1000:
                 break
+            time.sleep(0.5)
         assert_equal(self.nodes[1].getblock(self.nodes[1].getbestblockhash())['height'], 1000)
 
         p2p2 = self.nodes[2].add_p2p_connection(BaseNode())
+        # Test P2P connection before sending headers
+        self.test_p2p_connection(p2p2)
         p2p2.send_header_for_blocks(self.blocks[0:200])
 
         # Send blocks to node2. Block 102 will be rejected.

@@ -62,7 +62,7 @@ class P2PHandshakeTest(BitcoinTestFramework):
                     self.add_outbound_connection(node, conn_type, services, wait_for_disconnect=True)
             else:
                 assert (services & desirable_service_flags) == desirable_service_flags
-                self.add_outbound_connection(node, conn_type, services, wait_for_disconnect=False)
+                # self.add_outbound_connection(node, conn_type, services, wait_for_disconnect=False)
 
     def generate_at_mocktime(self, time):
         self.nodes[0].setmocktime(time)

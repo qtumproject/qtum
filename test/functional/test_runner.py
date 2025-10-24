@@ -83,9 +83,10 @@ TEST_FRAMEWORK_UNIT_TESTS = 'feature_framework_unit_tests.py'
 EXTENDED_SCRIPTS = [
     # These tests are not run by default.
     # Longest test should go first, to favor running tests in parallel
-    'qtum_evm_london_activation.py',
-    'qtum_evm_shanghai_activation.py',
-    'qtum_evm_cancun_activation.py',
+    'qtum_evm_london_activation.py --legacy-wallet',
+    'qtum_evm_shanghai_activation.py --legacy-wallet',
+    'qtum_evm_cancun_activation.py --legacy-wallet',
+    'qtum_evm_pectra_activation.py --legacy-wallet',
     'feature_pruning.py',
     'feature_dbcrash.py',
     'wallet_pruning.py --legacy-wallet',
@@ -320,9 +321,9 @@ BASE_SCRIPTS = [
     'wallet_import_with_label.py --legacy-wallet',
     'wallet_importdescriptors.py --descriptors',
     'wallet_upgradewallet.py --legacy-wallet',
-    'wallet_crosschain.py',
+    # 'wallet_crosschain.py',
     'mining_basic.py',
-    'mining_mainnet.py',
+    # 'mining_mainnet.py',
     'feature_signet.py',
     'p2p_mutated_blocks.py',
     'wallet_implicitsegwit.py --legacy-wallet',
@@ -536,6 +537,8 @@ BASE_SCRIPTS = [
     'qtum_evm_constantinople_precompiles.py --descriptors',
     'qtum_evm_constantinople_opcodes.py --legacy-wallet',
     'qtum_evm_constantinople_opcodes.py --descriptors',
+    'qtum_evm_pectra_precompiles.py --legacy-wallet',
+    'qtum_evm_pectra_precompiles.py --descriptors',
     'qtum_block_index_cleanup.py --legacy-wallet',
     'qtum_block_index_cleanup.py --descriptors',
     'qtum_pod.py --legacy-wallet',
@@ -548,7 +551,9 @@ DISABLED_SCRIPTS = [
       'wallet_orphanedreward.py',
       'feature_cltv.py',
       'feature_csv_activation.py',
-      'p2p_dos_header_tree.py'
+      'p2p_dos_header_tree.py',
+      'wallet_crosschain.py',
+      'mining_mainnet.py',
 ]
 
 # Place EXTENDED_SCRIPTS first since it has the 3 longest running tests

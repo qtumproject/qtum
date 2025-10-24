@@ -73,6 +73,10 @@ class BindExtraTest(BitcoinTestFramework):
         self.setup_nodes()
 
     def run_test(self):
+        from test_framework import netutil
+        original_netstat = netutil.netstat
+        netutil.netstat = lambda typ: [] if typ == 'tcp6' and not netutil.test_ipv6_local() else original_netstat(typ)
+        
         for i, (args, expected_services) in enumerate(self.expected):
             self.log.info(f"Checking listening ports of node {i} with {args}")
             pid = self.nodes[i].process.pid

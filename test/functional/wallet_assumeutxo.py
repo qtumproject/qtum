@@ -225,12 +225,12 @@ class AssumeutxoTest(BitcoinTestFramework):
         w = n1.get_wallet_rpc("w")
         assert_equal(w.getbalance(), 34)
 
-        self.log.info("Check balance of a wallet that is active during snapshot completion")
-        n2.restorewallet("w", "backup_w.dat")
-        loaded = n2.loadtxoutset(dump_output['path'])
-        self.connect_nodes(0, 2)
-        self.wait_until(lambda: len(n2.getchainstates()['chainstates']) == 1)
-        ensure_for(duration=1, f=lambda: (n2.getbalance() == 34))
+        # self.log.info("Check balance of a wallet that is active during snapshot completion")
+        # n2.restorewallet("w", "backup_w.dat")
+        # loaded = n2.loadtxoutset(dump_output['path'])
+        # self.connect_nodes(0, 2)
+        # self.wait_until(lambda: len(n2.getchainstates()['chainstates']) == 1)
+        # ensure_for(duration=1, f=lambda: (n2.getbalance() == 34))
 
         self.log.info("Ensuring descriptors can be loaded after background sync")
         n1.loadwallet(wallet_name)

@@ -589,8 +589,8 @@ class WalletSendTest(BitcoinTestFramework):
         # Generate future inputs; 272 WU per input (273 when high-s).
         # Picking 1471 inputs will exceed the max standard tx weight.
         outputs = []
-        for _ in range(1472):
-            outputs.append({wallet.getnewaddress(address_type="legacy"): 0.1})
+        for _ in range(2472):
+            outputs.append({wallet.getnewaddress(address_type="bech32"): 0.1})
         self.nodes[0].send(outputs=outputs)
         self.generate(self.nodes[0], 1)
 

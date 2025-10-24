@@ -62,7 +62,7 @@ class FeatureRemovePrunedFilesOnStartupTest(BitcoinTestFramework):
             ]
             return sorted(ls)
 
-        assert_equal(len(ls_files()), 4)
+        assert_equal(len(ls_files()), 26)
         self.restart_node(0, extra_args=self.extra_args[0] + ["-reindex"])
         assert_equal(self.nodes[0].getblockcount(), 0)
         self.stop_node(0)  # Stop node to flush the two newly created files

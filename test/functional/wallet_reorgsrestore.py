@@ -53,7 +53,7 @@ class ReorgsRestoreTest(BitcoinTestFramework):
         node0_coinbase_tx_hash = wallet0.getblock(wallet0.getbestblockhash(), verbose=1)['tx'][0]
 
         # Mine 100 blocks on top to mature the coinbase and create a descendant
-        self.generate(self.nodes[0], 101, sync_fun=self.no_op)
+        self.generate(self.nodes[0], 2001, sync_fun=self.no_op)
         # Make descendant, send-to-self
         descendant_tx_id = wallet0.sendtoaddress(wallet0.getnewaddress(), 1)
 

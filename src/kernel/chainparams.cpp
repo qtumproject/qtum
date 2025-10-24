@@ -116,12 +116,12 @@ public:
         consensus.nLondonHeight = 2080512;
         consensus.nShanghaiHeight = 3385122;
         consensus.nCancunHeight = 4590000;
-        consensus.nPectraHeight = 0x7fffffff;
+        consensus.nPectraHeight = 5483000;
         consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
-        consensus.RBTPosLimit = uint256{"0000000000003fffffffffffffffffffffffffffffffffffffffffffffffffff"};        consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
+        consensus.RBTPosLimit = uint256{"0000000000003fffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.nPowTargetTimespan = 16 * 60; // 16 minutes
         consensus.nPowTargetTimespanV2 = 4000;
         consensus.nRBTPowTargetTimespan = 1000;
@@ -145,8 +145,8 @@ public:
         // Min block number for activation, the number must be divisible by 2016
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 2080512;
 
-        consensus.nMinimumChainWork = uint256{"000000000000000000000000000000000000000000000737918e0d51dfef8a1d"}; // 4300000
-        consensus.defaultAssumeValid = uint256{"cd130baf8762afbebc10ceff9fe13ecb09f7e4bb579508a7e5f13a83ffe1e64d"}; // 4300000
+        consensus.nMinimumChainWork = uint256{"0000000000000000000000000000000000000000000008e9e27650024d1a0da3"}; // 5239696
+        consensus.defaultAssumeValid = uint256{"06782ec373d58f4053d8c2057844ecd0c73044bfda17d062b7e7dbc906b97f75"}; // 5239696
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -159,7 +159,7 @@ public:
         pchMessageStart[3] = 0xd3;
         nDefaultPort = 3888;
         nPruneAfterHeight = 100000;
-        m_assumed_blockchain_size = 24;
+        m_assumed_blockchain_size = 25;
         m_assumed_chain_state_size = 1;
 
         genesis = CreateGenesisBlock(1504695029, 8026361, 0x1f00ffff, 1, 50 * COIN);
@@ -210,6 +210,7 @@ public:
                 {2636000, uint256{"4844cfb8403cdee4994acaab4bf1168339bce5ccd65496d4d9ffc1d262b0d79a"}},
                 {3142000, uint256{"3dc42fcf2e731093ee9b3cbaa2df07d8b8638cdea77758bb28b1130f504a7f43"}},
                 {4300000, uint256{"cd130baf8762afbebc10ceff9fe13ecb09f7e4bb579508a7e5f13a83ffe1e64d"}},
+                {5239696, uint256{"06782ec373d58f4053d8c2057844ecd0c73044bfda17d062b7e7dbc906b97f75"}},
             }
         };
 
@@ -218,10 +219,10 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block cd130baf8762afbebc10ceff9fe13ecb09f7e4bb579508a7e5f13a83ffe1e64d (height 4300000)
-            .nTime    = 1730324440, // * UNIX timestamp of last known number of transactions
-            .tx_count = 12952860, // * total number of transactions between genesis and that timestamp
-            .dTxRate  = 0.06440551300874305, // * estimated number of transactions per second after that timestamp
+            // Data as of block 06782ec373d58f4053d8c2057844ecd0c73044bfda17d062b7e7dbc906b97f75 (height 5239696)
+            .nTime    = 1760395328, // * UNIX timestamp of last known number of transactions
+            .tx_count = 14957429, // * total number of transactions between genesis and that timestamp
+            .dTxRate  = 0.06531147268112023, // * estimated number of transactions per second after that timestamp
         };
 
         consensus.nBlocktimeDownscaleFactor = 4;
@@ -279,7 +280,7 @@ public:
         consensus.nLondonHeight = 1967616;
         consensus.nShanghaiHeight = 3298892;
         consensus.nCancunHeight = 4510000;
-        consensus.nPectraHeight = 0x7fffffff;
+        consensus.nPectraHeight = 5442000;
         consensus.nHistoryContractHeight = consensus.nPectraHeight;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
@@ -308,8 +309,8 @@ public:
         // Min block number for activation, the number must be divisible by 2016
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 1967616;
 
-        consensus.nMinimumChainWork = uint256{"00000000000000000000000000000000000000000000029aad39021b08dcb926"}; // 4330000
-        consensus.defaultAssumeValid = uint256{"91750084e54c2a5cf621c0582695e0e51776e5c35068ab23a170a91971edacf2"}; // 4330000
+        consensus.nMinimumChainWork = uint256{"000000000000000000000000000000000000000000000338e196a071220dc55a"}; // 5282486
+        consensus.defaultAssumeValid = uint256{"63550518c2d591277be255c8169d2f9255d1ba2d7e06f9887ed5a7098e571d2e"}; // 5282486
 
         pchMessageStart[0] = 0x0d;
         pchMessageStart[1] = 0x22;
@@ -317,7 +318,7 @@ public:
         pchMessageStart[3] = 0x06;
         nDefaultPort = 13888;
         nPruneAfterHeight = 1000;
-        m_assumed_blockchain_size = 10;
+        m_assumed_blockchain_size = 11;
         m_assumed_chain_state_size = 1;
 
         genesis = CreateGenesisBlock(1504695029, 7349697, 0x1f00ffff, 1, 50 * COIN);
@@ -361,6 +362,7 @@ public:
                 {2686000, uint256{"c12594feff0dfae05f5a056cd9248ff5e6fc42d37c4bedf37b212eb17dccb486"}},
                 {3180000, uint256{"de6afcb300f7036b67b7446933b8aa7986850058d5927e07ce5df1e270069ef2"}},
                 {4330000, uint256{"91750084e54c2a5cf621c0582695e0e51776e5c35068ab23a170a91971edacf2"}},
+                {5282486, uint256{"63550518c2d591277be255c8169d2f9255d1ba2d7e06f9887ed5a7098e571d2e"}},
             }
         };
 
@@ -369,10 +371,10 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data as of block 91750084e54c2a5cf621c0582695e0e51776e5c35068ab23a170a91971edacf2 (height 4330000)
-            .nTime    = 1729896232,
-            .tx_count = 8867945,
-            .dTxRate  = 0.06233193794631864,
+            // Data as of block 63550518c2d591277be255c8169d2f9255d1ba2d7e06f9887ed5a7098e571d2e (height 5282486)
+            .nTime    = 1760395628,
+            .tx_count = 10820629,
+            .dTxRate  = 0.06258327781479014,
         };
 
         consensus.nBlocktimeDownscaleFactor = 4;

@@ -209,7 +209,7 @@ class BlockDataCopier:
                     return
 
             inhdr = self.read_xored(self.inF, 8)
-            if (not inhdr or (inhdr[0] == "\0")):
+            if (not inhdr) or (inhdr[0] == 0):  # Fixed: check for null byte correctly
                 self.inF.close()
                 self.inF = None
                 self.inFn = self.inFn + 1
@@ -225,26 +225,29 @@ class BlockDataCopier:
             inLenLE = inhdr[4:]
             su = struct.unpack("<I", inLenLE)
             inLen = su[0] - 180 # length without header
-            blk_hdr = self.inF.read(181)
+            blk_hdr = self.read_xored(self.inF, 181)  # Fixed: use XOR for block header
             sig_length = blk_hdr[-1]
             if sig_length < 253:
                 inLen -= 1
+                sig_data = b''
             elif sig_length == 253:
-                s = self.inF.read(2)
-                sig_length = struct.unpack('<H', s)[0]
-                blk_hdr += s
+                sig_data = self.read_xored(self.inF, 2)  # Fixed: use XOR for sig data
+                sig_length = struct.unpack('<H', sig_data)[0]
+                blk_hdr += sig_data
                 inLen -= 3
             elif sig_length == 254:
-                s = self.inF.read(4)
-                sig_length = struct.unpack('<I', s)[0]
-                blk_hdr += s
+                sig_data = self.read_xored(self.inF, 4)  # Fixed: use XOR for sig data
+                sig_length = struct.unpack('<I', sig_data)[0]
+                blk_hdr += sig_data
                 inLen -= 5
             else:
-                s = self.inF.read(8)
-                sig_length = struct.unpack('<Q', s)[0]
-                blk_hdr += s
+                sig_data = self.read_xored(self.inF, 8)  # Fixed: use XOR for sig data
+                sig_length = struct.unpack('<Q', sig_data)[0]
+                blk_hdr += sig_data
                 inLen -= 9
-            blk_hdr += self.inF.read(sig_length)
+            if sig_length > 0:
+                sig_data = self.read_xored(self.inF, sig_length)  # Fixed: use XOR for sig data
+                blk_hdr += sig_data
             inLen -= sig_length
             inExtent = BlockExtent(self.inFn, self.inF.tell(), inhdr, blk_hdr, inLen)
 
@@ -262,7 +265,7 @@ class BlockDataCopier:
 
             if self.blkCountOut == blkHeight:
                 # If in-order block, just copy
-                rawblock = self.read_xored(self.inF, inLen)
+                rawblock = self.read_xored(self.inF, inLen)  # Fixed: use XOR for block data
                 self.writeBlock(inhdr, blk_hdr, rawblock)
 
                 # See if we can catch up to prior out-of-order blocks

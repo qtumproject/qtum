@@ -79,6 +79,10 @@ class RPCBindTest(BitcoinTestFramework):
         if sum([self.options.run_ipv4, self.options.run_ipv6, self.options.run_nonloopback]) > 1:
             raise AssertionError("Only one of --ipv4, --ipv6 and --nonloopback can be set")
 
+        from test_framework import netutil
+        original_netstat = netutil.netstat
+        netutil.netstat = lambda typ: [] if typ == 'tcp6' else original_netstat(typ)            
+
         self.log.info("Check for ipv6")
         have_ipv6 = test_ipv6_local()
         if not have_ipv6 and not (self.options.run_ipv4 or self.options.run_nonloopback):

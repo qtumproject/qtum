@@ -14,7 +14,7 @@ import time
 from test_framework.wallet import MiniWallet
 
 SIGNET_HEADER = b"\xec\xc7\xda\xa2"
-SIGNET_DEFAULT_CHALLENGE = '512103ad5e0edad18cb1f0fc0d28a3d4f1f3e445640337489abb10404f2d1e086be430210359ef5021964fe22d6f8e05b2463c9540ce96883fe3b278760f048f5189f2e6c452ae'
+SIGNET_DEFAULT_CHALLENGE = '51210276aa67f74d27c3dcd4be86ca8375a4d70b1e00f7787451d8445c647a3c099ee7210276aa67f74d27c3dcd4be86ca8375a4d70b1e00f7787451d8445c647a3c099ee752ae'
 
 signet_blocks = [
     '00000020f61eee3b63a380a477a063af32b2bbc97c9ff9f01f2c4225e973988108000000f575c83235984e7dc4afc1f30944c170462e84437ab6f2d52e16878a79e4678bd1914d5fae77031eccf4070001010000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff025151feffffff0200f2052a010000001600149243f727dd5343293eb83174324019ec16c2630f0000000000000000776a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf94c4fecc7daa2490047304402205e423a8754336ca99dbe16509b877ef1bf98d008836c725005b3c787c41ebe46022047246e4467ad7cc7f1ad98662afcaf14c115e0095a227c7b05c5182591c23e7e01000120000000000000000000000000000000000000000000000000000000000000000000000000',
@@ -38,7 +38,7 @@ class SignetParams:
             self.shared_args = ["-prune=550"]
         else:
             self.challenge = challenge
-            self.shared_args = ["-prune=550", f"-signetchallenge={challenge}", "-txindex"]
+            self.shared_args = ["-prune=550", f"-signetchallenge={challenge}"]
 
 class SignetBasicTest(BitcoinTestFramework):
     def add_options(self, parser):
@@ -121,7 +121,7 @@ class SignetBasicTest(BitcoinTestFramework):
         print("PREV", hex(block.hashPrevBlock)[2:].zfill(64))
         print("PREV", hex(block.sha256)[2:].zfill(64))
         print("BEST", self.nodes[0].getbestblockhash(), self.nodes[0].getblockcount())
-        pp.pprint(self.nodes[0].getrawtransaction(self.nodes[0].getblock(self.nodes[0].getbestblockhash())['tx'][0], True))
+        pp.pprint(self.nodes[0].gettransaction(self.nodes[0].getblock(self.nodes[0].getbestblockhash())['tx'][0], True))
         return
 
         height = 0

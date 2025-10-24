@@ -20,11 +20,11 @@ class TxConflicts(BitcoinTestFramework):
 
     def set_test_params(self):
         self.num_nodes = 3
-        self.extra_args = [
-            ["-minrelaytxfee=0.00000001"],
-            ["-minrelaytxfee=0.00000001"],
-            ["-minrelaytxfee=0.00000001"],
-            ]
+        self.extra_args = [  
+            ["-minrelaytxfee=0.00000001", "-blockmintxfee=0.00000001"],  
+            ["-minrelaytxfee=0.00000001", "-blockmintxfee=0.00000001"],  
+            ["-minrelaytxfee=0.00000001", "-blockmintxfee=0.00000001"],  
+            ]  
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()

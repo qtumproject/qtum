@@ -202,7 +202,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
         # Create enough outputs to reach the sigops limit when spending them all at once.
         outpoints = []
         for _ in range(int(MAX_STD_LEGACY_SIGOPS / MAX_STD_P2SH_SIGOPS) + 1):
-            res = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=packed_p2sh_script, amount=1_000)
+            res = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=packed_p2sh_script, amount=10_000_000)
             txid = int.from_bytes(bytes.fromhex(res["txid"]), byteorder="big")
             outpoints.append(COutPoint(txid, res["sent_vout"]))
         self.generate(self.nodes[0], 1)
@@ -215,7 +215,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
 
         # Spending one less accounts for 2490 legacy sigops and is standard.
         std_tx = deepcopy(nonstd_tx)
-        std_tx.vin.pop()
+        std_tx.vin = std_tx.vin[0:30]
         self.nodes[0].sendrawtransaction(std_tx.serialize().hex())
 
         # Make sure the original, non-standard, transaction can be mined.

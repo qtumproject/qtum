@@ -146,8 +146,8 @@ AMOUNT_DUST = 0.00000546
 
 
 def get_rand_amount(min_amount=AMOUNT_DUST):
-    assert min_amount <= 1
-    r = random.uniform(min_amount, 1)
+    # assert min_amount <= 1
+    r = random.uniform(min_amount, 100)
     # note: min_amount can get rounded down here
     return Decimal(str(round(r, 8)))
 
@@ -179,7 +179,7 @@ class ImportRescanTest(BitcoinTestFramework):
         self.import_deterministic_coinbase_privkeys()
         self.stop_nodes()
 
-        self.start_nodes(extra_args=[["-mintxfee=0.00001"]] * self.num_nodes)
+        self.start_nodes(extra_args=[["-whitelist=noban@127.0.0.1", "-mintxfee=0.00001"]] * self.num_nodes)
         for i in range(1, self.num_nodes):
             self.connect_nodes(i, 0)
 
@@ -203,7 +203,7 @@ class ImportRescanTest(BitcoinTestFramework):
                 address_type=variant.address_type.value,
             ))
             variant.key = self.nodes[1].dumpprivkey(variant.address["address"])
-            variant.initial_amount = get_rand_amount()
+            variant.initial_amount = get_rand_amount(10)
             variant.initial_txid = self.nodes[0].sendtoaddress(variant.address["address"], variant.initial_amount)
             last_variants.append(variant)
 

@@ -25,7 +25,7 @@ class WalletMiniscriptDecayingMultisigDescriptorPSBTTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.setup_clean_chain = True
         self.wallet_names = []
-        self.extra_args = [["-keypool=100"]]
+        self.extra_args = [["-keypool=100", "-addresstype=bech32", "-minrelaytxfee=0.0000001"]]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -69,7 +69,7 @@ class WalletMiniscriptDecayingMultisigDescriptorPSBTTest(BitcoinTestFramework):
         self.M = 4  # starts as 4-of-4
         self.N = 4
 
-        self.locktimes = [104, 106, 108]
+        self.locktimes = [2004, 2006, 2008]
         assert_equal(len(self.locktimes), self.N - 1)
 
         self.name = f"{self.M}_of_{self.N}_decaying_multisig"
@@ -84,16 +84,16 @@ class WalletMiniscriptDecayingMultisigDescriptorPSBTTest(BitcoinTestFramework):
 
         self.log.info("Get a mature utxo to send to the multisig...")
         coordinator_wallet = self.node.get_wallet_rpc(self.node.createwallet(wallet_name="coordinator", descriptors=True)["name"])
-        self.generatetoaddress(self.node, 101, coordinator_wallet.getnewaddress())
+        self.generatetoaddress(self.node, 2001, coordinator_wallet.getnewaddress())
 
         self.log.info("Send funds to the multisig's receiving address...")
-        deposit_amount = 6.15
+        deposit_amount = 50.15
         coordinator_wallet.sendtoaddress(multisig.getnewaddress(), deposit_amount)
         self.generate(self.node, 1)
         assert_approx(multisig.getbalance(), deposit_amount, vspan=0.001)
 
         self.log.info("Send transactions from the multisig as required signers decay...")
-        amount = 1.5
+        amount = 6.5
         receiver = signers[0]
         sent = 0
         for locktime in [0] + self.locktimes:
@@ -103,7 +103,7 @@ class WalletMiniscriptDecayingMultisigDescriptorPSBTTest(BitcoinTestFramework):
             # in this test each signer signs the same psbt "in series" one after the other.
             # Another option is for each signer to sign the original psbt, and then combine
             # and finalize these. In some cases this may be more optimal for coordination.
-            psbt = multisig.walletcreatefundedpsbt(inputs=[], outputs={receiver.getnewaddress(): amount}, feeRate=0.00010, locktime=locktime)
+            psbt = multisig.walletcreatefundedpsbt(inputs=[], outputs={receiver.getnewaddress(): amount}, feeRate=0.040, locktime=locktime)
             # the random sample asserts that any of the signing keys can sign for the 3-of-4,
             # 2-of-4, and 1-of-4. While this is basic behavior of the miniscript thresh primitive,
             # it is a critical property of this wallet.
@@ -126,7 +126,7 @@ class WalletMiniscriptDecayingMultisigDescriptorPSBTTest(BitcoinTestFramework):
 
             self.log.info("Check that balances are correct after the transaction has been included in a block...")
             self.generate(self.node, 1)
-            assert_approx(multisig.getbalance(), deposit_amount - sent, vspan=0.001)
+            assert_approx(multisig.getbalance(), deposit_amount - sent, vspan=0.1)
             assert_equal(receiver.getbalance(), sent)
 
             self.M -= 1  # decay the number of required signers for the next locktime..

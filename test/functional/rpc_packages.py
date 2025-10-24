@@ -28,6 +28,11 @@ from test_framework.wallet import (
     MiniWallet,
 )
 
+from test_framework.script import (
+    CScript,
+    OP_RETURN
+)
+
 
 MAX_PACKAGE_COUNT = 25
 
@@ -486,7 +491,7 @@ class RPCPackagesTest(BitcoinTestFramework):
         chained_burn_hex = [t["hex"] for t in chained_txns_burn]
 
         tx = tx_from_hex(chained_burn_hex[1])
-        tx.vout[-1].scriptPubKey = b'a' * 10001 # scriptPubKey bigger than 10k IsUnspendable
+        tx.vout[-1].scriptPubKey = CScript([OP_RETURN]) * 100; # OP_RETURN IsUnspendable
         chained_burn_hex = [chained_burn_hex[0], tx.serialize().hex()]
         # burn test is run before any package evaluation; nothing makes it in and we get broader exception
         assert_raises_rpc_error(-25, "Unspendable output exceeds maximum configured by user", node.submitpackage, chained_burn_hex, 0, chained_txns_burn[1]["new_utxo"]["value"] - Decimal("0.00000001"))

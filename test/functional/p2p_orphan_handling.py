@@ -300,7 +300,7 @@ class OrphanHandlingTest(BitcoinTestFramework):
         assert missing_tx["txid"] not in node.getrawmempool()
 
         orphan = self.wallet.create_self_transfer_multi(utxos_to_spend=[utxo_conf_old,
-            utxo_conf_recent, utxo_unconf_mempool, utxo_unconf_missing])
+            utxo_conf_recent, utxo_unconf_mempool, utxo_unconf_missing], fee_per_output=400000)
 
         self.relay_transaction(peer, orphan["tx"])
         self.nodes[0].bumpmocktime(NONPREF_PEER_TX_DELAY + TXID_RELAY_DELAY)
@@ -759,7 +759,7 @@ class OrphanHandlingTest(BitcoinTestFramework):
         # parent_peekaboo_AB starts out in the mempool
         node.sendrawtransaction(parent_peekaboo_AB["hex"])
 
-        orphan = self.wallet.create_self_transfer_multi(utxos_to_spend=[parent_peekaboo_AB["new_utxos"][0], parent_missing["new_utxo"]])
+        orphan = self.wallet.create_self_transfer_multi(utxos_to_spend=[parent_peekaboo_AB["new_utxos"][0], parent_missing["new_utxo"]], fee_per_output=400000)
         orphan_wtxid = orphan["wtxid"]
         orphan_inv = CInv(t=MSG_WTX, h=int(orphan_wtxid, 16))
 

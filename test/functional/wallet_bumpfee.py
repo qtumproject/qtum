@@ -843,18 +843,18 @@ def test_bumpfee_with_feerate_ignores_walletincrementalrelayfee(self, rbf_node, 
     self.generate(peer_node, 1)
 
     dest_address = peer_node.getnewaddress(address_type="bech32")
-    tx = rbf_node.send(outputs=[{dest_address: 1}], fee_rate=2)
+    tx = rbf_node.send(outputs=[{dest_address: 1}], fee_rate=500)
 
     # Ensure you can not fee bump with a fee_rate below or equal to the original fee_rate
-    assert_raises_rpc_error(-8, "Insufficient total fee", rbf_node.bumpfee, tx["txid"], {"fee_rate": 1})
-    assert_raises_rpc_error(-8, "Insufficient total fee", rbf_node.bumpfee, tx["txid"], {"fee_rate": 2})
+    assert_raises_rpc_error(-8, "Insufficient total fee", rbf_node.bumpfee, tx["txid"], {"fee_rate": 400})
+    assert_raises_rpc_error(-8, "Insufficient total fee", rbf_node.bumpfee, tx["txid"], {"fee_rate": 500})
 
     # Ensure you can not fee bump if the fee_rate is more than original fee_rate but the total fee from new fee_rate is
     # less than (original fee + incrementalrelayfee)
-    assert_raises_rpc_error(-8, "Insufficient total fee", rbf_node.bumpfee, tx["txid"], {"fee_rate": 2.05})
+    assert_raises_rpc_error(-8, "Insufficient total fee", rbf_node.bumpfee, tx["txid"], {"fee_rate": 500.05})
 
     # You can fee bump as long as the new fee set from fee_rate is at least (original fee + incrementalrelayfee)
-    rbf_node.bumpfee(tx["txid"], {"fee_rate": 3})
+    rbf_node.bumpfee(tx["txid"], {"fee_rate": 750})
     self.clear_mempool()
 
 

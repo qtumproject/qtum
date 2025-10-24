@@ -410,8 +410,8 @@ class EstimateFeeTest(BitcoinTestFramework):
         self.generate(miner, 1)
 
     def test_estimation_modes(self):
-        low_feerate = Decimal("0.001")
-        high_feerate = Decimal("0.005")
+        low_feerate = Decimal("0.01")
+        high_feerate = Decimal("0.05")
         tx_count = 24
         # Broadcast and mine high fee transactions for the first 12 blocks.
         for _ in range(12):
