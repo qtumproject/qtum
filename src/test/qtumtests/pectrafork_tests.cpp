@@ -677,11 +677,13 @@ BOOST_AUTO_TEST_CASE(checking_opcode_blockhash_and_history_blockhash_value){
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
     BOOST_CHECK(result.first[0].execRes.output.size() == 32);
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) == expectedResult);
+    BOOST_CHECK(result.first[0].execRes.gasUsed == 21807);
 
     // Check historical block hash value is the expected
     BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::None);
     BOOST_CHECK(result.first[1].execRes.output.size() == 32);
     BOOST_CHECK(dev::h256(result.first[1].execRes.output) == expectedResult);
+    BOOST_CHECK(result.first[1].execRes.gasUsed == 27379);
 }
 
 BOOST_AUTO_TEST_CASE(checking_historical_contract_before_fork){
