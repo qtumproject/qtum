@@ -1,0 +1,329 @@
+version: 2.1
+
+commands:
+
+  environment-info:
+    steps:
+      - run:
+          name: "Environment info"
+          command: |
+            CC=${CC:-cc}
+            CXX=${CXX:-cpp}
+            echo CC: $CC
+            echo CXX: $CXX
+            $CC --version
+            $CXX --version
+            cmake --version
+
+  install-powerpc64:
+    steps:
+      - run:
+          name: "Install powerpc64 toolchain"
+          command: |
+            sudo apt -q update
+            sudo apt -qy install g++-powerpc64-linux-gnu lcov qemu-user-static
+
+  configure:
+    steps:
+      - run:
+          name: "Configure"
+          # Build "out-of-source" to have better coverage report
+          # (ninja is using relative paths otherwise).
+          working_directory: ~/build
+          command: |
+            cmake ../project -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_INSTALL_PREFIX=/tmp/local -DETHASH_TESTING=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=TRUE $CMAKE_OPTIONS
+
+  build:
+    steps:
+      - run:
+          name: "Build"
+          working_directory: ~/build
+          command: |
+            cmake --build . -j
+            cmake --build . --target install
+
+  build-tests:
+    steps:
+      - run:
+          name: "Build ethash-test"
+          working_directory: ~/build
+          command: |
+            cmake --build . -j --target ethash-test
+
+  test:
+    steps:
+      - run:
+          name: "Test"
+          working_directory: ~/build
+          command: ctest -E "$TESTS_EXCLUDE" -j4 --schedule-random --output-on-failure --output-junit results.xml
+      - store_test_results:
+          path: ~/build/results.xml
+
+  test-python-package:
+    steps:
+      - run:
+          name: "Test Python package"
+          command: |
+            pip install -e .[test]
+            pytest
+
+  benchmark:
+    steps:
+      - run:
+          name: "Benchmark"
+          working_directory: ~/build
+          command: |
+            test/ethash-bench
+
+  collect_coverage_gcc:
+    description: "Collect coverage data (GCC)"
+    steps:
+      - run:
+          name: "Collect coverage data (GCC)"
+          working_directory: ~/build
+          command: |
+            lcov --capture --directory . --output-file coverage.lcov --exclude='/usr/*' --exclude="$HOME/.hunter/*" --exclude="$PWD/_deps/*"
+            lcov --zerocounters --directory .
+            rm -rf coverage
+            genhtml coverage.lcov --output-directory coverage --title $CIRCLE_PROJECT_REPONAME
+
+  upload_coverage:
+    description: "Upload coverage data"
+    parameters:
+      flags:
+        type: string
+    steps:
+      - run:
+          name: "Install codecov"
+          command: |
+            export CODECOV_VERSION=v0.6.2
+            curl -Os https://uploader.codecov.io/$CODECOV_VERSION/linux/codecov
+            curl -Os https://uploader.codecov.io/$CODECOV_VERSION/linux/codecov.SHA256SUM
+            curl -Os https://uploader.codecov.io/$CODECOV_VERSION/linux/codecov.SHA256SUM.sig
+
+            gpgv codecov.SHA256SUM.sig codecov.SHA256SUM
+            shasum -c codecov.SHA256SUM
+
+            chmod +x codecov
+            sudo mv codecov /usr/local/bin
+      - run:
+          name: "Upload to Codecov"
+          command: |
+            # Convert to relative paths
+            sed -i 's|$(pwd)/||' ~/build/coverage.lcov
+            counter=1
+            until codecov --flags <<parameters.flags>> --required --file ~/build/coverage.lcov -X gcov || [ $counter = 5 ]; do
+              counter=$((counter+1))
+              sleep 1
+              echo "Try #$counter..."
+            done
+
+
+  macos-defaults:
+    steps:
+      - run:
+          name: "Install CMake"
+          command: |
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake ninja
+      - checkout
+      - configure
+      - build
+      - test
+
+
+jobs:
+
+  linux-gcc-coverage:
+    docker:
+      - image: ethereum/cpp-build-env:20-gcc-13
+    environment:
+      - BUILD_TYPE: Coverage
+    steps:
+      - checkout
+      - configure
+      - build
+      - test
+      - collect_coverage_gcc
+      - store_artifacts:
+          path: ~/build/coverage
+          destination: coverage-default
+      - upload_coverage:
+          flags: default
+      - run:
+          name: "Install qemu"
+          command: sudo apt -q update && sudo apt -qy install qemu-user-static
+      - run:
+          command: qemu-x86_64-static --cpu qemu64 ~/build/test/ethash-test --gtest_filter='-*_multithreaded.*:*_oom'
+      - collect_coverage_gcc
+      - store_artifacts:
+          path: ~/build/coverage
+          destination: coverage-x86_64
+      - upload_coverage:
+          flags: x86_64
+
+  linux-clang-sanitizers:
+    docker:
+      - image: ethereum/cpp-build-env:20-clang-16
+    environment:
+      - CMAKE_OPTIONS: -DSANITIZE=address,undefined,unsigned-integer-overflow,shift-exponent,implicit-conversion,nullability -DCMAKE_CXX_CLANG_TIDY=clang-tidy
+      - ASAN_OPTIONS: allocator_may_return_null=1
+      - UBSAN_OPTIONS: halt_on_error=1
+    steps:
+      - checkout
+      - configure
+      - build
+      - test
+      - benchmark
+
+  linux-32bit-asan:
+    docker:
+      - image: ethereum/cpp-build-env:20-gcc-13-multilib
+    environment:
+      - BUILD_TYPE: RelWithDebInfo
+      - CMAKE_OPTIONS: -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/32bit.cmake -DSANITIZE=address
+      - TESTS_EXCLUDE: _oom
+      - ASAN_OPTIONS: allocator_may_return_null=1
+    steps:
+      - checkout
+      - configure
+      - build
+      - test
+
+  powerpc64:
+    docker:
+      - image: cimg/base:current-22.04
+    environment:
+      - TESTS_EXCLUDE: _oom|_multithreaded
+      - BUILD_TYPE: Coverage
+      - CMAKE_OPTIONS: -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/powerpc64.cmake -DCMAKE_EXE_LINKER_FLAGS=-static
+    steps:
+      - checkout
+      - run:
+          name: Install codecov GPG key
+          command: curl https://keybase.io/codecovsecurity/pgp_keys.asc | gpg --no-default-keyring --keyring trustedkeys.gpg --import
+      - install-powerpc64
+      - configure
+      - build-tests
+      - test
+      - collect_coverage_gcc
+      - store_artifacts:
+          path: ~/build/coverage
+          destination: coverage
+      - upload_coverage:
+          flags: be
+
+  linux-release:
+    docker:
+      - image: ethereum/cpp-build-env:20-gcc-12
+    environment:
+      CMAKE_OPTIONS: -DETHASH_TESTING=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    steps:
+      - checkout
+      - configure
+      - build
+      - persist_to_workspace:
+          root: /tmp/local
+          paths:
+            - "*"
+
+  linux-release-python:
+    docker:
+      - image: quay.io/pypa/manylinux_2_28_x86_64
+    steps:
+      - checkout
+      - run:
+          name: "Build Python package"
+          command: scripts/ci/python_build_wheels.sh
+      - run:
+          name: "Tag wheels"
+          working_directory: ~/project/dist
+          command: |
+            find -name '*linux_x86_64.whl' -exec auditwheel repair {} \;
+      - store_artifacts:
+          path: ~/project/dist
+          destination: dist
+      - run:
+          name: "Select Python"
+          command: |
+            echo 'export PATH=/opt/python/cp313-cp313/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
+            python --version
+            pip --version
+      - test-python-package
+
+  macos-xcode-tsan:
+    macos:
+      xcode: 14.3.1
+    environment:
+      - CMAKE_OPTIONS: -DSANITIZE=thread
+      - TSAN_OPTIONS: allocator_may_return_null=1
+    steps:
+      - macos-defaults
+
+  macos-xcode-old:
+    macos:
+      xcode: 13.4.1
+    steps:
+      - macos-defaults
+
+  macos-release:
+    macos:
+      xcode: 15.4.0
+    environment:
+      - CMAKE_OPTIONS: -DETHASH_TESTING=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_INSTALL_PREFIX=~/project/dist
+    steps:
+      - macos-defaults
+      - test-python-package
+      - run:
+          name: "Build wheels"
+          command: sh scripts/ci/python_build_wheels.sh
+      - store_artifacts:
+          path: ~/project/dist
+          destination: dist
+
+  cmake-min:
+    docker:
+      - image: circleci/buildpack-deps:focal
+    steps:
+      - run:
+          name: "Install default CMake"
+          command: sudo apt-get -q update && sudo apt-get -qy install cmake
+      - environment-info
+      - checkout
+      - configure
+      - build
+      - test
+
+  wasi:
+    docker:
+      - image: ethereum/cpp-build-env:17-gcc-10
+    environment:
+      CMAKE_OPTIONS: -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/wasm32-wasi.cmake -DETHASH_TESTING=NO -DETHASH_BUILD_GLOBAL_CONTEXT=NO
+    steps:
+      - run:
+          name: "Install WASI SDK"
+          command: |
+            sudo mkdir /opt/wasi-sdk && cd /opt/wasi-sdk
+            curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-linux.tar.gz | sudo tar -xz --strip=1
+            find .
+      - checkout
+      - configure
+      - build
+
+
+
+workflows:
+  version: 2
+  ethash:
+    jobs:
+      - linux-gcc-coverage
+      - linux-clang-sanitizers
+      - linux-32bit-asan
+      - powerpc64
+      - macos-xcode-tsan
+      - macos-xcode-old
+      - linux-release
+      - linux-release-python
+      - macos-release
+      - cmake-min
+      - wasi
