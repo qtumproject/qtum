@@ -29,7 +29,10 @@ function(add_boost_if_needed)
     endif()
   endif()
 
-  find_package(Boost 1.74.0 REQUIRED CONFIG)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(Boost_USE_STATIC_RUNTIME ON)
+  endif()
+  find_package(Boost 1.82.0 REQUIRED CONFIG COMPONENTS filesystem program_options thread OPTIONAL_COMPONENTS process)
   mark_as_advanced(Boost_INCLUDE_DIR boost_headers_DIR)
   # Workaround for a bug in NetBSD pkgsrc.
   # See https://gnats.netbsd.org/59856.

@@ -9,7 +9,7 @@
 #include "../../../include/secp256k1.h"
 #include "../../../include/secp256k1_ellswift.h"
 #include "../../eckey.h"
-#include "../../hash.h"
+#include "../../../include/secp256k1_sha256.h"
 
 /** c1 = (sqrt(-3)-1)/2 */
 static const secp256k1_fe secp256k1_ellswift_c1 = SECP256K1_FE_CONST(0x851695d4, 0x9a83f8ef, 0x919bb861, 0x53cbcb16, 0x630fb68a, 0xed0a766a, 0x3ec693d6, 0x8e6afa40);

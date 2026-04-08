@@ -3,6 +3,7 @@ add_library(secp256k1)
 set_property(TARGET secp256k1 PROPERTY PUBLIC_HEADER
   ${PROJECT_SOURCE_DIR}/include/secp256k1.h
   ${PROJECT_SOURCE_DIR}/include/secp256k1_preallocated.h
+  ${PROJECT_SOURCE_DIR}/include/secp256k1_sha256.h
 )
 
 # Processing must be done in a topological sorting of the dependency graph

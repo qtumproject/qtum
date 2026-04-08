@@ -151,6 +151,9 @@ target_link_libraries(bitcoinqt
     bitcoin_cli
     leveldb
     Boost::headers
+    Boost::filesystem
+    Boost::program_options
+    Boost::thread
     $<TARGET_NAME_IF_EXISTS:QRencode::QRencode>
     $<$<PLATFORM_ID:Darwin>:-framework\ AppKit>
     $<$<CXX_COMPILER_ID:MSVC>:shlwapi>
@@ -255,41 +258,43 @@ endif()
 
 add_subdirectory(locale)
 
-add_executable(bitcoin-qt
+add_executable(qtum-qt
   main.cpp
   ../init/bitcoin-qt.cpp
 )
 
-add_windows_resources(bitcoin-qt res/bitcoin-qt-res.rc)
-add_windows_application_manifest(bitcoin-qt)
+add_windows_resources(qtum-qt res/bitcoin-qt-res.rc)
+add_windows_application_manifest(qtum-qt)
 
-target_link_libraries(bitcoin-qt
+target_link_libraries(qtum-qt
   core_interface
   bitcoinqt
   bitcoin_node
+  Boost::headers
 )
 
-import_plugins(bitcoin-qt)
-install_binary_component(bitcoin-qt HAS_MANPAGE)
+import_plugins(qtum-qt)
+install_binary_component(qtum-qt HAS_MANPAGE)
 if(WIN32)
-  set_target_properties(bitcoin-qt PROPERTIES WIN32_EXECUTABLE TRUE)
+  set_target_properties(qtum-qt PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
 if(ENABLE_IPC)
-  add_executable(bitcoin-gui
+  add_executable(qtum-gui
     main.cpp
     ../init/bitcoin-gui.cpp
   )
-  target_link_libraries(bitcoin-gui
+  target_link_libraries(qtum-gui
     core_interface
     bitcoinqt
     bitcoin_node
     bitcoin_ipc
+    Boost::headers
   )
-  import_plugins(bitcoin-gui)
-  install_binary_component(bitcoin-gui INTERNAL)
+  import_plugins(qtum-gui)
+  install_binary_component(qtum-gui INTERNAL)
   if(WIN32)
-    set_target_properties(bitcoin-gui PROPERTIES WIN32_EXECUTABLE TRUE)
+    set_target_properties(qtum-gui PROPERTIES WIN32_EXECUTABLE TRUE)
   endif()
 endif()
 

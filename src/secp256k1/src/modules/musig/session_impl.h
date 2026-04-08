@@ -15,7 +15,7 @@
 #include "keyagg.h"
 #include "session.h"
 #include "../../eckey.h"
-#include "../../hash.h"
+#include "../../../include/secp256k1_sha256.h"
 #include "../../scalar.h"
 #include "../../util.h"
 

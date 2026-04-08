@@ -18,7 +18,7 @@
 #include "../../scalar.h"
 #include "../../field.h"
 #include "../../group.h"
-#include "../../hash.h"
+#include "../../../include/secp256k1_sha256.h"
 #include "../../util.h"
 #include "../../unit_test.h"
 

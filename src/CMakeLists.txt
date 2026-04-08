@@ -23,6 +23,8 @@ if (ENABLE_IPC AND NOT WITH_EXTERNAL_LIBMULTIPROCESS)
   include(../cmake/libmultiprocess.cmake)
   add_libmultiprocess(ipc/libmultiprocess)
 endif()
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DQTUM_BUILD -DETH_FATDB=1")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DQTUM_BUILD -DETH_FATDB=1")
 include(../cmake/secp256k1.cmake)
 add_secp256k1(secp256k1)
 
@@ -136,6 +138,8 @@ add_library(bitcoin_common STATIC EXCLUDE_FROM_ALL
   script/signingprovider.cpp
   script/solver.cpp
 )
+
+link_directories(${CMAKE_BINARY_DIR}/lib)
 target_link_libraries(bitcoin_common
   PRIVATE
     core_interface
@@ -154,21 +158,21 @@ if(ENABLE_WALLET)
   add_subdirectory(wallet)
 
   if(BUILD_WALLET_TOOL)
-    add_executable(bitcoin-wallet
+    add_executable(qtum-wallet
       bitcoin-wallet.cpp
       init/bitcoin-wallet.cpp
       wallet/wallettool.cpp
     )
-    add_windows_resources(bitcoin-wallet bitcoin-wallet-res.rc)
-    add_windows_application_manifest(bitcoin-wallet)
-    target_link_libraries(bitcoin-wallet
+    add_windows_resources(qtum-wallet bitcoin-wallet-res.rc)
+    add_windows_application_manifest(qtum-wallet)
+    target_link_libraries(qtum-wallet
       core_interface
       bitcoin_wallet
       bitcoin_common
       bitcoin_util
       Boost::headers
     )
-    install_binary_component(bitcoin-wallet HAS_MANPAGE)
+    install_binary_component(qtum-wallet HAS_MANPAGE)
   endif()
 endif()
 
@@ -297,40 +301,42 @@ endif()
 
 # Bitcoin wrapper executable that can call other executables.
 if(BUILD_BITCOIN_BIN)
-  add_executable(bitcoin bitcoin.cpp)
-  add_windows_resources(bitcoin bitcoin-res.rc)
-  add_windows_application_manifest(bitcoin)
-  target_link_libraries(bitcoin core_interface bitcoin_common bitcoin_util)
-  install_binary_component(bitcoin HAS_MANPAGE)
+  add_executable(qtum bitcoin.cpp)
+  add_windows_resources(qtum bitcoin-res.rc)
+  add_windows_application_manifest(qtum)
+  target_link_libraries(qtum core_interface bitcoin_common bitcoin_util)
+  install_binary_component(qtum HAS_MANPAGE)
 endif()
 
 # Bitcoin Core bitcoind.
 if(BUILD_DAEMON)
-  add_executable(bitcoind
+  add_executable(qtumd
     bitcoind.cpp
     init/bitcoind.cpp
   )
-  add_windows_resources(bitcoind bitcoind-res.rc)
-  add_windows_application_manifest(bitcoind)
-  target_link_libraries(bitcoind
+  add_windows_resources(qtumd bitcoind-res.rc)
+  add_windows_application_manifest(qtumd)
+  target_link_libraries(qtumd
     core_interface
     bitcoin_node
     $<TARGET_NAME_IF_EXISTS:bitcoin_wallet>
+    Boost::headers
   )
-  install_binary_component(bitcoind HAS_MANPAGE)
+  install_binary_component(qtumd HAS_MANPAGE)
 endif()
 if(ENABLE_IPC AND BUILD_DAEMON)
-  add_executable(bitcoin-node
+  add_executable(qtum-node
     bitcoind.cpp
     init/bitcoin-node.cpp
   )
-  target_link_libraries(bitcoin-node
+  target_link_libraries(qtum-node
     core_interface
     bitcoin_node
     bitcoin_ipc
     $<TARGET_NAME_IF_EXISTS:bitcoin_wallet>
+    Boost::headers
   )
-  install_binary_component(bitcoin-node INTERNAL)
+  install_binary_component(qtum-node INTERNAL)
 endif()
 
 
@@ -347,10 +353,10 @@ target_link_libraries(bitcoin_cli
 
 # Bitcoin Core RPC client
 if(BUILD_CLI)
-  add_executable(bitcoin-cli bitcoin-cli.cpp)
-  add_windows_resources(bitcoin-cli bitcoin-cli-res.rc)
-  add_windows_application_manifest(bitcoin-cli)
-  target_link_libraries(bitcoin-cli
+  add_executable(qtum-cli bitcoin-cli.cpp)
+  add_windows_resources(qtum-cli bitcoin-cli-res.rc)
+  add_windows_application_manifest(qtum-cli)
+  target_link_libraries(qtum-cli
     core_interface
     bitcoin_cli
     bitcoin_common
@@ -358,34 +364,36 @@ if(BUILD_CLI)
     libevent::core
     libevent::extra
   )
-  install_binary_component(bitcoin-cli HAS_MANPAGE)
+  install_binary_component(qtum-cli HAS_MANPAGE)
 endif()
 
 
 if(BUILD_TX)
-  add_executable(bitcoin-tx bitcoin-tx.cpp)
-  add_windows_resources(bitcoin-tx bitcoin-tx-res.rc)
-  add_windows_application_manifest(bitcoin-tx)
-  target_link_libraries(bitcoin-tx
+  add_executable(qtum-tx bitcoin-tx.cpp)
+  add_windows_resources(qtum-tx bitcoin-tx-res.rc)
+  add_windows_application_manifest(qtum-tx)
+  target_link_libraries(qtum-tx
     core_interface
     bitcoin_common
     bitcoin_util
     univalue
+    Boost::headers
   )
-  install_binary_component(bitcoin-tx HAS_MANPAGE)
+  install_binary_component(qtum-tx HAS_MANPAGE)
 endif()
 
 
 if(BUILD_UTIL)
-  add_executable(bitcoin-util bitcoin-util.cpp)
-  add_windows_resources(bitcoin-util bitcoin-util-res.rc)
-  add_windows_application_manifest(bitcoin-util)
-  target_link_libraries(bitcoin-util
+  add_executable(qtum-util bitcoin-util.cpp)
+  add_windows_resources(qtum-util bitcoin-util-res.rc)
+  add_windows_application_manifest(qtum-util)
+  target_link_libraries(qtum-util
     core_interface
     bitcoin_common
     bitcoin_util
+    Boost::headers
   )
-  install_binary_component(bitcoin-util HAS_MANPAGE)
+  install_binary_component(qtum-util HAS_MANPAGE)
 endif()
 
 
@@ -400,16 +408,16 @@ if(BUILD_KERNEL_LIB)
     add_subdirectory(test/kernel)
   endif()
   if(BUILD_UTIL_CHAINSTATE)
-    add_executable(bitcoin-chainstate
+    add_executable(qtum-chainstate
       bitcoin-chainstate.cpp
     )
     add_windows_application_manifest(bitcoin-chainstate)
-    target_link_libraries(bitcoin-chainstate
+    target_link_libraries(qtum-chainstate
       PRIVATE
         core_interface
         bitcoinkernel
     )
-    install_binary_component(bitcoin-chainstate INTERNAL)
+    install_binary_component(qtum-chainstate INTERNAL)
   endif()
 endif()
 
