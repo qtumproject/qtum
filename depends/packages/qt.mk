@@ -146,7 +146,6 @@ $(package)_config_opts_darwin += -no-feature-freetype
 $(package)_config_opts_darwin += -no-pkg-config
 
 $(package)_config_opts_linux := -fontconfig
-$(package)_config_opts_linux += -no-feature-process
 $(package)_config_opts_linux += -no-feature-xlib
 $(package)_config_opts_linux += -no-xcb-xlib
 $(package)_config_opts_linux += -pkg-config

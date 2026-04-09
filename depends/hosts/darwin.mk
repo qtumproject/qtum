@@ -58,12 +58,12 @@ darwin_STRIP=$(shell $(SHELL) $(.SHELLFLAGS) "command -v llvm-strip")
 
 darwin_CC=$(clang_prog) --target=$(host) \
               -isysroot$(OSX_SDK) -nostdlibinc \
-              -iwithsysroot/usr/include -iframeworkwithsysroot/System/Library/Frameworks
+              -iwithsysroot/usr/include -iframeworkwithsysroot/System/Library/Frameworks -fuse-ld=lld -Qunused-arguments
 
 darwin_CXX=$(clangxx_prog) --target=$(host) \
                -isysroot$(OSX_SDK) -nostdlibinc \
                -iwithsysroot/usr/include/c++/v1 \
-               -iwithsysroot/usr/include -iframeworkwithsysroot/System/Library/Frameworks
+               -iwithsysroot/usr/include -iframeworkwithsysroot/System/Library/Frameworks -fuse-ld=lld -Qunused-arguments
 
 darwin_CFLAGS=-mmacos-version-min=$(OSX_MIN_VERSION)
 darwin_CXXFLAGS=-mmacos-version-min=$(OSX_MIN_VERSION) -Xclang -fno-cxx-modules
