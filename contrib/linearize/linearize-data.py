@@ -209,7 +209,7 @@ class BlockDataCopier:
                     return
 
             inhdr = self.read_xored(self.inF, 8)
-            if (not inhdr or (inhdr[0] == "\0")):
+            if (not inhdr) or (inhdr[0] == 0):  # Fixed: check for null byte correctly
                 self.inF.close()
                 self.inF = None
                 self.inFn = self.inFn + 1
@@ -224,8 +224,31 @@ class BlockDataCopier:
                 continue
             inLenLE = inhdr[4:]
             su = struct.unpack("<I", inLenLE)
-            inLen = su[0] - 80 # length without header
-            blk_hdr = self.read_xored(self.inF, 80)
+            inLen = su[0] - 180 # length without header
+            blk_hdr = self.read_xored(self.inF, 181)  # Fixed: use XOR for block header
+            sig_length = blk_hdr[-1]
+            if sig_length < 253:
+                inLen -= 1
+                sig_data = b''
+            elif sig_length == 253:
+                sig_data = self.read_xored(self.inF, 2)  # Fixed: use XOR for sig data
+                sig_length = struct.unpack('<H', sig_data)[0]
+                blk_hdr += sig_data
+                inLen -= 3
+            elif sig_length == 254:
+                sig_data = self.read_xored(self.inF, 4)  # Fixed: use XOR for sig data
+                sig_length = struct.unpack('<I', sig_data)[0]
+                blk_hdr += sig_data
+                inLen -= 5
+            else:
+                sig_data = self.read_xored(self.inF, 8)  # Fixed: use XOR for sig data
+                sig_length = struct.unpack('<Q', sig_data)[0]
+                blk_hdr += sig_data
+                inLen -= 9
+            if sig_length > 0:
+                sig_data = self.read_xored(self.inF, sig_length)  # Fixed: use XOR for sig data
+                blk_hdr += sig_data
+            inLen -= sig_length
             inExtent = BlockExtent(self.inFn, self.inF.tell(), inhdr, blk_hdr, inLen)
 
             self.hash_str = calc_hash_str(blk_hdr)
@@ -287,9 +310,9 @@ if __name__ == '__main__':
     settings['rev_hash_bytes'] = settings['rev_hash_bytes'].lower()
 
     if 'netmagic' not in settings:
-        settings['netmagic'] = 'f9beb4d9'
+        settings['netmagic'] = 'f1cfa6d3'
     if 'genesis' not in settings:
-        settings['genesis'] = '000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'
+        settings['genesis'] = '000075aef83cf2853580f8ae8ce6f8c3096cfa21d98334d6e3f95e5582ed986c'
     if 'input' not in settings:
         settings['input'] = 'input'
     if 'hashlist' not in settings:

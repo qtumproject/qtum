@@ -14,7 +14,9 @@
              (gnu packages llvm)
              (gnu packages mingw)
              (gnu packages ninja)
+             (gnu packages perl)
              (gnu packages pkg-config)
+             (gnu packages m4)
              ((gnu packages python) #:select (python-minimal))
              ((gnu packages python-build) #:select (python-poetry-core))
              ((gnu packages python-crypto) #:select (python-asn1crypto))
@@ -545,11 +547,13 @@ inspecting signatures in Mach-O binaries.")
         gnu-make
         ninja
         ;; Scripting
+        perl
         python-minimal ;; (3.10)
         ;; Git
         git-minimal
         ;; Tests
-        python-lief)
+        python-lief
+        m4)
   (let ((target (getenv "HOST")))
     (cond ((string-suffix? "-mingw32" target)
            (list zip
