@@ -37,9 +37,12 @@ incoming connections.
     42:    name
     43:    nicname
     53:    domain
+    67:    dhcp discovery
+    68:    dhcp discovery
     69:    tftp
     77:    priv-rjs
     79:    finger
+    80:    http
     87:    ttylink
     95:    supdup
     101:   hostname
@@ -62,6 +65,7 @@ incoming connections.
     179:   BGP
     389:   ldap
     427:   SLP (Also used by Apple Filing Protocol)
+    443:   https
     465:   smtp+ssl
     512:   print / exec
     513:   login

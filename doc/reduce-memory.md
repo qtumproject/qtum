@@ -1,15 +1,15 @@
 # Reduce Memory
 
-There are a few parameters that can be dialed down to reduce the memory usage of `bitcoind`. This can be useful on embedded systems or small VPSes.
+There are a few parameters that can be dialed down to reduce the memory usage of `qtumd`. This can be useful on embedded systems or small VPSes.
 
 ## Swapping
 
 When the operating system is under memory pressure, it may swap memory pages from RAM to disk.
-If this becomes continuous ("thrashing"), `bitcoind` can slow to a crawl, especially during initial sync or reindex.
+If this becomes continuous ("thrashing"), `qtumd` can slow to a crawl, especially during initial sync or reindex.
 
-If you see sustained swap I/O while `bitcoind` runs, restart with a lower `-dbcache`.
+If you see sustained swap I/O while `qtumd` runs, restart with a lower `-dbcache`.
 If needed, also reduce `-maxmempool`, `-maxconnections`, or use `-blocksonly`.
-Bitcoin Core may warn at startup when `-dbcache` looks too large for the detected system memory.
+Qtum Core may warn at startup when `-dbcache` looks too large for the detected system memory.
 
 ## In-memory caches
 
@@ -21,9 +21,9 @@ The size of some in-memory caches can be reduced. As caches trade off memory usa
 
 ## Memory pool
 
-- In Bitcoin Core there is a memory pool limiter which can be configured with `-maxmempool=<n>`, where `<n>` is the size in MB (1000). The default value is `300`.
+- In Qtum Core there is a memory pool limiter which can be configured with `-maxmempool=<n>`, where `<n>` is the size in MB (1000). The default value is `300`.
   - The minimum value for `-maxmempool` is 5.
-  - A lower maximum mempool size means that transactions will be evicted sooner. This will affect any uses of `bitcoind` that process unconfirmed transactions.
+  - A lower maximum mempool size means that transactions will be evicted sooner. This will affect any uses of `qtumd` that process unconfirmed transactions.
 
 - The unused memory allocated to the mempool (default: 300MB) is shared with the UTXO cache, so when trying to reduce memory usage you should limit the mempool, with the `-maxmempool` command line argument.
 
@@ -52,12 +52,12 @@ threads take up 8MiB for the thread stack on a 64-bit system, and 4MiB in a
 
 ## Linux specific
 
-By default, glibc's implementation of `malloc` may use more than one arena. This is known to cause excessive memory usage in some scenarios. To avoid this, make a script that sets `MALLOC_ARENA_MAX` before starting bitcoind:
+By default, glibc's implementation of `malloc` may use more than one arena. This is known to cause excessive memory usage in some scenarios. To avoid this, make a script that sets `MALLOC_ARENA_MAX` before starting qtumd:
 
 ```bash
 #!/usr/bin/env bash
 export MALLOC_ARENA_MAX=1
-bitcoind
+qtumd
 ```
 
-The behavior was introduced to increase CPU locality of allocated memory and performance with concurrent allocation, so this setting could in theory reduce performance. However, in Bitcoin Core very little parallel allocation happens, so the impact is expected to be small or absent.
+The behavior was introduced to increase CPU locality of allocated memory and performance with concurrent allocation, so this setting could in theory reduce performance. However, in Qtum Core very little parallel allocation happens, so the impact is expected to be small or absent.

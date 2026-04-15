@@ -311,8 +311,8 @@ If the code is behaving strangely, take a look in the `debug.log` file in the da
 error and debugging messages are written there.
 
 Debug logging can be enabled on startup with the `-debug` and `-loglevel`
-configuration options and toggled while bitcoind is running with the `logging`
-RPC.  For instance, launching bitcoind with `-debug` or `-debug=1` will turn on
+configuration options and toggled while qtumd is running with the `logging`
+RPC.  For instance, launching qtumd with `-debug` or `-debug=1` will turn on
 all log categories and `-loglevel=trace` will turn on all log severity levels.
 
 The Qt code routes `qDebug()` output to `debug.log` under category "qt": run with `-debug=qt`
@@ -322,7 +322,7 @@ to see it.
 
 If you are testing multi-machine code that needs to operate across the internet,
 you can run with either the `-signet` or the `-testnet4` config option to test
-with "play bitcoins" on a test network.
+with "play qtums" on a test network.
 
 If you are testing something that can run on one machine, run with the
 `-regtest` option.  In regression test mode, blocks can be created on demand;
@@ -346,9 +346,9 @@ The `-DCMAKE_BUILD_TYPE=Debug` build option adds `-DDEBUG_LOCKCONTENTION` to the
 compiler flags. You may also enable it manually by building with `-DDEBUG_LOCKCONTENTION`
 added to your CPPFLAGS, i.e. `-DAPPEND_CPPFLAGS="-DDEBUG_LOCKCONTENTION"`.
 
-You can then use the `-debug=lock` configuration option at bitcoind startup or
-`bitcoin-cli logging '["lock"]'` at runtime to turn on lock contention logging.
-It can be toggled off again with `bitcoin-cli logging [] '["lock"]'`.
+You can then use the `-debug=lock` configuration option at qtumd startup or
+`qtum-cli logging '["lock"]'` at runtime to turn on lock contention logging.
+It can be toggled off again with `qtum-cli logging [] '["lock"]'`.
 
 ### Assertions and Checks
 
@@ -389,10 +389,10 @@ which includes known Valgrind warnings in our dependencies that cannot be fixed
 in-tree. Example use:
 
 ```shell
-$ valgrind --suppressions=test/sanitizer_suppressions/valgrind.supp build/bin/test_bitcoin
+$ valgrind --suppressions=test/sanitizer_suppressions/valgrind.supp build/bin/test_qtum
 $ valgrind --suppressions=test/sanitizer_suppressions/valgrind.supp --leak-check=full \
-      --show-leak-kinds=all build/bin/test_bitcoin --log_level=test_suite
-$ valgrind -v --leak-check=full build/bin/bitcoind -printtoconsole
+      --show-leak-kinds=all build/bin/test_qtum --log_level=test_suite
+$ valgrind -v --leak-check=full build/bin/qtumd -printtoconsole
 $ ./build/test/functional/test_runner.py --valgrind
 ```
 
@@ -411,7 +411,7 @@ cmake -B build -DCMAKE_BUILD_TYPE=Coverage
 cmake --build build
 cmake -P build/Coverage.cmake
 
-# A coverage report will now be accessible at `./build/test_bitcoin.coverage/index.html`,
+# A coverage report will now be accessible at `./build/test_qtum.coverage/index.html`,
 # which covers unit tests, and `./build/total.coverage/index.html`, which covers
 # unit and functional tests.
 ```
@@ -468,8 +468,8 @@ Generating the coverage report:
 
 ```shell
 llvm-cov show \
-    --object=build/bin/test_bitcoin \
-    --object=build/bin/bitcoind \
+    --object=build/bin/test_qtum \
+    --object=build/bin/qtumd \
     -Xdemangler=llvm-cxxfilt \
     --instr-profile=build/coverage.profdata \
     --ignore-filename-regex="src/crc32c/|src/leveldb/|src/minisketch/|src/secp256k1/|src/test/" \
@@ -566,13 +566,13 @@ Make sure you [understand the security
 trade-offs](https://lwn.net/Articles/420403/) of setting these kernel
 parameters.
 
-To profile a running bitcoind process for 60 seconds, you could use an
+To profile a running qtumd process for 60 seconds, you could use an
 invocation of `perf record` like this:
 
 ```sh
 $ perf record \
     -g --call-graph dwarf --per-thread -F 140 \
-    -p `pgrep bitcoind` -- sleep 60
+    -p `pgrep qtumd` -- sleep 60
 ```
 
 You could then analyze the results by running:
@@ -658,7 +658,7 @@ and its `cs_KeyStore` lock for example).
 
 ## Threads
 
-- [Main thread (`bitcoind`)](https://doxygen.bitcoincore.org/bitcoind_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97)
+- [Main thread (`qtumd`)](https://doxygen.bitcoincore.org/bitcoind_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97)
   : Started from `main()` in `bitcoind.cpp`. Responsible for starting up and
   shutting down the application.
 
@@ -1147,7 +1147,7 @@ In addition to reviewing the upstream changes in `env_posix.cc`, you can use `ls
 check this. For example, on Linux this command will show open `.ldb` file counts:
 
 ```bash
-$ lsof -p $(pidof bitcoind) |\
+$ lsof -p $(pidof qtumd) |\
     awk 'BEGIN { fd=0; mem=0; } /ldb$/ { if ($4 == "mem") mem++; else fd++ } END { printf "mem = %s, fd = %s\n", mem, fd}'
 mem = 119, fd = 0
 ```
@@ -1284,7 +1284,7 @@ A few guidelines for introducing and reviewing new RPC interfaces:
 - Try not to overload methods on argument type. E.g. don't make `getblock(true)` and `getblock("hash")`
   do different things.
 
-  - *Rationale*: This is impossible to use with `bitcoin-cli`, and can be surprising to users.
+  - *Rationale*: This is impossible to use with `qtum-cli`, and can be surprising to users.
 
   - *Exception*: Some RPC calls can take both an `int` and `bool`, most notably when a bool was switched
     to a multi-value, or due to other historical reasons. **Always** have false map to 0 and
@@ -1298,7 +1298,7 @@ A few guidelines for introducing and reviewing new RPC interfaces:
 
 - Add every non-string RPC argument `(method, idx, name)` to the table `vRPCConvertParams` in `rpc/client.cpp`.
 
-  - *Rationale*: `bitcoin-cli` and the GUI debug console use this table to determine how to
+  - *Rationale*: `qtum-cli` and the GUI debug console use this table to determine how to
     convert a plaintext command line to JSON. If the types don't match, the method can be unusable
     from there.
 

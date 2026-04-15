@@ -44,9 +44,9 @@ When rebuilding during development, note that running `cmake --build build`, wit
 Obviously, it is important to build and run the tests at appropriate times -- but when you just want a quick compile to check your work, consider picking one or a set of build targets relevant to what you're working on, e.g.:
 
 ```sh
-cmake --build build --target bitcoind bitcoin-cli
-cmake --build build --target bitcoin-qt
-cmake --build build --target bench_bitcoin
+cmake --build build --target qtumd qtum-cli
+cmake --build build --target qtum-qt
+cmake --build build --target bench_qtum
 ```
 
 (You can and should combine this with `-j`, as above, for a parallel build.)
@@ -153,7 +153,7 @@ As an alternative to fetching commits directly, when looking at pull requests by
 ```
 [remote "upstream-pull"]
         fetch = +refs/pull/*/head:refs/remotes/upstream-pull/*
-        url = git@github.com:bitcoin/bitcoin.git
+        url = git@github.com:qtumproject/qtum.git
 ```
 
 This will add an `upstream-pull` remote to your git repository, which can be fetched using `git fetch --all` or `git fetch upstream-pull`. It will download and store on disk quite a lot of data (all PRs, including merged and closed ones). Afterwards, you can use `upstream-pull/NUMBER/head` in arguments to `git show`, `git checkout` and anywhere a commit id would be acceptable to see the changes from pull request NUMBER.
@@ -174,7 +174,7 @@ git fetch upstream pull/<number>/head:pr-<number> && git switch pr-<number>
 
 > [!NOTE]
 > The remote named "upstream" here must be the one that the pull request was opened against.
-> e.g. github.com/bitcoin/bitcoin.git or for the GUI github.com/bitcoin-core/gui
+> e.g. github.com/qtumproject/qtum.git
 
 Make these easier to use by adding aliases to your git config:
 
