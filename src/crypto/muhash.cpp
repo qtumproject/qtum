@@ -513,7 +513,7 @@ void Num3072::Divide(const Num3072& a)
     if (this->IsOverflow()) this->FullReduce();
 }
 
-Num3072::Num3072(const unsigned char (&data)[BYTE_SIZE]) {
+Num3072::Num3072(const unsigned char (&data)[DATA_BYTE_SIZE]) {
     for (int i = 0; i < LIMBS; ++i) {
         if (sizeof(limb_t) == 4) {
             this->limbs[i] = ReadLE32(data + 4 * i);
@@ -523,7 +523,7 @@ Num3072::Num3072(const unsigned char (&data)[BYTE_SIZE]) {
     }
 }
 
-void Num3072::ToBytes(unsigned char (&out)[BYTE_SIZE]) {
+void Num3072::ToBytes(unsigned char (&out)[DATA_BYTE_SIZE]) {
     for (int i = 0; i < LIMBS; ++i) {
         if (sizeof(limb_t) == 4) {
             WriteLE32(out + i * 4, this->limbs[i]);
@@ -534,7 +534,7 @@ void Num3072::ToBytes(unsigned char (&out)[BYTE_SIZE]) {
 }
 
 Num3072 MuHash3072::ToNum3072(std::span<const unsigned char> in) {
-    unsigned char tmp[Num3072::BYTE_SIZE];
+    unsigned char tmp[Num3072::DATA_BYTE_SIZE];
 
     uint256 hashed_in{(HashWriter{} << in).GetSHA256()};
     static_assert(sizeof(tmp) % ChaCha20Aligned::BLOCKLEN == 0);
@@ -554,7 +554,7 @@ void MuHash3072::Finalize(uint256& out) noexcept
     m_numerator.Divide(m_denominator);
     m_denominator.SetToOne();  // Needed to keep the MuHash object valid
 
-    unsigned char data[Num3072::BYTE_SIZE];
+    unsigned char data[Num3072::DATA_BYTE_SIZE];
     m_numerator.ToBytes(data);
 
     out = (HashWriter{} << data).GetSHA256();

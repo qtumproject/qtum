@@ -37,4 +37,6 @@ int GetNumCores();
  */
 std::optional<size_t> GetTotalRAM();
 
+bool CheckHex(const std::string& str);
+
 #endif // BITCOIN_COMMON_SYSTEM_H

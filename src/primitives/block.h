@@ -33,13 +33,18 @@ public:
     uint32_t nTime;
     uint32_t nBits;
     uint32_t nNonce;
+    uint256 hashStateRoot; // qtum
+    uint256 hashUTXORoot; // qtum
+    // proof-of-stake specific fields
+    COutPoint prevoutStake;
+    std::vector<unsigned char> vchBlockSigDlgt; // The delegate is 65 bytes or 0 bytes, it can be added in the signature paramether at the end to avoid compatibility problems
 
     CBlockHeader()
     {
         SetNull();
     }
 
-    SERIALIZE_METHODS(CBlockHeader, obj) { READWRITE(obj.nVersion, obj.hashPrevBlock, obj.hashMerkleRoot, obj.nTime, obj.nBits, obj.nNonce); }
+    SERIALIZE_METHODS(CBlockHeader, obj) { READWRITE(obj.nVersion, obj.hashPrevBlock, obj.hashMerkleRoot, obj.nTime, obj.nBits, obj.nNonce, obj.hashStateRoot, obj.hashUTXORoot, obj.prevoutStake, obj.vchBlockSigDlgt); }
 
     void SetNull()
     {
@@ -49,6 +54,10 @@ public:
         nTime = 0;
         nBits = 0;
         nNonce = 0;
+        hashStateRoot.SetNull(); // qtum
+        hashUTXORoot.SetNull(); // qtum
+        vchBlockSigDlgt.clear();
+        prevoutStake.SetNull();
     }
 
     bool IsNull() const
@@ -57,6 +66,10 @@ public:
     }
 
     uint256 GetHash() const;
+
+    uint256 GetHashWithoutSign() const;
+
+    std::string GetWithoutSign() const;
 
     NodeSeconds Time() const
     {
@@ -67,6 +80,35 @@ public:
     {
         return (int64_t)nTime;
     }
+
+    // ppcoin: two types of block: proof-of-work or proof-of-stake
+    bool IsProofOfStake() const //qtum
+    {
+        return !prevoutStake.IsNull();
+    }
+
+    bool IsProofOfWork() const
+    {
+        return !IsProofOfStake();
+    }
+    
+    uint32_t StakeTime() const
+    {
+        uint32_t ret = 0;
+        if(IsProofOfStake())
+        {
+            ret = nTime;
+        }
+        return ret;
+    }
+
+    void SetBlockSignature(const std::vector<unsigned char>& vchSign);
+    std::vector<unsigned char> GetBlockSignature() const;
+
+    void SetProofOfDelegation(const std::vector<unsigned char>& vchPoD);
+    std::vector<unsigned char> GetProofOfDelegation() const;
+
+    bool HasProofOfDelegation() const;
 };
 
 
@@ -104,6 +146,11 @@ public:
         fChecked = false;
         m_checked_witness_commitment = false;
         m_checked_merkle_root = false;
+    }
+
+    std::pair<COutPoint, unsigned int> GetProofOfStake() const //qtum
+    {
+        return IsProofOfStake()? std::make_pair(prevoutStake, nTime) : std::make_pair(COutPoint(), (unsigned int)0);
     }
 
     std::string ToString() const;
