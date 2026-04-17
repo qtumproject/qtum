@@ -21,7 +21,7 @@ uint256 BlockMerkleRoot(const CBlock& block, bool* mutated = nullptr);
 /*
  * Compute the Merkle root of the witness transactions in a block.
  */
-uint256 BlockWitnessMerkleRoot(const CBlock& block);
+uint256 BlockWitnessMerkleRoot(const CBlock& block, bool* pfProofOfStake = nullptr);
 
 /**
  * Compute merkle path to the specified transaction

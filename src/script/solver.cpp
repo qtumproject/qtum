@@ -8,10 +8,15 @@
 #include <script/script.h>
 #include <script/solver.h>
 #include <span.h>
+#include <qtum/qtumDGP.h>
+#include <qtum/qtumtransaction.h>
+#include <validation.h>
+#include <addresstype.h>
 
 #include <algorithm>
 #include <cassert>
 #include <string>
+#include <streams.h>
 
 typedef std::vector<unsigned char> valtype;
 
@@ -29,6 +34,10 @@ std::string GetTxnOutputType(TxoutType t)
     case TxoutType::WITNESS_V0_SCRIPTHASH: return "witness_v0_scripthash";
     case TxoutType::WITNESS_V1_TAPROOT: return "witness_v1_taproot";
     case TxoutType::WITNESS_UNKNOWN: return "witness_unknown";
+    case TxoutType::CREATE_SENDER: return "create_sender";
+    case TxoutType::CALL_SENDER: return "call_sender";
+    case TxoutType::CREATE: return "create";
+    case TxoutType::CALL: return "call";
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -138,7 +147,12 @@ std::optional<std::pair<int, std::vector<std::span<const unsigned char>>>> Match
     return std::pair{*threshold, std::move(keyspans)};
 }
 
-TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet)
+static bool MatchContract(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus, bool allowEmptySenderSig, TxoutType& typeRet )
+{
+    return false;
+}
+
+TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned char>>& vSolutionsRet, bool contractConsensus, bool allowEmptySenderSig)
 {
     vSolutionsRet.clear();
 
@@ -206,6 +220,12 @@ TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned c
         return TxoutType::MULTISIG;
     }
 
+    TxoutType typeContract = TxoutType::NONSTANDARD;
+    if(MatchContract(scriptPubKey, vSolutionsRet, contractConsensus, allowEmptySenderSig, typeContract))
+    {
+        return typeContract;
+    }
+
     vSolutionsRet.clear();
     return TxoutType::NONSTANDARD;
 }
@@ -225,4 +245,74 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys)
     script << keys.size() << OP_CHECKMULTISIG;
 
     return script;
+}
+
+bool ExtractSenderData(const CScript &outputPubKey, CScript *senderPubKey, CScript *senderSig)
+{
+    if(outputPubKey.HasOpSender())
+    {
+        try
+        {
+            // Solve the contract with or without contract consensus
+            std::vector<valtype> vSolutions;
+            if (TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, true) &&
+                    TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, false))
+                return false;
+
+            // Check the size of the returned data
+            if(vSolutions.size() < 2)
+                return false;
+
+            // Get the sender public key
+            if(senderPubKey)
+            {
+                DataStream ss(vSolutions[0]);
+                ss >> *senderPubKey;
+            }
+
+            // Get the sender signature
+            if(senderSig)
+            {
+                DataStream ss(vSolutions[1]);
+                ss >> *senderSig;
+            }
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    return false;
+}
+
+bool GetSenderPubKey(const CScript &outputPubKey, CScript &senderPubKey)
+{
+    if(outputPubKey.HasOpSender())
+    {
+        try
+        {
+            // Solve the contract with or without contract consensus
+            std::vector<valtype> vSolutions;
+            if (TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, true, true) &&
+                    TxoutType::NONSTANDARD == Solver(outputPubKey, vSolutions, false, true))
+                return false;
+
+            // Check the size of the returned data
+            if(vSolutions.size() < 1)
+                return false;
+
+            // Get the sender public key
+            DataStream ss(vSolutions[0]);
+            ss >> senderPubKey;
+        }
+        catch(...)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    return false;
 }

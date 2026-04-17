@@ -25,6 +25,8 @@ class CScriptNum;
 class XOnlyPubKey;
 struct CScriptWitness;
 
+typedef std::vector<unsigned char> valtype;
+
 /** Signature hash types/flags */
 enum
 {
@@ -145,6 +147,14 @@ enum class script_verify_flag_name : uint8_t {
     // Making unknown public key versions (in BIP 342 scripts) non-standard
     SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE,
 
+    // Support sender address in contract output
+    //
+    SCRIPT_OUTPUT_SENDER,
+
+    // Performs the compiled byte code
+    //
+    SCRIPT_EXEC_BYTE_CODE,
+
     // Constants to point to the highest flag in use. Add new flags above this line.
     //
     SCRIPT_VERIFY_END_MARKER
@@ -167,13 +177,14 @@ struct PrecomputedTransactionData
     uint256 m_prevouts_single_hash;
     uint256 m_sequences_single_hash;
     uint256 m_outputs_single_hash;
+    uint256 m_outputs_opsender_single_hash;
     uint256 m_spent_amounts_single_hash;
     uint256 m_spent_scripts_single_hash;
     //! Whether the 5 fields above are initialized.
     bool m_bip341_taproot_ready = false;
 
     // BIP143 precomputed data (double-SHA256).
-    uint256 hashPrevouts, hashSequence, hashOutputs;
+    uint256 hashPrevouts, hashSequence, hashOutputs, hashOutputsOpSender;
     //! Whether the 3 fields above are initialized.
     bool m_bip143_segwit_ready = false;
 
@@ -271,6 +282,9 @@ public:
 template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int32_t nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr, SigHashCache* sighash_cache = nullptr);
 
+template <class T>
+uint256 SignatureHashOutput(const CScript& scriptCode, const T& txTo, unsigned int nOut, int32_t nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);
+
 class BaseSignatureChecker
 {
 public:
@@ -364,6 +378,27 @@ public:
     }
 };
 
+template <class T>
+class GenericTransactionSignatureOutputChecker : public BaseSignatureChecker
+{
+private:
+    const T* txTo;
+    unsigned int nOut;
+    const CAmount amount;
+    const PrecomputedTransactionData* txdata;
+
+protected:
+    virtual bool VerifyECDSASignature(const std::vector<unsigned char>& vchSig, const CPubKey& vchPubKey, const uint256& sighash) const;
+
+public:
+    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CAmount& amountIn) : txTo(txToIn), nOut(nOutIn), amount(amountIn), txdata(nullptr) {}
+    GenericTransactionSignatureOutputChecker(const T* txToIn, unsigned int nOutIn, const CAmount& amountIn, const PrecomputedTransactionData& txdataIn) : txTo(txToIn), nOut(nOutIn), amount(amountIn), txdata(&txdataIn) {}
+    bool CheckECDSASignature(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const override;
+};
+
+using TransactionSignatureOutputChecker = GenericTransactionSignatureOutputChecker<CTransaction>;
+using MutableTransactionSignatureOutputChecker = GenericTransactionSignatureOutputChecker<CMutableTransaction>;
+
 /** Compute the BIP341 tapleaf hash from leaf version & script. */
 uint256 ComputeTapleafHash(uint8_t leaf_version, std::span<const unsigned char> script);
 /** Compute the BIP341 tapbranch hash from two branches.
@@ -384,5 +419,9 @@ int FindAndDelete(CScript& script, const CScript& b);
 const std::map<std::string, script_verify_flag_name>& ScriptFlagNamesToEnum();
 
 std::vector<std::string> GetScriptFlagNames(script_verify_flags flags);
+
+bool IsLowDERSignature(const valtype &vchSig, ScriptError* serror = NULL, bool haveHashType = true);
+bool IsDERSignature(const valtype &vchSig, ScriptError* serror = NULL, bool haveHashType = true);
+bool IsCompressedOrUncompressedPubKey(const valtype &vchPubKey);
 
 #endif // BITCOIN_SCRIPT_INTERPRETER_H

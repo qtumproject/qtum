@@ -73,7 +73,7 @@ uint256 BlockMerkleRoot(const CBlock& block, bool* mutated)
     return ComputeMerkleRoot(std::move(leaves), mutated);
 }
 
-uint256 BlockWitnessMerkleRoot(const CBlock& block)
+uint256 BlockWitnessMerkleRoot(const CBlock& block, bool* pfProofOfStake)
 {
     std::vector<uint256> leaves;
     leaves.reserve((block.vtx.size() + 1) & ~1ULL); // capacity rounded up to even
