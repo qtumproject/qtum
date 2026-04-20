@@ -75,10 +75,15 @@ uint256 BlockMerkleRoot(const CBlock& block, bool* mutated)
 
 uint256 BlockWitnessMerkleRoot(const CBlock& block, bool* pfProofOfStake)
 {
+    bool fProofOfStake = pfProofOfStake ? *pfProofOfStake : block.IsProofOfStake();
     std::vector<uint256> leaves;
     leaves.reserve((block.vtx.size() + 1) & ~1ULL); // capacity rounded up to even
     leaves.emplace_back(); // The witness hash of the coinbase is 0.
-    for (size_t s = 1; s < block.vtx.size(); s++) {
+    if(fProofOfStake)
+    {
+        leaves.emplace_back(); // The witness hash of the coinstake is 0.
+    }
+    for (size_t s = 1 + (fProofOfStake ? 1 : 0); s < block.vtx.size(); s++) {
         leaves.push_back(block.vtx[s]->GetWitnessHash().ToUint256());
     }
     return ComputeMerkleRoot(std::move(leaves));
