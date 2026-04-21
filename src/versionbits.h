@@ -96,6 +96,8 @@ public:
      *  indicating the deployment is likely to be ACTIVE, rather than merely LOCKED_IN. */
     std::vector<std::pair<int,bool>> CheckUnknownActivations(const CBlockIndex* pindex, const CChainParams& chainparams) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
+    void Erase(CBlockIndex *pindex) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
+
     void Clear() EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 };
 
