@@ -868,6 +868,7 @@ private:
     uint256 GetOrphanRoot(const uint256& hash) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
     void PruneOrphanBlocks() EXCLUSIVE_LOCKS_REQUIRED(cs_main);
     bool ProcessNetBlockHeaders(CNode& node, const std::vector<CBlockHeader>& block, bool min_pow_checked, BlockValidationState& state, const CBlockIndex** ppindex=nullptr);
+    bool ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool force_processing, bool min_pow_checked, bool* new_block, CNode& node);
 
     /** Clean block index. */
     bool RemoveStateBlockIndex(CBlockIndex *pindex);
@@ -2821,11 +2822,12 @@ arith_uint256 PeerManagerImpl::GetAntiDoSWorkThreshold()
 {
     arith_uint256 near_chaintip_work = 0;
     LOCK(cs_main);
-    if (m_chainman.ActiveChain().Tip() != nullptr) {
-        const CBlockIndex *tip = m_chainman.ActiveChain().Tip();
-        // Use a 144 block buffer, so that we'll accept headers that fork from
+    const CBlockIndex *tip = m_chainman.ActiveChain().Tip();
+    if (tip != nullptr) {
+        // Use an auto selected sync checkpoint
         // near our tip.
-        near_chaintip_work = tip->nChainWork - std::min<arith_uint256>(144*GetBlockProof(*tip), tip->nChainWork);
+        const CBlockIndex* pcheckpoint = m_chainman.m_blockman.AutoSelectSyncCheckpoint(tip);
+        near_chaintip_work = pcheckpoint->nChainWork;
     }
     return std::max(near_chaintip_work, m_chainman.MinimumChainWork());
 }
@@ -3322,7 +3324,7 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, Peer& peer,
 
     // Now process all the headers.
     BlockValidationState state;
-    const bool processed{m_chainman.ProcessNewBlockHeaders(headers,
+    const bool processed{ProcessNetBlockHeaders(pfrom, headers,
                                                            /*min_pow_checked=*/true,
                                                            state, &pindexLast)};
     if (!processed) {
@@ -3669,7 +3671,7 @@ void PeerManagerImpl::ProcessGetCFCheckPt(CNode& node, Peer& peer, DataStream& v
 void PeerManagerImpl::ProcessBlock(CNode& node, const std::shared_ptr<const CBlock>& block, bool force_processing, bool min_pow_checked)
 {
     bool new_block{false};
-    m_chainman.ProcessNewBlock(block, force_processing, min_pow_checked, &new_block);
+    ProcessNetBlock(block, force_processing, min_pow_checked, &new_block, node);
     if (new_block) {
         node.m_last_block_time = GetTime<std::chrono::seconds>();
         // In case this block came from a different peer than we requested
@@ -4851,7 +4853,7 @@ void PeerManagerImpl::ProcessMessage(Peer& peer, CNode& pfrom, const std::string
 
         const CBlockIndex *pindex = nullptr;
         BlockValidationState state;
-        if (!m_chainman.ProcessNewBlockHeaders({{cmpctblock.header}}, /*min_pow_checked=*/true, state, &pindex)) {
+        if (!ProcessNetBlockHeaders(pfrom, {cmpctblock.header}, /*min_pow_checked=*/true, state, &pindex)) {
             if (state.IsInvalid()) {
                 MaybePunishNodeForBlock(pfrom.GetId(), state, /*via_compact_block=*/true, "invalid header via cmpctblock");
                 return;
@@ -6536,6 +6538,151 @@ void PeerManagerImpl::PruneOrphanBlocks()
     }
 }
 
+bool PeerManagerImpl::ProcessNetBlock(const std::shared_ptr<const CBlock> pblock, bool force_processing, bool min_pow_checked, bool* new_block, CNode& pfrom)
+{
+    PeerRef peer = GetPeerRef(pfrom.GetId());
+    uint256 hash;
+    {
+        LOCK(cs_main);
+
+        // Check that the coinstake transaction exist in the received block
+        if(pblock->IsProofOfStake() && !(pblock->vtx.size() > 1 && pblock->vtx[1]->IsCoinStake()))
+        {
+            if (peer) Misbehaving(*peer, "Coinstake transaction does not exist");
+            LogError("ProcessNetBlock() : coinstake transaction does not exist");
+            return false;
+        }
+
+        // Check for duplicate orphan block
+        // Duplicate stake allowed only when there is orphan child block
+        // if the block header is already known, allow it (to account for headers being sent before the block itself)
+        hash = pblock->GetHash();
+        if (!m_chainman.m_blockman.LoadingBlocks() && pblock->IsProofOfStake() && setStakeSeen.count(pblock->GetProofOfStake()) && !m_chainman.BlockIndex().count(hash) && !mapOrphanBlocksByPrev.count(hash)) {
+            LogError("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
+            return false;
+        }
+    }
+
+    // Process the header before processing the block
+    const CBlockIndex *pindex = nullptr;
+    BlockValidationState state;
+    if (!ProcessNetBlockHeaders(pfrom, {*pblock}, min_pow_checked, state, &pindex)) {
+        if (state.IsInvalid()) {
+            MaybePunishNodeForBlock(pfrom.GetId(), state, false, strprintf("Peer %d sent us invalid header\n", pfrom.GetId()));
+            LogError("ProcessNetBlock() : invalid header received");
+            return false;
+        }
+    }
+
+    {
+        LOCK(cs_main);
+        if (mapOrphanBlocks.count(hash)) {
+            LogError("ProcessNetBlock() : already have block (orphan) %s", hash.ToString());
+            return false;
+        }
+
+        // Check for the checkpoint
+        CBlockIndex* tip = m_chainman.ActiveChain().Tip();
+        if (tip && pblock->hashPrevBlock != tip->GetBlockHash())
+        {
+            // Extra checks to prevent "fill up memory by spamming with bogus blocks"
+            const CBlockIndex* pcheckpoint = m_chainman.m_blockman.AutoSelectSyncCheckpoint(tip);
+            int64_t deltaTime = pblock->GetBlockTime() - pcheckpoint->nTime;
+            if (deltaTime < 0)
+            {
+                if (peer) Misbehaving(*peer, "Block with timestamp before last checkpoint");
+                LogError("ProcessNetBlock() : block with timestamp before last checkpoint");
+                return false;
+            }
+        }
+
+        // Check for the signiture encoding
+        if (!CheckCanonicalBlockSignature(pblock.get())) 
+        {
+            if (peer) Misbehaving(*peer, "Bad block signature encoding");
+            LogError("ProcessNetBlock(): bad block signature encoding");
+            return false;
+        }
+
+        // If we don't already have its previous block, shunt it off to holding area until we get it
+        if (!m_chainman.BlockIndex().count(pblock->hashPrevBlock))
+        {
+            LogInfo("ProcessNetBlock: ORPHAN BLOCK %lu, prev=%s\n", (unsigned long)mapOrphanBlocks.size(), pblock->hashPrevBlock.ToString());
+
+            // Accept orphans as long as there is a node to request its parents from
+            // ppcoin: check proof-of-stake
+            if (pblock->IsProofOfStake())
+            {
+                // Limited duplicity on stake: prevents block flood attack
+                // Duplicate stake allowed only when there is orphan child block
+                if (setStakeSeenOrphan.count(pblock->GetProofOfStake()) && !mapOrphanBlocksByPrev.count(hash)) {
+                    LogError("ProcessNetBlock() : duplicate proof-of-stake (%s, %d) for orphan block %s", pblock->GetProofOfStake().first.ToString(), pblock->GetProofOfStake().second, hash.ToString());
+                    return false;
+                }
+            }
+            PruneOrphanBlocks();
+            COrphanBlock* pblock2 = new COrphanBlock();
+            {
+                DataStream ss;
+                ss << TX_WITH_WITNESS(*pblock);
+                std::span<const uint8_t> cs = MakeUCharSpan(ss);
+                pblock2->vchBlock = std::vector<unsigned char>(cs.begin(), cs.end());
+            }
+            pblock2->hashBlock = hash;
+            pblock2->hashPrev = pblock->hashPrevBlock;
+            pblock2->stake = pblock->GetProofOfStake();
+            nOrphanBlocksSize += pblock2->vchBlock.size();
+            mapOrphanBlocks.insert(std::make_pair(hash, pblock2));
+            mapOrphanBlocksByPrev.insert(std::make_pair(pblock2->hashPrev, pblock2));
+            if (pblock->IsProofOfStake())
+                setStakeSeenOrphan.insert(pblock->GetProofOfStake());
+
+            // Ask this guy to fill in what we're missing
+            PushGetBlocks(pfrom, m_chainman.m_best_header, GetOrphanRoot(hash));
+            return true;
+        }
+    }
+
+    if(!m_chainman.ProcessNewBlock(pblock, force_processing, min_pow_checked, new_block)) {
+        LogError("%s: ProcessNewBlock FAILED", __func__);
+        return false;
+    }
+
+    std::vector<uint256> vWorkQueue;
+    vWorkQueue.push_back(pblock->GetHash());
+    for (unsigned int i = 0; i < vWorkQueue.size(); i++)
+    {
+        uint256 hashPrev = vWorkQueue[i];
+        for (std::multimap<uint256, COrphanBlock*>::iterator mi = mapOrphanBlocksByPrev.lower_bound(hashPrev);
+             mi != mapOrphanBlocksByPrev.upper_bound(hashPrev);
+             ++mi)
+        {
+            CBlock block;
+            {
+                DataStream ss(mi->second->vchBlock);
+                ss >> TX_WITH_WITNESS(block);
+            }
+            block.hashMerkleRoot = BlockMerkleRoot(block);
+
+            bool new_blockOrphan = false;
+            std::shared_ptr<const CBlock> shared_pblock = std::make_shared<const CBlock>(block);
+            if (m_chainman.ProcessNewBlock(shared_pblock, force_processing, min_pow_checked, &new_blockOrphan))
+                vWorkQueue.push_back(mi->second->hashBlock);
+
+            LOCK(cs_main);
+            mapOrphanBlocks.erase(mi->second->hashBlock);
+            setStakeSeenOrphan.erase(block.GetProofOfStake());
+            nOrphanBlocksSize -= mi->second->vchBlock.size();
+            delete mi->second;
+        }
+
+        LOCK(cs_main);
+        mapOrphanBlocksByPrev.erase(hashPrev);
+    }
+
+    return true;
+}
+
 bool PeerManagerImpl::RemoveStateBlockIndex(CBlockIndex *pindex)
 {
     AssertLockHeld(cs_main);
@@ -6594,6 +6741,68 @@ bool PeerManagerImpl::RemoveBlockIndex(CBlockIndex *pindex)
 
 void PeerManagerImpl::CleanBlockIndex()
 {
+    unsigned int cleanTimeout = gArgs.GetIntArg("-cleanblockindextimeout", DEFAULT_CLEANBLOCKINDEXTIMEOUT);
+    if(cleanTimeout == 0) cleanTimeout = DEFAULT_CLEANBLOCKINDEXTIMEOUT;
+    cleanTimeout *= 10; // Number of intervals with 100 milliseconds
+
+    while(!m_stop_thread_clean_block_index)
+    {
+        if(!m_chainman.IsInitialBlockDownload())
+        {
+            // Select block indexes to delete
+            std::vector<uint256> indexNeedErase;
+            {
+                LOCK(cs_main);
+                int nHeight = m_chainman.ActiveChain().Height();
+                int checkpointSpan = Params().GetConsensus().CheckpointSpan(nHeight);
+                const CBlockIndex *pindexCheck = m_chainman.ActiveChain()[nHeight - checkpointSpan -1];
+                if(pindexCheck)
+                {
+                    for (node::BlockMap::iterator it=m_chainman.BlockIndex().begin(); it!=m_chainman.BlockIndex().end(); it++)
+                    {
+                        CBlockIndex *pindex = &((*it).second);
+                        if(NeedToEraseBlockIndex(pindex, pindexCheck))
+                        {
+                            indexNeedErase.push_back(pindex->GetBlockHash());
+                        }
+                    }
+                }
+            }
+
+            // Delete selected block indexes
+            if(indexNeedErase.size() > 0)
+            {
+                if (m_chainman.m_options.signals)
+                    m_chainman.m_options.signals->SyncWithValidationInterfaceQueue();
+
+                LOCK(cs_main);
+                std::vector<uint256> indexEraseDB;
+                for(uint256 blockHash : indexNeedErase)
+                {
+                    node::BlockMap::iterator it=m_chainman.BlockIndex().find(blockHash);
+                    if(it!=m_chainman.BlockIndex().end())
+                    {
+                        CBlockIndex *pindex = &((*it).second);
+                        if(RemoveBlockIndex(pindex))
+                        {
+                            // The map contain instance of CBlockIndex 
+                            // which is deleted when the iterator is deleted
+                            m_chainman.BlockIndex().erase(it);
+                            indexEraseDB.push_back(blockHash);
+                        }
+                    }
+                }
+
+                if(m_chainman.m_blockman.m_block_tree_db)
+                {
+                    m_chainman.m_blockman.m_block_tree_db->EraseBlockIndex(indexEraseDB);
+                }
+            }
+        }
+
+        for(unsigned int i = 0; (i < cleanTimeout) && !m_stop_thread_clean_block_index; i++)
+            UninterruptibleSleep(std::chrono::milliseconds{100});
+    }
 }
 
 void PeerManagerImpl::InitCleanBlockIndex()

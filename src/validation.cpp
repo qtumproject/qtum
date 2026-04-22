@@ -119,6 +119,8 @@ TRACEPOINT_SEMAPHORE(utxocache, flush);
 TRACEPOINT_SEMAPHORE(mempool, replaced);
 TRACEPOINT_SEMAPHORE(mempool, rejected);
 
+std::set<std::pair<COutPoint, unsigned int>> setStakeSeen;
+
 const CBlockIndex* Chainstate::FindForkInGlobalIndex(const CBlockLocator& locator) const
 {
     AssertLockHeld(cs_main);

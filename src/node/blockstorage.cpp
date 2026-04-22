@@ -167,6 +167,15 @@ std::string CBlockFileInfo::ToString() const
 {
     return strprintf("CBlockFileInfo(blocks=%u, size=%u, heights=%u...%u, time=%s...%s)", nBlocks, nSize, nHeightFirst, nHeightLast, FormatISO8601Date(nTimeFirst), FormatISO8601Date(nTimeLast));
 }
+
+void BlockTreeDB::EraseBlockIndex(const std::vector<uint256> &vect)
+{
+    CDBBatch batch(*this);
+    for (std::vector<uint256>::const_iterator it=vect.begin(); it!=vect.end(); it++)
+        batch.Erase(std::make_pair(DB_BLOCK_INDEX, *it));
+    WriteBatch(batch);
+}
+///////////////////////////////////////////////////////
 } // namespace kernel
 
 namespace node {
@@ -645,6 +654,38 @@ bool BlockManager::CheckBlockDataAvailability(const CBlockIndex& upper_block, co
     return &first_block == &lower_block;
 }
 
+bool BlockManager::CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data)
+{
+    const MapCheckpoints& checkpoints = data.mapCheckpoints;
+
+    MapCheckpoints::const_iterator i = checkpoints.find(nHeight);
+    if (i == checkpoints.end()) return true;
+    return hash == i->second;
+}
+
+// Automatically select a suitable sync-checkpoint 
+const CBlockIndex* BlockManager::AutoSelectSyncCheckpoint(const CBlockIndex *pindexBest)
+{
+    const CBlockIndex *pindex = pindexBest;
+    // Search backward for a block within max span and maturity window
+    int checkpointSpan = GetConsensus().CheckpointSpan(pindexBest->nHeight);
+    while (pindex->pprev && pindex->nHeight + checkpointSpan > pindexBest->nHeight)
+        pindex = pindex->pprev;
+    return pindex;
+}
+
+// Check against synchronized checkpoint
+bool BlockManager::CheckSync(int nHeight, const CBlockIndex *pindexBest)
+{
+    const CBlockIndex* pindexSync = nullptr;
+    if(nHeight)
+        pindexSync = AutoSelectSyncCheckpoint(pindexBest);
+
+    if(nHeight && nHeight <= pindexSync->nHeight)
+        return false;
+    return true;
+}
+
 // If we're using -prune with -reindex, then delete block files that will be ignored by the
 // reindex.  Since reindexing works by starting at block file 0 and looping until a blockfile
 // is missing, do the same here to delete any later block files after a gap.  Also delete all
@@ -1033,7 +1074,8 @@ bool BlockManager::WriteBlockUndo(const CBlockUndo& blockundo, BlockValidationSt
     return true;
 }
 
-bool BlockManager::ReadBlock(CBlock& block, const FlatFilePos& pos, const std::optional<uint256>& expected_hash) const
+template <typename Block>
+bool BlockManager::ReadBlock(Block& block, const FlatFilePos& pos, const std::optional<uint256>& expected_hash) const
 {
     block.SetNull();
 
@@ -1054,7 +1096,9 @@ bool BlockManager::ReadBlock(CBlock& block, const FlatFilePos& pos, const std::o
     const auto block_hash{block.GetHash()};
 
     // Check the header
-    if (!CheckProofOfWork(block_hash, block.nBits, GetConsensus())) {
+    // PoS blocks can be loaded out of order from disk, which makes PoS impossible to validate. So, do not validate their headers
+    // they will be validated later in CheckBlock and ConnectBlock anyway
+    if (block.IsProofOfWork() && !CheckProofOfWork(block_hash, block.nBits, GetConsensus())) {
         LogError("Errors in block header at %s while reading block", pos.ToString());
         return false;
     }
