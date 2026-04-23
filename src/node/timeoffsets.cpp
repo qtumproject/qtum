@@ -59,7 +59,7 @@ bool TimeOffsets::WarnIfOutOfSync() const
         "automatically after you've connected to a sufficient number of new outbound peers, which may "
         "take some time. You can inspect the `timeoffset` field of the `getpeerinfo` and `getnetworkinfo` "
         "RPC methods to get more info."
-    ), Ticks<std::chrono::minutes>(WARN_THRESHOLD))};
+    ), Ticks<std::chrono::minutes>(std::chrono::ceil<std::chrono::minutes>(WARN_THRESHOLD)))};
     LogWarning("%s\n", msg.original);
     m_warnings.Set(node::Warning::CLOCK_OUT_OF_SYNC, msg);
     return true;

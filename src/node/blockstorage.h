@@ -126,7 +126,54 @@ public:
     bool LoadBlockIndexGuts(const Consensus::Params& consensusParams, std::function<CBlockIndex*(const uint256&)> insertBlockIndex, const util::SignalInterrupt& interrupt)
         EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
 
+    ////////////////////////////////////////////////////////////////////////////// // qtum
+    void WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const std::vector<uint256>& hash);
+
+    /**
+     * Iterates through blocks by height, starting from low.
+     *
+     * @param low start iterating from this block height
+     * @param high end iterating at this block height (ignored if <= 0)
+     * @param minconf stop iterating of the block height does not have enough confirmations (ignored if <= 0)
+     * @param blocksOfHashes transaction hashes in blocks iterated are collected into this vector.
+     * @param addresses filter out a block unless it matches one of the addresses in this set.
+     *
+     * @return the height of the latest block iterated. 0 if no block is iterated.
+     */
+    int ReadHeightIndex(int low, int high, int minconf,
+            std::vector<std::vector<uint256>> &blocksOfHashes,
+            std::set<dev::h160> const &addresses, ChainstateManager &chainman);
+    void EraseHeightIndex(const unsigned int &height);
+    void WipeHeightIndex();
+
+    void WriteStakeIndex(unsigned int height, uint160 address);
+    bool ReadStakeIndex(unsigned int height, uint160& address);
+    bool ReadStakeIndex(unsigned int high, unsigned int low, std::vector<uint160> addresses);
+    void EraseStakeIndex(unsigned int height);
+
+    void WriteDelegateIndex(unsigned int height, uint160 address, uint8_t fee);
+    bool ReadDelegateIndex(unsigned int height, uint160& address, uint8_t& fee);
+    void EraseDelegateIndex(unsigned int height);
+
     void EraseBlockIndex(const std::vector<uint256>&vect);
+
+    // Block explorer database functions
+    void WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
+    void EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount> > &vect);
+    bool ReadAddressIndex(uint256 addressHash, int type,
+                        std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
+                        int start = 0, int end = 0);
+    void UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect);
+    bool ReadAddressUnspentIndex(uint256 addressHash, int type,
+                                std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &vect);
+    void WriteTimestampIndex(const CTimestampIndexKey &timestampIndex);
+    bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &vect, ChainstateManager & chainman);
+    void WriteTimestampBlockIndex(const CTimestampBlockIndexKey &blockhashIndex, const CTimestampBlockIndexValue &logicalts);
+    bool ReadTimestampBlockIndex(const uint256 &hash, unsigned int &logicalTS);
+    bool ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
+    void UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect);
+    bool blockOnchainActive(const uint256 &hash, ChainstateManager &chainman);
+    //////////////////////////////////////////////////////////////////////////////
 };
 } // namespace kernel
 

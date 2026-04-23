@@ -96,6 +96,9 @@ enum class SynchronizationState {
     POST_INIT
 };
 
+extern bool fAddressIndex;
+extern bool fLogEvents;
+
 /** Documentation for argument 'checklevel'. */
 extern const std::vector<std::string> CHECKLEVEL_DOC;
 
@@ -390,6 +393,8 @@ public:
     //! Return a copy of the pre-initialized hasher.
     CSHA256 ScriptExecutionCacheHasher() const { return m_script_execution_cache_hasher; }
 };
+
+bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
 
 /** Functions for validating blocks and updating the block tree */
 

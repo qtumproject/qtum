@@ -76,6 +76,18 @@ struct BlockCreateOptions {
      * Whether to include an OP_0 as a dummy extraNonce in the template's coinbase
      */
     bool include_dummy_extranonce{false};
+    /**
+     * Is proof of stake
+     */
+    bool is_coinstake{false};
+    /**
+     * Proof time
+     */
+    int64_t proof_time{0};
+    /**
+     * Time limit for adding transaction
+     */
+    int64_t time_limit{0};
 };
 
 struct BlockWaitOptions {
