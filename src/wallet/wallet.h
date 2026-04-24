@@ -35,6 +35,9 @@
 #include <wallet/transaction.h>
 #include <wallet/types.h>
 #include <wallet/walletutil.h>
+#include <validation.h>
+#include <consensus/params.h>
+#include <qtum/posutils.h>
 
 #include <atomic>
 #include <cassert>
@@ -52,6 +55,7 @@
 #include <vector>
 
 #include <boost/signals2/signal.hpp>
+#include <boost/thread.hpp>
 
 class CKey;
 class CKeyID;
@@ -103,11 +107,11 @@ void NotifyWalletLoaded(WalletContext& context, const std::shared_ptr<CWallet>& 
 std::unique_ptr<WalletDatabase> MakeWalletDatabase(const std::string& name, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error);
 
 //! -fallbackfee default
-static const CAmount DEFAULT_FALLBACK_FEE = 0;
+static const CAmount DEFAULT_FALLBACK_FEE = 20000;
 //! -discardfee default
 static const CAmount DEFAULT_DISCARD_FEE = 10000;
 //! -mintxfee default
-static const CAmount DEFAULT_TRANSACTION_MINFEE = 1000;
+static const CAmount DEFAULT_TRANSACTION_MINFEE = 400000;
 //! -consolidatefeerate default
 static const CAmount DEFAULT_CONSOLIDATE_FEERATE{10000}; // 10 sat/vbyte
 /**
@@ -121,9 +125,11 @@ static const CAmount DEFAULT_MAX_AVOIDPARTIALSPEND_FEE = 0;
 //! discourage APS fee higher than this amount
 constexpr CAmount HIGH_APS_FEE{COIN / 10000};
 //! minimum recommended increment for replacement txs
-static const CAmount WALLET_INCREMENTAL_RELAY_FEE = 5000;
+static const CAmount WALLET_INCREMENTAL_RELAY_FEE = 10000;
 //! Default for -spendzeroconfchange
 static const bool DEFAULT_SPEND_ZEROCONF_CHANGE = true;
+//! Default for zero balance address token
+static const bool DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN = true;
 //! Default for -walletrejectlongchains
 static const bool DEFAULT_WALLET_REJECT_LONG_CHAINS{true};
 //! -txconfirmtarget default
@@ -133,19 +139,38 @@ static const bool DEFAULT_WALLET_RBF = true;
 static const bool DEFAULT_WALLETBROADCAST = true;
 static const bool DEFAULT_DISABLE_WALLET = false;
 static const bool DEFAULT_WALLETCROSSCHAIN = false;
+static const bool DEFAULT_USE_CHANGE_ADDRESS = true;
+static const CAmount DEFAULT_RESERVE_BALANCE = 0;
 //! -maxtxfee default
-constexpr CAmount DEFAULT_TRANSACTION_MAXFEE{COIN / 10};
+constexpr CAmount DEFAULT_TRANSACTION_MAXFEE{1 * COIN};
 //! Discourage users to set fees higher than this amount (in satoshis) per kB
-constexpr CAmount HIGH_TX_FEE_PER_KB{COIN / 100};
+constexpr CAmount HIGH_TX_FEE_PER_KB{1 * COIN};
 //! -maxtxfee will warn if called with a higher fee than this amount (in satoshis)
 constexpr CAmount HIGH_MAX_TX_FEE{100 * HIGH_TX_FEE_PER_KB};
 //! Pre-calculated constants for input size estimation in *virtual size*
 static constexpr size_t DUMMY_NESTED_P2WPKH_INPUT_SIZE = 91;
 
+//! -stakingminfee default
+static const uint8_t DEFAULT_STAKING_MIN_FEE = 10;
+
+//! -minstakerutxosize default
+static const CAmount DEFAULT_STAKER_MIN_UTXO_SIZE{COIN/10};
+
+//! -maxstakerutxoscriptcache default
+static const int32_t DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE = 200000;
+
+//! -signpsbtwithhwitool default
+static const bool DEFAULT_SIGN_PSBT_WITH_HWI_TOOL = true;
+
 class CCoinControl;
+class CTokenTx;
+class CContractBookData;
+class CDelegationInfo;
+class CSuperStakerInfo;
+class CTokenInfo;
 
 //! Default for -addresstype
-constexpr OutputType DEFAULT_ADDRESS_TYPE{OutputType::BECH32};
+constexpr OutputType DEFAULT_ADDRESS_TYPE{OutputType::LEGACY};
 
 static constexpr uint64_t KNOWN_WALLET_FLAGS =
         WALLET_FLAG_AVOID_REUSE
@@ -300,6 +325,13 @@ struct CRecipient
     CTxDestination dest;
     CAmount nAmount;
     bool fSubtractFeeFromAmount;
+};
+
+struct CScriptCache{
+    bool contract = false;
+    bool keyIdOk = false;
+    uint160 keyId;
+    bool solvable = false;
 };
 
 class WalletRescanReserver; //forward declarations for ScanForWalletTransactions/RescanFromTime
@@ -458,6 +490,7 @@ public:
      * This lock protects all the fields added by CWallet.
      */
     mutable RecursiveMutex cs_wallet;
+    mutable RecursiveMutex cs_worker;
 
     WalletDatabase& GetDatabase() const override
     {
@@ -512,6 +545,24 @@ public:
      * bool to track whether this locked coin is persisted to disk.
      */
     std::map<COutPoint, bool> m_locked_coins GUARDED_BY(cs_wallet);
+
+    std::map<std::string, CContractBookData> mapContractBook;
+
+    std::map<uint256, CTokenInfo> mapToken;
+
+    std::map<uint256, CTokenTx> mapTokenTx;
+
+    std::map<uint256, CDelegationInfo> mapDelegation;
+
+    std::map<uint256, CSuperStakerInfo> mapSuperStaker;
+
+    bool fUpdatedSuperStaker = false;
+
+    std::map<COutPoint, CStakeCache> minerStakeCache;
+
+    std::map<uint160, bool> mapAddressUnspentCache;
+
+    bool fUpdateAddressUnspentCache = false;
 
     /** Registered interfaces::Chain::Notifications handler. */
     std::unique_ptr<interfaces::Handler> m_chain_notifications_handler;
@@ -601,6 +652,13 @@ public:
     bool EncryptWallet(const SecureString& strWalletPassphrase);
 
     unsigned int ComputeTimeSmart(const CWalletTx& wtx, bool rescanning_old_block) const;
+
+    bool LoadToken(const CTokenInfo &token);
+
+    bool LoadTokenTx(const CTokenTx &tokenTx);
+
+    //! Adds a contract data tuple to the store, without saving it to disk
+    bool LoadContractData(const std::string &address, const std::string &key, const std::string &value);
 
     /**
      * Increment the next transaction order id
@@ -745,6 +803,22 @@ public:
 
     /** Notify external script when a wallet transaction comes in or is updated (handled by -walletnotify) */
     std::string m_notify_tx_changed_script;
+
+    // optional setting to unlock wallet for staking only
+    // serves to disable the trivial sendmoney when OS account compromised
+    // provides no real security
+    std::atomic<bool> m_wallet_unlock_staking_only{false};
+    bool m_use_change_address{DEFAULT_USE_CHANGE_ADDRESS};
+    CAmount m_reserve_balance{DEFAULT_RESERVE_BALANCE};
+    int64_t m_last_coin_stake_search_time{0};
+    int64_t m_last_coin_stake_search_interval{0};
+    std::atomic<bool> m_enabled_staking{false};
+    CAmount m_staking_min_utxo_value{DEFAULT_STAKING_MIN_UTXO_VALUE};
+    CAmount m_staker_min_utxo_size{DEFAULT_STAKER_MIN_UTXO_SIZE};
+    int32_t m_staker_max_utxo_script_cache{DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE};
+    uint8_t m_staking_min_fee{DEFAULT_STAKING_MIN_FEE};
+    std::atomic<bool> m_stop_staking_thread{false};
+    std::atomic<bool> m_is_staking_thread_stopped{false};
 
     size_t KeypoolCountExternalKeys() const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool TopUpKeyPool(unsigned int kpSize = 0);
@@ -985,7 +1059,9 @@ public:
     /** Get last block processed height */
     int GetLastBlockHeight() const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet)
     {
+#ifndef DEBUG_LOCKORDER
         AssertLockHeld(cs_wallet);
+#endif
         assert(m_last_block_processed_height >= 0);
         return m_last_block_processed_height;
     };
@@ -1075,6 +1151,12 @@ public:
 
     //! Disconnect chain notifications and wait for all notifications to be processed
     void DisconnectChainNotifications();
+
+    /* Load delegation entry into the wallet */
+    bool LoadDelegation(const CDelegationInfo &delegation);
+
+    /* Load super staker entry into the wallet */
+    bool LoadSuperStaker(const CSuperStakerInfo &superStaker);
 };
 
 /**
@@ -1144,6 +1226,202 @@ struct MigrationResult {
 [[nodiscard]] util::Result<MigrationResult> MigrateLegacyToDescriptor(const std::string& wallet_name, const SecureString& passphrase, WalletContext& context);
 //! Requirement: The wallet provided to this function must be isolated, with no attachment to the node's context.
 [[nodiscard]] util::Result<MigrationResult> MigrateLegacyToDescriptor(std::shared_ptr<CWallet> local_wallet, const SecureString& passphrase, WalletContext& context);
+
+struct InfoSerParams {
+    const bool get_hash;
+    SER_PARAMS_OPFUNC
+};
+static constexpr InfoSerParams SER_INFO{.get_hash = false};
+static constexpr InfoSerParams SER_INFO_GETHASH{.get_hash = true};
+
+class CTokenInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strContractAddress;
+    std::string strTokenName;
+    std::string strTokenSymbol;
+    uint8_t nDecimals;
+    std::string strSenderAddress;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
+
+    CTokenInfo()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CTokenInfo, obj) {
+        if (!(s.template GetParams<InfoSerParams>()).get_hash)
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.strTokenName, obj.strTokenSymbol, obj.blockHash, obj.blockNumber);
+        }
+        READWRITE(obj.nDecimals, obj.strContractAddress, obj.strSenderAddress);
+    }
+
+    void SetNull()
+    {
+        nVersion = CTokenInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        strContractAddress = "";
+        strTokenName = "";
+        strTokenSymbol = "";
+        nDecimals = 0;
+        strSenderAddress = "";
+        blockHash.SetNull();
+        blockNumber = -1;
+    }
+
+    uint256 GetHash() const;
+};
+
+class CTokenTx
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    std::string strContractAddress;
+    std::string strSenderAddress;
+    std::string strReceiverAddress;
+    uint256 nValue;
+    uint256 transactionHash;
+
+    // Wallet data for token transaction
+    int64_t nCreateTime;
+    uint256 blockHash;
+    int64_t blockNumber;
+    std::string strLabel;
+
+    CTokenTx()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CTokenTx, obj) {
+        if (!(s.template GetParams<InfoSerParams>()).get_hash)
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.blockHash, obj.blockNumber, LIMITED_STRING(obj.strLabel, 65536));
+        }
+        READWRITE(obj.strContractAddress, obj.strSenderAddress, obj.strReceiverAddress, obj.nValue, obj.transactionHash);
+    }
+
+    void SetNull()
+    {
+        nVersion = CTokenTx::CURRENT_VERSION;
+        nCreateTime = 0;
+        strContractAddress = "";
+        strSenderAddress = "";
+        strReceiverAddress = "";
+        nValue.SetNull();
+        transactionHash.SetNull();
+        blockHash.SetNull();
+        blockNumber = -1;
+        strLabel = "";
+    }
+
+    uint256 GetHash() const;
+};
+
+/** Contract book data */
+class CContractBookData
+{
+public:
+    std::string name;
+    std::string abi;
+
+    CContractBookData()
+    {}
+};
+
+class CDelegationInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    int64_t nCreateTime;
+    uint8_t nFee;
+    uint160 delegateAddress;
+    uint160 stakerAddress;
+    std::string strStakerName;
+    int64_t blockNumber;
+    uint256 createTxHash;
+    uint256 removeTxHash;
+
+    CDelegationInfo()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CDelegationInfo, obj) {
+        if (!(s.template GetParams<InfoSerParams>()).get_hash)
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.nFee, obj.blockNumber, obj.createTxHash, obj.removeTxHash);
+        }
+        READWRITE(obj.delegateAddress, obj.stakerAddress, obj.strStakerName);
+    }
+
+    void SetNull()
+    {
+        nVersion = CDelegationInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        nFee = 0;
+        delegateAddress.SetNull();
+        stakerAddress.SetNull();
+        strStakerName = "";
+        blockNumber = -1;
+        createTxHash.SetNull();
+        removeTxHash.SetNull();
+    }
+
+    uint256 GetHash() const;
+};
+
+class CSuperStakerInfo
+{
+public:
+    static const int CURRENT_VERSION=1;
+    int nVersion;
+    int64_t nCreateTime;
+    uint160 stakerAddress;
+    std::string strStakerName;
+    bool fCustomConfig;
+    uint8_t nMinFee;
+    CAmount nMinDelegateUtxo;
+    std::vector<uint160> delegateAddressList;
+    int nDelegateAddressType;
+
+    CSuperStakerInfo()
+    {
+        SetNull();
+    }
+
+    SERIALIZE_METHODS(CSuperStakerInfo, obj) {
+        if (!(s.template GetParams<InfoSerParams>()).get_hash)
+        {
+            READWRITE(obj.nVersion, obj.nCreateTime, obj.nMinFee, obj.fCustomConfig, obj.nMinDelegateUtxo, obj.delegateAddressList, obj.nDelegateAddressType);
+        }
+        READWRITE(obj.stakerAddress, obj.strStakerName);
+    }
+
+    void SetNull()
+    {
+        nVersion = CSuperStakerInfo::CURRENT_VERSION;
+        nCreateTime = 0;
+        nMinFee = 0;
+        stakerAddress.SetNull();
+        strStakerName = "";
+        fCustomConfig = 0;
+        nMinDelegateUtxo = 0;
+        delegateAddressList.clear();
+        nDelegateAddressType = 0;
+    }
+
+    uint256 GetHash() const;
+};
 } // namespace wallet
 
 #endif // BITCOIN_WALLET_WALLET_H

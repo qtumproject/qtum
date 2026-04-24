@@ -3314,6 +3314,22 @@ bool CWallet::BackupWallet(const std::string& strDest) const
     return GetDatabase().Backup(strDest);
 }
 
+bool CWallet::LoadToken(const CTokenInfo &token)
+{
+    uint256 hash = token.GetHash();
+    mapToken[hash] = token;
+
+    return true;
+}
+
+bool CWallet::LoadTokenTx(const CTokenTx &tokenTx)
+{
+    uint256 hash = tokenTx.GetHash();
+    mapTokenTx[hash] = tokenTx;
+
+    return true;
+}
+
 int CWallet::GetTxDepthInMainChain(const CWalletTx& wtx) const
 {
     AssertLockHeld(cs_wallet);
@@ -4587,4 +4603,57 @@ void CWallet::DisconnectChainNotifications()
     }
 }
 
+uint256 CTokenInfo::GetHash() const
+{
+    return (HashWriter{} << SER_INFO_GETHASH(*this)).GetHash();
+}
+
+uint256 CTokenTx::GetHash() const
+{
+    return (HashWriter{} << SER_INFO_GETHASH(*this)).GetHash();
+}
+
+uint256 CDelegationInfo::GetHash() const
+{
+    return (HashWriter{} << SER_INFO_GETHASH(*this)).GetHash();
+}
+
+uint256 CSuperStakerInfo::GetHash() const
+{
+    return (HashWriter{} << SER_INFO_GETHASH(*this)).GetHash();
+}
+
+bool CWallet::LoadContractData(const std::string &address, const std::string &key, const std::string &value)
+{
+    bool ret = true;
+    if(key == "name")
+    {
+        mapContractBook[address].name = value;
+    }
+    else if(key == "abi")
+    {
+        mapContractBook[address].abi = value;
+    }
+    else
+    {
+        ret = false;
+    }
+    return ret;
+}
+
+bool CWallet::LoadDelegation(const CDelegationInfo &delegation)
+{
+    uint256 hash = delegation.GetHash();
+    mapDelegation[hash] = delegation;
+
+    return true;
+}
+
+bool CWallet::LoadSuperStaker(const CSuperStakerInfo &superStaker)
+{
+    uint256 hash = superStaker.GetHash();
+    mapSuperStaker[hash] = superStaker;
+
+    return true;
+}
 } // namespace wallet

@@ -41,6 +41,7 @@ const std::string& FormatOutputType(OutputType type)
     case OutputType::P2SH_SEGWIT: return OUTPUT_TYPE_STRING_P2SH_SEGWIT;
     case OutputType::BECH32: return OUTPUT_TYPE_STRING_BECH32;
     case OutputType::BECH32M: return OUTPUT_TYPE_STRING_BECH32M;
+    case OutputType::P2PK: return OUTPUT_TYPE_STRING_LEGACY;
     case OutputType::UNKNOWN: return OUTPUT_TYPE_STRING_UNKNOWN;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
@@ -48,7 +49,15 @@ const std::string& FormatOutputType(OutputType type)
 
 std::string FormatAllOutputTypes()
 {
-    return util::Join(OUTPUT_TYPES, ", ", [](const auto& i) { return "\"" + FormatOutputType(i) + "\""; });
+    // There are two legacy outputs, remove one of them
+    std::vector<OutputType> _output_types;
+    for (auto i : OUTPUT_TYPES) 
+    {
+        if (i != OutputType::P2PK)
+            _output_types.push_back(i);
+    }
+
+    return util::Join(_output_types, ", ", [](const auto& i) { return "\"" + FormatOutputType(i) + "\""; });
 }
 
 CTxDestination AddAndGetDestinationForScript(FlatSigningProvider& keystore, const CScript& script, OutputType type)
@@ -58,6 +67,7 @@ CTxDestination AddAndGetDestinationForScript(FlatSigningProvider& keystore, cons
 
     switch (type) {
     case OutputType::LEGACY:
+    case OutputType::P2PK:
         return ScriptHash(script);
     case OutputType::P2SH_SEGWIT:
     case OutputType::BECH32: {

@@ -187,7 +187,9 @@ IsMineResult LegacyWalletIsMineInnerDONOTUSE(const LegacyDataSPKM& keystore, con
         }
         break;
     }
-    } // no default case, so the compiler can warn about missing cases
+    default:
+        break;
+    }
 
     if (ret == IsMineResult::NO && keystore.HaveWatchOnly(scriptPubKey)) {
         ret = std::max(ret, IsMineResult::WATCH_ONLY);
@@ -832,7 +834,12 @@ util::Result<CTxDestination> DescriptorScriptPubKeyMan::GetNewDestination(const 
         assert(m_wallet_descriptor.descriptor->IsSingleType()); // This is a combo descriptor which should not be an active descriptor
         std::optional<OutputType> desc_addr_type = m_wallet_descriptor.descriptor->GetOutputType();
         assert(desc_addr_type);
-        if (type != *desc_addr_type) {
+        bool isInconsistent = type != *desc_addr_type;
+        if (type == OutputType::P2PK) {
+            // Address type is LEGACY for valid P2PK output
+            isInconsistent = *desc_addr_type !=OutputType::LEGACY;
+        }
+        if (isInconsistent) {
             throw std::runtime_error(std::string(__func__) + ": Types are inconsistent. Stored type does not match type of newly generated address");
         }
 
@@ -851,7 +858,7 @@ util::Result<CTxDestination> DescriptorScriptPubKeyMan::GetNewDestination(const 
         }
 
         CTxDestination dest;
-        if (!ExtractDestination(scripts_temp[0], dest)) {
+        if (!ExtractDestination(scripts_temp[0], dest, nullptr, true)) {
             return util::Error{_("Error: Cannot extract destination from the generated scriptpubkey")}; // shouldn't happen
         }
         m_wallet_descriptor.next_index++;
@@ -1606,5 +1613,56 @@ bool DescriptorScriptPubKeyMan::CanUpdateToWalletDescriptor(const WalletDescript
     }
 
     return true;
+}
+
+bool DescriptorScriptPubKeyMan::SignTransactionOutput(CMutableTransaction &tx, int sighash, std::map<int, std::string> &output_errors) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = std::make_unique<FlatSigningProvider>();
+    for (CTxOut& output : tx.vout)
+    {
+        if(output.scriptPubKey.HasOpSender())
+        {
+            CScript scriptPubKey;
+            if(GetSenderPubKey(output.scriptPubKey, scriptPubKey))
+            {
+                std::unique_ptr<FlatSigningProvider> coin_keys = GetSigningProvider(scriptPubKey, true);
+                if (!coin_keys) {
+                    return false;
+                }
+                keys->Merge(std::move(*coin_keys));
+            }
+        }
+    }
+
+    return ::SignTransactionOutput(tx, keys.get(), sighash, output_errors);
+}
+
+bool DescriptorScriptPubKeyMan::SignTransactionStake(CMutableTransaction &tx, const std::vector<std::pair<CTxOut, unsigned int> > &coins) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = std::make_unique<FlatSigningProvider>();
+    for (const auto& coin_pair : coins) {
+        std::unique_ptr<FlatSigningProvider> coin_keys = GetSigningProvider(coin_pair.first.scriptPubKey, true);
+        if (!coin_keys) {
+            continue;
+        }
+        keys->Merge(std::move(*coin_keys));
+    }
+
+    return ::SignTransactionStake(tx, keys.get(), coins);
+}
+
+bool DescriptorScriptPubKeyMan::SignBlockStake(CBlock &block, const PKHash &pkhash, bool compact) const
+{
+    std::unique_ptr<FlatSigningProvider> keys = GetSigningProvider(GetScriptForDestination(pkhash), true);
+    if (!keys) {
+        return false;
+    }
+
+    CKey key;
+    if (!keys->GetKey(ToKeyID(pkhash), key)) {
+        return false;
+    }
+
+    return ::SignBlockStake(block, key, compact);
 }
 } // namespace wallet
