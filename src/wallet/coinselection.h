@@ -418,8 +418,10 @@ public:
 
     /** Get m_selected_inputs */
     const OutputSet& GetInputSet() const;
+    /** Set m_selected_inputs */
+    void SetInputSet(const OutputSet& selected_inputs);
     /** Get the vector of COutputs that will be used to fill in a CTransaction's vin */
-    std::vector<std::shared_ptr<COutput>> GetShuffledInputVector() const;
+    std::vector<std::shared_ptr<COutput>> GetShuffledInputVector(int shuffleOffset = 0) const;
 
     bool operator<(SelectionResult other) const;
 

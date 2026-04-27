@@ -51,6 +51,7 @@
 #include <rpc/server.h>
 #include <support/allocators/secure.h>
 #include <sync.h>
+#include <util/time.h>
 #include <txmempool.h>
 #include <uint256.h>
 #include <univalue.h>
@@ -769,6 +770,7 @@ public:
         return chainman().IsInitialBlockDownload();
     }
     bool shutdownRequested() override { return ShutdownRequested(m_node); }
+    int64_t getAdjustedTime() override { return TicksSinceEpoch<std::chrono::seconds>(NodeClock::now()); }
     void initMessage(const std::string& message) override { ::uiInterface.InitMessage(message); }
     void initWarning(const bilingual_str& message) override { InitWarning(message); }
     void initError(const bilingual_str& message) override { InitError(message); }

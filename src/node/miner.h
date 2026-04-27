@@ -39,6 +39,13 @@ class KernelNotifications;
 
 static const bool DEFAULT_PRINT_MODIFIED_FEE = false;
 
+static const bool DEFAULT_SUPER_STAKE = false;
+
+static const bool ENABLE_HARDWARE_STAKE = false;
+
+//How much max time to wait for best block header to be downloaded to the blockchain
+static const int32_t DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER = 4000;
+
 struct CBlockTemplate
 {
     CBlock block;
