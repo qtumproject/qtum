@@ -21,6 +21,8 @@
 #include <string>
 #include <vector>
 
+#include <bitcoin-build-config.h> // IWYU pragma: keep
+
 class ArgsManager;
 class CBlock;
 class CBlockUndo;
@@ -40,6 +42,12 @@ struct ChainstateRole;
 namespace node {
 struct NodeContext;
 } // namespace node
+
+#ifdef ENABLE_WALLET
+namespace wallet {
+class CWallet;
+} // namespace wallet
+#endif
 
 namespace interfaces {
 
@@ -171,6 +179,9 @@ public:
         const FoundBlock& block1_out={},
         const FoundBlock& block2_out={}) = 0;
 
+    //! Get map of the immature stakes.
+    virtual std::map<COutPoint, uint32_t> getImmatureStakes() = 0;
+
     //! Look up unspent output information. Returns coins in the mempool and in
     //! the current chain UTXO set. Iterates through all the keys in the map and
     //! populates the values.
@@ -279,6 +290,9 @@ public:
 
     //! Get the current prune height.
     virtual std::optional<int> getPruneHeight() = 0;
+
+    //! Is loading blocks.
+    virtual bool isLoadingBlocks() = 0;
 
     //! Check if the node is ready to broadcast transactions.
     virtual bool isReadyToBroadcast() = 0;
@@ -393,6 +407,23 @@ public:
     //! Get internal node context. Useful for testing, but not
     //! accessible across processes.
     virtual node::NodeContext* context() { return nullptr; }
+
+    //! Get transaction gas fee.
+    virtual CAmount getTxGasFee(const CMutableTransaction& tx) = 0;
+
+#ifdef ENABLE_WALLET
+    //! Start staking qtums.
+    virtual void startStake(wallet::CWallet& wallet) = 0;
+
+    //! Stop staking qtums.
+    virtual void stopStake(wallet::CWallet& wallet) = 0;
+
+    //! get stake weight.
+    virtual uint64_t getStakeWeight(const wallet::CWallet& wallet, uint64_t* pStakerWeight = nullptr, uint64_t* pDelegateWeight = nullptr) = 0;
+
+    //! refresh delegates.
+    virtual void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) = 0;
+#endif
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for

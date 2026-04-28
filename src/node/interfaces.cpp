@@ -73,6 +73,13 @@
 
 #include <boost/signals2/signal.hpp>
 
+#ifdef ENABLE_WALLET
+#include <wallet/stake.h>
+#include <node/miner.h>
+#include <wallet/rpc/contract.h>
+#include <wallet/rpc/mining.h>
+#endif
+
 using interfaces::BlockRef;
 using interfaces::BlockTemplate;
 using interfaces::BlockTip;
@@ -563,6 +570,11 @@ public:
         const CBlockIndex* block{chainman().ActiveChain()[height]};
         return block && ((block->nStatus & BLOCK_HAVE_DATA) != 0) && block->nTx > 0;
     }
+    std::map<COutPoint, uint32_t> getImmatureStakes() override
+    {
+        LOCK(cs_main);
+        return GetImmatureStakes(chainman());
+    }
     std::optional<int> findLocatorFork(const CBlockLocator& locator) override
     {
         LOCK(::cs_main);
@@ -764,6 +776,7 @@ public:
         LOCK(chainman().GetMutex());
         return GetPruneHeight(chainman().m_blockman, chainman().ActiveChain());
     }
+    bool isLoadingBlocks() override { return chainman().m_blockman.LoadingBlocks(); }
     bool isReadyToBroadcast() override { return !chainman().m_blockman.LoadingBlocks() && !isInitialBlockDownload(); }
     bool isInitialBlockDownload() override
     {
@@ -861,6 +874,25 @@ public:
     ArgsManager& args() { return *Assert(m_node.args); }
     ChainstateManager& chainman() { return *Assert(m_node.chainman); }
     ValidationSignals& validation_signals() { return *Assert(m_node.validation_signals); }
+    CAmount getTxGasFee(const CMutableTransaction& tx) override
+    {
+        return {};
+    }
+#ifdef ENABLE_WALLET
+    void startStake(wallet::CWallet& wallet) override
+    {
+    }
+    void stopStake(wallet::CWallet& wallet) override
+    {
+    }
+    uint64_t getStakeWeight(const wallet::CWallet& wallet, uint64_t* pStakerWeight, uint64_t* pDelegateWeight) override
+    {
+        return {};
+    }
+    void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) override
+    {
+    }
+#endif
     NodeContext& m_node;
 };
 

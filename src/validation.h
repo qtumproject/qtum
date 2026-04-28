@@ -407,6 +407,9 @@ public:
     CSHA256 ScriptExecutionCacheHasher() const { return m_script_execution_cache_hasher; }
 };
 
+std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman);
+/////////////////////////////////////////////////////////////////
+
 bool CheckIndexProof(const CBlockIndex& block, const Consensus::Params& consensusParams);
 
 /** Functions for validating blocks and updating the block tree */

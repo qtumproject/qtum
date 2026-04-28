@@ -6502,3 +6502,23 @@ util::Result<void> ChainstateManager::ActivateBestChains()
     }
     return {};
 }
+
+std::map<COutPoint, uint32_t> GetImmatureStakes(ChainstateManager& chainman)
+{
+    std::map<COutPoint, uint32_t> immatureStakes;
+    int height = chainman.ActiveChain().Height();
+    int coinbaseMaturity = chainman.GetConsensus().CoinbaseMaturity(height + 1);
+    for(int i = 0; i < coinbaseMaturity -1; i++) {
+        CBlockIndex* block = chainman.ActiveChain()[height - i];
+        if(block)
+        {
+            immatureStakes[block->prevoutStake] = block->nTime;
+        }
+        else
+        {
+            break;
+        }
+    }
+    return immatureStakes;
+}
+//////////////////////////////////////////////////////////////////////////////////
