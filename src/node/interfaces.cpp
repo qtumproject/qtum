@@ -329,6 +329,18 @@ public:
         }
         return chainman().GetParams().GenesisBlock().GetBlockTime(); // Genesis block's time of current network
     }
+    uint256 getBlockHash(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = chainman().ActiveChain()[blockNumber];
+        return index ? index->GetBlockHash() : uint256();
+    }
+    int64_t getBlockTime(int blockNumber) override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* index = chainman().ActiveChain()[blockNumber];
+        return index ? index->GetBlockTime() : 0;
+    }
     double getVerificationProgress() override
     {
         LOCK(chainman().GetMutex());
@@ -338,6 +350,7 @@ public:
     {
         return chainman().IsInitialBlockDownload();
     }
+    bool isAddressTypeSet() override { return !::gArgs.GetArg("-addresstype", "").empty(); }
     bool isLoadingBlocks() override { return chainman().m_blockman.LoadingBlocks(); }
     void setNetworkActive(bool active) override
     {
@@ -378,6 +391,55 @@ public:
     WalletLoader& walletLoader() override
     {
         return *Assert(m_context->wallet_loader);
+    }
+    void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
+    {
+    }
+    void getSyncInfo(int& numBlocks, bool& isSyncing) override
+    {
+        LOCK(::cs_main);
+        // Get node synchronization information with minimal locks
+        numBlocks = chainman().ActiveChain().Height();
+        int64_t blockTime = chainman().ActiveChain().Tip() ? chainman().ActiveChain().Tip()->GetBlockTime() :
+                                                  Params().GenesisBlock().GetBlockTime();
+        int64_t secs = GetTime() - blockTime;
+        isSyncing = secs >= 90*60 ? true : false;
+    }
+    bool tryGetSyncInfo(int& numBlocks, bool& isSyncing) override
+    {
+        TRY_LOCK(::cs_main, lockMain);
+        if (lockMain) {
+            // Get node synchronization information with minimal locks
+            numBlocks = chainman().ActiveChain().Height();
+            int64_t blockTime = chainman().ActiveChain().Tip() ? chainman().ActiveChain().Tip()->GetBlockTime() :
+                                                      Params().GenesisBlock().GetBlockTime();
+            int64_t secs = GetTime() - blockTime;
+            isSyncing = secs >= 90*60 ? true : false;
+            return true;
+        }
+
+        return false;
+    }
+    int64_t getBlockSubsidy(int nHeight) override
+    {
+        return {};
+    }
+    uint64_t getNetworkStakeWeight() override
+    {
+        return {};
+    }
+    double getEstimatedAnnualROI() override
+    {
+        return {};
+    }
+    int64_t getMoneySupply() override
+    {
+        auto best_header = chainman().m_best_header;
+        return best_header ? best_header->nMoneySupply : 0;
+    }
+    double getPoSKernelPS() override
+    {
+        return {};
     }
     std::unique_ptr<Handler> handleInitMessage(InitMessageFn fn) override
     {
@@ -872,8 +934,36 @@ public:
 
     NodeContext* context() override { return &m_node; }
     ArgsManager& args() { return *Assert(m_node.args); }
-    ChainstateManager& chainman() { return *Assert(m_node.chainman); }
+    ChainstateManager& chainman() override { return *Assert(m_node.chainman); }
     ValidationSignals& validation_signals() { return *Assert(m_node.validation_signals); }
+    const CTxMemPool& mempool() override { return *Assert(m_node.mempool); }
+    bilingual_str getWarnings() override { return Join(Assert(m_node.warnings)->GetMessages(), Untranslated("<hr />")); }
+
+    CBlockIndex* getTip() const override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* tip = Assert(m_node.chainman)->ActiveChain().Tip();
+        return tip;
+    }
+    bool getUnspentOutput(const COutPoint& output, Coin& coin) override
+    {
+        LOCK(::cs_main);
+        auto coinIn = chainman().ActiveChainstate().CoinsTip().GetCoin(output);
+        if (coinIn.has_value()) {
+            coin = std::move(*coinIn);
+            return true;
+        }
+        return false;
+    }
+    CCoinsViewCache& getCoinsTip() override
+    {
+        LOCK(::cs_main);
+        return chainman().ActiveChainstate().CoinsTip();
+    }
+    size_t getNodeCount(ConnectionDirection flags) override
+    {
+        return Assert(m_node.connman) ? m_node.connman->GetNodeCount(flags) : 0;
+    }
     CAmount getTxGasFee(const CMutableTransaction& tx) override
     {
         return {};
@@ -892,7 +982,23 @@ public:
     void refreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates) override
     {
     }
+    std::span<const CRPCCommand> getContractRPCCommands() override
+    {
+        return {};
+    }
+    std::span<const CRPCCommand> getMiningRPCCommands() override
+    {
+        return {};
+    }
 #endif
+    bool getDelegation(const uint160& address, Delegation& delegation) override
+    {
+        return {};
+    }
+    bool verifyDelegation(const uint160& address, const Delegation& delegation) override
+    {
+        return {};
+    }
     NodeContext& m_node;
 };
 
