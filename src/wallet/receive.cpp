@@ -262,6 +262,8 @@ Balance GetBalance(const CWallet& wallet, const int min_depth, bool avoid_reuse)
                 // Set the amounts in the return object
                 if (wallet.IsTxImmatureCoinBase(wtx) && wtx.isConfirmed()) {
                     ret.m_mine_immature += credit_mine;
+                } else if (wallet.IsTxImmatureCoinStake(wtx) && wtx.isConfirmed()) {
+                    ret.m_mine_stake += credit_mine;
                 } else if (is_trusted && tx_depth >= min_depth) {
                     ret.m_mine_trusted += credit_mine;
                 } else if (!is_trusted && wtx.InMempool()) {
@@ -284,7 +286,7 @@ std::map<CTxDestination, CAmount> GetAddressBalances(const CWallet& wallet)
             const CWalletTx& wtx = txo.GetWalletTx();
 
             if (!CachedTxIsTrusted(wallet, wtx, trusted_parents)) continue;
-            if (wallet.IsTxImmatureCoinBase(wtx)) continue;
+            if (wallet.IsTxImmature(wtx)) continue;
 
             int nDepth = wallet.GetTxDepthInMainChain(wtx);
             if (nDepth < (CachedTxIsFromMe(wallet, wtx) ? 0 : 1)) continue;

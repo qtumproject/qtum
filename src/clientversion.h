@@ -15,7 +15,7 @@
 #endif
 
 //! Copyright string used in Windows .rc files
-#define COPYRIGHT_STR "2009-" STRINGIZE(COPYRIGHT_YEAR) " " COPYRIGHT_HOLDERS_FINAL
+#define COPYRIGHT_STR STRINGIZE(COPYRIGHT_YEAR) " " COPYRIGHT_HOLDERS_FINAL
 
 // Windows .rc files include this header, but they cannot cope with real C++ code.
 #if !defined(RC_INVOKED)
