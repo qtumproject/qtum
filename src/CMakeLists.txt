@@ -192,6 +192,7 @@ add_library(bitcoin_common STATIC EXCLUDE_FROM_ALL
   rpc/rawtransaction_util.cpp
   rpc/request.cpp
   rpc/util.cpp
+  rpc/contract_util.cpp
   scheduler.cpp
   script/descriptor.cpp
   script/miniscript.cpp
@@ -199,6 +200,11 @@ add_library(bitcoin_common STATIC EXCLUDE_FROM_ALL
   script/sign.cpp
   script/signingprovider.cpp
   script/solver.cpp
+  qtum/qtumutils.cpp
+  qtum/qtumDGP.cpp
+  qtum/delegationutils.cpp
+  util/contractabi.cpp
+  util/tokenstr.cpp
   eth_client/libdevcore/Address.cpp
   eth_client/libdevcore/Common.cpp
   eth_client/libdevcore/CommonData.cpp
@@ -402,6 +408,8 @@ add_library(bitcoin_node STATIC EXCLUDE_FROM_ALL
   validation.cpp
   validationinterface.cpp
   versionbits.cpp
+  qtum/qtumstate.cpp
+  qtum/storageresults.cpp
   $<$<TARGET_EXISTS:bitcoin_wallet>:wallet/init.cpp>
   $<$<NOT:$<TARGET_EXISTS:bitcoin_wallet>>:dummywallet.cpp>
 )
