@@ -317,6 +317,8 @@ public:
      */
     void check(const CCoinsViewCache& active_coins_tip, int64_t spendheight) const EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
 
+    bool getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) const;
+
     /**
      * Remove a transaction from the mempool along with any descendants.
      * If the transaction is not already in the mempool, find any descendants

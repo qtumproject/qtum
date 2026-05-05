@@ -1100,3 +1100,8 @@ std::vector<FeePerWeight> CTxMemPool::GetFeerateDiagram() const
     StopBlockBuilding();
     return ret;
 }
+
+bool CTxMemPool::getSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) const
+{
+    return false;
+}

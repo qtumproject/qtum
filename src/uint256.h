@@ -91,6 +91,8 @@ public:
      *
      * @{*/
     std::string GetHex() const;
+    std::string GetReverseHex() const;
+    void SetReverseHex(std::string_view str);
     std::string ToString() const;
     /**@}*/
 
