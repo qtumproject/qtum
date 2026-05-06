@@ -1122,7 +1122,7 @@ BOOST_AUTO_TEST_CASE(checktxinputs_invalid_transactions_test)
         CCoinsViewCache inputs(&coins_dummy);
 
         const COutPoint prevout{Txid::FromUint256(uint256::ONE), 0};
-        inputs.AddCoin(prevout, Coin{{input_value, CScript() << OP_TRUE}, /*nHeightIn=*/1, coinbase}, /*possible_overwrite=*/false);
+        inputs.AddCoin(prevout, Coin{{input_value, CScript() << OP_TRUE}, /*nHeightIn=*/1, coinbase, false}, /*possible_overwrite=*/false);
 
         CMutableTransaction mtx;
         mtx.vin.emplace_back(prevout);

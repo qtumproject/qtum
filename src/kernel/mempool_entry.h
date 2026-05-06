@@ -81,13 +81,14 @@ private:
     const int64_t sigOpCost;        //!< Total sigop cost
     mutable CAmount m_modified_fee; //!< Used for determining the priority of the transaction for mining in a block
     mutable LockPoints lockPoints;  //!< Track the height and time at which tx was final
+    CAmount nMinGasPrice{0};        //!< The minimum gas price among the contract outputs of the tx
 
 public:
     virtual ~CTxMemPoolEntry() = default;
     CTxMemPoolEntry(const CTransactionRef& tx, CAmount fee,
                     int64_t time, unsigned int entry_height, uint64_t entry_sequence,
                     bool spends_coinbase,
-                    int64_t sigops_cost, LockPoints lp)
+                    int64_t sigops_cost, LockPoints lp, CAmount min_gas_price = 0)
         : tx{tx},
           nFee{fee},
           nTxWeight{GetTransactionWeight(*tx)},
@@ -98,7 +99,8 @@ public:
           spendsCoinbase{spends_coinbase},
           sigOpCost{sigops_cost},
           m_modified_fee{nFee},
-          lockPoints{lp} {}
+          lockPoints{lp},
+          nMinGasPrice{min_gas_price} {}
 
     CTxMemPoolEntry& operator=(const CTxMemPoolEntry&) = delete;
     CTxMemPoolEntry(CTxMemPoolEntry&&) = default;
@@ -120,6 +122,7 @@ public:
     CAmount GetModifiedFee() const { return m_modified_fee; }
     size_t DynamicMemoryUsage() const { return nUsageSize; }
     const LockPoints& GetLockPoints() const { return lockPoints; }
+    const CAmount& GetMinGasPrice() const { return nMinGasPrice; }
 
     // Updates the modified fees with descendants/ancestors.
     void UpdateModifiedFee(CAmount fee_diff) const

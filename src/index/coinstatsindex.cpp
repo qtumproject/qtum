@@ -125,6 +125,7 @@ bool CoinStatsIndex::CustomAppend(const interfaces::BlockInfo& block)
         for (size_t i = 0; i < block.data->vtx.size(); ++i) {
             const auto& tx{block.data->vtx.at(i)};
             const bool is_coinbase{tx->IsCoinBase()};
+            const bool is_coinstake{tx->IsCoinStake()};
 
             // Skip duplicate txid coinbase transactions (BIP30).
             if (is_coinbase && IsBIP30Unspendable(block.hash, block.height)) {
@@ -134,7 +135,7 @@ bool CoinStatsIndex::CustomAppend(const interfaces::BlockInfo& block)
 
             for (uint32_t j = 0; j < tx->vout.size(); ++j) {
                 const CTxOut& out{tx->vout[j]};
-                const Coin coin{out, block.height, is_coinbase};
+                const Coin coin{out, block.height, is_coinbase, is_coinstake};
                 const COutPoint outpoint{tx->GetHash(), j};
 
                 // Skip unspendable coins
@@ -354,6 +355,7 @@ bool CoinStatsIndex::RevertBlock(const interfaces::BlockInfo& block)
     for (size_t i = 0; i < block.data->vtx.size(); ++i) {
         const auto& tx{block.data->vtx.at(i)};
         const bool is_coinbase{tx->IsCoinBase()};
+        const bool is_coinstake{tx->IsCoinStake()};
 
         if (is_coinbase && IsBIP30Unspendable(block.hash, block.height)) {
             continue;
@@ -362,7 +364,7 @@ bool CoinStatsIndex::RevertBlock(const interfaces::BlockInfo& block)
         for (uint32_t j = 0; j < tx->vout.size(); ++j) {
             const CTxOut& out{tx->vout[j]};
             const COutPoint outpoint{tx->GetHash(), j};
-            const Coin coin{out, block.height, is_coinbase};
+            const Coin coin{out, block.height, is_coinbase, is_coinstake};
 
             if (!coin.out.scriptPubKey.IsUnspendable()) {
                 RemoveCoinHash(m_muhash, outpoint, coin);
