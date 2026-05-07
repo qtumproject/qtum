@@ -688,6 +688,60 @@ public:
     }
 };
 
+/**
+ * Regression network parameters overwrites for unit testing
+ */
+class CUnitTestParams : public CRegTestParams
+{
+public:
+    explicit CUnitTestParams(const RegTestOptions& opts)
+    : CRegTestParams(opts)
+    {
+        // Activate the BIPs for regtest as in Bitcoin
+        consensus.BIP34Height = 100000000; // BIP34 has not activated on regtest (far in the future so block v1 are not rejected in tests)
+        consensus.BIP34Hash = uint256();
+        consensus.BIP65Height = consensus.nBlocktimeDownscaleFactor*500 + 851; // BIP65 activated on regtest (Used in rpc activation tests)
+        consensus.BIP66Height = consensus.nBlocktimeDownscaleFactor*500 + 751; // BIP66 activated on regtest (Used in rpc activation tests)
+        consensus.QIP6Height = consensus.nBlocktimeDownscaleFactor*500 + 500;
+        consensus.QIP7Height = 0; // QIP7 activated on regtest
+
+        // QTUM have 500 blocks of maturity, increased values for regtest in unit tests in order to correspond with it
+        consensus.nSubsidyHalvingInterval = 750;
+        consensus.nSubsidyHalvingIntervalV2 = consensus.nBlocktimeDownscaleFactor*750;
+        consensus.nMinerConfirmationWindow = consensus.nBlocktimeDownscaleFactor*744; // Faster than normal for regtest (744 instead of 2016)
+
+        consensus.nBlocktimeDownscaleFactor = 4;
+        consensus.nCoinbaseMaturity = 500;
+        consensus.nRBTCoinbaseMaturity = consensus.nBlocktimeDownscaleFactor*500;
+
+        consensus.nCheckpointSpan = consensus.nCoinbaseMaturity*2; // Increase the check point span for the reorganization tests from 500 to 1000
+        consensus.nRBTCheckpointSpan = consensus.nRBTCoinbaseMaturity*2; // Increase the check point span for the reorganization tests from 500 to 1000
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0; // No activation delay
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].threshold = consensus.nBlocktimeDownscaleFactor*558; // 75% for testchains
+        consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].period = consensus.nBlocktimeDownscaleFactor*744; // Faster than normal for regtest (744 instead of 2016)
+
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].threshold = consensus.nBlocktimeDownscaleFactor*558; // 75% for testchains
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].period = consensus.nBlocktimeDownscaleFactor*744; // Faster than normal for regtest (744 instead of 2016)
+
+        m_assumeutxo_data = {
+            {
+                .height = 2010,
+                .hash_serialized = AssumeutxoHash{uint256{"4d67bbf7a819e332db3f1b4d733121871c145e58278e84accbeafc8aadc0bbea"}},
+                .m_chain_tx_count = 2011,
+                .blockhash = uint256{"432400d38d5818c38939546cf44f5303044b162e7f250e108a5d616897ec6e20"},
+            }
+        };
+    }
+};
+
 std::unique_ptr<const CChainParams> CChainParams::SigNet(const SigNetOptions& options)
 {
     return std::make_unique<const SigNetParams>(options);
@@ -744,4 +798,118 @@ std::optional<ChainType> GetNetworkForMagic(const MessageStartChars& message)
         return ChainType::SIGNET;
     }
     return std::nullopt;
+}
+
+std::unique_ptr<const CChainParams> CChainParams::UnitTest(const RegTestOptions& options)
+{
+    return std::make_unique<const CUnitTestParams>(options);
+}
+
+void CChainParams::UpdateOpSenderBlockHeight(int nHeight)
+{
+    consensus.QIP5Height = nHeight;
+}
+
+void CChainParams::UpdateBtcEcrecoverBlockHeight(int nHeight)
+{
+    consensus.QIP6Height = nHeight;
+}
+
+void CChainParams::UpdateConstantinopleBlockHeight(int nHeight)
+{
+    consensus.QIP7Height = nHeight;
+}
+
+void CChainParams::UpdateDifficultyChangeBlockHeight(int nHeight)
+{
+    consensus.nSubsidyHalvingInterval = 985500; // qtum halving every 4 years
+    consensus.nSubsidyHalvingIntervalV2 = consensus.nBlocktimeDownscaleFactor*985500; // qtum halving every 4 years (nSubsidyHalvingInterval * nBlocktimeDownscaleFactor)
+    consensus.posLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
+    consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"};
+    consensus.RBTPosLimit = uint256{"0000000000003fffffffffffffffffffffffffffffffffffffffffffffffffff"};
+    consensus.QIP9Height = nHeight;
+    consensus.fPowAllowMinDifficultyBlocks = false;
+    consensus.fPowNoRetargeting = true;
+    consensus.fPoSNoRetargeting = false;
+    consensus.nLastPOWBlock = 5000;
+    consensus.nMPoSRewardRecipients = 10;
+    consensus.nFirstMPoSBlock = consensus.nLastPOWBlock + 
+                                consensus.nMPoSRewardRecipients + 
+                                consensus.nCoinbaseMaturity;
+    consensus.nLastMPoSBlock = 0;
+}
+
+void CChainParams::UpdateOfflineStakingBlockHeight(int nHeight)
+{
+    consensus.nOfflineStakeHeight = nHeight;
+}
+
+void CChainParams::UpdateDelegationsAddress(const uint160& address)
+{
+    consensus.delegationsAddress = address;
+}
+
+void CChainParams::UpdateLastMPoSBlockHeight(int nHeight)
+{
+    consensus.nLastMPoSBlock = nHeight;
+}
+
+void CChainParams::UpdateReduceBlocktimeHeight(int nHeight)
+{
+    consensus.nReduceBlocktimeHeight = nHeight;
+}
+
+void CChainParams::UpdatePowAllowMinDifficultyBlocks(bool fValue)
+{
+    consensus.fPowAllowMinDifficultyBlocks = fValue;
+}
+
+void CChainParams::UpdatePowNoRetargeting(bool fValue)
+{
+    consensus.fPowNoRetargeting = fValue;
+}
+
+void CChainParams::UpdatePoSNoRetargeting(bool fValue)
+{
+    consensus.fPoSNoRetargeting = fValue;
+}
+
+void CChainParams::UpdateMuirGlacierHeight(int nHeight)
+{
+    consensus.nMuirGlacierHeight = nHeight;
+}
+
+void CChainParams::UpdateLondonHeight(int nHeight)
+{
+    consensus.nLondonHeight = nHeight;
+}
+
+void CChainParams::UpdateTaprootHeight(int nHeight)
+{
+    if(nHeight == 0)
+    {
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
+    }
+    else
+    {
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 0;
+        // Min block number for activation, the number must be divisible with 144
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = nHeight;
+    }
+}
+
+void CChainParams::UpdateShanghaiHeight(int nHeight)
+{
+    consensus.nShanghaiHeight = nHeight;
+}
+
+void CChainParams::UpdateCancunHeight(int nHeight)
+{
+    consensus.nCancunHeight = nHeight;
+}
+
+void CChainParams::UpdatePectraHeight(int nHeight)
+{
+    consensus.nPectraHeight = nHeight;
 }

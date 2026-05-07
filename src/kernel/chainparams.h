@@ -128,6 +128,24 @@ public:
     const std::string& Bech32HRP() const { return bech32_hrp; }
     const std::vector<uint8_t>& FixedSeeds() const { return vFixedSeeds; }
     const HeadersSyncParams& HeadersSync() const { return m_headers_sync_params; }
+    void UpdateOpSenderBlockHeight(int nHeight);
+    void UpdateBtcEcrecoverBlockHeight(int nHeight);
+    void UpdateConstantinopleBlockHeight(int nHeight);
+    void UpdateDifficultyChangeBlockHeight(int nHeight);
+    void UpdateOfflineStakingBlockHeight(int nHeight);
+    void UpdateDelegationsAddress(const uint160& address);
+    void UpdateLastMPoSBlockHeight(int nHeight);
+    void UpdateReduceBlocktimeHeight(int nHeight);
+    void UpdatePowAllowMinDifficultyBlocks(bool fValue);
+    void UpdatePowNoRetargeting(bool fValue);
+    void UpdatePoSNoRetargeting(bool fValue);
+    void UpdateMuirGlacierHeight(int nHeight);
+    bool HasHardwareWalletSupport() const { return fHasHardwareWalletSupport; }
+    void UpdateLondonHeight(int nHeight);
+    void UpdateTaprootHeight(int nHeight);
+    void UpdateShanghaiHeight(int nHeight);
+    void UpdateCancunHeight(int nHeight);
+    void UpdatePectraHeight(int nHeight);
 
     std::optional<AssumeutxoData> AssumeutxoForHeight(int height) const
     {
@@ -172,6 +190,7 @@ public:
     static std::unique_ptr<const CChainParams> Main();
     static std::unique_ptr<const CChainParams> TestNet();
     static std::unique_ptr<const CChainParams> TestNet4();
+    static std::unique_ptr<const CChainParams> UnitTest(const RegTestOptions& options);
 
 protected:
     CChainParams() = default;
@@ -189,10 +208,13 @@ protected:
     CBlock genesis;
     std::vector<uint8_t> vFixedSeeds;
     bool fDefaultConsistencyChecks;
+    bool fMineBlocksOnDemand;
     bool m_is_mockable_chain;
+    CCheckpointData checkpointData;
     std::vector<AssumeutxoData> m_assumeutxo_data;
     ChainTxData chainTxData;
     HeadersSyncParams m_headers_sync_params;
+    bool fHasHardwareWalletSupport;
 };
 
 std::optional<ChainType> GetNetworkForMagic(const MessageStartChars& pchMessageStart);
