@@ -30,7 +30,9 @@ static const bool DEFAULT_LOGTIMESTAMPS = true;
 static const bool DEFAULT_LOGTHREADNAMES = false;
 static const bool DEFAULT_LOGSOURCELOCATIONS = false;
 static constexpr bool DEFAULT_LOGLEVELALWAYS = false;
+static const bool DEFAULT_SHOWEVMLOGS   = false;
 extern const char * const DEFAULT_DEBUGLOGFILE;
+extern const char * const DEFAULT_DEBUGVMLOGFILE;
 
 extern bool fLogIPs;
 
@@ -134,12 +136,15 @@ namespace BCLog {
             SourceLocation source_loc;
             LogFlags category;
             Level level;
+            bool useVMLog;
+            std::string vmFunction;
         };
 
     private:
         mutable StdMutex m_cs; // Can not use Mutex from sync.h because in debug mode it would cause a deadlock when a potential deadlock was detected
 
         FILE* m_fileout GUARDED_BY(m_cs) = nullptr;
+        FILE* m_fileoutVM GUARDED_BY(m_cs) = nullptr;
         std::list<BufferedLog> m_msgs_before_open GUARDED_BY(m_cs);
         bool m_buffering GUARDED_BY(m_cs) = true; //!< Buffer messages before logging can be started.
         size_t m_max_buffer_memusage GUARDED_BY(m_cs){DEFAULT_MAX_LOG_BUFFER};
@@ -159,7 +164,7 @@ namespace BCLog {
         /** Log categories bitfield. */
         std::atomic<CategoryMask> m_categories{BCLog::NONE};
 
-        void FormatLogStrInPlace(std::string& str, LogFlags category, Level level, const SourceLocation& source_loc, std::string_view threadname, SystemClock::time_point now, std::chrono::seconds mocktime) const;
+        void FormatLogStrInPlace(std::string& str, LogFlags category, Level level, const SourceLocation& source_loc, std::string_view threadname, SystemClock::time_point now, std::chrono::seconds mocktime, bool useVMLog = false, const std::string& vmFunction = "") const;
 
         std::string LogTimestampStr(SystemClock::time_point now, std::chrono::seconds mocktime) const;
 
@@ -167,7 +172,7 @@ namespace BCLog {
         std::list<std::function<void(const std::string&)>> m_print_callbacks GUARDED_BY(m_cs) {};
 
         /** Send a string to the log output (internal) */
-        void LogPrintStr_(std::string_view str, SourceLocation&& source_loc, BCLog::LogFlags category, BCLog::Level level, bool should_ratelimit)
+        void LogPrintStr_(std::string_view str, SourceLocation&& source_loc, BCLog::LogFlags category, BCLog::Level level, bool should_ratelimit, bool useVMLog, const std::string& vmFunction = "")
             EXCLUSIVE_LOCKS_REQUIRED(m_cs);
 
         std::string GetLogPrefix(LogFlags category, Level level) const;
@@ -181,12 +186,14 @@ namespace BCLog {
         bool m_log_threadnames = DEFAULT_LOGTHREADNAMES;
         bool m_log_sourcelocations = DEFAULT_LOGSOURCELOCATIONS;
         bool m_always_print_category_level = DEFAULT_LOGLEVELALWAYS;
+        bool m_show_evm_logs = DEFAULT_SHOWEVMLOGS;
 
         fs::path m_file_path;
+        fs::path m_file_pathVM;
         std::atomic<bool> m_reopen_file{false};
 
         /** Send a string to the log output */
-        void LogPrintStr(std::string_view str, SourceLocation&& source_loc, BCLog::LogFlags category, BCLog::Level level, bool should_ratelimit)
+        void LogPrintStr(std::string_view str, SourceLocation&& source_loc, BCLog::LogFlags category, BCLog::Level level, bool should_ratelimit, bool useVMLog = false, const std::string& vmFunction = "")
             EXCLUSIVE_LOCKS_REQUIRED(!m_cs);
 
         /** Returns whether logs will be written to any output */

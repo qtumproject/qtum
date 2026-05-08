@@ -46,6 +46,9 @@ enum LogFlags : CategoryMask {
     TXPACKAGES = (CategoryMask{1} << 28),
     KERNEL = (CategoryMask{1} << 29),
     PRIVBROADCAST = (CategoryMask{1} << 30),
+    COINSTAKE = (CategoryMask{1} << 31),
+    HTTPPOLL = (CategoryMask{1} << 32),
+    INDEX = (CategoryMask{1} << 33),
     ALL = ~NONE,
 };
 

@@ -61,7 +61,7 @@ ReadStatus PartiallyDownloadedBlock::InitData(const CBlockHeaderAndShortTxIDs& c
     LogDebug(BCLog::CMPCTBLOCK, "Initializing PartiallyDownloadedBlock for block %s using a cmpctblock of %u bytes\n", cmpctblock.header.GetHash().ToString(), GetSerializeSize(cmpctblock));
     if (cmpctblock.header.IsNull() || (cmpctblock.shorttxids.empty() && cmpctblock.prefilledtxn.empty()))
         return READ_STATUS_INVALID;
-    if (cmpctblock.shorttxids.size() + cmpctblock.prefilledtxn.size() > MAX_BLOCK_WEIGHT / MIN_SERIALIZABLE_TRANSACTION_WEIGHT)
+    if (cmpctblock.shorttxids.size() + cmpctblock.prefilledtxn.size() > dgpMaxBlockWeight / MIN_SERIALIZABLE_TRANSACTION_WEIGHT)
         return READ_STATUS_INVALID;
 
     if (!header.IsNull() || !txn_available.empty()) return READ_STATUS_INVALID;

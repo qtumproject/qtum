@@ -591,6 +591,11 @@ static bool ConnectToSocket(const Sock& sock, struct sockaddr* sockaddr, socklen
 {
     // Connect to `sockaddr` using `sock`.
     if (sock.Connect(sockaddr, len) == SOCKET_ERROR) {
+        if (!sock.IsSelectable()) {
+            LogDebug(BCLog::NET, "Cannot create connection: non-selectable socket created (fd >= FD_SETSIZE ?)\n");
+            return false;
+        }
+
         int nErr = WSAGetLastError();
         // WSAEINVAL is here because some legacy version of winsock uses it
         if (nErr == WSAEINPROGRESS || nErr == WSAEWOULDBLOCK || nErr == WSAEINVAL)

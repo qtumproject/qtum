@@ -13,6 +13,7 @@
 #include <util/chaintype.h>
 #include <util/hash_type.h>
 #include <util/vector.h>
+#include <libethashseal/GenesisInfo.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -128,6 +129,10 @@ public:
     const std::string& Bech32HRP() const { return bech32_hrp; }
     const std::vector<uint8_t>& FixedSeeds() const { return vFixedSeeds; }
     const HeadersSyncParams& HeadersSync() const { return m_headers_sync_params; }
+    const CCheckpointData& Checkpoints() const { return checkpointData; }
+    std::string EVMGenesisInfo() const;
+    std::string EVMGenesisInfo(int nHeight) const;
+    std::string EVMGenesisInfo(const dev::eth::EVMConsensus& evmConsensus) const;
     void UpdateOpSenderBlockHeight(int nHeight);
     void UpdateBtcEcrecoverBlockHeight(int nHeight);
     void UpdateConstantinopleBlockHeight(int nHeight);
@@ -193,6 +198,7 @@ public:
     static std::unique_ptr<const CChainParams> UnitTest(const RegTestOptions& options);
 
 protected:
+    dev::eth::Network GetEVMNetwork() const;
     CChainParams() = default;
 
     Consensus::Params consensus;

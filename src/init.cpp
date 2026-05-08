@@ -80,6 +80,7 @@
 #include <util/check.h>
 #include <util/fs.h>
 #include <util/fs_helpers.h>
+#include <util/convert.h>
 #include <util/moneystr.h>
 #include <util/result.h>
 #include <util/signalinterrupt.h>
@@ -93,6 +94,11 @@
 #include <validation.h>
 #include <validationinterface.h>
 #include <walletinitinterface.h>
+#ifdef ENABLE_WALLET
+#include <wallet/wallet.h>
+#include <interfaces/wallet.h>
+#endif
+#include <key_io.h>
 
 #include <algorithm>
 #include <cerrno>
@@ -168,7 +174,7 @@ static constexpr int MIN_CORE_FDS = MIN_LEVELDB_FDS + NUM_FDS_MESSAGE_CAPTURE;
 /**
  * The PID file facilities.
  */
-static const char* BITCOIN_PID_FILENAME = "bitcoind.pid";
+static const char* BITCOIN_PID_FILENAME = "qtumd.pid";
 /**
  * True if this process has created a PID file.
  * Used to determine whether we should remove the PID file on shutdown.
@@ -287,6 +293,8 @@ void Interrupt(NodeContext& node)
 
 void Shutdown(NodeContext& node)
 {
+    (void)(*Assert(g_shutdown))();
+
     static Mutex g_shutdown_mutex;
     TRY_LOCK(g_shutdown_mutex, lock_shutdown);
     if (!lock_shutdown) return;
@@ -297,7 +305,20 @@ void Shutdown(NodeContext& node)
     /// for example if the data directory was found to be locked.
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
-    util::ThreadRename("shutoff");
+    util::ThreadRename("qtum-shutoff");
+
+#ifdef ENABLE_WALLET
+    if(node.wallet_loader && node.wallet_loader->context())
+    {
+        // Force stop the stakers before any other components
+        for (const std::shared_ptr<wallet::CWallet>& pwallet : GetWallets(*node.wallet_loader->context()))
+        {
+            pwallet->StopStake();
+        }
+    }
+#endif
+    if(node.peerman) node.peerman->StopCleanBlockIndex();
+
     if (node.mempool) node.mempool->AddTransactionsUpdated(1);
 
     StopHTTPRPC();
@@ -384,6 +405,9 @@ void Shutdown(NodeContext& node)
                 chainstate->ResetCoinsViews();
             }
         }
+        pstorageresult.reset();
+        globalState.reset();
+        globalSealEngine.reset();
     }
 
     // If any -ipcbind clients are still connected, disconnect them now so they
@@ -525,6 +549,7 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
     argsman.AddArg("-reindex", "If enabled, wipe chain state and block index, and rebuild them from blk*.dat files on disk. Also wipe and rebuild other optional indexes that are active. If an assumeutxo snapshot was loaded, its chainstate will be wiped as well. The snapshot can then be reloaded via RPC.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-reindex-chainstate", "If enabled, wipe chain state, and rebuild it from blk*.dat files on disk. If an assumeutxo snapshot was loaded, its chainstate will be wiped as well. The snapshot can then be reloaded via RPC.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-settings=<file>", strprintf("Specify path to dynamic settings data file. Can be disabled with -nosettings. File is written at runtime and not meant to be edited by users (use %s instead for custom settings). Relative paths will be prefixed by datadir location. (default: %s)", BITCOIN_CONF_FILENAME, BITCOIN_SETTINGS_FILENAME), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-record-log-opcodes", "Logs all EVM LOG opcode operations to the file vmExecLogs.json", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 #if HAVE_SYSTEM
     argsman.AddArg("-startupnotify=<cmd>", "Execute command on startup.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-shutdownnotify=<cmd>", "Execute command immediately before beginning shutdown. The need for shutdown may be urgent, so be careful not to delay it long (if the command doesn't require interaction with the server, consider having it fork into the background).", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
@@ -535,6 +560,10 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
                  strprintf("Maintain an index of compact filters by block (default: %s, values: %s).", DEFAULT_BLOCKFILTERINDEX, ListBlockFilterTypes()) +
                  " If <type> is not supplied or if <type> = 1, indexes for all known types are enabled.",
                  ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-logevents", strprintf("Maintain a full EVM log index, used by searchlogs and gettransactionreceipt rpc calls (default: %u)", DEFAULT_LOGEVENTS), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-addrindex", strprintf("Maintain a full address index (default: %u)", DEFAULT_ADDRINDEX), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-deleteblockchaindata", "Delete the local copy of the block chain data", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-forceinitialblocksdownloadmode", strprintf("Force initial blocks download mode for the node (default: %u)", DEFAULT_FORCE_INITIAL_BLOCKS_DOWNLOAD_MODE), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 
     argsman.AddArg("-addnode=<ip>", strprintf("Add a node to connect to and attempt to keep the connection open (see the addnode RPC help for more info). This option can be specified multiple times to add multiple nodes; connections are limited to %u at a time and are counted separately from the -maxconnections limit.", MAX_ADDNODE_CONNECTIONS), ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::CONNECTION);
     argsman.AddArg("-asmap=<file>", strprintf("Specify asn mapping used for bucketing of the peers. Relative paths will be prefixed by the net-specific datadir location.%s",
@@ -545,7 +574,7 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
                 #endif
                 ), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-bantime=<n>", strprintf("Default duration (in seconds) of manually configured bans (default: %u)", DEFAULT_MISBEHAVING_BANTIME), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
-    argsman.AddArg("-bind=<addr>[:<port>][=onion]", strprintf("Bind to given address and always listen on it (default: 0.0.0.0). Use [host]:port notation for IPv6. Append =onion to tag any incoming connections to that address and port as incoming Tor connections (default: 127.0.0.1:%u=onion, testnet3: 127.0.0.1:%u=onion, testnet4: 127.0.0.1:%u=onion, signet: 127.0.0.1:%u=onion, regtest: 127.0.0.1:%u=onion)", defaultChainParams->GetDefaultPort() + 1, testnetChainParams->GetDefaultPort() + 1, testnet4ChainParams->GetDefaultPort() + 1, signetChainParams->GetDefaultPort() + 1, regtestChainParams->GetDefaultPort() + 1), ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::CONNECTION);
+    argsman.AddArg("-bind=<addr>[:<port>][=onion]", strprintf("Bind to given address and always listen on it (default: 0.0.0.0). Use [host]:port notation for IPv6. Append =onion to tag any incoming connections to that address and port as incoming Tor connections (default: 127.0.0.1:%u=onion, testnet3: 127.0.0.1:%u=onion, testnet4: 127.0.0.1:%u=onion, signet: 127.0.0.1:%u=onion, regtest: 127.0.0.1:%u=onion)", defaultChainParams->GetDefaultPort() + 3, testnetChainParams->GetDefaultPort() + 3, testnet4ChainParams->GetDefaultPort() + 3, signetChainParams->GetDefaultPort() + 3, regtestChainParams->GetDefaultPort() + 3), ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::CONNECTION);
     argsman.AddArg("-cjdnsreachable", "If set, then this host is configured for CJDNS (connecting to fc00::/8 addresses would lead us to the CJDNS network, see doc/cjdns.md) (default: 0)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-connect=<ip>", "Connect only to the specified node; -noconnect disables automatic connections (the rules for this peer are the same as for -addnode). This option can be specified multiple times to connect to multiple nodes.", ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::CONNECTION);
     argsman.AddArg("-discover", "Discover own IP addresses (default: 1 when listening and no -externalip or -proxy)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
@@ -600,6 +629,9 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
     argsman.AddArg("-peertimeout=<n>", strprintf("Specify a p2p connection timeout delay in seconds. After connecting to a peer, wait this amount of time before considering disconnection based on inactivity (minimum: 1, default: %d)", DEFAULT_PEER_CONNECT_TIMEOUT), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::CONNECTION);
     argsman.AddArg("-torcontrol=<ip>:<port>", strprintf("Tor control host and port to use if onion listening enabled (default: %s). If no port is specified, the default port of %i will be used.", DEFAULT_TOR_CONTROL, DEFAULT_TOR_CONTROL_PORT), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-torpassword=<pass>", "Tor control port password (default: empty)", ArgsManager::ALLOW_ANY | ArgsManager::SENSITIVE, OptionsCategory::CONNECTION);
+    argsman.AddArg("-dgpstorage", "Receiving data from DGP via storage (default: -dgpevm)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
+    argsman.AddArg("-dgpevm", "Receiving data from DGP via a contract call (default: -dgpevm)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
+    argsman.AddArg("-hwitoolpath=<path>", "Specify HWI tool path", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-natpmp", strprintf("Use PCP or NAT-PMP to map the listening port (default: %u)", DEFAULT_NATPMP), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-whitebind=<[permissions@]addr>", "Bind to the given address and add permission flags to the peers connecting to it. "
         "Use [host]:port notation for IPv6. Allowed permissions: " + Join(NET_PERMISSIONS_DOC, ", ") + ". "
@@ -642,8 +674,7 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
     argsman.AddArg("-checkblockindex", strprintf("Do a consistency check for the block tree, chainstate, and other validation data structures every <n> operations. Use 0 to disable. (default: %u, regtest: %u)", defaultChainParams->DefaultConsistencyChecks(), regtestChainParams->DefaultConsistencyChecks()), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-checkaddrman=<n>", strprintf("Run addrman consistency checks every <n> operations. Use 0 to disable. (default: %u)", DEFAULT_ADDRMAN_CONSISTENCY_CHECKS), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-checkmempool=<n>", strprintf("Run mempool consistency checks every <n> transactions. Use 0 to disable. (default: %u, regtest: %u)", defaultChainParams->DefaultConsistencyChecks(), regtestChainParams->DefaultConsistencyChecks()), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
-    // Checkpoints were removed. We keep `-checkpoints` as a hidden arg to display a more user friendly error when set.
-    argsman.AddArg("-checkpoints", "", ArgsManager::ALLOW_ANY, OptionsCategory::HIDDEN);
+    argsman.AddArg("-checkpoints", strprintf("Enable rejection of any forks from the known historical chain until block %s (default: %u)", defaultChainParams->Checkpoints().GetHeight(), DEFAULT_CHECKPOINTS_ENABLED), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-deprecatedrpc=<method>", "Allows deprecated RPC method(s) to be used", ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-stopafterblockimport", strprintf("Stop running after importing blocks from disk (default: %u)", DEFAULT_STOPAFTERBLOCKIMPORT), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-stopatheight", strprintf("Stop running after reaching the given height in the main chain (default: %u). Blocks after target height may be processed during shutdown.", DEFAULT_STOPATHEIGHT), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
@@ -658,14 +689,33 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
     argsman.AddArg("-limitclustercount=<n>", strprintf("Do not accept transactions into mempool which are directly or indirectly connected to <n> or more other unconfirmed transactions (default: %u, maximum: %u)", DEFAULT_CLUSTER_LIMIT, MAX_CLUSTER_COUNT_LIMIT), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-limitclustersize=<n>", strprintf("Do not accept transactions whose virtual size with all in-mempool connected transactions exceeds <n> kilobytes (default: %u)", DEFAULT_CLUSTER_SIZE_LIMIT_KVB), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-capturemessages", "Capture all P2P messages to disk", ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-showevmlogs", strprintf("Print evm logs to console (default: %u)", DEFAULT_SHOWEVMLOGS), ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-mocktime=<n>", "Replace actual time with " + UNIX_EPOCH_TIME + " (default: 0)", ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-maxsigcachesize=<n>", strprintf("Limit sum of signature cache and script execution cache sizes to <n> MiB (default: %u)", DEFAULT_VALIDATION_CACHE_BYTES >> 20), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-maxtipage=<n>",
                    strprintf("Maximum tip age in seconds to consider node in initial block download (default: %u)",
                              Ticks<std::chrono::seconds>(DEFAULT_MAX_TIP_AGE)),
                    ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-minmempoolgaslimit=<limit>", strprintf("The minimum transaction gas limit we are willing to accept into the mempool (default: %s)",MEMPOOL_MIN_GAS_LIMIT), ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-printpriority", strprintf("Log transaction fee rate in %s/kvB when mining blocks (default: %u)", CURRENCY_UNIT, DEFAULT_PRINT_MODIFIED_FEE), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-uacomment=<cmt>", "Append comment to the user agent string", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-opsenderheight=<n>", "Use given block height to check opsender fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-btcecrecoverheight=<n>", "Use given block height to check btc_ecrecover fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-constantinopleheight=<n>", "Use given block height to check constantinople fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-difficultychangeheight=<n>", "Use given block height to check difficulty change fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-offlinestakingheight=<n>", "Use given block height to check offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-delegationsaddress=<adr>", "Use given contract delegations address for offline staking fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-lastmposheight=<n>", "Use given block height to check remove mpos fork (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-reduceblocktimeheight=<n>", "Use given block height to check blocks with reduced target spacing (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-powallowmindifficultyblocks", "Use given value for pow allow min difficulty blocks parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-pownoretargeting", "Use given value for pow no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-posnoretargeting", "Use given value for pos no retargeting parameter (regtest-only, default: 1)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-muirglacierheight=<n>", "Use given block height to check contracts with EVM Muir Glacier (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-londonheight=<n>", "Use given block height to check contracts with EVM London (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-taprootheight=<n>", "Use given block height to check taproot (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-shanghaiheight=<n>", "Use given block height to check contracts with EVM Shanghai (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-cancunheight=<n>", "Use given block height to check contracts with EVM Cancun (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-pectraheight=<n>", "Use given block height to check contracts with EVM Pectra (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions(argsman);
 
@@ -702,6 +752,12 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
     argsman.AddArg("-blockmintxfee=<amt>", strprintf("Set lowest fee rate (in %s/kvB) for transactions to be included in block creation. (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_BLOCK_MIN_TX_FEE)), ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
     argsman.AddArg("-blockversion=<n>", "Override block version to test forking scenarios", ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::BLOCK_CREATION);
 
+    argsman.AddArg("-staker-min-tx-gas-price=<amt>", "Any contract execution with a gas price below this will not be included in a block (defaults to the value specified by the DGP)", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
+    argsman.AddArg("-staker-max-tx-gas-limit=<n>", "Any contract execution with a gas limit over this amount will not be included in a block (defaults to soft block gas limit)", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
+    argsman.AddArg("-staker-soft-block-gas-limit=<n>", "After this amount of gas is surpassed in a block, no more contract executions will be added to the block (defaults to consensus-critical maximum block gas limit)", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
+    argsman.AddArg("-aggressive-staking", "Check more often to publish immediately when valid block is found.", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
+    argsman.AddArg("-emergencystaking", "Emergency staking without blockchain synchronization.", ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
+
     argsman.AddArg("-rest", strprintf("Accept public REST requests (default: %u)", DEFAULT_REST_ENABLE), ArgsManager::ALLOW_ANY, OptionsCategory::RPC);
     argsman.AddArg("-rpcallowip=<ip>", "Allow JSON-RPC connections from specified source. Valid values for <ip> are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0), a network/CIDR (e.g. 1.2.3.4/24), all ipv4 (0.0.0.0/0), or all ipv6 (::/0). RFC4193 is allowed only if -cjdnsreachable=0. This option can be specified multiple times", ArgsManager::ALLOW_ANY, OptionsCategory::RPC);
     argsman.AddArg("-rpcauth=<userpw>", "Username and HMAC-SHA-256 hashed password for JSON-RPC connections. The field <userpw> comes in the format: <USERNAME>:<SALT>$<HASH>. A canonical python script is included in share/rpcauth. The client then connects normally using the rpcuser=<USERNAME>/rpcpassword=<PASSWORD> pair of arguments. This option can be specified multiple times", ArgsManager::ALLOW_ANY | ArgsManager::SENSITIVE, OptionsCategory::RPC);
@@ -729,9 +785,35 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
     hidden_args.emplace_back("-daemon");
     hidden_args.emplace_back("-daemonwait");
 #endif
+    argsman.AddArg("-headerspamfilter=<n>", strprintf("Use header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-headerspamfiltermaxsize=<n>", strprintf("Maximum size of the list of indexes in the header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER_MAX_SIZE), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-headerspamfiltermaxavg=<n>", strprintf("Maximum average size of an index occurrence in the header spam filter (default: %u)", DEFAULT_HEADER_SPAM_FILTER_MAX_AVG), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-headerspamfilterignoreport=<n>", strprintf("Ignore the port in the ip address when looking for header spam, determine whether or not multiple nodes can be on the same IP (default: %u)", DEFAULT_HEADER_SPAM_FILTER_IGNORE_PORT), ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-cleanblockindex=<true/false>", "Clean block index (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-cleanblockindextimeout=<n>", "Clean block index periodically after some time (default 600 seconds)", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-stakingallowlist=<address>", "Allow list delegate address. Can be specified multiple times to add multiple addresses.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-stakingexcludelist=<address>", "Exclude list delegate address. Can be specified multiple times to add multiple addresses.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 
     // Add the hidden options
     argsman.AddHiddenArgs(hidden_args);
+}
+
+// Delete local blockchain data
+void DeleteBlockChainData()
+{
+    // Delete block chain data paths
+    fs::path datadir = gArgs.GetDataDirNet();
+    fs::remove_all(datadir / "chainstate");
+    fs::remove_all(gArgs.GetBlocksDirPath());
+    fs::remove_all(datadir / "stateQtum");
+    fs::remove(datadir / "banlist.dat");
+    fs::remove(datadir / "fee_estimates.dat");
+    fs::remove(datadir / "mempool.dat");
+
+    // Create block chain data dirs
+    fs::create_directory(datadir / "chainstate");
+    fs::create_directory(gArgs.GetBlocksDirPath());
+    fs::create_directory(datadir / "stateQtum");
 }
 
 #if HAVE_SYSTEM
@@ -842,6 +924,19 @@ void InitParameterInteraction(ArgsManager& args)
             LogInfo("parameter interaction: -onlynet excludes IPv4 and IPv6 -> setting -dnsseed=0\n");
         }
     }
+
+#ifdef ENABLE_WALLET
+    // Set the required parameters for super staking
+    if(args.GetBoolArg("-superstaking", node::DEFAULT_SUPER_STAKE))
+    {
+        if (args.SoftSetBoolArg("-staking", true))
+            LogInfo("%s: parameter interaction: -superstaking=1 -> setting -staking=1\n", __func__);
+        if (args.SoftSetBoolArg("-logevents", true))
+            LogInfo("%s: parameter interaction: -superstaking=1 -> setting -logevents=1\n", __func__);
+        if (args.SoftSetBoolArg("-addrindex", true))
+            LogInfo("%s: parameter interaction: -superstaking=1 -> setting -addrindex=1\n", __func__);
+    }
+#endif
 }
 
 /**
@@ -923,10 +1018,6 @@ bool AppInitParameterInteraction(const ArgsManager& args)
 
     // also see: InitParameterInteraction()
 
-    // We removed checkpoints but keep the option to warn users who still have it in their config.
-    if (args.IsArgSet("-checkpoints")) {
-        InitWarning(_("Option '-checkpoints' is set but checkpoints were removed. This option has no effect."));
-    }
     if (args.IsArgSet("-limitancestorsize")) {
         InitWarning(_("Option '-limitancestorsize' is given but ancestor size limits have been replaced with cluster size limits (see -limitclustersize). This option has no effect."));
     }
@@ -1075,17 +1166,19 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         }
     }
 
+    updateBlockSizeParams(DEFAULT_BLOCK_SIZE_DGP);
+
     {
         const auto max_block_weight = args.GetIntArg("-blockmaxweight", DEFAULT_BLOCK_MAX_WEIGHT);
-        if (max_block_weight > MAX_BLOCK_WEIGHT) {
-            return InitError(strprintf(_("Specified -blockmaxweight (%d) exceeds consensus maximum block weight (%d)"), max_block_weight, MAX_BLOCK_WEIGHT));
+        if (max_block_weight > dgpMaxBlockWeight) {
+            return InitError(strprintf(_("Specified -blockmaxweight (%d) exceeds consensus maximum block weight (%d)"), max_block_weight, dgpMaxBlockWeight));
         }
     }
 
     {
         const auto block_reserved_weight = args.GetIntArg("-blockreservedweight", DEFAULT_BLOCK_RESERVED_WEIGHT);
-        if (block_reserved_weight > MAX_BLOCK_WEIGHT) {
-            return InitError(strprintf(_("Specified -blockreservedweight (%d) exceeds consensus maximum block weight (%d)"), block_reserved_weight, MAX_BLOCK_WEIGHT));
+        if (block_reserved_weight > dgpMaxBlockWeight) {
+            return InitError(strprintf(_("Specified -blockreservedweight (%d) exceeds consensus maximum block weight (%d)"), block_reserved_weight, dgpMaxBlockWeight));
         }
         if (block_reserved_weight < MINIMUM_BLOCK_RESERVED_WEIGHT) {
             return InitError(strprintf(_("Specified -blockreservedweight (%d) is lower than minimum safety value of (%d)"), block_reserved_weight, MINIMUM_BLOCK_RESERVED_WEIGHT));
@@ -1152,13 +1245,263 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         }
     }
 
+    if (args.IsArgSet("-opsenderheight")) {
+        // Allow overriding opsender block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Op Sender block height may only be overridden on regtest."));
+        }
+
+        int opsenderBlock = args.GetIntArg("-opsenderheight", 0);
+        if(opsenderBlock >= 0)
+        {
+            UpdateOpSenderBlockHeight(opsenderBlock);
+            LogInfo("Activate Op Sender at block height %d\n.", opsenderBlock);
+        }
+    }
+
+    if (args.IsArgSet("-btcecrecoverheight")) {
+        // Allow overriding btc_ecrecover block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Btc_ecrecover block height may only be overridden on regtest."));
+        }
+
+        int btcEcrecoverBlock = args.GetIntArg("-btcecrecoverheight", 0);
+        if(btcEcrecoverBlock >= 0)
+        {
+            UpdateBtcEcrecoverBlockHeight(btcEcrecoverBlock);
+            LogInfo("Activate btc_ecrecover at block height %d\n.", btcEcrecoverBlock);
+        }
+    }
+
+    if (args.IsArgSet("-constantinopleheight")) {
+        // Allow overriding constantinople block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Constantinople block height may only be overridden on regtest."));
+        }
+
+        int constantinopleBlock = args.GetIntArg("-constantinopleheight", 0);
+        if(constantinopleBlock >= 0)
+        {
+            UpdateConstantinopleBlockHeight(constantinopleBlock);
+            LogInfo("Activate constantinople at block height %d\n.", constantinopleBlock);
+        }
+    }
+
+    if (args.IsArgSet("-difficultychangeheight")) {
+        // Allow overriding difficulty change block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Difficulty change block height may only be overridden on regtest."));
+        }
+
+        int difficultyChangeBlock = args.GetIntArg("-difficultychangeheight", 0);
+        if(difficultyChangeBlock >= 0)
+        {
+            UpdateDifficultyChangeBlockHeight(difficultyChangeBlock);
+            LogInfo("Activate difficulty change at block height %d\n.", difficultyChangeBlock);
+        }
+    }
+
+    if (args.IsArgSet("-offlinestakingheight")) {
+        // Allow overriding offline staking block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Offline staking block height may only be overridden on regtest."));
+        }
+
+        int offlineStakingBlock = args.GetIntArg("-offlinestakingheight", 0);
+        if(offlineStakingBlock >= 0)
+        {
+            UpdateOfflineStakingBlockHeight(offlineStakingBlock);
+            LogInfo("Activate offline staking at block height %d\n.", offlineStakingBlock);
+        }
+    }
+
+    if (args.IsArgSet("-delegationsaddress")) {
+        // Allow overriding delegations address for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("delegations address may only be overridden on regtest."));
+        }
+
+        std::string delegationsAddress = args.GetArg("-delegationsaddress", std::string());
+        if(IsHex(delegationsAddress))
+        {
+            UpdateDelegationsAddress(uint160(ParseHex(delegationsAddress)));
+            LogInfo("Activate delegations address %s\n.", delegationsAddress);
+        }
+    }
+
+    if (args.IsArgSet("-lastmposheight")) {
+        // Allow overriding last MPoS block for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Last MPoS block height may only be overridden on regtest."));
+        }
+
+        int lastMPosBlockHeight = args.GetIntArg("-lastmposheight", 0);
+        if(lastMPosBlockHeight >= 0)
+        {
+            UpdateLastMPoSBlockHeight(lastMPosBlockHeight);
+            LogInfo("Set last MPoS block height %d\n.", lastMPosBlockHeight);
+        }
+    }
+
+    if (args.IsArgSet("-reduceblocktimeheight")) {
+        // Allow overriding short block time block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short block time height may only be overridden on regtest."));
+        }
+
+        int reduceblocktimeheight = args.GetIntArg("-reduceblocktimeheight", 0);
+        if(reduceblocktimeheight >= 0)
+        {
+            UpdateReduceBlocktimeHeight(reduceblocktimeheight);
+            LogInfo("Activate short block time at block height %d\n.", reduceblocktimeheight);
+        }
+    }
+
+    if (args.IsArgSet("-powallowmindifficultyblocks")) {
+        // Allow overriding pow allow min difficulty blocks parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Pow allow min difficulty blocks parameter may only be overridden on regtest."));
+        }
+
+        bool powallowmindifficultyblocks = args.GetBoolArg("-powallowmindifficultyblocks", 1);
+        UpdatePowAllowMinDifficultyBlocks(powallowmindifficultyblocks);
+        LogInfo("Use given value for pow allow min difficulty blocks parameter %d\n.", powallowmindifficultyblocks);
+    }
+
+    if (args.IsArgSet("-pownoretargeting")) {
+        // Allow overriding pow no retargeting parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Pow no retargeting parameter may only be overridden on regtest."));
+        }
+
+        bool pownoretargeting = args.GetBoolArg("-pownoretargeting", 1);
+        UpdatePowNoRetargeting(pownoretargeting);
+        LogInfo("Use given value for pow no retargeting parameter %d\n.", pownoretargeting);
+    }
+
+    if (args.IsArgSet("-posnoretargeting")) {
+        // Allow overriding pos no retargeting parameter for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("PoS no retargeting parameter may only be overridden on regtest."));
+        }
+
+        bool posnoretargeting = args.GetBoolArg("-posnoretargeting", 1);
+        UpdatePoSNoRetargeting(posnoretargeting);
+        LogInfo("Use given value for pos no retargeting parameter %d\n.", posnoretargeting);
+    }
+
+    if (args.IsArgSet("-muirglacierheight")) {
+        // Allow overriding EVM Muir Glacier block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Muir Glacier height may only be overridden on regtest."));
+        }
+
+        int muirglacierheight = args.GetIntArg("-muirglacierheight", 0);
+        if(muirglacierheight >= 0)
+        {
+            UpdateMuirGlacierHeight(muirglacierheight);
+            LogInfo("Activate EVM Muir Glacier at block height %d\n.", muirglacierheight);
+        }
+    }
+
+    if (args.IsArgSet("-londonheight")) {
+        // Allow overriding EVM London block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM London height may only be overridden on regtest."));
+        }
+
+        int londonheight = args.GetIntArg("-londonheight", 0);
+        if(londonheight >= 0)
+        {
+            UpdateLondonHeight(londonheight);
+            LogInfo("Activate EVM London at block height %d\n.", londonheight);
+        }
+    }
+
+    if (args.IsArgSet("-taprootheight")) {
+        // Allow overriding taproot block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Taproot height may only be overridden on regtest."));
+        }
+
+        int taprootheight = args.GetIntArg("-taprootheight", 0);
+        if(taprootheight >= 0)
+        {
+            UpdateTaprootHeight(taprootheight);
+            LogInfo("Activate taproot at block height %d\n.", taprootheight);
+        }
+    }
+
+    if (args.IsArgSet("-shanghaiheight")) {
+        // Allow overriding EVM Shanghai block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Shanghai height may only be overridden on regtest."));
+        }
+
+        int shanghaiheight = args.GetIntArg("-shanghaiheight", 0);
+        if(shanghaiheight >= 0)
+        {
+            UpdateShanghaiHeight(shanghaiheight);
+            LogInfo("Activate EVM Shanghai at block height %d\n.", shanghaiheight);
+        }
+    }
+
+    if (args.IsArgSet("-cancunheight")) {
+        // Allow overriding EVM Cancun block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Cancun height may only be overridden on regtest."));
+        }
+
+        int cancunheight = args.GetIntArg("-cancunheight", 0);
+        if(cancunheight >= 0)
+        {
+            UpdateCancunHeight(cancunheight);
+            LogInfo("Activate EVM Cancun at block height %d\n.", cancunheight);
+        }
+    }
+
+    if (args.IsArgSet("-pectraheight")) {
+        // Allow overriding EVM Pectra block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Pectra height may only be overridden on regtest."));
+        }
+
+        int pectraheight = args.GetIntArg("-pectraheight", 0);
+        if(pectraheight >= 0)
+        {
+            UpdatePectraHeight(pectraheight);
+            LogInfo("Activate EVM Pectra at block height %d\n.", pectraheight);
+        }
+    }
+
+    if(args.IsArgSet("-stakingallowlist") && args.IsArgSet("-stakingexcludelist"))
+    {
+        return InitError(Untranslated("Either -stakingallowlist or -stakingexcludelist parameter can be specified to the staker, not both."));
+    }
+
+    // Check allow list
+    for (const std::string& strAddress : args.GetArgs("-stakingallowlist"))
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if(!std::holds_alternative<PKHash>(dest))
+            return InitError(Untranslated(strprintf("-stakingallowlist, address %s does not refer to public key hash", strAddress)));
+    }
+
+    // Check exclude list
+    for (const std::string& strAddress : args.GetArgs("-stakingexcludelist"))
+    {
+        CTxDestination dest = DecodeDestination(strAddress);
+        if(!std::holds_alternative<PKHash>(dest))
+            return InitError(Untranslated(strprintf("-stakingexcludelist, address %s does not refer to public key hash", strAddress)));
+    }
+
     return true;
 }
 
-static bool LockDirectory(const fs::path& dir, bool probeOnly)
+static bool LockDirectory(const fs::path& dir, bool probeOnly, bool try_lock = true)
 {
     // Make sure only a single process is using the directory.
-    switch (util::LockDirectory(dir, ".lock", probeOnly)) {
+    switch (util::LockDirectory(dir, ".lock", probeOnly, try_lock)) {
     case util::LockResult::ErrorWrite:
         return InitError(strprintf(_("Cannot write to directory '%s'; check permissions."), fs::PathToString(dir)));
     case util::LockResult::ErrorLock:
@@ -1351,6 +1694,9 @@ static ChainstateLoadResult InitAndLoadChainstate(
     // The coinsdb is opened at a later point on LoadChainstate.
     Assert(!node.chainman); // Was reset above
     try {
+        if (node.chainman) {
+            node.chainman.reset();
+        }
         node.chainman = std::make_unique<ChainstateManager>(*Assert(node.shutdown_signal), chainman_opts, blockman_opts);
     } catch (dbwrapper_error& e) {
         LogError("%s", e.what());
@@ -1393,6 +1739,15 @@ static ChainstateLoadResult InitAndLoadChainstate(
             _("Error reading from database, shutting down."),
             CClientUIInterface::MSG_ERROR);
     };
+    if((args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) || (!args.IsArgSet("-dgpstorage") && args.IsArgSet("-dgpevm")) ||
+      (!args.IsArgSet("-dgpstorage") && !args.IsArgSet("-dgpevm"))){
+        options.getting_values_dgp = true;
+    } else {
+        options.getting_values_dgp = false;
+    }
+    options.record_log_opcodes = args.IsArgSet("-record-log-opcodes");
+    options.addrindex = args.GetBoolArg("-addrindex", DEFAULT_ADDRINDEX);
+    options.logevents = args.GetBoolArg("-logevents", DEFAULT_LOGEVENTS);
     uiInterface.InitMessage(_("Loading block index…"));
     auto catch_exceptions = [](auto&& f) -> ChainstateLoadResult {
         try {
@@ -1443,10 +1798,15 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     // Warn about relative -datadir path.
     if (args.IsArgSet("-datadir") && !args.GetPathArg("-datadir").is_absolute()) {
         LogWarning("Relative datadir option '%s' specified, which will be interpreted relative to the "
-                   "current working directory '%s'. This is fragile, because if bitcoin is started in the future "
+                   "current working directory '%s'. This is fragile, because if qtum is started in the future "
                    "from a different location, it will be unable to locate the current data files. There could "
-                   "also be data loss if bitcoin is started while in a temporary directory.",
+                   "also be data loss if qtum is started while in a temporary directory.",
                    args.GetArg("-datadir", ""), fs::PathToString(fs::current_path()));
+    }
+
+    if(args.GetBoolArg("-deleteblockchaindata", false))
+    {
+        DeleteBlockChainData();
     }
 
     assert(!node.scheduler);
@@ -2049,6 +2409,8 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
         }
     });
 
+    node.peerman->InitCleanBlockIndex();
+
     /*
      * Wait for genesis block to be processed. Typically kernel_notifications.m_tip_block
      * has already been set by a call to LoadChainTip() in CompleteChainstateInitialization().
@@ -2115,7 +2477,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     const uint16_t default_bind_port =
         static_cast<uint16_t>(args.GetIntArg("-port", Params().GetDefaultPort()));
 
-    const uint16_t default_bind_port_onion = default_bind_port + 1;
+    const uint16_t default_bind_port_onion = default_bind_port + 3;
 
     const auto BadPortWarning = [](const char* prefix, uint16_t port) {
         return strprintf(_("%s request to listen on port %u. This port is considered \"bad\" and "
@@ -2384,4 +2746,13 @@ bool StartIndexBackgroundSync(NodeContext& node)
     // Start threads
     for (auto index : node.indexes) if (!index->StartBackgroundSync()) return false;
     return true;
+}
+
+void UnlockDataDirectory()
+{
+    // Unlock
+    const fs::path& datadir = gArgs.GetDataDirNet();
+    if (DirIsWritable(datadir)) {
+        UnlockDirectory(datadir, ".lock");
+    }
 }
