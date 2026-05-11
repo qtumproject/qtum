@@ -15,13 +15,13 @@ BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
             VALUE "CompanyName",        CLIENT_NAME " project"
-            VALUE "FileDescription",    "bitcoin-cli (JSON-RPC client for " CLIENT_NAME ")"
+            VALUE "FileDescription",    "qtum-cli (JSON-RPC client for " CLIENT_NAME ")"
             VALUE "FileVersion",        CLIENT_VERSION_STRING
-            VALUE "InternalName",       "bitcoin-cli"
+            VALUE "InternalName",       "qtum-cli"
             VALUE "LegalCopyright",     COPYRIGHT_STR
             VALUE "LegalTrademarks1",   "Distributed under the MIT software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
-            VALUE "OriginalFilename",   "bitcoin-cli.exe"
-            VALUE "ProductName",        "bitcoin-cli"
+            VALUE "OriginalFilename",   "qtum-cli.exe"
+            VALUE "ProductName",        "qtum-cli"
             VALUE "ProductVersion",     CLIENT_VERSION_STRING
         END
     END

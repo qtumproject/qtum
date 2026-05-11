@@ -12,7 +12,8 @@
 
 // Our memory analysis in headerssync-params.py assumes this many bytes for a
 // CompressedHeader (we should re-calculate parameters if we compress further).
-static_assert(sizeof(CompressedHeader) == 48);
+// 160 bytes for a CompressedHeader is for ARM Linux
+static_assert(sizeof(CompressedHeader) == 176 || sizeof(CompressedHeader) == 160);
 
 HeadersSyncState::HeadersSyncState(NodeId id,
                                    const Consensus::Params& consensus_params,

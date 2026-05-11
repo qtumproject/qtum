@@ -25,10 +25,18 @@ struct CompressedHeader {
     uint32_t nTime{0};
     uint32_t nBits{0};
     uint32_t nNonce{0};
+    uint256 hashStateRoot;
+    uint256 hashUTXORoot;
+    COutPoint prevoutStake;
+    std::vector<unsigned char> vchBlockSigDlgt;
 
     CompressedHeader()
     {
         hashMerkleRoot.SetNull();
+        hashStateRoot.SetNull();
+        hashUTXORoot.SetNull();
+        prevoutStake.SetNull();
+        vchBlockSigDlgt.clear();
     }
 
     explicit CompressedHeader(const CBlockHeader& header)
@@ -36,7 +44,11 @@ struct CompressedHeader {
           hashMerkleRoot{header.hashMerkleRoot},
           nTime{header.nTime},
           nBits{header.nBits},
-          nNonce{header.nNonce}
+          nNonce{header.nNonce},
+          hashStateRoot{header.hashStateRoot},
+          hashUTXORoot{header.hashUTXORoot},
+          prevoutStake{header.prevoutStake},
+          vchBlockSigDlgt{header.vchBlockSigDlgt}
     {
     }
 
@@ -49,6 +61,10 @@ struct CompressedHeader {
         ret.nTime = nTime;
         ret.nBits = nBits;
         ret.nNonce = nNonce;
+        ret.hashStateRoot = hashStateRoot;
+        ret.hashUTXORoot = hashUTXORoot;
+        ret.prevoutStake = prevoutStake;
+        ret.vchBlockSigDlgt = vchBlockSigDlgt;
         return ret;
     };
 };

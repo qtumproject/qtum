@@ -118,7 +118,7 @@ public:
     /** Minimum free space (in GB) needed for data directory when pruned; Does not include prune target*/
     uint64_t AssumedChainStateSize() const { return m_assumed_chain_state_size; }
     /** Whether it is possible to mine blocks on demand (no retargeting) */
-    bool MineBlocksOnDemand() const { return consensus.fPowNoRetargeting; }
+    bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
     /** Return the chain type string */
     std::string GetChainTypeString() const { return ChainTypeToString(m_chain_type); }
     /** Return the chain type */

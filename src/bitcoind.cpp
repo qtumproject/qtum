@@ -126,7 +126,7 @@ static bool ParseArgs(NodeContext& node, int argc, char* argv[])
     // Error out when loose non-argument tokens are encountered on command line
     for (int i = 1; i < argc; i++) {
         if (!IsSwitchChar(argv[i][0])) {
-            return InitError(Untranslated(strprintf("Command line contains unexpected token '%s', see bitcoind -h for a list of options.", argv[i])));
+            return InitError(Untranslated(strprintf("Command line contains unexpected token '%s', see qtumd -h for a list of options.", argv[i])));
         }
     }
     return true;
@@ -147,12 +147,12 @@ static bool ProcessInitCommands(interfaces::Init& init, ArgsManager& args)
             strUsage += FormatParagraph(LicenseInfo());
         } else {
             strUsage += "\n"
-                "The " CLIENT_NAME " daemon (bitcoind) is a headless program that connects to the Bitcoin network to validate and relay transactions and blocks, as well as relaying addresses.\n\n"
-                "It provides the backbone of the Bitcoin network and its RPC, REST and ZMQ services can provide various transaction, block and address-related services.\n\n"
+                "The " CLIENT_NAME " daemon (qtumd) is a headless program that connects to the Qtum network to validate and relay transactions and blocks, as well as relaying addresses.\n\n"
+                "It provides the backbone of the Qtum network and its RPC, REST and ZMQ services can provide various transaction, block and address-related services.\n\n"
                 "There is an optional wallet component which provides transaction services.\n\n"
                 "It can be used in a headless environment or as part of a server setup.\n"
                 "\n"
-                "Usage: bitcoind [options]\n"
+                "Usage: qtumd [options]\n"
                 "\n";
             strUsage += args.GetHelpMessage();
         }

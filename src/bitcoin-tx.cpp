@@ -107,17 +107,17 @@ static int AppInitRawTx(int argc, char* argv[])
 
     if (argc < 2 || HelpRequested(gArgs) || gArgs.GetBoolArg("-version", false)) {
         // First part of help message is specific to this utility
-        std::string strUsage = CLIENT_NAME " bitcoin-tx utility version " + FormatFullVersion() + "\n";
+        std::string strUsage = CLIENT_NAME " qtum-tx utility version " + FormatFullVersion() + "\n";
 
         if (gArgs.GetBoolArg("-version", false)) {
             strUsage += FormatParagraph(LicenseInfo());
         } else {
             strUsage += "\n"
-                "The bitcoin-tx tool is used for creating and modifying bitcoin transactions.\n\n"
-                "bitcoin-tx can be used with \"<hex-tx> [commands]\" to update a hex-encoded bitcoin transaction, or with \"-create [commands]\" to create a hex-encoded bitcoin transaction.\n"
+                "The qtum-tx tool is used for creating and modifying qtum transactions.\n\n"
+                "qtum-tx can be used with \"<hex-tx> [commands]\" to update a hex-encoded qtum transaction, or with \"-create [commands]\" to create a hex-encoded qtum transaction.\n"
                 "\n"
-                "Usage: bitcoin-tx [options] <hex-tx> [commands]\n"
-                "or:    bitcoin-tx [options] -create [commands]\n"
+                "Usage: qtum-tx [options] <hex-tx> [commands]\n"
+                "or:    qtum-tx [options] -create [commands]\n"
                 "\n";
             strUsage += gArgs.GetHelpMessage();
         }
@@ -271,7 +271,7 @@ static void MutateTxAddInput(CMutableTransaction& tx, const std::string& strInpu
     }
 
     static const unsigned int minTxOutSz = 9;
-    static const unsigned int maxVout = MAX_BLOCK_WEIGHT / (WITNESS_SCALE_FACTOR * minTxOutSz);
+    static const unsigned int maxVout = dgpMaxBlockWeight / (WITNESS_SCALE_FACTOR * minTxOutSz);
 
     // extract and validate vout
     const std::string& strVout = vStrInputParts[1];
