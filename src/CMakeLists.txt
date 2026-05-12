@@ -189,6 +189,7 @@ add_library(bitcoin_common STATIC EXCLUDE_FROM_ALL
   pow.cpp
   protocol.cpp
   psbt.cpp
+  pos.cpp
   rpc/rawtransaction_util.cpp
   rpc/request.cpp
   rpc/util.cpp
@@ -202,6 +203,8 @@ add_library(bitcoin_common STATIC EXCLUDE_FROM_ALL
   script/solver.cpp
   qtum/qtumutils.cpp
   qtum/qtumDGP.cpp
+  qtum/qtumtoken.cpp
+  qtum/qtumdelegation.cpp
   qtum/delegationutils.cpp
   util/contractabi.cpp
   util/tokenstr.cpp
@@ -410,7 +413,9 @@ add_library(bitcoin_node STATIC EXCLUDE_FROM_ALL
   versionbits.cpp
   qtum/qtumstate.cpp
   qtum/storageresults.cpp
+  qtum/qtumledger.cpp
   $<$<TARGET_EXISTS:bitcoin_wallet>:wallet/init.cpp>
+  $<$<TARGET_EXISTS:bitcoin_wallet>:wallet/rpc/contract.cpp>
   $<$<NOT:$<TARGET_EXISTS:bitcoin_wallet>>:dummywallet.cpp>
 )
 target_link_libraries(bitcoin_node
@@ -548,7 +553,7 @@ if(BUILD_KERNEL_LIB)
     add_executable(qtum-chainstate
       bitcoin-chainstate.cpp
     )
-    add_windows_application_manifest(bitcoin-chainstate)
+    add_windows_application_manifest(qtum-chainstate)
     target_link_libraries(qtum-chainstate
       PRIVATE
         core_interface

@@ -62,6 +62,8 @@
 #include <util/translation.h>
 #include <validation.h>
 #include <validationinterface.h>
+#include <qtum/qtumdelegation.h>
+#include <qtum/qtumDGP.h>
 
 #include <bitcoin-build-config.h> // IWYU pragma: keep
 
@@ -394,6 +396,13 @@ public:
     }
     void getGasInfo(uint64_t& blockGasLimit, uint64_t& minGasPrice, uint64_t& nGasPrice) override
     {
+        LOCK(::cs_main);
+
+        QtumDGP qtumDGP(globalState.get(), chainman().ActiveChainstate(), fGettingValuesDGP);
+        int numBlocks = chainman().ActiveChain().Height();
+        blockGasLimit = qtumDGP.getBlockGasLimit(numBlocks);
+        minGasPrice = CAmount(qtumDGP.getMinGasPrice(numBlocks));
+        nGasPrice = (minGasPrice>DEFAULT_GAS_PRICE)?minGasPrice:DEFAULT_GAS_PRICE;
     }
     void getSyncInfo(int& numBlocks, bool& isSyncing) override
     {
@@ -422,7 +431,8 @@ public:
     }
     int64_t getBlockSubsidy(int nHeight) override
     {
-        return {};
+        const CChainParams& chainparams = Params();
+        return GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     uint64_t getNetworkStakeWeight() override
     {
@@ -509,6 +519,7 @@ bool FillBlock(const CBlockIndex* index, const FoundBlock& block, UniqueLock<Rec
     if (block.m_time) *block.m_time = index->GetBlockTime();
     if (block.m_max_time) *block.m_max_time = index->GetBlockTimeMax();
     if (block.m_mtp_time) *block.m_mtp_time = index->GetMedianTimePast();
+    if (block.m_has_delegation) *block.m_has_delegation = index->HasProofOfDelegation();
     if (block.m_in_active_chain) *block.m_in_active_chain = active[index->nHeight] == index;
     if (block.m_locator) { *block.m_locator = GetLocator(index); }
     if (block.m_next_block) FillBlock(active[index->nHeight] == index ? active[index->nHeight + 1] : nullptr, *block.m_next_block, lock, active, blockman);
@@ -966,7 +977,7 @@ public:
     }
     CAmount getTxGasFee(const CMutableTransaction& tx) override
     {
-        return {};
+        return GetTxGasFee(tx, mempool(), chainman().ActiveChainstate());
     }
 #ifdef ENABLE_WALLET
     void startStake(wallet::CWallet& wallet) override
@@ -993,11 +1004,12 @@ public:
 #endif
     bool getDelegation(const uint160& address, Delegation& delegation) override
     {
-        return {};
+        QtumDelegation qtumDelegation;
+        return qtumDelegation.ExistDelegationContract() ? qtumDelegation.GetDelegation(address, delegation, chainman().ActiveChainstate()) : false;
     }
     bool verifyDelegation(const uint160& address, const Delegation& delegation) override
     {
-        return {};
+        return QtumDelegation::VerifyDelegation(address, delegation);
     }
     NodeContext& m_node;
 };

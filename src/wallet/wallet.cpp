@@ -1108,6 +1108,10 @@ CWalletTx* CWallet::AddToWallet(CTransactionRef tx, const TxState& state, const 
             wtx.SetTx(tx);
             fUpdated = true;
         }
+        if(fUpdated && wtx.IsCoinStake())
+        {
+            AddToSpends(wtx);
+        }
     }
 
     // Mark inactive coinbase transactions and their descendants as abandoned
@@ -1132,6 +1136,33 @@ CWalletTx* CWallet::AddToWallet(CTransactionRef tx, const TxState& state, const 
                     if (wit != mapWallet.end()) {
                         txs.push_back(&wit->second);
                     }
+                }
+            }
+        }
+    }
+
+    // Update unspent addresses
+    if(fUpdateAddressUnspentCache)
+    {
+        std::map<COutPoint, CScriptCache> insertScriptCache;
+        for (unsigned int i = 0; i < tx->vout.size(); i++) {
+            bool mine = IsMine(tx->vout[i]);
+            COutPoint prevout = COutPoint(hash, i);
+            if (mine && !IsSpent(prevout) &&
+                !IsLockedCoin(prevout) && (tx->vout[i].nValue > 0) &&
+                // Check if the staking coin is dust
+                tx->vout[i].nValue >= m_staker_min_utxo_size)
+            {
+                // Get the script data for the coin
+                const CScriptCache& scriptCache = GetScriptCache(prevout, tx->vout[i].scriptPubKey, &insertScriptCache);
+
+                // Check that the script is not a contract script
+                if(scriptCache.contract || !scriptCache.keyIdOk)
+                    continue;
+
+                if(mapAddressUnspentCache.find(scriptCache.keyId) == mapAddressUnspentCache.end())
+                {
+                    mapAddressUnspentCache[scriptCache.keyId] = true;
                 }
             }
         }
@@ -1336,7 +1367,9 @@ bool CWallet::AbandonTransaction(CWalletTx& tx)
 
     auto try_updating_state = [](CWalletTx& wtx) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet) {
         // If the orig tx was not in block/mempool, none of its spends can be.
-        assert(!wtx.isConfirmed());
+        if (!wtx.IsCoinStake()) {
+            assert(!wtx.isConfirmed());
+        }
         assert(!wtx.InMempool());
         // If already conflicted or abandoned, no need to set abandoned
         if (!wtx.isBlockConflicted() && !wtx.isAbandoned()) {
@@ -1674,7 +1707,6 @@ CAmount CWallet::GetDebit(const CTxIn &txin) const
 
 bool CWallet::IsMine(const CTxOut& txout) const
 {
-    AssertLockHeld(cs_wallet);
     return IsMine(txout.scriptPubKey);
 }
 
@@ -1686,8 +1718,6 @@ bool CWallet::IsMine(const CTxDestination& dest) const
 
 bool CWallet::IsMine(const CScript& script) const
 {
-    AssertLockHeld(cs_wallet);
-
     // Search the cache so that IsMine is called only on the relevant SPKMs instead of on everything in m_spk_managers
     const auto& it = m_cached_spks.find(script);
     if (it != m_cached_spks.end()) {
@@ -2064,7 +2094,7 @@ bool CWallet::SubmitTxMemoryPoolAndRelay(CWalletTx& wtx,
     if (wtx.isAbandoned()) return false;
     // Don't try to submit coinbase transactions. These would fail anyway but would
     // cause log spam.
-    if (wtx.IsCoinBase()) return false;
+    if (wtx.IsCoinBase() || wtx.IsCoinStake()) return false;
     // Don't try to submit conflicted or confirmed transactions.
     if (GetTxDepthInMainChain(wtx) != 0) return false;
 
@@ -2151,6 +2181,9 @@ NodeClock::time_point CWallet::GetDefaultNextResend() { return FastRandomContext
 // broadcast_method=TxBroadcast::MEMPOOL_NO_BROADCAST force=true.
 void CWallet::ResubmitWalletTransactions(node::TxBroadcast broadcast_method, bool force)
 {
+    // Clean coinstake transactions when not reindex and not importing
+    TryCleanCoinStake();
+
     // Don't attempt to resubmit if the wallet is configured to not broadcast,
     // even if forcing.
     if (!fBroadcastTransactions) return;
@@ -2189,6 +2222,8 @@ void CWallet::ResubmitWalletTransactions(node::TxBroadcast broadcast_method, boo
 void MaybeResendWalletTxs(WalletContext& context)
 {
     for (const std::shared_ptr<CWallet>& pwallet : GetWallets(context)) {
+        // Clean coinstake transactions when not reindex and not importing
+        pwallet->TryCleanCoinStake();
         if (!pwallet->ShouldResend()) continue;
         pwallet->ResubmitWalletTransactions(node::TxBroadcast::MEMPOOL_AND_BROADCAST_TO_ALL, /*force=*/false);
         pwallet->SetNextResend();
@@ -3060,7 +3095,6 @@ bool CWallet::UnlockAllCoins()
 
 bool CWallet::IsLockedCoin(const COutPoint& output) const
 {
-    AssertLockHeld(cs_wallet);
     return m_locked_coins.contains(output);
 }
 
@@ -3353,6 +3387,28 @@ bool CWallet::LoadWalletArgs(std::shared_ptr<CWallet> wallet, const WalletContex
     wallet->m_notify_tx_changed_script = args.GetArg("-walletnotify", "");
     wallet->SetBroadcastTransactions(args.GetBoolArg("-walletbroadcast", DEFAULT_WALLETBROADCAST));
 
+    std::optional<CAmount> reserve_balance = ParseMoney(gArgs.GetArg("-reservebalance", FormatMoney(DEFAULT_RESERVE_BALANCE)));
+    wallet->m_reserve_balance = reserve_balance.value_or(DEFAULT_RESERVE_BALANCE);
+    wallet->m_use_change_address = gArgs.GetBoolArg("-usechangeaddress", DEFAULT_USE_CHANGE_ADDRESS);
+    std::optional<CAmount> staking_min_utxo_value = ParseMoney(gArgs.GetArg("-stakingminutxovalue", FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)));
+    wallet->m_staking_min_utxo_value = staking_min_utxo_value.value_or(DEFAULT_STAKING_MIN_UTXO_VALUE);
+    std::optional<CAmount> min_staker_utxo_size = ParseMoney(gArgs.GetArg("-minstakerutxosize", FormatMoney(DEFAULT_STAKER_MIN_UTXO_SIZE)));
+    wallet->m_staker_min_utxo_size = min_staker_utxo_size.value_or(DEFAULT_STAKER_MIN_UTXO_SIZE);
+    if (gArgs.IsArgSet("-stakingminfee"))
+    {
+        int nStakingMinFee = gArgs.GetIntArg("-stakingminfee", DEFAULT_STAKING_MIN_FEE);
+        if(nStakingMinFee < 0 || nStakingMinFee > 100)
+        {
+            chain->initError(strprintf(_("Invalid percentage value for -stakingminfee=<n>: '%d' (must be between 0 and 100)"), nStakingMinFee));
+            return false;
+        }
+        wallet->m_staking_min_fee = nStakingMinFee;
+    }
+    wallet->m_staker_max_utxo_script_cache = gArgs.GetIntArg("-maxstakerutxoscriptcache", DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE);
+    wallet->m_num_threads = gArgs.GetIntArg("-stakerthreads", GetNumCores());
+    wallet->m_num_threads = std::max(1, wallet->m_num_threads);
+    wallet->m_ledger_id = gArgs.GetArg("-stakerledgerid", "");
+
     return true;
 }
 
@@ -3469,7 +3525,7 @@ bool CWallet::AttachChain(const std::shared_ptr<CWallet>& walletInstance, interf
             // Wallet is assumed to be from another chain, if genesis block in the active
             // chain differs from the genesis block known to the wallet.
             if (chain.getBlockHash(0) != locator.vHave.back()) {
-                error = Untranslated("Wallet files should not be reused across chains. Restart bitcoind with -walletcrosschain to override.");
+                error = Untranslated("Wallet files should not be reused across chains. Restart qtumd with -walletcrosschain to override.");
                 return false;
             }
         }
@@ -3709,7 +3765,9 @@ bool CWallet::AddTokenTxEntry(const CTokenTx &tokenTx)
 
 int CWallet::GetTxDepthInMainChain(const CWalletTx& wtx) const
 {
+#ifndef DEBUG_LOCKORDER
     AssertLockHeld(cs_wallet);
+#endif
     if (auto* conf = wtx.state<TxStateConfirmed>()) {
         assert(conf->confirmed_block_height >= 0);
         return GetLastBlockHeight() - conf->confirmed_block_height + 1;
