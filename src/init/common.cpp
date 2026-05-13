@@ -15,6 +15,7 @@
 #include <util/string.h>
 #include <util/time.h>
 #include <util/translation.h>
+#include <libdevcore/Log.h>
 
 #include <algorithm>
 #include <filesystem>
@@ -46,6 +47,7 @@ void AddLoggingArgs(ArgsManager& argsman)
 void SetLoggingOptions(const ArgsManager& args)
 {
     LogInstance().m_print_to_file = !args.IsArgNegated("-debuglogfile");
+    LogInstance().m_file_pathVM = AbsPathForConfigVal(args, args.GetPathArg("-debugvmlogfile", DEFAULT_DEBUGVMLOGFILE));
     LogInstance().m_file_path = AbsPathForConfigVal(args, args.GetPathArg("-debuglogfile", DEFAULT_DEBUGLOGFILE));
     LogInstance().m_print_to_console = args.GetBoolArg("-printtoconsole", !args.GetBoolArg("-daemon", false));
     LogInstance().m_log_timestamps = args.GetBoolArg("-logtimestamps", DEFAULT_LOGTIMESTAMPS);
@@ -53,6 +55,11 @@ void SetLoggingOptions(const ArgsManager& args)
     LogInstance().m_log_threadnames = args.GetBoolArg("-logthreadnames", DEFAULT_LOGTHREADNAMES);
     LogInstance().m_log_sourcelocations = args.GetBoolArg("-logsourcelocations", DEFAULT_LOGSOURCELOCATIONS);
     LogInstance().m_always_print_category_level = args.GetBoolArg("-loglevelalways", DEFAULT_LOGLEVELALWAYS);
+    LogInstance().m_show_evm_logs = args.GetBoolArg("-showevmlogs", DEFAULT_SHOWEVMLOGS);
+    dev::g_logPost = [&](std::string const& s, char const* c){
+        std::string vmFunction = c ? c : "";
+        LogInstance().LogPrintStr(s + '\n', SourceLocation(vmFunction.c_str()), BCLog::ALL, BCLog::Level::Debug, true, true, vmFunction); 
+    };
 
     fLogIPs = args.GetBoolArg("-logips", DEFAULT_LOGIPS);
 }
@@ -117,6 +124,9 @@ bool StartLogging(const ArgsManager& args)
             return InitError(Untranslated(strprintf("Could not open debug log file %s",
                 fs::PathToString(LogInstance().m_file_path))));
     }
+////////////////////////////////////////////////////////////////////// // qtum
+    dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
+//////////////////////////////////////////////////////////////////////
 
     if (!LogInstance().m_log_timestamps) {
         LogInfo("Startup time: %s", FormatISO8601DateTime(GetTime()));
