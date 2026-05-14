@@ -20,6 +20,7 @@
 #include <util/translation.h>
 #include <validation.h>
 #include <validationinterface.h>
+#include <chainparams.h>
 
 using node::BlockAssembler;
 using node::NodeContext;
@@ -47,10 +48,11 @@ void initialize_tx_pool()
     BlockAssembler::Options options;
     options.coinbase_output_script = P2WSH_EMPTY;
     options.include_dummy_extranonce = true;
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
 
-    for (int i = 0; i < 2 * COINBASE_MATURITY; ++i) {
+    for (int i = 0; i < 2 * coinbaseMaturity; ++i) {
         COutPoint prevout{MineBlock(g_setup->m_node, options)};
-        if (i < COINBASE_MATURITY) {
+        if (i < coinbaseMaturity) {
             // Remember the txids to avoid expensive disk access later on
             g_outpoints_coinbase_init_mature.push_back(prevout);
         }

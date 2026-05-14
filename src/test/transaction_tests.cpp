@@ -34,6 +34,7 @@
 #include <util/strencodings.h>
 #include <util/string.h>
 #include <validation.h>
+#include <chainparams.h>
 
 #include <functional>
 #include <map>
@@ -356,7 +357,7 @@ BOOST_AUTO_TEST_CASE(tx_oversized)
         tx.vout.emplace_back(1, CScript() << OP_RETURN << std::vector<unsigned char>(payloadSize));
         return CTransaction(tx);
     };
-    const auto maxTransactionSize = MAX_BLOCK_WEIGHT / WITNESS_SCALE_FACTOR;
+    const auto maxTransactionSize = std::min((int)(dgpMaxBlockWeight / WITNESS_SCALE_FACTOR), MAX_TRANSACTION_BASE_SIZE);
     const auto oversizedTransactionBaseSize = ::GetSerializeSize(TX_NO_WITNESS(createTransaction(maxTransactionSize))) - maxTransactionSize;
 
     auto maxPayloadSize = maxTransactionSize - oversizedTransactionBaseSize;
@@ -1148,10 +1149,11 @@ BOOST_AUTO_TEST_CASE(checktxinputs_invalid_transactions_test)
                   /*spend_height=*/2,
                   TxValidationResult::TX_CONSENSUS, /*expected_reason=*/"bad-txns-in-belowout");
 
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     check_invalid(/*input_value=*/1 * COIN,
                   /*output_value=*/0,
                   /*coinbase=*/true,
-                  /*spend_height=*/COINBASE_MATURITY,
+                  /*spend_height=*/coinbaseMaturity,
                   TxValidationResult::TX_PREMATURE_SPEND, /*expected_reason=*/"bad-txns-premature-spend-of-coinbase");
 }
 

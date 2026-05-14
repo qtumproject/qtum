@@ -1008,7 +1008,7 @@ static RPCHelpMan getblocktemplate()
     result.pushKV("sigoplimit", nSigOpLimit);
     result.pushKV("sizelimit", nSizeLimit);
     if (!fPreSegWit) {
-        result.pushKV("weightlimit", MAX_BLOCK_WEIGHT);
+        result.pushKV("weightlimit", (int64_t)dgpMaxBlockWeight);
     }
     result.pushKV("curtime", block.GetBlockTime());
     result.pushKV("bits", strprintf("%08x", block.nBits));

@@ -138,7 +138,8 @@ static void WalletCreateTx(benchmark::Bench& bench, const OutputType output_type
 
     // Check available balance
     auto bal = WITH_LOCK(wallet.cs_wallet, return wallet::AvailableCoins(wallet).GetTotalAmount()); // Cache
-    assert(bal == 49 * COIN * (chain_size - COINBASE_MATURITY));
+    constexpr size_t coinbaseMaturity = 2000;
+    assert(bal == (int64_t) (20000 * COIN * (chain_size - coinbaseMaturity)));
 
     wallet::CCoinControl coin_control;
     coin_control.m_allow_other_inputs = allow_other_inputs;
@@ -198,12 +199,13 @@ static void AvailableCoins(benchmark::Bench& bench, const std::vector<OutputType
 
     // Check available balance
     auto bal = WITH_LOCK(wallet.cs_wallet, return wallet::AvailableCoins(wallet).GetTotalAmount()); // Cache
-    assert(bal == 49 * COIN * (chain_size - COINBASE_MATURITY));
+    constexpr size_t coinbaseMaturity = 2000;
+    assert(bal == (int64_t) (20000 * COIN * (chain_size - coinbaseMaturity)));
 
     bench.run([&] {
         LOCK(wallet.cs_wallet);
         const auto& res = wallet::AvailableCoins(wallet);
-        assert(res.All().size() == (chain_size - COINBASE_MATURITY) * 2);
+        assert(res.All().size() == (chain_size - coinbaseMaturity) * 2);
     });
 }
 
