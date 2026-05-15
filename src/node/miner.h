@@ -12,6 +12,7 @@
 #include <primitives/block.h>
 #include <txmempool.h>
 #include <util/feefrac.h>
+#include <validation.h>
 
 #include <cstdint>
 #include <memory>
@@ -29,6 +30,9 @@ class CChainParams;
 class CScript;
 class Chainstate;
 class ChainstateManager;
+#ifdef ENABLE_WALLET
+namespace wallet { class CWallet; };
+#endif
 
 namespace Consensus { struct Params; };
 
@@ -39,12 +43,44 @@ class KernelNotifications;
 
 static const bool DEFAULT_PRINT_MODIFIED_FEE = false;
 
+static const bool DEFAULT_STAKE = true;
+
+static const bool DEFAULT_STAKE_CACHE = true;
+
 static const bool DEFAULT_SUPER_STAKE = false;
 
 static const bool ENABLE_HARDWARE_STAKE = false;
 
+//How many seconds to look ahead and prepare a block for staking
+//Look ahead up to 3 "timeslots" in the future, 48 seconds
+//Reduce this to reduce computational waste for stakers, increase this to increase the amount of time available to construct full blocks
+static const int32_t MAX_STAKE_LOOKAHEAD = 16 * 3;
+
+//Will not add any more contracts when GetAdjustedTime() >= nTimeLimit-BYTECODE_TIME_BUFFER
+//This does not affect non-contract transactions
+static const int32_t BYTECODE_TIME_BUFFER = 6;
+
+//Will not attempt to add more transactions when GetAdjustedTime() >= nTimeLimit
+//And nTimeLimit = StakeExpirationTime - STAKE_TIME_BUFFER
+static const int32_t STAKE_TIME_BUFFER = 2;
+
+//How often to try to stake blocks in milliseconds
+static const int32_t STAKER_POLLING_PERIOD = 5000;
+
+//How often to try to stake blocks in milliseconds for minimum difficulty
+static const int32_t STAKER_POLLING_PERIOD_MIN_DIFFICULTY = 20000;
+
+//How often to try to check for future walid block
+static const int32_t STAKER_WAIT_FOR_WALID_BLOCK = 3000;
+
+//How much time to wait for best block header to be downloaded to the blockchain
+static const int32_t STAKER_WAIT_FOR_BEST_BLOCK_HEADER = 250;
+
 //How much max time to wait for best block header to be downloaded to the blockchain
 static const int32_t DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER = 4000;
+
+//How much time to spend trying to process transactions when using the generate RPC call
+static const int32_t POW_MINER_MAX_TIME = 60;
 
 struct CBlockTemplate
 {
@@ -61,6 +97,8 @@ struct CBlockTemplate
      * miner code.
      */
     CoinbaseTx m_coinbase_tx;
+    // The total fee is the Fees minus the Refund
+    int64_t nTotalFees = 0;
 };
 
 /** Generate a new block, without valid proof-of-work */
@@ -83,11 +121,14 @@ private:
     const CChainParams& chainparams;
     const CTxMemPool* const m_mempool;
     Chainstate& m_chainstate;
+#ifdef ENABLE_WALLET
+    wallet::CWallet *pwallet = 0;
+#endif
 
 public:
     struct Options : BlockCreateOptions {
         // Configuration parameters for the block size
-        size_t nBlockMaxWeight{DEFAULT_BLOCK_MAX_WEIGHT};
+        mutable size_t nBlockMaxWeight{DEFAULT_BLOCK_MAX_WEIGHT};
         CFeeRate blockMinFeeRate{DEFAULT_BLOCK_MIN_TX_FEE};
         // Whether to call TestBlockValidity() at the end of CreateNewBlock().
         bool test_block_validity{true};
@@ -95,6 +136,17 @@ public:
     };
 
     explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, const Options& options);
+
+///////////////////////////////////////////// // qtum
+    ByteCodeExecResult bceResult;
+    uint64_t minGasPrice = 1;
+    uint64_t hardBlockGasLimit;
+    uint64_t softBlockGasLimit;
+    uint64_t txGasLimit;
+/////////////////////////////////////////////
+
+    // The original constructed reward tx (either coinbase or coinstake) without gas refund adjustments
+    CMutableTransaction originalRewardTx; // qtum
 
     /** Construct a new block template */
     std::unique_ptr<CBlockTemplate> CreateNewBlock();
@@ -128,6 +180,12 @@ private:
       * only as an extra check in case of a bug */
     bool TestChunkTransactions(const std::vector<CTxMemPoolEntryRef>& txs) const;
 };
+
+#ifdef ENABLE_WALLET
+/** Generate a new block, without valid proof-of-work */
+void StakeQtums(bool fStake, wallet::CWallet *pwallet);
+void RefreshDelegates(wallet::CWallet *pwallet, bool myDelegates, bool stakerDelegates);
+#endif
 
 /**
  * Get the minimum time a miner should use in the next block. This always
@@ -191,6 +249,9 @@ std::optional<BlockRef> WaitTipChanged(ChainstateManager& chainman, KernelNotifi
  * @returns false if interrupted.
  */
 bool CooldownIfHeadersAhead(ChainstateManager& chainman, KernelNotifications& kernel_notifications, const BlockRef& last_tip, bool& interrupt_mining);
+
+/** Check if staking is enabled */
+bool CanStake();
 } // namespace node
 
 #endif // BITCOIN_NODE_MINER_H

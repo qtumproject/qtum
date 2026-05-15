@@ -415,7 +415,9 @@ add_library(bitcoin_node STATIC EXCLUDE_FROM_ALL
   qtum/storageresults.cpp
   qtum/qtumledger.cpp
   $<$<TARGET_EXISTS:bitcoin_wallet>:wallet/init.cpp>
+  $<$<TARGET_EXISTS:bitcoin_wallet>:wallet/stake.cpp>
   $<$<TARGET_EXISTS:bitcoin_wallet>:wallet/rpc/contract.cpp>
+  $<$<TARGET_EXISTS:bitcoin_wallet>:wallet/rpc/mining.cpp>
   $<$<NOT:$<TARGET_EXISTS:bitcoin_wallet>>:dummywallet.cpp>
 )
 target_link_libraries(bitcoin_node

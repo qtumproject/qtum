@@ -64,7 +64,7 @@ CAmount GetDustThreshold(const CTxOut& txout, const CFeeRate& dustRelayFeeIn)
 
 bool IsDust(const CTxOut& txout, const CFeeRate& dustRelayFeeIn)
 {
-    return (txout.nValue < GetDustThreshold(txout, dustRelayFeeIn));
+    return (txout.nValue < GetDustThreshold(txout, dustRelayFeeIn) && !txout.scriptPubKey.HasOpCreate() && !txout.scriptPubKey.HasOpCall());
 }
 
 std::vector<uint32_t> GetDust(const CTransaction& tx, CFeeRate dust_relay_rate)

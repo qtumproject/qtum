@@ -17,6 +17,7 @@
 #include <univalue.h>
 
 class CRPCCommand;
+class ChainstateManager;
 
 /** Query whether RPC is running */
 bool IsRPCRunning();
@@ -129,6 +130,10 @@ public:
 bool IsDeprecatedRPCEnabled(const std::string& method);
 
 extern CRPCTable tableRPC;
+
+extern double GetPoWMHashPS(ChainstateManager& chainman);
+extern double GetPoSKernelPS(ChainstateManager& chainman);
+extern double GetEstimatedAnnualROI(ChainstateManager& chainman);
 
 void StartRPC();
 void InterruptRPC();
