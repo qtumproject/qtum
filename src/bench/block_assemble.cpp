@@ -40,7 +40,7 @@ static void AssembleBlock(benchmark::Bench& bench)
         CMutableTransaction tx;
         tx.vin.emplace_back(MineBlock(test_setup->m_node, options));
         tx.vin.back().scriptWitness = witness;
-        tx.vout.emplace_back(1337, P2WSH_OP_TRUE);
+        tx.vout.emplace_back(101337, P2WSH_OP_TRUE);
         if (NUM_BLOCKS - b >= coinbaseMaturity)
             txs.at(b) = MakeTransactionRef(tx);
     }

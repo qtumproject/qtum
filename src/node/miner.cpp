@@ -90,7 +90,8 @@ int64_t GetMinimumTime(const CBlockIndex* pindexPrev, const int64_t difficulty_a
 int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParams, const CBlockIndex* pindexPrev)
 {
     int64_t nOldTime = pblock->nTime;
-    int64_t nNewTime{std::max<int64_t>(GetMinimumTime(pindexPrev, consensusParams.DifficultyAdjustmentInterval()),
+    const int height{pindexPrev->nHeight + 1};
+    int64_t nNewTime{std::max<int64_t>(GetMinimumTime(pindexPrev, consensusParams.DifficultyAdjustmentInterval(height)),
                                        TicksSinceEpoch<std::chrono::seconds>(NodeClock::now()))};
 
     if (nOldTime < nNewTime) {
@@ -1098,12 +1099,215 @@ bool SignBlock(std::shared_ptr<CBlock> pblock, wallet::CWallet& wallet, const CA
 
     return false;
 }
+
+/**
+ * @brief The IStakeMiner class Miner interface
+ */
+class IStakeMiner
+{
+public:
+    /**
+     * @brief init Initialize the miner
+     * @param pwallet Wallet to use
+     */
+    virtual void Init(wallet::CWallet *pwallet) = 0;
+
+    /**
+     * @brief run Run the miner
+     */
+    virtual void Run() = 0;
+
+    /**
+     * @brief ~IStakeMiner Destructor
+     */
+    virtual ~IStakeMiner() {};
+};
+
+class SolveItem
+{
+public:
+    SolveItem(const COutPoint& _prevoutStake, const uint32_t& _blockTime, const bool& _delegate):
+        prevoutStake(_prevoutStake),
+        blockTime(_blockTime),
+        delegate(_delegate)
+    {}
+
+    COutPoint prevoutStake;
+    uint32_t blockTime = 0;
+    bool delegate = false;
+};
+
+class StakeMinerPriv
+{
+public:
+    wallet::CWallet *pwallet = 0;
+    bool fTryToSync = true;
+    bool regtestMode = false;
+    bool minDifficulty = false;
+    bool fSuperStake = false;
+    const Consensus::Params& consensusParams;
+    int nOfflineStakeHeight = 0;
+    bool fDelegationsContract = false;
+    bool fEmergencyStaking = false;
+    bool fAggressiveStaking = false;
+    bool fError = false;
+    int numThreads = 1;
+    boost::thread_group threads;
+    mutable RecursiveMutex cs_worker;
+    bool privateKeysDisabled = false;
+
+public:
+    DelegationsStaker delegationsStaker;
+    MyDelegations myDelegations;
+
+public:
+    int32_t nHeight = 0;
+    uint32_t stakeTimestampMask = 1;
+    int64_t nTotalFees = 0;
+    bool haveCoinsForStake = false;
+    bool forceUpdate = false;
+
+    CBlockIndex* pindexPrev = 0;
+    CAmount nTargetValue = 0;
+    std::set<std::pair<const wallet::CWalletTx*,unsigned int> > setCoins;
+    std::vector<COutPoint> setSelectedCoins;
+    std::vector<COutPoint> setDelegateCoins;
+    std::vector<COutPoint> prevouts;
+    std::map<uint32_t, bool> mapSolveBlockTime;
+    std::multimap<uint256, SolveItem> mapSolvedBlock;
+    std::map<uint32_t, std::vector<COutPoint>> mapSolveSelectedCoins;
+    std::map<uint32_t, std::vector<COutPoint>> mapSolveDelegateCoins;
+    uint32_t beginningTime = 0;
+    uint32_t endingTime = 0;
+    uint32_t waitBestHeaderAttempts = 0;
+
+    std::shared_ptr<CBlock> pblock;
+    std::unique_ptr<CBlockTemplate> pblocktemplate;
+    std::shared_ptr<CBlock> pblockfilled;
+    std::unique_ptr<CBlockTemplate> pblocktemplatefilled;
+
+public:
+    StakeMinerPriv(wallet::CWallet *_pwallet):
+        pwallet(_pwallet),
+        consensusParams(Params().GetConsensus()),
+        delegationsStaker(_pwallet),
+        myDelegations(_pwallet)
+
+    {
+        // Make this thread recognisable as the mining thread
+        std::string threadName = "qtumstake";
+        if(pwallet && pwallet->GetName() != "")
+        {
+            threadName = threadName + "-" + pwallet->GetName();
+        }
+        util::ThreadRename(threadName.c_str());
+
+        regtestMode = Params().MineBlocksOnDemand();
+        minDifficulty = consensusParams.fPowAllowMinDifficultyBlocks;
+        fSuperStake = gArgs.GetBoolArg("-superstaking", DEFAULT_SUPER_STAKE);
+        nOfflineStakeHeight = consensusParams.nOfflineStakeHeight;
+        fDelegationsContract = !consensusParams.delegationsAddress.IsNull();
+        fEmergencyStaking = gArgs.GetBoolArg("-emergencystaking", false);
+        fAggressiveStaking = gArgs.IsArgSet("-aggressive-staking");
+        int maxWaitForBestHeader = gArgs.GetIntArg("-maxstakerwaitforbestheader", node::DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER);
+        if(maxWaitForBestHeader > 0)
+        {
+            waitBestHeaderAttempts = maxWaitForBestHeader / nMinerWaitBestBlockHeader;
+        }
+        if(pwallet) numThreads = pwallet->m_num_threads;
+        if(pwallet) privateKeysDisabled = pwallet->IsWalletFlagSet(wallet::WALLET_FLAG_DISABLE_PRIVATE_KEYS);
+    }
+
+    void clearCache()
+    {
+        nHeight = 0;
+        stakeTimestampMask = 1;
+        nTotalFees = 0;
+        haveCoinsForStake = false;
+        forceUpdate = false;
+
+        pindexPrev = 0;
+        nTargetValue = 0;
+        setCoins.clear();
+        setSelectedCoins.clear();
+        setDelegateCoins.clear();
+        prevouts.clear();
+        mapSolveBlockTime.clear();
+        mapSolvedBlock.clear();
+        mapSolveSelectedCoins.clear();
+        mapSolveDelegateCoins.clear();
+        beginningTime = 0;
+        endingTime = 0;
+
+        pblock.reset();
+        pblocktemplate.reset();
+        pblockfilled.reset();
+        pblocktemplatefilled.reset();
+    }
+};
+
+IStakeMiner *createMiner()
+{
+    return {};
+}
+
+void ThreadStakeMiner(wallet::CWallet *pwallet)
+{
+    IStakeMiner* miner = createMiner();
+    miner->Init(pwallet);
+    miner->Run();
+    delete miner;
+    miner = 0;
+}
+
 void StakeQtums(bool fStake, wallet::CWallet *pwallet)
 {
+    if (pwallet->stakeThread != nullptr)
+    {
+        pwallet->stakeThread->join_all();
+        delete pwallet->stakeThread;
+        pwallet->stakeThread = nullptr;
+    }
+
+    if(fStake)
+    {
+        pwallet->stakeThread = new boost::thread_group();
+        pwallet->stakeThread->create_thread(boost::bind(&ThreadStakeMiner, pwallet));
+    }
 }
 
 void RefreshDelegates(wallet::CWallet *pwallet, bool refreshMyDelegates, bool refreshStakerDelegates)
 {
+    if(pwallet && (refreshMyDelegates || refreshStakerDelegates))
+    {
+        LOCK(pwallet->cs_wallet);
+
+        DelegationsStaker delegationsStaker(pwallet);
+        MyDelegations myDelegations(pwallet);
+
+        int nOfflineStakeHeight = Params().GetConsensus().nOfflineStakeHeight;
+        bool fDelegationsContract = !Params().GetConsensus().delegationsAddress.IsNull();
+        int32_t nHeight = 0;
+        {
+            LOCK(cs_main);
+            nHeight = pwallet->chain().getHeight().value_or(0);
+        }
+        bool fOfflineStakeEnabled = ((nHeight + 1) > nOfflineStakeHeight) && fDelegationsContract;
+        if(fOfflineStakeEnabled)
+        {
+            if(refreshMyDelegates)
+            {
+                myDelegations.Update(nHeight);
+            }
+
+            if(refreshStakerDelegates)
+            {
+                bool fUpdatedSuperStaker = pwallet->fUpdatedSuperStaker;
+                delegationsStaker.Update(nHeight);
+                pwallet->fUpdatedSuperStaker = fUpdatedSuperStaker;
+            }
+        }
+    }
 }
 #endif
 } // namespace node

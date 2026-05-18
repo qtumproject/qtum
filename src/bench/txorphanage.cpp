@@ -203,11 +203,11 @@ static void OrphanageEraseAll(benchmark::Bench& bench, bool block_or_disconnect)
     constexpr unsigned int NUM_TXNS_PER_PEER = node::DEFAULT_MAX_ORPHANAGE_LATENCY_SCORE / NUM_PEERS;
 
     // Divide the block's inputs evenly among the peers.
-    constexpr unsigned int INPUTS_PER_PEER = NUM_BLOCK_INPUTS / NUM_PEERS;
-    static_assert(INPUTS_PER_PEER > 0);
+    const unsigned int INPUTS_PER_PEER = NUM_BLOCK_INPUTS / NUM_PEERS;
+    assert(INPUTS_PER_PEER > 0);
     // All the block inputs are spent by the orphanage transactions. Each peer is assigned 76 of them.
     // Each peer has 24 transactions spending 9 inputs each, so jumping by 3 ensures we cover all of the inputs.
-    static_assert(7 * NUM_TXNS_PER_PEER + INPUTS_PER_TX - 1 >= INPUTS_PER_PEER);
+    assert(7 * NUM_TXNS_PER_PEER + INPUTS_PER_TX - 1 >= INPUTS_PER_PEER);
 
     for (NodeId peer{0}; peer < NUM_PEERS; ++peer) {
         int64_t weight_left_for_peer{node::DEFAULT_RESERVED_ORPHAN_WEIGHT_PER_PEER};

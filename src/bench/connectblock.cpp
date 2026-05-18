@@ -25,7 +25,7 @@ CBlock CreateTestBlock(
     TestChain100Setup& test_setup,
     const std::vector<CKey>& keys,
     const std::vector<CTxOut>& outputs,
-    int num_txs = 1000)
+    int num_txs = 900)
 {
     Chainstate& chainstate{test_setup.m_node.chainman->ActiveChainstate()};
 
