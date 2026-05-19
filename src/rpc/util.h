@@ -51,6 +51,11 @@ static constexpr bool DEFAULT_RPC_DOC_CHECK{
 #endif
 };
 
+extern std::atomic<bool> g_rpc_running;
+
+/** Query whether RPC is running */
+bool IsRPCRunning();
+
 /**
  * String used to describe UNIX epoch time in documentation, factored out to a
  * constant for consistency.

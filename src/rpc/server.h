@@ -8,6 +8,7 @@
 
 #include <rpc/request.h>
 #include <rpc/util.h>
+#include <uint256.h>
 
 #include <cstdint>
 #include <functional>
@@ -15,12 +16,47 @@
 #include <string>
 
 #include <univalue.h>
+#include <common/system.h>
 
 class CRPCCommand;
 class ChainstateManager;
+class HTTPRequest;
 
-/** Query whether RPC is running */
-bool IsRPCRunning();
+class JSONRPCRequestLong : public JSONRPCRequest
+{
+public:
+    JSONRPCRequestLong(HTTPRequest *_req);
+
+    /**
+     * Start long-polling
+     */
+    void PollStart() override;
+
+    /**
+     * Ping long-poll connection with an empty character to make sure it's still alive.
+     */
+    void PollPing() override;
+
+    /**
+     * Returns whether the underlying long-poll connection is still alive.
+     */
+    bool PollAlive() override;
+
+    /**
+     * End a long poll request.
+     */
+    void PollCancel() override;
+
+    /**
+     * Return the JSON result of a long poll request
+     */
+    void PollReply(const UniValue& result) override;
+
+    /**
+     * Return the http request
+     */
+     HTTPRequest* req();
+};
 
 /** Throw JSONRPCError if RPC is not running */
 void RpcInterruptionPoint();
