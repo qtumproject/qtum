@@ -13,7 +13,7 @@
 
 void initialize_parse_univalue()
 {
-    SelectParams(ChainType::REGTEST);
+    SelectParams(ChainType::UNITTEST);
 }
 
 FUZZ_TARGET(parse_univalue, .init = initialize_parse_univalue)

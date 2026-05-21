@@ -59,7 +59,7 @@ void initialize_process_message()
 
     static const auto testing_setup{
         MakeNoLogFileContext<TestingSetup>(
-            /*chain_type=*/ChainType::REGTEST,
+            /*chain_type=*/ChainType::UNITTEST,
             {}),
     };
     g_setup = testing_setup.get();
@@ -111,7 +111,7 @@ FUZZ_TARGET(process_message, .init = initialize_process_message)
 
     CSerializedNetMsg net_msg;
     net_msg.m_type = random_message_type;
-    net_msg.data = ConsumeRandomLengthByteVector(fuzzed_data_provider, MAX_PROTOCOL_MESSAGE_LENGTH);
+    net_msg.data = ConsumeRandomLengthByteVector(fuzzed_data_provider, dgpMaxProtoMsgLength);
 
     connman.FlushSendBuffer(p2p_node);
     (void)connman.ReceiveMsgFrom(p2p_node, std::move(net_msg));

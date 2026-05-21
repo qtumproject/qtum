@@ -47,7 +47,7 @@ FUZZ_TARGET(pow, .init = initialize_pow)
                 current_block.nHeight = current_height;
             }
             if (fuzzed_data_provider.ConsumeBool()) {
-                const uint32_t seconds = current_height * consensus_params.nPowTargetSpacing;
+                const uint32_t seconds = current_height * consensus_params.TargetSpacing(current_height);
                 if (!AdditionOverflow(fixed_time, seconds)) {
                     current_block.nTime = fixed_time + seconds;
                 }
@@ -64,7 +64,7 @@ FUZZ_TARGET(pow, .init = initialize_pow)
         {
             (void)GetBlockProof(current_block);
             (void)CalculateNextWorkRequired(&current_block, fuzzed_data_provider.ConsumeIntegralInRange<int64_t>(0, std::numeric_limits<int64_t>::max()), consensus_params);
-            if (current_block.nHeight != std::numeric_limits<int>::max() && current_block.nHeight - (consensus_params.DifficultyAdjustmentInterval() - 1) >= 0) {
+            if (current_block.nHeight != std::numeric_limits<int>::max() && current_block.nHeight - (consensus_params.DifficultyAdjustmentInterval(current_block.nHeight) - 1) >= 0) {
                 (void)GetNextWorkRequired(&current_block, &(*block_header), consensus_params);
             }
         }
@@ -105,12 +105,12 @@ FUZZ_TARGET(pow_transition, .init = initialize_pow)
         nbits = pow_limit.GetCompact();
     }
     // Create one difficulty adjustment period worth of headers
-    for (int height = 0; height < consensus_params.DifficultyAdjustmentInterval(); ++height) {
+    for (int height = 0; height < consensus_params.DifficultyAdjustmentInterval(height); ++height) {
         CBlockHeader header;
         header.nVersion = version;
         header.nTime = old_time;
         header.nBits = nbits;
-        if (height == consensus_params.DifficultyAdjustmentInterval() - 1) {
+        if (height == consensus_params.DifficultyAdjustmentInterval(height) - 1) {
             header.nTime = new_time;
         }
         auto current_block{std::make_unique<CBlockIndex>(header)};

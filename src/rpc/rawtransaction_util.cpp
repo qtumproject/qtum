@@ -98,12 +98,14 @@ UniValue NormalizeOutputs(const UniValue& outputs_in)
     return outputs;
 }
 
-std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs)
+std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& outputs, IRawContract* rawContract)
 {
     // Duplicate checking
     std::set<CTxDestination> destinations;
     std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs;
     bool has_data{false};
+
+    int i = 0;
     for (const std::string& name_ : outputs.getKeys()) {
         if (name_ == "data") {
             if (has_data) {
@@ -114,11 +116,15 @@ std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& out
             CTxDestination destination{CNoDestination{CScript() << OP_RETURN << data}};
             CAmount amount{0};
             parsed_outputs.emplace_back(destination, amount);
+        } else if (rawContract && name_ == "contract") {
+            // Get the contract object
+            UniValue contract = outputs[i];
+            rawContract->addContract(parsed_outputs, contract);
         } else {
             CTxDestination destination{DecodeDestination(name_)};
             CAmount amount{AmountFromValue(outputs[name_])};
             if (!IsValidDestination(destination)) {
-                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Bitcoin address: ") + name_);
+                throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, std::string("Invalid Qtum address: ") + name_);
             }
 
             if (!destinations.insert(destination).second) {
@@ -126,16 +132,17 @@ std::vector<std::pair<CTxDestination, CAmount>> ParseOutputs(const UniValue& out
             }
             parsed_outputs.emplace_back(destination, amount);
         }
+        ++i;
     }
     return parsed_outputs;
 }
 
-void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in)
+void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in, IRawContract* rawContract)
 {
     UniValue outputs(UniValue::VOBJ);
     outputs = NormalizeOutputs(outputs_in);
 
-    std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs = ParseOutputs(outputs);
+    std::vector<std::pair<CTxDestination, CAmount>> parsed_outputs = ParseOutputs(outputs, rawContract);
     for (const auto& [destination, nAmount] : parsed_outputs) {
         CScript scriptPubKey = GetScriptForDestination(destination);
 
@@ -144,7 +151,7 @@ void AddOutputs(CMutableTransaction& rawTx, const UniValue& outputs_in)
     }
 }
 
-CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, std::optional<bool> rbf, const uint32_t version)
+CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, std::optional<bool> rbf, const uint32_t version, IRawContract* rawContract)
 {
     CMutableTransaction rawTx;
 
@@ -161,7 +168,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
     rawTx.version = version;
 
     AddInputs(rawTx, inputs_in, rbf);
-    AddOutputs(rawTx, outputs_in);
+    AddOutputs(rawTx, outputs_in, rawContract);
 
     if (rbf.has_value() && rbf.value() && rawTx.vin.size() > 0 && !SignalsOptInRBF(CTransaction(rawTx))) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter combination: Sequence number(s) contradict replaceable option");
@@ -308,6 +315,24 @@ void ParsePrevouts(const UniValue& prevTxsUnival, FlatSigningProvider* keystore,
     }
 }
 
+void CheckSenderSignatures(CMutableTransaction& mtx)
+{
+    // Check the sender signatures are inside the outputs, before signing the inputs
+    if(mtx.HasOpSender())
+    {
+        for (const auto& output : mtx.vout)
+        {
+            if(output.scriptPubKey.HasOpSender())
+            {
+                CScript senderPubKey, senderSig;
+                if(!ExtractSenderData(output.scriptPubKey, &senderPubKey, &senderSig))
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, "Missing contract sender signature,"
+                                                              "use signrawsendertransactionwithwallet or signrawsendertransactionwithkey to sign the outputs");
+            }
+        }
+    }
+}
+
 void SignTransaction(CMutableTransaction& mtx, const SigningProvider* keystore, const std::map<COutPoint, Coin>& coins, const UniValue& hashType, UniValue& result)
 {
     std::optional<int> nHashType = ParseSighashString(hashType);
@@ -344,7 +369,31 @@ void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const 
     }
 }
 
-std::vector<RPCResult> DecodeTxDoc(const std::string& txid_field_doc, bool wallet)
+static std::vector<RPCResult> DecodeExpanded(bool isExpanded, bool isVin)
+{
+    if(isExpanded)
+    {
+        if(isVin) {
+            return {
+                {RPCResult::Type::STR_AMOUNT, "value", /*optional=*/true, "The value in " + CURRENCY_UNIT + " (only if address index is enabled)"},
+                {RPCResult::Type::NUM, "valueSat", /*optional=*/true, "The value in Sat (only if address index is enabled)"},
+                {RPCResult::Type::STR, "address", /*optional=*/true, "The Qtum address (only if address index is enabled)"},
+            };
+        }
+        else {
+            return {
+                {RPCResult::Type::NUM, "valueSat", /*optional=*/true, "The value in Sat (only if address index is enabled)"},
+                {RPCResult::Type::STR_HEX, "spentTxId", /*optional=*/true, "The spent txid (only if address index is enabled)"},
+                {RPCResult::Type::NUM, "spentIndex", /*optional=*/true, "The spent index (only if address index is enabled)"},
+                {RPCResult::Type::NUM, "spentHeight", /*optional=*/true, "The spent height (only if address index is enabled)"},
+            };
+        }
+
+    }
+    return {};
+}
+
+std::vector<RPCResult> DecodeTxDoc(const std::string& txid_field_doc, bool wallet, bool isExpanded)
 {
     return {
         {RPCResult::Type::STR_HEX, "txid", txid_field_doc},
@@ -358,28 +407,36 @@ std::vector<RPCResult> DecodeTxDoc(const std::string& txid_field_doc, bool walle
         {
             {RPCResult::Type::OBJ, "", "",
             {
-                {RPCResult::Type::STR_HEX, "coinbase", /*optional=*/true, "The coinbase value (only if coinbase transaction)"},
-                {RPCResult::Type::STR_HEX, "txid", /*optional=*/true, "The transaction id (if not coinbase transaction)"},
-                {RPCResult::Type::NUM, "vout", /*optional=*/true, "The output number (if not coinbase transaction)"},
-                {RPCResult::Type::OBJ, "scriptSig", /*optional=*/true, "The script (if not coinbase transaction)",
+                Cat<std::vector<RPCResult>>(
                 {
-                    {RPCResult::Type::STR, "asm", "Disassembly of the signature script"},
-                    {RPCResult::Type::STR_HEX, "hex", "The raw signature script bytes, hex-encoded"},
-                }},
-                {RPCResult::Type::ARR, "txinwitness", /*optional=*/true, "",
-                {
-                    {RPCResult::Type::STR_HEX, "hex", "hex-encoded witness data (if any)"},
-                }},
-                {RPCResult::Type::NUM, "sequence", "The script sequence number"},
+                    {RPCResult::Type::STR_HEX, "coinbase", /*optional=*/true, "The coinbase value (only if coinbase transaction)"},
+                    {RPCResult::Type::STR_HEX, "txid", /*optional=*/true, "The transaction id (if not coinbase transaction)"},
+                    {RPCResult::Type::NUM, "vout", /*optional=*/true, "The output number (if not coinbase transaction)"},
+                    {RPCResult::Type::OBJ, "scriptSig", /*optional=*/true, "The script (if not coinbase transaction)",
+                    {
+                        {RPCResult::Type::STR, "asm", "Disassembly of the signature script"},
+                        {RPCResult::Type::STR_HEX, "hex", "The raw signature script bytes, hex-encoded"},
+                    }},
+                    {RPCResult::Type::ARR, "txinwitness", /*optional=*/true, "",
+                    {
+                        {RPCResult::Type::STR_HEX, "hex", "hex-encoded witness data (if any)"},
+                    }},
+                    {RPCResult::Type::NUM, "sequence", "The script sequence number"},
+                },
+                DecodeExpanded(isExpanded, true)),
             }},
         }},
         {RPCResult::Type::ARR, "vout", "",
         {
             {RPCResult::Type::OBJ, "", "", Cat(
                 {
-                    {RPCResult::Type::STR_AMOUNT, "value", "The value in " + CURRENCY_UNIT},
-                    {RPCResult::Type::NUM, "n", "index"},
-                    {RPCResult::Type::OBJ, "scriptPubKey", "", ScriptPubKeyDoc()},
+                    Cat<std::vector<RPCResult>>(
+                    {
+                        {RPCResult::Type::STR_AMOUNT, "value", "The value in " + CURRENCY_UNIT},
+                        {RPCResult::Type::NUM, "n", "index"},
+                        {RPCResult::Type::OBJ, "scriptPubKey", "", ScriptPubKeyDoc()},
+                    },
+                    DecodeExpanded(isExpanded, false)),
                 },
                     wallet ?
                     std::vector<RPCResult>{{RPCResult::Type::BOOL, "ischange", /*optional=*/true, "Output script is change (only present if true)"}} :
@@ -388,4 +445,45 @@ std::vector<RPCResult> DecodeTxDoc(const std::string& txid_field_doc, bool walle
             },
         }},
     };
+}
+
+static void TxOutErrorToJSON(const CTxOut& output, UniValue& vErrorsRet, const std::string& strMessage)
+{
+    UniValue entry(UniValue::VOBJ);
+    entry.pushKV("amount", ValueFromAmount(output.nValue));
+    entry.pushKV("scriptPubKey", HexStr(MakeUCharSpan(output.scriptPubKey)));
+    entry.pushKV("error", strMessage);
+    vErrorsRet.push_back(entry);
+}
+
+void SignTransactionOutput(CMutableTransaction &mtx, FlatSigningProvider *keystore, const UniValue &hashType, UniValue &result)
+{
+    std::optional<int> nHashType = ParseSighashString(hashType);
+    if (!nHashType) {
+        nHashType = SIGHASH_DEFAULT;
+    }
+
+    // Script verification errors
+    std::map<int, std::string> output_errors;
+
+    bool complete = SignTransactionOutput(mtx, keystore, *nHashType, output_errors);
+    SignTransactionOutputResultToJSON(mtx, complete, output_errors, result);
+}
+
+void SignTransactionOutputResultToJSON(CMutableTransaction &mtx, bool complete, std::map<int, std::string> &output_errors, UniValue &result)
+{
+    // Make errors UniValue
+    UniValue vErrors(UniValue::VARR);
+    for (const auto& err_pair : output_errors) {
+        TxOutErrorToJSON(mtx.vout.at(err_pair.first), vErrors, err_pair.second);
+    }
+
+    result.pushKV("hex", EncodeHexTx(CTransaction(mtx)));
+    result.pushKV("complete", complete);
+    if (!vErrors.empty()) {
+        if (result.exists("errors")) {
+            vErrors.push_backV(result["errors"].getValues());
+        }
+        result.pushKV("errors", vErrors);
+    }
 }

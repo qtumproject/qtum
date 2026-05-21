@@ -20,7 +20,7 @@
 void initialize_message()
 {
     static ECC_Context ecc_context{};
-    SelectParams(ChainType::REGTEST);
+    SelectParams(ChainType::UNITTEST);
 }
 
 FUZZ_TARGET(message, .init = initialize_message)

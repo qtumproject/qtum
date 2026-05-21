@@ -34,7 +34,7 @@
 void initialize_key()
 {
     static ECC_Context ecc_context{};
-    SelectParams(ChainType::REGTEST);
+    SelectParams(ChainType::UNITTEST);
 }
 
 FUZZ_TARGET(key, .init = initialize_key)

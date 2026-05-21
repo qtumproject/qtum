@@ -35,7 +35,7 @@ int32_t GetCheckRatio()
 
 void initialize_addrman()
 {
-    static const auto testing_setup = MakeNoLogFileContext<>(ChainType::REGTEST);
+    static const auto testing_setup = MakeNoLogFileContext<>(ChainType::UNITTEST);
     g_setup = testing_setup.get();
 }
 

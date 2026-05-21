@@ -70,7 +70,7 @@ void sanity_check_snapshot()
 template <bool INVALID>
 void initialize_chain()
 {
-    const auto params{CreateChainParams(ArgsManager{}, ChainType::REGTEST)};
+    const auto params{CreateChainParams(ArgsManager{}, ChainType::UNITTEST)};
     int coinbaseMaturity = params->GetConsensus().CoinbaseMaturity(0);
     static const auto chain{CreateBlockChain(2 * coinbaseMaturity, *params)};
     g_chain = &chain;
@@ -140,7 +140,7 @@ void utxo_snapshot_fuzz(FuzzBufferType buffer)
                 outfile << coinbase->GetHash();
                 WriteCompactSize(outfile, 1); // number of coins for the hash
                 WriteCompactSize(outfile, 0); // index of coin
-                outfile << Coin(coinbase->vout[0], height, /*fCoinBaseIn=*/1);
+                outfile << Coin(coinbase->vout[0], height, /*fCoinBaseIn=*/1, /*fCoinStakeIn=*/0);
                 height++;
             }
         }
@@ -152,7 +152,7 @@ void utxo_snapshot_fuzz(FuzzBufferType buffer)
             outfile << coinbase->GetHash();
             WriteCompactSize(outfile, 1);   // number of coins for the hash
             WriteCompactSize(outfile, 999); // index of coin
-            outfile << Coin{coinbase->vout[0], /*nHeightIn=*/999, /*fCoinBaseIn=*/0};
+            outfile << Coin{coinbase->vout[0], /*nHeightIn=*/999, /*fCoinBaseIn=*/0, /*fCoinStakeIn=*/0};
         }
         assert(outfile.fclose() == 0);
     }
