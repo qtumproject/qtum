@@ -366,6 +366,7 @@ BOOST_AUTO_TEST_CASE(AreInputsStandard)
 
     CMutableTransaction coinbase_tx_mut;
     coinbase_tx_mut.vin.resize(1);
+    coinbase_tx_mut.vout.resize(1);
     CTransaction coinbase_tx{coinbase_tx_mut};
     BOOST_CHECK(coinbase_tx.IsCoinBase());
     BOOST_CHECK_EQUAL(GetP2SHSigOpCount(coinbase_tx, coins), 0U);

@@ -1385,6 +1385,707 @@ private:
     }
 };
 
+RPCHelpMan waitforlogs()
+{
+    return RPCHelpMan{"waitforlogs",
+                "requires -logevents to be enabled\n"
+                "\nWaits for a new logs and return matching log entries. When the call returns, it also specifies the next block number to start waiting for new logs.\n"
+                "By calling waitforlogs repeatedly using the returned `nextBlock` number, a client can receive a stream of up-to-date log entires.\n"
+                "\nThis call is different from the similarly named `searchlogs`. This call returns individual matching log entries, `searchlogs` returns a transaction receipt if one of the log entries of that transaction matches the filter conditions.\n",
+                {
+                    {"fromblock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "The block number to start looking for logs."},
+                    {"toblock", RPCArg::Type::NUM, RPCArg::Optional::OMITTED, "The block number to stop looking for logs. If null, will wait indefinitely into the future."},
+                    {"filter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "Filter conditions for logs.",
+                    {
+                        {"addresses", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An address or a list of addresses to only get logs from particular account(s).",
+                            {
+                                {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, ""},
+                            },
+                        },
+                        {"topics", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [null, \"0x00...\"].",
+                            {
+                                {"topic", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, ""},
+                            },
+                        },
+                    }},
+                    {"minconf", RPCArg::Type::NUM, RPCArg::Default{6}, "Minimal number of confirmations before a log is returned"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::ARR, "entries", "Array of matchiing log entries. This may be empty if `filter` removed all entries.",
+                            {
+                                {RPCResult::Type::OBJ, "", "",
+                                    {
+                                        {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                                        {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                                        {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                                        {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
+                                        {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                                        {RPCResult::Type::STR_HEX, "from", "The from address"},
+                                        {RPCResult::Type::STR_HEX, "to", "The to address"},
+                                        {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
+                                        {RPCResult::Type::NUM, "gasUsed", "The gas used"},
+                                        {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
+                                        {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                                        {RPCResult::Type::STR, "exceptedMessage", "The thrown exception message"},
+                                        {RPCResult::Type::STR_HEX, "bloom", "Bloom filter for light clients to quickly retrieve related logs"},
+                                        {RPCResult::Type::STR_HEX, "stateRoot", "The hash state root"},
+                                        {RPCResult::Type::STR_HEX, "utxoRoot", "The hash UTXO root"},
+                                        {RPCResult::Type::ARR, "topics", "The topic",
+                                            {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                        {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                        {RPCResult::Type::ARR, "createdContracts", "The created contracts",
+                                            {
+                                                {RPCResult::Type::OBJ, "", "",
+                                                    {
+                                                        {RPCResult::Type::STR_HEX, "address", "The contract address"},
+                                                        {RPCResult::Type::STR_HEX, "code", "The contract code"},
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        {RPCResult::Type::ARR, "destructedContracts", "The destructed contracts",
+                                            {{RPCResult::Type::STR_HEX, "", "The contract"}}},
+                                    }
+                                }
+                            }
+                        },
+                        {RPCResult::Type::NUM, "count", "How many log entries are returned"},
+                        {RPCResult::Type::NUM, "nextblock", "To wait for new log entries haven't seen before, use this number as `fromBlock`"},
+                    }
+                },
+                RPCExamples{
+                    HelpExampleCli("waitforlogs", "") + HelpExampleCli("waitforlogs", "600") + HelpExampleCli("waitforlogs", "600 700") + HelpExampleCli("waitforlogs", "null null")
+                    + HelpExampleCli("waitforlogs", "null null '{ \"addresses\": [ \"12ae42729af478ca92c8c66773a3e32115717be4\" ], \"topics\": [ \"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"] }'")
+            + HelpExampleRpc("waitforlogs", "") + HelpExampleRpc("waitforlogs", "600") + HelpExampleRpc("waitforlogs", "600 700") + HelpExampleRpc("waitforlogs", "null null")
+            + HelpExampleRpc("waitforlogs", "null null '{ \"addresses\": [ \"12ae42729af478ca92c8c66773a3e32115717be4\" ], \"topics\": [ \"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"] }'")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request_) -> UniValue
+{
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    // this is a long poll function. force cast to non const pointer
+    JSONRPCRequest& request = (JSONRPCRequest&) request_;
+    if(!request.httpreq)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "HTTP connection not available");
+
+    NodeContext& node = EnsureAnyNodeContext(request.context);
+    ChainstateManager& chainman = EnsureChainman(node);
+    Mining& miner = EnsureMining(node);
+
+    WaitForLogsParams params(request.params, miner);
+
+    request.PollStart();
+
+    std::vector<std::vector<uint256>> hashesToBlock;
+
+    int curheight = 0;
+
+    auto& addresses = params.addresses;
+    auto& filterTopics = params.topics;
+
+    while (curheight == 0) {
+        {
+            LOCK(cs_main);
+            curheight = chainman.m_blockman.m_block_tree_db->ReadHeightIndex(params.fromBlock, params.toBlock, params.minconf,
+                    hashesToBlock, addresses, chainman);
+        }
+
+        // if curheight >= fromBlock. Blockchain extended with new log entries. Return next block height to client.
+        //    nextBlock = curheight + 1
+        // if curheight == 0. No log entry found in index. Wait for new block then try again.
+        //    nextBlock = fromBlock
+        // if curheight == -1. Incorrect parameters has entered.
+        //
+        // if curheight advanced, but all filtered out, API should return empty array, but advancing the cursor anyway.
+
+        if (curheight > 0) {
+            break;
+        }
+
+        if (curheight == -1) {
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
+        }
+
+        // wait for a new block to arrive
+        auto currentblock{CHECK_NONFATAL(miner.getTip()).value()};
+        {
+            while (true) {
+                request.PollPing();
+                auto latestblock = miner.waitTipChanged(currentblock.hash, std::chrono::milliseconds(1000));
+                if (CHECK_NONFATAL(latestblock).value().height > currentblock.height) {
+                    break;
+                }
+
+                // TODO: maybe just merge `IsRPCRunning` this into PollAlive
+                if (!request.PollAlive() || !IsRPCRunning()) {
+                    LogInfo("waitforlogs client disconnected\n");
+                    return NullUniValue;
+                }
+            }
+        }
+    }
+
+    LOCK(cs_main);
+
+    UniValue jsonLogs(UniValue::VARR);
+
+    std::set<uint256> dupes;
+
+    for (const auto& txHashes : hashesToBlock) {
+        for (const auto& txHash : txHashes) {
+
+            if(dupes.find(txHash) != dupes.end()) {
+                continue;
+            }
+            dupes.insert(txHash);
+
+            std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(
+                    uintToh256(txHash));
+
+            for (const auto& receipt : receipts) {
+                for (const auto& log : receipt.logs) {
+
+                    bool includeLog = true;
+
+                    if (!filterTopics.empty()) {
+                        for (size_t i = 0; i < filterTopics.size(); i++) {
+                            auto filterTopic = filterTopics[i];
+
+                            if (!filterTopic) {
+                                continue;
+                            }
+
+                            auto filterTopicContent = filterTopic.get();
+                            auto topicContent = log.topics[i];
+
+                            if (topicContent != filterTopicContent) {
+                                includeLog = false;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    if (!includeLog) {
+                        continue;
+                    }
+
+                    UniValue jsonLog(UniValue::VOBJ);
+
+                    assignJSON(jsonLog, receipt);
+                    assignJSON(jsonLog, log, false);
+
+                    jsonLogs.push_back(jsonLog);
+                }
+            }
+        }
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.pushKV("entries", jsonLogs);
+    result.pushKV("count", (int) jsonLogs.size());
+    result.pushKV("nextblock", curheight + 1);
+
+    return result;
+},
+    };
+}
+
+RPCHelpMan searchlogs()
+{
+    return RPCHelpMan{"searchlogs",
+                "Search logs, requires -logevents to be enabled.\n",
+                {
+                    {"fromblock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the earliest block (latest may be given to mean the most recent block)."},
+                    {"toblock", RPCArg::Type::NUM, RPCArg::Optional::NO, "The number of the latest block (-1 may be given to mean the most recent block)."},
+                    {"addressfilter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "Addresses filter conditions for logs.",
+                    {
+                        {"addresses", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An address or a list of addresses to only get logs from particular account(s).",
+                            {
+                                {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, ""},
+                            },
+                        },
+                    }},
+                    {"topicfilter", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "Topics filter conditions for logs.",
+                    {
+                        {"topics", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [null, \"0x00...\"].",
+                            {
+                                {"topic", RPCArg::Type::STR_HEX, RPCArg::Optional::OMITTED, ""},
+                            },
+                        },
+                    }},
+                    {"minconf", RPCArg::Type::NUM, RPCArg::Default{0}, "Minimal number of confirmations before a log is returned"},
+                },
+                RPCResult{
+            RPCResult::Type::ARR, "", "",
+                {
+                    {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                            {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
+                            {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                            {RPCResult::Type::STR_HEX, "from", "The from address"},
+                            {RPCResult::Type::STR_HEX, "to", "The to address"},
+                            {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
+                            {RPCResult::Type::NUM, "gasUsed", "The gas used"},
+                            {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
+                            {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                            {RPCResult::Type::STR, "exceptedMessage", "The thrown exception message"},
+                            {RPCResult::Type::STR_HEX, "bloom", "Bloom filter for light clients to quickly retrieve related logs"},
+                            {RPCResult::Type::STR_HEX, "stateRoot", "The hash state root"},
+                            {RPCResult::Type::STR_HEX, "utxoRoot", "The hash UTXO root"},
+                            {RPCResult::Type::ARR, "log", "The logs from the receipt",
+                                {
+                                    {RPCResult::Type::OBJ, "", "",
+                                        {
+                                            {RPCResult::Type::STR_HEX, "address", "The contract address"},
+                                            {RPCResult::Type::ARR, "topics", "The topic",
+                                                {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                            {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                        }
+                                    }
+                                }
+                            },
+                            {RPCResult::Type::ARR, "createdContracts", "The created contracts",
+                                {
+                                    {RPCResult::Type::OBJ, "", "",
+                                        {
+                                            {RPCResult::Type::STR_HEX, "address", "The contract address"},
+                                            {RPCResult::Type::STR_HEX, "code", "The contract code"},
+                                        }
+                                    }
+                                }
+                            },
+                            {RPCResult::Type::ARR, "destructedContracts", "The destructed contracts",
+                                {{RPCResult::Type::STR_HEX, "", "The contract"}}},
+                        }}
+                }},
+                RPCExamples{
+                    HelpExampleCli("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+            + HelpExampleRpc("searchlogs", "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [null,\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    return SearchLogs(request.params, chainman);
+},
+    };
+}
+
+RPCHelpMan gettransactionreceipt()
+{
+    return RPCHelpMan{"gettransactionreceipt",
+                "Get the transaction receipt.\n",
+                {
+                    {"hash", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The transaction hash"},
+                },
+               RPCResult{
+            RPCResult::Type::ARR, "", "",
+                {
+                    {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                            {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
+                            {RPCResult::Type::NUM, "outputIndex", "The output index"},
+                            {RPCResult::Type::STR_HEX, "from", "The from address"},
+                            {RPCResult::Type::STR_HEX, "to", "The to address"},
+                            {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
+                            {RPCResult::Type::NUM, "gasUsed", "The gas used"},
+                            {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
+                            {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                            {RPCResult::Type::STR, "exceptedMessage", "The thrown exception message"},
+                            {RPCResult::Type::STR_HEX, "bloom", "Bloom filter for light clients to quickly retrieve related logs"},
+                            {RPCResult::Type::STR_HEX, "stateRoot", "The hash state root"},
+                            {RPCResult::Type::STR_HEX, "utxoRoot", "The hash UTXO root"},
+                            {RPCResult::Type::ARR, "log", "The logs from the receipt",
+                                {
+                                    {RPCResult::Type::OBJ, "", "",
+                                        {
+                                            {RPCResult::Type::STR_HEX, "address", "The contract address"},
+                                            {RPCResult::Type::ARR, "topics", "The topic",
+                                                {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                            {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                        }
+                                    }
+                                }
+                            },
+                            {RPCResult::Type::ARR, "createdContracts", "The created contracts",
+                                {
+                                    {RPCResult::Type::OBJ, "", "",
+                                        {
+                                            {RPCResult::Type::STR_HEX, "address", "The contract address"},
+                                            {RPCResult::Type::STR_HEX, "code", "The contract code"},
+                                        }
+                                    }
+                                }
+                            },
+                            {RPCResult::Type::ARR, "destructedContracts", "The destructed contracts",
+                                {{RPCResult::Type::STR_HEX, "", "The contract"}}},
+                        }}
+                }},
+                RPCExamples{
+                    HelpExampleCli("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
+            + HelpExampleRpc("gettransactionreceipt", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    if(!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    LOCK(cs_main);
+
+    std::string hashTemp = request.params[0].get_str();
+    if(hashTemp.size() != 64){
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect hash");
+    }
+
+    uint256 hash = uint256::FromHex(hashTemp).value_or(uint256::ZERO);
+
+    std::vector<TransactionReceiptInfo> transactionReceiptInfo = pstorageresult->getResult(uintToh256(hash));
+
+    UniValue result(UniValue::VARR);
+    for(TransactionReceiptInfo& t : transactionReceiptInfo){
+        UniValue tri(UniValue::VOBJ);
+        transactionReceiptInfoToJSON(t, tri);
+        result.push_back(tri);
+    }
+    return result;
+},
+    };
+}
+
+RPCHelpMan getblocktransactionreceipts()
+{
+    return RPCHelpMan{"getblocktransactionreceipts",
+                "Get block transaction receipts.\n",
+                {
+                    {"hash", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The block hash"},
+                },
+               RPCResult{
+            RPCResult::Type::ARR, "", "",
+                {
+                    {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR_HEX, "blockHash", "The block hash"},
+                            {RPCResult::Type::NUM, "blockNumber", "The block number"},
+                            {RPCResult::Type::STR_HEX, "transactionHash", "The transaction hash"},
+                            {RPCResult::Type::NUM, "transactionIndex", "The transaction index"},
+                            {RPCResult::Type::STR, "from", "The from address"},
+                            {RPCResult::Type::STR, "to", "The to address"},
+                            {RPCResult::Type::NUM, "cumulativeGasUsed", "The cumulative gas used"},
+                            {RPCResult::Type::NUM, "gasUsed", "The gas used"},
+                            {RPCResult::Type::STR_HEX, "contractAddress", "The contract address"},
+                            {RPCResult::Type::STR, "excepted", "The thrown exception"},
+                            {RPCResult::Type::STR_HEX, "bloom", "Bloom filter for light clients to quickly retrieve related logs"},
+                            {RPCResult::Type::ARR, "log", "The logs from the receipt",
+                                {
+                                    {RPCResult::Type::STR, "address", "The contract address"},
+                                    {RPCResult::Type::ARR, "topics", "The topic",
+                                        {{RPCResult::Type::STR_HEX, "topic", "The topic"}}},
+                                    {RPCResult::Type::STR_HEX, "data", "The logged data"},
+                                }},
+                            {RPCResult::Type::ARR, "createdContracts", "The created contracts",
+                                {
+                                    {RPCResult::Type::OBJ, "", "",
+                                        {
+                                            {RPCResult::Type::STR_HEX, "address", "The contract address"},
+                                            {RPCResult::Type::STR_HEX, "code", "The contract code"},
+                                        }
+                                    }
+                                }
+                            },
+                            {RPCResult::Type::ARR, "destructedContracts", "The destructed contracts",
+                                {{RPCResult::Type::STR_HEX, "", "The contract"}}},
+                        }}
+                }},
+                RPCExamples{
+                    HelpExampleCli("getblocktransactionreceipts", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
+            + HelpExampleRpc("getblocktransactionreceipts", "3b04bc73afbbcf02cfef2ca1127b60fb0baf5f8946a42df67f1659671a2ec53c")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    if(!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    std::string hashTemp = request.params[0].get_str();
+    if(hashTemp.size() != 64){
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect hash");
+    }
+
+    uint256 hash = uint256::FromHex(hashTemp).value_or(uint256::ZERO);
+
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+    const CBlockIndex* pblockindex = chainman.m_blockman.LookupBlockIndex(hash);
+    if (!pblockindex) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
+    }
+    const CBlock block{GetBlockChecked(chainman.m_blockman, *pblockindex)};
+
+    UniValue result(UniValue::VARR);
+    for (const auto& tx : block.vtx) {
+        if (tx->HasCreateOrCall()) {
+            const std::vector<TransactionReceiptInfo> transactionReceiptInfo = pstorageresult->getResult(uintToh256(tx->GetHash().ToUint256()));
+            for (const TransactionReceiptInfo& t : transactionReceiptInfo) {
+                UniValue tri(UniValue::VOBJ);
+                transactionReceiptInfoToJSON(t, tri);
+                result.push_back(tri);
+            }
+        }
+    }
+
+    return result;
+},
+    };
+}
+
+RPCHelpMan getdelegationinfoforaddress()
+{
+    return RPCHelpMan{"getdelegationinfoforaddress",
+                "Get delegation information for an address.\n",
+                {
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address string"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::STR, "staker", "The staker address"},
+                        {RPCResult::Type::NUM, "fee", "The percentage of the reward"},
+                        {RPCResult::Type::NUM, "blockHeight", "The block height"},
+                        {RPCResult::Type::STR_HEX, "PoD", "The proof of delegation"},
+                        {RPCResult::Type::BOOL, "verified", "Verify delegation"},
+                    }},
+                RPCExamples{
+                    HelpExampleCli("getdelegationinfoforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+            + HelpExampleRpc("getdelegationinfoforaddress", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+
+    // Parse the public key hash address
+    std::string strAddress = request.params[0].get_str();
+
+    CTxDestination dest = DecodeDestination(strAddress);
+    if (!IsValidDestination(dest)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
+    }
+
+    if (!std::holds_alternative<PKHash>(dest)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to public key hash");
+    }
+
+    // Get delegation for an address
+    QtumDelegation qtumDelegation;
+    Delegation delegation;
+    PKHash pkhash = std::get<PKHash>(dest);
+    uint160 address = uint160(pkhash);
+    if(!qtumDelegation.GetDelegation(address, delegation, chainman.ActiveChainstate())) {
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Failed to get delegation");
+    }
+    bool verified = qtumDelegation.VerifyDelegation(address, delegation);
+
+    // Fill the json object with information
+    UniValue result(UniValue::VOBJ);
+    std::string strStaker = delegation.staker != uint160() ? EncodeDestination(PKHash(delegation.staker)) : "";
+    result.pushKV("staker", strStaker);
+    result.pushKV("fee", (int64_t)delegation.fee);
+    result.pushKV("blockHeight", (int64_t)delegation.blockHeight);
+    result.pushKV("PoD", HexStr(delegation.PoD));
+    result.pushKV("verified", verified);
+
+    return result;
+},
+    };
+}
+
+class DelegationsStakerFilter : public IDelegationFilter
+{
+public:
+    DelegationsStakerFilter(const uint160& _address):
+        address(_address)
+    {}
+
+    bool Match(const DelegationEvent& event) const override
+    {
+        return event.item.staker == address;
+    }
+
+private:
+    uint160 address;
+};
+
+uint64_t getDelegateWeight(const uint160& keyid, const std::map<COutPoint, uint32_t>& immatureStakes, int height, node::BlockManager& blockman)
+{
+    // Decode address
+    uint256 hashBytes;
+    int type = 0;
+    if (!DecodeIndexKey(EncodeDestination(PKHash(keyid)), hashBytes, type)) {
+        return 0;
+    }
+
+    // Get address weight
+    uint64_t weight = 0;
+    if (!GetAddressWeight(hashBytes, type, immatureStakes, height, weight, blockman)) {
+        return 0;
+    }
+
+    return weight;
+}
+
+RPCHelpMan getdelegationsforstaker()
+{
+    return RPCHelpMan{"getdelegationsforstaker",
+                "requires -logevents to be enabled\n"
+                "\nGet the current list of delegates for a super staker.\n",
+                {
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The qtum address string for staker"},
+                },
+               RPCResult{
+            RPCResult::Type::ARR, "", "",
+                {
+                    {RPCResult::Type::OBJ, "", "",
+                        {
+                            {RPCResult::Type::STR, "delegate", "The delegate address"},
+                            {RPCResult::Type::STR, "staker", "The staker address"},
+                            {RPCResult::Type::NUM, "fee", "The percentage of the reward"},
+                            {RPCResult::Type::NUM, "blockHeight", "The block height"},
+                            {RPCResult::Type::NUM, "weight", /*optional=*/true, "Delegate weight, displayed when address index is enabled"},
+                            {RPCResult::Type::STR_HEX, "PoD", "The proof of delegation"},
+                        }}
+                }},
+                RPCExamples{
+                    HelpExampleCli("getdelegationsforstaker", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+            + HelpExampleRpc("getdelegationsforstaker", "QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    ChainstateManager& chainman = EnsureAnyChainman(request.context);
+    LOCK(cs_main);
+
+    // Parse the public key hash address
+    std::string strAddress = request.params[0].get_str();
+
+    CTxDestination dest = DecodeDestination(strAddress);
+    if (!IsValidDestination(dest)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
+    }
+
+    if (!std::holds_alternative<PKHash>(dest)) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Address does not refer to public key hash");
+    }
+
+    // Get delegations for staker
+    QtumDelegation qtumDelegation;
+    std::vector<DelegationEvent> events;
+    PKHash pkhash = std::get<PKHash>(dest);
+    uint160 address = uint160(pkhash);
+    DelegationsStakerFilter filter(address);
+    if(!qtumDelegation.FilterDelegationEvents(events, filter, chainman)) {
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Failed to get delegations for staker");
+    }
+    std::map<uint160, Delegation> delegations = qtumDelegation.DelegationsFromEvents(events);
+
+    // Get chain parameters
+    std::map<COutPoint, uint32_t> immatureStakes = GetImmatureStakes(chainman);
+    int height = chainman.ActiveChain().Height();
+
+    // Fill the json object with information
+    UniValue result(UniValue::VARR);
+    for (std::map<uint160, Delegation>::iterator it=delegations.begin(); it!=delegations.end(); it++){
+        UniValue delegation(UniValue::VOBJ);
+        delegation.pushKV("delegate", EncodeDestination(PKHash(it->first)));
+        delegation.pushKV("staker", EncodeDestination(PKHash(it->second.staker)));
+        delegation.pushKV("fee", (int64_t)it->second.fee);
+        delegation.pushKV("blockHeight", (int64_t)it->second.blockHeight);
+        if(fAddressIndex)
+        {
+            delegation.pushKV("weight", getDelegateWeight(it->first, immatureStakes, height, chainman.m_blockman));
+        }
+        delegation.pushKV("PoD", HexStr(it->second.PoD));
+        result.push_back(delegation);
+    }
+
+    return result;
+},
+    };
+}
+//////////////////////////////////////////////////////////////////////
+
+RPCHelpMan listcontracts()
+{
+    return RPCHelpMan{"listcontracts",
+                "Get the contracts list.\n",
+                {
+                    {"start", RPCArg::Type::NUM, RPCArg::Default{1}, "The starting account index"},
+                    {"maxdisplay", RPCArg::Type::NUM, RPCArg::Default{20}, "Max accounts to list"},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ_DYN, "", "",
+                    {
+                        {RPCResult::Type::NUM, "account", "The balance for the account"},
+                    }},
+                RPCExamples{
+                    HelpExampleCli("listcontracts", "")
+            + HelpExampleRpc("listcontracts", "")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+
+	LOCK(cs_main);
+
+	int start=1;
+	if (!request.params[0].isNull()){
+		start = request.params[0].getInt<int>();
+		if (start<= 0)
+			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid start, min=1");
+	}
+
+	int maxDisplay=20;
+	if (!request.params[1].isNull()){
+		maxDisplay = request.params[1].getInt<int>();
+		if (maxDisplay <= 0)
+			throw JSONRPCError(RPC_TYPE_ERROR, "Invalid maxDisplay");
+	}
+
+	UniValue result(UniValue::VOBJ);
+
+	auto map = globalState->addresses();
+	int contractsCount=(int)map.size();
+
+	if (contractsCount>0 && start > contractsCount)
+		throw JSONRPCError(RPC_TYPE_ERROR, "start greater than max index "+ i64tostr(contractsCount));
+
+	int itStartPos=std::min(start-1,contractsCount);
+	int i=0;
+	for (auto it = std::next(map.begin(),itStartPos); it!=map.end(); it++)
+	{
+		result.pushKV(it->first.hex(),ValueFromAmount(CAmount(globalState->balance(it->first))));
+		i++;
+		if(i==maxDisplay)break;
+	}
+
+	return result;
+},
+    };
+}
+
 //! Return height of highest block that has been pruned, or std::nullopt if no blocks have been pruned
 std::optional<int> GetPruneHeight(const BlockManager& blockman, const CChain& chain) {
     AssertLockHeld(::cs_main);
@@ -4035,7 +4736,15 @@ void RegisterBlockchainRPCCommands(CRPCTable& t)
         {"blockchain", &dumptxoutset},
         {"blockchain", &loadtxoutset},
         {"blockchain", &getchainstates},
+        {"blockchain", &callcontract},
+        {"blockchain", &listcontracts},
+        {"blockchain", &gettransactionreceipt},
+        {"blockchain", &getblocktransactionreceipts},
+        {"blockchain", &searchlogs},
+        {"blockchain", &waitforlogs},
         {"blockchain", &getestimatedannualroi},
+        {"blockchain", &getdelegationinfoforaddress},
+        {"blockchain", &getdelegationsforstaker},
         {"hidden", &invalidateblock},
         {"hidden", &reconsiderblock},
         {"blockchain", &waitfornewblock},

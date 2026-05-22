@@ -23,6 +23,7 @@ static void mineBlock(const node::NodeContext& node, std::chrono::seconds block_
     options.include_dummy_extranonce = true;
     SetMockTime(block_time); // update time so the block is created with it
     CBlock block = node::BlockAssembler{node.chainman->ActiveChainstate(), nullptr, options}.CreateNewBlock()->block;
+    node::RegenerateCommitments(block, *Assert(node.chainman)); // Update block.hashMerkleRoot
     while (!CheckProofOfWork(block.GetHash(), block.nBits, node.chainman->GetConsensus())) ++block.nNonce;
     block.fChecked = true; // little speedup
     SetMockTime(curr_time); // process block at current time
