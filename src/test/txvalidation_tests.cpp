@@ -106,7 +106,7 @@ static inline CTransactionRef make_ephemeral_tx(const std::vector<COutPoint>& in
     mtx.vout.resize(NUM_EPHEMERAL_TX_OUTPUTS);
     for (auto i{0}; i < NUM_EPHEMERAL_TX_OUTPUTS; ++i) {
         mtx.vout[i].scriptPubKey = CScript() << OP_TRUE;
-        mtx.vout[i].nValue = (i == EPHEMERAL_DUST_INDEX) ? 0 : 10000;
+        mtx.vout[i].nValue = (i == EPHEMERAL_DUST_INDEX) ? 0 : 400000;
     }
     return MakeTransactionRef(mtx);
 }

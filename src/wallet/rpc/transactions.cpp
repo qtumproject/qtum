@@ -23,7 +23,7 @@ static void WalletTxToJSON(const CWallet& wallet, const CWalletTx& wtx, UniValue
     interfaces::Chain& chain = wallet.chain();
     int confirms = wallet.GetTxDepthInMainChain(wtx);
     entry.pushKV("confirmations", confirms);
-    if (wtx.IsCoinBase())
+    if (wtx.IsCoinBase() || wtx.IsCoinStake())
         entry.pushKV("generated", true);
     if (auto* conf = wtx.state<TxStateConfirmed>())
     {
@@ -101,8 +101,8 @@ static UniValue ListReceived(const CWallet& wallet, const UniValue& params, cons
             continue;
 
         // Coinbase with less than 1 confirmation is no longer in the main chain
-        if ((wtx.IsCoinBase() && (nDepth < 1))
-            || (wallet.IsTxImmatureCoinBase(wtx) && !include_immature_coinbase)) {
+        if (((wtx.IsCoinBase() || wtx.IsCoinStake()) && (nDepth < 1))
+            || (wallet.IsTxImmature(wtx) && !include_immature_coinbase)) {
             continue;
         }
 
@@ -314,6 +314,18 @@ static void ListTransactions(const CWallet& wallet, const CWalletTx& wtx, int nM
 
     CachedTxGetAmounts(wallet, wtx, listReceived, listSent, nFee, include_change);
 
+    // Check if the coinstake transactions is mined by the wallet
+    if(wtx.IsCoinStake() && listSent.size() > 0 && listReceived.size() > 0)
+    {
+        // Condense all of the coinstake inputs and outputs into one output and compute its value
+        CAmount amount = CachedTxGetCredit(wallet, wtx, /*avoid_reuse=*/false) - CachedTxGetDebit(wallet, wtx, /*avoid_reuse=*/false);
+        COutputEntry output = *listReceived.begin();
+        output.amount = amount;
+        listReceived.clear();
+        listSent.clear();
+        listReceived.push_back(output);
+    }
+
     // Sent
     if (!filter_label.has_value())
     {
@@ -351,11 +363,11 @@ static void ListTransactions(const CWallet& wallet, const CWalletTx& wtx, int nM
             UniValue entry(UniValue::VOBJ);
             MaybePushAddress(entry, r.destination);
             PushParentDescriptors(wallet, wtx.tx->vout.at(r.vout).scriptPubKey, entry);
-            if (wtx.IsCoinBase())
+            if (wtx.IsCoinBase() || wtx.IsCoinStake())
             {
                 if (wallet.GetTxDepthInMainChain(wtx) < 1)
                     entry.pushKV("category", "orphan");
-                else if (wallet.IsTxImmatureCoinBase(wtx))
+                else if (wallet.IsTxImmature(wtx))
                     entry.pushKV("category", "immature");
                 else
                     entry.pushKV("category", "generate");
@@ -435,13 +447,13 @@ RPCHelpMan listtransactions()
                     {
                         {RPCResult::Type::OBJ, "", "", Cat(Cat<std::vector<RPCResult>>(
                         {
-                            {RPCResult::Type::STR, "address",  /*optional=*/true, "The bitcoin address of the transaction (not returned if the output does not have an address, e.g. OP_RETURN null data)."},
+                            {RPCResult::Type::STR, "address",  /*optional=*/true, "The qtum address of the transaction (not returned if the output does not have an address, e.g. OP_RETURN null data)."},
                             {RPCResult::Type::STR, "category", "The transaction category.\n"
                                 "\"send\"                  Transactions sent.\n"
-                                "\"receive\"               Non-coinbase transactions received.\n"
-                                "\"generate\"              Coinbase transactions received with more than 100 confirmations.\n"
-                                "\"immature\"              Coinbase transactions received with 100 or fewer confirmations.\n"
-                                "\"orphan\"                Orphaned coinbase transactions received."},
+                                "\"receive\"               Non-coinbase and non-coinstake transactions received.\n"
+                                "\"generate\"              Coinbase or coinstake transactions received with more than 100 confirmations.\n"
+                                "\"immature\"              Coinbase or coinstake transactions received with 100 or fewer confirmations.\n"
+                                "\"orphan\"                Orphaned coinbase or coinstake transactions received."},
                             {RPCResult::Type::STR_AMOUNT, "amount", "The amount in " + CURRENCY_UNIT + ". This is negative for the 'send' category, and is positive\n"
                                 "for all other categories"},
                             {RPCResult::Type::STR, "label", /*optional=*/true, "A comment for the address/transaction, if any"},
@@ -544,13 +556,13 @@ RPCHelpMan listsinceblock()
                         {
                             {RPCResult::Type::OBJ, "", "", Cat(Cat<std::vector<RPCResult>>(
                             {
-                                {RPCResult::Type::STR, "address",  /*optional=*/true, "The bitcoin address of the transaction (not returned if the output does not have an address, e.g. OP_RETURN null data)."},
+                                {RPCResult::Type::STR, "address",  /*optional=*/true, "The qtum address of the transaction (not returned if the output does not have an address, e.g. OP_RETURN null data)."},
                                 {RPCResult::Type::STR, "category", "The transaction category.\n"
                                     "\"send\"                  Transactions sent.\n"
-                                    "\"receive\"               Non-coinbase transactions received.\n"
-                                    "\"generate\"              Coinbase transactions received with more than 100 confirmations.\n"
-                                    "\"immature\"              Coinbase transactions received with 100 or fewer confirmations.\n"
-                                    "\"orphan\"                Orphaned coinbase transactions received."},
+                                    "\"receive\"               Non-coinbase and non-coinstake transactions received.\n"
+                                    "\"generate\"              Coinbase or coinstake transactions received with more than 100 confirmations.\n"
+                                    "\"immature\"              Coinbase or coinstake transactions received with 100 or fewer confirmations.\n"
+                                    "\"orphan\"                Orphaned coinbase or coinstake transactions received."},
                                 {RPCResult::Type::STR_AMOUNT, "amount", "The amount in " + CURRENCY_UNIT + ". This is negative for the 'send' category, and is positive\n"
                                     "for all other categories"},
                                 {RPCResult::Type::NUM, "vout", "the vout value"},
@@ -670,6 +682,7 @@ RPCHelpMan gettransaction()
                     {"include_watchonly", RPCArg::Type::BOOL, RPCArg::Default{false}, "(DEPRECATED) No longer used"},
                     {"verbose", RPCArg::Type::BOOL, RPCArg::Default{false},
                             "Whether to include a `decoded` field containing the decoded transaction (equivalent to RPC decoderawtransaction)"},
+                    {"waitconf", RPCArg::Type::NUM, RPCArg::Default{0}, "Wait for enough confirmations before returning."},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "", Cat(Cat<std::vector<RPCResult>>(
@@ -684,13 +697,13 @@ RPCHelpMan gettransaction()
                         {
                             {RPCResult::Type::OBJ, "", "",
                             {
-                                {RPCResult::Type::STR, "address", /*optional=*/true, "The bitcoin address involved in the transaction."},
+                                {RPCResult::Type::STR, "address", /*optional=*/true, "The qtum address involved in the transaction."},
                                 {RPCResult::Type::STR, "category", "The transaction category.\n"
                                     "\"send\"                  Transactions sent.\n"
-                                    "\"receive\"               Non-coinbase transactions received.\n"
-                                    "\"generate\"              Coinbase transactions received with more than 100 confirmations.\n"
-                                    "\"immature\"              Coinbase transactions received with 100 or fewer confirmations.\n"
-                                    "\"orphan\"                Orphaned coinbase transactions received."},
+                                    "\"receive\"               Non-coinbase and non-coinstake transactions received.\n"
+                                    "\"generate\"              Coinbase or coinstake transactions received with more than 100 confirmations.\n"
+                                    "\"immature\"              Coinbase or coinstake transactions received with 100 or fewer confirmations.\n"
+                                    "\"orphan\"                Orphaned coinbase or coinstake transactions received."},
                                 {RPCResult::Type::STR_AMOUNT, "amount", "The amount in " + CURRENCY_UNIT},
                                 {RPCResult::Type::STR, "label", /*optional=*/true, "A comment for the address/transaction, if any"},
                                 {RPCResult::Type::NUM, "vout", "the vout value"},
@@ -716,8 +729,11 @@ RPCHelpMan gettransaction()
             + HelpExampleCli("gettransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\" false true")
             + HelpExampleRpc("gettransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\"")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request_) -> UniValue
 {
+    // long-poll
+    JSONRPCRequest& request = (JSONRPCRequest&) request_;
+
     const std::shared_ptr<const CWallet> pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return UniValue::VNULL;
 
@@ -725,18 +741,70 @@ RPCHelpMan gettransaction()
     // the user could have gotten from another RPC command prior to now
     pwallet->BlockUntilSyncedToCurrentChain();
 
-    LOCK(pwallet->cs_wallet);
-
     Txid hash{Txid::FromUint256(ParseHashV(request.params[0], "txid"))};
 
     bool verbose = request.params[2].isNull() ? false : request.params[2].get_bool();
+    {
+        LOCK(pwallet->cs_wallet);
+        auto it = pwallet->mapWallet.find(hash);
+        if (it == pwallet->mapWallet.end()) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
+        }
+    }
+
+    int waitconf = 0;
+    if(!request.params[3].isNull()) {
+        waitconf = request.params[3].getInt<int>();
+    }
+
+    bool shouldWaitConf = !request.params[3].isNull() && waitconf > 0;
+
+    {
+        LOCK(pwallet->cs_wallet);
+        auto it = pwallet->mapWallet.find(hash);
+        if (it == pwallet->mapWallet.end()) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
+        }
+    }
+
+    const CWalletTx* _wtx = nullptr;
+
+    // avoid long-poll if API caller does not specify waitconf
+    if (!shouldWaitConf) {
+        {
+            LOCK(pwallet->cs_wallet);
+            _wtx = &pwallet->mapWallet.at(hash);
+        }
+
+    } else {
+        if(!request.httpreq)
+            throw JSONRPCError(RPC_INTERNAL_ERROR, "No HTTP connection. Waitconf is available from qtum-cli, not qtum-qt");
+
+        request.PollStart();
+        while (true) {
+            {
+                LOCK(pwallet->cs_wallet);
+                _wtx = &pwallet->mapWallet.at(hash);
+
+                if (pwallet->GetTxDepthInMainChain(*_wtx) >= waitconf) {
+                    break;
+                }
+            }
+
+            request.PollPing();
+
+            UninterruptibleSleep(std::chrono::milliseconds{50});
+
+            if (!request.PollAlive() || !IsRPCRunning()) {
+                return NullUniValue;
+            }
+        }
+    }
+
+    LOCK(pwallet->cs_wallet);
+    const CWalletTx& wtx = *_wtx;
 
     UniValue entry(UniValue::VOBJ);
-    auto it = pwallet->mapWallet.find(hash);
-    if (it == pwallet->mapWallet.end()) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
-    }
-    const CWalletTx& wtx = it->second;
 
     CAmount nCredit = CachedTxGetCredit(*pwallet, wtx, /*avoid_reuse=*/false);
     CAmount nDebit = CachedTxGetDebit(*pwallet, wtx, /*avoid_reuse=*/false);
@@ -746,6 +814,18 @@ RPCHelpMan gettransaction()
     entry.pushKV("amount", ValueFromAmount(nNet - nFee));
     if (CachedTxIsFromMe(*pwallet, wtx))
         entry.pushKV("fee", ValueFromAmount(nFee));
+
+    if(wtx.IsCoinStake())
+    {
+        CAmount amount = nNet;
+        entry.pushKV("amount", ValueFromAmount(amount));
+    }
+    else
+    {
+        entry.pushKV("amount", ValueFromAmount(nNet - nFee));
+        if (CachedTxIsFromMe(*pwallet, wtx))
+            entry.pushKV("fee", ValueFromAmount(nFee));
+    }
 
     WalletTxToJSON(*pwallet, wtx, entry);
 

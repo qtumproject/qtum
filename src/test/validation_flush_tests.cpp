@@ -23,8 +23,8 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
     LOCK(::cs_main);
     CCoinsViewCache& view{chainstate.CoinsTip()};
 
-    // Sanity: an empty cache should be ≲ 1 chunk (~ 256 KiB).
-    BOOST_CHECK_LT(view.DynamicMemoryUsage() / (256 * 1024.0), 1.1);
+    // Sanity: an empty cache should be ≲ 1 chunk (~ 512 KiB).
+    BOOST_CHECK_LT(view.DynamicMemoryUsage() / (512 * 1024.0), 1.1);
 
     constexpr size_t MAX_COINS_BYTES{8_MiB};
     constexpr size_t MAX_MEMPOOL_BYTES{4_MiB};
@@ -37,14 +37,14 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
 
         // OK → LARGE
         auto state{chainstate.GetCoinsCacheSizeState(MAX_COINS_BYTES, max_mempool_size_bytes)};
-        for (size_t i{0}; i < MAX_ATTEMPTS && int64_t(view.DynamicMemoryUsage()) <= large_cap; ++i) {
+        for (size_t i{0}; i < MAX_ATTEMPTS && int64_t(view.DynamicMemoryUsage() * DB_PEAK_USAGE_FACTOR) <= large_cap; ++i) {
             BOOST_CHECK_EQUAL(state, CoinsCacheSizeState::OK);
             AddTestCoin(m_rng, view);
             state = chainstate.GetCoinsCacheSizeState(MAX_COINS_BYTES, max_mempool_size_bytes);
         }
 
         // LARGE → CRITICAL
-        for (size_t i{0}; i < MAX_ATTEMPTS && int64_t(view.DynamicMemoryUsage()) <= full_cap; ++i) {
+        for (size_t i{0}; i < MAX_ATTEMPTS && int64_t(view.DynamicMemoryUsage() * DB_PEAK_USAGE_FACTOR) <= full_cap; ++i) {
             BOOST_CHECK_EQUAL(state, CoinsCacheSizeState::LARGE);
             AddTestCoin(m_rng, view);
             state = chainstate.GetCoinsCacheSizeState(MAX_COINS_BYTES, max_mempool_size_bytes);
