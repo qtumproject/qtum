@@ -96,6 +96,9 @@ public:
             case BlockValidationResult::TIME_FUTURE:
                 std::cout << "block timestamp was > 2 hours in the future (or our clock is bad)" << std::endl;
                 break;
+            case BlockValidationResult::CHECKPOINT:
+                std::cout << "the block failed to meet one of our checkpoints" << std::endl;
+                break;
             }
             return;
         }

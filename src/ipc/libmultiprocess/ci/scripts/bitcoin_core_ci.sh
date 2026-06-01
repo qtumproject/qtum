@@ -134,7 +134,7 @@ run_ipc_unit_tests() {
   local runs="$1"
 
   for _ in $(seq 1 "${runs}"); do
-    build/bin/test_bitcoin --run_test=ipc_tests,miner_tests --catch_system_error=no --log_level=nothing --report_level=no
+    build/bin/test_qtum --run_test=ipc_tests,miner_tests --catch_system_error=no --log_level=nothing --report_level=no
   done
 }
 

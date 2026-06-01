@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <chainparams.h>
 #include <addresstype.h>
 #include <coins.h>
 #include <common/system.h>
@@ -80,25 +81,144 @@ static CFeeRate blockMinFeeRate = CFeeRate(DEFAULT_BLOCK_MIN_TX_FEE);
 constexpr static struct {
     unsigned int extranonce;
     unsigned int nonce;
-} BLOCKINFO[]{{0, 3552706918},   {500, 37506755},   {1000, 948987788}, {400, 524762339},  {800, 258510074},  {300, 102309278},
-              {1300, 54365202},  {600, 1107740426}, {1000, 203094491}, {900, 391178848},  {800, 381177271},  {600, 87188412},
-              {0, 66522866},     {800, 874942736},  {1000, 89200838},  {400, 312638088},  {400, 66263693},   {500, 924648304},
-              {400, 369913599},  {500, 47630099},   {500, 115045364},  {100, 277026602},  {1100, 809621409}, {700, 155345322},
-              {800, 943579953},  {400, 28200730},   {900, 77200495},   {0, 105935488},    {400, 698721821},  {500, 111098863},
-              {1300, 445389594}, {500, 621849894},  {1400, 56010046},  {1100, 370669776}, {1200, 380301940}, {1200, 110654905},
-              {400, 213771024},  {1500, 120014726}, {1200, 835019014}, {1500, 624817237}, {900, 1404297},    {400, 189414558},
-              {400, 293178348},  {1100, 15393789},  {600, 396764180},  {800, 1387046371}, {800, 199368303},  {700, 111496662},
-              {100, 129759616},  {200, 536577982},  {500, 125881300},  {500, 101053391},  {1200, 471590548}, {900, 86957729},
-              {1200, 179604104}, {600, 68658642},   {1000, 203295701}, {500, 139615361},  {900, 233693412},  {300, 153225163},
-              {0, 27616254},     {1200, 9856191},   {100, 220392722},  {200, 66257599},   {1100, 145489641}, {1300, 37859442},
-              {400, 5816075},    {1200, 215752117}, {1400, 32361482},  {1400, 6529223},   {500, 143332977},  {800, 878392},
-              {700, 159290408},  {400, 123197595},  {700, 43988693},   {300, 304224916},  {700, 214771621},  {1100, 274148273},
-              {400, 285632418},  {1100, 923451065}, {600, 12818092},   {1200, 736282054}, {1000, 246683167}, {600, 92950402},
-              {1400, 29223405},  {1000, 841327192}, {700, 174301283},  {1400, 214009854}, {1000, 6989517},   {1200, 278226956},
-              {700, 540219613},  {400, 93663104},   {1100, 152345635}, {1500, 464194499}, {1300, 333850111}, {600, 258311263},
-              {600, 90173162},   {1000, 33590797},  {1500, 332866027}, {100, 204704427},  {1000, 463153545}, {800, 303244785},
-              {600, 88096214},   {0, 137477892},    {1200, 195514506}, {300, 704114595},  {900, 292087369},  {1400, 758684870},
-              {1300, 163493028}, {1200, 53151293}};
+} BLOCKINFO[]{{4, 0x000192a0}, {2, 0x0001d2b6}, {1, 0x0002f5d8}, {1, 0x0004f913},
+              {2, 0x0004fa6f}, {2, 0x0004ae04}, {1, 0x00048ec1}, {2, 0x00066185},
+              {2, 0x0007a24b}, {1, 0x0009caef}, {1, 0x000e5bc4}, {2, 0x000ba124},
+              {2, 0x000bac26}, {1, 0x000d2a68}, {2, 0x000bfd73}, {2, 0x000ef319},
+              {1, 0x00119496}, {2, 0x000e758e}, {1, 0x0010182e}, {1, 0x000f08e8},
+              {3, 0x0010654b}, {2, 0x00127fae}, {2, 0x0011ca28}, {1, 0x00147744},
+              {2, 0x0015b085}, {1, 0x0015503f}, {2, 0x00170ad6}, {2, 0x001727c8},
+              {2, 0x0017cb72}, {2, 0x00192067}, {2, 0x001b3fe9}, {2, 0x001c8cb1},
+              {1, 0x001ab854}, {2, 0x001ec350}, {2, 0x001be586}, {1, 0x00202a9b},
+              {2, 0x0020e78e}, {1, 0x002002b1}, {2, 0x0022c2e3}, {1, 0x0025097a},
+              {1, 0x00287536}, {3, 0x002ac9ae}, {2, 0x002899e4}, {5, 0x0028ed8e},
+              {1, 0x002c80bd}, {5, 0x002b5bc8}, {1, 0x0029e46c}, {1, 0x002c01c3},
+              {1, 0x002bfe45}, {2, 0x002dd7bc}, {1, 0x002ee460}, {1, 0x0030cf33},
+              {1, 0x0031a9c2}, {1, 0x00320de8}, {5, 0x00353e3b}, {5, 0x0033055f},
+              {1, 0x00375485}, {1, 0x0037338c}, {6, 0x003be03f}, {2, 0x003c449d},
+              {2, 0x003e1e27}, {1, 0x003c0fac}, {1, 0x003ca16d}, {1, 0x003f011d},
+              {2, 0x003e5502}, {2, 0x003f132b}, {1, 0x00405658}, {1, 0x00411d00},
+              {1, 0x00440de8}, {5, 0x004b3e82}, {5, 0x004c6672}, {1, 0x004d614b},
+              {1, 0x004fa1a0}, {2, 0x004ef387}, {2, 0x004f91d9}, {1, 0x0050acb8},
+              {2, 0x00512da7}, {1, 0x004f841b}, {2, 0x0050ffe0}, {2, 0x0052ae46},
+              {1, 0x0054e0ea}, {1, 0x00554ffd}, {1, 0x0056a556}, {5, 0x0059fbf3},
+              {1, 0x0059eada}, {1, 0x005b7715}, {1, 0x005c16c4}, {1, 0x005ec266},
+              {1, 0x005f5a1e}, {1, 0x006109b5}, {1, 0x005f03e5}, {2, 0x00618000},
+              {0, 0x006145d9}, {1, 0x00646931}, {2, 0x0062b04c}, {2, 0x00652d0a},
+              {2, 0x0065f715}, {1, 0x0066f8ed}, {1, 0x006af32c}, {1, 0x006b7712},
+              {1, 0x006c3e31}, {1, 0x006dc158}, {1, 0x006e71f9}, {5, 0x0075c9f1},
+              {2, 0x006e10d6}, {1, 0x006ef321}, {1, 0x00717d82}, {1, 0x00718844},
+              {2, 0x0071ea80}, {2, 0x00757c69}, {4, 0x0077c818}, {2, 0x0076d089},
+              {1, 0x0078fcfc}, {1, 0x00799d31}, {2, 0x0079f533}, {2, 0x007dc2b3},
+              {1, 0x007b038f}, {2, 0x007b9916}, {2, 0x007b467a}, {1, 0x007daab6},
+              {1, 0x007c8fab}, {2, 0x0081e07b}, {2, 0x007f8d7e}, {1, 0x00818ac1},
+              {2, 0x00805b08}, {2, 0x008361bd}, {1, 0x00833f6a}, {2, 0x0087e1c7},
+              {1, 0x0084914a}, {1, 0x008454ca}, {3, 0x008471e3}, {2, 0x008a08e1},
+              {2, 0x008a4916}, {1, 0x008e745d}, {2, 0x008bd1aa}, {1, 0x00908735},
+              {2, 0x008e9827}, {2, 0x008e807d}, {2, 0x008ecdd9}, {2, 0x0092a382},
+              {2, 0x0095dcd4}, {2, 0x0094a26b}, {1, 0x00960fd5}, {2, 0x0095acd7},
+              {2, 0x00994437}, {1, 0x00994932}, {2, 0x0097bc78}, {1, 0x00990b2d},
+              {2, 0x0097d28f}, {1, 0x009a58d6}, {1, 0x00998b73}, {3, 0x009b6591},
+              {2, 0x009e742f}, {5, 0x009b5c55}, {1, 0x009aeeba}, {5, 0x009cc10a},
+              {1, 0x009df73c}, {1, 0x009f0a8b}, {1, 0x00a02717}, {2, 0x00a36736},
+              {1, 0x00a0cc93}, {1, 0x00a8a047}, {1, 0x00a1010e}, {1, 0x00a0e5ad},
+              {5, 0x00a16d92}, {5, 0x00a1a77e}, {1, 0x00a7853c}, {1, 0x00a4ed9c},
+              {6, 0x00a5d69a}, {2, 0x00a814c7}, {2, 0x00a745ba}, {1, 0x00ab6f3b},
+              {1, 0x00ac6263}, {1, 0x00b082e4}, {2, 0x00b0635c}, {2, 0x00b263ff},
+              {1, 0x00b27bd8}, {1, 0x00b2abed}, {1, 0x00b89e4f}, {5, 0x00b74fec},
+              {5, 0x00b756ae}, {1, 0x00b7e68e}, {1, 0x00b7fd5c}, {2, 0x00bac23f},
+              {2, 0x00bbfb82}, {1, 0x00c56007}, {2, 0x00c76ae4}, {1, 0x00c50dd8},
+              {2, 0x00c4d443}, {2, 0x00c85e58}, {1, 0x00c8d53b}, {1, 0x00c82b08},
+              {1, 0x00c74b7e}, {5, 0x00c85e50}, {1, 0x00ca49c5}, {1, 0x00ccb498},
+              {1, 0x00cd86a3}, {1, 0x00ccea5d}, {1, 0x00d0875a}, {1, 0x00cd547f},
+              {1, 0x00ce6ecf}, {2, 0x00cf83df}, {0, 0x00d0062f}, {1, 0x00d040c0},
+              {2, 0x00d301da}, {2, 0x00d112f7}, {2, 0x00d03254}, {1, 0x00d2444d},
+              {1, 0x00d3ad46}, {1, 0x00d57f40}, {1, 0x00d3f0f9}, {1, 0x00d55ae0},
+              {1, 0x00d3df94}, {5, 0x00d4a6fb}, {2, 0x00d8f4e9}, {1, 0x00d87d1d},
+              {1, 0x00dbbec9}, {1, 0x00d934bd}, {2, 0x00d8c3fc}, {2, 0x00dab1c9},
+              {4, 0x00db2896}, {2, 0x00dbd401}, {1, 0x00db4495}, {1, 0x00e09dd6},
+              {2, 0x00e06512}, {2, 0x00e1425f}, {1, 0x00e170fa}, {2, 0x00e3d5d7},
+              {2, 0x00e40e77}, {1, 0x00e51f15}, {1, 0x00e5e594}, {2, 0x00e613ab},
+              {2, 0x00e72e8b}, {1, 0x00e94959}, {2, 0x00e984d5}, {2, 0x00edabed},
+              {1, 0x00edeacc}, {2, 0x00ef643d}, {1, 0x00f3c73a}, {1, 0x00f4a270},
+              {3, 0x00f7a870}, {2, 0x00f7445f}, {2, 0x00fa971e}, {1, 0x00faf983},
+              {2, 0x00ff21f7}, {1, 0x00fd32c3}, {2, 0x00fd4c9a}, {2, 0x00fe62e5},
+              {2, 0x00ff9e4a}, {2, 0x01007cf7}, {2, 0x01013e61}, {2, 0x0100bda5},
+              {1, 0x0103261d}, {2, 0x0103c540}, {2, 0x0104fdc9}, {1, 0x010995e0},
+              {2, 0x0109d9e3}, {1, 0x010af516}, {2, 0x010b5d33}, {1, 0x010ded6b},
+              {1, 0x0110c773}, {3, 0x010efe64}, {2, 0x011431b2}, {5, 0x01104d05},
+              {1, 0x011315c8}, {5, 0x0113bb91}, {1, 0x0113198f}, {1, 0x01137c76},
+              {1, 0x0116aa9d}, {2, 0x01175001}, {1, 0x0117f810}, {1, 0x011a1779},
+              {1, 0x011e14d1}, {1, 0x011d4f8f}, {5, 0x011f9bc1}, {5, 0x011e8290},
+              {1, 0x011e90a9}, {1, 0x01223dae}, {6, 0x012036d5}, {2, 0x0120a877},
+              {2, 0x01241cad}, {1, 0x01278141}, {1, 0x01251df6}, {1, 0x01262723},
+              {2, 0x01268f18}, {2, 0x01284da7}, {1, 0x0128d7f3}, {1, 0x012adf33},
+              {1, 0x012b9c22}, {5, 0x012e0b7f}, {5, 0x012fd494}, {1, 0x0132de85},
+              {1, 0x0132b6d4}, {2, 0x01342dbe}, {2, 0x01373e92}, {1, 0x0134c5e3},
+              {2, 0x0136892c}, {1, 0x0137c63e}, {2, 0x01375ee3}, {2, 0x0138f36e},
+              {1, 0x01382ca5}, {1, 0x013a4c1e}, {1, 0x013b70a7}, {5, 0x013d4996},
+              {1, 0x013c782e}, {1, 0x013d68a4}, {1, 0x0140e7f0}, {1, 0x013f9932},
+              {1, 0x014103fb}, {1, 0x0140f854}, {1, 0x014316b1}, {2, 0x01402ca5},
+              {0, 0x01469369}, {1, 0x01454ac4}, {2, 0x01448a10}, {2, 0x0147c1ad},
+              {2, 0x014627d3}, {1, 0x0146d4d4}, {1, 0x014aefad}, {1, 0x014c3d89},
+              {1, 0x014f4301}, {1, 0x014c9c70}, {1, 0x014dde03}, {5, 0x01509431},
+              {2, 0x014fefe7}, {1, 0x01504013}, {1, 0x0151438d}, {1, 0x0150bc00},
+              {2, 0x0153a5e8}, {2, 0x0152dfad}, {4, 0x0153f3b5}, {2, 0x01542e7a},
+              {1, 0x0153bc11}, {1, 0x01550bbc}, {2, 0x015701d6}, {2, 0x01579563},
+              {1, 0x0159f464}, {2, 0x0158fc62}, {2, 0x015a4802}, {1, 0x015e8244},
+              {1, 0x015e2879}, {2, 0x015e6325}, {2, 0x01610bd3}, {1, 0x015f0c9f},
+              {2, 0x01606fc7}, {2, 0x0160f496}, {1, 0x015ff278}, {2, 0x01613a74},
+              {1, 0x0160a518}, {1, 0x016199a4}, {3, 0x0162871a}, {2, 0x0162f885},
+              {2, 0x01660682}, {1, 0x01678351}, {2, 0x016a0e0d}, {1, 0x0168b17e},
+              {2, 0x01676f8e}, {2, 0x016b33ce}, {2, 0x016e2eaa}, {2, 0x016b746a},
+              {2, 0x016c8e68}, {2, 0x01715a2e}, {1, 0x016e252f}, {2, 0x016eaa18},
+              {2, 0x01728ea2}, {1, 0x01700da6}, {2, 0x017385dd}, {1, 0x01719d85},
+              {2, 0x01740acb}, {1, 0x017481a8}, {1, 0x01748109}, {3, 0x01746b21},
+              {2, 0x0178f8e8}, {5, 0x01779d9d}, {1, 0x017b20ec}, {5, 0x017aec24},
+              {1, 0x017b4b5b}, {1, 0x017a50b4}, {1, 0x017a2936}, {2, 0x017c5287},
+              {1, 0x017ba847}, {1, 0x017cd3d5}, {1, 0x017ff0ba}, {1, 0x0180ddef},
+              {5, 0x01802207}, {5, 0x01825bf9}, {1, 0x017ebfbe}, {1, 0x017f3ebf},
+              {6, 0x0180b152}, {2, 0x0180b413}, {2, 0x01821943}, {1, 0x01825a66},
+              {1, 0x01817892}, {1, 0x01861a68}, {2, 0x0186518c}, {2, 0x01877ad5},
+              {1, 0x01859932}, {1, 0x0186bc6d}, {1, 0x0188cf11}, {5, 0x0188a3d0},
+              {5, 0x018aec05}, {1, 0x0189a5c3}, {1, 0x018bd1d3}, {2, 0x018ee02e},
+              {2, 0x018f0dae}, {1, 0x0190235b}, {2, 0x018e996d}, {1, 0x018ec441},
+              {2, 0x0193c677}, {2, 0x01922dae}, {1, 0x019247cc}, {1, 0x0193b2ec},
+              {1, 0x0195b268}, {5, 0x019488ab}, {1, 0x0196b031}, {1, 0x0198de72},
+              {1, 0x0199217b}, {1, 0x019c80e9}, {1, 0x01995d5d}, {1, 0x0199fce9},
+              {1, 0x019b54e9}, {2, 0x019b94c6}, {0, 0x019e67bd}, {1, 0x019cc367},
+              {2, 0x01a00b0b}, {2, 0x01a1d594}, {2, 0x01a0ca35}, {1, 0x01a2625e},
+              {1, 0x01a2fdd6}, {1, 0x01a41f99}, {1, 0x01a444b1}, {1, 0x01a36856},
+              {1, 0x01a71811}, {5, 0x01a547c9}, {2, 0x01a4a272}, {1, 0x01a65fd5},
+              {1, 0x01a8889f}, {1, 0x01a82a76}, {2, 0x01a8bbda}, {2, 0x01aabc2e},
+              {4, 0x01a8b88b}, {2, 0x01aaf146}, {1, 0x01ab570f}, {1, 0x01ac3501},
+              {2, 0x01af258d}, {2, 0x01afd5ed}, {1, 0x01af043a}, {2, 0x01afa9c6},
+              {2, 0x01b28d7c}, {1, 0x01b26b23}, {1, 0x01b2fe10}, {2, 0x01b250f5},
+              {2, 0x01b68203}, {1, 0x01b48e23}, {2, 0x01b5da66}, {2, 0x01b6e2e0},
+              {1, 0x01b5ff6f}, {2, 0x01b844b8}, {1, 0x01b6bc35}, {1, 0x01b8cc17},
+              {3, 0x01b7f17e}, {2, 0x01ba6d0c}, {2, 0x01b97523}, {1, 0x01bb55d6},
+              {2, 0x01bf0d53}, {1, 0x01bf38e0}, {2, 0x01bedd54}, {2, 0x01beeca7},
+              {2, 0x01bf80f7}, {2, 0x01c08d05}, {2, 0x01c0b079}, {2, 0x01c385c5},
+              {1, 0x01c43c80}, {2, 0x01c99c9d}, {2, 0x01c76aea}, {1, 0x01c8bafd},
+              {2, 0x01c8c4dd}, {1, 0x01c90411}, {2, 0x01c96625}, {1, 0x01cb1f7f},
+              {1, 0x01cb9ed2}, {3, 0x01d0ccba}, {2, 0x01d2c8f5}, {5, 0x01d14b5d},
+              {1, 0x01d5711f}, {5, 0x01d5583d}, {1, 0x01d69aa1}, {1, 0x01d95c50},
+              {1, 0x01dad422}, {2, 0x01dba4b1}, {1, 0x01dfbab5}, {1, 0x01e072d4},
+              {1, 0x01e2d3da}, {1, 0x01e24219}, {5, 0x01e55cd8}, {5, 0x01e6f4bf},
+              {1, 0x01eb82c5}, {1, 0x01e996af}, {6, 0x01e962ed}, {2, 0x01e93952},
+              {2, 0x01eac2c9}, {1, 0x01ebd83a}, {1, 0x01ec1157}, {1, 0x01ec69b9},
+              {2, 0x01ec9223}, {2, 0x01ee56da}, {1, 0x01ef3ee8}, {1, 0x01ef6196},
+              {1, 0x01ef57a0}, {5, 0x01efe7e1}, {5, 0x01f44682}, {1, 0x01f4c9f2},
+              {1, 0x01f525f4}, {2, 0x01f869eb}, {2, 0x01f71e9c}, {1, 0x01f78e49},
+              {2, 0x01f73a2f}, {1, 0x01f9f058}, {2, 0x01ff69ca}, {2, 0x01fe3151},
+              {1, 0x02004981}, {1, 0x02042a38}, {1, 0x0205a325}, {5, 0x0205e007},
+              {1, 0x020680ec}, {1, 0x020b5d90}, {1, 0x0208c36d}, {1, 0x020b8e3f},
+              {1, 0x0209ce05}, {1, 0x0209ef22}, {1, 0x020c30a7}, {2, 0x020e9bd9},
+              {0, 0x020ff9e1}, {1, 0x021309b0}, {2, 0x02143276}, {2, 0x0214db7a},
+              {2, 0x021a4811}, {1, 0x021bdc6d}, {1, 0x021b0a68}, {1, 0x021ae270},
+              {1, 0x021c61ac}, {1, 0x021cef7f}, {1, 0x02203dbf}, {5, 0x022264e3},
+              {2, 0x0221597c}, {1, 0x02228469}, {1, 0x02261db3}, {1, 0x02268128},
+              {2, 0x0226a042}, {2, 0x022841c4}};
 
 static std::unique_ptr<CBlockIndex> CreateBlockIndex(int nHeight, CBlockIndex* active_chain_tip) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
@@ -147,24 +267,24 @@ void MinerTestingSetup::TestPackageSelection(const CScript& scriptPubKey, const 
     tx.vin[0].prevout.hash = txFirst[0]->GetHash();
     tx.vin[0].prevout.n = 0;
     tx.vout.resize(1);
-    tx.vout[0].nValue = 5000000000LL - 1000;
+    tx.vout[0].nValue = 5000000000LL - 400000;
     // This tx has a low fee: 1000 satoshis
     Txid hashParentTx = tx.GetHash(); // save this txid for later use
-    const auto parent_tx{entry.Fee(1000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx)};
+    const auto parent_tx{entry.Fee(400000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx)};
     TryAddToMempool(tx_mempool, parent_tx);
 
     // This tx has a medium fee: 10000 satoshis
     tx.vin[0].prevout.hash = txFirst[1]->GetHash();
-    tx.vout[0].nValue = 5000000000LL - 10000;
+    tx.vout[0].nValue = 5000000000LL - 4000000;
     Txid hashMediumFeeTx = tx.GetHash();
-    const auto medium_fee_tx{entry.Fee(10000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx)};
+    const auto medium_fee_tx{entry.Fee(4000000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx)};
     TryAddToMempool(tx_mempool, medium_fee_tx);
 
     // This tx has a high fee, but depends on the first transaction
     tx.vin[0].prevout.hash = hashParentTx;
-    tx.vout[0].nValue = 5000000000LL - 1000 - 50000; // 50k satoshi fee
+    tx.vout[0].nValue = 5000000000LL - 10000 - 400000 * 50; // 50k satoshi fee
     Txid hashHighFeeTx = tx.GetHash();
-    const auto high_fee_tx{entry.Fee(50000).Time(Now<NodeSeconds>()).SpendsCoinbase(false).FromTx(tx)};
+    const auto high_fee_tx{entry.Fee(400000 * 50).Time(Now<NodeSeconds>()).SpendsCoinbase(false).FromTx(tx)};
     TryAddToMempool(tx_mempool, high_fee_tx);
 
     block_template = mining->createNewBlock(options, /*cooldown=*/false);
@@ -192,7 +312,7 @@ void MinerTestingSetup::TestPackageSelection(const CScript& scriptPubKey, const 
 
     // Test that a package below the block min tx fee doesn't get included
     tx.vin[0].prevout.hash = hashHighFeeTx;
-    tx.vout[0].nValue = 5000000000LL - 1000 - 50000; // 0 fee
+    tx.vout[0].nValue = 5000000000LL - 10000 - 20000000; // 0 fee
     Txid hashFreeTx = tx.GetHash();
     TryAddToMempool(tx_mempool, entry.Fee(0).FromTx(tx));
     uint64_t freeTxSize{::GetSerializeSize(TX_WITH_WITNESS(tx))};
@@ -202,7 +322,7 @@ void MinerTestingSetup::TestPackageSelection(const CScript& scriptPubKey, const 
     CAmount feeToUse = blockMinFeeRate.GetFee(2*freeTxSize) - 1;
 
     tx.vin[0].prevout.hash = hashFreeTx;
-    tx.vout[0].nValue = 5000000000LL - 1000 - 50000 - feeToUse;
+    tx.vout[0].nValue = 5000000000LL - 10000 - 20000000 - feeToUse;
     Txid hashLowFeeTx = tx.GetHash();
     TryAddToMempool(tx_mempool, entry.Fee(feeToUse).FromTx(tx));
 
@@ -240,10 +360,6 @@ void MinerTestingSetup::TestPackageSelection(const CScript& scriptPubKey, const 
     tx.vout.resize(2);
     tx.vout[0].nValue = 5000000000LL - 100000000;
     tx.vout[1].nValue = 100000000; // 1BTC output
-    // Increase size to avoid rounding errors: when the feerate is extremely small (i.e. 1sat/kvB), evaluating the fee
-    // at smaller sizes gives us rounded values that are equal to each other, which means we incorrectly include
-    // hashFreeTx2 + hashLowFeeTx2.
-    BulkTransaction(tx, 4000);
     Txid hashFreeTx2 = tx.GetHash();
     TryAddToMempool(tx_mempool, entry.Fee(0).SpendsCoinbase(true).FromTx(tx));
 
@@ -267,8 +383,8 @@ void MinerTestingSetup::TestPackageSelection(const CScript& scriptPubKey, const 
     // This tx will be mineable, and should cause hashLowFeeTx2 to be selected
     // as well.
     tx.vin[0].prevout.n = 1;
-    tx.vout[0].nValue = 100000000 - 10000; // 10k satoshi fee
-    TryAddToMempool(tx_mempool, entry.Fee(10000).FromTx(tx));
+    tx.vout[0].nValue = 100000000 - 4000000; // 10k satoshi fee
+    TryAddToMempool(tx_mempool, entry.Fee(4000000).FromTx(tx));
     block_template = mining->createNewBlock(options, /*cooldown=*/false);
     BOOST_REQUIRE(block_template);
     block = block_template->getBlock();
@@ -318,6 +434,16 @@ std::vector<CTransactionRef> CreateBigSigOpsCluster(const CTransactionRef& first
     return ret;
 }
 
+CAmount calculateReward(const CBlock& block, ChainstateManager& chainman){
+    LOCK(cs_main);
+    CAmount sumVout = 0, fee = 0;
+    for(const CTransactionRef& t : block.vtx){
+        fee += chainman.ActiveChainstate().CoinsTip().GetValueIn(*t);
+        sumVout += t->GetValueOut();
+    }
+    return sumVout - fee;
+}
+
 void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::vector<CTransactionRef>& txFirst, int baseheight)
 {
     Txid hash;
@@ -325,6 +451,7 @@ void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::
     TestMemPoolEntryHelper entry;
     entry.nFee = 11;
     entry.nHeight = 11;
+    const Consensus::Params& consensusParams = Params().GetConsensus();
 
     const CAmount BLOCKSUBSIDY = 50 * COIN;
     const CAmount LOWFEE = CENT;
@@ -397,7 +524,7 @@ void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::
         tx.vout.resize(1);
         tx.vout[0].nValue = BLOCKSUBSIDY;
         // 36 * (520char + DROP) + OP_1 = 18757 bytes
-        std::vector<unsigned char> vchData(520);
+        std::vector<unsigned char> vchData(52);
         for (unsigned int i = 0; i < 18; ++i) {
             tx.vin[0].scriptSig << vchData << OP_DROP;
             tx.vout[0].scriptPubKey << vchData << OP_DROP;
@@ -488,8 +615,8 @@ void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::
 
         // subsidy changing
         int nHeight = m_node.chainman->ActiveChain().Height();
-        // Create an actual 209999-long block chain (without valid blocks).
-        while (m_node.chainman->ActiveChain().Tip()->nHeight < 209999) {
+        // Create an actual 1427002-long block chain (without valid blocks).
+        while (m_node.chainman->ActiveChain().Tip()->nHeight < 1427002) {
             CBlockIndex* prev = m_node.chainman->ActiveChain().Tip();
             CBlockIndex* next = new CBlockIndex();
             next->phashBlock = new uint256(m_rng.rand256());
@@ -499,9 +626,13 @@ void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::
             next->BuildSkip();
             m_node.chainman->ActiveChain().SetTip(*next);
         }
-        BOOST_REQUIRE(mining->createNewBlock(options, /*cooldown=*/false));
-        // Extend to a 210000-long block chain.
-        while (m_node.chainman->ActiveChain().Tip()->nHeight < 210000) {
+        int blocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(m_node.chainman->ActiveChain().Tip()->nHeight + 1);
+        options.is_coinstake = true;
+        auto pblocktemplate = mining->createNewBlock(options);
+        BOOST_REQUIRE(pblocktemplate);
+        BOOST_CHECK(calculateReward(pblocktemplate->getBlock(), *m_node.chainman) == 400000000/blocktimeDownscaleFactor);
+        // Extend to a 1427004-long block chain.
+        while (m_node.chainman->ActiveChain().Tip()->nHeight < 1427004) {
             CBlockIndex* prev = m_node.chainman->ActiveChain().Tip();
             CBlockIndex* next = new CBlockIndex();
             next->phashBlock = new uint256(m_rng.rand256());
@@ -511,7 +642,11 @@ void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::
             next->BuildSkip();
             m_node.chainman->ActiveChain().SetTip(*next);
         }
-        BOOST_REQUIRE(mining->createNewBlock(options, /*cooldown=*/false));
+        blocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(m_node.chainman->ActiveChain().Tip()->nHeight + 1);
+        pblocktemplate = mining->createNewBlock(options);
+        options.is_coinstake = false;
+        BOOST_REQUIRE(pblocktemplate);
+        BOOST_CHECK(calculateReward(pblocktemplate->getBlock(), *m_node.chainman) == 200000000/blocktimeDownscaleFactor);
 
         // invalid p2sh txn in tx_mempool, template creation fails
         tx.vin[0].prevout.hash = txFirst[0]->GetHash();
@@ -527,7 +662,7 @@ void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::
         tx.vout[0].nValue -= LOWFEE;
         hash = tx.GetHash();
         TryAddToMempool(tx_mempool, entry.Fee(LOWFEE).Time(Now<NodeSeconds>()).SpendsCoinbase(false).FromTx(tx));
-        BOOST_CHECK_EXCEPTION(mining->createNewBlock(options, /*cooldown=*/false), std::runtime_error, HasReason("block-script-verify-flag-failed"));
+        BOOST_CHECK_EXCEPTION(mining->createNewBlock(options, /*cooldown=*/false), std::runtime_error, HasReason("TestBlockValidity failed"));
 
         // Delete the dummy blocks again.
         while (m_node.chainman->ActiveChain().Tip()->nHeight > nHeight) {
@@ -750,7 +885,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     BOOST_REQUIRE(mining);
 
     // Note that by default, these tests run with size accounting enabled.
-    CScript scriptPubKey = CScript() << "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f"_hex << OP_CHECKSIG;
+    CScript scriptPubKey = CScript() << "040d61d8653448c98731ee5fffd303c15e71ec2057b77f11ab3601979728cdaff2d68afbba14e4fa0bc44f2072b0b23ef63717f8cdfbe58dcd33f32b6afe98741a"_hex << OP_CHECKSIG;
     BlockAssembler::Options options;
     options.coinbase_output_script = scriptPubKey;
     options.include_dummy_extranonce = true;
@@ -795,9 +930,10 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
 
     // We can't make transactions until we have inputs
     // Therefore, load 110 blocks :)
-    static_assert(std::size(BLOCKINFO) == 110, "Should have 110 blocks to import");
+    static_assert(std::size(BLOCKINFO) == 550, "Should have 550 blocks to import");
     int baseheight = 0;
     std::vector<CTransactionRef> txFirst;
+    unsigned int i = 0;
     for (const auto& bi : BLOCKINFO) {
         const int current_height{mining->getTip()->height};
 
@@ -815,8 +951,8 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         CMutableTransaction txCoinbase(*block.vtx[0]);
         {
             LOCK(cs_main);
-            block.nVersion = VERSIONBITS_TOP_BITS;
-            block.nTime = Assert(m_node.chainman)->ActiveChain().Tip()->GetMedianTimePast()+1;
+            block.nVersion = 4; //use version 4 as we enable BIP34, BIP65 and BIP66 since genesis
+            block.nTime = Assert(m_node.chainman)->ActiveChain().Tip()->GetMedianTimePast()+1+i++;
             txCoinbase.version = 1;
             txCoinbase.vin[0].scriptSig = CScript{} << (current_height + 1) << bi.extranonce;
             txCoinbase.vout.resize(1); // Ignore the (optional) segwit commitment added by CreateNewBlock (as the hardcoded nonces don't account for this)

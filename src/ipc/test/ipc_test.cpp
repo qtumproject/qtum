@@ -144,12 +144,12 @@ void IpcSocketTest(const fs::path& datadir)
     std::unique_ptr<ipc::Process> process{ipc::MakeProcess()};
 
     std::string invalid_bind{"invalid:"};
-    BOOST_CHECK_THROW(process->bind(datadir, "test_bitcoin", invalid_bind), std::invalid_argument);
-    BOOST_CHECK_THROW(process->connect(datadir, "test_bitcoin", invalid_bind), std::invalid_argument);
+    BOOST_CHECK_THROW(process->bind(datadir, "test_qtum", invalid_bind), std::invalid_argument);
+    BOOST_CHECK_THROW(process->connect(datadir, "test_qtum", invalid_bind), std::invalid_argument);
 
     auto bind_and_listen{[&](const std::string& bind_address) {
         std::string address{bind_address};
-        int serve_fd = process->bind(datadir, "test_bitcoin", address);
+        int serve_fd = process->bind(datadir, "test_qtum", address);
         BOOST_CHECK_GE(serve_fd, 0);
         BOOST_CHECK_EQUAL(address, bind_address);
         protocol->listen(serve_fd, "test-serve", *init);
@@ -157,7 +157,7 @@ void IpcSocketTest(const fs::path& datadir)
 
     auto connect_and_test{[&](const std::string& connect_address) {
         std::string address{connect_address};
-        int connect_fd{process->connect(datadir, "test_bitcoin", address)};
+        int connect_fd{process->connect(datadir, "test_qtum", address)};
         BOOST_CHECK_EQUAL(address, connect_address);
         std::unique_ptr<interfaces::Init> remote_init{protocol->connect(connect_fd, "test-connect")};
         std::unique_ptr<interfaces::Echo> remote_echo{remote_init->makeEcho()};
