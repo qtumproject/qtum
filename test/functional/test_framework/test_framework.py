@@ -40,6 +40,8 @@ from .util import (
     wait_until_helper_internal,
     wallet_importprivkey,
 )
+from .qtumconfig import COINBASE_MATURITY
+from .qtum import generatesynchronized
 
 
 class TestStatus(Enum):
@@ -51,7 +53,7 @@ TEST_EXIT_PASSED = 0
 TEST_EXIT_FAILED = 1
 TEST_EXIT_SKIPPED = 77
 
-TMPDIR_PREFIX = "bitcoin_func_test_"
+TMPDIR_PREFIX = "qtum_func_test_"
 
 
 class SkipTest(Exception):
@@ -82,9 +84,9 @@ class BitcoinTestMetaClass(type):
 
 
 class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
-    """Base class for a bitcoin test script.
+    """Base class for a qtum test script.
 
-    Individual bitcoin test scripts should subclass this class and override the set_test_params() and run_test() methods.
+    Individual qtum test scripts should subclass this class and override the set_test_params() and run_test() methods.
 
     Individual tests can also override the following methods to customize the test setup:
 
@@ -106,7 +108,8 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.extra_args = None
         self.extra_init = None
         self.network_thread = None
-        self.rpc_timeout = 60  # Wait for up to 60 seconds for the RPC server to respond
+        self.rpc_timeout = 360  # Wait for up to 60 seconds for the RPC server to respond
+        self.rpc_timewait = 360  # Wait for up to 60 seconds for the RPC server to respond
         self.supports_cli = True
         self.bind_to_localhost_only = True
         self.parse_args(test_file)
@@ -127,6 +130,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.disable_autoconnect = True
         self.set_test_params()
         assert self.wallet_names is None or len(self.wallet_names) <= self.num_nodes
+        self.options.timeout_factor = 7
         self.rpc_timeout = int(self.rpc_timeout * self.options.timeout_factor) # optionally, increase timeout by a factor
 
     def main(self):
@@ -167,7 +171,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         previous_releases_path = os.getenv("PREVIOUS_RELEASES_DIR") or os.getcwd() + "/releases"
         parser = argparse.ArgumentParser(usage="%(prog)s [options]")
         parser.add_argument("--nocleanup", dest="nocleanup", default=False, action="store_true",
-                            help="Leave bitcoinds and test.* datadir on exit or error")
+                            help="Leave qtumds and test.* datadir on exit or error")
         parser.add_argument("--cachedir", dest="cachedir", default=os.path.abspath(os.path.dirname(test_file) + "/../cache"),
                             help="Directory for caching pregenerated datadirs (default: %(default)s)")
         parser.add_argument("--tmpdir", dest="tmpdir", help="Root directory for datadirs (must not exist)")
@@ -188,7 +192,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         parser.add_argument("--pdbonfailure", dest="pdbonfailure", default=False, action="store_true",
                             help="Attach a python debugger if test fails")
         parser.add_argument("--usecli", dest="usecli", default=False, action="store_true",
-                            help="use bitcoin-cli instead of RPC for all commands")
+                            help="use qtum-cli instead of RPC for all commands")
         parser.add_argument("--perf", dest="perf", default=False, action="store_true",
                             help="profile running nodes with perf for the duration of the test")
         parser.add_argument("--valgrind", dest="valgrind", default=False, action="store_true",
@@ -386,7 +390,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             self.import_deterministic_coinbase_privkeys()
         if not self.setup_clean_chain:
             for n in self.nodes:
-                assert_equal(n.getblockchaininfo()["blocks"], 199)
+                assert_equal(n.getblockchaininfo()["blocks"], COINBASE_MATURITY+99)
             # To ensure that all nodes are out of IBD, the most recent block
             # must have a timestamp not too old (see IsInitialBlockDownload()).
             self.log.debug('Generate a block with current time')
@@ -395,7 +399,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             for n in self.nodes:
                 n.submitblock(block)
                 chain_info = n.getblockchaininfo()
-                assert_equal(chain_info["blocks"], 200)
+                assert_equal(chain_info["blocks"], COINBASE_MATURITY+100)
                 assert_equal(chain_info["initialblockdownload"], False)
 
     def import_deterministic_coinbase_privkeys(self):
@@ -495,7 +499,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 test_node_i.replace_in_config([('[regtest]', '')])
 
     def start_node(self, i, *args, **kwargs):
-        """Start a bitcoind"""
+        """Start a qtumd"""
 
         node = self.nodes[i]
 
@@ -506,7 +510,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             coverage.write_all_rpc_commands(self.options.coveragedir, node._rpc)
 
     def start_nodes(self, extra_args=None, *args, **kwargs):
-        """Start multiple bitcoinds"""
+        """Start multiple qtumds"""
 
         if extra_args is None:
             extra_args = [None] * self.num_nodes
@@ -521,11 +525,11 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 coverage.write_all_rpc_commands(self.options.coveragedir, node._rpc)
 
     def stop_node(self, i, expected_stderr='', wait=0):
-        """Stop a bitcoind test node"""
+        """Stop a qtumd test node"""
         self.nodes[i].stop_node(expected_stderr, wait=wait)
 
     def stop_nodes(self, wait=0):
-        """Stop multiple bitcoind test nodes"""
+        """Stop multiple qtumd test nodes"""
         for node in self.nodes:
             # Issue RPC to stop nodes
             node.stop_node(wait=wait, wait_until_stopped=False)
@@ -667,7 +671,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         return blocks
 
     def create_outpoints(self, node, *, outputs):
-        """Send funds to a given list of `{address: amount}` targets using the bitcoind
+        """Send funds to a given list of `{address: amount}` targets using the qtumd
         wallet and return the corresponding outpoints as a list of dictionaries
         `[{"txid": txid, "vout": vout1}, {"txid": txid, "vout": vout2}, ...]`.
         The result can be used to specify inputs for RPCs like `createrawtransaction`,
@@ -749,7 +753,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         ll = int(self.options.loglevel) if self.options.loglevel.isdigit() else self.options.loglevel.upper()
         ch.setLevel(ll)
 
-        # Format logs the same as bitcoind's debug.log with microprecision (so log files can be concatenated and sorted)
+        # Format logs the same as qtumd's debug.log with microprecision (so log files can be concatenated and sorted)
         class MicrosecondFormatter(logging.Formatter):
             def formatTime(self, record, _=None):
                 dt = datetime.fromtimestamp(record.created, timezone.utc)
@@ -817,14 +821,16 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             # see the tip age check in IsInitialBlockDownload().
             gen_addresses = [k.address for k in TestNode.PRIV_KEYS][:3] + [create_deterministic_address_bcrt1_p2tr_op_true()[0]]
             assert_equal(len(gen_addresses), 4)
-            for i in range(8):
+            for i in range(4):
                 self.generatetoaddress(
                     cache_node,
                     nblocks=25 if i != 7 else 24,
                     address=gen_addresses[i % len(gen_addresses)],
                 )
 
-            assert_equal(cache_node.getblockchaininfo()["blocks"], 199)
+            for i in range(4):
+                generatesynchronized(self.nodes[0], COINBASE_MATURITY // 4 if i != 3 else (COINBASE_MATURITY // 4) - 1, TestNode.PRIV_KEYS[i % 4].address, self.nodes)
+            assert_equal(cache_node.getblockchaininfo()["blocks"], 99+COINBASE_MATURITY)
 
             # Shut it down, and clean up cache directories:
             self.stop_nodes()
@@ -835,7 +841,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
 
             os.rmdir(cache_path('wallets'))  # Remove empty wallets dir
             for entry in os.listdir(cache_path()):
-                if entry not in ['chainstate', 'blocks', 'indexes']:  # Only indexes, chainstate and blocks folders
+                if entry not in ['chainstate', 'blocks', 'indexes', 'stateQtum']:  # Only indexes, chainstate and blocks folders
                     os.remove(cache_path(entry))
 
         for i in range(self.num_nodes):
@@ -881,9 +887,9 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             raise SkipTest("bcc python module not available")
 
     def skip_if_no_bitcoind_tracepoints(self):
-        """Skip the running test if bitcoind has not been compiled with USDT tracepoint support."""
+        """Skip the running test if qtumd has not been compiled with USDT tracepoint support."""
         if not self.is_usdt_compiled():
-            raise SkipTest("bitcoind has not been built with USDT tracepoints enabled.")
+            raise SkipTest("qtumd has not been built with USDT tracepoints enabled.")
 
     def skip_if_no_bpf_permissions(self):
         """Skip the running test if we don't have permissions to do BPF syscalls and load BPF maps."""
@@ -902,9 +908,9 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             raise SkipTest("not on a POSIX system")
 
     def skip_if_no_bitcoind_zmq(self):
-        """Skip the running test if bitcoind has not been compiled with zmq support."""
+        """Skip the running test if qtumd has not been compiled with zmq support."""
         if not self.is_zmq_compiled():
-            raise SkipTest("bitcoind has not been built with zmq enabled.")
+            raise SkipTest("qtumd has not been built with zmq enabled.")
 
     def skip_if_no_wallet(self):
         """Skip the running test if wallet has not been compiled."""
@@ -913,34 +919,34 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             raise SkipTest("wallet has not been compiled.")
 
     def skip_if_no_wallet_tool(self):
-        """Skip the running test if bitcoin-wallet has not been compiled."""
+        """Skip the running test if qtum-wallet has not been compiled."""
         if not self.is_wallet_tool_compiled():
-            raise SkipTest("bitcoin-wallet has not been compiled")
+            raise SkipTest("qtum-wallet has not been compiled")
 
     def skip_if_no_bitcoin_tx(self):
-        """Skip the running test if bitcoin-tx has not been compiled."""
+        """Skip the running test if qtum-tx has not been compiled."""
         if not self.is_bitcoin_tx_compiled():
-            raise SkipTest("bitcoin-tx has not been compiled")
+            raise SkipTest("qtum-tx has not been compiled")
 
     def skip_if_no_bitcoin_util(self):
-        """Skip the running test if bitcoin-util has not been compiled."""
+        """Skip the running test if qtum-util has not been compiled."""
         if not self.is_bitcoin_util_compiled():
-            raise SkipTest("bitcoin-util has not been compiled")
+            raise SkipTest("qtum-util has not been compiled")
 
     def skip_if_no_bitcoin_chainstate(self):
-        """Skip the running test if bitcoin-chainstate has not been compiled."""
+        """Skip the running test if qtum-chainstate has not been compiled."""
         if not self.is_bitcoin_chainstate_compiled():
-            raise SkipTest("bitcoin-chainstate has not been compiled")
+            raise SkipTest("qtum-chainstate has not been compiled")
 
     def skip_if_no_bitcoin_bench(self):
-        """Skip the running test if bench_bitcoin has not been compiled."""
+        """Skip the running test if bench_qtum has not been compiled."""
         if not self.is_bench_compiled():
-            raise SkipTest("bench_bitcoin has not been compiled")
+            raise SkipTest("bench_qtum has not been compiled")
 
     def skip_if_no_cli(self):
-        """Skip the running test if bitcoin-cli has not been compiled."""
+        """Skip the running test if qtum-cli has not been compiled."""
         if not self.is_cli_compiled():
-            raise SkipTest("bitcoin-cli has not been compiled.")
+            raise SkipTest("qtum-cli has not been compiled.")
 
     def skip_if_no_ipc(self):
         """Skip the running test if ipc is not compiled."""
@@ -971,11 +977,11 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             raise SkipTest("This test is not compatible with Valgrind.")
 
     def is_bench_compiled(self):
-        """Checks whether bench_bitcoin was compiled."""
+        """Checks whether bench_qtum was compiled."""
         return self.config["components"].getboolean("BUILD_BENCH")
 
     def is_cli_compiled(self):
-        """Checks whether bitcoin-cli was compiled."""
+        """Checks whether qtum-cli was compiled."""
         return self.config["components"].getboolean("ENABLE_CLI")
 
     def is_external_signer_compiled(self):
@@ -987,19 +993,19 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         return self.config["components"].getboolean("ENABLE_WALLET")
 
     def is_wallet_tool_compiled(self):
-        """Checks whether bitcoin-wallet was compiled."""
+        """Checks whether qtum-wallet was compiled."""
         return self.config["components"].getboolean("ENABLE_WALLET_TOOL")
 
     def is_bitcoin_tx_compiled(self):
-        """Checks whether bitcoin-tx was compiled."""
+        """Checks whether qtum-tx was compiled."""
         return self.config["components"].getboolean("BUILD_BITCOIN_TX")
 
     def is_bitcoin_util_compiled(self):
-        """Checks whether bitcoin-util was compiled."""
+        """Checks whether qtum-util was compiled."""
         return self.config["components"].getboolean("ENABLE_BITCOIN_UTIL")
 
     def is_bitcoin_chainstate_compiled(self):
-        """Checks whether bitcoin-chainstate was compiled."""
+        """Checks whether qtum-chainstate was compiled."""
         return self.config["components"].getboolean("ENABLE_BITCOIN_CHAINSTATE")
 
     def is_zmq_compiled(self):

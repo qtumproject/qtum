@@ -30,9 +30,9 @@ from .wallet import (
 )
 
 # Default for -minrelaytxfee in sat/kvB
-DEFAULT_MIN_RELAY_TX_FEE = 100
+DEFAULT_MIN_RELAY_TX_FEE = 400000
 # Default for -incrementalrelayfee in sat/kvB
-DEFAULT_INCREMENTAL_RELAY_FEE = 100
+DEFAULT_INCREMENTAL_RELAY_FEE = 400000
 DEFAULT_CLUSTER_LIMIT = 64
 DEFAULT_CLUSTER_SIZE_LIMIT_KVB = 101
 

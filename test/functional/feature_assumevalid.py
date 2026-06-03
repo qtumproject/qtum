@@ -34,6 +34,7 @@ Start a few nodes:
     - node5 starts with no -assumevalid parameter. Reindex to hit
       "assumevalid hash not in headers" and "below minimum chainwork".
 """
+import time
 
 from test_framework.blocktools import (
     COINBASE_MATURITY,
@@ -57,6 +58,7 @@ from test_framework.script import (
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
 from test_framework.wallet_util import generate_keypair
+import inspect
 
 
 class BaseNode(P2PInterface):
@@ -78,6 +80,35 @@ class AssumeValidTest(BitcoinTestFramework):
         # we need to pre-mine a block with an invalid transaction
         # signature so we can pass in the block hash as assumevalid.
         self.start_node(0)
+
+    def assert_blockchain_height(self, node, height):
+        """Wait until the blockchain is no longer advancing and verify it's reached the expected height."""
+        last_height = node.getblock(node.getbestblockhash())['height']
+        timeout = 10
+        while True:
+            if timeout < 0:
+                assert False, "blockchain too short after timeout: %d" % current_height
+
+            time.sleep(0.25)
+            current_height = node.getblock(node.getbestblockhash())['height']
+            if current_height > height:
+                assert False, "blockchain too long: %d" % current_height
+            elif current_height != last_height:
+                last_height = current_height
+                timeout = 10 # reset the timeout
+            elif current_height == height:
+                break
+            timeout = timeout - 0.25
+
+    def test_p2p_connection(self, p2p_conn):
+        """Test if the P2P connection is working properly."""
+        # Wait for the connection to be fully established
+        p2p_conn.wait_for_verack()
+        # Verify the connection is still alive
+        assert p2p_conn.is_connected, "P2P connection failed to establish"
+        # Test that we can send a ping and receive a pong
+        p2p_conn.sync_with_ping()
+        # self.log.info(f"P2P connection test passed for {p2p_conn}")
 
     def run_test(self):
         # Build the blockchain
@@ -101,7 +132,7 @@ class AssumeValidTest(BitcoinTestFramework):
         height += 1
 
         # Bury the block 100 deep so the coinbase output is spendable
-        for _ in range(100):
+        for _ in range(COINBASE_MATURITY):
             block = create_block(self.tip, create_coinbase(height), self.block_time)
             block.solve()
             self.blocks.append(block)

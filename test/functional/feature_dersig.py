@@ -7,6 +7,7 @@
 Test the DERSIG soft-fork activation on regtest.
 """
 
+from decimal import Decimal
 from test_framework.blocktools import (
     create_block,
     create_coinbase,
@@ -41,7 +42,7 @@ def unDERify(tx):
     tx.vin[0].scriptSig = CScript(newscript)
 
 
-DERSIG_HEIGHT = 102
+DERSIG_HEIGHT = 2002
 
 
 class BIP66Test(BitcoinTestFramework):
@@ -57,7 +58,7 @@ class BIP66Test(BitcoinTestFramework):
 
     def create_tx(self, input_txid):
         utxo_to_spend = self.miniwallet.get_utxo(txid=input_txid, mark_as_spent=False)
-        return self.miniwallet.create_self_transfer(utxo_to_spend=utxo_to_spend)['tx']
+        return self.miniwallet.create_self_transfer(fee_rate=Decimal("0.01"), utxo_to_spend=utxo_to_spend)['tx']
 
     def test_dersig_info(self, *, is_active):
         assert_equal(self.nodes[0].getdeploymentinfo()['deployments']['bip66'],
@@ -95,9 +96,10 @@ class BIP66Test(BitcoinTestFramework):
         assert_equal(self.nodes[0].getbestblockhash(), block.hash_hex)
 
         self.log.info("Test that blocks must now be at least version 3")
-        tip = block.hash_int
-        block_time += 1
-        block = create_block(tip, create_coinbase(DERSIG_HEIGHT), block_time, version=2)
+        tip = int(self.nodes[0].getbestblockhash(), 16)
+        block_time = self.nodes[0].getblock(self.nodes[0].getbestblockhash())['time']+1
+        block = create_block(tip, create_coinbase(self.nodes[0].getblockcount()+1), block_time)
+        block.nVersion = 2
         block.solve()
 
         with self.nodes[0].assert_debug_log(expected_msgs=[f'{block.hash_hex}, bad-version(0x00000002)']):

@@ -146,9 +146,9 @@ class EstimateFeeTest(BitcoinTestFramework):
         # whitelist peers to speed up tx relay / mempool sync
         self.noban_tx_relay = True
         self.extra_args = [
-            [],
-            ["-blockmaxweight=72000"],
-            ["-blockmaxweight=36000"],
+            ["-dustrelayfee=0"],
+            ["-blockmaxweight=72000", "-dustrelayfee=0"],
+            ["-blockmaxweight=36000", "-dustrelayfee=0"],
         ]
 
     def setup_network(self):
@@ -176,7 +176,7 @@ class EstimateFeeTest(BitcoinTestFramework):
             self.memutxo = newmem
 
     def transact_and_mine(self, numblocks, mining_node):
-        min_fee = MIN_BUCKET_FEERATE
+        min_fee = Decimal("0.0009")
         # We will now mine numblocks blocks generating on average 100 transactions between each block
         # We shuffle our confirmed txout set before each set of transactions
         # small_txpuzzle_randfee will use the transactions that have inputs already in the chain when possible
@@ -191,7 +191,7 @@ class EstimateFeeTest(BitcoinTestFramework):
                     self.nodes[from_index],
                     self.confutxo,
                     self.memutxo,
-                    Decimal("0.005"),
+                    Decimal("0.5"),
                     min_fee,
                     min_fee,
                     batch_sendtx_reqs,
@@ -259,8 +259,8 @@ class EstimateFeeTest(BitcoinTestFramework):
         node = self.nodes[0]
         miner = self.nodes[1]
         # In sat/vb
-        low_feerate = 1
-        high_feerate = 10
+        low_feerate = 1200
+        high_feerate = 10000
         # Cache the utxos of which to replace the spender after it failed to get
         # confirmed
         utxos_to_respend = []
@@ -423,8 +423,8 @@ class EstimateFeeTest(BitcoinTestFramework):
             self.update_utxo(mined)
 
     def test_estimation_modes(self):
-        low_feerate = Decimal("0.001")
-        high_feerate = Decimal("0.005")
+        low_feerate = Decimal("0.01")
+        high_feerate = Decimal("0.05")
         # Broadcast and mine high fee transactions for the first 12 blocks.
         for _ in range(12):
             self.broadcast_many(self.nodes[1], high_feerate, TXS_COUNT, self.nodes[2])

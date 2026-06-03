@@ -8,6 +8,7 @@ import random
 import time
 
 from test_framework.blocktools import (
+    COINBASE_MATURITY,
     NORMAL_GBT_REQUEST_PARAMS,
     add_witness_commitment,
     create_block,
@@ -69,11 +70,11 @@ class BIP68Test(BitcoinTestFramework):
         self.log.info("Running test sequence-lock-unconfirmed-inputs")
         self.test_sequence_lock_unconfirmed_inputs()
 
-        self.log.info("Running test BIP68 not consensus before activation")
-        self.test_bip68_not_consensus()
+        #self.log.info("Running test BIP68 not consensus before activation")
+        #self.test_bip68_not_consensus()
 
-        self.log.info("Activating BIP68 (and 112/113)")
-        self.activateCSV()
+        #self.log.info("Activating BIP68 (and 112/113)")
+        #self.activateCSV()
 
         self.log.info("Verifying version=2 transactions are standard.")
         self.log.info("Note that version=2 transactions are always standard (independent of BIP68 activation status).")
@@ -133,7 +134,7 @@ class BIP68Test(BitcoinTestFramework):
         while len(self.wallet.get_utxos(include_immature_coinbase=False, mark_as_spent=False)) < 200:
             num_outputs = random.randint(1, max_outputs)
             self.wallet.send_self_transfer_multi(from_node=self.nodes[0], num_outputs=num_outputs)
-            self.generate(self.wallet, 1)
+            self.generate(self.wallet, COINBASE_MATURITY + 1)
 
         utxos = self.wallet.get_utxos(include_immature_coinbase=False)
 

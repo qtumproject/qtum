@@ -25,6 +25,7 @@ from io import BytesIO
 import math
 import random
 import socket
+import struct
 import time
 import unittest
 
@@ -34,21 +35,28 @@ from test_framework.util import (
     assert_not_equal,
 )
 
+from test_framework.qtumconfig import INITIAL_HASH_STATE_ROOT, INITIAL_HASH_UTXO_ROOT, ENABLE_REDUCED_BLOCK_TIME
+
+if ENABLE_REDUCED_BLOCK_TIME:
+    MY_VERSION = 70019  # past bip-31 for ping/pong
+else:
+    MY_VERSION = 70018  # past bip-31 for ping/pong
+
 MAX_LOCATOR_SZ = 101
-MAX_BLOCK_WEIGHT = 4000000
+MAX_BLOCK_WEIGHT = 2000000
 DEFAULT_BLOCK_RESERVED_WEIGHT = 8000
 MINIMUM_BLOCK_RESERVED_WEIGHT = 2000
 MAX_BLOOM_FILTER_SIZE = 36000
 MAX_BLOOM_HASH_FUNCS = 50
 
 COIN = 100000000  # 1 btc in satoshis
-MAX_MONEY = 21000000 * COIN
+MAX_MONEY = 10782240625000000
 
 MAX_BIP125_RBF_SEQUENCE = 0xfffffffd  # Sequence number that is rbf-opt-in (BIP 125) and csv-opt-out (BIP 68)
 MAX_SEQUENCE_NONFINAL = 0xfffffffe  # Sequence number that is csv-opt-out (BIP 68)
 SEQUENCE_FINAL = 0xffffffff  # Sequence number that disables nLockTime if set for every input of a tx
 
-MAX_PROTOCOL_MESSAGE_LENGTH = 4000000  # Maximum length of incoming protocol messages
+MAX_PROTOCOL_MESSAGE_LENGTH = 8000000  # Maximum length of incoming protocol messages
 MAX_HEADERS_RESULTS = 2000  # Number of headers sent in one getheaders result
 MAX_INV_SIZE = 50000  # Maximum number of entries in an 'inv' protocol message
 
@@ -90,7 +98,7 @@ TX_MAX_STANDARD_VERSION = 3
 MAGIC_BYTES = {
     "mainnet": b"\xf9\xbe\xb4\xd9",
     "testnet4": b"\x1c\x16\x3f\x28",
-    "regtest": b"\xfa\xbf\xb5\xda",
+    "regtest": b"\xfd\xdd\xc6\xe1",
     "signet": b"\x0a\x03\xcf\x40",
 }
 
@@ -728,7 +736,7 @@ class CTransaction:
 
 
 class CBlockHeader:
-    __slots__ = ("hashMerkleRoot", "hashPrevBlock", "nBits", "nNonce",
+    __slots__ = ("hashMerkleRoot", "hashPrevBlock", "hashStateRoot", "hashUTXORoot", "prevoutStake", "vchBlockSig", "nBits", "nNonce",
                  "nTime", "nVersion")
 
     def __init__(self, header=None):
@@ -741,6 +749,10 @@ class CBlockHeader:
             self.nTime = header.nTime
             self.nBits = header.nBits
             self.nNonce = header.nNonce
+            self.hashStateRoot = header.hashStateRoot
+            self.hashUTXORoot = header.hashUTXORoot
+            self.prevoutStake = header.prevoutStake
+            self.vchBlockSig = header.vchBlockSig
 
     def set_null(self):
         self.nVersion = 4
@@ -749,6 +761,10 @@ class CBlockHeader:
         self.nTime = 0
         self.nBits = 0
         self.nNonce = 0
+        self.hashStateRoot = INITIAL_HASH_STATE_ROOT
+        self.hashUTXORoot = INITIAL_HASH_UTXO_ROOT
+        self.prevoutStake = COutPoint(0, 0xffffffff)
+        self.vchBlockSig = b""
 
     def deserialize(self, f):
         self.nVersion = int.from_bytes(f.read(4), "little", signed=True)
@@ -757,6 +773,11 @@ class CBlockHeader:
         self.nTime = int.from_bytes(f.read(4), "little")
         self.nBits = int.from_bytes(f.read(4), "little")
         self.nNonce = int.from_bytes(f.read(4), "little")
+        self.hashStateRoot = deser_uint256(f)
+        self.hashUTXORoot = deser_uint256(f)
+        self.prevoutStake = COutPoint()
+        self.prevoutStake.deserialize(f)
+        self.vchBlockSig = deser_string(f)
 
     def serialize(self):
         return self._serialize_header()
@@ -769,7 +790,28 @@ class CBlockHeader:
         r += self.nTime.to_bytes(4, "little")
         r += self.nBits.to_bytes(4, "little")
         r += self.nNonce.to_bytes(4, "little")
+        r += ser_uint256(self.hashStateRoot)
+        r += ser_uint256(self.hashUTXORoot)
+        r += self.prevoutStake.serialize() if self.prevoutStake else COutPoint(0, 0xffffffff).serialize()
+        r += ser_string(self.vchBlockSig)
         return r
+
+    def is_pos(self):
+        return self.prevoutStake and (self.prevoutStake.hash != 0 or self.prevoutStake.n != 0xffffffff)
+
+    def solve_stake(self, stakeModifier, prevouts):
+        target = uint256_from_compact(self.nBits)
+        for prevout, nValue, txBlockTime in prevouts:
+            data = b""
+            data += ser_uint256(stakeModifier)
+            data += struct.pack("<I", txBlockTime)
+            data += prevout.serialize()
+            data += struct.pack("<I", self.nTime)
+            posHash = uint256_from_str(hash256(data))
+            if posHash <= (target*nValue) & (2**256 - 1):
+                self.prevoutStake = prevout
+                return True
+        return False
 
     @property
     def hash_hex(self):
@@ -786,8 +828,8 @@ class CBlockHeader:
             % (self.nVersion, self.hashPrevBlock, self.hashMerkleRoot,
                time.ctime(self.nTime), self.nBits, self.nNonce)
 
-BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
-assert_equal(BLOCK_HEADER_SIZE, 80)
+# BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
+# assert_equal(BLOCK_HEADER_SIZE, 80)
 
 class CBlock(CBlockHeader):
     __slots__ = ("vtx",)
@@ -826,12 +868,19 @@ class CBlock(CBlockHeader):
             hashes.append(ser_uint256(tx.txid_int))
         return self.get_merkle_root(hashes)
 
-    def calc_witness_merkle_root(self):
+    def calc_witness_merkle_root(self, is_pos=False):
         # For witness root purposes, the hash of the
         # coinbase, with witness, is defined to be 0...0
         hashes = [ser_uint256(0)]
 
-        for tx in self.vtx[1:]:
+        if is_pos:
+            hashes = [ser_uint256(0), ser_uint256(0)]
+            hashes_start_index = 2
+        else:
+            hashes = [ser_uint256(0)]
+            hashes_start_index = 1
+
+        for tx in self.vtx[hashes_start_index:]:
             # Calculate the hashes with witness data
             hashes.append(ser_uint256(tx.wtxid_int))
 
@@ -859,6 +908,22 @@ class CBlock(CBlockHeader):
         with_witness_size = len(self.serialize(with_witness=True))
         without_witness_size = len(self.serialize(with_witness=False))
         return (WITNESS_SCALE_FACTOR - 1) * without_witness_size + with_witness_size
+
+    def sign_block(self, key, low_s=True, pod=None, der_sig=False):
+        data = b""
+        data += struct.pack("<i", self.nVersion)
+        data += ser_uint256(self.hashPrevBlock)
+        data += ser_uint256(self.hashMerkleRoot)
+        data += struct.pack("<I", self.nTime)
+        data += struct.pack("<I", self.nBits)
+        data += struct.pack("<I", self.nNonce)
+        data += ser_uint256(self.hashStateRoot)
+        data += ser_uint256(self.hashUTXORoot)
+        data += self.prevoutStake.serialize()
+        if pod != None:
+            data += struct.pack("<b", len(pod)) + pod
+        sha256NoSig = hash256(data)
+        self.vchBlockSig = key.sign_ecdsa(sha256NoSig, low_s=low_s, der_sig=der_sig)
 
     def __repr__(self):
         return "CBlock(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x vtx=%s)" \

@@ -22,7 +22,7 @@ class FeatureFastpruneTest(BitcoinTestFramework):
         annex = b"\x50" + b"\xff" * 0x10000
         tx.wit.vtxinwit[0].scriptWitness.stack.append(annex)
         self.generateblock(self.nodes[0], output="raw(55)", transactions=[tx.serialize().hex()])
-        assert_equal(self.nodes[0].getblockcount(), 201)
+        assert_equal(self.nodes[0].getblockcount(), 2101)
 
 
 if __name__ == '__main__':
