@@ -12,6 +12,7 @@ from test_framework.util import assert_equal, assert_greater_than_or_equal
 from threading import Thread
 from typing import Optional
 import subprocess
+from test_framework.qtum import convert_btc_bech32_address_to_qtum
 
 
 RPC_INVALID_PARAMETER      = -8
@@ -120,7 +121,7 @@ class RPCInterfaceTest(BitcoinTestFramework):
         results = [
             {"result": 0},
             {"error": {"code": RPC_METHOD_NOT_FOUND, "message": "Method not found"}},
-            {"result": "0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"},
+            {"result": "665ed5b402ac0b44efc37d8926332994363e8a7278b7ee9a58fb972efadae943"},
             {"error": {"code": RPC_INVALID_REQUEST, "message": "Missing method"}},
         ]
 
@@ -218,7 +219,7 @@ class RPCInterfaceTest(BitcoinTestFramework):
         expect_http_rpc_status(200, None,                   self.nodes[0], "getblockcount", [],  2, False)
         block_count = self.nodes[0].getblockcount()
         # Notification response status code: HTTP_NO_CONTENT
-        expect_http_rpc_status(204, None,                   self.nodes[0], "generatetoaddress", [1, "bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdku202"],  2, True)
+        expect_http_rpc_status(204, None,                   self.nodes[0], "generatetoaddress", [1, convert_btc_bech32_address_to_qtum("bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdku202")],  2, True)
         # The command worked even though there was no response
         assert_equal(block_count + 1, self.nodes[0].getblockcount())
         # No error response for notifications even if they are invalid

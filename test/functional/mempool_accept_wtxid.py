@@ -18,6 +18,7 @@ from test_framework.wallet import (
     MiniWallet,
 )
 
+from test_framework.qtumconfig import COINBASE_MATURITY
 class MempoolWtxidTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1

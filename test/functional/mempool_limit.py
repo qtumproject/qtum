@@ -85,7 +85,7 @@ class MempoolLimitTest(BitcoinTestFramework):
             assert node.testmempoolaccept([parent["hex"]])[0]["allowed"]
 
         # Create a child spending everything with an insane fee, bumping the package above mempool_entry_minrate
-        child = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_utxos, fee_per_output=10000000)
+        child = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_utxos, fee_per_output=100000000)
         package_hex.append(child["hex"])
 
         # Package should be submitted, temporarily exceeding maxmempool, but not evicted.
@@ -222,7 +222,7 @@ class MempoolLimitTest(BitcoinTestFramework):
         node.prioritisetransaction(tx_rich["txid"], 0, int(DEFAULT_FEE * COIN))
         package_txns = [tx_rich, tx_poor]
         coins = [tx["new_utxo"] for tx in package_txns]
-        tx_child = miniwallet.create_self_transfer_multi(utxos_to_spend=coins, fee_per_output=10000) #DEFAULT_FEE
+        tx_child = miniwallet.create_self_transfer_multi(utxos_to_spend=coins, fee_per_output=5000000) #DEFAULT_FEE
         package_txns.append(tx_child)
 
         submitpackage_result = node.submitpackage([tx["hex"] for tx in package_txns])

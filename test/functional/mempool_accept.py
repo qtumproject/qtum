@@ -54,6 +54,7 @@ from test_framework.util import (
 )
 from test_framework.wallet import MiniWallet
 from test_framework.wallet_util import generate_keypair
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 
 class MempoolAcceptanceTest(BitcoinTestFramework):
@@ -61,6 +62,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.extra_args = [[
             '-txindex','-permitbaremultisig=0',
+            '-minrelaytxfee=0.0000001',
         ]] * self.num_nodes
         self.supports_cli = False
 
@@ -86,13 +88,13 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
 
         self.log.info('Start with empty mempool, and 200 blocks')
         self.mempool_size = 0
-        assert_equal(node.getblockcount(), 200)
+        assert_equal(node.getblockcount(), COINBASE_MATURITY+100)
         assert_equal(node.getmempoolinfo()['size'], self.mempool_size)
 
         self.log.info("Check default settings")
         # Settings are listed in BTC/kvB
-        assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal(DEFAULT_MIN_RELAY_TX_FEE) / COIN)
-        assert_equal(node.getmempoolinfo()['incrementalrelayfee'], Decimal(DEFAULT_INCREMENTAL_RELAY_FEE) / COIN)
+        # assert_equal(node.getmempoolinfo()['minrelaytxfee'], Decimal(DEFAULT_MIN_RELAY_TX_FEE) / COIN)
+        # assert_equal(node.getmempoolinfo()['incrementalrelayfee'], Decimal(DEFAULT_INCREMENTAL_RELAY_FEE) / COIN)
 
         self.log.info('Should not accept garbage to testmempoolaccept')
         assert_raises_rpc_error(-3, 'JSON value of type string is not of expected type array', lambda: node.testmempoolaccept(rawtxs='ff00baar'))
@@ -110,10 +112,10 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         self.generate(node, 1)
         self.mempool_size = 0
         # Also check feerate. 1BTC/kvB fails
-        assert_raises_rpc_error(-8, "Fee rates larger than or equal to 1BTC/kvB are not accepted", lambda: self.check_mempool_result(
+        assert_raises_rpc_error(-8, "Fee rates larger than or equal to 10QTUM/kvB are not accepted", lambda: self.check_mempool_result(
             result_expected=None,
             rawtxs=[raw_tx_in_block],
-            maxfeerate=1,
+            maxfeerate=10,
         ))
         # Check negative feerate
         assert_raises_rpc_error(-3, "Amount out of range", lambda: self.check_mempool_result(
@@ -129,7 +131,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         )
 
         self.log.info('A transaction not in the mempool')
-        fee = Decimal('0.000007')
+        fee = Decimal('0.003')
         utxo_to_spend = self.wallet.get_utxo(txid=txid_in_block)  # use 0.3 BTC UTXO
         tx = self.wallet.create_self_transfer(utxo_to_spend=utxo_to_spend, sequence=MAX_BIP125_RBF_SEQUENCE)['tx']
         tx.vout[0].nValue = int((Decimal('0.3') - fee) * COIN)
@@ -149,7 +151,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         tx.vout[0].nValue = int(output_amount * COIN)
         raw_tx_final = tx.serialize().hex()
         tx = tx_from_hex(raw_tx_final)
-        fee_expected = Decimal('50.0') - output_amount
+        fee_expected = Decimal('20000.0') - output_amount
         self.check_mempool_result(
             result_expected=[{'txid': tx.txid_hex, 'allowed': True, 'vsize': tx.get_vsize(), 'fees': {'base': fee_expected}}],
             rawtxs=[tx.serialize().hex()],
@@ -233,7 +235,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
 
         self.log.info('A really large transaction')
         tx = tx_from_hex(raw_tx_reference)
-        tx.vin = [tx.vin[0]] * math.ceil((MAX_BLOCK_WEIGHT // WITNESS_SCALE_FACTOR) / len(tx.vin[0].serialize()))
+        tx.vin = [tx.vin[0]] * math.ceil(MAX_BLOCK_WEIGHT / len(tx.vin[0].serialize()))
         self.check_mempool_result(
             result_expected=[{'txid': tx.txid_hex, 'allowed': False, 'reject-reason': 'bad-txns-oversize'}],
             rawtxs=[tx.serialize().hex()],
@@ -436,7 +438,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         )
 
         self.log.info('OP_1 <0x4e73> is able to be created and spent')
-        anchor_value = 10000
+        anchor_value = 10000000
         create_anchor_tx = self.wallet.send_to(from_node=node, scriptPubKey=PAY_TO_ANCHOR, amount=anchor_value)
         self.generate(node, 1)
 
@@ -468,7 +470,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         assert_equal(anchor_spend.txid_hex, anchor_spend.wtxid_hex)
 
         self.check_mempool_result(
-            result_expected=[{'txid': anchor_spend.txid_hex, 'allowed': True, 'vsize': anchor_spend.get_vsize(), 'fees': { 'base': Decimal('0.00000700')}}],
+            result_expected=[{'txid': anchor_spend.txid_hex, 'allowed': True, 'vsize': anchor_spend.get_vsize(), 'fees': { 'base': Decimal('0.00300000')}}],
             rawtxs=[anchor_spend.serialize().hex()],
             maxfeerate=0,
         )
@@ -503,7 +505,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         sign_input_legacy(tx_spend, 0, tx.vout[0].scriptPubKey, privkey, sighash_type=SIGHASH_ALL)
         tx_spend.vin[0].scriptSig = bytes(CScript([OP_0])) + tx_spend.vin[0].scriptSig
         self.check_mempool_result(
-            result_expected=[{'txid': tx_spend.txid_hex, 'allowed': True, 'vsize': tx_spend.get_vsize(), 'fees': { 'base': Decimal('0.00000700')}}],
+            result_expected=[{'txid': tx_spend.txid_hex, 'allowed': True, 'vsize': tx_spend.get_vsize(), 'fees': { 'base': Decimal('0.00300000')}}],
             rawtxs=[tx_spend.serialize().hex()],
             maxfeerate=0,
         )

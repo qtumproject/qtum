@@ -4,6 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test UTXO set hash value calculation in gettxoutsetinfo."""
 
+from decimal import Decimal
 from test_framework.messages import (
     CBlock,
     COutPoint,
@@ -29,12 +30,12 @@ class UTXOSetHashTest(BitcoinTestFramework):
 
         # Generate 100 blocks and remove the first since we plan to spend its
         # coinbase
-        block_hashes = self.generate(wallet, 1) + self.generate(node, 99)
+        block_hashes = self.generate(wallet, 1) + self.generate(node, 1999)
         blocks = list(map(lambda block: from_hex(CBlock(), node.getblock(block, False)), block_hashes))
         blocks.pop(0)
 
         # Create a spending transaction and mine a block which includes it
-        txid = wallet.send_self_transfer(from_node=node)['txid']
+        txid = wallet.send_self_transfer(from_node=node, fee_rate=Decimal("0.03"))['txid']
         tx_block = self.generateblock(node, output=wallet.get_address(), transactions=[txid])
         blocks.append(from_hex(CBlock(), node.getblock(tx_block['hash'], False)))
 
@@ -50,13 +51,14 @@ class UTXOSetHashTest(BitcoinTestFramework):
             for tx in block.vtx:
                 for n, tx_out in enumerate(tx.vout):
                     coinbase = 1 if not tx.vin[0].prevout.hash else 0
+                    coinstake = 1 if not coinbase and (len(tx.vout) > 1 and tx.vout[1].nValue == 0) else 0
 
                     # Skip witness commitment
                     if (coinbase and n > 0):
                         continue
 
                     data = COutPoint(tx.txid_int, n).serialize()
-                    data += (height * 2 + coinbase).to_bytes(4, "little")
+                    data += ((height << 2) + (1 if coinbase else 0) + (2 if coinstake else 0)).to_bytes(4, "little")
                     data += tx_out.serialize()
 
                     muhash.insert(data)
@@ -67,8 +69,8 @@ class UTXOSetHashTest(BitcoinTestFramework):
         assert_equal(finalized[::-1].hex(), node_muhash)
 
         self.log.info("Test deterministic UTXO set hash results")
-        assert_equal(node.gettxoutsetinfo()['hash_serialized_3'], "e0b4c80f2880985fdf1adc331ed0735ac207588f986c91c7c05e8cf5fe6780f0")
-        assert_equal(node.gettxoutsetinfo("muhash")['muhash'], "8739b878f23030ef39a5547edc7b57f88d50fdaaf47314ff0524608deb13067e")
+        assert_equal(node.gettxoutsetinfo()['hash_serialized_3'], "1e74eb40ec5d6efe1336430efc53350e927568857d0b5c541639006c4ec68184")
+        assert_equal(node.gettxoutsetinfo("muhash")['muhash'], "a5a0d1001f5a98dd1f534cd6e66536fcf040fb7f99330b77dabbd1de1f0c9d32")
 
     def run_test(self):
         self.test_muhash_implementation()

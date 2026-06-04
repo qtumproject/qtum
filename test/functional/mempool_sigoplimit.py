@@ -45,6 +45,7 @@ from test_framework.util import (
 )
 from test_framework.wallet import MiniWallet
 from test_framework.wallet_util import generate_keypair
+from test_framework.blocktools import COINBASE_MATURITY
 
 DEFAULT_BYTES_PER_SIGOP = 20  # default setting
 MAX_PUBKEYS_PER_MULTISIG = 20
@@ -52,6 +53,7 @@ MAX_PUBKEYS_PER_MULTISIG = 20
 class BytesPerSigOpTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
+        self.extra_args = [['-minrelaytxfee=0']]
 
     def create_p2wsh_spending_tx(self, witness_script, output_script):
         """Create a 1-input-1-output P2WSH spending transaction with only the
@@ -149,7 +151,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
 
         def create_bare_multisig_tx(utxo_to_spend=None):
             _, pubkey = generate_keypair()
-            amount_for_bare = 50000
+            amount_for_bare = 5000000
             tx_dict = self.wallet.create_self_transfer(fee=Decimal("3"), utxo_to_spend=utxo_to_spend)
             tx_utxo = tx_dict["new_utxo"]
             tx = tx_dict["tx"]
@@ -199,7 +201,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
         # Create enough outputs to reach the sigops limit when spending them all at once.
         outpoints = []
         for _ in range(int(MAX_STD_LEGACY_SIGOPS / MAX_STD_P2SH_SIGOPS) + 1):
-            res = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=packed_p2sh_script, amount=1_000)
+            res = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=packed_p2sh_script, amount=10_000_000)
             txid = int.from_bytes(bytes.fromhex(res["txid"]), byteorder="big")
             outpoints.append(COutPoint(txid, res["sent_vout"]))
         self.generate(self.nodes[0], 1)
@@ -212,7 +214,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
 
         # Spending one less accounts for 2490 legacy sigops and is standard.
         std_tx = deepcopy(nonstd_tx)
-        std_tx.vin.pop()
+        std_tx.vin = std_tx.vin[0:30]
         self.nodes[0].sendrawtransaction(std_tx.serialize().hex())
 
         # Make sure the original, non-standard, transaction can be mined.
@@ -220,6 +222,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
 
     def run_test(self):
         self.wallet = MiniWallet(self.nodes[0])
+        self.generate(self.wallet, COINBASE_MATURITY + 1000)
 
         for bytes_per_sigop in (DEFAULT_BYTES_PER_SIGOP, 43, 81, 165, 327, 649, 1072):
             if bytes_per_sigop == DEFAULT_BYTES_PER_SIGOP:

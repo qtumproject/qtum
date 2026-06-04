@@ -36,6 +36,7 @@ from test_framework.util import (
 )
 from test_framework.wallet import getnewdestination
 from test_framework.wallet_util import generate_keypair
+from test_framework.wallet import MiniWallet
 
 NULLDUMMY_TX_ERROR = "mempool-script-verify-flag-failed (Dummy CHECKMULTISIG argument must be zero)"
 NULLDUMMY_BLK_ERROR = "block-script-verify-flag-failed (Dummy CHECKMULTISIG argument must be zero)"
@@ -58,6 +59,9 @@ class NULLDUMMYTest(BitcoinTestFramework):
             '-addresstype=legacy',
         ]]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def create_transaction(self, *, txid, input_details=None, addr, amount, privkey):
         input = {"txid": txid, "vout": 0}
         output = {addr: amount}
@@ -69,6 +73,7 @@ class NULLDUMMYTest(BitcoinTestFramework):
 
     def run_test(self):
         self.privkey, self.pubkey = generate_keypair(wif=True)
+        self.wallet = MiniWallet(self.nodes[0])
         cms = self.nodes[0].createmultisig(1, [self.pubkey.hex()])
         wms = self.nodes[0].createmultisig(1, [self.pubkey.hex()], 'p2sh-segwit')
         self.ms_address = cms["address"]

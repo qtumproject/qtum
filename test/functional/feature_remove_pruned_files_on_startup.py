@@ -7,6 +7,7 @@
 import platform
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.blocktools import COINBASE_MATURITY
 
 
 class FeatureRemovePrunedFilesOnStartupTest(BitcoinTestFramework):
@@ -25,12 +26,12 @@ class FeatureRemovePrunedFilesOnStartupTest(BitcoinTestFramework):
         rev0 = self.nodes[0].blocks_path / "rev00000.dat"
         blk1 = self.nodes[0].blocks_path / "blk00001.dat"
         rev1 = self.nodes[0].blocks_path / "rev00001.dat"
-        self.mine_batches(800)
+        self.mine_batches(COINBASE_MATURITY+700)
 
         self.log.info("Open some files to check that this may delay deletion")
         fd1 = open(blk0, "rb")
         fd2 = open(rev1, "rb")
-        self.nodes[0].pruneblockchain(600)
+        self.nodes[0].pruneblockchain(COINBASE_MATURITY+500)
 
         # Windows systems will not remove files with an open fd
         if platform.system() != 'Windows':
@@ -61,7 +62,7 @@ class FeatureRemovePrunedFilesOnStartupTest(BitcoinTestFramework):
             ]
             return sorted(ls)
 
-        assert_equal(len(ls_files()), 4)
+        assert_equal(len(ls_files()), 26)
         self.restart_node(0, extra_args=self.extra_args[0] + ["-reindex"])
         assert_equal(self.nodes[0].getblockcount(), 0)
         self.stop_node(0)  # Stop node to flush the two newly created files

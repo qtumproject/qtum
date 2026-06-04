@@ -22,6 +22,7 @@ from test_framework.messages import (
     CBlock,
     hash256,
     tx_from_hex,
+    CBlockHeader,
 )
 from test_framework.util import (
     assert_equal,
@@ -33,7 +34,8 @@ from test_framework.wallet import (
     MiniWallet,
 )
 from test_framework.netutil import test_ipv6_local, test_unix_socket
-
+from io import BytesIO
+from test_framework.qtum import convert_btc_bech32_address_to_qtum
 
 # Test may be skipped and not have zmq installed
 try:
@@ -221,7 +223,7 @@ class ZMQTest (BitcoinTestFramework):
             assert block.is_valid()
             assert_equal(block.vtx[0].txid_hex, tx.txid_hex)
             assert_equal(len(block.vtx), 1)
-            assert_equal(genhashes[x], hash256_reversed(hex[:80]).hex())
+            assert_equal(genhashes[x], block.hash_hex)
 
             # Should receive the generated block hash.
             hash = hashblock.receive().hex()
@@ -354,7 +356,7 @@ class ZMQTest (BitcoinTestFramework):
 
         self.log.info("Testing RBF notification")
         # Replace it to test eviction/addition notification
-        payment_tx['tx'].vout[0].nValue -= 1000
+        payment_tx['tx'].vout[0].nValue -= 10000
         rbf_txid = self.nodes[1].sendrawtransaction(payment_tx['tx'].serialize().hex())
         self.sync_all()
         assert_equal((payment_txid, "R", seq_num), seq.receive_sequence())
@@ -415,7 +417,7 @@ class ZMQTest (BitcoinTestFramework):
         for _ in range(5):
             more_tx.append(self.wallet.send_self_transfer(from_node=self.nodes[0]))
 
-        orig_tx['tx'].vout[0].nValue -= 1000
+        orig_tx['tx'].vout[0].nValue -= 10000
         bump_txid = self.nodes[0].sendrawtransaction(orig_tx['tx'].serialize().hex())
         # Mine the pre-bump tx
         txs_to_add = [orig_tx['hex']] + [tx['hex'] for tx in more_tx]
@@ -494,7 +496,7 @@ class ZMQTest (BitcoinTestFramework):
         # We have node 0 do all these to avoid p2p races with RBF announcements
         for _ in range(num_txs):
             txs.append(self.wallet.send_self_transfer(from_node=self.nodes[0]))
-        txs[-1]['tx'].vout[0].nValue -= 1000
+        txs[-1]['tx'].vout[0].nValue -= 10000
         self.nodes[0].sendrawtransaction(txs[-1]['tx'].serialize().hex())
         self.sync_all()
         self.generatetoaddress(self.nodes[0], 1, ADDRESS_BCRT1_UNSPENDABLE)

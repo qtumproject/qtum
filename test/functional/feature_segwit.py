@@ -5,6 +5,8 @@
 """Test the SegWit changeover logic."""
 
 from decimal import Decimal
+from io import BytesIO
+import time
 
 from test_framework.address import (
     script_to_p2sh_p2wsh,
@@ -13,6 +15,8 @@ from test_framework.address import (
 from test_framework.blocktools import (
     send_to_witness,
     witness_script,
+    create_block, 
+    create_coinbase,
 )
 from test_framework.descriptors import descsum_create
 from test_framework.messages import (
@@ -41,10 +45,14 @@ from test_framework.util import (
     assert_greater_than_or_equal,
     assert_is_hex_string,
     assert_raises_rpc_error,
+    bytes_to_hex_str,
+    hex_str_to_bytes,
 )
 from test_framework.wallet_util import (
     get_generate_key,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD, ENABLE_REDUCED_BLOCK_TIME, MAX_BLOCK_BASE_SIZE, MAX_BLOCK_SIGOPS, FACTOR_REDUCED_BLOCK_TIME
+from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized
 
 NODE_0 = 0
 NODE_2 = 2
@@ -58,6 +66,10 @@ def getutxo(txid):
     utxo["txid"] = txid
     return utxo
 
+def find_unspent(node, min_value):
+    for utxo in node.listunspent():
+        if utxo['amount'] >= min_value:
+            return utxo
 
 def find_spendable_utxo(node, min_value):
     for utxo in node.listunspent(query_options={'minimumAmount': min_value}):
@@ -78,17 +90,17 @@ class SegWitTest(BitcoinTestFramework):
         self.extra_args = [
             [
                 "-acceptnonstdtxn=1",
-                "-testactivationheight=segwit@165",
+                "-testactivationheight=segwit@2357" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@857",
                 "-addresstype=legacy",
             ],
             [
                 "-acceptnonstdtxn=1",
-                "-testactivationheight=segwit@165",
+                "-testactivationheight=segwit@2357" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@857",
                 "-addresstype=legacy",
             ],
             [
                 "-acceptnonstdtxn=1",
-                "-testactivationheight=segwit@165",
+                "-testactivationheight=segwit@2357" if ENABLE_REDUCED_BLOCK_TIME else "-testactivationheight=segwit@857",
                 "-addresstype=legacy",
             ],
         ]
@@ -103,23 +115,30 @@ class SegWitTest(BitcoinTestFramework):
         self.sync_all()
 
     def success_mine(self, node, txid, sign, redeem_script=""):
-        send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, Decimal("49.998"), sign, redeem_script)
+        send_to_witness(1, node, getutxo(txid), self.pubkey[0], False, INITIAL_BLOCK_REWARD - Decimal("0.002"), sign, redeem_script)
         block = self.generate(node, 1)
         assert_equal(len(node.getblock(block[0])["tx"]), 2)
         self.sync_blocks()
 
     def fail_accept(self, node, error_msg, txid, sign, redeem_script=""):
-        assert_raises_rpc_error(-26, error_msg, send_to_witness, use_p2wsh=1, node=node, utxo=getutxo(txid), pubkey=self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=sign, insert_redeem_script=redeem_script)
+        assert_raises_rpc_error(-26, error_msg, send_to_witness, use_p2wsh=1, node=node, utxo=getutxo(txid), pubkey=self.pubkey[0], encode_p2sh=False, amount=INITIAL_BLOCK_REWARD - Decimal("0.002"), sign=sign, insert_redeem_script=redeem_script)
 
     def run_test(self):
         self.generate(self.nodes[0], 161)  # block 161
+        for i in range((4*4*144 if ENABLE_REDUCED_BLOCK_TIME else 4*144) - 161):
+            block = create_block(int(self.nodes[0].getbestblockhash(), 16), create_coinbase(self.nodes[0].getblockcount() + 1), int(time.time())+2+i)
+            block.nVersion = 4
+            block.hashMerkleRoot = block.calc_merkle_root()
+            block.solve()
+            self.nodes[0].submitblock(bytes_to_hex_str(block.serialize()))
+        generatesynchronized(self.nodes[0], 18, None, self.nodes)
 
         self.log.info("Verify sigops are counted in GBT with pre-BIP141 rules before the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         tmpl = self.nodes[0].getblocktemplate({'rules': ['segwit']})
-        assert_equal(tmpl['sizelimit'], 1000000)
+        assert_equal(tmpl['sizelimit'], MAX_BLOCK_BASE_SIZE)
         assert 'weightlimit' not in tmpl
-        assert_equal(tmpl['sigoplimit'], 20000)
+        assert_equal(tmpl['sigoplimit'], MAX_BLOCK_SIGOPS)
         assert_equal(tmpl['transactions'][0]['hash'], txid)
         assert_equal(tmpl['transactions'][0]['sigops'], 2)
         assert '!segwit' not in tmpl['rules']
@@ -166,15 +185,16 @@ class SegWitTest(BitcoinTestFramework):
         for _ in range(5):
             for n in range(3):
                 for v in range(2):
-                    wit_ids[n][v].append(send_to_witness(v, self.nodes[0], find_spendable_utxo(self.nodes[0], 50), self.pubkey[n], False, Decimal("49.999")))
-                    p2sh_ids[n][v].append(send_to_witness(v, self.nodes[0], find_spendable_utxo(self.nodes[0], 50), self.pubkey[n], True, Decimal("49.999")))
+                    wit_ids[n][v].append(send_to_witness(v, self.nodes[0], find_spendable_utxo(self.nodes[0], INITIAL_BLOCK_REWARD), self.pubkey[n], False, INITIAL_BLOCK_REWARD - Decimal("0.001")))
+                    p2sh_ids[n][v].append(send_to_witness(v, self.nodes[0], find_spendable_utxo(self.nodes[0], INITIAL_BLOCK_REWARD), self.pubkey[n], True, INITIAL_BLOCK_REWARD - Decimal("0.001")))
 
         self.generate(self.nodes[0], 1)  # block 163
 
         # Make sure all nodes recognize the transactions as theirs
-        assert_equal(self.nodes[0].getbalance(), balance_presetup - 60 * 50 + 20 * Decimal("49.999") + 50)
-        assert_equal(self.nodes[1].getbalance(), 20 * Decimal("49.999"))
-        assert_equal(self.nodes[2].getbalance(), 20 * Decimal("49.999"))
+        assert_equal(self.nodes[0].getbalance(), balance_presetup - 60 * INITIAL_BLOCK_REWARD + 20 * (INITIAL_BLOCK_REWARD - Decimal("0.001")) + (0 if ENABLE_REDUCED_BLOCK_TIME else INITIAL_BLOCK_REWARD))
+        assert_equal(self.nodes[1].getbalance(), 20 * (INITIAL_BLOCK_REWARD - Decimal("0.001")))
+        assert_equal(self.nodes[2].getbalance(), 20 * (INITIAL_BLOCK_REWARD - Decimal("0.001")))
+        self.generate(self.nodes[0], 32 if ENABLE_REDUCED_BLOCK_TIME else 260)  # block 423
 
         self.log.info("Verify unsigned p2sh witness txs without a redeem script are invalid")
         self.fail_accept(self.nodes[2], "mempool-script-verify-flag-failed (Operation not valid with the current stack size)", p2sh_ids[NODE_2][P2WPKH][1], sign=False)
@@ -184,10 +204,10 @@ class SegWitTest(BitcoinTestFramework):
 
         self.log.info("Verify witness txs are mined as soon as segwit activates")
 
-        send_to_witness(1, self.nodes[2], getutxo(wit_ids[NODE_2][P2WPKH][0]), self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=True)
-        send_to_witness(1, self.nodes[2], getutxo(wit_ids[NODE_2][P2WSH][0]), self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=True)
-        send_to_witness(1, self.nodes[2], getutxo(p2sh_ids[NODE_2][P2WPKH][0]), self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=True)
-        send_to_witness(1, self.nodes[2], getutxo(p2sh_ids[NODE_2][P2WSH][0]), self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=True)
+        send_to_witness(1, self.nodes[2], getutxo(wit_ids[NODE_2][P2WPKH][0]), self.pubkey[0], encode_p2sh=False, amount=INITIAL_BLOCK_REWARD - Decimal("0.002"), sign=True)
+        send_to_witness(1, self.nodes[2], getutxo(wit_ids[NODE_2][P2WSH][0]), self.pubkey[0], encode_p2sh=False, amount=INITIAL_BLOCK_REWARD - Decimal("0.002"), sign=True)
+        send_to_witness(1, self.nodes[2], getutxo(p2sh_ids[NODE_2][P2WPKH][0]), self.pubkey[0], encode_p2sh=False, amount=INITIAL_BLOCK_REWARD - Decimal("0.002"), sign=True)
+        send_to_witness(1, self.nodes[2], getutxo(p2sh_ids[NODE_2][P2WSH][0]), self.pubkey[0], encode_p2sh=False, amount=INITIAL_BLOCK_REWARD - Decimal("0.002"), sign=True)
 
         assert_equal(len(self.nodes[2].getrawmempool()), 4)
         blockhash = self.generate(self.nodes[2], 1)[0]  # block 165 (first block with new rules)
@@ -229,9 +249,9 @@ class SegWitTest(BitcoinTestFramework):
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         raw_tx = self.nodes[0].getrawtransaction(txid, True)
         tmpl = self.nodes[0].getblocktemplate({'rules': ['segwit']})
-        assert_greater_than_or_equal(tmpl['sizelimit'], 3999577)  # actual maximum size is lower due to minimum mandatory non-witness data
-        assert_equal(tmpl['weightlimit'], 4000000)
-        assert_equal(tmpl['sigoplimit'], 80000)
+        assert_greater_than_or_equal(tmpl['sizelimit'], 7999577/FACTOR_REDUCED_BLOCK_TIME)  # actual maximum size is lower due to minimum mandatory non-witness data
+        assert_equal(tmpl['weightlimit'], 8000000//FACTOR_REDUCED_BLOCK_TIME)
+        assert_equal(tmpl['sigoplimit'], 80000//FACTOR_REDUCED_BLOCK_TIME)
         assert_equal(tmpl['transactions'][0]['txid'], txid)
         expected_sigops = 9 if 'txinwitness' in raw_tx["vin"][0] else 8
         assert_equal(tmpl['transactions'][0]['sigops'], expected_sigops)
@@ -244,7 +264,7 @@ class SegWitTest(BitcoinTestFramework):
         #                      tx2 (segwit input, paying to a non-segwit output) ->
         #                      tx3 (non-segwit input, paying to a non-segwit output).
         # tx1 is allowed to appear in the block, but no others.
-        txid1 = send_to_witness(1, self.nodes[0], find_spendable_utxo(self.nodes[0], 50), self.pubkey[0], False, Decimal("49.996"))
+        txid1 = send_to_witness(1, self.nodes[0], find_spendable_utxo(self.nodes[0], INITIAL_BLOCK_REWARD), self.pubkey[0], False, INITIAL_BLOCK_REWARD - Decimal("0.004"))
         assert txid1 in self.nodes[0].getrawmempool()
 
         tx1_hex = self.nodes[0].gettransaction(txid1)['hex']
@@ -260,7 +280,7 @@ class SegWitTest(BitcoinTestFramework):
         # Now create tx2, which will spend from txid1.
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(int(txid1, 16), 0), b''))
-        tx.vout.append(CTxOut(int(49.99 * COIN), CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
+        tx.vout.append(CTxOut(int((INITIAL_BLOCK_REWARD-Decimal('0.01')) * COIN), CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
         tx2_hex = self.nodes[0].signrawtransactionwithwallet(tx.serialize().hex())['hex']
         txid2 = self.nodes[0].sendrawtransaction(tx2_hex)
         tx = tx_from_hex(tx2_hex)
@@ -276,7 +296,7 @@ class SegWitTest(BitcoinTestFramework):
         # Now create tx3, which will spend from txid2
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(int(txid2, 16), 0), b""))
-        tx.vout.append(CTxOut(int(49.95 * COIN), CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))  # Huge fee
+        tx.vout.append(CTxOut(int((INITIAL_BLOCK_REWARD-Decimal('0.05')) * COIN), CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))  # Huge fee
         txid3 = self.nodes[0].sendrawtransaction(hexstring=tx.serialize().hex(), maxfeerate=0)
         assert tx.wit.is_null()
         assert txid3 in self.nodes[0].getrawmempool()
@@ -347,11 +367,13 @@ class SegWitTest(BitcoinTestFramework):
     def create_and_mine_tx_from_txids(self, txids, success=True):
         tx = CTransaction()
         for i in txids:
+            txtmp = CTransaction()
             txraw = self.nodes[0].getrawtransaction(i, 0, txs_mined[i])
-            txtmp = tx_from_hex(txraw)
+            f = BytesIO(hex_str_to_bytes(txraw))
+            txtmp.deserialize(f)
             for j in range(len(txtmp.vout)):
                 tx.vin.append(CTxIn(COutPoint(int('0x' + i, 0), j)))
-        tx.vout.append(CTxOut(0, CScript()))
+        tx.vout.append(CTxOut(0, CScript([OP_TRUE])))
         signresults = self.nodes[0].signrawtransactionwithwallet(tx.serialize_without_witness().hex())['hex']
         self.nodes[0].sendrawtransaction(hexstring=signresults, maxfeerate=0)
         self.generate(self.nodes[0], 1)

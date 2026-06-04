@@ -31,6 +31,10 @@ class EphemeralDustTest(BitcoinTestFramework):
 
         # Don't test trickling logic
         self.noban_tx_relay = True
+        self.extra_args = [
+            ["-minrelaytxfee=0.00001000"],
+            ["-minrelaytxfee=0.00001000"]
+        ]
 
     def add_output_to_create_multi_result(self, result, output_value=0):
         """ Add output without changing absolute tx fee
