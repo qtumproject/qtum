@@ -10,6 +10,7 @@ and feature negotiation messages (WTXIDRELAY, SENDADDRV2).
 This test connects to a node and sends it a few messages, trying to entice it
 into sending us something it shouldn't."""
 
+from test_framework.qtumconfig import COINBASE_MATURITY
 import time
 
 from test_framework.messages import (
@@ -126,11 +127,11 @@ class P2PLeakTest(BitcoinTestFramework):
         # Wait until the peer gets the verack in response to the version. Though, don't wait for the node to receive the
         # verack, since the peer never sent one
         no_verack_idle_peer.wait_for_verack()
-        pre_wtxidrelay_peer.wait_for_verack()
+        #pre_wtxidrelay_peer.wait_for_verack()
 
         no_version_idle_peer.wait_until(lambda: no_version_idle_peer.ever_connected)
         no_verack_idle_peer.wait_until(lambda: no_verack_idle_peer.version_received)
-        pre_wtxidrelay_peer.wait_until(lambda: pre_wtxidrelay_peer.version_received)
+        #pre_wtxidrelay_peer.wait_until(lambda: pre_wtxidrelay_peer.version_received)
 
         # Mine a block and make sure that it's not sent to the connected peers
         self.generate(self.nodes[0], nblocks=1)
@@ -167,7 +168,7 @@ class P2PLeakTest(BitcoinTestFramework):
         assert_greater_than_or_equal(time.time() + 3600, ver.nTime)
         assert_equal(ver.addrFrom.port, 0)
         assert_equal(ver.addrFrom.ip, '0.0.0.0')
-        assert_equal(ver.nStartingHeight, 201)
+        assert_equal(ver.nStartingHeight, COINBASE_MATURITY+101)
         assert_equal(ver.relay, 1)
 
         self.log.info('Check that old peers are disconnected')

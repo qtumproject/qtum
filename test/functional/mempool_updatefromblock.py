@@ -33,7 +33,7 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
             self.nodes[0].submitblock(block.serialize().hex())
         assert_equal(self.nodes[0].getbestblockhash(), fork_blocks[-1].hash_hex)
 
-    def transaction_graph_test(self, size, *, n_tx_to_mine, fee=100_000):
+    def transaction_graph_test(self, size, *, n_tx_to_mine, fee=40_000_000):
         """Create an acyclic tournament (a type of directed graph) of transactions and use it for testing.
 
         Keyword arguments:

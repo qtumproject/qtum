@@ -26,17 +26,18 @@ MAX_REPLACEMENT_CANDIDATES = 100
 TRUC_MAX_VSIZE = 10000
 TRUC_CHILD_MAX_VSIZE = 1000
 
-def cleanup(extra_args=None):
+def cleanup(extra_args=[]):
     def decorator(func):
         def wrapper(self):
+            if extra_args is not None: extra_args.append('-minrelaytxfee=0.0000001')
             try:
-                if extra_args is not None:
+                if extra_args is not None and len(extra_args)>1:
                     self.restart_node(0, extra_args=extra_args)
                 func(self)
             finally:
                 # Clear mempool again after test
                 self.generate(self.nodes[0], 1)
-                if extra_args is not None:
+                if extra_args is not None and len(extra_args)>1:
                     self.restart_node(0)
         return wrapper
     return decorator
@@ -352,14 +353,14 @@ class MempoolTRUC(BitcoinTestFramework):
         tx_sibling_1 = self.wallet.create_self_transfer(
             utxo_to_spend=tx_mempool_parent["new_utxos"][1],
             version=3,
-            fee_rate=DEFAULT_FEE*100,
+            fee_rate=DEFAULT_FEE*10,
         )
         tx_has_mempool_uncle = self.wallet.create_self_transfer(utxo_to_spend=tx_sibling_1["new_utxo"], version=3)
 
         tx_sibling_2 = self.wallet.create_self_transfer(
             utxo_to_spend=tx_mempool_parent["new_utxos"][0],
             version=3,
-            fee_rate=DEFAULT_FEE*200,
+            fee_rate=DEFAULT_FEE*20,
         )
 
         tx_sibling_3 = self.wallet.create_self_transfer(
@@ -370,7 +371,7 @@ class MempoolTRUC(BitcoinTestFramework):
         tx_bumps_parent_with_sibling = self.wallet.create_self_transfer(
             utxo_to_spend=tx_sibling_3["new_utxo"],
             version=3,
-            fee_rate=DEFAULT_FEE*300,
+            fee_rate=DEFAULT_FEE*30,
         )
 
         # Fails with another non-related transaction via testmempoolaccept
@@ -494,7 +495,7 @@ class MempoolTRUC(BitcoinTestFramework):
         assert_equal(node.getmempoolentry(ancestor_tx["txid"])["descendantcount"], 3)
 
         # Create a replacement of child_1. It does not conflict with child_2.
-        child_1_conflict = self.wallet.send_self_transfer(from_node=node, version=3, utxo_to_spend=ancestor_tx["new_utxos"][0], fee_rate=Decimal("0.01"))
+        child_1_conflict = self.wallet.send_self_transfer(from_node=node, version=3, utxo_to_spend=ancestor_tx["new_utxos"][0], fee_rate=Decimal("0.04"))
 
         # Ensure child_1 and child_1_conflict are different transactions
         assert_not_equal(child_1_conflict["txid"], child_1["txid"])
@@ -544,7 +545,7 @@ class MempoolTRUC(BitcoinTestFramework):
         self.check_mempool(txids_v2_100 + [tx_v3_parent["txid"], tx_v3_child_1["txid"]])
 
         # Replacing 100 transactions is fine
-        tx_v3_replacement_only = self.wallet.create_self_transfer_multi(utxos_to_spend=utxos_for_conflict, fee_per_output=4000000)
+        tx_v3_replacement_only = self.wallet.create_self_transfer_multi(utxos_to_spend=utxos_for_conflict, fee_per_output=40000000)
         # Override maxfeerate - it costs a lot to replace these 100 transactions.
         assert node.testmempoolaccept([tx_v3_replacement_only["hex"]], maxfeerate=0)[0]["allowed"]
         self.check_mempool(txids_v2_100 + [tx_v3_parent["txid"], tx_v3_child_1["txid"]])
@@ -657,7 +658,7 @@ class MempoolTRUC(BitcoinTestFramework):
         self.log.info("Generate blocks to create UTXOs")
         node = self.nodes[0]
         self.wallet = MiniWallet(node)
-        self.generate(self.wallet, 200)
+        self.generate(self.wallet, 2100)
         self.test_truc_max_vsize()
         self.test_truc_acceptance()
         self.test_truc_replacement()

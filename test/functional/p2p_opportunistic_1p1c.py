@@ -52,7 +52,7 @@ from test_framework.wallet import (
 )
 
 # 1sat/vB feerate denominated in BTC/KvB
-FEERATE_1SAT_VB = Decimal("0.00001000")
+FEERATE_1SAT_VB = Decimal("0.00400000")
 # Number of seconds to wait to ensure no getdata is received
 GETDATA_WAIT = 60
 
@@ -246,7 +246,7 @@ class PackageRelayTest(BitcoinTestFramework):
         coin = low_fee_parent["new_utxo"]
         address = node.get_deterministic_priv_key().address
         # Create raw transaction spending the parent, but with no signature (a consensus error).
-        hex_orphan_no_sig = node.createrawtransaction([{"txid": coin["txid"], "vout": coin["vout"]}], {address : coin["value"] - Decimal("0.0001")})
+        hex_orphan_no_sig = node.createrawtransaction([{"txid": coin["txid"], "vout": coin["vout"]}], {address : coin["value"] - Decimal("0.04")})
         tx_orphan_bad_wit = tx_from_hex(hex_orphan_no_sig)
         tx_orphan_bad_wit.wit.vtxinwit.append(CTxInWitness())
         tx_orphan_bad_wit.wit.vtxinwit[0].scriptWitness.stack = [b'garbage']

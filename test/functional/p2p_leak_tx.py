@@ -57,7 +57,7 @@ class P2PLeakTxTest(BitcoinTestFramework):
         assert_equal(pi["inv_to_send"], 0) # nothing left in the queue
 
         want_tx = msg_getdata(inv=inbound_peer.last_message.get("inv").inv)
-        self.generate(self.gen_node, 1)
+        # self.generate(self.gen_node, 1) Qtum N/A
 
         self.log.debug("Request transaction")
         inbound_peer.last_message.pop("tx", None)
