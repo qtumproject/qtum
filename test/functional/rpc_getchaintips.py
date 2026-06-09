@@ -16,6 +16,7 @@ from test_framework.blocktools import (
 )
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class GetChainTipsTest (BitcoinTestFramework):
     def set_test_params(self):
@@ -26,7 +27,7 @@ class GetChainTipsTest (BitcoinTestFramework):
         tips = self.nodes[0].getchaintips()
         assert_equal(len(tips), 1)
         assert_equal(tips[0]['branchlen'], 0)
-        assert_equal(tips[0]['height'], 200)
+        assert_equal(tips[0]['height'], COINBASE_MATURITY+100)
         assert_equal(tips[0]['status'], 'active')
 
         self.log.info("Split the network and build two chains of different lengths.")
@@ -38,14 +39,14 @@ class GetChainTipsTest (BitcoinTestFramework):
         assert_equal(len(tips), 1)
         shortTip = tips[0]
         assert_equal(shortTip['branchlen'], 0)
-        assert_equal(shortTip['height'], 210)
+        assert_equal(shortTip['height'], COINBASE_MATURITY+110)
         assert_equal(tips[0]['status'], 'active')
 
         tips = self.nodes[3].getchaintips()
         assert_equal(len(tips), 1)
         longTip = tips[0]
         assert_equal(longTip['branchlen'], 0)
-        assert_equal(longTip['height'], 220)
+        assert_equal(longTip['height'], COINBASE_MATURITY+120)
         assert_equal(tips[0]['status'], 'active')
 
         self.log.info("Join the network halves and check that we now have two tips")
@@ -69,7 +70,7 @@ class GetChainTipsTest (BitcoinTestFramework):
         start_height = self.nodes[0].getblockcount()
         # Create invalid block (too high coinbase)
         block_time = n0.getblock(n0.getbestblockhash())['time'] + 1
-        invalid_block = create_block(tip, create_coinbase(start_height+1, nValue=100), block_time)
+        invalid_block = create_block(tip, create_coinbase(start_height+1, nValue=5000000000000), block_time)
         invalid_block.solve()
 
         block_time += 1

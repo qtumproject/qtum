@@ -224,7 +224,12 @@ class AddressTypeTest(BitcoinTestFramework):
     def run_test(self):
         # Mine 101 blocks on node5 to bring nodes out of IBD and make sure that
         # no coinbases are maturing for the nodes-under-test during the test
-        self.generate(self.nodes[5], COINBASE_MATURITY + 1)
+        # send the new blocks in parts.
+        for i in range(0, COINBASE_MATURITY, 100):
+            self.generate(self.nodes[5], 100)
+            self.sync_blocks()
+        self.generate(self.nodes[5], 1)
+        self.sync_blocks()
 
         compressed_1 = "0296b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52"
         compressed_2 = "037211a824f55b505228e4c3d5194c1fcfaa15a456abdf37f9b9d97a4040afc073"
@@ -243,7 +248,7 @@ class AddressTypeTest(BitcoinTestFramework):
             self.log.info("Sending from node {} ({}) with{} multisig using {}".format(from_node, self.extra_args[from_node], "" if multisig else "out", "default" if address_type is None else address_type))
             old_balances = self.get_balances()
             self.log.debug("Old balances are {}".format(old_balances))
-            to_send = (old_balances[from_node] / (COINBASE_MATURITY + 1)).quantize(Decimal("0.00000001"))
+            to_send = (old_balances[from_node] / (101)).quantize(Decimal("0.00000001"))
             sends = {}
             addresses = {}
 

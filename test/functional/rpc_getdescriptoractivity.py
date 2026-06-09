@@ -20,7 +20,7 @@ class GetBlocksActivityTest(BitcoinTestFramework):
         node = self.nodes[0]
         wallet = MiniWallet(node)
         node.setmocktime(node.getblockheader(node.getbestblockhash())['time'])
-        self.generate(wallet, 200)
+        self.generate(wallet, 2100)
 
         self.test_no_activity(node)
         self.test_activity_in_block(node, wallet)
@@ -53,7 +53,7 @@ class GetBlocksActivityTest(BitcoinTestFramework):
         for k, v in {
                 'amount': Decimal('1.00000000'),
                 'blockhash': blockhash,
-                'height': 201,
+                'height': 2101,
                 'txid': txid,
                 'type': 'receive',
                 'vout': 1,
@@ -207,7 +207,7 @@ class GetBlocksActivityTest(BitcoinTestFramework):
     def test_no_address(self, node, wallet):
         self.log.info("Test that activity is still reported for scripts without an associated address")
         raw_wallet = MiniWallet(self.nodes[0], mode=MiniWalletMode.RAW_P2PK)
-        self.generate(raw_wallet, 100)
+        self.generate(raw_wallet, 2000)
 
         no_addr_tx = raw_wallet.send_self_transfer(from_node=node)
         raw_desc = raw_wallet.get_descriptor()

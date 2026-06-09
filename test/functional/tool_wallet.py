@@ -2,7 +2,7 @@
 # Copyright (c) 2018-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Test bitcoin-wallet."""
+"""Test qtum-wallet."""
 
 import os
 import stat
@@ -17,6 +17,7 @@ from test_framework.util import (
     assert_greater_than,
     sha256sum_file,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 
 class ToolWalletTest(BitcoinTestFramework):
@@ -67,7 +68,7 @@ class ToolWalletTest(BitcoinTestFramework):
 
     def get_expected_info_output(self, name="", transactions=0, keypool=2, address=0, imported_privs=0):
         wallet_name = self.default_wallet_name if name == "" else name
-        output_types = 4  # p2pkh, p2sh, segwit, bech32m
+        output_types = 5  # p2pkh, p2sh, segwit, bech32m
         return textwrap.dedent('''\
             Wallet info
             ===========
@@ -122,7 +123,7 @@ class ToolWalletTest(BitcoinTestFramework):
         self.assert_tool_output(load_output, *args)
         assert (self.nodes[0].wallets_path / wallet_name).is_dir()
 
-        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your Bitcoin, do not share the dumpfile.\n", '-wallet={}'.format(wallet_name), '-dumpfile={}'.format(rt_dumppath), 'dump')
+        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your Qtum, do not share the dumpfile.\n", '-wallet={}'.format(wallet_name), '-dumpfile={}'.format(rt_dumppath), 'dump')
 
         wallet_dat = self.nodes[0].wallets_path / wallet_name / "wallet.dat"
         self.assert_is_sqlite(wallet_dat)
@@ -134,7 +135,7 @@ class ToolWalletTest(BitcoinTestFramework):
         self.assert_raises_tool_error("Error parsing command line arguments: Invalid command 'help'", 'help')
         self.assert_raises_tool_error('Error: Additional arguments provided (create). Methods do not take arguments. Please refer to `-help`.', 'info', 'create')
         self.assert_raises_tool_error('Error parsing command line arguments: Invalid parameter -foo', '-foo')
-        self.assert_raises_tool_error('No method provided. Run `bitcoin-wallet -help` for valid methods.')
+        self.assert_raises_tool_error('No method provided. Run `qtum-wallet -help` for valid methods.')
         self.assert_raises_tool_error('Wallet name must be provided when creating a new wallet.', 'create')
         self.assert_raises_tool_error('Wallet name must be provided when creating a new wallet.', 'createfromdump')
         error = f"SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another instance of {self.config['environment']['CLIENT_NAME']}?"
@@ -237,8 +238,8 @@ class ToolWalletTest(BitcoinTestFramework):
         self.log.debug('Wallet file timestamp after calling getwalletinfo: {}'.format(timestamp_after))
 
         assert_equal(0, out['txcount'])
-        assert_equal(4000, out['keypoolsize'])
-        assert_equal(4000, out['keypoolsize_hd_internal'])
+        assert_equal(5000, out['keypoolsize'])
+        assert_equal(5000, out['keypoolsize_hd_internal'])
 
         self.log_wallet_timestamp_comparison(timestamp_before, timestamp_after)
         assert_equal(timestamp_before, timestamp_after)
@@ -257,7 +258,7 @@ class ToolWalletTest(BitcoinTestFramework):
 
         self.log.info('Checking basic dump')
         wallet_dump = self.nodes[0].datadir_path / "wallet.dump"
-        self.assert_tool_output('The dumpfile may contain private keys. To ensure the safety of your Bitcoin, do not share the dumpfile.\n', '-wallet=todump', '-dumpfile={}'.format(wallet_dump), 'dump')
+        self.assert_tool_output('The dumpfile may contain private keys. To ensure the safety of your Qtum, do not share the dumpfile.\n', '-wallet=todump', '-dumpfile={}'.format(wallet_dump), 'dump')
 
         dump_data = self.read_dump(wallet_dump)
         orig_dump = dump_data.copy()
@@ -284,12 +285,12 @@ class ToolWalletTest(BitcoinTestFramework):
         bad_ver_wallet_dump = self.nodes[0].datadir_path / "wallet-bad_ver1.dump"
         dump_data["BITCOIN_CORE_WALLET_DUMP"] = "0"
         self.write_dump(dump_data, bad_ver_wallet_dump)
-        self.assert_raises_tool_error('Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version 0', '-wallet=badload', '-dumpfile={}'.format(bad_ver_wallet_dump), 'createfromdump')
+        self.assert_raises_tool_error('Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version 0', '-wallet=badload', '-dumpfile={}'.format(bad_ver_wallet_dump), 'createfromdump')
         assert not (self.nodes[0].wallets_path / "badload").is_dir()
         bad_ver_wallet_dump = self.nodes[0].datadir_path / "wallet-bad_ver2.dump"
         dump_data["BITCOIN_CORE_WALLET_DUMP"] = "2"
         self.write_dump(dump_data, bad_ver_wallet_dump)
-        self.assert_raises_tool_error('Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version 2', '-wallet=badload', '-dumpfile={}'.format(bad_ver_wallet_dump), 'createfromdump')
+        self.assert_raises_tool_error('Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version 2', '-wallet=badload', '-dumpfile={}'.format(bad_ver_wallet_dump), 'createfromdump')
         assert not (self.nodes[0].wallets_path / "badload").is_dir()
         bad_magic_wallet_dump = self.nodes[0].datadir_path / "wallet-bad_magic.dump"
         del dump_data["BITCOIN_CORE_WALLET_DUMP"]
@@ -324,7 +325,7 @@ class ToolWalletTest(BitcoinTestFramework):
     def test_chainless_conflicts(self):
         self.log.info("Test wallet tool when wallet contains conflicting transactions")
         self.restart_node(0)
-        self.generate(self.nodes[0], 101)
+        self.generate(self.nodes[0], COINBASE_MATURITY+1)
 
         def_wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
 
@@ -353,7 +354,7 @@ class ToolWalletTest(BitcoinTestFramework):
             locktime += 1
 
         # conflict with parent
-        conflict_unsigned = self.nodes[0].createrawtransaction(inputs=[conflict_utxo], outputs=[{wallet.getnewaddress(): 9.9999}])
+        conflict_unsigned = self.nodes[0].createrawtransaction(inputs=[conflict_utxo], outputs=[{wallet.getnewaddress(): 9.8999}])
         conflict_signed = wallet.signrawtransactionwithwallet(conflict_unsigned)["hex"]
         conflict_txid = self.nodes[0].sendrawtransaction(conflict_signed)
         self.generate(self.nodes[0], 1)
@@ -372,7 +373,7 @@ class ToolWalletTest(BitcoinTestFramework):
             Descriptors: yes
             Encrypted: no
             HD (hd seed available): yes
-            Keypool Size: 8
+            Keypool Size: 10
             Transactions: 4
             Address Book: 4
         ''')
@@ -406,7 +407,7 @@ class ToolWalletTest(BitcoinTestFramework):
         self.stop_node(0)
 
         wallet_dump = self.nodes[0].datadir_path / "bigrecords.dump"
-        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your Bitcoin, do not share the dumpfile.\n", "-wallet=bigrecords", f"-dumpfile={wallet_dump}", "dump")
+        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your Qtum, do not share the dumpfile.\n", "-wallet=bigrecords", f"-dumpfile={wallet_dump}", "dump")
         dump = self.read_dump(wallet_dump)
         for k,v in dump.items():
             if tx["hex"] in v:

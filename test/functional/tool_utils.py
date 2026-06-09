@@ -42,9 +42,9 @@ class ToolUtils(BitcoinTestFramework):
         are not as expected. Error is caught by bctester() and reported.
         """
         # Get the exec names and arguments
-        if testObj["exec"] == "./bitcoin-util":
+        if testObj["exec"] == "./qtum-util":
             execrun = self.bins.util_argv() + testObj["args"]
-        elif testObj["exec"] == "./bitcoin-tx":
+        elif testObj["exec"] == "./qtum-tx":
             execrun = self.bins.tx_argv() + testObj["args"]
 
         # Read the input data (if there is any)

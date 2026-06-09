@@ -28,6 +28,10 @@ from test_framework.wallet import (
     MiniWallet,
 )
 
+from test_framework.script import (
+    CScript,
+    OP_RETURN
+)
 
 MAX_PACKAGE_COUNT = 25
 
@@ -73,7 +77,7 @@ class RPCPackagesTest(BitcoinTestFramework):
         self.independent_txns_hex = []
         self.independent_txns_testres = []
         for _ in range(3):
-            tx_hex = self.wallet.create_self_transfer(fee_rate=Decimal("0.0001"))["hex"]
+            tx_hex = self.wallet.create_self_transfer(fee_rate=Decimal("0.03"))["hex"]
             testres = self.nodes[0].testmempoolaccept([tx_hex])
             assert testres[0]["allowed"]
             self.independent_txns_hex.append(tx_hex)
@@ -112,7 +116,7 @@ class RPCPackagesTest(BitcoinTestFramework):
 
         self.log.info("Check testmempoolaccept tells us when some transactions completed validation successfully")
         tx_bad_sig_hex = node.createrawtransaction([{"txid": coin["txid"], "vout": coin["vout"]}],
-                                           {address : coin["amount"] - Decimal("0.0001")})
+                                           {address : coin["amount"] - Decimal("0.03")})
         tx_bad_sig = tx_from_hex(tx_bad_sig_hex)
         testres_bad_sig = node.testmempoolaccept(self.independent_txns_hex + [tx_bad_sig_hex])
         # By the time the signature for the last transaction is checked, all the other transactions
@@ -208,7 +212,7 @@ class RPCPackagesTest(BitcoinTestFramework):
                 parent_coins.append(parent_tx["new_utxo"])
                 package_hex.append(parent_tx["hex"])
 
-            child_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_coins, fee_per_output=2000)
+            child_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=parent_coins, fee_per_output=1000000)
             for _ in range(10):
                 random.shuffle(package_hex)
                 testres_multiple = node.testmempoolaccept(rawtxs=package_hex + [child_tx['hex']])
@@ -295,7 +299,7 @@ class RPCPackagesTest(BitcoinTestFramework):
         node = self.nodes[0]
 
         coin = self.wallet.get_utxo()
-        fee = Decimal("0.00125000")
+        fee = Decimal("0.0325000")
         replaceable_tx = self.wallet.create_self_transfer(utxo_to_spend=coin, sequence=MAX_BIP125_RBF_SEQUENCE, fee = fee)
         testres_replaceable = node.testmempoolaccept([replaceable_tx["hex"]])[0]
         assert_equal(testres_replaceable["txid"], replaceable_tx["txid"])
@@ -356,7 +360,7 @@ class RPCPackagesTest(BitcoinTestFramework):
             if partial_submit and random.choice([True, False]):
                 node.sendrawtransaction(parent_tx["hex"])
                 presubmitted_wtxids.add(parent_tx["wtxid"])
-        child_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=[tx["new_utxo"] for tx in package_txns], fee_per_output=10000) #DEFAULT_FEE
+        child_tx = self.wallet.create_self_transfer_multi(utxos_to_spend=[tx["new_utxo"] for tx in package_txns], fee_per_output=5000000) #DEFAULT_FEE
         package_txns.append(child_tx)
 
         testmempoolaccept_result = node.testmempoolaccept(rawtxs=[tx["hex"] for tx in package_txns])
@@ -498,7 +502,7 @@ class RPCPackagesTest(BitcoinTestFramework):
         chained_burn_hex = [t["hex"] for t in chained_txns_burn]
 
         tx = tx_from_hex(chained_burn_hex[1])
-        tx.vout[-1].scriptPubKey = b'a' * 10001 # scriptPubKey bigger than 10k IsUnspendable
+        tx.vout[-1].scriptPubKey = CScript([OP_RETURN]) * 100; # OP_RETURN IsUnspendable
         chained_burn_hex = [chained_burn_hex[0], tx.serialize().hex()]
         # burn test is run before any package evaluation; nothing makes it in and we get broader exception
         assert_raises_rpc_error(-25, "Unspendable output exceeds maximum configured by user", node.submitpackage, chained_burn_hex, 0, chained_txns_burn[1]["new_utxo"]["value"] - Decimal("0.00000001"))

@@ -42,7 +42,10 @@ from test_framework.wallet import (
     getnewdestination,
     MiniWallet,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtum import *
 
+from test_framework.qtum import generatesynchronized
 
 TXID = "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000"
 
@@ -69,8 +72,8 @@ class RawTransactionsTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 3
         self.extra_args = [
-            ["-txindex"],
-            [],
+            ["-txindex", "-addresstype=legacy", "-minrelaytxfee=0.00000010"],
+            ["-addresstype=legacy", "-minrelaytxfee=0.00000010"],
             ["-fastprune", "-prune=1"],
         ]
         # whitelist peers to speed up tx relay / mempool sync
@@ -243,8 +246,8 @@ class RawTransactionsTest(BitcoinTestFramework):
         assert 'fee' not in gottx
         # check that verbosity 2 for a mempool tx will fallback to verbosity 1
         # Do this with a pruned chain, as a regression test for https://github.com/bitcoin/bitcoin/pull/29003
-        self.generate(self.nodes[2], 400)
-        assert_greater_than(self.nodes[2].pruneblockchain(250), 0)
+        generatesynchronized(self.nodes[2], 4000, None, self.nodes)
+        assert_greater_than(self.nodes[2].pruneblockchain(2500), 0)
         mempool_tx = self.wallet.send_self_transfer(from_node=self.nodes[2])['txid']
         gottx = self.nodes[2].getrawtransaction(txid=mempool_tx, verbosity=2)
         assert 'fee' not in gottx
@@ -294,7 +297,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.nodes[0].createrawtransaction(inputs=[], outputs={})  # Should not throw for backwards compatibility
         self.nodes[0].createrawtransaction(inputs=[], outputs=[])
         assert_raises_rpc_error(-8, "Data must be hexadecimal string", self.nodes[0].createrawtransaction, [], {'data': 'foo'})
-        assert_raises_rpc_error(-5, "Invalid Bitcoin address", self.nodes[0].createrawtransaction, [], {'foo': 0})
+        assert_raises_rpc_error(-5, "Invalid Qtum address", self.nodes[0].createrawtransaction, [], {'foo': 0})
         assert_raises_rpc_error(-3, "Invalid amount", self.nodes[0].createrawtransaction, [], {address: 'foo'})
         assert_raises_rpc_error(-3, "Amount out of range", self.nodes[0].createrawtransaction, [], {address: -1})
         assert_raises_rpc_error(-8, "Invalid parameter, duplicated address: %s" % address, self.nodes[0].createrawtransaction, [], multidict([(address, 1), (address, 1)]))
@@ -372,7 +375,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         # Test that oversized script gets rejected by sendrawtransaction
         tx = self.wallet.create_self_transfer()['tx']
         tx_val = 0.001
-        tx.vout = [CTxOut(int(Decimal(tx_val) * COIN), CScript([OP_FALSE] * 10001))]
+        tx.vout = [CTxOut(int(Decimal(tx_val) * COIN), CScript([OP_FALSE] * 1000001))]
         tx_hex = tx.serialize().hex()
         assert_raises_rpc_error(-25, max_burn_exceeded, self.nodes[2].sendrawtransaction, tx_hex)
 
@@ -410,13 +413,13 @@ class RawTransactionsTest(BitcoinTestFramework):
 
         # Test a transaction with a small fee.
         # Fee rate is 0.00100000 BTC/kvB
-        tx = self.wallet.create_self_transfer(fee_rate=Decimal('0.00100000'))
+        tx = self.wallet.create_self_transfer(fee_rate=Decimal('0.100000'))
         # Thus, testmempoolaccept should reject
-        testres = self.nodes[2].testmempoolaccept([tx['hex']], 0.00001000)[0]
+        testres = self.nodes[2].testmempoolaccept([tx['hex']], 0.001000)[0]
         assert_equal(testres['allowed'], False)
         assert_equal(testres['reject-reason'], 'max-fee-exceeded')
         # and sendrawtransaction should throw
-        assert_raises_rpc_error(-25, fee_exceeds_max, self.nodes[2].sendrawtransaction, tx['hex'], 0.00001000)
+        assert_raises_rpc_error(-25, fee_exceeds_max, self.nodes[2].sendrawtransaction, tx['hex'], 0.001000)
         # and the following calls should both succeed
         testres = self.nodes[2].testmempoolaccept(rawtxs=[tx['hex']])[0]
         assert_equal(testres['allowed'], True)
@@ -424,7 +427,7 @@ class RawTransactionsTest(BitcoinTestFramework):
 
         # Test a transaction with a large fee.
         # Fee rate is 0.20000000 BTC/kvB
-        tx = self.wallet.create_self_transfer(fee_rate=Decimal("0.20000000"))
+        tx = self.wallet.create_self_transfer(fee_rate=Decimal("2.0000000"))
         # Thus, testmempoolaccept should reject
         testres = self.nodes[2].testmempoolaccept([tx['hex']])[0]
         assert_equal(testres['allowed'], False)
@@ -432,9 +435,9 @@ class RawTransactionsTest(BitcoinTestFramework):
         # and sendrawtransaction should throw
         assert_raises_rpc_error(-25, fee_exceeds_max, self.nodes[2].sendrawtransaction, tx['hex'])
         # and the following calls should both succeed
-        testres = self.nodes[2].testmempoolaccept(rawtxs=[tx['hex']], maxfeerate='0.20000000')[0]
+        testres = self.nodes[2].testmempoolaccept(rawtxs=[tx['hex']], maxfeerate='2')[0]
         assert_equal(testres['allowed'], True)
-        self.nodes[2].sendrawtransaction(hexstring=tx['hex'], maxfeerate='0.20000000')
+        self.nodes[2].sendrawtransaction(hexstring=tx['hex'], maxfeerate='2')
 
         self.log.info("Test sendrawtransaction/testmempoolaccept with tx outputs already in the utxo set")
         self.generate(self.nodes[2], 1)

@@ -43,7 +43,7 @@ def count_unspent(node):
     r["reused"]["supported"] = supports_reused
     return r
 
-def assert_unspent(node, total_count=None, total_sum=None, reused_supported=None, reused_count=None, reused_sum=None, margin=0.001):
+def assert_unspent(node, total_count=None, total_sum=None, reused_supported=None, reused_count=None, reused_sum=None, margin=0.01):
     '''Make assertions about a node's unspent output statistics'''
     stats = count_unspent(node)
     if total_count is not None:
@@ -217,11 +217,11 @@ class AvoidReuseTest(BitcoinTestFramework):
         # listunspent should show 1 total outputs (5 btc), unused
         assert_unspent(self.nodes[1], total_count=1, total_sum=5, reused_count=0)
         # getbalances should show no used, 5 btc trusted
-        assert_balances(self.nodes[1], mine={"used": 0, "trusted": 5})
+        assert_balances(self.nodes[1], mine={"used": 0, "trusted": 5}, margin=0.01)
 
         # node 1 should now have about 5 btc left (for both cases)
-        assert_approx(self.nodes[1].getbalance(), 5, 0.001)
-        assert_approx(self.nodes[1].getbalance(avoid_reuse=False), 5, 0.001)
+        assert_approx(self.nodes[1].getbalance(), 5, 0.01)
+        assert_approx(self.nodes[1].getbalance(avoid_reuse=False), 5, 0.01)
 
     def test_sending_from_reused_address_fails(self, second_addr_type):
         '''
@@ -279,8 +279,8 @@ class AvoidReuseTest(BitcoinTestFramework):
 
         # getbalances and listunspent should show the remaining outputs
         # in the reused address as used/reused
-        assert_unspent(self.nodes[1], total_count=2, total_sum=96, reused_count=1, reused_sum=1, margin=0.01)
-        assert_balances(self.nodes[1], mine={"used": 1, "trusted": 95}, margin=0.01)
+        assert_unspent(self.nodes[1], total_count=2, total_sum=96, reused_count=1, reused_sum=1, margin=0.06)
+        assert_balances(self.nodes[1], mine={"used": 1, "trusted": 95}, margin=0.06)
 
     def test_full_destination_group_is_preferred(self):
         '''
