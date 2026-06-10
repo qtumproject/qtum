@@ -21,6 +21,7 @@ EMPTY_PASSPHRASE_MSG = "Empty string given as passphrase, wallet will not be enc
 class CreateWalletTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
+        self.extra_args = [["-addresstype=bech32"]]
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -145,7 +146,7 @@ class CreateWalletTest(BitcoinTestFramework):
             w6.keypoolrefill(1)
             # There should only be 1 key for legacy, 3 for descriptors
             walletinfo = w6.getwalletinfo()
-            keys = 4
+            keys = 5
             assert_equal(walletinfo['keypoolsize'], keys)
             assert_equal(walletinfo['keypoolsize_hd_internal'], keys)
         # Allow empty passphrase, but there should be a warning

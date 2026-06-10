@@ -12,6 +12,7 @@ from test_framework.util import (
     assert_equal,
     wallet_importprivkey,
 )
+from test_framework.qtum import generatesynchronized, convert_btc_bech32_address_to_qtum
 
 
 class WalletHDTest(BitcoinTestFramework):
@@ -33,10 +34,10 @@ class WalletHDTest(BitcoinTestFramework):
         # create an internal key
         change_addr = self.nodes[1].getrawchangeaddress()
         change_addrV = self.nodes[1].getaddressinfo(change_addr)
-        assert_equal(change_addrV["hdkeypath"], "m/84h/1h/0h/1/0")
+        assert_equal(change_addrV["hdkeypath"], "m/44h/88h/0h/1/0")
 
         # Import a non-HD private key in the HD wallet
-        non_hd_add = 'bcrt1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezwjksmt'
+        non_hd_add = convert_btc_bech32_address_to_qtum('bcrt1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezwjksmt')
         non_hd_key = 'cS9umN9w6cDMuRVYdbkfE4c7YUFLJRoXMfhQ569uY4odiQbVN8Rt'
         wallet_importprivkey(self.nodes[1], non_hd_key, "now")
 
@@ -45,13 +46,13 @@ class WalletHDTest(BitcoinTestFramework):
 
         # Derive some HD addresses and remember the last
         # Also send funds to each add
-        self.generate(self.nodes[0], COINBASE_MATURITY + 1)
+        generatesynchronized(self.nodes[0], COINBASE_MATURITY + 1, None, self.nodes)
         hd_add = None
         NUM_HD_ADDS = 10
         for i in range(1, NUM_HD_ADDS + 1):
             hd_add = self.nodes[1].getnewaddress()
             hd_info = self.nodes[1].getaddressinfo(hd_add)
-            assert_equal(hd_info["hdkeypath"], "m/84h/1h/0h/0/" + str(i))
+            assert_equal(hd_info["hdkeypath"], "m/44h/88h/0h/0/" + str(i))
             assert_equal(hd_info["hdmasterfingerprint"], hd_fingerprint)
             self.nodes[0].sendtoaddress(hd_add, 1)
             self.generate(self.nodes[0], 1)
@@ -61,7 +62,7 @@ class WalletHDTest(BitcoinTestFramework):
         # create an internal key (again)
         change_addr = self.nodes[1].getrawchangeaddress()
         change_addrV = self.nodes[1].getaddressinfo(change_addr)
-        assert_equal(change_addrV["hdkeypath"], "m/84h/1h/0h/1/1")
+        assert_equal(change_addrV["hdkeypath"], "m/44h/88h/0h/1/1")
 
         self.sync_all()
         assert_equal(self.nodes[1].getbalance(), NUM_HD_ADDS + 1)
@@ -83,7 +84,7 @@ class WalletHDTest(BitcoinTestFramework):
         for i in range(1, NUM_HD_ADDS + 1):
             hd_add_2 = self.nodes[1].getnewaddress()
             hd_info_2 = self.nodes[1].getaddressinfo(hd_add_2)
-            assert_equal(hd_info_2["hdkeypath"], "m/84h/1h/0h/0/" + str(i))
+            assert_equal(hd_info_2["hdkeypath"], "m/44h/88h/0h/0/" + str(i))
             assert_equal(hd_info_2["hdmasterfingerprint"], hd_fingerprint)
         assert_equal(hd_add, hd_add_2)
         self.connect_nodes(0, 1)
@@ -122,7 +123,7 @@ class WalletHDTest(BitcoinTestFramework):
             if out['value'] != 1:
                 keypath = self.nodes[1].getaddressinfo(out['scriptPubKey']['address'])['hdkeypath']
 
-        assert_equal(keypath[0:14], "m/84h/1h/0h/1/")
+        assert_equal(keypath[0:15], "m/44h/88h/0h/1/")
 
 
 if __name__ == '__main__':

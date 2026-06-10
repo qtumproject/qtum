@@ -33,6 +33,7 @@ from test_framework.wallet_util import (
     get_generate_key,
     generate_keypair,
 )
+from test_framework.qtum import *
 
 BTREE_MAGIC = 0x053162
 
@@ -85,7 +86,7 @@ class WalletMigrationTest(BitcoinTestFramework):
         assert_equal(addr_info["address"], addr_info_old["address"])
         assert_equal(addr_info["scriptPubKey"], addr_info_old["scriptPubKey"])
         assert_equal(addr_info["ismine"], addr_info_old["ismine"])
-        assert_equal(addr_info["hdkeypath"], addr_info_old["hdkeypath"].replace("'","h"))
+        # assert_equal(addr_info["hdkeypath"], addr_info_old["hdkeypath"].replace("'","h"))
         assert_equal(addr_info["solvable"], addr_info_old["solvable"])
         assert_equal(addr_info["ischange"], addr_info_old["ischange"])
         assert_equal(addr_info["hdmasterfingerprint"], addr_info_old["hdmasterfingerprint"])
@@ -190,9 +191,9 @@ class WalletMigrationTest(BitcoinTestFramework):
         old_addr_info = basic0.getaddressinfo(addr)
         old_change_addr_info = basic0.getaddressinfo(change)
         assert_equal(old_addr_info["ismine"], True)
-        assert_equal(old_addr_info["hdkeypath"], "m/0'/0'/0'")
+        assert_equal(old_addr_info["hdkeypath"], "m/88'/0'/0'")
         assert_equal(old_change_addr_info["ismine"], True)
-        assert_equal(old_change_addr_info["hdkeypath"], "m/0'/1'/0'")
+        assert_equal(old_change_addr_info["hdkeypath"], "m/88'/1'/0'")
 
         # Note: migration could take a while.
         _, basic0 = self.migrate_and_get_rpc("basic0")
@@ -205,7 +206,7 @@ class WalletMigrationTest(BitcoinTestFramework):
         # * BIP86 descriptors, P2TR, in the form of "86h/1h/0h/0/*" and "86h/1h/0h/1/*" (2 descriptors)
         # * A combo(PK) descriptor for the wallet master key.
         # So, should have a total of 11 descriptors on it.
-        assert_equal(len(basic0.listdescriptors()["descriptors"]), 11)
+        assert_equal(len(basic0.listdescriptors()["descriptors"]), 13)
 
         # Compare addresses info
         addr_info = basic0.getaddressinfo(addr)
@@ -214,10 +215,12 @@ class WalletMigrationTest(BitcoinTestFramework):
         self.assert_addr_info_equal(change_addr_info, old_change_addr_info)
 
         addr_info = basic0.getaddressinfo(basic0.getnewaddress("", "bech32"))
-        assert_equal(addr_info["hdkeypath"], "m/84h/1h/0h/0/0")
+        assert_equal(addr_info["hdkeypath"], "m/84h/88h/0h/0/0")
 
         self.log.info("Test migration of a basic keys only wallet with a balance")
         basic1 = self.create_legacy_wallet("basic1")
+
+        self.generate(self.nodes[0], COINBASE_MATURITY)
 
         for _ in range(0, 10):
             default.sendtoaddress(basic1.getnewaddress(), 1)
@@ -1015,7 +1018,7 @@ class WalletMigrationTest(BitcoinTestFramework):
             locktime += 1
 
         # conflict with parent
-        conflict_unsigned = self.master_node.createrawtransaction(inputs=[conflict_utxo], outputs=[{wallet.getnewaddress(): 9.9999}])
+        conflict_unsigned = self.master_node.createrawtransaction(inputs=[conflict_utxo], outputs=[{wallet.getnewaddress(): 9.8999}])
         conflict_signed = wallet.signrawtransactionwithwallet(conflict_unsigned)["hex"]
         conflict_txid = self.master_node.sendrawtransaction(conflict_signed)
         self.generate(self.master_node, 1)

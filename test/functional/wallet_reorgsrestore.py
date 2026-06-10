@@ -51,7 +51,7 @@ class ReorgsRestoreTest(BitcoinTestFramework):
         node0_coinbase_tx_hash = wallet0.getblock(wallet0.getbestblockhash(), verbose=1)['tx'][0]
 
         # Mine 100 blocks on top to mature the coinbase and create a descendant
-        self.generate(self.nodes[0], 101, sync_fun=self.no_op)
+        self.generate(self.nodes[0], 2001, sync_fun=self.no_op)
         # Make descendant, send-to-self
         descendant_tx_id = wallet0.sendtoaddress(wallet0.getnewaddress(), 1)
 
@@ -169,8 +169,8 @@ class ReorgsRestoreTest(BitcoinTestFramework):
         outputs_2 = {}
 
         # Create a conflicted tx broadcast on node0 chain and conflicting tx broadcast on node1 chain. Both spend from txid_conflict_from
-        outputs_1[self.nodes[0].getnewaddress()] = Decimal("9.99998")
-        outputs_2[self.nodes[0].getnewaddress()] = Decimal("9.99998")
+        outputs_1[self.nodes[0].getnewaddress()] = Decimal("9.998")
+        outputs_2[self.nodes[0].getnewaddress()] = Decimal("9.998")
         conflicted = self.nodes[0].signrawtransactionwithwallet(self.nodes[0].createrawtransaction(inputs, outputs_1))
         conflicting = self.nodes[0].signrawtransactionwithwallet(self.nodes[0].createrawtransaction(inputs, outputs_2))
 

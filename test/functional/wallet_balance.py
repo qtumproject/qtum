@@ -16,6 +16,8 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 from test_framework.wallet_util import get_generate_key
+from test_framework.qtum import convert_btc_address_to_qtum, generatesynchronized
+from test_framework.qtumconfig import INITIAL_BLOCK_REWARD, COINBASE_MATURITY
 
 
 def create_transactions(node, address, amt, fees):
@@ -50,15 +52,16 @@ def create_transactions(node, address, amt, fees):
 
 class WalletTest(BitcoinTestFramework):
     def set_test_params(self):
-        self.num_nodes = 2
+        self.num_nodes = 3
         self.setup_clean_chain = True
         # whitelist peers to speed up tx relay / mempool sync
         self.noban_tx_relay = True
         self.extra_args = [
             # Limit mempool clusters as a hack to have wallet txs rejected from the mempool.
             # Set walletrejectlongchains=0 so the wallet still creates the transactions.
-            ['-limitclustercount=3', '-walletrejectlongchains=0'],
-            [],
+            ['-limitclustercount=3', '-walletrejectlongchains=0', '-headerspamfilter=0'],
+            ['-headerspamfilter=0'],
+            ['-headerspamfilter=0']
         ]
 
     def skip_test_if_missing_module(self):
@@ -66,14 +69,22 @@ class WalletTest(BitcoinTestFramework):
 
     def run_test(self):
         self.log.info("Mining blocks ...")
-        self.generate(self.nodes[0], 1)
-        self.generate(self.nodes[1], 1)
+        blockhash = self.generate(self.nodes[2], 1)[0]
+        self.nodes[0].submitblock(self.nodes[2].getblock(blockhash, False))
+        self.nodes[1].submitblock(self.nodes[2].getblock(blockhash, False))
+        self.sync_blocks()
+        generatesynchronized(self.nodes[2], COINBASE_MATURITY, self.nodes[2].getnewaddress(), self.nodes)
+        self.sync_blocks()
+        self.nodes[2].sendmany("", {self.nodes[0].getnewaddress(): 50, self.nodes[1].getnewaddress(): 50})
+        self.generatetoaddress(self.nodes[2], 1, self.nodes[2].getnewaddress())
+        self.sync_all()
 
         # Verify listunspent returns immature coinbase if 'include_immature_coinbase' is set
-        assert_equal(len(self.nodes[0].listunspent(query_options={'include_immature_coinbase': True})), 1)
-        assert_equal(len(self.nodes[0].listunspent(query_options={'include_immature_coinbase': False})), 0)
+        assert_equal(len(self.nodes[2].listunspent(query_options={'include_immature_coinbase': True})), 2002)
+        assert_equal(len(self.nodes[2].listunspent(query_options={'include_immature_coinbase': False})), 2)
 
-        self.generatetoaddress(self.nodes[1], COINBASE_MATURITY + 1, ADDRESS_WATCHONLY)
+        generatesynchronized(self.nodes[1], COINBASE_MATURITY+1, ADDRESS_WATCHONLY, self.nodes)
+        self.sync_blocks()
 
         # Verify listunspent returns all immature coinbases if 'include_immature_coinbase' is set
         assert_equal(len(self.nodes[0].listunspent(query_options={'include_immature_coinbase': False})), 1)
@@ -145,10 +156,12 @@ class WalletTest(BitcoinTestFramework):
             # getbalances
             expected_balances_0 = {'mine':      {'immature':          Decimal('0E-8'),
                                                  'trusted':           Decimal('9.99'),  # change from node 0's send
-                                                 'untrusted_pending': Decimal('60.0')}}
+                                                 'untrusted_pending': Decimal('60.0'),
+                                                 'stake':             Decimal('0.0')}}
             expected_balances_1 = {'mine':      {'immature':          Decimal('0E-8'),
                                                  'trusted':           Decimal('0E-8'),  # node 1's send had an unsafe input
-                                                 'untrusted_pending': Decimal('30.0') - fee_node_1}}  # Doesn't include output of node 0's send since it was spent
+                                                 'untrusted_pending': Decimal('30.0') - fee_node_1,
+                                                 'stake':             Decimal('0.0')}}  # Doesn't include output of node 0's send since it was spent
             balances_0 = self.nodes[0].getbalances()
             balances_1 = self.nodes[1].getbalances()
             # remove lastprocessedblock keys (they will be tested later)
@@ -242,12 +255,17 @@ class WalletTest(BitcoinTestFramework):
         self.log.info('Put txs back into mempool of node 1 (not node 0)')
         self.nodes[0].invalidateblock(block_reorg)
         self.nodes[1].invalidateblock(block_reorg)
+        self.nodes[2].invalidateblock(block_reorg)
+        self.sync_blocks()
+        self.nodes[0].syncwithvalidationinterfacequeue()
         assert_equal(self.nodes[0].getbalance(minconf=0), 0)  # wallet txs not in the mempool are untrusted
         self.generatetoaddress(self.nodes[0], 1, ADDRESS_WATCHONLY, sync_fun=self.no_op)
 
         # Now confirm tx_orig
         self.restart_node(1, ['-persistmempool=0'])
         self.connect_nodes(0, 1)
+        self.connect_nodes(0, 2)
+        self.connect_nodes(1, 2)
         self.sync_blocks()
         self.nodes[1].sendrawtransaction(tx_orig)
         self.generatetoaddress(self.nodes[1], 1, ADDRESS_WATCHONLY)
