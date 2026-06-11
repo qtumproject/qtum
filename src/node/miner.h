@@ -136,6 +136,9 @@ public:
     };
 
     explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, const Options& options);
+#ifdef ENABLE_WALLET
+    explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, wallet::CWallet *pwallet, const Options& options);
+#endif
 
 ///////////////////////////////////////////// // qtum
     ByteCodeExecResult bceResult;
@@ -150,6 +153,7 @@ public:
 
     /** Construct a new block template */
     std::unique_ptr<CBlockTemplate> CreateNewBlock();
+    std::unique_ptr<CBlockTemplate> CreateEmptyBlock();
 
     /** The number of transactions in the last assembled block (excluding coinbase transaction) */
     inline static std::optional<int64_t> m_last_block_num_txs{};
@@ -171,6 +175,9 @@ private:
       * @pre BlockAssembler::m_mempool must not be nullptr
     */
     void addChunks() EXCLUSIVE_LOCKS_REQUIRED(m_mempool->cs);
+
+    /** Rebuild the coinbase/coinstake transaction to account for new gas refunds **/
+    void RebuildRefundTransaction(CBlock* pblock);
 
     // helper functions for addChunks()
     /** Test if a new chunk would "fit" in the block */

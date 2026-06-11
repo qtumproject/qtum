@@ -21,13 +21,13 @@ ExternalSigner::ExternalSigner(std::vector<std::string> command, std::string cha
 
 std::vector<std::string> ExternalSigner::NetworkArg() const
 {
-    return {"--chain", m_chain};
+    return NetworkArg(m_chain);
 }
 
 bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, const std::string& chain)
 {
     // Call <command> enumerate
-    std::vector<std::string> cmd_args = Cat(subprocess::util::split(command), {"enumerate"});
+    std::vector<std::string> cmd_args = Cat(subprocess::util::split(command), Cat(NetworkArg(chain), {"enumerate"}));
 
     const UniValue result = RunCommandParseJSON(cmd_args, "");
     if (!result.isArray()) {
@@ -122,4 +122,9 @@ bool ExternalSigner::SignTransaction(PartiallySignedTransaction& psbtx, std::str
     psbtx = signer_psbtx;
 
     return true;
+}
+
+std::vector<std::string> ExternalSigner::NetworkArg(const std::string chain)
+{
+    return {"--chain", chain};
 }

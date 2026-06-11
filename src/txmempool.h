@@ -187,6 +187,7 @@ public:
 // Multi_index tag names
 struct entry_time {};
 struct index_by_wtxid {};
+struct ancestor_score_or_gas_price {};
 
 /**
  * Information about a mempool transaction.
@@ -306,6 +307,12 @@ public:
             // sorted by entry time
             boost::multi_index::ordered_non_unique<
                 boost::multi_index::tag<entry_time>,
+                boost::multi_index::identity<CTxMemPoolEntry>,
+                CompareTxMemPoolEntryByEntryTime
+            >,
+            // sorted by fee rate with gas price (if contract tx) or ancestors otherwise
+            boost::multi_index::ordered_non_unique<
+                boost::multi_index::tag<ancestor_score_or_gas_price>,
                 boost::multi_index::identity<CTxMemPoolEntry>,
                 CompareTxMemPoolEntryByEntryTime
             >
