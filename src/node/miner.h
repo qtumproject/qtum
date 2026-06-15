@@ -133,6 +133,8 @@ public:
         // Whether to call TestBlockValidity() at the end of CreateNewBlock().
         bool test_block_validity{true};
         bool print_modified_fee{DEFAULT_PRINT_MODIFIED_FEE};
+        // Disable contract staking
+        bool disable_contract_staking{false};
     };
 
     explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, const Options& options);
@@ -168,6 +170,8 @@ private:
     void resetBlock();
     /** Add a tx to the block */
     void AddToBlock(const CTxMemPoolEntry& entry);
+
+    bool AttemptToAddContractToBlock(const CTxMemPoolEntry& entry);
 
     // Methods for how to add transactions to a block.
     /** Add transactions based on chunk feerate
