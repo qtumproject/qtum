@@ -599,6 +599,11 @@ void BlockAssembler::addChunks()
     FeePerVSize chunk_feerate_vsize = ToFeePerVSize(chunk_feerate);
 
     while (selected_transactions.size() > 0) {
+        if (m_options.time_limit != 0 && TicksSinceEpoch<std::chrono::seconds>(NodeClock::now()) >= m_options.time_limit) {
+            // No more time to add transactions, just exit
+            return;
+        }
+
         // Check to see if min fee rate is still respected.
         if (chunk_feerate_vsize << m_options.blockMinFeeRate.GetFeePerVSize()) {
             // Everything else we might consider has a lower feerate
@@ -626,10 +631,26 @@ void BlockAssembler::addChunks()
 
             // This chunk will fit, so add it to the block.
             nConsecutiveFailed = 0;
+            bool wasAdded=true;
             for (const auto& tx : selected_transactions) {
-                AddToBlock(tx);
+                if (!wasAdded || (m_options.time_limit != 0 && TicksSinceEpoch<std::chrono::seconds>(NodeClock::now()) >= m_options.time_limit)) {
+                    // If out of time, or earlier ancestor failed, then skip the rest of the transactions
+                    wasAdded=false;
+                    break;
+                }
+                if (wasAdded) {
+                    if (tx.get().GetTx().HasCreateOrCall()) {
+                        wasAdded = AttemptToAddContractToBlock(tx);
+                    } else {
+                        AddToBlock(tx);
+                    }
+                }
             }
-            pblocktemplate->m_package_feerates.emplace_back(chunk_feerate_vsize);
+
+            // Skip update packages if a transaction failed to be added (match test package logic)
+            if (wasAdded) {
+                pblocktemplate->m_package_feerates.emplace_back(chunk_feerate_vsize);
+            }
         }
 
         selected_transactions.clear();
