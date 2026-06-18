@@ -11,6 +11,8 @@
 #include <QDataStream>
 #include <QString>
 
+#include <libdevcore/Common.h>
+
 // U+2009 THIN SPACE = UTF-8 E2 80 89
 #define REAL_THIN_SP_CP 0x2009
 #define REAL_THIN_SP_UTF8 "\xE2\x80\x89"
@@ -68,6 +70,8 @@ public:
     static QString description(Unit unit);
     //! Number of Satoshis (1e-8) per unit
     static qint64 factor(Unit unit);
+    //! Token factor from decimals
+    static dev::s256 tokenFactor(int unit);
     //! Number of decimals left
     static int decimals(Unit unit);
     //! Format as string
@@ -76,12 +80,22 @@ public:
     static QString formatWithUnit(Unit unit, const CAmount& amount, bool plussign = false, SeparatorStyle separators = SeparatorStyle::STANDARD);
     //! Format as HTML string (with unit)
     static QString formatHtmlWithUnit(Unit unit, const CAmount& amount, bool plussign = false, SeparatorStyle separators = SeparatorStyle::STANDARD);
+    //! Format as string of fixed length to preserve privacy, if it is set.
+    static QString formatPrivacy(Unit unit, const CAmount& amount, SeparatorStyle separators, bool privacy);
     //! Format as string (with unit) of fixed length to preserve privacy, if it is set.
     static QString formatWithPrivacy(Unit unit, const CAmount& amount, SeparatorStyle separators, bool privacy);
     //! Parse string to coin amount
     static bool parse(Unit unit, const QString& value, CAmount* val_out);
     //! Gets title for amount column including current display unit if optionsModel reference available */
     static QString getAmountColumnTitle(Unit unit);
+    //! Parse string to token amount
+    static bool parseToken(int decimal_units, const QString &value, dev::s256 *val_out);
+    //! Format token as string
+    static QString formatToken(int decimal_units, const dev::s256& amount, bool plussign=false, SeparatorStyle separators=SeparatorStyle::STANDARD); //! Format token as string
+    //! Format token as string (with unit)
+    static QString formatTokenWithUnit(const QString unit, int decimals, const dev::s256& amount, bool plussign=false, SeparatorStyle separators=SeparatorStyle::STANDARD);
+    //! Format integer number as string (with and without separator)
+    static QString formatInt(const int64_t& number, bool plussign=false, SeparatorStyle separators=SeparatorStyle::STANDARD);
     ///@}
 
     //! @name AbstractListModel implementation

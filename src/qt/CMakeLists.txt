@@ -121,6 +121,8 @@ add_library(bitcoinqt STATIC EXCLUDE_FROM_ALL
   rpcconsole.h
   splashscreen.cpp
   splashscreen.h
+  styleSheet.cpp
+  styleSheet.h
   trafficgraphwidget.cpp
   trafficgraphwidget.h
   utilitydialog.cpp
