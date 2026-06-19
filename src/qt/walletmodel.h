@@ -14,8 +14,11 @@
 #include <support/allocators/secure.h>
 
 #include <vector>
+#include <atomic> 
 
 #include <QObject>
+#include <QStringList>
+#include <QThread>
 
 enum class OutputType;
 
@@ -27,7 +30,13 @@ class RecentRequestsTableModel;
 class SendCoinsRecipient;
 class TransactionTableModel;
 class WalletModelTransaction;
-
+class DelegationItemModel;
+class TokenTransactionTableModel;
+class ContractTableModel;
+class WalletWorker;
+class TokenItemModel;
+class SuperStakerItemModel;
+class DelegationStakerItemModel;
 class CKeyID;
 class COutPoint;
 class CPubKey;
@@ -105,6 +114,9 @@ public:
     // Passphrase only needed when unlocking
     bool setWalletLocked(bool locked, const SecureString &passPhrase=SecureString());
     bool changePassphrase(const SecureString &oldPass, const SecureString &newPass);
+    bool restoreWallet(const QString &filename, const QString &param);
+    bool getWalletUnlockStakingOnly();
+    void setWalletUnlockStakingOnly(bool unlock);
 
     // RAII object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
@@ -125,6 +137,7 @@ public:
         WalletModel *wallet;
         const bool valid;
         const bool relock;
+        bool stakingOnly;
     };
 
     UnlockContext requestUnlock();
@@ -161,8 +174,10 @@ private:
     std::unique_ptr<interfaces::Handler> m_handler_status_changed;
     std::unique_ptr<interfaces::Handler> m_handler_address_book_changed;
     std::unique_ptr<interfaces::Handler> m_handler_transaction_changed;
+    std::unique_ptr<interfaces::Handler> m_handler_token_changed;
     std::unique_ptr<interfaces::Handler> m_handler_show_progress;
     std::unique_ptr<interfaces::Handler> m_handler_can_get_addrs_changed;
+    std::unique_ptr<interfaces::Handler> m_handler_contract_book_changed;
     ClientModel* m_client_model;
     interfaces::Node& m_node;
 
@@ -183,7 +198,28 @@ private:
 
     // Block hash denoting when the last balance update was done.
     uint256 m_cached_last_update_tip{};
+    int pollNum = 0;
 
+    QString restorePath;
+    QString restoreParam;
+
+    uint64_t nWeight{0};
+    std::atomic<bool> updateStakeWeight{true};
+    std::atomic<bool> updateCoinAddresses{true};
+
+    QString fingerprint;
+    std::atomic<bool> hardwareWalletInitRequired{false};
+    bool rescan{true};
+    bool importPKH{true};
+    bool importP2SH{true};
+    bool importBech32{true};
+    QString pathPKH;
+    QString pathP2SH;
+    QString pathBech32;
+    SteadyMilliseconds deviceTime{0ms};
+
+    QThread t;
+    WalletWorker *worker{nullptr};
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
     void checkBalanceChanged(const interfaces::WalletBalances& new_balances);

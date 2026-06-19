@@ -11,6 +11,38 @@
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="spacing">
+      <number>15</number>
+     </property>
+     <property name="leftMargin">
+      <number>30</number>
+     </property>
+     <property name="topMargin">
+      <number>20</number>
+     </property>
+     <property name="rightMargin">
+      <number>30</number>
+     </property>
+     <property name="bottomMargin">
+      <number>20</number>
+     </property>
    <item>
     <widget class="QLabel" name="labelExplanation">
      <property name="textFormat">
@@ -56,10 +88,25 @@
      </attribute>
     </widget>
    </item>
+    </layout>
+   </item>
    <item>
+    <widget class="QWidget" name="buttonsContainerWhite" native="true">
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="newAddress">
+      <property name="leftMargin">
+       <number>30</number>
+      </property>
+      <property name="topMargin">
+       <number>25</number>
+      </property>
+      <property name="rightMargin">
+       <number>30</number>
+      </property>
+      <property name="bottomMargin">
+       <number>15</number>
+      </property>
+      <item>
+       <widget class="QtumPushButton" name="newAddress">
        <property name="toolTip">
         <string>Create a new address</string>
        </property>
@@ -76,7 +123,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="copyAddress">
+       <widget class="QtumPushButton" name="copyAddress">
        <property name="toolTip">
         <string>Copy the currently selected address to the clipboard</string>
        </property>
@@ -93,7 +140,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="deleteAddress">
+       <widget class="QtumPushButton" name="deleteAddress">
        <property name="toolTip">
         <string>Delete the currently selected address from the list</string>
        </property>
@@ -116,14 +163,14 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+          <width>267</width>
          <height>20</height>
         </size>
        </property>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="exportButton">
+       <widget class="QtumPushButton" name="exportButton">
        <property name="toolTip">
         <string>Export the data in the current tab to a file</string>
        </property>
@@ -156,9 +203,17 @@
       </widget>
      </item>
     </layout>
+    </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QtumPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qt/qtumpushbutton.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../bitcoin.qrc"/>
  </resources>

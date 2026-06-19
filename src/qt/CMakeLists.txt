@@ -99,6 +99,8 @@ add_library(bitcoinqt STATIC EXCLUDE_FROM_ALL
   $<$<PLATFORM_ID:Darwin>:macos_appnap.mm>
   modaloverlay.cpp
   modaloverlay.h
+  navigationbar.cpp
+  navigationbar.h
   networkstyle.cpp
   networkstyle.h
   notificator.cpp
@@ -113,8 +115,12 @@ add_library(bitcoinqt STATIC EXCLUDE_FROM_ALL
   peertablesortproxy.h
   platformstyle.cpp
   platformstyle.h
+  qswitchcontrol.cpp
+  qswitchcontrol.h
   qvalidatedlineedit.cpp
   qvalidatedlineedit.h
+  qvalidatedtextedit.cpp
+  qvalidatedtextedit.h
   qvaluecombobox.cpp
   qvaluecombobox.h
   rpcconsole.cpp
@@ -125,6 +131,10 @@ add_library(bitcoinqt STATIC EXCLUDE_FROM_ALL
   styleSheet.h
   trafficgraphwidget.cpp
   trafficgraphwidget.h
+  qtumversionchecker.cpp
+  qtumversionchecker.h
+  qtumpushbutton.cpp
+  qtumpushbutton.h
   utilitydialog.cpp
   utilitydialog.h
   $<$<PLATFORM_ID:Windows>:winshutdownmonitor.cpp>
@@ -216,6 +226,8 @@ if(ENABLE_WALLET)
       transactionview.h
       walletcontroller.cpp
       walletcontroller.h
+      waitmessagebox.cpp
+      waitmessagebox.h
       walletframe.cpp
       walletframe.h
       walletmodel.cpp

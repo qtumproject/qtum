@@ -163,6 +163,16 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="hardware_wallet_checkbox">
+        <property name="toolTip">
+         <string>Use a hardware wallet device for signing. Configure the HWI tool path in main preferences first.</string>
+        </property>
+        <property name="text">
+         <string>Use a hardware device</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
