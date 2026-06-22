@@ -25,6 +25,7 @@ class QFrame;
 class QLineEdit;
 class QMenu;
 class QModelIndex;
+class QSpacerItem;
 class QTableView;
 QT_END_NAMESPACE
 
@@ -36,7 +37,7 @@ class TransactionView : public QWidget
     Q_OBJECT
 
 public:
-    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = nullptr);
+    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = nullptr, bool hideFilter = false); 
     ~TransactionView();
 
     void setModel(WalletModel *model);
@@ -55,9 +56,9 @@ public:
 
     enum ColumnWidths {
         STATUS_COLUMN_WIDTH = 30,
-        DATE_COLUMN_WIDTH = 120,
-        TYPE_COLUMN_WIDTH = 113,
-        AMOUNT_MINIMUM_COLUMN_WIDTH = 120,
+        DATE_COLUMN_WIDTH = 130,
+        TYPE_COLUMN_WIDTH = 170,
+        AMOUNT_MINIMUM_COLUMN_WIDTH = 170,
         MINIMUM_COLUMN_WIDTH = 23
     };
 
@@ -73,6 +74,7 @@ private:
     QComboBox *typeWidget;
     QLineEdit *search_widget;
     QLineEdit *amountWidget;
+    QSpacerItem *hSpacer; 
 
     QMenu *contextMenu;
 
@@ -86,6 +88,8 @@ private:
 
     QWidget *createDateRangeWidget();
 
+    GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer{nullptr};
+    virtual void resizeEvent(QResizeEvent* event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     const PlatformStyle* m_platform_style;

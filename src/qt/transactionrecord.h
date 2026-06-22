@@ -70,6 +70,9 @@ public:
         SendToOther,
         RecvWithAddress,
         RecvFromOther,
+        SendToSelf,
+        ContractRecv,
+        ContractSend
     };
 
     /** Number of confirmation recommended for accepting a transaction */

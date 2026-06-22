@@ -8,6 +8,7 @@
 #include <key.h>
 
 #include <qt/walletmodeltransaction.h>
+#include <qt/qtumhwitool.h> 
 
 #include <interfaces/wallet.h>
 #include <primitives/transaction_identifier.h>
@@ -83,8 +84,14 @@ public:
 
     OptionsModel* getOptionsModel() const;
     AddressTableModel* getAddressTableModel() const;
+    ContractTableModel *getContractTableModel() const;
     TransactionTableModel* getTransactionTableModel() const;
     RecentRequestsTableModel* getRecentRequestsTableModel() const;
+    TokenItemModel *getTokenItemModel() const;
+    TokenTransactionTableModel *getTokenTransactionTableModel() const;
+    DelegationItemModel *getDelegationItemModel() const;
+    SuperStakerItemModel *getSuperStakerItemModel() const;
+    DelegationStakerItemModel *getDelegationStakerItemModel() const;
 
     EncryptionStatus getEncryptionStatus() const;
 
@@ -156,6 +163,11 @@ public:
     QString getDisplayName() const;
 
     bool isMultiwallet() const;
+    QString getRestorePath();
+    QString getRestoreParam();
+    bool restore();
+
+    uint64_t getStakeWeight();
 
     void refresh(bool pk_hash_only = false);
 
@@ -167,6 +179,20 @@ public:
     // If coin control has selected outputs, searches the total amount inside the wallet.
     // Otherwise, uses the wallet's cached available balance.
     CAmount getAvailableBalance(const wallet::CCoinControl* control);
+
+    // Get or set selected hardware device fingerprint (only for hardware wallet applicable)
+    QString getFingerprint(bool stake = false) const;
+    void setFingerprint(const QString &value, bool stake = false);
+    QList<HWDevice> getDevices();
+
+    // Get or set hardware wallet init required (only for hardware wallet applicable)
+    void importAddressesData(bool rescan = true, bool importPKH = true, bool importP2SH = true, bool importBech32 = true, QString pathPKH = QString(), QString pathP2SH = QString(), QString pathBech32 = QString());
+    bool getSignPsbtWithHwiTool();
+    bool getSignMessageWithHwiTool();
+    bool createUnsigned();
+    bool hasLedgerProblem();
+
+    void join();
 
 private:
     std::unique_ptr<interfaces::Wallet> m_wallet;
@@ -188,8 +214,14 @@ private:
     OptionsModel *optionsModel;
 
     AddressTableModel* addressTableModel{nullptr};
+    ContractTableModel* contractTableModel{nullptr};
     TransactionTableModel* transactionTableModel{nullptr};
     RecentRequestsTableModel* recentRequestsTableModel{nullptr};
+    TokenItemModel* tokenItemModel{nullptr};
+    TokenTransactionTableModel* tokenTransactionTableModel{nullptr};
+    DelegationItemModel* delegationItemModel{nullptr};
+    SuperStakerItemModel* superStakerItemModel{nullptr};
+    DelegationStakerItemModel* delegationStakerItemModel{nullptr};
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;
@@ -216,13 +248,17 @@ private:
     QString pathPKH;
     QString pathP2SH;
     QString pathBech32;
+    QList<HWDevice> devices;
     SteadyMilliseconds deviceTime{0ms};
 
     QThread t;
     WalletWorker *worker{nullptr};
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    void checkBalanceChanged(const interfaces::WalletBalances& new_balances);
+    bool checkBalanceChanged(const interfaces::WalletBalances& new_balances);
+    void checkTokenBalanceChanged();
+    void checkDelegationChanged();
+    void checkSuperStakerChanged();
 
 Q_SIGNALS:
     // Signal that balance in wallet changed
@@ -251,6 +287,9 @@ Q_SIGNALS:
     // Notify that there are now keys in the keypool
     void canGetAddressesChanged();
 
+    // Signal that available coin addresses are changed
+    void availableAddressesChanged(QStringList spendableAddresses, QStringList allAddresses, bool includeZeroValue);
+
     void timerTimeout();
 
 public Q_SLOTS:
@@ -265,6 +304,18 @@ public Q_SLOTS:
     void updateAddressBook(const QString &address, const QString &label, bool isMine, wallet::AddressPurpose purpose, int status);
     /* Current, immature or unconfirmed balance might have changed - emit 'balanceChanged' if so */
     void pollBalanceChanged();
+    /* New, updated or removed contract book entry */
+    void updateContractBook(const QString &address, const QString &label, const QString &abi, int status);
+    /* Set that update for coin address is needed */
+    void checkCoinAddresses();
+    /* Update coin addresses when changed*/
+    void checkCoinAddressesChanged();
+    /* Update stake weight when changed*/
+    void checkStakeWeightChanged();
+    /* Check for hardware wallet params changes*/
+    void checkHardwareWallet();
+    /* Check for hardware device params changes*/
+    void checkHardwareDevice();
 };
 
 #endif // BITCOIN_QT_WALLETMODEL_H

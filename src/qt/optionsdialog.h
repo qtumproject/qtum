@@ -58,6 +58,8 @@ private Q_SLOTS:
     void on_openBitcoinConfButton_clicked();
     void on_okButton_clicked();
     void on_cancelButton_clicked();
+    void on_toolHWIPath_clicked();
+    void on_toolStakeLedgerId_clicked();
 
     void on_showTrayIcon_stateChanged(int state);
 
@@ -67,6 +69,8 @@ private Q_SLOTS:
     void updateProxyValidationState();
     /* query the networks, for which the default proxy is used */
     void updateDefaultProxyNets();
+
+    void updateLogEvents(bool checked = false);
 
 Q_SIGNALS:
     void proxyIpChecks(QValidatedLineEdit *pUiProxyIp, uint16_t nProxyPort);

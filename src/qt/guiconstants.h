@@ -72,4 +72,12 @@ static constexpr int DEFAULT_PRUNE_TARGET_GB{2};
 
 /* Hardware wallet interface uri */
 #define QTUM_HWI_TOOL "<a href='https://github.com/qtumproject/HWI/tags'>HWI Tool</a>"
+
+/**
+ * Maximum gap between node time and block time used
+ * for the "Catching up..." mode in GUI.
+ *
+ * Ref: https://github.com/bitcoin/bitcoin/pull/1026
+ */
+static constexpr int64_t MAX_BLOCK_TIME_GAP = 90 * 60;
 #endif // BITCOIN_QT_GUICONSTANTS_H
