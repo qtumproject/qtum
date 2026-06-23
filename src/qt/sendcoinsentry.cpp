@@ -22,15 +22,17 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
 {
     ui->setupUi(this);
 
-    ui->addressBookButton->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
-    ui->pasteButton->setIcon(platformStyle->SingleColorIcon(":/icons/editpaste"));
-    ui->deleteButton->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
+    ui->addressBookButton->setIcon(platformStyle->MultiStatesIcon(":/icons/address-book", PlatformStyle::PushButtonIcon));
+    ui->pasteButton->setIcon(platformStyle->MultiStatesIcon(":/icons/editpaste", PlatformStyle::PushButtonIcon));
+    ui->deleteButton->setIcon(platformStyle->MultiStatesIcon(":/icons/remove_entry", PlatformStyle::PushButtonIcon));
 
     if (platformStyle->getUseExtraSpacing())
         ui->payToLayout->setSpacing(4);
 
     GUIUtil::setupAddressWidget(ui->payTo, this);
 
+    // format tool buttons
+    GUIUtil::formatToolButtons(ui->addressBookButton, ui->pasteButton, ui->deleteButton);
     // Connect signals
     connect(ui->payAmount, &BitcoinAmountField::valueChanged, this, &SendCoinsEntry::payAmountChanged);
     connect(ui->checkboxSubtractFeeFromAmount, &QCheckBox::toggled, this, &SendCoinsEntry::subtractFeeFromAmountChanged);

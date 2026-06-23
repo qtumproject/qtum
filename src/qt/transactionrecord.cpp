@@ -7,17 +7,28 @@
 #include <chain.h>
 #include <interfaces/wallet.h>
 #include <key_io.h>
+#include <util/strencodings.h>
 
 #include <cstdint>
 
 #include <QDateTime>
 
+/* Convert the keyid into hash160 string for contract.
+ */
+std::string toStringHash160(const CKeyID& keyid)
+{
+    return HexStr(valtype(keyid.begin(),keyid.end()));
+}
 /* Return positive answer if transaction should be shown in list.
  */
-bool TransactionRecord::showTransaction()
+bool TransactionRecord::showTransaction(const interfaces::WalletTx& wtx)
 {
     // There are currently no cases where we hide transactions, but
-    // we may want to use this in the future for things like RBF.
+    // Ensures we show generated coins / mined transactions at depth 1
+    if((wtx.is_coinbase || wtx.is_coinstake) && !wtx.is_in_main_chain)
+    {
+        return false;
+    }
     return true;
 }
 
@@ -36,7 +47,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
 
     bool all_from_me = true;
     bool any_from_me = false;
-    if (wtx.is_coinbase) {
+    if (wtx.is_coinbase || wtx.is_coinstake) {
         all_from_me = false;
     } else {
         for (const bool mine : wtx.txin_is_mine)
@@ -46,7 +57,18 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
         }
     }
 
-    if (all_from_me || !any_from_me) {
+    if(nNet < 0 && wtx.has_create_or_call && (all_from_me || !any_from_me)) {
+        TransactionRecord sub(hash, nTime);
+        sub.idx = 0;
+        sub.credit = nNet;
+        sub.type = TransactionRecord::ContractSend;
+
+        // Use the same destination address as in the contract RPCs
+        sub.address = toStringHash160(wtx.tx_sender_key);
+
+        parts.append(sub);
+    }
+    else if (all_from_me || !any_from_me) {
         CAmount nTxFee = nDebit - wtx.tx->GetValueOut();
 
         for(unsigned int i = 0; i < wtx.tx->vout.size(); i++)
@@ -100,13 +122,30 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
                 //
 
                 TransactionRecord sub(hash, nTime);
-                sub.idx = i; // vout index
-                sub.credit = txout.nValue;
+                if(wtx.is_coinstake) // Combine into single output for coinstake
+                {
+                    sub.idx = 1; // vout index
+                    sub.credit = nNet;
+                }
+                else
+                {
+                    sub.idx = i; // vout index
+                    sub.credit = txout.nValue;
+                }
+
                 if (wtx.txout_address_is_mine[i])
                 {
                     // Received by Bitcoin Address
-                    sub.type = TransactionRecord::RecvWithAddress;
-                    sub.address = EncodeDestination(wtx.txout_address[i]);
+                    if(wtx.has_create_or_call)
+                    {
+                        sub.type = TransactionRecord::ContractRecv;
+                        sub.address = toStringHash160(wtx.txout_keys[i]);
+                    }
+                    else
+                    {
+                        sub.type = TransactionRecord::RecvWithAddress;
+                        sub.address = EncodeDestination(wtx.txout_address[i]);
+                    }
                 }
                 else
                 {
@@ -114,13 +153,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
                     sub.type = TransactionRecord::RecvFromOther;
                     sub.address = mapValue["from"];
                 }
-                if (wtx.is_coinbase)
+                if (wtx.is_coinbase || wtx.is_coinstake)
                 {
                     // Generated
                     sub.type = TransactionRecord::Generated;
                 }
 
                 parts.append(sub);
+                if(wtx.is_coinstake)
+                    break; // Single output for coinstake
             }
         }
     } else {
@@ -149,7 +190,7 @@ void TransactionRecord::updateStatus(const interfaces::WalletTxStatus& wtx, cons
     }
     status.sortKey = strprintf("%010d-%01d-%010u-%03d-%d",
         wtx.block_height,
-        wtx.is_coinbase ? 1 : 0,
+        (wtx.is_coinbase || wtx.is_coinstake) ? 1 : 0,
         wtx.time_received,
         idx,
         typesort);

@@ -9,6 +9,7 @@
 
 #include <QAbstractTableModel>
 #include <QStringList>
+#include <QColor>
 
 #include <memory>
 
@@ -87,6 +88,12 @@ private:
     bool fProcessingQueuedTransactions{false};
     const PlatformStyle *platformStyle;
 
+    QColor color_unconfirmed;
+    QColor color_negative;
+    QColor color_bareaddress;
+    QColor color_tx_status_openuntildate;
+    QColor color_tx_status_danger;
+    QColor color_black;
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
 
@@ -100,6 +107,7 @@ private:
     QString formatTooltip(const TransactionRecord *rec) const;
     QVariant txStatusDecoration(const TransactionRecord *wtx) const;
     QVariant txAddressDecoration(const TransactionRecord *wtx) const;
+    void modelDataChanged(const ColumnIndex& column);
 
 public Q_SLOTS:
     /* New transaction, or transaction changed status */

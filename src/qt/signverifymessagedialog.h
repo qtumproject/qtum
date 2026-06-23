@@ -5,10 +5,12 @@
 #ifndef BITCOIN_QT_SIGNVERIFYMESSAGEDIALOG_H
 #define BITCOIN_QT_SIGNVERIFYMESSAGEDIALOG_H
 
+#include <common/signmessage.h> // For MessageSign(), MessageVerify()
 #include <QDialog>
 
 class PlatformStyle;
 class WalletModel;
+struct PKHash;
 
 namespace Ui {
     class SignVerifyMessageDialog;
@@ -49,6 +51,9 @@ private Q_SLOTS:
     void on_addressBookButton_VM_clicked();
     void on_verifyMessageButton_VM_clicked();
     void on_clearButton_VM_clicked();
+
+private:
+    SigningResult signMessage(const std::string& message, const PKHash& pkhash, std::string& signature);
 };
 
 #endif // BITCOIN_QT_SIGNVERIFYMESSAGEDIALOG_H

@@ -57,12 +57,15 @@ public:
     WalletController(ClientModel& client_model, const PlatformStyle* platform_style, QObject* parent);
     ~WalletController();
 
+    //! Returns wallet models currently open.
+    std::vector<WalletModel*> getOpenWallets() const;
     WalletModel* getOrCreateWallet(std::unique_ptr<interfaces::Wallet> wallet);
 
     //! Returns all wallet names in the wallet dir mapped to whether the wallet
     //! is loaded.
     std::map<std::string, std::pair<bool, std::string>> listWalletDir() const;
 
+    void getRestoreData(QString& restorePath, QString& restoreParam, QString& restoreName) const;
     void closeWallet(WalletModel* wallet_model, QWidget* parent = nullptr);
     void closeAllWallets(QWidget* parent = nullptr);
 
@@ -130,10 +133,12 @@ Q_SIGNALS:
 
 private:
     void askPassphrase();
+    void askDevice();
     void createWallet();
     void finish();
 
     SecureString m_passphrase;
+    QString m_fingerprint;
     CreateWalletDialog* m_create_wallet_dialog{nullptr};
     AskPassphraseDialog* m_passphrase_dialog{nullptr};
 };
