@@ -584,7 +584,7 @@ void WalletModel::subscribeToCoreSignals()
     m_handler_transaction_changed = m_wallet->handleTransactionChanged(std::bind_front(NotifyTransactionChanged, this));
     m_handler_show_progress = m_wallet->handleShowProgress(std::bind_front(ShowProgress, this));
     m_handler_can_get_addrs_changed = m_wallet->handleCanGetAddressesChanged(std::bind_front(NotifyCanGetAddressesChanged, this));
-    m_handler_contract_book_changed = m_wallet->handleContractBookChanged(std::bind(NotifyContractBookChanged, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    m_handler_contract_book_changed = m_wallet->handleContractBookChanged(std::bind_front(NotifyContractBookChanged, this));
 }
 
 void WalletModel::unsubscribeFromCoreSignals()

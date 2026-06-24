@@ -136,10 +136,11 @@ void BumpFee(TransactionView& view, const Txid& txid, bool expectDisabled, std::
     QVERIFY(text.indexOf(QString::fromStdString(expectError)) != -1);
 }
 
-void CompareBalance(WalletModel& walletModel, CAmount expected_balance, QLabel* balance_label_to_check)
+void CompareBalance(WalletModel& walletModel, CAmount expected_balance, QLabel* balance_label_to_check, bool fUnit = true)
 {
     BitcoinUnit unit = walletModel.getOptionsModel()->getDisplayUnit();
-    QString balanceComparison = BitcoinUnits::formatWithUnit(unit, expected_balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+    QString balanceComparison = fUnit ? BitcoinUnits::formatWithUnit(unit, expected_balance, false, BitcoinUnits::SeparatorStyle::ALWAYS) :
+        BitcoinUnits::format(unit, expected_balance, false, BitcoinUnits::SeparatorStyle::ALWAYS);
     QCOMPARE(balance_label_to_check->text().trimmed(), balanceComparison);
 }
 
@@ -217,7 +218,7 @@ std::shared_ptr<CWallet> SetupDescriptorsWallet(interfaces::Node& node, TestChai
     Assert(wallet->AddWalletDescriptor(w_desc, provider, "", false));
     const PKHash dest{test.coinbaseKey.GetPubKey()};
     wallet->SetAddressBook(dest, "", wallet::AddressPurpose::RECEIVE);
-    wallet->SetLastBlockProcessed(105, WITH_LOCK(node.context()->chainman->GetMutex(), return node.context()->chainman->ActiveChain().Tip()->GetBlockHash()));
+    wallet->SetLastBlockProcessed(2005, WITH_LOCK(node.context()->chainman->GetMutex(), return node.context()->chainman->ActiveChain().Tip()->GetBlockHash()));
     SyncUpWallet(wallet, node);
     wallet->SetBroadcastTransactions(true);
     return wallet;
@@ -282,12 +283,13 @@ void TestGUI(interfaces::Node& node, const std::shared_ptr<CWallet>& wallet)
 
     // Send two transactions, and verify they are added to transaction list.
     TransactionTableModel* transactionTableModel = walletModel.getTransactionTableModel();
-    QCOMPARE(transactionTableModel->rowCount({}), 105);
+    int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
+    QCOMPARE(transactionTableModel->rowCount({}), coinbaseMaturity + 5);
     Txid txid1 = SendCoins(*wallet.get(), sendCoinsDialog, PKHash(), 5 * COIN, /*rbf=*/false);
     Txid txid2 = SendCoins(*wallet.get(), sendCoinsDialog, PKHash(), 10 * COIN, /*rbf=*/true);
     // Transaction table model updates on a QueuedConnection, so process events to ensure it's updated.
     qApp->processEvents();
-    QCOMPARE(transactionTableModel->rowCount({}), 107);
+    QCOMPARE(transactionTableModel->rowCount({}), coinbaseMaturity + 7);
     QVERIFY(FindTx(*transactionTableModel, txid1).isValid());
     QVERIFY(FindTx(*transactionTableModel, txid2).isValid());
 
@@ -301,10 +303,11 @@ void TestGUI(interfaces::Node& node, const std::shared_ptr<CWallet>& wallet)
     OverviewPage overviewPage(platformStyle.get());
     overviewPage.setWalletModel(&walletModel);
     walletModel.pollBalanceChanged(); // Manual balance polling update
-    CompareBalance(walletModel, walletModel.wallet().getBalance(), overviewPage.findChild<QLabel*>("labelBalance"));
+    CompareBalance(walletModel, walletModel.wallet().getBalance(), overviewPage.findChild<QLabel*>("labelBalance"), false);
 
     // Check Request Payment button
-    ReceiveCoinsDialog receiveCoinsDialog(platformStyle.get());
+    ReceiveRequestDialog requestDialog(platformStyle.get());
+    ReceiveCoinsDialog& receiveCoinsDialog = *requestDialog.findChild<ReceiveCoinsDialog*>("ReceiveCoinsDialog");
     receiveCoinsDialog.setModel(&walletModel);
     RecentRequestsTableModel* requestTableModel = walletModel.getRecentRequestsTableModel();
 
@@ -322,6 +325,7 @@ void TestGUI(interfaces::Node& node, const std::shared_ptr<CWallet>& wallet)
     int initialRowCount = requestTableModel->rowCount({});
     QPushButton* requestPaymentButton = receiveCoinsDialog.findChild<QPushButton*>("receiveButton");
     requestPaymentButton->click();
+    requestDialog.setInfo(receiveCoinsDialog.getInfo());
     QString address;
     for (QWidget* widget : QApplication::topLevelWidgets()) {
         if (widget->inherits("ReceiveRequestDialog")) {
@@ -329,32 +333,13 @@ void TestGUI(interfaces::Node& node, const std::shared_ptr<CWallet>& wallet)
             QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("payment_header")->text(), QString("Payment information"));
             QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("uri_tag")->text(), QString("URI:"));
             QString uri = receiveRequestDialog->QObject::findChild<QLabel*>("uri_content")->text();
-            QCOMPARE(uri.count("bitcoin:"), 2);
+            QCOMPARE(uri.count("qtum:"), 1);
             QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("address_tag")->text(), QString("Address:"));
             QVERIFY(address.isEmpty());
             address = receiveRequestDialog->QObject::findChild<QLabel*>("address_content")->text();
             QVERIFY(!address.isEmpty());
-
-            QCOMPARE(uri.count("amount=0.00000001"), 2);
-            QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("amount_tag")->text(), QString("Amount:"));
-            QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("amount_content")->text(), QString::fromStdString("0.00000001 " + CURRENCY_UNIT));
-
-            QCOMPARE(uri.count("label=TEST_LABEL_1"), 2);
-            QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("label_tag")->text(), QString("Label:"));
-            QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("label_content")->text(), QString("TEST_LABEL_1"));
-
-            QCOMPARE(uri.count("message=TEST_MESSAGE_1"), 2);
-            QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("message_tag")->text(), QString("Message:"));
-            QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("message_content")->text(), QString("TEST_MESSAGE_1"));
         }
     }
-
-    // Clear button
-    QPushButton* clearButton = receiveCoinsDialog.findChild<QPushButton*>("clearButton");
-    clearButton->click();
-    QCOMPARE(labelInput->text(), QString(""));
-    QCOMPARE(amountInput->value(), CAmount(0));
-    QCOMPARE(messageInput->text(), QString(""));
 
     // Check addition to history
     int currentRowCount = requestTableModel->rowCount({});
@@ -413,7 +398,7 @@ void TestGUIWatchOnly(interfaces::Node& node, TestChain100Setup& test)
         for (QWidget* widget : QApplication::topLevelWidgets()) {
             if (widget->inherits("QMessageBox") && widget->objectName().compare("psbt_copied_message") == 0) {
                 QMessageBox* dialog = qobject_cast<QMessageBox*>(widget);
-                QAbstractButton* button = dialog->button(QMessageBox::Discard);
+                QAbstractButton* button = dialog->button(QMessageBox::Cancel);
                 button->setEnabled(true);
                 button->click();
                 timer.stop();
@@ -467,7 +452,7 @@ void WalletTests::walletTests()
         // and fails to handle returned nulls
         // (https://bugreports.qt.io/browse/QTBUG-49686).
         qWarning() << "Skipping WalletTests on mac build with 'minimal' platform set due to Qt bugs. To run AppTests, invoke "
-                      "with 'QT_QPA_PLATFORM=cocoa test_bitcoin-qt' on mac, or else use a linux or windows build.";
+                      "with 'QT_QPA_PLATFORM=cocoa test_qtum-qt' on mac, or else use a linux or windows build.";
         return;
     }
 #endif

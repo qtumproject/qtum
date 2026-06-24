@@ -458,7 +458,7 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
         {
         QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(wtx->address));
         if(label.isEmpty())
-            return COLOR_BAREADDRESS;
+            return color_bareaddress;
         } break;
     default:
         break;
@@ -504,7 +504,7 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx)
     case TransactionStatus::NotAccepted:
         return platformStyle->TableColorIcon(":/icons/transaction_0", PlatformStyle::Error); 
     default:
-        return COLOR_BLACK;
+        return color_black;
     }
 }
 
@@ -578,16 +578,16 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
         // Use the "danger" color for abandoned transactions
         if(rec->status.status == TransactionStatus::Abandoned)
         {
-            return COLOR_TX_STATUS_DANGER;
+            return color_tx_status_danger;
         }
         // Non-confirmed (but not immature) as transactions are grey
         if(!rec->status.countsForBalance && rec->status.status != TransactionStatus::Immature)
         {
-            return COLOR_UNCONFIRMED;
+            return color_unconfirmed;
         }
         if(index.column() == Amount && (rec->credit+rec->debit) < 0)
         {
-            return COLOR_NEGATIVE;
+            return color_negative;
         }
         if(index.column() == ToAddress)
         {
