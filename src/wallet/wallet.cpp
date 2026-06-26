@@ -1628,8 +1628,8 @@ void CWallet::blockDisconnected(const interfaces::BlockInfo& block)
         const CTransactionRef& ptx = block.data->vtx[index];
         // Coinbase transactions are not only inactive but also abandoned,
         // meaning they should never be relayed standalone via the p2p protocol.
-        SyncTransaction(ptx, TxStateInactive{/*abandoned=*/index == 0, ptx->IsCoinStake()});
         if(ptx->IsCoinStake()) continue;
+        SyncTransaction(ptx, TxStateInactive{/*abandoned=*/index == 0, ptx->IsCoinStake()});
 
         for (const CTxIn& tx_in : ptx->vin) {
             // No other wallet transactions conflicted with this transaction
@@ -1659,6 +1659,14 @@ void CWallet::blockDisconnected(const interfaces::BlockInfo& block)
 
     // Update the best block
     SetLastBlockProcessed(block.height - 1, *Assert(block.prev_hash));
+
+    // Update the best block first, so that GetTxDepthInMainChain returns 0
+    // for transactions in the disconnected block. This is needed by
+    // DisableTransaction -> AbandonTransaction during coinstake disconnection.
+    if (block.data->IsProofOfStake()) {
+        const CTransactionRef& ptx = block.data->vtx[1];
+        SyncTransaction(ptx, TxStateInactive{/*abandoned=*/false, ptx->IsCoinStake()});
+    }
 }
 
 void CWallet::updatedBlockTip()
