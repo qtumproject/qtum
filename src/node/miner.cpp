@@ -306,7 +306,6 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock()
         //this just makes CBlock::IsProofOfStake to return true
         //real prevoutstake info is filled in later in SignBlock
         pblock->prevoutStake.n=0;
-
     }
 
     //////////////////////////////////////////////////////// qtum
@@ -390,7 +389,150 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock()
 
 std::unique_ptr<CBlockTemplate> BlockAssembler::CreateEmptyBlock()
 {
-    return {};
+    resetBlock();
+
+    pblocktemplate.reset(new CBlockTemplate());
+    CBlock* const pblock = &pblocktemplate->block; // pointer for convenience
+
+    // Add dummy coinbase tx as first transaction
+    pblock->vtx.emplace_back();
+    // Add dummy coinstake tx as second transaction
+    if(m_options.is_coinstake)
+        pblock->vtx.emplace_back();
+
+#ifdef ENABLE_WALLET
+    if(pwallet && pwallet->IsStakeClosing())
+        return nullptr;
+#endif
+    LOCK(::cs_main);
+    CBlockIndex* pindexPrev = m_chainstate.m_chain.Tip();
+    assert(pindexPrev != nullptr);
+    nHeight = pindexPrev->nHeight + 1;
+
+    pblock->nVersion = m_chainstate.m_chainman.m_versionbitscache.ComputeBlockVersion(pindexPrev, chainparams.GetConsensus());
+    // -regtest only: allow overriding block.nVersion with
+    // -blockversion=N to test forking scenarios
+    if (chainparams.MineBlocksOnDemand()) {
+        pblock->nVersion = gArgs.GetIntArg("-blockversion", pblock->nVersion);
+    }
+
+    int64_t txProofTime = m_options.proof_time;
+    if(txProofTime == 0) {
+        txProofTime = TicksSinceEpoch<std::chrono::seconds>(NodeClock::now());
+    }
+    if(m_options.is_coinstake)
+        txProofTime &= ~chainparams.GetConsensus().StakeTimestampMask(nHeight);
+    pblock->nTime = txProofTime;
+
+    m_lock_time_cutoff = pindexPrev->GetMedianTimePast();
+
+    m_last_block_num_txs = nBlockTx;
+    m_last_block_weight = nBlockWeight;
+
+    // Create coinbase transaction.
+    CMutableTransaction coinbaseTx;
+
+    // Construct coinbase transaction struct in parallel
+    CoinbaseTx& coinbase_tx{pblocktemplate->m_coinbase_tx};
+    coinbase_tx.version = coinbaseTx.version;
+
+    coinbaseTx.vin.resize(1);
+    coinbaseTx.vin[0].prevout.SetNull();
+    coinbaseTx.vin[0].nSequence = CTxIn::MAX_SEQUENCE_NONFINAL; // Make sure timelock is enforced.
+    coinbase_tx.sequence = coinbaseTx.vin[0].nSequence;
+
+    // Add an output that spends the full coinbase reward.
+    coinbaseTx.vout.resize(1);
+    if (m_options.is_coinstake)
+    {
+        // Make the coinbase tx empty in case of proof of stake
+        coinbaseTx.vout[0].SetEmpty();
+        coinbase_tx.block_reward_remaining = 0;
+    }
+    else
+    {
+        coinbaseTx.vout[0].scriptPubKey = m_options.coinbase_output_script;
+        // Block subsidy + fees
+        const CAmount block_reward{nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus())};
+        coinbaseTx.vout[0].nValue = block_reward;
+        coinbase_tx.block_reward_remaining = block_reward;
+    }
+
+    // Start the coinbase scriptSig with the block height as required by BIP34.
+    // Mining clients are expected to append extra data to this prefix, so
+    // increasing its length would reduce the space they can use and may break
+    // existing clients.
+    coinbaseTx.vin[0].scriptSig = CScript() << nHeight;
+    if (m_options.include_dummy_extranonce) {
+        // For blocks at heights <= 16, the BIP34-encoded height alone is only
+        // one byte. Consensus requires coinbase scriptSigs to be at least two
+        // bytes long (bad-cb-length), so tests and regtest include a dummy
+        // extraNonce (OP_0)
+        coinbaseTx.vin[0].scriptSig << OP_0;
+    }
+    coinbase_tx.script_sig_prefix = coinbaseTx.vin[0].scriptSig;
+    Assert(nHeight > 0);
+    coinbaseTx.nLockTime = static_cast<uint32_t>(nHeight - 1);
+    coinbase_tx.lock_time = coinbaseTx.nLockTime;
+    originalRewardTx = coinbaseTx;
+    pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
+
+    // Create coinstake transaction.
+    if(m_options.is_coinstake)
+    {
+        CMutableTransaction coinstakeTx;
+        coinstakeTx.vout.resize(2);
+        coinstakeTx.vout[0].SetEmpty();
+        coinstakeTx.vout[1].scriptPubKey = m_options.coinbase_output_script;
+        originalRewardTx = coinstakeTx;
+        pblock->vtx[1] = MakeTransactionRef(std::move(coinstakeTx));
+
+        //this just makes CBlock::IsProofOfStake to return true
+        //real prevoutstake info is filled in later in SignBlock
+        pblock->prevoutStake.n=0;
+    }
+
+    //////////////////////////////////////////////////////// qtum
+    //state shouldn't change here for an empty block, but if it's not valid it'll fail in CheckBlock later
+    pblock->hashStateRoot = uint256(h256Touint(dev::h256(globalState->rootHash())));
+    pblock->hashUTXORoot = uint256(h256Touint(dev::h256(globalState->rootHashUTXO())));
+
+    RebuildRefundTransaction(pblock);
+    ////////////////////////////////////////////////////////
+
+    m_chainstate.m_chainman.GenerateCoinbaseCommitment(*pblock, pindexPrev, m_options.is_coinstake);
+
+    const CTransactionRef& final_coinbase{pblock->vtx[0]};
+    if (final_coinbase->HasWitness()) {
+        const auto& witness_stack{final_coinbase->vin[0].scriptWitness.stack};
+        // Consensus requires the coinbase witness stack to have exactly one
+        // element of 32 bytes.
+        Assert(witness_stack.size() == 1 && witness_stack[0].size() == 32);
+        coinbase_tx.witness = uint256(witness_stack[0]);
+    }
+    if (const int witness_index = GetWitnessCommitmentIndex(*pblock); witness_index != NO_WITNESS_COMMITMENT) {
+        Assert(witness_index >= 0 && static_cast<size_t>(witness_index) < final_coinbase->vout.size());
+        coinbase_tx.required_outputs.push_back(final_coinbase->vout[witness_index]);
+    }
+
+    // The total fee is the Fees minus the Refund
+    pblocktemplate->nTotalFees = nFees - bceResult.refundSender;
+
+    // Fill in header
+    pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
+    if (!m_options.is_coinstake)
+        UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
+    pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus(),m_options.is_coinstake);
+    pblock->nNonce         = 0;
+
+    if (!m_options.is_coinstake && m_options.test_block_validity) {
+        // if nHeight <= 16, and include_dummy_extranonce=false this will fail due to bad-cb-length.
+        if (BlockValidationState state{TestBlockValidity(m_chainstate, *pblock, /*check_pow=*/false, /*check_merkle_root=*/false)}; !state.IsValid()) {
+            throw std::runtime_error(strprintf("TestBlockValidity failed: %s", state.ToString()));
+        }
+    }
+
+    return std::move(pblocktemplate);
 }
 
 bool BlockAssembler::TestChunkBlockLimits(FeePerWeight chunk_feerate, int64_t chunk_sigops_cost) const

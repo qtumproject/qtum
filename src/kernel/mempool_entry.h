@@ -82,6 +82,7 @@ private:
     mutable CAmount m_modified_fee; //!< Used for determining the priority of the transaction for mining in a block
     mutable LockPoints lockPoints;  //!< Track the height and time at which tx was final
     CAmount nMinGasPrice{0};        //!< The minimum gas price among the contract outputs of the tx
+    mutable int64_t m_count_with_ancestors{1}; //!< number of ancestor transactions
 
 public:
     virtual ~CTxMemPoolEntry() = default;
@@ -136,7 +137,14 @@ public:
         lockPoints = lp;
     }
 
+    void UpdateAncestors(int64_t count_ancestors) const
+    {
+        m_count_with_ancestors = count_ancestors;
+    }
+
     bool GetSpendsCoinbase() const { return spendsCoinbase; }
+
+    uint64_t GetCountWithAncestors() const { return m_count_with_ancestors; }
 
     mutable size_t idx_randomized; //!< Index in mempool's txns_randomized
 };

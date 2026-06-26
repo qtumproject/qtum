@@ -184,10 +184,62 @@ public:
     }
 };
 
+class CompareTxMemPoolEntryByEntryTimeOrGasPrice
+{
+public:
+    bool operator()(const CTxMemPoolEntry& a, const CTxMemPoolEntry& b) const
+    {
+        int fAHasCreateOrCall = a.GetTx().GetCreateOrCall();
+        int fBHasCreateOrCall = b.GetTx().GetCreateOrCall();
+
+        // If either of the two entries that we are comparing has a contract scriptPubKey, the comparison here takes precedence
+        if(fAHasCreateOrCall || fBHasCreateOrCall) {
+            // Prioritze non-contract txs
+            if((fAHasCreateOrCall > CTransaction::OpNone) != (fBHasCreateOrCall > CTransaction::OpNone)) {
+                return fAHasCreateOrCall > CTransaction::OpNone ? false : true;
+            }
+
+            // Prioritze create contract txs over send to contract txs
+            if((fAHasCreateOrCall > CTransaction::OpNone) && (fBHasCreateOrCall > CTransaction::OpNone) &&
+                    (fAHasCreateOrCall != fBHasCreateOrCall) && (fAHasCreateOrCall == CTransaction::OpCall || fBHasCreateOrCall == CTransaction::OpCall)){
+                return fAHasCreateOrCall == CTransaction::OpCall ? false : true;
+            }
+
+            // Prioritize the contract txs that have the least number of ancestors
+            // The reason for this is that otherwise it is possible to send one tx with a
+            // high gas limit but a low gas price which has a child with a low gas limit but a high gas price
+            // Without this condition that transaction chain would get priority in being included into the block.
+            if(a.GetCountWithAncestors() != b.GetCountWithAncestors()) {
+                return a.GetCountWithAncestors() < b.GetCountWithAncestors();
+            }
+
+            // Otherwise, prioritize the contract tx with the highest (minimum among its outputs) gas price
+            // The reason for using the gas price of the output that sets the minimum gas price is that there
+            // otherwise it may be possible to game the prioritization by setting a large gas price in one output
+            // that does no execution, while the real execution has a very low gas price
+            if(a.GetMinGasPrice() != b.GetMinGasPrice()) {
+                return a.GetMinGasPrice() > b.GetMinGasPrice();
+            }
+
+            // Otherwise, prioritize the tx with the minimum size
+            if(a.GetTxSize() != b.GetTxSize()) {
+                return a.GetTxSize() < b.GetTxSize();
+            }
+
+            // If the txs are identical in their minimum gas prices and tx size
+            // order based on the tx hash for consistency.
+            return a.GetTx().GetHash() < b.GetTx().GetHash();
+        }
+
+        // If neither of the txs we are comparing are contract txs, use the standard comparison based on entry time
+        return CompareTxMemPoolEntryByEntryTime()(a, b);
+    }
+};
+
 // Multi_index tag names
 struct entry_time {};
 struct index_by_wtxid {};
-struct ancestor_score_or_gas_price {};
+struct entry_time_or_gas_price {};
 
 /**
  * Information about a mempool transaction.
@@ -310,11 +362,11 @@ public:
                 boost::multi_index::identity<CTxMemPoolEntry>,
                 CompareTxMemPoolEntryByEntryTime
             >,
-            // sorted by fee rate with gas price (if contract tx) or ancestors otherwise
+            // sorted by fee rate with gas price (if contract tx) or entry time otherwise
             boost::multi_index::ordered_non_unique<
-                boost::multi_index::tag<ancestor_score_or_gas_price>,
+                boost::multi_index::tag<entry_time_or_gas_price>,
                 boost::multi_index::identity<CTxMemPoolEntry>,
-                CompareTxMemPoolEntryByEntryTime
+                CompareTxMemPoolEntryByEntryTimeOrGasPrice
             >
         >
         {};
@@ -380,6 +432,8 @@ private:
 
     typedef std::map<uint256, std::vector<CSpentIndexKey> > mapSpentIndexInserted;
     mapSpentIndexInserted mapSpentInserted;
+
+    void UpdateAncestors(bool bContractOnly = true) EXCLUSIVE_LOCKS_REQUIRED(cs);
     ////////////////////////////////////////////////////////////////
 
     std::vector<indexed_transaction_set::const_iterator> GetSortedScoreWithTopology() const EXCLUSIVE_LOCKS_REQUIRED(cs);

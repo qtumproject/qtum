@@ -92,6 +92,20 @@ std::vector<CTxMemPoolEntry::CTxMemPoolEntryRef> CTxMemPool::GetParents(const CT
     return ret;
 }
 
+void CTxMemPool::UpdateAncestors(bool bContractOnly)
+{
+    AssertLockHeld(cs);
+    for (auto it = mapTx.begin(); it != mapTx.end(); ++it) {
+        if (bContractOnly && !(it->GetTx().GetCreateOrCall()))
+            continue;
+
+        mapTx.modify(it, [this](CTxMemPoolEntry& e) {
+            int64_t count_ancestors = GetAncestorCount(e);
+            e.UpdateAncestors(count_ancestors);
+        });
+    }
+}
+
 void CTxMemPool::UpdateTransactionsFromBlock(const std::vector<Txid>& vHashesToUpdate)
 {
     AssertLockHeld(cs);
@@ -121,6 +135,7 @@ void CTxMemPool::UpdateTransactionsFromBlock(const std::vector<Txid>& vHashesToU
         const CTxMemPoolEntry& entry = *(static_cast<const CTxMemPoolEntry*>(txptr));
         removeUnchecked(mapTx.iterator_to(entry), MemPoolRemovalReason::SIZELIMIT);
     }
+    UpdateAncestors();
 }
 
 bool CTxMemPool::HasDescendants(const Txid& txid) const
@@ -228,6 +243,7 @@ void CTxMemPool::Apply(ChangeSet* changeset)
     if (!m_txgraph->DoWork(/*max_cost=*/POST_CHANGE_COST)) {
         LogDebug(BCLog::MEMPOOL, "Mempool in non-optimal ordering after addition(s).");
     }
+    UpdateAncestors();
 }
 
 void CTxMemPool::addNewTransaction(CTxMemPool::txiter newit)
@@ -387,6 +403,7 @@ void CTxMemPool::removeForReorg(CChain& chain, std::function<bool(txiter)> check
     if (!m_txgraph->DoWork(/*max_cost=*/POST_CHANGE_COST)) {
         LogDebug(BCLog::MEMPOOL, "Mempool in non-optimal ordering after reorg.");
     }
+    UpdateAncestors();
 }
 
 void CTxMemPool::removeConflicts(const CTransaction &tx)
@@ -436,6 +453,7 @@ void CTxMemPool::removeForBlock(const std::vector<CTransactionRef>& vtx, unsigne
     if (!m_txgraph->DoWork(/*max_cost=*/POST_CHANGE_COST)) {
         LogDebug(BCLog::MEMPOOL, "Mempool in non-optimal ordering after block.");
     }
+    UpdateAncestors();
 }
 
 void CTxMemPool::check(const CCoinsViewCache& active_coins_tip, int64_t spendheight) const
