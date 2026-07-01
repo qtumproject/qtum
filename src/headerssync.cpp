@@ -39,9 +39,27 @@ HeadersSyncState::HeadersSyncState(NodeId id,
     // exceeds this bound, because it's not possible for a consensus-valid
     // chain to be longer than this (at the current time -- in the future we
     // could try again, if necessary, to sync a longer chain).
-    const auto max_seconds_since_start{(Ticks<std::chrono::seconds>(NodeClock::now() - NodeSeconds{std::chrono::seconds{chain_start.GetMedianTimePast()}}))
+    if(consensus_params.nLastPOWBlock != consensus_params.nLastBigReward)
+    {
+        // Regtest mode, so use the Bitcoin formula for max commitments
+        const auto max_seconds_since_start{(Ticks<std::chrono::seconds>(NodeClock::now() - NodeSeconds{std::chrono::seconds{chain_start.GetMedianTimePast()}}))
                                        + MAX_FUTURE_BLOCK_TIME};
-    m_max_commitments = 6 * max_seconds_since_start / m_params.commitment_period;
+        m_max_commitments = 6 * max_seconds_since_start / m_params.commitment_period;
+    }
+    else
+    {
+        // Mainnet or testnet, so use the Qtum formula
+        int64_t numberOfBlocks = (TicksSinceEpoch<std::chrono::seconds>(NodeClock::now()) + MAX_FUTURE_BLOCK_TIME - chain_start.GetBlockTime()) / (consensus_params.MinStakeTimestampMask() + 1);
+        if(numberOfBlocks > 0)
+        {
+            if(chain_start.nHeight <= consensus_params.nLastPOWBlock)
+            {
+                // Add the PoW block, they take no time
+                numberOfBlocks += consensus_params.nLastPOWBlock;
+            }
+            m_max_commitments = 1 + numberOfBlocks / m_params.commitment_period;
+        }
+    }
 
     LogDebug(BCLog::NET, "Initial headers sync started with peer=%d: height=%i, max_commitments=%i, min_work=%s\n", m_id, m_current_height, m_max_commitments, m_minimum_required_work.ToString());
 }
@@ -146,7 +164,8 @@ bool HeadersSyncState::ValidateAndStoreHeadersCommitments(std::span<const CBlock
     Assume(m_download_state == State::PRESYNC);
     if (m_download_state != State::PRESYNC) return false;
 
-    if (headers[0].hashPrevBlock != m_last_header_received.GetHash()) {
+    if (headers[0].hashPrevBlock != m_last_header_received.GetHash() ||
+            (headers[0].IsProofOfStake() && headers[0].GetBlockTime() <= m_last_header_received.GetBlockTime())) {
         // Somehow our peer gave us a header that doesn't connect.
         // This might be benign -- perhaps our peer reorged away from the chain
         // they were on. Give up on this sync for now (likely we will start a
