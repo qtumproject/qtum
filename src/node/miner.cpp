@@ -333,7 +333,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock()
     /////////////////////////////////////////////////
     if (m_mempool) {
         LOCK(m_mempool->cs);
-        m_mempool->StartBlockBuilding();
+        m_mempool->StartBlockBuilding(/*sort_contracts=*/ true);
         addChunks();
         m_mempool->StopBlockBuilding();
     }

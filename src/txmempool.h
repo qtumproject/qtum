@@ -892,8 +892,12 @@ private:
     // tracking (due to lack of CValidationInterface::TransactionAddedToMempool
     // callbacks).
     void addNewTransaction(CTxMemPool::txiter it) EXCLUSIVE_LOCKS_REQUIRED(cs);
+
+    // Get block builder
+    std::unique_ptr<TxGraph::BlockBuilder> getBlockBuilder(bool sort_contracts) const EXCLUSIVE_LOCKS_REQUIRED(cs);
+
 public:
-    void StartBlockBuilding() const EXCLUSIVE_LOCKS_REQUIRED(cs) { assert(!m_builder); m_builder = m_txgraph->GetBlockBuilder(); }
+    void StartBlockBuilding(bool sort_contracts = false) const EXCLUSIVE_LOCKS_REQUIRED(cs) { assert(!m_builder); m_builder = getBlockBuilder(sort_contracts); }
     FeePerWeight GetBlockBuilderChunk(std::vector<CTxMemPoolEntry::CTxMemPoolEntryRef>& entries) const EXCLUSIVE_LOCKS_REQUIRED(cs)
     {
         if (!m_builder) { return {}; }

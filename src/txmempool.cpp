@@ -1291,4 +1291,202 @@ bool CTxMemPool::removeSpentIndex(const uint256 txhash)
 
     return true;
 }
+
+struct ContractChunk
+{
+    std::vector<TxGraph::Ref*> chunk_entries;
+    FeePerWeight chunk_feerate;
+    bool processed = false;
+
+    ContractChunk(const std::vector<TxGraph::Ref*>& entries, const FeePerWeight& feerate) : 
+        chunk_entries(entries),
+        chunk_feerate(feerate),
+        processed(false)
+    {};
+};
+
+// Attach Qtum specific contract transaction sorting to the block builder
+class QtumBlockBuilderImpl final : public TxGraph::BlockBuilder
+{
+    // Create builder variables
+    const CTxMemPool& m_mempool;
+    std::unique_ptr<TxGraph::BlockBuilder> m_builder;
+
+    // Contract index variables
+    static constexpr std::size_t m_invalid = std::size_t(-1);
+    std::size_t m_contract_chunk_index = m_invalid;
+    std::size_t m_sorted_contract_index = m_invalid;
+
+    // Contract sorting variables
+    bool m_sorted = false;
+    bool m_has_non_contract_chunk = true;
+    std::size_t m_number_contracts = 0;
+
+    // Sorting buffers
+    std::vector<const TxGraph::Ref*> m_sorted_contracts;
+    std::vector<std::unique_ptr<ContractChunk>> m_contract_chunks;
+    std::map<const TxGraph::Ref*, std::size_t> m_map_contract_chunk;
+
+    // Make a list of sorted contracts
+    void SortContracts()
+    {
+        if (!m_sorted) {
+            LOCK(m_mempool.cs);
+            if (m_number_contracts) {
+                m_sorted_contracts.reserve(m_number_contracts);
+            }
+            // Read the sorted contracts from the indexed data and store them in a list 
+            for (auto it = m_mempool.mapTx.get<entry_time_or_gas_price>().begin(); it != m_mempool.mapTx.get<entry_time_or_gas_price>().end(); it++) {
+                if (it->GetTx().HasCreateOrCall()) {
+                    m_sorted_contracts.push_back(&(*it));
+                }
+            }
+            m_sorted = true;
+        }
+    }
+
+    std::optional<std::pair<std::vector<TxGraph::Ref*>, FeePerWeight>> GetNonContractChunk()
+    {
+        // Don't search for chunks if already searched
+        if (!m_has_non_contract_chunk) {
+            return {};
+        }
+
+        // Search for chunk without contracts
+        while (auto res = m_builder->GetCurrentChunk())
+        {
+            bool hasContract = false;
+            auto [chunk_entries, chunk_feerate] = *res;
+            for (TxGraph::Ref* ref : chunk_entries) {
+                const CTxMemPoolEntry* entry = static_cast<const CTxMemPoolEntry*>(ref);
+                if (entry && entry->GetTx().HasCreateOrCall()) {
+                    // Add the found contracts to the map
+                    hasContract = true;
+                    m_number_contracts++;
+                    m_map_contract_chunk[ref] = m_contract_chunks.size();
+                }
+            }
+
+            if (hasContract) {
+                // Save the contract chunk in the list
+                m_contract_chunks.emplace_back(std::make_unique<ContractChunk>(chunk_entries, chunk_feerate));
+                m_builder->Skip();
+            }
+            else {
+                // Return chunk without contracts
+                return res;
+            }
+        }
+
+        m_has_non_contract_chunk = false;
+        return {};
+    }
+
+    std::optional<std::pair<std::vector<TxGraph::Ref*>, FeePerWeight>> GetContractChunk()
+    {
+        // Sort contracts
+        if (m_contract_chunk_index == m_invalid) {
+            SortContracts();
+            NextContractChunk();
+        }
+
+        // Get contract chunk
+        if (m_contract_chunk_index < m_contract_chunks.size()) {
+            return std::make_pair(m_contract_chunks[m_contract_chunk_index]->chunk_entries, m_contract_chunks[m_contract_chunk_index]->chunk_feerate);
+        }
+        return {};
+    }
+
+    void NextContractChunk() {
+        // Check boundaries
+        std::size_t num_contract = m_sorted_contracts.size();
+        std::size_t num_chunks = m_contract_chunks.size();
+        if (!num_contract || !num_chunks || m_sorted_contract_index == num_contract || m_contract_chunk_index == num_chunks)
+            return;
+
+        // Mark the previous chunk as processed
+        if (m_contract_chunk_index < num_chunks) {
+            m_contract_chunks[m_contract_chunk_index]->processed = true;
+        }
+
+        // Get the next sorted contract index
+        m_sorted_contract_index = m_sorted_contract_index == m_invalid ? 0 : ++m_sorted_contract_index;
+        bool found = false;
+
+        // Find the contract chunk for the next sorted contract
+        for (size_t i = m_sorted_contract_index; i < num_contract; i++) {
+            const TxGraph::Ref* ref = m_sorted_contracts[i];
+            auto it = m_map_contract_chunk.find(ref);
+            if (it != m_map_contract_chunk.end()) {
+                size_t chunk_index = it->second;
+                if (m_contract_chunks[chunk_index]->processed == false) {
+                    m_contract_chunk_index = chunk_index;
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        // Set the contract chunk index to the end if none found 
+        if (!found) {
+            m_contract_chunk_index = num_chunks;
+        }
+    }
+
+public:
+    QtumBlockBuilderImpl(const CTxMemPool& mempool) noexcept: m_mempool(mempool)
+    {
+        // Initialize variable
+        m_builder = m_mempool.m_txgraph->GetBlockBuilder();
+        m_contract_chunks.reserve(500);
+    }
+
+    ~QtumBlockBuilderImpl() final
+    {
+        // Release variable
+        m_builder.reset();
+    }
+
+    std::optional<std::pair<std::vector<TxGraph::Ref*>, FeePerWeight>> GetCurrentChunk() noexcept final
+    {
+        // Return the contract chunks after the non contract chunks are processed
+        if (auto ret = GetNonContractChunk()) {
+            return ret;
+        }
+        return GetContractChunk();
+    }
+
+    void Include() noexcept final
+    {
+        // Include chunk
+        if (m_has_non_contract_chunk) {
+            m_builder->Include();
+        }
+        else {
+            NextContractChunk();
+        }
+    }
+
+    void Skip() noexcept final
+    {
+        // Skip chunk
+        if (m_has_non_contract_chunk) {
+            m_builder->Skip();
+        }
+        else {
+            NextContractChunk();
+        }
+    }
+};
+
+std::unique_ptr<TxGraph::BlockBuilder> CTxMemPool::getBlockBuilder(bool sort_contracts) const
+{
+    AssertLockHeld(cs);
+
+    // Create specific block builder
+    if (sort_contracts) {
+        return std::make_unique<QtumBlockBuilderImpl>(*this);
+    }
+    return m_txgraph->GetBlockBuilder();
+}
 ///////////////////////////////////////////////////////
