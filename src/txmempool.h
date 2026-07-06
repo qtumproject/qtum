@@ -432,8 +432,6 @@ private:
 
     typedef std::map<uint256, std::vector<CSpentIndexKey> > mapSpentIndexInserted;
     mapSpentIndexInserted mapSpentInserted;
-
-    void UpdateAncestors(bool bContractOnly = true) EXCLUSIVE_LOCKS_REQUIRED(cs);
     ////////////////////////////////////////////////////////////////
 
     std::vector<indexed_transaction_set::const_iterator> GetSortedScoreWithTopology() const EXCLUSIVE_LOCKS_REQUIRED(cs);
@@ -750,6 +748,8 @@ public:
     uint64_t GetSequence() const EXCLUSIVE_LOCKS_REQUIRED(cs) {
         return m_sequence_number;
     }
+
+    void UpdateAncestors(bool bContractOnly = true) EXCLUSIVE_LOCKS_REQUIRED(cs);
 
 private:
     /** Remove a set of transactions from the mempool.

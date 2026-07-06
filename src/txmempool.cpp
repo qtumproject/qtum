@@ -99,10 +99,13 @@ void CTxMemPool::UpdateAncestors(bool bContractOnly)
         if (bContractOnly && !(it->GetTx().GetCreateOrCall()))
             continue;
 
-        mapTx.modify(it, [this](CTxMemPoolEntry& e) {
-            int64_t count_ancestors = GetAncestorCount(e);
-            e.UpdateAncestors(count_ancestors);
-        });
+        if (it->GetCountWithAncestors() != GetAncestorCount(*it))
+        {
+            mapTx.modify(it, [this](CTxMemPoolEntry& e) {
+                int64_t count_ancestors = GetAncestorCount(e);
+                e.UpdateAncestors(count_ancestors);
+            });
+        }
     }
 }
 
@@ -1332,6 +1335,7 @@ class QtumBlockBuilderImpl final : public TxGraph::BlockBuilder
     {
         if (!m_sorted) {
             LOCK(m_mempool.cs);
+            const_cast<CTxMemPool&>(m_mempool).UpdateAncestors();
             if (m_number_contracts) {
                 m_sorted_contracts.reserve(m_number_contracts);
             }
