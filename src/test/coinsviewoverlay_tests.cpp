@@ -27,6 +27,7 @@ CBlock CreateBlock() noexcept
     CBlock block;
     CMutableTransaction coinbase;
     coinbase.vin.emplace_back();
+    coinbase.vout.resize(1);
     block.vtx.push_back(MakeTransactionRef(coinbase));
 
     for (const auto i : std::views::iota(1, NUM_TXS)) {

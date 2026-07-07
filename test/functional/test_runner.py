@@ -452,6 +452,7 @@ BASE_SCRIPTS = [
     'qtum_evm_staticcall.py',
     'qtum_evm_constantinople_precompiles.py',
     'qtum_evm_constantinople_opcodes.py',
+    'qtum_evm_pectra_precompiles.py',
     'qtum_block_index_cleanup.py',
     'qtum_pod.py',
     'qtum_simple_delegation_contract.py',

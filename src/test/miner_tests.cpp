@@ -454,7 +454,7 @@ void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::
     const Consensus::Params& consensusParams = Params().GetConsensus();
 
     const CAmount BLOCKSUBSIDY = 50 * COIN;
-    const CAmount LOWFEE = CENT;
+    const CAmount LOWFEE = 4 * CENT;
     const CAmount HIGHFEE = COIN;
     const CAmount HIGHERFEE = 4 * COIN;
 
@@ -628,7 +628,7 @@ void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::
         }
         int blocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(m_node.chainman->ActiveChain().Tip()->nHeight + 1);
         options.is_coinstake = true;
-        auto pblocktemplate = mining->createNewBlock(options);
+        auto pblocktemplate = mining->createNewBlock(options, /*cooldown=*/false);
         BOOST_REQUIRE(pblocktemplate);
         BOOST_CHECK(calculateReward(pblocktemplate->getBlock(), *m_node.chainman) == 400000000/blocktimeDownscaleFactor);
         // Extend to a 1427004-long block chain.
@@ -643,7 +643,7 @@ void MinerTestingSetup::TestBasicMining(const CScript& scriptPubKey, const std::
             m_node.chainman->ActiveChain().SetTip(*next);
         }
         blocktimeDownscaleFactor = consensusParams.BlocktimeDownscaleFactor(m_node.chainman->ActiveChain().Tip()->nHeight + 1);
-        pblocktemplate = mining->createNewBlock(options);
+        pblocktemplate = mining->createNewBlock(options, /*cooldown=*/false);
         options.is_coinstake = false;
         BOOST_REQUIRE(pblocktemplate);
         BOOST_CHECK(calculateReward(pblocktemplate->getBlock(), *m_node.chainman) == 200000000/blocktimeDownscaleFactor);

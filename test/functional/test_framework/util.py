@@ -321,14 +321,14 @@ def get_binary_paths(config):
 
     paths = types.SimpleNamespace()
     binaries = {
-        "bitcoin": "BITCOIN_BIN",
-        "bitcoind": "BITCOIND",
-        "bench_bitcoin": "BITCOIN_BENCH",
-        "bitcoin-cli": "BITCOINCLI",
-        "bitcoin-util": "BITCOINUTIL",
-        "bitcoin-tx": "BITCOINTX",
-        "bitcoin-chainstate": "BITCOINCHAINSTATE",
-        "bitcoin-wallet": "BITCOINWALLET",
+        "qtum": "BITCOIN_BIN",
+        "qtumd": "BITCOIND",
+        "bench_qtum": "BITCOIN_BENCH",
+        "qtum-cli": "BITCOINCLI",
+        "qtum-util": "BITCOINUTIL",
+        "qtum-tx": "BITCOINTX",
+        "qtum-chainstate": "BITCOINCHAINSTATE",
+        "qtum-wallet": "BITCOINWALLET",
     }
     # Set paths to bitcoin core binaries allowing overrides with environment
     # variables.
