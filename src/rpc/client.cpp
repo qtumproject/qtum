@@ -79,6 +79,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "sendtoaddress", 8, "avoid_reuse" },
     { "sendtoaddress", 9, "fee_rate"},
     { "sendtoaddress", 10, "verbose"},
+    { "sendtoaddress", 11, "senderaddress", ParamFormat::STRING },
     { "sendtoaddress", 12, "changetosender" },
     { "splitutxosforaddress", 1, "minvalue" },
     { "splitutxosforaddress", 2, "maxvalue" },

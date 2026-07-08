@@ -195,7 +195,7 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
         for node in self.nodes[:2]:
             with node.assert_debug_log(['limited pruning to height 6889']):
                 pruneheight_new = node.pruneblockchain(4900)
-                assert_equal(pruneheight_new, 20054885)
+                assert_equal(pruneheight_new, 4885)
 
         self.log.info("ensure that prune locks don't prevent indices from failing in a reorg scenario")
         with self.nodes[0].assert_debug_log(['basic block filter index prune lock moved back to 6880']):

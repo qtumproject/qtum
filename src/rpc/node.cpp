@@ -1262,7 +1262,6 @@ static RPCHelpMan listconf()
 },
     };
 }
-//end_qtum
 
 void RegisterNodeRPCCommands(CRPCTable& t)
 {

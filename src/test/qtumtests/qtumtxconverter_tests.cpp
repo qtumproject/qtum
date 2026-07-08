@@ -53,7 +53,7 @@ void runTest(Chainstate& chainstate, CTxMemPool& mempool, bool isCreation, size_
     std::vector<CTxOut> outs1 = {CTxOut(value, CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG)};
     tx1 = createTX(outs1);
     Txid hashParentTx = tx1.GetHash(); // save this txid for later use
-    AddToMempool(mempool, entry.Fee(1000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx1));
+    TryAddToMempool(mempool, entry.Fee(1000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx1));
     std::vector<CTxOut> outs2;
     for(size_t i = 0; i < n; i++){
         if(script2 == CScript()){
@@ -88,7 +88,7 @@ void runFailingTest(Chainstate& chainstate, CTxMemPool& mempool, bool isCreation
     std::vector<CTxOut> outs1 = {CTxOut(value, CScript() << OP_DUP << OP_HASH160 << address << OP_EQUALVERIFY << OP_CHECKSIG)};
     tx1 = createTX(outs1);
     Txid hashParentTx = tx1.GetHash(); // save this txid for later use
-    AddToMempool(mempool, entry.Fee(1000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx1));
+    TryAddToMempool(mempool, entry.Fee(1000).Time(Now<NodeSeconds>()).SpendsCoinbase(true).FromTx(tx1));
     std::vector<CTxOut> outs2;
     for(size_t i = 0; i < n; i++){
         if(script2 == CScript()){
