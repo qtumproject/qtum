@@ -10,11 +10,11 @@ export HOST=i686-pc-linux-gnu
 export CONTAINER_NAME=ci_i686_no_multiprocess
 export CI_IMAGE_NAME_TAG="mirror.gcr.io/debian:trixie"
 export CI_IMAGE_PLATFORM="linux/amd64"
+export CI_CONTAINER_CAP="--security-opt seccomp=unconfined"
 export PACKAGES="llvm clang g++-multilib"
 export DEP_OPTS="DEBUG=1 NO_IPC=1"
 export GOAL="install"
 export CI_LIMIT_STACK_SIZE=1
-export TEST_RUNNER_EXTRA="--v2transport --usecli"
 export BITCOIN_CONFIG="\
  --preset=dev-mode \
  -DENABLE_IPC=OFF \
