@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2022 The Bitcoin Core developers
+# Copyright (c) 2017-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test qtum-cli"""
@@ -94,8 +94,30 @@ class TestBitcoinCli(BitcoinTestFramework):
         assert re.match(rf"^{re.escape(self.config['environment']['CLIENT_NAME'])} client.+services nwl2?$", det[0])
         assert not any(line.startswith("Local services:") for line in det)
 
+    def test_echojson_positional_equals(self):
+        """Test JSON parameter parsing containing '=' with -named echojson"""
+        self.log.info("Test JSON parameter parsing containing '=' is handled correctly with -named")
+
+        # This should be treated as a positional JSON argument, not as a named
+        result = self.nodes[0].cli("-named", "echojson", '["key=value"]').send_cli()
+        assert_equal(result, [["key=value"]])
+
+        result = self.nodes[0].cli("-named", "echojson", '["key=value", "another=test"]').send_cli()
+        assert_equal(result, [["key=value", "another=test"]])
+
+        result = self.nodes[0].cli("-named", "echojson", '["data=test"]', "42").send_cli()
+        expected = [["data=test"], 42]
+        assert_equal(result, expected)
+
+        # This should be treated as a named parameter, as arg0 and arg1 are valid parameter names
+        result = self.nodes[0].cli("-named", "echojson", 'arg0=["data=test"]', 'arg1=42').send_cli()
+        expected = [["data=test"], 42]
+        assert_equal(result, expected)
+
     def run_test(self):
         """Main test logic"""
+        self.test_echojson_positional_equals()
+
         self.generate(self.nodes[0], BLOCKS)
 
         self.log.info("Compare responses from getblockchaininfo RPC and `qtum-cli getblockchaininfo`")
@@ -227,7 +249,6 @@ class TestBitcoinCli(BitcoinTestFramework):
             wallet_info = self.nodes[0].getwalletinfo()
             assert_equal(int(cli_get_info['Keypool size']), wallet_info['keypoolsize'])
             assert_equal(int(cli_get_info['Unlocked until']), wallet_info['unlocked_until'])
-            assert_equal(Decimal(cli_get_info['Transaction fee rate (-paytxfee) (QTUM/kvB)']), wallet_info['paytxfee'])
             assert_equal(Decimal(cli_get_info['Min tx relay fee rate (QTUM/kvB)']), network_info['relayfee'])
             assert_equal(self.nodes[0].cli.getwalletinfo(), wallet_info)
 

@@ -54,11 +54,11 @@
         <translation type="unfinished">خوښول</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">دا ستاسو د Qtum پتې دي د تادیاتو لپاره. تل د سکې لیږلو مخکې اندازه او د ترلاسه کوونکي پته وګورئ.</translation>
+        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">دا ستاسو د Bitcoin پتې دي د تادیاتو لپاره. تل د سکې لیږلو مخکې اندازه او د ترلاسه کوونکي پته وګورئ.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">دا ستاسو د بټکوین پته ده د تادیاتو ترلاسه کولو لپاره. د 'نوې ترلاسه کولو پته جوړه کړئ' تڼۍ په ترلاسه کولو ټب کې وکاروئ ترڅو نوي پته جوړ کړئ.
 لاسلیک یوازې د 'لیګسي' ډول پتو سره ممکن دی.</translation>
@@ -160,7 +160,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">د والټ کوډ کول تایید کړئ</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
         <translation type="unfinished">خبرتیا: که تاسې خپل والټ کوډ کړئ او خپلپاسفریز، ته به یې. &lt;b&gt;خپل ټول بټ کوینونه له لاسه ورکړئ&lt;/b&gt;!</translation>
     </message>
     <message>
@@ -188,7 +188,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">بېرته</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">یاد ولرئ چې ستاسو د والټ رمز جوړول بشپړ ساتنه نه شي کولای.ستاسو بټ کوینونه د مالویر له لارې د غلا څخه خوندي کول
  ستاسو کمپیوټ</translation>
     </message>
@@ -429,7 +429,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پروکسي دی &lt;b&gt;فعال&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source>
+        <source>Send coins to a Bitcoin address</source>
         <translation type="unfinished">سکې د بټ کوین پته ته واستوئ</translation>
     </message>
     <message>
@@ -473,7 +473,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">لاسلیک او پیغام…</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
         <translation type="unfinished">د خپلو بټ کوین پتې سره پیغامونه لاسلیک کړئ ترڅو دا ثابت کړئ چې تاسو یې لرئ</translation>
     </message>
     <message>
@@ -481,7 +481,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;پیغام تایید کړئ…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
         <translation type="unfinished">پیغامونه تصدیق کړئ ترڅو ډاډ ترلاسه کړئ چې دوی د ټاکل شوو بټ کوین پته سره لاسلیک شوي دي</translation>
     </message>
     <message>
@@ -541,7 +541,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">د همکارانو سره نښلول…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
         <translation type="unfinished">د تادیاتو غوښتنه کول (QR کوډونه او بټ کوین: URI جوړوي</translation>
     </message>
     <message>
@@ -600,7 +600,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">کنټرول + Q</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction</source>
+        <source>Load Partially Signed Bitcoin Transaction</source>
         <translation type="unfinished">جزوي لاسلیک شوی بټ کوین معامله پورته کړئ</translation>
     </message>
     <message>
@@ -608,7 +608,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">PSBT له &amp; څخه بار کړئ</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
         <translation type="unfinished">د کلیپ بورډ څخه نیمګړی لاسلیک شوی بټ کوین معامله پورته کړئ</translation>
     </message>
     <message>
@@ -628,7 +628,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">او د ترلاسه کولو پته</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source>
+        <source>Open a bitcoin: URI</source>
         <translation type="unfinished">یو بټ کوین: URI پرانیزئ</translation>
     </message>
     <message>
@@ -666,7 +666,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">والټ لېږدول</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
         <translation type="unfinished">%1 مرسته پیغام وښایه ترڅو د ممکنه بټ کوین کمانډ لاین اختیارونو سره لیست ترلاسه کړئ"</translation>
     </message>
     <message>
@@ -730,7 +730,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">"ښودل</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -1065,6 +1065,16 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">حل کیدونکي خو نه لیدل شوي سکریپټونه یوې نوې بکسې ته انتقال شوي چې نوم یې '%1' دی."</translation>
     </message>
     <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">والټ بېرته راګرځول</translation>
+    </message>
+    <message>
+        <source>Restoring Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the restore wallets progress window which indicates to the user that wallets are currently being restored.</extracomment>
+        <translation type="unfinished">"والټ بیا راګرځول ..&lt;b&gt;%1&lt;/b&gt;…</translation>
+    </message>
+    <message>
         <source>Migration failed</source>
         <translation type="unfinished">هجرت ناکام شو</translation>
     </message>
@@ -1184,10 +1194,6 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">د خصوصي کليدونه غير فعاله کړئ.</translation>
     </message>
     <message>
-        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
-        <translation type="unfinished">یو خالي والیټ جوړ کړئ. خالي والیټونه په لومړي سر کې خصوصي کیلي او سکریپټونه نه لري. خصوصي کیلي او پته کولی شي وارد شي، یا د HD تخم وروسته ټاکل کیدی شي."</translation>
-    </message>
-    <message>
         <source>Make Blank Wallet</source>
         <translation type="unfinished">خالي بټوه جوړ کړه</translation>
     </message>
@@ -1244,7 +1250,7 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">د لېږلو پته سمول</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source>
+        <source>The entered address "%1" is not a valid Bitcoin address.</source>
         <translation type="unfinished">د داخل شوي پته "%1"دا د بټ کوین صحيح پته نه ده</translation>
     </message>
     <message>
@@ -1361,7 +1367,7 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">یو دودیز د معلوماتو ډایرکټري وکاروئ</translation>
     </message>
     <message>
-        <source>Qtum</source>
+        <source>Bitcoin</source>
         <translation type="unfinished">ٹ کوائن</translation>
     </message>
     <message numerus="yes">
@@ -1406,7 +1412,7 @@ The migration process will create a backup of the wallet before migrating. This 
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
         <translation type="unfinished">به د بیتکوین بلاک چین کاپي ډاونلوډ کړي او ذخیره کړي.%1</translation>
     </message>
     <message>
@@ -1480,7 +1486,7 @@ The migration process will create a backup of the wallet before migrating. This 
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open qtum URI</source>
+        <source>Open bitcoin URI</source>
         <translation type="unfinished">بټ کوین URI پرانیزئ</translation>
     </message>
     <message>
@@ -1634,6 +1640,23 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>Form</source>
         <translation type="unfinished">"فورمه:</translation>
+    </message>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
     </context>
 <context>

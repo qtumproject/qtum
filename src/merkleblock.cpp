@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -29,7 +29,7 @@ std::vector<bool> BytesToBits(const std::vector<unsigned char>& bytes)
 
 CMerkleBlock::CMerkleBlock(const CBlock& block, CBloomFilter* filter, const std::set<Txid>* txids)
 {
-    header = block.GetBlockHeader();
+    header = static_cast<const CBlockHeader&>(block);
 
     std::vector<bool> vMatch;
     std::vector<Txid> vHashes;
@@ -40,7 +40,7 @@ CMerkleBlock::CMerkleBlock(const CBlock& block, CBloomFilter* filter, const std:
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const Txid& hash{block.vtx[i]->GetHash()};
-        if (txids && txids->count(hash)) {
+        if (txids && txids->contains(hash)) {
             vMatch.push_back(true);
         } else if (filter && filter->IsRelevantAndUpdate(*block.vtx[i])) {
             vMatch.push_back(true);

@@ -50,7 +50,7 @@
         <translation type="unfinished">&amp;বাছাই</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">পেমেন্ট পাওয়ার জন্য এটি আপনার বিটকয়েন ঠিকানা। নতুন ঠিকানা তৈরী করতে "নতুন গ্রহণের ঠিকানা তৈরী করুন" বোতাম ব্যবহার করুন।
 সাইন ইন করা শুধুমাত্র "উত্তরাধিকার" ঠিকানার মাধ্যমেই সম্ভব।</translation>
@@ -334,7 +334,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ধরা…</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction</source>
+        <source>Load Partially Signed Bitcoin Transaction</source>
         <translation type="unfinished">আংশিক স্বাক্ষরিত বিটকয়েন লেনদেন লোড করুন</translation>
     </message>
     <message>
@@ -342,7 +342,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;ক্লিপবোর্ড থেকে আংশিক স্বাক্ষরিত বিটকয়েন লেনদেন আনুন</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
         <translation type="unfinished">ক্লিপবোর্ড থেকে আংশিক স্বাক্ষরিত বিটকয়েন লেনদেন লোড করুন</translation>
     </message>
     <message>
@@ -387,7 +387,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">S&amp;কিভাবে</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -465,7 +465,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Copy &amp;label</source>
-        <translation type="unfinished">কপি &amp;লেবেল</translation>
+        <translation type="unfinished">কপি লেবেল</translation>
     </message>
     <message>
         <source>Copy &amp;amount</source>
@@ -638,6 +638,23 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    </context>
+<context>
     <name>PeerTableModel</name>
     <message>
         <source>Address</source>
@@ -672,10 +689,6 @@ The migration process will create a backup of the wallet before migrating. This 
         <extracomment>Context menu action to copy the IP/Netmask of a banned peer. IP/Netmask is the combination of a peer's IP address and its Netmask. For IP address, see: https://en.wikipedia.org/wiki/IP_address.</extracomment>
         <translation type="unfinished">&amp;copy আইপি/নেটমাস্ক
 (IP/Netmask)</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">কিছুই নেই</translation>
     </message>
     <message>
         <source>Ctrl+I</source>
@@ -803,14 +816,6 @@ The migration process will create a backup of the wallet before migrating. This 
         <source>Date</source>
         <translation type="unfinished">তারিখ</translation>
     </message>
-    <message>
-        <source>From</source>
-        <translation type="unfinished">থেকে</translation>
-    </message>
-    <message>
-        <source>To</source>
-        <translation type="unfinished">উদ্দেশ্যে</translation>
-    </message>
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
         <translation type="unfinished">
@@ -831,7 +836,7 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">লেবেল</translation>
+        <translation type="unfinished">টিকেট</translation>
     </message>
     </context>
 <context>
@@ -842,7 +847,7 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Copy &amp;label</source>
-        <translation type="unfinished">কপি &amp;লেবেল</translation>
+        <translation type="unfinished">কপি লেবেল</translation>
     </message>
     <message>
         <source>Copy &amp;amount</source>

@@ -14,6 +14,22 @@
         <translation type="unfinished">&amp;ใหม่</translation>
     </message>
     <message>
+        <source>&amp;Copy</source>
+        <translation type="unfinished">&amp;คัดลอก</translation>
+    </message>
+    <message>
+        <source>C&amp;lose</source>
+        <translation type="unfinished">&amp;ปิด</translation>
+    </message>
+    <message>
+        <source>Delete the currently selected address from the list</source>
+        <translation type="unfinished">ลบที่อยู่ที่เลือกไว้ในปัจจุบันออกจากรายการ</translation>
+    </message>
+    <message>
+        <source>Enter address or label to search</source>
+        <translation type="unfinished">ป้อนที่อยู่หรือป้ายกำกับเพื่อค้นหา</translation>
+    </message>
+    <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">ส่งออกข้อมูลในแท็บปัจจุบันไปยังไฟล์</translation>
     </message>
@@ -38,11 +54,11 @@
         <translation type="unfinished">เลือก</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">นี่คือลิงก์ที่อยู่ Qtum ของคุณสำหรับการส่งการชำระเงิน ควรตรวจสอบจำนวนเงินและที่อยู่ผู้รับก่อนการส่งเหรียญ</translation>
+        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">นี่คือลิงก์ที่อยู่ Bitcoin ของคุณสำหรับการส่งการชำระเงิน ควรตรวจสอบจำนวนเงินและที่อยู่ผู้รับก่อนการส่งเหรียญ</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">นี่คือที่อยู่บิตคอยน์ของคุณสำหรับรับการชำระเงิน ใช้ปุ่ม 'สร้างที่อยู่รับใหม่' ในแท็บรับเพื่อสร้างที่อยู่ใหม่ การลงนามทำได้เฉพาะกับที่อยู่ประเภท 'legacy'</translation>
     </message>
@@ -143,7 +159,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ยืนยันการเข้ารหัสกระเป๋าเงิน</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
         <translation type="unfinished">คำเตือน: หากคุณเข้ารหัสกระเป๋าของคุณและสูญเสียรหัสผ่านของคุณ คุณจะสูญเสียบิตคอยน์ทั้งหมดของคุณ!</translation>
     </message>
     <message>
@@ -171,7 +187,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">กลับ</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">จำไว้ว่าการเข้ารหัสกระเป๋าของคุณไม่สามารถปกป้องบิตคอยน์ของคุณจากการถูกขโมยโดยมัลแวร์ที่ติดเชื้อคอมพิวเตอร์ของคุณได้อย่างสมบูรณ์</translation>
     </message>
     <message>
@@ -306,18 +322,34 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">จำนวน:</translation>
     </message>
     <message>
-        <source>Enter a Qtum address (e.g. %1)</source>
-        <translation type="unfinished">กรอกที่อยู่ Qtum (เช่น %1)</translation>
+        <source>Enter a Bitcoin address (e.g. %1)</source>
+        <translation type="unfinished">กรอกที่อยู่ Bitcoin (เช่น %1)</translation>
+    </message>
+    <message>
+        <source>Ctrl+W</source>
+        <translation type="unfinished">คีย์ลัด Ctrl+W (pronounced "kee lat Ctrl+W")</translation>
     </message>
     <message>
         <source>Unroutable</source>
-        <translation type="unfinished">ไม่สามารถกำหนดเส้นทางได้</translation>
+        <translation type="unfinished">ไม่สามารถกำหนดเส้นทางได้ (Mai Samart Kamnot Sen Thang Dai)</translation>
+    </message>
+    <message>
+        <source>IPv4</source>
+        <comment>network name</comment>
+        <extracomment>Name of IPv4 network in peer info</extracomment>
+        <translation type="unfinished">ไอพีวี4</translation>
+    </message>
+    <message>
+        <source>IPv6</source>
+        <comment>network name</comment>
+        <extracomment>Name of IPv6 network in peer info</extracomment>
+        <translation type="unfinished">ไอพีวี6</translation>
     </message>
     <message>
         <source>Onion</source>
         <comment>network name</comment>
         <extracomment>Name of Tor network in peer info</extracomment>
-        <translation type="unfinished">หัวหอม</translation>
+        <translation type="unfinished">หัวหอม (Hua Khom)</translation>
     </message>
     <message>
         <source>CJDNS</source>
@@ -328,12 +360,13 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Inbound</source>
         <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
-        <translation type="unfinished">ขาเข้า</translation>
+        <translation type="unfinished">ขาเข้า
+(Pronunciation: kǎa-kâo)</translation>
     </message>
     <message>
         <source>Outbound</source>
         <extracomment>An outbound connection to a peer. An outbound connection is a connection initiated by us.</extracomment>
-        <translation type="unfinished">ขาออก</translation>
+        <translation type="unfinished">ออกเดินทาง (òk dern thāng)</translation>
     </message>
     <message>
         <source>Full Relay</source>
@@ -353,7 +386,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Feeler</source>
         <extracomment>Short-lived peer connection type that tests the aliveness of known addresses.</extracomment>
-        <translation type="unfinished">ตัวตรวจจับ</translation>
+        <translation type="unfinished">ตัวตรวจจับ (tua dtruat jap)</translation>
     </message>
     <message>
         <source>Address Fetch</source>
@@ -513,7 +546,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">เปิดใช้พร็อกซี: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source>
+        <source>Send coins to a Bitcoin address</source>
         <translation type="unfinished">ส่งเหรียญไปยังที่อยู่บิตคอยน์</translation>
     </message>
     <message>
@@ -557,16 +590,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ป้าย &amp; ข้อความ…</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">ลงนามข้อความด้วยที่อยู่ Qtum ของคุณเพื่อพิสูจน์ว่าคุณเป็นเจ้าของ</translation>
+        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <translation type="unfinished">ลงนามข้อความด้วยที่อยู่ Bitcoin ของคุณเพื่อพิสูจน์ว่าคุณเป็นเจ้าของ</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">ตรวจสอบข้อความ...</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">ตรวจสอบข้อความเพื่อให้แน่ใจว่าข้อความเหล่านั้นได้รับการลงชื่อด้วยที่อยู่ Qtum ที่ระบุไว้</translation>
+        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <translation type="unfinished">ตรวจสอบข้อความเพื่อให้แน่ใจว่าข้อความเหล่านั้นได้รับการลงชื่อด้วยที่อยู่ Bitcoin ที่ระบุไว้</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -621,24 +654,20 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">กำลังประมวลผลบล็อกบนดิสก์...</translation>
     </message>
     <message>
-        <source>Connecting to peers…</source>
-        <translation type="unfinished">กำลังเชื่อมต่อกับเพื่อนร่วมงาน...</translation>
-    </message>
-    <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">ขอการชำระเงิน (สร้างรหัส QR และ URI ของบิตคอยน์)</translation>
+        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <translation type="unfinished">เรียกเก็บ การชำระเงิน (สร้าง QR codes และ bitcoin: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
-        <translation type="unfinished">แสดงรายการที่อยู่ที่ใช้ส่งและป้ายกำกับ</translation>
+        <translation type="unfinished">แสดงรายการ ที่เก็บเงินที่จะส่ง bitcoin ออก และป้ายชื่อ ที่ใช้ไปแล้ว</translation>
     </message>
     <message>
         <source>Show the list of used receiving addresses and labels</source>
-        <translation type="unfinished">แสดงรายการที่อยู่รับและป้ายที่ใช้แล้ว</translation>
+        <translation type="unfinished">แสดงรายการ ที่เก็บเงินที่จะรับ bitcoin เข้า และป้ายชื่อ ที่ใช้ไปแล้ว</translation>
     </message>
     <message>
         <source>&amp;Command-line options</source>
-        <translation type="unfinished">&amp;ตัวเลือกคำสั่งในบรรทัดคำสั่ง</translation>
+        <translation type="unfinished">&amp;ตัวเลือก Command-line</translation>
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
@@ -651,16 +680,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">%1 ตามหลัง</translation>
     </message>
     <message>
-        <source>Catching up…</source>
-        <translation type="unfinished">ตามทัน...</translation>
-    </message>
-    <message>
         <source>Last received block was generated %1 ago.</source>
-        <translation type="unfinished">บล็อกที่ได้รับล่าสุดถูกสร้างขึ้นเมื่อ %1 ที่แล้ว.</translation>
+        <translation type="unfinished">บล็อกสุดท้ายที่ได้รับ สร้างขึ้นเมื่อ %1 มาแล้ว</translation>
     </message>
     <message>
         <source>Transactions after this will not yet be visible.</source>
-        <translation type="unfinished">ธุรกรรมหลังจากนี้จะยังไม่สามารถมองเห็นได้.</translation>
+        <translation type="unfinished">ธุรกรรมหลังจากนี้จะยังไม่สามารถมองเห็น</translation>
     </message>
     <message>
         <source>Error</source>
@@ -679,16 +704,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ทันสมัย</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">โหลดธุรกรรม Qtum ที่ลงนามบางส่วน</translation>
+        <source>Load Partially Signed Bitcoin Transaction</source>
+        <translation type="unfinished">โหลดธุรกรรม Bitcoin ที่ลงนามบางส่วน</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">โหลด PSBT จาก &amp;คลิปบอร์ด…</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">โหลดธุรกรรม Qtum ที่ลงนามบางส่วนจากคลิปบอร์ด</translation>
+        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <translation type="unfinished">โหลดธุรกรรม Bitcoin ที่ลงนามบางส่วนจากคลิปบอร์ด</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -707,7 +732,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;ตัวเลือกคำสั่งในบรรทัดคำสั่ง</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source>
+        <source>Open a bitcoin: URI</source>
         <translation type="unfinished">เปิดบิตคอยน์: URI</translation>
     </message>
     <message>
@@ -745,7 +770,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ย้ายกระเป๋าเงิน</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
         <translation type="unfinished">แสดงข้อความช่วยเหลือ %1 เพื่อดูรายการตัวเลือกคำสั่งบิตคอยน์ที่เป็นไปได้</translation>
     </message>
     <message>
@@ -757,28 +782,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ปิดบังค่าในแท็บภาพรวม</translation>
     </message>
     <message>
-        <source>No wallets available</source>
-        <translation type="unfinished">ไม่มีกระเป๋าสตางค์วางจำหน่าย</translation>
-    </message>
-    <message>
-        <source>Wallet Data</source>
-        <extracomment>Name of the wallet data file format.</extracomment>
-        <translation type="unfinished">ข้อมูลกระเป๋าเงิน</translation>
-    </message>
-    <message>
         <source>Load Wallet Backup</source>
         <extracomment>The title for Restore Wallet File Windows</extracomment>
-        <translation type="unfinished">โหลดสำรองกระเป๋าเงิน</translation>
+        <translation type="unfinished">โหลดสำรองข้อมูลวอลเล็ต</translation>
     </message>
     <message>
         <source>Restore Wallet</source>
         <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
-        <translation type="unfinished">กู้กระเป๋าเงิน</translation>
-    </message>
-    <message>
-        <source>Wallet Name</source>
-        <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
-        <translation type="unfinished">ชื่อกระเป๋าเงิน</translation>
+        <translation type="unfinished">กู้คืนวอลเล็ต</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -809,7 +820,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">แสดง</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>การเชื่อมต่อที่ใช้งานอยู่ %n รายการไปยังเครือข่ายบิตคอยน์</numerusform>
@@ -848,36 +859,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">คำเตือน: %1</translation>
     </message>
     <message>
-        <source>Label: %1
-</source>
-        <translation type="unfinished">ป้ายกำกับ: %1
-</translation>
-    </message>
-    <message>
-        <source>Address: %1
-</source>
-        <translation type="unfinished">ที่อยู่: %1
-</translation>
-    </message>
-    <message>
-        <source>Sent transaction</source>
-        <translation type="unfinished">การทำธุรกรรมที่ส่งออก</translation>
-    </message>
-    <message>
-        <source>Incoming transaction</source>
-        <translation type="unfinished">การทำธุรกรรมที่เข้ามา</translation>
-    </message>
-    <message>
         <source>Private key &lt;b&gt;disabled&lt;/b&gt;</source>
         <translation type="unfinished">กุญแจส่วนตัว &lt;b&gt;พิการ&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
-        <translation type="unfinished">กระเป๋าเงินคือ &lt;b&gt;เข้ารหัส&lt;/b&gt; และปัจจุบัน &lt;b&gt;ปลดล็อก&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation type="unfinished">กระเป๋าสตางค์คือ &lt;b&gt;เข้ารหัส&lt;/b&gt; และปัจจุบัน &lt;b&gt;ล็อค&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Original message:</source>
@@ -962,40 +945,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">คัดลอก จำนวน</translation>
     </message>
     <message>
-        <source>&amp;Copy address</source>
-        <translation type="unfinished">&amp;คัดลอก แอดเดรส</translation>
-    </message>
-    <message>
-        <source>Copy &amp;label</source>
-        <translation type="unfinished">คัดลอก &amp;เลเบล</translation>
-    </message>
-    <message>
-        <source>Copy &amp;amount</source>
-        <translation type="unfinished">คัดลอก &amp;จำนวน</translation>
-    </message>
-    <message>
-        <source>Copy transaction &amp;ID and output index</source>
-        <translation type="unfinished">คัดล็อก &amp;ID ธุรกรรม และ ส่งออก เป็นดัชนี</translation>
-    </message>
-    <message>
-        <source>L&amp;ock unspent</source>
-        <translation type="unfinished">L&amp;ock ที่ไม่ได้ใข้</translation>
-    </message>
-    <message>
-        <source>&amp;Unlock unspent</source>
-        <translation type="unfinished">&amp;ปลดล็อค ที่ไม่ไดใช้</translation>
-    </message>
-    <message>
-        <source>Copy quantity</source>
-        <translation type="unfinished">คัดลอก ปริมาณ</translation>
-    </message>
-    <message>
         <source>Copy fee</source>
         <translation type="unfinished">คัดลอก ค่าธรรมเนียม</translation>
     </message>
     <message>
         <source>Copy after fee</source>
-        <translation type="unfinished">คัดลอก หลัง ค่าธรรมเนียม</translation>
+        <translation type="unfinished">คัดลอกหลังค่าธรรมเนียม</translation>
     </message>
     <message>
         <source>Copy bytes</source>
@@ -1093,6 +1048,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Solvable but not watched scripts have been migrated to a new wallet named '%1'.</source>
         <translation type="unfinished">สคริปต์ที่สามารถแก้ไขได้แต่ไม่ได้ติดตามได้ถูกย้ายไปยังกระเป๋าใหม่ที่ชื่อว่า '%1'</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">กู้กระเป๋าเงิน</translation>
     </message>
     <message>
         <source>Migration failed</source>
@@ -1204,10 +1164,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ปิดกุญแจส่วนตัว</translation>
     </message>
     <message>
-        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
-        <translation type="unfinished">สร้างกระเป๋าเปล่า กระเป๋าเปล่าเริ่มต้นจะไม่มีคีย์ส่วนตัวหรือสคริปต์ คีย์ส่วนตัวและที่อยู่สามารถนำเข้าได้ หรือสามารถตั้งค่า HD seed ในภายหลัง</translation>
-    </message>
-    <message>
         <source>Make Blank Wallet</source>
         <translation type="unfinished">ทำกระเป๋าว่าง</translation>
     </message>
@@ -1223,67 +1179,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Create</source>
         <translation type="unfinished">สร้าง</translation>
     </message>
-    <message>
-        <source>Compiled without external signing support (required for external signing)</source>
-        <extracomment>"External signing" means using devices such as hardware wallets.</extracomment>
-        <translation type="unfinished">คอมไพล์โดยไม่มีการสนับสนุนการลงชื่อภายนอก (ซึ่งจำเป็นสำหรับการลงชื่อภายนอก)</translation>
-    </message>
-</context>
-<context>
-    <name>EditAddressDialog</name>
-    <message>
-        <source>Edit Address</source>
-        <translation type="unfinished">แก้ไขที่อยู่</translation>
-    </message>
-    <message>
-        <source>&amp;Label</source>
-        <translation type="unfinished">ป้าย</translation>
-    </message>
-    <message>
-        <source>The label associated with this address list entry</source>
-        <translation type="unfinished">ป้ายกำกับที่เกี่ยวข้องกับรายการที่อยู่ในรายการนี้</translation>
-    </message>
-    <message>
-        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation type="unfinished">ที่อยู่ที่เชื่อมโยงกับรายการที่อยู่ในลิสต์นี้ นี้สามารถแก้ไขได้เฉพาะสำหรับที่อยู่ในการส่ง</translation>
-    </message>
-    <message>
-        <source>&amp;Address</source>
-        <translation type="unfinished">ที่อยู่</translation>
-    </message>
-    <message>
-        <source>New sending address</source>
-        <translation type="unfinished">ที่อยู่สำหรับการส่งใหม่</translation>
-    </message>
-    <message>
-        <source>Edit receiving address</source>
-        <translation type="unfinished">แก้ไขที่อยู่สำหรับการรับ</translation>
-    </message>
-    <message>
-        <source>Edit sending address</source>
-        <translation type="unfinished">แก้ไขที่อยู่การส่ง</translation>
-    </message>
-    <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">อยู่ที่ป้อน "%1" ไม่ใช่ที่อยู่ Qtum ที่ถูกต้อง</translation>
-    </message>
-    <message>
-        <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
-        <translation type="unfinished">ที่อยู่ "%1" มีอยู่แล้วในฐานะที่อยู่รับที่มีป้ายชื่อ "%2" และดังนั้นจึงไม่สามารถเพิ่มเป็นที่อยู่ส่งได้</translation>
-    </message>
-    <message>
-        <source>The entered address "%1" is already in the address book with label "%2".</source>
-        <translation type="unfinished">ที่อยู่ "%1" ที่ป้อนเข้าไปมีอยู่ในสมุดที่อยู่แล้วพร้อมป้ายกำกับ "%2"</translation>
-    </message>
-    <message>
-        <source>Could not unlock wallet.</source>
-        <translation type="unfinished">ไม่สามารถปลดล็อกกระเป๋าเงินได้</translation>
-    </message>
-    <message>
-        <source>New key generation failed.</source>
-        <translation type="unfinished">การสร้างคีย์ใหม่ล้มเหลว</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>FreespaceChecker</name>
     <message>
@@ -1380,7 +1276,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ใช้ไดเรกทอรีข้อมูลที่กำหนดเอง:</translation>
     </message>
     <message>
-        <source>Qtum</source>
+        <source>Bitcoin</source>
         <translation type="unfinished">บิตคอยน์</translation>
     </message>
     <message numerus="yes">
@@ -1421,7 +1317,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Qtum block chain.</source>
+        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
         <translation type="unfinished">%1 จะดาวน์โหลดและเก็บสำเนาของบล็อกเชนของบิตคอยน์</translation>
     </message>
     <message>
@@ -1432,11 +1328,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Error: Specified data directory "%1" cannot be created.</source>
         <translation type="unfinished">ข้อผิดพลาด: ไม่สามารถสร้างไดเรกทอรีข้อมูลที่ระบุ "%1" ได้</translation>
     </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">ข้อผิดพลาด</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>ModalOverlay</name>
     <message>
@@ -1444,11 +1336,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">จาก</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
         <translation type="unfinished">ธุรกรรมล่าสุดอาจยังไม่ปรากฏ และดังนั้นยอดคงเหลือในกระเป๋าของคุณอาจไม่ถูกต้อง ข้อมูลนี้จะถูกต้องเมื่อกระเป๋าของคุณเสร็จสิ้นการซิงค์กับเครือข่ายบิตคอยน์ ตามที่อธิบายไว้ด้านล่าง</translation>
     </message>
     <message>
-        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">การพยายามใช้บิตคอยน์ที่ได้รับผลกระทบจากธุรกรรมที่ยังไม่ได้แสดงจะไม่ได้รับการยอมรับจากเครือข่าย</translation>
     </message>
     <message>
@@ -1503,7 +1395,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open qtum URI</source>
+        <source>Open bitcoin URI</source>
         <translation type="unfinished">เปิด URI ของบิตคอยน์</translation>
     </message>
     <message>
@@ -1682,8 +1574,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">อนุญาตการเชื่อมต่อที่เข้ามา (Anuyat kan cheuamto thi khaoma)</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">เชื่อมต่อกับเครือข่าย Qtum ผ่านพร็อกซี SOCKS5.</translation>
+        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">เชื่อมต่อกับเครือข่าย Bitcoin ผ่านพร็อกซี SOCKS5.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1776,8 +1668,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">จะแสดงคุณสมบัติการควบคุมเหรียญหรือไม่</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">เชื่อมต่อกับเครือข่าย Qtum ผ่านพร็อกซี SOCKS5 แยกต่างหากสำหรับบริการ Tor onion</translation>
+        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">เชื่อมต่อกับเครือข่าย Bitcoin ผ่านพร็อกซี SOCKS5 แยกต่างหากสำหรับบริการ Tor onion</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -1790,11 +1682,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">ยกเลิก</translation>
-    </message>
-    <message>
-        <source>Compiled without external signing support (required for external signing)</source>
-        <extracomment>"External signing" means using devices such as hardware wallets.</extracomment>
-        <translation type="unfinished">คอมไพล์โดยไม่มีการสนับสนุนการลงชื่อภายนอก (ซึ่งจำเป็นสำหรับการลงชื่อภายนอก)</translation>
     </message>
     <message>
         <source>default</source>
@@ -1873,8 +1760,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">จาก</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">ข้อมูลที่แสดงอาจจะล้าสมัย กระเป๋าของคุณจะทำการซิงค์อัตโนมัติกับเครือข่าย Qtum หลังจากที่เชื่อมต่อเสร็จสิ้นแล้ว แต่กระบวนการนี้ยังไม่เสร็จสมบูรณ์</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <translation type="unfinished">ข้อมูลที่แสดงอาจจะล้าสมัย กระเป๋าของคุณจะทำการซิงค์อัตโนมัติกับเครือข่าย Bitcoin หลังจากที่เชื่อมต่อเสร็จสิ้นแล้ว แต่กระบวนการนี้ยังไม่เสร็จสมบูรณ์</translation>
     </message>
     <message>
         <source>Available:</source>
@@ -1916,7 +1803,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Recent transactions</source>
         <translation type="unfinished">การทำธุรกรรมล่าสุด</translation>
     </message>
-    </context>
+    <message>
+        <source>Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings-&gt;Mask values.</source>
+        <translation type="unfinished">โหมดความเป็นส่วนตัวถูกเปิดใช้งานสำหรับแท็บภาพรวม หากต้องการแสดงค่า ให้ยกเลิกการเลือก การตั้งค่า-&gt;ปิดการซ่อนค่า</translation>
+    </message>
+</context>
 <context>
     <name>PSBTOperationsDialog</name>
     <message>
@@ -1924,20 +1815,79 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">การดำเนินงาน</translation>
     </message>
     <message>
+        <source>Sign Tx</source>
+        <translation type="unfinished">ลงชื่อ Tx</translation>
+    </message>
+    <message>
+        <source>Broadcast Tx</source>
+        <translation type="unfinished">การออกอากาศ Tx</translation>
+    </message>
+    <message>
+        <source>Copy to Clipboard</source>
+        <translation type="unfinished">คัดลอกไปยังคลิปบอร์ด (Khat-lok pai yang klip-bord)</translation>
+    </message>
+    <message>
         <source>Save…</source>
-        <translation type="unfinished">บันทึก…</translation>
+        <translation type="unfinished">บันทึก... </translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">ปิด (bpit)</translation>
+    </message>
+    <message>
+        <source>Failed to load transaction: %1</source>
+        <translation type="unfinished">ไม่สามารถโหลดธุรกรรมได้: %1</translation>
+    </message>
+    <message>
+        <source>Failed to sign transaction: %1</source>
+        <translation type="unfinished">ล้มเหลวในการเซ็นต์ธุรกรรม: %1</translation>
     </message>
     <message>
         <source>Cannot sign inputs while wallet is locked.</source>
-        <translation type="unfinished">ไม่สามารถลงนามอินพุตในขณะที่วอลเล็ตถูกล็อค</translation>
+        <translation type="unfinished">ไม่สามารถเซ็นข้อมูลขาเข้าได้เมื่อกระเป๋าสตางค์ถูกล็อก</translation>
+    </message>
+    <message>
+        <source>Could not sign any more inputs.</source>
+        <translation type="unfinished">ไม่สามารถลงนามการป้อนข้อมูลเพิ่มเติมได้ (Mai samart long nam kan phon khomooht permum dai).</translation>
+    </message>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
+    <message>
+        <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
+        <translation type="unfinished">เซ็นธุรกรรมสำเร็จแล้ว ธุรกรรมพร้อมที่จะถ่ายทอด</translation>
     </message>
     <message>
         <source>Unknown error processing transaction.</source>
-        <translation type="unfinished">ข้อผิดพลาดที่ไม่รู้จักของการประมวลผลธุรกรรม</translation>
+        <translation type="unfinished">เกิดข้อผิดพลาดที่ไม่รู้จักในการประมวลผลธุรกรรม</translation>
+    </message>
+    <message>
+        <source>Transaction broadcast successfully! Transaction ID: %1</source>
+        <translation type="unfinished">การถ่ายทอดธุรกรรมสำเร็จ! รหัสธุรกรรม: %1</translation>
+    </message>
+    <message>
+        <source>Transaction broadcast failed: %1</source>
+        <translation type="unfinished">การส่งธุรกรรมล้มเหลว: %1</translation>
     </message>
     <message>
         <source>PSBT copied to clipboard.</source>
         <translation type="unfinished">PSBT คัดลอกไปยังคลิปบอร์ดแล้ว</translation>
+    </message>
+    <message>
+        <source>Save Transaction Data</source>
+        <translation type="unfinished">บันทึกข้อมูลธุรกรรม</translation>
+    </message>
+    <message>
+        <source>Partially Signed Transaction (Binary)</source>
+        <extracomment>Expanded name of the binary PSBT file format. See: BIP 174.</extracomment>
+        <translation type="unfinished">ธุรกรรมที่ลงนามบางส่วน (ไบนารี)</translation>
+    </message>
+    <message>
+        <source>PSBT saved to disk.</source>
+        <translation type="unfinished">PSBT ถูกบันทึกลงดิสก์.</translation>
     </message>
     <message>
         <source>Sends %1 to %2</source>
@@ -1959,9 +1909,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>or</source>
         <translation type="unfinished">หรือ</translation>
     </message>
-    <message>
-        <source>Transaction has %1 unsigned inputs.</source>
-        <translation type="unfinished">ธุรกรรมมี %1 อินพุตที่ไม่ได้ลงนาม</translation>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>Transaction is missing some information about inputs.</source>
@@ -1999,7 +1951,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ข้อผิดพลาดในการขอชำระเงิน</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source>
+        <source>Cannot start bitcoin: click-to-pay handler</source>
         <translation type="unfinished">ไม่สามารถเริ่มต้นบิตคอยน์: ตัวจัดการคลิกเพื่อจ่าย</translation>
     </message>
     <message>
@@ -2007,8 +1959,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">การจัดการ URI</translation>
     </message>
     <message>
-        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
-        <translation type="unfinished">'qtum://' ไม่ใช่ URI ที่ถูกต้อง ใช้ 'qtum:' แทน</translation>
+        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
+        <translation type="unfinished">'bitcoin://' ไม่ใช่ URI ที่ถูกต้อง ใช้ 'bitcoin:' แทน</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -2019,8 +1971,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
 หากคุณได้รับข้อผิดพลาดนี้คุณควรขอให้พ่อค้าจัดเตรียม URI ที่รองรับ BIP21</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
-        <translation type="unfinished">ไม่สามารถแยก URI ได้! สิ่งนี้อาจเกิดจากที่อยู่ Qtum ที่ไม่ถูกต้องหรือพารามิเตอร์ URI ที่ผิดรูปแบบ</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
+        <translation type="unfinished">ไม่สามารถแยก URI ได้! สิ่งนี้อาจเกิดจากที่อยู่ Bitcoin ที่ไม่ถูกต้องหรือพารามิเตอร์ URI ที่ผิดรูปแบบ</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2043,7 +1995,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Peer</source>
         <extracomment>Title of Peers Table column which contains a unique number used to identify a connection.</extracomment>
-        <translation type="unfinished">เพียร์</translation>
+        <translation type="unfinished">เพื่อน (Phûuean)</translation>
     </message>
     <message>
         <source>Age</source>
@@ -2076,14 +2028,20 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">ประเภท</translation>
     </message>
     <message>
+        <source>Network</source>
+        <extracomment>Title of Peers Table column which states the network the peer connected through.</extracomment>
+        <translation type="unfinished">เครือข่าย (pronounced "kruea-khai")</translation>
+    </message>
+    <message>
         <source>Inbound</source>
         <extracomment>An Inbound Connection from a Peer.</extracomment>
-        <translation type="unfinished">ขาเข้า</translation>
+        <translation type="unfinished">ขาเข้า
+(Pronunciation: kǎa-kâo)</translation>
     </message>
     <message>
         <source>Outbound</source>
         <extracomment>An Outbound Connection to a Peer.</extracomment>
-        <translation type="unfinished">ขาออก</translation>
+        <translation type="unfinished">ออกเดินทาง (òk dern thāng)</translation>
     </message>
 </context>
 <context>
@@ -2093,8 +2051,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">ที่อยู่ท้องถิ่น</translation>
     </message>
     <message>
-        <source>Network addresses that your Qtum node is currently using to communicate with other nodes.</source>
-        <translation type="unfinished">ที่อยู่เครือข่ายที่โหนด Qtum ของคุณกำลังใช้ในการสื่อสารกับโหนดอื่นๆ</translation>
+        <source>Network addresses that your Bitcoin node is currently using to communicate with other nodes.</source>
+        <translation type="unfinished">ที่อยู่เครือข่ายที่โหนด Bitcoin ของคุณกำลังใช้ในการสื่อสารกับโหนดอื่นๆ</translation>
     </message>
     <message>
         <source>Block chain</source>
@@ -2130,7 +2088,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Sent</source>
-        <translation type="unfinished">ส่ง</translation>
+        <translation type="unfinished">ส่ง (sòng)</translation>
     </message>
     <message>
         <source>&amp;Peers</source>
@@ -2177,20 +2135,16 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">การส่งต่อธุรกรรม</translation>
     </message>
     <message>
-        <source>Starting Block</source>
-        <translation type="unfinished">บล็อกเริ่มต้น</translation>
-    </message>
-    <message>
         <source>Synced Headers</source>
-        <translation type="unfinished">หัวข้อที่ซิงค์</translation>
+        <translation type="unfinished">หัวข้อที่ซิงค์ (Huākhāo thī sìngk)</translation>
     </message>
     <message>
         <source>Synced Blocks</source>
-        <translation type="unfinished">บล็อกที่ซิงค์</translation>
+        <translation type="unfinished">บล็อกที่ซิงค์ (Blok thi sing)</translation>
     </message>
     <message>
         <source>Last Transaction</source>
-        <translation type="unfinished">ธุรกรรมล่าสุด</translation>
+        <translation type="unfinished">ธุรกรรมล่าสุด (Thurakam lasut)</translation>
     </message>
     <message>
         <source>The mapped Autonomous System used for diversifying peer selection.</source>
@@ -2198,7 +2152,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Mapped AS</source>
-        <translation type="unfinished">แมปป์เป็น</translation>
+        <translation type="unfinished">แมปป์เป็น (pronounced: máp bpen)</translation>
     </message>
     <message>
         <source>Whether we relay addresses to this peer.</source>
@@ -2208,7 +2162,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Address Relay</source>
         <extracomment>Text title for the Address Relay field in the peer details area, which displays whether we relay addresses to this peer (Yes/No).</extracomment>
-        <translation type="unfinished">การส่งต่อที่อยู่</translation>
+        <translation type="unfinished">การส่งต่อที่อยู่ (Kān sòng tōr thī̀ yùu)</translation>
     </message>
     <message>
         <source>The total number of addresses received from this peer that were processed (excludes addresses that were dropped due to rate-limiting).</source>
@@ -2232,7 +2186,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>User Agent</source>
-        <translation type="unfinished">ตัวแทนผู้ใช้</translation>
+        <translation type="unfinished">ตัวแทนผู้ใช้
+(Pronounced: Dtua-Thaen Phu-Chai)</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -2240,7 +2195,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Current block height</source>
-        <translation type="unfinished">ความสูงของบล็อกปัจจุบัน</translation>
+        <translation type="unfinished">ความสูงของบล็อกปัจจุบัน (Khwam sung khong blok pachuban)</translation>
     </message>
     <message>
         <source>Open the %1 debug log file from the current data directory. This can take a few seconds for large log files.</source>
@@ -2252,7 +2207,11 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Increase font size</source>
-        <translation type="unfinished">เพิ่มขนาดตัวอักษร</translation>
+        <translation type="unfinished">เพิ่มขนาดตัวอักษร (Pêr̂m khà-nàd tûa-òk-sŏn)</translation>
+    </message>
+    <message>
+        <source>Permissions</source>
+        <translation type="unfinished">สิทธิ์ (Sìt) or การอนุญาต (Kān Anuyāt)</translation>
     </message>
     <message>
         <source>The direction and type of peer connection: %1</source>
@@ -2260,7 +2219,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Direction/Type</source>
-        <translation type="unfinished">ทิศทาง/ประเภท</translation>
+        <translation type="unfinished">ทิศทาง/ประเภท (Títhāng / Bpràphêd)</translation>
     </message>
     <message>
         <source>The BIP324 session ID string in hex.</source>
@@ -2272,7 +2231,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Services</source>
-        <translation type="unfinished">บริการ</translation>
+        <translation type="unfinished">บริการ (Borisat)</translation>
     </message>
     <message>
         <source>High bandwidth BIP152 compact block relay: %1</source>
@@ -2280,11 +2239,11 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>High Bandwidth</source>
-        <translation type="unfinished">แบนด์วิธสูง</translation>
+        <translation type="unfinished">แบนด์วิธสูง (pronounced: baen-wit soong)</translation>
     </message>
     <message>
         <source>Connection Time</source>
-        <translation type="unfinished">เวลาเชื่อมต่อ</translation>
+        <translation type="unfinished">เวลาเชื่อมต่อ (Wela Chueamto)</translation>
     </message>
     <message>
         <source>Elapsed time since a novel block passing initial validity checks was received from this peer.</source>
@@ -2292,7 +2251,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Last Block</source>
-        <translation type="unfinished">บล็อกสุดท้าย</translation>
+        <translation type="unfinished">บล็อกสุดท้าย (Blók Sùt Tái)</translation>
     </message>
     <message>
         <source>Elapsed time since a novel transaction accepted into our mempool was received from this peer.</source>
@@ -2301,7 +2260,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Last Send</source>
-        <translation type="unfinished">ส่งสุดท้าย</translation>
+        <translation type="unfinished">ส่งสุดท้าย (Song Soot Thai)</translation>
     </message>
     <message>
         <source>Last Receive</source>
@@ -2385,7 +2344,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">ไม่มี (Mai mee)</translation>
+        <translation type="unfinished">ไม่มี</translation>
     </message>
     </context>
 <context>
@@ -2396,7 +2355,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Copy &amp;label</source>
-        <translation type="unfinished">คัดลอก &amp; ป้าย</translation>
+        <translation type="unfinished">คัดลอก &amp;เลเบล</translation>
     </message>
     <message>
         <source>Copy &amp;amount</source>
@@ -2469,11 +2428,11 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Copy amount</source>
-        <translation type="unfinished">จำนวนคัดลอก</translation>
+        <translation type="unfinished">คัดลอก จำนวน</translation>
     </message>
     <message>
         <source>Copy fee</source>
-        <translation type="unfinished">ค่าลอกสำเนา</translation>
+        <translation type="unfinished">คัดลอก ค่าธรรมเนียม</translation>
     </message>
     <message>
         <source>Copy after fee</source>
@@ -2481,20 +2440,11 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Copy bytes</source>
-        <translation type="unfinished">คัดลอกไบต์</translation>
+        <translation type="unfinished">คัดลอก bytes</translation>
     </message>
     <message>
         <source>Copy change</source>
         <translation type="unfinished">คัดลอก change</translation>
-    </message>
-    <message>
-        <source>Save Transaction Data</source>
-        <translation type="unfinished">บันทึกข้อมูลธุรกรรม</translation>
-    </message>
-    <message>
-        <source>Partially Signed Transaction (Binary)</source>
-        <extracomment>Expanded name of the binary PSBT file format. See: BIP 174.</extracomment>
-        <translation type="unfinished">ธุรกรรมที่ลงนามบางส่วน (ไบนารี)</translation>
     </message>
     <message>
         <source>or</source>
@@ -2528,12 +2478,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
 <context>
     <name>TransactionDesc</name>
     <message>
-        <source>Date</source>
-        <translation type="unfinished">วันที่</translation>
-    </message>
-    <message>
         <source>unknown</source>
-        <translation type="unfinished">ไม่ทราบ</translation>
+        <translation type="unfinished">ไม่ทราบ (mai saap)</translation>
     </message>
     <message>
         <source>own address</source>
@@ -2547,7 +2493,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">จำนวน</translation>
+        <translation type="unfinished">จำนวน:</translation>
     </message>
     </context>
 <context>
@@ -2572,56 +2518,12 @@ If you are receiving this error you should request the merchant provide a BIP21 
 <context>
     <name>TransactionView</name>
     <message>
-        <source>&amp;Copy address</source>
-        <translation type="unfinished">ที่อยู่ &amp;Copy</translation>
-    </message>
-    <message>
-        <source>Copy &amp;label</source>
-        <translation type="unfinished">คัดลอก &amp; ป้าย</translation>
-    </message>
-    <message>
-        <source>Copy &amp;amount</source>
-        <translation type="unfinished">คัดลอก &amp;จำนวน</translation>
-    </message>
-    <message>
-        <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
-        <translation type="unfinished">ไฟล์ที่แยกด้วยเครื่องหมายจุลภาค</translation>
-    </message>
-    <message>
-        <source>Confirmed</source>
-        <translation type="unfinished">ยืนยันแล้ว</translation>
-    </message>
-    <message>
-        <source>Date</source>
-        <translation type="unfinished">วันที่</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished">ประเภท</translation>
-    </message>
-    <message>
         <source>Label</source>
         <translation type="unfinished">การส่งออกล้มเหลว</translation>
     </message>
     <message>
         <source>Address</source>
         <translation type="unfinished">ที่อยู่</translation>
-    </message>
-    <message>
-        <source>Exporting Failed</source>
-        <translation type="unfinished">การส่งออกล้มเหลว</translation>
-    </message>
-    </context>
-<context>
-    <name>WalletFrame</name>
-    <message>
-        <source>Create a new wallet</source>
-        <translation type="unfinished">สร้างกระเป๋าใหม่</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">ข้อผิดพลาด</translation>
     </message>
     </context>
 <context>

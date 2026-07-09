@@ -54,13 +54,13 @@
         <translation type="unfinished">C&amp;hoaz</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Ho adresoù Qtum evit kas paeamantoù int. Gwirekaat ar sammad hag an adres a resev bewezh a-raok kas gwenneien.</translation>
+        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Ho adresoù Bitcoin evit kas paeamantoù int. Gwirekaat ar sammad hag an adres a resev bewezh a-raok kas gwenneien.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Ho adresoù Qtum evit resev paeamantoù eo. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <translation type="unfinished">Ho adresoù Bitcoin evit resev paeamantoù eo. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</translation>
     </message>
     <message>
@@ -123,8 +123,8 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
         <translation type="unfinished">Kadarnaat sifrañ an doug-moneiz</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Diwall: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <translation type="unfinished">Diwall: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Wallet encrypted</source>
@@ -242,8 +242,8 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
         <translation type="unfinished">Doug-moneiz:</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">Kas gwenneien d'un adres Qtum</translation>
+        <source>Send coins to a Bitcoin address</source>
+        <translation type="unfinished">Kas gwenneien d'un adres Bitcoin</translation>
     </message>
     <message>
         <source>&amp;Send</source>
@@ -334,7 +334,7 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
         <translation type="unfinished">&amp;Diskouel</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -641,9 +641,23 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
         <source>Close</source>
         <translation type="unfinished">Serriñ</translation>
     </message>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
     <message>
         <source>or</source>
         <translation type="unfinished">pe</translation>
+    </message>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
     </context>
 <context>
@@ -662,11 +676,6 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
         <source>Sent</source>
         <extracomment>Title of Peers Table column which indicates the total amount of network information we have sent to the peer.</extracomment>
         <translation type="unfinished">Kaset</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <extracomment>Title of Peers Table column which contains the IP/Onion/I2P address of the connected peer.</extracomment>
-        <translation type="unfinished">Adres</translation>
     </message>
     <message>
         <source>Type</source>
@@ -921,10 +930,6 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
         <translation type="unfinished">Seurt</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation type="unfinished">Adres</translation>
-    </message>
-    <message>
         <source>to</source>
         <translation type="unfinished">da</translation>
     </message>
@@ -968,10 +973,6 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
     <message>
         <source>Error: Transaction %s in wallet cannot be identified to belong to migrated wallets</source>
         <translation type="unfinished">Fazi: Transaction %s in wallet cannot be identified to belong to migrated wallets</translation>
-    </message>
-    <message>
-        <source>Error creating %s</source>
-        <translation type="unfinished">Fazi en ur grouiñ %s</translation>
     </message>
     <message>
         <source>Error: Cannot extract destination from the generated scriptpubkey</source>

@@ -54,13 +54,13 @@
         <translation type="unfinished">D&amp;ewis</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Rhain ydi eich cyfeiriadau Qtum ar gyfer gyrru taliadau. Gwnewch yn sicr o'r swm a'r cyfeiriad derbyn cyn gyrru arian.</translation>
+        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Rhain ydi eich cyfeiriadau Bitcoin ar gyfer gyrru taliadau. Gwnewch yn sicr o'r swm a'r cyfeiriad derbyn cyn gyrru arian.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Dyma'ch cyfeiriadau Qtum ar gyfer derbyn taliadau. Defnyddiwch y botwm 'Creu cyfeiriad derbyn newydd' yn y tab derbyn i greu cyfeiriadau newydd. Dim ond gyda chyfeiriadau o'r math 'etifeddol' y mae llofnodi yn bosibl.</translation>
+        <translation type="unfinished">Dyma'ch cyfeiriadau Bitcoin ar gyfer derbyn taliadau. Defnyddiwch y botwm 'Creu cyfeiriad derbyn newydd' yn y tab derbyn i greu cyfeiriadau newydd. Dim ond gyda chyfeiriadau o'r math 'etifeddol' y mae llofnodi yn bosibl.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -155,8 +155,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Cadarnhau amgryptio'r waled</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Rhybudd: Os ydych yn amgryptio'r waled ag yn colli'r cyfrinair, byddwch yn &lt;b&gt; COLLI EICH QTUMS I GYD &lt;b&gt; !</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <translation type="unfinished">Rhybudd: Os ydych yn amgryptio'r waled ag yn colli'r cyfrinair, byddwch yn &lt;b&gt; COLLI EICH BITCOINS I GYD &lt;b&gt; !</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -183,8 +183,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Yn ôl</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Cofiwch nad yw cryptio eich waled yn gallu amddiffyn eich qtumiodd yn llawn rhag cael eu dwyn gan feddalwedd ymosodol sy'n heintio eich cyfrifiadur.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Cofiwch nad yw cryptio eich waled yn gallu amddiffyn eich bitcoiniodd yn llawn rhag cael eu dwyn gan feddalwedd ymosodol sy'n heintio eich cyfrifiadur.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -434,8 +434,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Mae'r procsï yw&lt;b&gt;wedi'i alluog&lt;/b&gt;i:%1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">Anfon arian i gyfeiriad Qtum</translation>
+        <source>Send coins to a Bitcoin address</source>
+        <translation type="unfinished">Anfon arian i gyfeiriad Bitcoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -478,16 +478,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Llofnodi &amp;neges…</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Arwyddo negeseuon gyda eich cyfeiriadau Qtum i brofi mae chi sy'n berchen arnynt</translation>
+        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <translation type="unfinished">Arwyddo negeseuon gyda eich cyfeiriadau Bitcoin i brofi mae chi sy'n berchen arnynt</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Gwirio neges…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Gwirio negeseuon i sicrhau eu bod wedi eu harwyddo gyda cyfeiriadau Qtum penodol</translation>
+        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <translation type="unfinished">Gwirio negeseuon i sicrhau eu bod wedi eu harwyddo gyda cyfeiriadau Bitcoin penodol</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -546,8 +546,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Cysylltu â chydweithwyr…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">Gofyn taliadau (creu côd QR a qtum: URIs)</translation>
+        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <translation type="unfinished">Gofyn taliadau (creu côd QR a bitcoin: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -604,16 +604,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Cyfamserol</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">Llwytho Trafodiad Qtum wedi'i Llofnodi'n Rhanol</translation>
+        <source>Load Partially Signed Bitcoin Transaction</source>
+        <translation type="unfinished">Llwytho Trafodiad Bitcoin wedi'i Llofnodi'n Rhanol</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Llwytho PSBT o &amp;glipbwrdd…</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">Llwytho Trafodiad Qtum wedi'i Llofnodi'n Rhanol o glipbwrdd</translation>
+        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <translation type="unfinished">Llwytho Trafodiad Bitcoin wedi'i Llofnodi'n Rhanol o glipbwrdd</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -632,8 +632,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Derbyn cyfeiriadau</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source>
-        <translation type="unfinished">Agor qtum: URI</translation>
+        <source>Open a bitcoin: URI</source>
+        <translation type="unfinished">Agor bitcoin: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -670,8 +670,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Mudo waled</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation type="unfinished">Dangos y%1neges gymorth i gael rhestr gyda'r opsiynau llinell-gorchymyn Qtum posibl</translation>
+        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
+        <translation type="unfinished">Dangos y%1neges gymorth i gael rhestr gyda'r opsiynau llinell-gorchymyn Bitcoin posibl</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -730,7 +730,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Dangos</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -1024,6 +1024,11 @@ Bydd y broses fudo yn creu copi wrth gefn o'r waled cyn mudo. Bydd y ffeil wrth 
         <translation type="unfinished">Mae sgriptiau hydoddadwy ond heb eu gwylio wedi'u symud i waled newydd o'r enw '%1'.</translation>
     </message>
     <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">Ail-adfer Waled</translation>
+    </message>
+    <message>
         <source>Migration Successful</source>
         <translation type="unfinished">Mudo yn Llwyddiannus</translation>
     </message>
@@ -1106,10 +1111,6 @@ Bydd y broses fudo yn creu copi wrth gefn o'r waled cyn mudo. Bydd y ffeil wrth 
         <translation type="unfinished">Analluogi allweddi preifat ar gyfer y waled hon. Ni fydd gan waledi ag allweddi preifat anabl unrhyw allweddi preifat ac ni allant gael hedyn HD nac allweddi preifat wedi'u mewnforio. Mae hyn yn ddelfrydol ar gyfer waledi gwylio yn unig.</translation>
     </message>
     <message>
-        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
-        <translation type="unfinished">Gwnewch waled wag. Nid oes gan waledi gwag allweddi preifat na sgriptiau i ddechrau. Gellir mewnforio allweddi preifat a chyfeiriadau, neu gellir gosod hedyn HD, yn ddiweddarach.</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Defnyddiwch ddyfais arwyddo allanol fel waled caledwedd. Ffurfweddwch y sgript llofnodwr allanol yn y dewisiadau waled yn gyntaf.</translation>
     </message>
@@ -1154,8 +1155,8 @@ Bydd y broses fudo yn creu copi wrth gefn o'r waled cyn mudo. Bydd y ffeil wrth 
         <translation type="unfinished">Golygu'r cyfeiriad anfon</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">Y cyfeiriad a roddwyd "%1Nid yw " yn gyfeiriad Qtum dilys.</translation>
+        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <translation type="unfinished">Y cyfeiriad a roddwyd "%1Nid yw " yn gyfeiriad Bitcoin dilys.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1260,8 +1261,8 @@ Bydd y broses fudo yn creu copi wrth gefn o'r waled cyn mudo. Bydd y ffeil wrth 
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1yn lawrlwytho ac yn storio copi o'r gadwyn bloc Qtum.</translation>
+        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
+        <translation type="unfinished">%1yn lawrlwytho ac yn storio copi o'r gadwyn bloc Bitcoin.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1449,8 +1450,8 @@ Bydd y broses fudo yn creu copi wrth gefn o'r waled cyn mudo. Bydd y ffeil wrth 
         <translation type="unfinished">Caniatáu cysylltiadau sy'n dod i mewn</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Cysylltu â rhwydwaith Qtum trwy brocsï SOCKS5.</translation>
+        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Cysylltu â rhwydwaith Bitcoin trwy brocsï SOCKS5.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1503,6 +1504,29 @@ Bydd y broses fudo yn creu copi wrth gefn o'r waled cyn mudo. Bydd y ffeil wrth 
     <message>
         <source>Form</source>
         <translation type="unfinished">Ffurflen</translation>
+    </message>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
     </context>
 <context>

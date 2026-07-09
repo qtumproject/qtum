@@ -54,18 +54,18 @@
         <translation type="unfinished">Escol&amp;her</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Estes são os seus endereços Qtum para enviar pagamentos. Verifique sempre a quantia e o endereço de receção antes de enviar moedas.</translation>
+        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Estes são os seus endereços Bitcoin para enviar pagamentos. Verifique sempre a quantia e o endereço de receção antes de enviar moedas.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Estes são os seus endereços Qtum para receber pagamentos. Utilize o botão "Criar novo endereço de receção" no separador "Receber" para criar novos endereços.
+        <translation type="unfinished">Estes são os seus endereços Bitcoin para receber pagamentos. Utilize o botão "Criar novo endereço de receção" no separador "Receber" para criar novos endereços.
 A assinatura só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
-        <translation type="unfinished">&amp;Copiar endereço</translation>
+        <translation type="unfinished">&amp;Copiar Endereço</translation>
     </message>
     <message>
         <source>Copy &amp;Label</source>
@@ -77,7 +77,7 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>Export Address List</source>
-        <translation type="unfinished">Exportar lista de endereços</translation>
+        <translation type="unfinished">Exportar Lista de Endereços</translation>
     </message>
     <message>
         <source>Comma separated file</source>
@@ -91,11 +91,11 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>Sending addresses - %1</source>
-        <translation type="unfinished">Endereço de envio - %1</translation>
+        <translation type="unfinished">Endereços de envio - %1</translation>
     </message>
     <message>
         <source>Receiving addresses - %1</source>
-        <translation type="unfinished">Endereços de receção - %1</translation>
+        <translation type="unfinished">Endereços de receber - %1</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
@@ -160,8 +160,8 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Confirmar encriptação da carteira</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Aviso: se encriptar a sua carteira e perder a sua frase de segurança, &lt;b&gt;PERDE TODAS AS SUAS QTUMS&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <translation type="unfinished">Aviso: se encriptar a sua carteira e perder a sua frase de segurança, &lt;b&gt;PERDE TODAS AS SUAS BITCOINS&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -188,8 +188,8 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Voltar</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Lembre-se que a encriptação da sua carteira não impede totalmente os seus qtums de serem roubados por programas maliciosos (malware) que infetem o seu computador.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Lembre-se que a encriptação da sua carteira não impede totalmente os seus bitcoins de serem roubados por programas maliciosos (malware) que infetem o seu computador.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -323,8 +323,8 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Quantia</translation>
     </message>
     <message>
-        <source>Enter a Qtum address (e.g. %1)</source>
-        <translation type="unfinished">Introduza um endereço Qtum (ex. %1)</translation>
+        <source>Enter a Bitcoin address (e.g. %1)</source>
+        <translation type="unfinished">Introduza um endereço Bitcoin (ex. %1)</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -348,17 +348,22 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Block Relay</source>
         <extracomment>Peer connection type that relays network information about blocks and not transactions or addresses.</extracomment>
-        <translation type="unfinished">Retransmissão de Blocos</translation>
+        <translation type="unfinished">Retransmissão de blocos</translation>
     </message>
     <message>
         <source>Feeler</source>
         <extracomment>Short-lived peer connection type that tests the aliveness of known addresses.</extracomment>
-        <translation type="unfinished">Antena</translation>
+        <translation type="unfinished">Sensor</translation>
     </message>
     <message>
         <source>Address Fetch</source>
         <extracomment>Short-lived peer connection type that solicits known addresses from a peer.</extracomment>
-        <translation type="unfinished">Procura de endreços</translation>
+        <translation type="unfinished">Obtenção de endereços</translation>
+    </message>
+    <message>
+        <source>Private Broadcast</source>
+        <extracomment>Short-lived peer connection type that is used for broadcasting privacy-sensitive data.</extracomment>
+        <translation type="unfinished">Transmissão privada</translation>
     </message>
     <message>
         <source>None</source>
@@ -487,8 +492,8 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">O proxy está &lt;b&gt;ativado&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">Enviar moedas para um endereço Qtum</translation>
+        <source>Send coins to a Bitcoin address</source>
+        <translation type="unfinished">Enviar moedas para um endereço Bitcoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -531,16 +536,16 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Assinar &amp;mensagem…</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Assine as mensagens com os seus endereços Qtum para provar que é o proprietário dos mesmos</translation>
+        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <translation type="unfinished">Assine as mensagens com os seus endereços Bitcoin para provar que é o proprietário dos mesmos</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Verificar mensagem…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Verifique mensagens para assegurar que foram assinadas com o endereço Qtum especificado</translation>
+        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <translation type="unfinished">Verifique mensagens para assegurar que foram assinadas com o endereço Bitcoin especificado</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -561,6 +566,10 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
     <message>
         <source>Close All Wallets…</source>
         <translation type="unfinished">Fechar todas as carteiras…</translation>
+    </message>
+    <message>
+        <source>Restore and Migrate Wallet File…</source>
+        <translation type="unfinished">Restaurar e migrar arquivo da carteira...</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -599,8 +608,8 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">A conectar aos pares…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">Solicitar pagamentos (gera códigos QR e qtum: URIs)</translation>
+        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <translation type="unfinished">Solicitar pagamentos (gera códigos QR e bitcoin: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -654,16 +663,16 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Atualizado</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">Carregar transação de Qtum parcialmente assinada</translation>
+        <source>Load Partially Signed Bitcoin Transaction</source>
+        <translation type="unfinished">Carregar transação de Bitcoin parcialmente assinada</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Carregar PSBT da área de transferência...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">Carregar transação de Qtum parcialmente assinada da área de transferência.</translation>
+        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <translation type="unfinished">Carregar transação de Bitcoin parcialmente assinada da área de transferência.</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -675,15 +684,15 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>&amp;Sending addresses</source>
-        <translation type="unfinished">&amp;Endereço de envio</translation>
+        <translation type="unfinished">&amp;Endereços de envio</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
-        <translation type="unfinished">&amp;Endereços de receção</translation>
+        <translation type="unfinished">&amp;Endereços de receber</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source>
-        <translation type="unfinished">Abrir um qtum URI</translation>
+        <source>Open a bitcoin: URI</source>
+        <translation type="unfinished">Abrir um bitcoin URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -709,7 +718,7 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>Close all wallets</source>
-        <translation type="unfinished">Fechar todas carteiras.</translation>
+        <translation type="unfinished">Fechar todas carteiras</translation>
     </message>
     <message>
         <source>Migrate Wallet</source>
@@ -720,7 +729,7 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Migrar uma carteira</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
         <translation type="unfinished">Mostrar a mensagem de ajuda %1 para obter uma lista com possíveis opções a usar na linha de comandos.</translation>
     </message>
     <message>
@@ -756,6 +765,23 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Nome da Carteira</translation>
     </message>
     <message>
+        <source>Invalid Wallet Name</source>
+        <translation type="unfinished">Nome da carteira inválido</translation>
+    </message>
+    <message>
+        <source>Wallet name cannot be empty</source>
+        <translation type="unfinished">O nome da carteira não pode estar vazio</translation>
+    </message>
+    <message>
+        <source>Restore and Migrate Wallet Backup</source>
+        <translation type="unfinished">Restaurar e migrar backup da carteira</translation>
+    </message>
+    <message>
+        <source>Restore and Migrate Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">A restaurar e migrar carteira</translation>
+    </message>
+    <message>
         <source>&amp;Window</source>
         <translation type="unfinished">&amp;Janela</translation>
     </message>
@@ -780,11 +806,11 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
         <translation type="unfinished">Mo&amp;strar</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n conexão ativa na rede Qtum.</numerusform>
-            <numerusform>%n conexões ativas na rede Qtum.</numerusform>
+            <numerusform>%n conexão ativa na rede Bitcoin.</numerusform>
+            <numerusform>%n conexões ativas na rede Bitcoin.</numerusform>
         </translation>
     </message>
     <message>
@@ -915,7 +941,7 @@ A assinatura só é possível com endereços do tipo "legado".</translation>
     </message>
     <message>
         <source>After Fee:</source>
-        <translation type="unfinished">Depois da taxa:</translation>
+        <translation type="unfinished">Após a taxa:</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -1111,6 +1137,40 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
         <translation type="unfinished">Os scripts solucionáveis mas não observados/watched foram migrados para uma nova carteira chamada '%1'.</translation>
     </message>
     <message>
+        <source>Restore and Migrate wallet</source>
+        <translation type="unfinished">A restaurar e migrar carteira</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to restore the wallet file &lt;i&gt;%1&lt;/i&gt; to &lt;i&gt;%2&lt;/i&gt; and migrate it?</source>
+        <translation type="unfinished">Tem a certeza de que deseja restaurar o ficheiro da carteira &lt;i&gt;%1&lt;/i&gt; para &lt;i&gt;%2&lt;/i&gt; e migrá-lo?</translation>
+    </message>
+    <message>
+        <source>Restoring the wallet will copy the backup file to the wallets directory and place it in the standard wallet directory layout. The original file will not be modified.
+
+Migrating the wallet will convert the restored wallet to one or more descriptor wallets. A new wallet backup will need to be made.
+If this wallet contains any watchonly scripts, a new wallet will be created which contains those watchonly scripts.
+If this wallet contains any solvable but not watched scripts, a different and new wallet will be created which contains those scripts.
+
+The migration process will create a backup of the wallet before migrating. This backup file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory for this wallet. In the event of an incorrect migration, the backup can be restored with the "Restore Wallet" functionality.</source>
+        <translation type="unfinished">A restauração da carteira copiará o ficheiro de backup para o diretório de carteiras e o colocará no layout padrão do diretório de carteiras. O ficheiro original não será modificado.
+
+A migração da carteira converterá a carteira restaurada em uma ou mais carteiras descritoras. Será necessário fazer um novo backup da carteira.
+Se esta carteira contiver quaisquer scripts watchonly, será criada uma nova carteira que contém esses scripts watchonly.
+Se esta carteira contiver quaisquer scripts solucionáveis, mas não vigiados, será criada uma carteira diferente e nova que contém esses scripts.
+
+O processo de migração criará um backup da carteira antes da migração. Este ficheiro de backup será nomeado &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak e pode ser encontrado no diretório desta carteira. No caso de uma migração incorreta, o backup pode ser restaurado com a funcionalidade "Restaurar Carteira".</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">Restaurar carteira</translation>
+    </message>
+    <message>
+        <source>Restoring Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the restore wallets progress window which indicates to the user that wallets are currently being restored.</extracomment>
+        <translation type="unfinished">A restaurar a carteira &lt;b&gt;%1&lt;/b&gt;…</translation>
+    </message>
+    <message>
         <source>Migration failed</source>
         <translation type="unfinished">Falha na migração</translation>
     </message>
@@ -1234,8 +1294,8 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
         <translation type="unfinished">Desativar chaves privadas</translation>
     </message>
     <message>
-        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
-        <translation type="unfinished">Crie uma carteira em branco. As carteiras em branco não têm inicialmente chaves privadas ou scripts. As chaves privadas e os endereços podem ser importados ou pode ser definida uma semente HD numa altura posterior.</translation>
+        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported using descriptors at a later time.</source>
+        <translation type="unfinished">Cria uma carteira em branco. As carteiras em branco não têm inicialmente chaves privadas ou scripts. As chaves privadas e os endereços podem ser importados posteriormente utilizando descritores.</translation>
     </message>
     <message>
         <source>Make Blank Wallet</source>
@@ -1256,7 +1316,7 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
         <extracomment>"External signing" means using devices such as hardware wallets.</extracomment>
-        <translation type="unfinished">Compilado sem suporte de assinatura externa (necessário para assinatura externa)</translation>
+        <translation type="unfinished">Compilado sem suporte de assinatura externa. (necessário para assinatura externa)</translation>
     </message>
 </context>
 <context>
@@ -1271,11 +1331,11 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
     </message>
     <message>
         <source>The label associated with this address list entry</source>
-        <translation type="unfinished">A etiqueta associada a esta entrada da lista de endereços</translation>
+        <translation type="unfinished">A etiqueta associada com esta entrada da lista de endereços</translation>
     </message>
     <message>
         <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
-        <translation type="unfinished">O endereço associado a esta entrada da lista de endereços. Isto só pode ser alterado para os endereços de envio.</translation>
+        <translation type="unfinished">O endereço associado com o esta entrada da lista de endereços. Isto só pode ser alterado para os endereços de envio.</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -1294,8 +1354,8 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
         <translation type="unfinished">Editar endereço de envio</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">O endereço introduzido "%1" não é um endereço qtum válido.</translation>
+        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <translation type="unfinished">O endereço introduzido "%1" não é um endereço bitcoin válido.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1447,8 +1507,8 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 irá descarregar e armazenar uma cópia da cadeia de blocos da Qtum.</translation>
+        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
+        <translation type="unfinished">%1 irá descarregar e armazenar uma cópia da cadeia de blocos da Bitcoin.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1470,12 +1530,12 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
         <translation type="unfinished">Formulário</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">As transações recentes podem ainda não ser visíveis e, por isso, o saldo da sua carteira pode estar incorreto. Esta informação estará correta assim que a sua carteira terminar a sincronização com a rede qtum, conforme detalhado abaixo.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <translation type="unfinished">As transações recentes podem ainda não ser visíveis e, por isso, o saldo da sua carteira pode estar incorreto. Esta informação estará correta assim que a sua carteira terminar a sincronização com a rede bitcoin, conforme detalhado abaixo.</translation>
     </message>
     <message>
-        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">A rede não aceitará tentativas de gastar qtums afetados por transações que ainda não foram mostradas.</translation>
+        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">A rede não aceitará tentativas de gastar bitcoins afetados por transações que ainda não foram mostradas.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1525,8 +1585,8 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open qtum URI</source>
-        <translation type="unfinished">Abrir um URI de qtum</translation>
+        <source>Open bitcoin URI</source>
+        <translation type="unfinished">Abrir um URI de bitcoin</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -1571,11 +1631,11 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
     </message>
     <message>
         <source>Full path to a %1 compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
-        <translation type="unfinished">Caminho completo para um script compatível %1 com Qtum Core (exemplo C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Cuidado: um programa malicioso (malware) pode roubar as suas moedas!</translation>
+        <translation type="unfinished">Caminho completo para um script compatível %1 com Bitcoin Core (exemplo C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Cuidado: um programa malicioso (malware) pode roubar as suas moedas!</translation>
     </message>
     <message>
-        <source>Automatically open the Qtum client port on the router. This only works when your router supports PCP or NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">Abrir automaticamente a porta do cliente Qtum no router. Esta função apenas funciona se o router suportar PCP ou NAT-PMP e essas opções estiverem ativadas. A porta externa pode ser atribuída aleatoriamente.</translation>
+        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports PCP or NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation type="unfinished">Abrir automaticamente a porta do cliente Bitcoin no router. Esta função apenas funciona se o router suportar PCP ou NAT-PMP e essas opções estiverem ativadas. A porta externa pode ser atribuída aleatoriamente.</translation>
     </message>
     <message>
         <source>Map port using PCP or NA&amp;T-PMP</source>
@@ -1705,8 +1765,8 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
         <translation type="unfinished">Permitir cone&amp;xões de entrada</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Conectar à rede da Qtum através dum proxy SOCLS5.</translation>
+        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Conectar à rede da Bitcoin através dum proxy SOCLS5.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1785,8 +1845,8 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
         <translation type="unfinished">Escolha se deve mostrar as funcionalidades de controlo de moedas ou não.</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Conecte-se à rede Qtum através de um proxy SOCKS5 separado para serviços Tor Onion</translation>
+        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Conecte-se à rede Bitcoin através de um proxy SOCKS5 separado para serviços Tor Onion</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -1799,7 +1859,7 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
         <extracomment>"External signing" means using devices such as hardware wallets.</extracomment>
-        <translation type="unfinished">Compilado sem suporte de assinatura externa (necessário para assinatura externa)</translation>
+        <translation type="unfinished">Compilado sem suporte de assinatura externa. (necessário para assinatura externa)</translation>
     </message>
     <message>
         <source>default</source>
@@ -1878,8 +1938,8 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
         <translation type="unfinished">Formulário</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">A informação apresentada pode estar desatualizada. A sua carteira sincroniza-se automaticamente com a rede Qtum após o estabelecimento de conexões, mas este processo ainda não está concluído.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <translation type="unfinished">A informação apresentada pode estar desatualizada. A sua carteira sincroniza-se automaticamente com a rede Bitcoin após o estabelecimento de conexões, mas este processo ainda não está concluído.</translation>
     </message>
     <message>
         <source>Available:</source>
@@ -1919,7 +1979,7 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
     </message>
     <message>
         <source>Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings-&gt;Mask values.</source>
-        <translation type="unfinished">Modo de privacidade ativado para a aba de visão geral. para desmascarar os valores, desmarque nas Configurações -&gt; Valores de máscara</translation>
+        <translation type="unfinished">Modo de privacidade ativado para a aba Resumo. para desmascarar os valores, desmarque nas Configurações -&gt; Valores de máscara</translation>
     </message>
 </context>
 <context>
@@ -1950,27 +2010,30 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
     </message>
     <message>
         <source>Failed to load transaction: %1</source>
-        <translation type="unfinished">Falha ao carregar transação: %1</translation>
+        <translation type="unfinished">Falha ao carregar a transação: %1</translation>
     </message>
     <message>
         <source>Failed to sign transaction: %1</source>
-        <translation type="unfinished">Falha ao assinar transação: %1</translation>
+        <translation type="unfinished">Falha ao assinar a transação: %1</translation>
     </message>
     <message>
         <source>Cannot sign inputs while wallet is locked.</source>
-        <translation type="unfinished">Não é possível assinar entradas enquanto a carteira está trancada.</translation>
+        <translation type="unfinished">Não é possível assinar entradas enquanto a carteira estiver bloqueada.</translation>
     </message>
     <message>
         <source>Could not sign any more inputs.</source>
         <translation type="unfinished">Não pode assinar mais nenhuma entrada.</translation>
     </message>
-    <message>
-        <source>Signed %1 inputs, but more signatures are still required.</source>
-        <translation type="unfinished">Assinadas entradas %1, mas mais assinaturas ainda são necessárias.</translation>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform>Assinou %n entrada, mas ainda são necessárias mais assinaturas.</numerusform>
+            <numerusform>Assinou %n entradas, mas ainda são necessárias mais assinaturas.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
-        <translation type="unfinished">Transação assinada com sucesso. Transação está pronta para ser transmitida.</translation>
+        <translation type="unfinished">Transação assinada com sucesso. A transação está pronta para ser transmitida.</translation>
     </message>
     <message>
         <source>Unknown error processing transaction.</source>
@@ -1979,7 +2042,7 @@ O processo de migração criará uma cópia de segurança da carteira antes da m
     <message>
         <source>Transaction broadcast successfully! Transaction ID: %1</source>
         <translation type="unfinished">Transação transmitida com sucesso.
-ID transação: %1</translation>
+ID da transação: %1</translation>
     </message>
     <message>
         <source>Transaction broadcast failed: %1</source>
@@ -1991,16 +2054,16 @@ ID transação: %1</translation>
     </message>
     <message>
         <source>Save Transaction Data</source>
-        <translation type="unfinished">Salvar informação de transação</translation>
+        <translation type="unfinished">Guardar informação da transação</translation>
     </message>
     <message>
         <source>Partially Signed Transaction (Binary)</source>
         <extracomment>Expanded name of the binary PSBT file format. See: BIP 174.</extracomment>
-        <translation type="unfinished">Transação parcialmente assinada (Binário)</translation>
+        <translation type="unfinished">Transação parcialmente assinada (binário)</translation>
     </message>
     <message>
         <source>PSBT saved to disk.</source>
-        <translation type="unfinished">PSBT salva no disco.</translation>
+        <translation type="unfinished">PSBT guardada no disco.</translation>
     </message>
     <message>
         <source>Sends %1 to %2</source>
@@ -2012,7 +2075,7 @@ ID transação: %1</translation>
     </message>
     <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
-        <translation type="unfinished">Incapaz de calcular a taxa de transação ou o valor total da transação.</translation>
+        <translation type="unfinished">Não foi possível calcular a taxa de transação ou a quantia total da transação.</translation>
     </message>
     <message>
         <source>Pays transaction fee: </source>
@@ -2020,23 +2083,26 @@ ID transação: %1</translation>
     </message>
     <message>
         <source>Total Amount</source>
-        <translation type="unfinished">Valor Total</translation>
+        <translation type="unfinished">Quantia total</translation>
     </message>
     <message>
         <source>or</source>
         <translation type="unfinished">ou</translation>
     </message>
-    <message>
-        <source>Transaction has %1 unsigned inputs.</source>
-        <translation type="unfinished">Transação tem %1 entradas não assinadas.</translation>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform>A transação tem %n entrada não assinada.</numerusform>
+            <numerusform>A transação tem %n entradas não assinadas.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Transaction is missing some information about inputs.</source>
-        <translation type="unfinished">Transação está com alguma informação faltando sobre as entradas.</translation>
+        <translation type="unfinished">A transação não contém algumas informações sobre as entradas.</translation>
     </message>
     <message>
         <source>Transaction still needs signature(s).</source>
-        <translation type="unfinished">Transação continua precisando de assinatura(s).</translation>
+        <translation type="unfinished">A transação ainda precisa de assinatura(s).</translation>
     </message>
     <message>
         <source>(But no wallet is loaded.)</source>
@@ -2052,11 +2118,11 @@ ID transação: %1</translation>
     </message>
     <message>
         <source>Transaction is fully signed and ready for broadcast.</source>
-        <translation type="unfinished">Transação está completamente assinada e pronta para ser transmitida.</translation>
+        <translation type="unfinished">A transação está totalmente assinada e pronta para ser transmitida.</translation>
     </message>
     <message>
         <source>Transaction status is unknown.</source>
-        <translation type="unfinished">Status da transação é desconhecido.</translation>
+        <translation type="unfinished">O estado da transação é desconhecido.</translation>
     </message>
 </context>
 <context>
@@ -2066,36 +2132,41 @@ ID transação: %1</translation>
         <translation type="unfinished">Erro do pedido de pagamento</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source>
-        <translation type="unfinished">Impossível iniciar o controlador de qtum: click-to-pay</translation>
+        <source>Cannot start bitcoin: click-to-pay handler</source>
+        <translation type="unfinished">Não é possível iniciar o bitcoin: manipulador do click-to-pay</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Manuseamento de URI</translation>
     </message>
     <message>
-        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
-        <translation type="unfinished">'qtum://' não é um URI válido. Utilize 'qtum:'.</translation>
+        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
+        <translation type="unfinished">'bitcoin://' não é um URI válido. Utilize 'bitcoin:'.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
 Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
 If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
         <translation type="unfinished">Não é possível processar o pagamento pedido porque o BIP70 não é suportado.
-Devido a falhas de segurança no BIP70, é recomendado que todas as instruçōes ao comerciante para mudar de carteiras sejam ignorada.
+Devido a falhas de segurança no BIP70, é recomendado que todas as instruções ao comerciante para mudar de carteiras sejam ignorada.
 Se está a receber este erro, deverá pedir ao comerciante para fornecer um URI compatível com BIP21.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
-        <translation type="unfinished">URI não foi lido corretamente! Isto pode ser causado por um endereço Qtum inválido ou por parâmetros URI malformados.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
+        <translation type="unfinished">O URI não pode ser analisado! Isto pode ser causado por um endereço Bitcoin inválido ou por parâmetros URI malformados.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
-        <translation type="unfinished">Controlo de pedidos de pagamento.</translation>
+        <translation type="unfinished">Manuseamento do ficheiro de pedidos de pagamento.</translation>
     </message>
 </context>
 <context>
     <name>PeerTableModel</name>
+    <message>
+        <source>User Agent</source>
+        <extracomment>Title of Peers Table column which contains the peer's User Agent string.</extracomment>
+        <translation type="unfinished">Agente do utilizador</translation>
+    </message>
     <message>
         <source>Ping</source>
         <extracomment>Title of Peers Table column which indicates the current latency of the connection with the peer.</extracomment>
@@ -2109,7 +2180,7 @@ Se está a receber este erro, deverá pedir ao comerciante para fornecer um URI 
     <message>
         <source>Age</source>
         <extracomment>Title of Peers Table column which indicates the duration (length of time) since the peer connection started.</extracomment>
-        <translation type="unfinished">idade</translation>
+        <translation type="unfinished">Idade</translation>
     </message>
     <message>
         <source>Direction</source>
@@ -2168,7 +2239,7 @@ Se está a receber este erro, deverá pedir ao comerciante para fornecer um URI 
     </message>
     <message>
         <source>Error encoding URI into QR Code.</source>
-        <translation type="unfinished">Erro ao codificar URI em código QR.</translation>
+        <translation type="unfinished">Erro ao codificar o URI em código QR</translation>
     </message>
     <message>
         <source>QR code support not available.</source>
@@ -2239,8 +2310,8 @@ Se está a receber este erro, deverá pedir ao comerciante para fornecer um URI 
         <translation type="unfinished">Endereços locais</translation>
     </message>
     <message>
-        <source>Network addresses that your Qtum node is currently using to communicate with other nodes.</source>
-        <translation type="unfinished">Endereços de rede que seu nó Qtum está usando atualmente para se comunicar com outros nós.</translation>
+        <source>Network addresses that your Bitcoin node is currently using to communicate with other nodes.</source>
+        <translation type="unfinished">Endereços de rede que seu nó Bitcoin está usando atualmente para se comunicar com outros nós.</translation>
     </message>
     <message>
         <source>Block chain</source>
@@ -2319,10 +2390,6 @@ Se está a receber este erro, deverá pedir ao comerciante para fornecer um URI 
         <translation type="unfinished">Retransmissão de transação</translation>
     </message>
     <message>
-        <source>Starting Block</source>
-        <translation type="unfinished">Bloco inicial</translation>
-    </message>
-    <message>
         <source>Synced Headers</source>
         <translation type="unfinished">Cabeçalhos sincronizados</translation>
     </message>
@@ -2371,6 +2438,10 @@ Se está a receber este erro, deverá pedir ao comerciante para fornecer um URI 
         <source>Addresses Rate-Limited</source>
         <extracomment>Text title for the Addresses Rate-Limited field in the peer details area, which displays the total number of addresses received from this peer that were dropped (not processed) due to rate-limiting.</extracomment>
         <translation type="unfinished">Endereços rejeitados devido a limitação de volume</translation>
+    </message>
+    <message>
+        <source>User Agent</source>
+        <translation type="unfinished">Agente do utilizador</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -2536,6 +2607,11 @@ Se está a receber este erro, deverá pedir ao comerciante para fornecer um URI 
         <translation type="unfinished">Obtenção de endereço de saída: de curta duração, para solicitar endereços</translation>
     </message>
     <message>
+        <source>Private broadcast: short-lived, for broadcasting privacy-sensitive transactions</source>
+        <extracomment>Explanatory text for a short-lived outbound peer connection that is used to broadcast privacy-sensitive data (like our transactions).</extracomment>
+        <translation type="unfinished">Transmissão privada: de curta duração, para transmissão de transações confidenciais</translation>
+    </message>
+    <message>
         <source>detecting: peer could be v1 or v2</source>
         <extracomment>Explanatory text for "detecting" transport type.</extracomment>
         <translation type="unfinished">a detetar: o par pode ser v1 ou v2</translation>
@@ -2686,8 +2762,8 @@ Para mais informação acerca da utilização desta consola, escreva %6.
         <translation type="unfinished">&amp;Mensagem:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">Uma mensagem opcional a anexar ao pedido de pagamento, que será mostrada quando o pedido for aberto. Nota: a mensagem não será enviada com o pagamento através da rede Qtum.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
+        <translation type="unfinished">Uma mensagem opcional a anexar ao pedido de pagamento, que será mostrada quando o pedido for aberto. Nota: a mensagem não será enviada com o pagamento através da rede Bitcoin.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -2983,8 +3059,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
 Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para um tamanho de transação de 500 bytes virtuais (metade de 1 kvB) resultaria em uma taxa de apenas 50 satoshis.</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
-        <translation type="unfinished">Quando há menos volume de transações do que espaço nos blocos, os mineradores, bem como os pares de retransmissão, podem impor uma taxa mínima. Pagar apenas esta taxa mínima não faz mal, mas tenha em atenção que isto pode resultar numa transação nunca confirmada, uma vez que há mais procura de transações de qtum do que a rede pode processar.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <translation type="unfinished">Quando há menos volume de transações do que espaço nos blocos, os mineradores, bem como os pares de retransmissão, podem impor uma taxa mínima. Pagar apenas esta taxa mínima não faz mal, mas tenha em atenção que isto pode resultar numa transação nunca confirmada, uma vez que há mais procura de transações de bitcoin do que a rede pode processar.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -3069,8 +3145,8 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Criar &amp;não assinado</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Cria uma transação de Qtum parcialmente assinada (PSBT - sigla em inglês) para ser usada por exemplo com uma carteira %1 offline ou uma carteira de hardware compatível com PSBT.</translation>
+        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Cria uma transação de Bitcoin parcialmente assinada (PSBT - sigla em inglês) para ser usada por exemplo com uma carteira %1 offline ou uma carteira de hardware compatível com PSBT.</translation>
     </message>
     <message>
         <source>%1 to '%2'</source>
@@ -3100,12 +3176,12 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
     </message>
     <message>
         <source>Save Transaction Data</source>
-        <translation type="unfinished">Guardar informação da transação</translation>
+        <translation type="unfinished">Salvar informação de transação</translation>
     </message>
     <message>
         <source>Partially Signed Transaction (Binary)</source>
         <extracomment>Expanded name of the binary PSBT file format. See: BIP 174.</extracomment>
-        <translation type="unfinished">Transação parcialmente assinada (binário)</translation>
+        <translation type="unfinished">Transação parcialmente assinada (Binário)</translation>
     </message>
     <message>
         <source>PSBT saved</source>
@@ -3125,9 +3201,9 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Pode aumentar a taxa depois (sinaliza "substituir por taxa", BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Por favor, reveja sua proposta de transação. Isto irá produzir uma Transação de Qtum parcialmente assinada (PSBT, sigla em inglês) a qual pode guardar ou copiar e então assinar com por exemplo uma carteira %1 offine ou uma PSBT compatível com carteira de hardware.</translation>
+        <translation type="unfinished">Por favor, reveja sua proposta de transação. Isto irá produzir uma Transação de Bitcoin parcialmente assinada (PSBT, sigla em inglês) a qual pode guardar ou copiar e então assinar com por exemplo uma carteira %1 offine ou uma PSBT compatível com carteira de hardware.</translation>
     </message>
     <message>
         <source>%1 from wallet '%2'</source>
@@ -3139,9 +3215,9 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Deseja criar esta transação?</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitcoin Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">Por favor, reveja a sua transação. Pode criar e enviar esta transação ou criar uma transação Qtum parcialmente assinada (PSBT), que pode guardar ou copiar e depois assinar com, por exemplo, uma carteira %1 offline, ou uma carteira de hardware compatível com PSBT.</translation>
+        <translation type="unfinished">Por favor, reveja a sua transação. Pode criar e enviar esta transação ou criar uma transação Bitcoin parcialmente assinada (PSBT), que pode guardar ou copiar e depois assinar com, por exemplo, uma carteira %1 offline, ou uma carteira de hardware compatível com PSBT.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3191,10 +3267,6 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">A quantia excede o seu saldo.</translation>
     </message>
     <message>
-        <source>The total exceeds your balance when the %1 transaction fee is included.</source>
-        <translation type="unfinished">O total excede o seu saldo quando a taxa de transação %1 está incluída.</translation>
-    </message>
-    <message>
         <source>Duplicate address found: addresses should only be used once each.</source>
         <translation type="unfinished">Endereço duplicado encontrado: os endereços devem ser usados ​​apenas uma vez.</translation>
     </message>
@@ -3214,8 +3286,8 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Qtum address</source>
-        <translation type="unfinished">Aviso: endereço Qtum inválido</translation>
+        <source>Warning: Invalid Bitcoin address</source>
+        <translation type="unfinished">Aviso: endereço Bitcoin inválido</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -3253,8 +3325,8 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Escolha o endereço utilizado anteriormente</translation>
     </message>
     <message>
-        <source>The Qtum address to send the payment to</source>
-        <translation type="unfinished">O endereço Qtum para onde enviar o pagamento</translation>
+        <source>The Bitcoin address to send the payment to</source>
+        <translation type="unfinished">O endereço Bitcoin para onde enviar o pagamento</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -3269,8 +3341,8 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">A quantia a enviar na unidade selecionada</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished">A taxa será deduzida à quantia que está a ser enviada. O destinatário irá receber menos qtums do que as que inseridas no campo da quantia. Se estiverem selecionados múltiplos destinatários, a taxa será repartida equitativamente.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation type="unfinished">A taxa será deduzida à quantia que está a ser enviada. O destinatário irá receber menos bitcoins do que as que inseridas no campo da quantia. Se estiverem selecionados múltiplos destinatários, a taxa será repartida equitativamente.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -3289,8 +3361,8 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Introduza uma etiqueta para este endereço para o adicionar à sua lista de endereços usados</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">Uma mensagem que foi anexada ao qtum: URI que será armazenada com a transação para sua referência. Nota: esta mensagem não será enviada através da rede Qtum.</translation>
+        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
+        <translation type="unfinished">Uma mensagem que foi anexada ao bitcoin: URI que será armazenada com a transação para sua referência. Nota: esta mensagem não será enviada através da rede Bitcoin.</translation>
     </message>
 </context>
 <context>
@@ -3315,12 +3387,12 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">&amp;Assinar mensagem</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Você pode assinar mensagens com seus endereços legados (P2PKH) para provar que pode receber qtums enviados a eles. Tenha cuidado para não assinar nada vago ou aleatório, pois ataques de phishing podem tentar enganá-lo para assinar sua identidade para eles. Assine apenas declarações totalmente detalhadas com as quais você concorda.</translation>
+        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation type="unfinished">Você pode assinar mensagens com seus endereços legados (P2PKH) para provar que pode receber bitcoins enviados a eles. Tenha cuidado para não assinar nada vago ou aleatório, pois ataques de phishing podem tentar enganá-lo para assinar sua identidade para eles. Assine apenas declarações totalmente detalhadas com as quais você concorda.</translation>
     </message>
     <message>
-        <source>The Qtum address to sign the message with</source>
-        <translation type="unfinished">O endereço Qtum com o qual assinar a mensagem</translation>
+        <source>The Bitcoin address to sign the message with</source>
+        <translation type="unfinished">O endereço Bitcoin com o qual assinar a mensagem</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -3339,8 +3411,8 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Assinatura</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Qtum address</source>
-        <translation type="unfinished">Assine a mensagem para provar que é o proprietário deste endereço Qtum</translation>
+        <source>Sign the message to prove you own this Bitcoin address</source>
+        <translation type="unfinished">Assine a mensagem para provar que é o proprietário deste endereço Bitcoin</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -3363,8 +3435,8 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">Introduza o endereço do destinatário, a mensagem (certifique-se que copia com exatidão as quebras de linha, os espaços, tabulações, etc.) e a assinatura abaixo para verificar a mensagem. Tenha cuidado para não ler mais na assinatura do que o que está na própria mensagem assinada, para evitar ser enganado por um ataque de intermediário (man-in-the-middle). Note que isto apenas prova que a parte que assina recebe com este endereço, não podendo provar o remetente de nenhuma transação!</translation>
     </message>
     <message>
-        <source>The Qtum address the message was signed with</source>
-        <translation type="unfinished">O endereço Qtum com o qual a mensagem foi assinada</translation>
+        <source>The Bitcoin address the message was signed with</source>
+        <translation type="unfinished">O endereço Bitcoin com o qual a mensagem foi assinada</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -3375,8 +3447,8 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
         <translation type="unfinished">A assinatura dada quando a mensagem foi assinada</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
-        <translation type="unfinished">Verifique a mensagem para assegurar que foi assinada com o endereço Qtum especificado</translation>
+        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
+        <translation type="unfinished">Verifique a mensagem para assegurar que foi assinada com o endereço Bitcoin especificado</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -3826,7 +3898,7 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
     </message>
     <message>
         <source>Confirmed</source>
-        <translation type="unfinished">Confirmada</translation>
+        <translation type="unfinished">Confirmado</translation>
     </message>
     <message>
         <source>Date</source>
@@ -3846,7 +3918,7 @@ Nota: como a taxa é calculada por byte, uma taxa de "100 satoshis por kvB" para
     </message>
     <message>
         <source>Exporting Failed</source>
-        <translation type="unfinished">Exportação falhou</translation>
+        <translation type="unfinished">Falha na exportação</translation>
     </message>
     <message>
         <source>There was an error trying to save the transaction history to %1.</source>
@@ -3889,7 +3961,7 @@ Vá ao menu Ficheiro &gt; Abrir carteira para carregar uma carteira
     </message>
     <message>
         <source>Unable to decode PSBT from clipboard (invalid base64)</source>
-        <translation type="unfinished">Não foi possível descodificar a transação de Qtum parcialmente assinada (PSTB) da área de transferência (base64 inválida)</translation>
+        <translation type="unfinished">Não foi possível descodificar a transação de Bitcoin parcialmente assinada (PSTB) da área de transferência (base64 inválida)</translation>
     </message>
     <message>
         <source>Load Transaction Data</source>
@@ -3905,7 +3977,7 @@ Vá ao menu Ficheiro &gt; Abrir carteira para carregar uma carteira
     </message>
     <message>
         <source>Unable to decode PSBT</source>
-        <translation type="unfinished">Não foi possível descodificar a transação de Qtum parcialmente assinada (PSTB)</translation>
+        <translation type="unfinished">Não foi possível descodificar a transação de Bitcoin parcialmente assinada (PSTB)</translation>
     </message>
 </context>
 <context>
@@ -4059,8 +4131,8 @@ Vá ao menu Ficheiro &gt; Abrir carteira para carregar uma carteira
         <translation type="unfinished">Erro: o registo do identificador do ficheiro de dump está incorreto. Obteve-se "%s", mas era esperado "%s".</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Erro: esta versão do qtum-wallet apenas suporta ficheiros dump na versão 1. (Versão atual: %s)</translation>
+        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Erro: esta versão do bitcoin-wallet apenas suporta ficheiros dump na versão 1. (Versão atual: %s)</translation>
     </message>
     <message>
         <source>Error: Unable to produce descriptors for this legacy wallet. Make sure to provide the wallet's passphrase if it is encrypted.</source>
@@ -4155,10 +4227,6 @@ Vá ao menu Ficheiro &gt; Abrir carteira para carregar uma carteira
         <translation type="unfinished">Aviso: foram detetadas chaves privadas na carteira {%s} com chaves privadas desativadas</translation>
     </message>
     <message>
-        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation type="unfinished">Aviso: parece que nós não estamos de acordo com os nossos pares! Poderá ter que atualizar, ou os outros pares podem ter que ser atualizados.</translation>
-    </message>
-    <message>
         <source>Witness data for blocks after height %d requires validation. Please restart with -reindex.</source>
         <translation type="unfinished">Os dados da testemunha para blocos após a altura %d requerem validação. Reinicie com -reindex.</translation>
     </message>
@@ -4196,11 +4264,11 @@ Vá ao menu Ficheiro &gt; Abrir carteira para carregar uma carteira
     </message>
     <message>
         <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
-        <translation type="unfinished">Não é possível fornecer conexões específicas e fazer com que o addrman encontre conexões de saída ao mesmo tempo.</translation>
+        <translation type="unfinished">Não é possível fornecer conexões específicas e ter addrman procurando conexões ao mesmo tempo.</translation>
     </message>
     <message>
         <source>Error loading %s: External signer wallet being loaded without external signer support compiled</source>
-        <translation type="unfinished">Erro ao abrir %s: carteira com assinante externo. Não foi compilado suporte para assinantes externos</translation>
+        <translation type="unfinished">Erro ao abrir %s: Carteira com assinador externo. Não foi compilado suporte para assinadores externos</translation>
     </message>
     <message>
         <source>Error reading %s! All keys read correctly, but transaction data or address metadata may be missing or incorrect.</source>
@@ -4208,15 +4276,15 @@ Vá ao menu Ficheiro &gt; Abrir carteira para carregar uma carteira
     </message>
     <message>
         <source>Error: Address book data in wallet cannot be identified to belong to migrated wallets</source>
-        <translation type="unfinished">Erro: os dados do livro de endereços na carteira não podem ser identificados como pertencentes a carteiras migradas</translation>
+        <translation type="unfinished">Erro: Os dados do livro de endereços da carteira  não puderam ser identificados por pertencerem a carteiras migradas</translation>
     </message>
     <message>
         <source>Error: Duplicate descriptors created during migration. Your wallet may be corrupted.</source>
-        <translation type="unfinished">Erro: foram criados descritores duplicados durante a migração. A sua carteira pode estar corrompida.</translation>
+        <translation type="unfinished">Erro: Descritores duplicados criados durante a migração. Sua carteira pode estar corrompida.</translation>
     </message>
     <message>
         <source>Error: Transaction %s in wallet cannot be identified to belong to migrated wallets</source>
-        <translation type="unfinished">Erro: a transação %s na carteira não pode ser identificada como pertencente a carteiras migradas</translation>
+        <translation type="unfinished">Erro: A transação %s na carteira não pôde ser identificada por pertencer a carteiras migradas</translation>
     </message>
     <message>
         <source>Failed to remove snapshot chainstate dir (%s). Manually remove it before restarting.
@@ -4387,6 +4455,10 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
         <translation type="unfinished">Não foi possível analisar o ficheiro asmap %s.</translation>
     </message>
     <message>
+        <source>Could not read embedded asmap data</source>
+        <translation type="unfinished">Não foi possível ler os dados asmap embutidos</translation>
+    </message>
+    <message>
         <source>Disk space is too low!</source>
         <translation type="unfinished">O espaço em disco é demasiado pequeno!</translation>
     </message>
@@ -4403,8 +4475,8 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
         <translation type="unfinished">Falha na verificação de integridade da criptografia de curva elíptica. %s está sendo desligado.</translation>
     </message>
     <message>
-        <source>Error creating %s</source>
-        <translation type="unfinished">Erro ao criar %s</translation>
+        <source>Embedded asmap data not available</source>
+        <translation type="unfinished">Dados asmap embutidos não disponíveis</translation>
     </message>
     <message>
         <source>Error initializing block database</source>
@@ -4413,10 +4485,6 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
     <message>
         <source>Error loading %s</source>
         <translation type="unfinished">Erro ao carregar %s</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">Erro ao carregar %s: as chaves privadas só podem ser desativadas durante a criação</translation>
     </message>
     <message>
         <source>Error loading %s: Wallet corrupted</source>
@@ -4547,10 +4615,6 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
         <translation type="unfinished">Erro: a transação da base de dados não pode ser executada para a carteira %s</translation>
     </message>
     <message>
-        <source>Failed to connect best block (%s).</source>
-        <translation type="unfinished">Falha ao conectar o melhor bloco (%s).</translation>
-    </message>
-    <message>
         <source>Failed to disconnect block.</source>
         <translation type="unfinished">Falha ao desconectar o bloco.</translation>
     </message>
@@ -4573,14 +4637,6 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
     <message>
         <source>Failed to write block.</source>
         <translation type="unfinished">Falha ao escrever bloco.</translation>
-    </message>
-    <message>
-        <source>Failed to write to block index database.</source>
-        <translation type="unfinished">Falha ao escrever na base de dados de índices de blocos.</translation>
-    </message>
-    <message>
-        <source>Failed to write to coin database.</source>
-        <translation type="unfinished">Falha ao escrever na base de dados de moedas.</translation>
     </message>
     <message>
         <source>Failed to write undo data.</source>
@@ -4635,12 +4691,24 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
         <translation type="unfinished">Permissões P2P inválidas: '%s'</translation>
     </message>
     <message>
-        <source>Invalid amount for %s=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation type="unfinished">Quantia inválida para %s=&lt;amount&gt;: '%s' (tem de ser pelo menos %s)</translation>
-    </message>
-    <message>
         <source>Invalid amount for %s=&lt;amount&gt;: '%s'</source>
         <translation type="unfinished">Quantia inválida para %s=&lt;amount&gt;: '%s'</translation>
+    </message>
+    <message>
+        <source>A %zu MiB dbcache may be too large for a system memory of only %zu MiB.</source>
+        <translation type="unfinished">Um %zu MiB dbcache pode ser demasiado grande para uma memória de sistema de apenas %zu MiB.</translation>
+    </message>
+    <message>
+        <source>Creating wallet…</source>
+        <translation type="unfinished">A criar carteira...</translation>
+    </message>
+    <message>
+        <source>Duplicate binding configuration for address %s. Please check your -bind, -bind=...=onion and -whitebind settings.</source>
+        <translation type="unfinished">Configuração de ligação duplicada para o endereço %s. Verifique as suas definições -bind, -bind=...=onion e -whitebind.</translation>
+    </message>
+    <message>
+        <source>Error creating %s: Could not write version metadata.</source>
+        <translation type="unfinished">Erro ao criar %s: Não foi possível gravar os metadados da versão.</translation>
     </message>
     <message>
         <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
@@ -4707,12 +4775,36 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
         <translation type="unfinished">Apenas a direção foi definida, sem permissões: '%s'</translation>
     </message>
     <message>
+        <source>Option '-limitancestorsize' is given but ancestor size limits have been replaced with cluster size limits (see -limitclustersize). This option has no effect.</source>
+        <translation type="unfinished">A opção '-limitancestorsize' é fornecida, mas os limites de tamanho dos antepassados foram substituídos por limites de tamanho dos clusters (consulte -limitclustersize). Esta opção não tem efeito.</translation>
+    </message>
+    <message>
+        <source>Option '-limitdescendantsize' is given but descendant size limits have been replaced with cluster size limits (see -limitclustersize). This option has no effect.</source>
+        <translation type="unfinished">A opção '-limitdescendantsize' é fornecida, mas os limites de tamanho dos descendentes foram substituídos por limites de tamanho dos clusters (consulte -limitclustersize). Esta opção não tem efeito.</translation>
+    </message>
+    <message>
+        <source>Private broadcast of own transactions requested (-privatebroadcast) and -proxyrandomize is disabled. Tor circuits for private broadcast connections may be correlated to other connections over Tor. For maximum privacy set -proxyrandomize=1.</source>
+        <translation type="unfinished">Transmissão privada das suas próprias transações solicitada (-privatebroadcast) e -proxyrandomize desativado. Os circuitos Tor para ligações de transmissão privada podem estar correlacionados com outras ligações através do Tor. Para máxima privacidade, defina -proxyrandomize=1.</translation>
+    </message>
+    <message>
+        <source>Private broadcast of own transactions requested (-privatebroadcast), but -connect is also configured. They are incompatible because the private broadcast needs to open new connections to randomly chosen Tor or I2P peers. Consider using -maxconnections=0 -addnode=... instead</source>
+        <translation type="unfinished">Transmissão privada das próprias transações solicitada (-privatebroadcast), mas -connect também está configurado. Eles são incompatíveis porque a transmissão privada precisa abrir novas conexões com pares Tor ou I2P escolhidos aleatoriamente. Considere usar -maxconnections=0 -addnode=... em vez disso</translation>
+    </message>
+    <message>
+        <source>Private broadcast of own transactions requested (-privatebroadcast), but none of Tor or I2P networks is reachable</source>
+        <translation type="unfinished">Transmissão privada das próprias transações solicitada (-privatebroadcast), mas nenhuma das redes Tor ou I2P está acessível</translation>
+    </message>
+    <message>
         <source>Prune cannot be configured with a negative value.</source>
         <translation type="unfinished">A redução (prune) não pode ser configurada com um valor negativo.</translation>
     </message>
     <message>
         <source>Prune mode is incompatible with -txindex.</source>
         <translation type="unfinished">O modo de redução (prune) é incompatível com -txindex.</translation>
+    </message>
+    <message>
+        <source>Prune mode is incompatible with -txospenderindex.</source>
+        <translation type="unfinished">O modo prune é incompatível com -txospenderindex.</translation>
     </message>
     <message>
         <source>Pruning blockstore…</source>
@@ -4796,11 +4888,11 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
     </message>
     <message>
         <source>System error while loading external block file: %s</source>
-        <translation type="unfinished">Erro do sistema ao carregar o ficheiro de bloco externo: %s</translation>
+        <translation type="unfinished">Erro do sistema ao carregar arquivo de bloco externo: %s</translation>
     </message>
     <message>
         <source>System error while saving block to disk: %s</source>
-        <translation type="unfinished">Erro do sistema ao guardar o bloco no disco: %s</translation>
+        <translation type="unfinished">Erro do sistema ao salvar bloco no disco: %s</translation>
     </message>
     <message>
         <source>The %s path uses exFAT, which is known to have intermittent corruption problems on macOS. Move this directory to a different filesystem to avoid data loss.</source>
@@ -4808,19 +4900,23 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
     </message>
     <message>
         <source>The source code is available from %s.</source>
-        <translation type="unfinished">O código fonte está disponível em %s.</translation>
+        <translation type="unfinished">O código-fonte está disponível em %s.</translation>
     </message>
     <message>
         <source>The specified config file %s does not exist</source>
         <translation type="unfinished">O ficheiro de configuração especificado %s não existe</translation>
     </message>
     <message>
+        <source>The total exceeds your balance when the %s transaction fee is included.</source>
+        <translation type="unfinished">O total excede o seu saldo quando a taxa de transação %s é incluída.</translation>
+    </message>
+    <message>
         <source>The transaction amount is too small to pay the fee</source>
-        <translation type="unfinished">O valor da transação é demasiado baixo para pagar a taxa</translation>
+        <translation type="unfinished">A quantia da transação é demasiado baixa para pagar a taxa</translation>
     </message>
     <message>
         <source>The transactions removal process can only be executed within a db txn</source>
-        <translation type="unfinished">O processo de remoção das transações só pode ser executado dentro de um db txn</translation>
+        <translation type="unfinished">O processo de remoção de transações só pode ser executado dentro de um db txn</translation>
     </message>
     <message>
         <source>The wallet will avoid paying less than the minimum relay fee.</source>
@@ -4832,15 +4928,11 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
     </message>
     <message>
         <source>This is experimental software.</source>
-        <translation type="unfinished">É um programa experimental.</translation>
+        <translation type="unfinished">Isto é um software experimental.</translation>
     </message>
     <message>
         <source>This is the minimum transaction fee you pay on every transaction.</source>
-        <translation type="unfinished">É a taxa mínima de transação que paga em cada transação.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">É a taxa de transação que irá pagar se enviar uma transação.</translation>
+        <translation type="unfinished">Esta é a taxa mínima de transação que paga em cada transação.</translation>
     </message>
     <message>
         <source>Transaction %s does not belong to this wallet</source>
@@ -4848,7 +4940,7 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
     </message>
     <message>
         <source>Transaction amount too small</source>
-        <translation type="unfinished">Valor de transação demasiado baixo</translation>
+        <translation type="unfinished">Quantia da transação demasiado baixa</translation>
     </message>
     <message>
         <source>Transaction amounts must not be negative</source>
@@ -4929,6 +5021,10 @@ Não foi possível restaurar a cópia de segurança da carteira.</translation>
     <message>
         <source>Wallet file creation failed: %s</source>
         <translation type="unfinished">Falha na criação do ficheiro da carteira: %s</translation>
+    </message>
+    <message>
+        <source>Warning: Found invalid chain more than 6 blocks longer than our best chain. This could be due to database corruption or consensus incompatibility with peers.</source>
+        <translation type="unfinished">Aviso: Encontrada cadeia inválida com mais de 6 blocos a mais do que a nossa melhor cadeia. Isso pode ser devido a corrupção da base de dados ou incompatibilidade de consenso com os pares.</translation>
     </message>
     <message>
         <source>acceptstalefeeestimates is not supported on %s chain.</source>

@@ -96,7 +96,7 @@ set_target_properties(secp256k1_objs PROPERTIES
 )
 
 # This emulates Libtool to make sure Libtool and CMake agree on the ABI version,
-# see below "Calculate the version variables" in build-aux/ltmain.sh.
+# see below "Calculate the version variables" in autotools-aux/ltmain.sh.
 math(EXPR ${PROJECT_NAME}_soversion "${${PROJECT_NAME}_LIB_VERSION_CURRENT} - ${${PROJECT_NAME}_LIB_VERSION_AGE}")
 set_target_properties(secp256k1 PROPERTIES
   SOVERSION ${${PROJECT_NAME}_soversion}
@@ -135,15 +135,27 @@ if(SECP256K1_BUILD_BENCHMARK)
 endif()
 
 if(SECP256K1_BUILD_TESTS)
+  include(CheckIncludeFile)
+  check_include_file(sys/types.h HAVE_SYS_TYPES_H)
+  check_include_file(sys/wait.h HAVE_SYS_WAIT_H)
+  check_include_file(unistd.h HAVE_UNISTD_H)
+
+  set(TEST_DEFINITIONS "")
+  if(HAVE_SYS_TYPES_H AND HAVE_SYS_WAIT_H AND HAVE_UNISTD_H)
+    list(APPEND TEST_DEFINITIONS SUPPORTS_CONCURRENCY=1)
+  endif()
+
   add_executable(noverify_tests tests.c)
   target_link_libraries(noverify_tests secp256k1_precomputed secp256k1_asm)
+  target_compile_definitions(noverify_tests PRIVATE ${TEST_DEFINITIONS})
   add_test(NAME secp256k1_noverify_tests COMMAND noverify_tests)
   if(NOT CMAKE_BUILD_TYPE STREQUAL "Coverage")
     add_executable(tests tests.c)
-    target_compile_definitions(tests PRIVATE VERIFY)
+    target_compile_definitions(tests PRIVATE VERIFY ${TEST_DEFINITIONS})
     target_link_libraries(tests secp256k1_precomputed secp256k1_asm)
     add_test(NAME secp256k1_tests COMMAND tests)
   endif()
+  unset(TEST_DEFINITIONS)
 endif()
 
 if(SECP256K1_BUILD_EXHAUSTIVE_TESTS)

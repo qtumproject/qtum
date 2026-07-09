@@ -10,6 +10,7 @@
 #include <index/blockfilterindex.h>
 #include <index/coinstatsindex.h>
 #include <index/txindex.h>
+#include <index/txospenderindex.h>
 #include <interfaces/chain.h>
 #include <interfaces/echo.h>
 #include <interfaces/init.h>
@@ -21,6 +22,7 @@
 #include <rpc/server_util.h>
 #include <rpc/util.h>
 #include <scheduler.h>
+#include <tinyformat.h>
 #include <univalue.h>
 #include <util/any.h>
 #include <util/check.h>
@@ -34,6 +36,7 @@
 #ifdef HAVE_MALLOC_INFO
 #include <malloc.h>
 #endif
+#include <string_view>
 
 using node::NodeContext;
 
@@ -115,12 +118,12 @@ static UniValue RPCLockedMemoryInfo()
 {
     LockedPool::Stats stats = LockedPoolManager::Instance().stats();
     UniValue obj(UniValue::VOBJ);
-    obj.pushKV("used", uint64_t(stats.used));
-    obj.pushKV("free", uint64_t(stats.free));
-    obj.pushKV("total", uint64_t(stats.total));
-    obj.pushKV("locked", uint64_t(stats.locked));
-    obj.pushKV("chunks_used", uint64_t(stats.chunks_used));
-    obj.pushKV("chunks_free", uint64_t(stats.chunks_free));
+    obj.pushKV("used", stats.used);
+    obj.pushKV("free", stats.free);
+    obj.pushKV("total", stats.total);
+    obj.pushKV("locked", stats.locked);
+    obj.pushKV("chunks_used", stats.chunks_used);
+    obj.pushKV("chunks_free", stats.chunks_free);
     return obj;
 }
 
@@ -180,7 +183,7 @@ static RPCHelpMan getmemoryinfo()
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
-    std::string mode = request.params[0].isNull() ? "stats" : request.params[0].get_str();
+    auto mode{self.Arg<std::string_view>("mode")};
     if (mode == "stats") {
         UniValue obj(UniValue::VOBJ);
         obj.pushKV("locked", RPCLockedMemoryInfo());
@@ -192,7 +195,7 @@ static RPCHelpMan getmemoryinfo()
         throw JSONRPCError(RPC_INVALID_PARAMETER, "mallocinfo mode not available");
 #endif
     } else {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "unknown mode " + mode);
+        throw JSONRPCError(RPC_INVALID_PARAMETER, tfm::format("unknown mode %s", mode));
     }
 },
     };
@@ -389,7 +392,7 @@ static RPCHelpMan getindexinfo()
                 [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     UniValue result(UniValue::VOBJ);
-    const std::string index_name = request.params[0].isNull() ? "" : request.params[0].get_str();
+    const std::string index_name{self.MaybeArg<std::string_view>("index_name").value_or("")};
 
     if (g_txindex) {
         result.pushKVs(SummaryToJSON(g_txindex->GetSummary(), index_name));
@@ -397,6 +400,10 @@ static RPCHelpMan getindexinfo()
 
     if (g_coin_stats_index) {
         result.pushKVs(SummaryToJSON(g_coin_stats_index->GetSummary(), index_name));
+    }
+
+    if (g_txospenderindex) {
+        result.pushKVs(SummaryToJSON(g_txospenderindex->GetSummary(), index_name));
     }
 
     ForEachBlockFilterIndex([&result, &index_name](const BlockFilterIndex& index) {

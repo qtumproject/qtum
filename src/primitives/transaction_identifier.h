@@ -10,8 +10,12 @@
 #include <util/types.h>
 
 #include <compare>
-#include <concepts>
+#include <cstddef>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <tuple>
+#include <type_traits>
 #include <variant>
 
 /** transaction_identifier represents the two canonical transaction identifier
@@ -34,13 +38,12 @@ class transaction_identifier
 
 public:
     transaction_identifier() : m_wrapped{} {}
+    consteval explicit transaction_identifier(std::string_view hex_str) : m_wrapped{uint256{hex_str}} {}
 
     template <typename Other>
     bool operator==(const Other& other) const { return Compare(other) == 0; }
     template <typename Other>
-    bool operator!=(const Other& other) const { return Compare(other) != 0; }
-    template <typename Other>
-    bool operator<(const Other& other) const { return Compare(other) < 0; }
+    std::strong_ordering operator<=>(const Other& other) const { return Compare(other) <=> 0; }
 
     const uint256& ToUint256() const LIFETIMEBOUND { return m_wrapped; }
     static transaction_identifier FromUint256(const uint256& id) { return {id}; }

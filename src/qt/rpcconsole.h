@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2022 The Bitcoin Core developers
+// Copyright (c) 2011-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -48,7 +48,7 @@ public:
     explicit RPCConsole(interfaces::Node& node, const PlatformStyle *platformStyle, QWidget *parent);
     ~RPCConsole();
 
-    static bool RPCParseCommandLine(interfaces::Node* node, std::string &strResult, const std::string &strCommand, bool fExecute, std::string * const pstrFilteredOut = nullptr, const QString& wallet_name = {});
+    static bool RPCParseCommandLine(interfaces::Node* node, std::string& strResult, const std::string& strCommand, bool fExecute, std::string* pstrFilteredOut = nullptr, const QString& wallet_name = {});
     static bool RPCExecuteCommandLine(interfaces::Node& node, std::string &strResult, const std::string &strCommand, std::string * const pstrFilteredOut = nullptr, const QString& wallet_name = {}) {
         return RPCParseCommandLine(&node, strResult, strCommand, true, pstrFilteredOut, wallet_name);
     }
@@ -56,8 +56,8 @@ public:
     void setClientModel(ClientModel *model = nullptr, int bestblock_height = 0, int64_t bestblock_date = 0, double verification_progress = 0.0);
 
 #ifdef ENABLE_WALLET
-    void addWallet(WalletModel* const walletModel);
-    void removeWallet(WalletModel* const walletModel);
+    void addWallet(WalletModel* walletModel);
+    void removeWallet(WalletModel* walletModel);
 #endif // ENABLE_WALLET
 
     enum MessageClass {
@@ -140,7 +140,7 @@ public Q_SLOTS:
     void activeWalletChanged(int index);
 #ifdef ENABLE_WALLET
     /** Set the current (ie - active) wallet */
-    void setCurrentWallet(WalletModel* const wallet_model);
+    void setCurrentWallet(WalletModel* wallet_model);
 #endif // ENABLE_WALLET
 
 private:

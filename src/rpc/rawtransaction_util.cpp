@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2022 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -182,14 +182,14 @@ static void TxInErrorToJSON(const CTxIn& txin, UniValue& vErrorsRet, const std::
 {
     UniValue entry(UniValue::VOBJ);
     entry.pushKV("txid", txin.prevout.hash.ToString());
-    entry.pushKV("vout", (uint64_t)txin.prevout.n);
+    entry.pushKV("vout", txin.prevout.n);
     UniValue witness(UniValue::VARR);
     for (unsigned int i = 0; i < txin.scriptWitness.stack.size(); i++) {
         witness.push_back(HexStr(txin.scriptWitness.stack[i]));
     }
     entry.pushKV("witness", std::move(witness));
     entry.pushKV("scriptSig", HexStr(txin.scriptSig));
-    entry.pushKV("sequence", (uint64_t)txin.nSequence);
+    entry.pushKV("sequence", txin.nSequence);
     entry.pushKV("error", strMessage);
     vErrorsRet.push_back(std::move(entry));
 }
@@ -367,6 +367,84 @@ void SignTransactionResultToJSON(CMutableTransaction& mtx, bool complete, const 
         }
         result.pushKV("errors", std::move(vErrors));
     }
+}
+
+static std::vector<RPCResult> DecodeExpanded(bool isExpanded, bool isVin)
+{
+    if(isExpanded)
+    {
+        if(isVin) {
+            return {
+                {RPCResult::Type::STR_AMOUNT, "value", /*optional=*/true, "The value in " + CURRENCY_UNIT + " (only if address index is enabled)"},
+                {RPCResult::Type::NUM, "valueSat", /*optional=*/true, "The value in Sat (only if address index is enabled)"},
+                {RPCResult::Type::STR, "address", /*optional=*/true, "The Qtum address (only if address index is enabled)"},
+            };
+        }
+        else {
+            return {
+                {RPCResult::Type::NUM, "valueSat", /*optional=*/true, "The value in Sat (only if address index is enabled)"},
+                {RPCResult::Type::STR_HEX, "spentTxId", /*optional=*/true, "The spent txid (only if address index is enabled)"},
+                {RPCResult::Type::NUM, "spentIndex", /*optional=*/true, "The spent index (only if address index is enabled)"},
+                {RPCResult::Type::NUM, "spentHeight", /*optional=*/true, "The spent height (only if address index is enabled)"},
+            };
+        }
+
+    }
+    return {};
+}
+
+std::vector<RPCResult> DecodeTxDoc(const std::string& txid_field_doc, bool wallet, bool isExpanded)
+{
+    return {
+        {RPCResult::Type::STR_HEX, "txid", txid_field_doc},
+        {RPCResult::Type::STR_HEX, "hash", "The transaction hash (differs from txid for witness transactions)"},
+        {RPCResult::Type::NUM, "size", "The serialized transaction size"},
+        {RPCResult::Type::NUM, "vsize", "The virtual transaction size (differs from size for witness transactions)"},
+        {RPCResult::Type::NUM, "weight", "The transaction's weight (between vsize*4-3 and vsize*4)"},
+        {RPCResult::Type::NUM, "version", "The version"},
+        {RPCResult::Type::NUM_TIME, "locktime", "The lock time"},
+        {RPCResult::Type::ARR, "vin", "",
+        {
+            {RPCResult::Type::OBJ, "", "",
+            {
+                Cat<std::vector<RPCResult>>(
+                {
+                    {RPCResult::Type::STR_HEX, "coinbase", /*optional=*/true, "The coinbase value (only if coinbase transaction)"},
+                    {RPCResult::Type::STR_HEX, "txid", /*optional=*/true, "The transaction id (if not coinbase transaction)"},
+                    {RPCResult::Type::NUM, "vout", /*optional=*/true, "The output number (if not coinbase transaction)"},
+                    {RPCResult::Type::OBJ, "scriptSig", /*optional=*/true, "The script (if not coinbase transaction)",
+                    {
+                        {RPCResult::Type::STR, "asm", "Disassembly of the signature script"},
+                        {RPCResult::Type::STR_HEX, "hex", "The raw signature script bytes, hex-encoded"},
+                    }},
+                    {RPCResult::Type::ARR, "txinwitness", /*optional=*/true, "",
+                    {
+                        {RPCResult::Type::STR_HEX, "hex", "hex-encoded witness data (if any)"},
+                    }},
+                    {RPCResult::Type::NUM, "sequence", "The script sequence number"},
+                },
+                DecodeExpanded(isExpanded, true)),
+            }},
+        }},
+        {RPCResult::Type::ARR, "vout", "",
+        {
+            {RPCResult::Type::OBJ, "", "", Cat(
+                {
+                    Cat<std::vector<RPCResult>>(
+                    {
+                        {RPCResult::Type::STR_AMOUNT, "value", "The value in " + CURRENCY_UNIT},
+                        {RPCResult::Type::NUM, "n", "index"},
+                        {RPCResult::Type::OBJ, "scriptPubKey", "", ScriptPubKeyDoc()},
+                    },
+                    DecodeExpanded(isExpanded, false)),
+                },
+                    wallet ?
+                    std::vector<RPCResult>{{RPCResult::Type::BOOL, "ischange", /*optional=*/true, "Output script is change (only present if true)"}} :
+                    std::vector<RPCResult>{}
+                )
+            },
+        }},
+    };
 }
 
 static void TxOutErrorToJSON(const CTxOut& output, UniValue& vErrorsRet, const std::string& strMessage)

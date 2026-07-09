@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2022 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -65,8 +65,8 @@ enum class BlockValidationResult {
     BLOCK_MISSING_PREV,      //!< We don't have the previous block the checked one is built on
     BLOCK_INVALID_PREV,      //!< A block this one builds on is invalid
     BLOCK_TIME_FUTURE,       //!< block timestamp was > 2 hours in the future (or our clock is bad)
-    BLOCK_CHECKPOINT,        //!< the block failed to meet one of our checkpoints
     BLOCK_HEADER_LOW_WORK,   //!< the block header may be on a too-little-work chain
+    BLOCK_CHECKPOINT,        //!< the block failed to meet one of our checkpoints
     BLOCK_HEADER_SPAM,       //!< reject block header from the spam filter
     BLOCK_HEADER_REJECT,     //!< reject only the block header, but not ban the node
     BLOCK_HEADER_SYNC,       //!< reject the block header due to synchronization problems, used to punish the node less

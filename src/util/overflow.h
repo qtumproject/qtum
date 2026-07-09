@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 The Bitcoin Core developers
+// Copyright (c) 2021-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -29,6 +29,14 @@ template <class T>
         return std::nullopt;
     }
     return i + j;
+}
+
+template <std::unsigned_integral T, std::unsigned_integral U>
+[[nodiscard]] constexpr bool TrySub(T& i, const U j) noexcept
+{
+    if (i < T{j}) return false;
+    i -= T{j};
+    return true;
 }
 
 template <class T>

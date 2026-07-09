@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2022 The Bitcoin Core developers
+# Copyright (c) 2014-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test mining RPCs
@@ -369,8 +369,8 @@ class MiningTest(BitcoinTestFramework):
         self.log.info("Test that node will fail to start when user provide invalid -blockmaxweight")
         self.stop_node(0)
         self.nodes[0].assert_start_raises_init_error(
-            extra_args=[f"-blockmaxweight={MAX_BLOCK_WEIGHT * 4  + 1}"],
-            expected_msg=f"Error: Specified -blockmaxweight ({MAX_BLOCK_WEIGHT * 4  + 1}) exceeds consensus maximum block weight ({MAX_BLOCK_WEIGHT * 4})",
+            extra_args=[f"-blockmaxweight={MAX_BLOCK_WEIGHT * 4 + 1}"],
+            expected_msg=f"Error: Specified -blockmaxweight ({MAX_BLOCK_WEIGHT * 4 + 1}) exceeds consensus maximum block weight ({MAX_BLOCK_WEIGHT * 4})",
         )
 
     def test_height_in_locktime(self):

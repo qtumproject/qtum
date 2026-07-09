@@ -1,6 +1,6 @@
 # macOS Build Guide
 
-**Updated for MacOS [15](https://www.apple.com/macos/macos-sequoia/)**
+**Updated for MacOS [26](https://www.apple.com/os/macos/)**
 
 This guide describes how to build qtumd, command-line utilities, and GUI on macOS.
 
@@ -48,7 +48,7 @@ See [dependencies.md](dependencies.md) for a complete overview.
 To install, run the following from your terminal:
 
 ``` bash
-brew install cmake boost@1.90 pkgconf libevent miniupnpc openssl qt@6 imagemagick librsvg qrencode gmp
+brew install cmake boost@1.90 pkgconf libevent capnp miniupnpc openssl qt@6 imagemagick librsvg qrencode gmp
 ```
 
 Link the specific boost version:

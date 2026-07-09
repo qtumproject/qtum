@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2022 The Bitcoin Core developers
+# Copyright (c) 2016-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Encode and decode Bitcoin addresses.
@@ -226,9 +226,7 @@ def address_to_scriptpubkey(address):
         return keyhash_to_p2pkh_script(payload)
     elif version == 110:  # testnet script hash
         return scripthash_to_p2sh_script(payload)
-    # TODO: also support other address formats
-    else:
-        assert False
+    raise ValueError(f"Unsupported address type: {address}")
 
 
 class TestFrameworkScript(unittest.TestCase):

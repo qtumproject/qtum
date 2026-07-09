@@ -125,7 +125,7 @@ RPCHelpMan getmininginfo()
     obj.pushKV("errors",           pwallet->chain().getWarnings().original);
     obj.pushKV("target", GetTarget(tip, chainman.GetConsensus().powLimit).GetHex());
     obj.pushKV("networkhashps",    GetReqNetworkHashPS(request, chainman));
-    obj.pushKV("pooledtx",         (uint64_t)mempool.size());
+    obj.pushKV("pooledtx",         mempool.size());
     BlockAssembler::Options assembler_options;
     ApplyArgsManOptions(*node.args, assembler_options);
     obj.pushKV("blockmintxfee", ValueFromAmount(assembler_options.blockMinFeeRate.GetFeePerK()));
@@ -219,7 +219,7 @@ RPCHelpMan getstakinginfo()
     obj.pushKV("errors", pwallet->chain().getWarnings().original);
 
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
-    obj.pushKV("pooledtx", (uint64_t)mempool.size());
+    obj.pushKV("pooledtx", mempool.size());
 
     obj.pushKV("difficulty", GetDifficulty(*CHECK_NONFATAL(GetLastBlockIndex(chainman.m_best_header, true))));
     obj.pushKV("search-interval", (int)lastCoinStakeSearchInterval);

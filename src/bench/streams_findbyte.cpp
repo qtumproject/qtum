@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Bitcoin Core developers
+// Copyright (c) 2023-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -30,4 +30,4 @@ static void FindByte(benchmark::Bench& bench)
     assert(file.fclose() == 0);
 }
 
-BENCHMARK(FindByte, benchmark::PriorityLevel::HIGH);
+BENCHMARK(FindByte);

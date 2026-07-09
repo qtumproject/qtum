@@ -244,7 +244,7 @@ public:
 
         if(!toolExists)
         {
-            LogPrintf("QtumLedger(): HWI tool not found %s\n", toolPath);
+            LogInfo("QtumLedger(): HWI tool not found %s\n", toolPath);
         }
     }
 

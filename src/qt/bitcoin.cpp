@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2022 The Bitcoin Core developers
+// Copyright (c) 2011-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -30,13 +30,14 @@
 #include <qt/splashscreen.h>
 #include <qt/utilitydialog.h>
 #include <qt/winshutdownmonitor.h>
+#include <qt/styleSheet.h>
 #include <uint256.h>
 #include <util/exception.h>
 #include <util/string.h>
 #include <util/threadnames.h>
 #include <util/translation.h>
 #include <validation.h>
-#include <qt/styleSheet.h>
+
 #ifdef ENABLE_WALLET
 #include <qt/paymentserver.h>
 #include <qt/walletcontroller.h>
@@ -418,58 +419,55 @@ void BitcoinApplication::initializeResult(bool success, interfaces::BlockAndHead
 {
     qDebug() << __func__ << ": Initialization result: " << success;
 
-    if (success) {
-        delete m_splash;
-        m_splash = nullptr;
+    if (!success || m_node->shutdownRequested()) {
+        requestShutdown();
+        return;
+    }
 
-        // Log this only after AppInitMain finishes, as then logging setup is guaranteed complete
-        qInfo() << "Platform customization:" << platformStyle->getName();
-        clientModel = new ClientModel(node(), optionsModel);
-        window->setClientModel(clientModel, &tip_info);
+    delete m_splash;
+    m_splash = nullptr;
 
-        // If '-min' option passed, start window minimized (iconified) or minimized to tray
-        bool start_minimized = gArgs.GetBoolArg("-min", false);
+    // Log this only after AppInitMain finishes, as then logging setup is guaranteed complete
+    qInfo() << "Platform customization:" << platformStyle->getName();
+    clientModel = new ClientModel(node(), optionsModel);
+    window->setClientModel(clientModel, &tip_info);
+
+    // If '-min' option passed, start window minimized (iconified) or minimized to tray
+    bool start_minimized = gArgs.GetBoolArg("-min", false);
 #ifdef ENABLE_WALLET
-        if (WalletModel::isWalletEnabled()) {
-            m_wallet_controller = new WalletController(*clientModel, platformStyle, this);
-            window->setWalletController(m_wallet_controller, /*show_loading_minimized=*/start_minimized);
-            if (paymentServer) {
-                paymentServer->setOptionsModel(optionsModel);
-            }
+    if (WalletModel::isWalletEnabled()) {
+        m_wallet_controller = new WalletController(*clientModel, platformStyle, this);
+        window->setWalletController(m_wallet_controller, /*show_loading_minimized=*/start_minimized);
+        if (paymentServer) {
+            paymentServer->setOptionsModel(optionsModel);
         }
+    }
 #endif // ENABLE_WALLET
 
-        // Show or minimize window
-        if (!start_minimized) {
-            window->show();
-        } else if (clientModel->getOptionsModel()->getMinimizeToTray() && window->hasTrayIcon()) {
-            // do nothing as the window is managed by the tray icon
-        } else {
-            window->showMinimized();
-        }
+    // Show or minimize window
+    if (!start_minimized) {
+        window->show();
+    } else if (clientModel->getOptionsModel()->getMinimizeToTray() && window->hasTrayIcon()) {
+        // do nothing as the window is managed by the tray icon
+    } else {
+        window->showMinimized();
+    }
 
 #ifdef ENABLE_WALLET
-        // Now that initialization/startup is done, process any command-line
-        // bitcoin: URIs or payment requests:
-        if (paymentServer) {
-            connect(paymentServer, &PaymentServer::receivedPaymentRequest, window, &BitcoinGUI::handlePaymentRequest);
-            connect(window, &BitcoinGUI::receivedURI, paymentServer, &PaymentServer::handleURIOrFile);
-            connect(paymentServer, &PaymentServer::message, [this](const QString& title, const QString& message, unsigned int style) {
-                window->message(title, message, style);
-            });
-            QTimer::singleShot(100ms, paymentServer, &PaymentServer::uiReady);
-        }
+    // Now that initialization/startup is done, process any command-line
+    // bitcoin: URIs or payment requests:
+    if (paymentServer) {
+        connect(paymentServer, &PaymentServer::receivedPaymentRequest, window, &BitcoinGUI::handlePaymentRequest);
+        connect(window, &BitcoinGUI::receivedURI, paymentServer, &PaymentServer::handleURIOrFile);
+        connect(paymentServer, &PaymentServer::message, [this](const QString& title, const QString& message, unsigned int style) {
+            window->message(title, message, style);
+        });
+        QTimer::singleShot(100ms, paymentServer, &PaymentServer::uiReady);
+    }
 #endif
-        pollShutdownTimer->start(SHUTDOWN_POLLING_DELAY);
-
-        processEvents();
-    }
-
-    if(success) {
-        Q_EMIT windowShown(window);
-    } else {
-        requestShutdown();
-    }
+    pollShutdownTimer->start(SHUTDOWN_POLLING_DELAY);
+    processEvents();
+    Q_EMIT windowShown(window);
 }
 
 void BitcoinApplication::handleRunawayException(const QString &message)
@@ -595,11 +593,6 @@ static void SetupUIArgs(ArgsManager& argsman)
 
 int GuiMain(int argc, char* argv[])
 {
-#ifdef WIN32
-    common::WinCmdLineArgs winArgs;
-    std::tie(argc, argv) = winArgs.get();
-#endif
-
     std::unique_ptr<interfaces::Init> init = interfaces::MakeGuiInit(argc, argv);
 
     SetupEnvironment();

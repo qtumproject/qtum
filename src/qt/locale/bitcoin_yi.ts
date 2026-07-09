@@ -54,11 +54,11 @@
         <translation type="unfinished">C&amp;אויסקלײַבן</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">דאס זיינע אייער קטום אדרעסן צו שיקן צאלונגען. אלעמאל איבערקוקן די סומעאון די באקומער אדרעס איידער איר שיקט די מאָנעס.</translation>
+        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">דאס זיינע אייער ביטקוין אדרעסן צו שיקן צאלונגען. אלעמאל איבערקוקן די סומעאון די באקומער אדרעס איידער איר שיקט די מאָנעס.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">די זענען אייער ביטקאָין־אַדרעסן פֿאַר באקומען צאָלונגען. ניצט דעם קנעפּל „שאַפֿן אַ נײַע באקומען־אַדרעס“ 
 אין די „באקומען“־טעב, צו שאַפֿן נײַעאַדרעסן.אונterschרייבן איז בלויז מעגלעך מיט אַדרעסן פון דעם טיפּ „לעגאַסי“.</translation>
@@ -160,7 +160,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">אָפּלייקענען וואָלעט ענקריפּשאַן</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
         <translation type="unfinished">ווארענונג: אויב איר קריפּטירט אייער וואָלעט און פאַרלירן אייער פּאַראָל, וועט איר &lt;b&gt;פאַרלירן אַלע אייער ביטקאָינס &lt;/b&gt;!</translation>
     </message>
     <message>
@@ -188,7 +188,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">צוריק</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">געדענקט אַז ענקריפּטינג דיין בייַטל טוט נישט גאָר באַשיצן דיין ביטקאָינס פון סטאָלען דורך מאַלוואַרע ינפעקטינג דיין קאָמפּיוטער.</translation>
     </message>
     <message>
@@ -387,7 +387,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -443,6 +443,23 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Continue</source>
         <translation type="unfinished">פאָרזעצן</translation>
+    </message>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
     </context>
 <context>
@@ -603,20 +620,12 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">עליפטישער קרויִז קריפּטאָגראַפֿיע סאַנטי טשעק פעלער. 1%s איז שפּאַשנדיק אאָפֿן.</translation>
     </message>
     <message>
-        <source>Error creating %s</source>
-        <translation type="unfinished">אור מיט שאפן 1%s</translation>
-    </message>
-    <message>
         <source>Error initializing block database</source>
         <translation type="unfinished">אַראָר אין אריינשאַפֿן בלאָק דאַטאַבאַזע</translation>
     </message>
     <message>
         <source>Error loading %s</source>
         <translation type="unfinished">ערראָר לאָאַדינג 1%s</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">גרייַזונג לאָדן 1%s: פּריוואַטע שליסלען קענען נאָר ווערן דיסאַבלירט בזמן שלאַפֿן</translation>
     </message>
     <message>
         <source>Error loading %s: Wallet corrupted</source>
@@ -735,10 +744,6 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">טעות: די דאטאבאזע טראַנזאַקשאַן קען נישט דורכגעפֿירט ווערן פֿאַר וואַלעט 1%s</translation>
     </message>
     <message>
-        <source>Failed to connect best block (%s).</source>
-        <translation type="unfinished">ניט הצלחה צו פאַרבינדן דעם בעסטן בלאָק (1%s).</translation>
-    </message>
-    <message>
         <source>Failed to disconnect block.</source>
         <translation type="unfinished">פֿאַרפאַלן צונויפֿרובֿן בלאָק</translation>
     </message>
@@ -761,14 +766,6 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Failed to write block.</source>
         <translation type="unfinished">געפאלן צו געשריבן בלוק</translation>
-    </message>
-    <message>
-        <source>Failed to write to block index database.</source>
-        <translation type="unfinished">זיך נישט מצליח געווען צו שרייַבן צו בלאָק אינדעקס דאַטאַבאַסע.</translation>
-    </message>
-    <message>
-        <source>Failed to write to coin database.</source>
-        <translation type="unfinished">פאַרפאלן צו רעקאָרדירן אין דער קוינס דאַטאַבאַסע.</translation>
     </message>
     <message>
         <source>Failed to write undo data.</source>
@@ -821,10 +818,6 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Invalid P2P permission: '%s'</source>
         <translation type="unfinished">יוצרים פּ2פּ זכּות: '1%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for %s=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation type="unfinished">ניט גאָלדיגער בטראַכט פֿאַר 1%s=: '1%s' (מוז זײַן בּאַלד נישט ווייניקער ווי 1%s)</translation>
     </message>
     <message>
         <source>Invalid amount for %s=&lt;amount&gt;: '%s'</source>
@@ -1017,10 +1010,6 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>This is the minimum transaction fee you pay on every transaction.</source>
         <translation type="unfinished">און דאָס איז דער מינימאַלער טראַנסאַקציאָנס-פיע וואָס איר באַצאָלט אויף יעדער טראַנסאַקציע.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">אַזוי איז דער טראַנסאַקשאַן פייַעך וואָס איר וועט צאָלן אויב איר שיקט אַ טראַנסאַקשאַן.</translation>
     </message>
     <message>
         <source>Transaction %s does not belong to this wallet</source>

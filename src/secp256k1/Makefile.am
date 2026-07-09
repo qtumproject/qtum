@@ -1,4 +1,4 @@
-ACLOCAL_AMFLAGS = -I build-aux/m4
+ACLOCAL_AMFLAGS = -I autotools-aux/m4
 
 # AM_CFLAGS will be automatically prepended to CFLAGS by Automake when compiling some foo
 # which does not have an explicit foo_CFLAGS variable set.
@@ -46,7 +46,10 @@ noinst_HEADERS += src/precomputed_ecmult.h
 noinst_HEADERS += src/precomputed_ecmult_gen.h
 noinst_HEADERS += src/assumptions.h
 noinst_HEADERS += src/checkmem.h
+noinst_HEADERS += src/tests_common.h
 noinst_HEADERS += src/testutil.h
+noinst_HEADERS += src/unit_test.h
+noinst_HEADERS += src/unit_test.c
 noinst_HEADERS += src/util.h
 noinst_HEADERS += src/util_local_visibility.h
 noinst_HEADERS += src/int128.h
@@ -120,7 +123,7 @@ if USE_TESTS
 TESTS += noverify_tests
 noinst_PROGRAMS += noverify_tests
 noverify_tests_SOURCES = src/tests.c
-noverify_tests_CPPFLAGS = $(SECP_CONFIG_DEFINES)
+noverify_tests_CPPFLAGS = $(SECP_CONFIG_DEFINES) $(TEST_DEFINES)
 noverify_tests_LDADD = $(COMMON_LIB) $(PRECOMPUTED_LIB)
 noverify_tests_LDFLAGS = -static
 if !ENABLE_COVERAGE

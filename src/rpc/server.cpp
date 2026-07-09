@@ -27,6 +27,7 @@
 #include <chrono>
 #include <memory>
 #include <mutex>
+#include <string_view>
 #include <unordered_map>
 
 using util::SplitString;
@@ -65,7 +66,7 @@ struct RPCCommandExecution
     }
 };
 
-std::string CRPCTable::help(const std::string& strCommand, const JSONRPCRequest& helpreq) const
+std::string CRPCTable::help(std::string_view strCommand, const JSONRPCRequest& helpreq) const
 {
     std::string strRet;
     std::string category;
@@ -130,16 +131,13 @@ static RPCHelpMan help()
                 RPCExamples{""},
         [&](const RPCHelpMan& self, const JSONRPCRequest& jsonRequest) -> UniValue
 {
-    std::string strCommand;
-    if (jsonRequest.params.size() > 0) {
-        strCommand = jsonRequest.params[0].get_str();
-    }
-    if (strCommand == "dump_all_command_conversions") {
+    auto command{self.MaybeArg<std::string_view>("command")};
+    if (command == "dump_all_command_conversions") {
         // Used for testing only, undocumented
         return tableRPC.dumpArgMap(jsonRequest);
     }
 
-    return tableRPC.help(strCommand, jsonRequest);
+    return tableRPC.help(command.value_or(""), jsonRequest);
 },
     };
 }
@@ -186,7 +184,7 @@ static RPCHelpMan uptime()
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
-    return GetTime() - GetStartupTime();
+    return TicksSeconds(GetUptime());
 }
     };
 }
@@ -221,7 +219,7 @@ static RPCHelpMan getrpcinfo()
     for (const RPCCommandExecutionInfo& info : g_rpc_server_info.active_commands) {
         UniValue entry(UniValue::VOBJ);
         entry.pushKV("method", info.method);
-        entry.pushKV("duration", int64_t{Ticks<std::chrono::microseconds>(SteadyClock::now() - info.start)});
+        entry.pushKV("duration", Ticks<std::chrono::microseconds>(SteadyClock::now() - info.start));
         active_commands.push_back(std::move(entry));
     }
 

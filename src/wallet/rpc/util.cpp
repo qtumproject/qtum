@@ -11,6 +11,7 @@
 #include <wallet/context.h>
 #include <wallet/wallet.h>
 
+#include <optional>
 #include <string_view>
 #include <univalue.h>
 
@@ -29,7 +30,7 @@ bool GetAvoidReuseFlag(const CWallet& wallet, const UniValue& param) {
     return avoid_reuse;
 }
 
-std::string EnsureUniqueWalletName(const JSONRPCRequest& request, const std::string* wallet_name)
+std::string EnsureUniqueWalletName(const JSONRPCRequest& request, std::optional<std::string_view> wallet_name)
 {
     std::string endpoint_wallet;
     if (GetWalletNameFromJSONRPCRequest(request, endpoint_wallet)) {
@@ -47,7 +48,7 @@ std::string EnsureUniqueWalletName(const JSONRPCRequest& request, const std::str
             "Either the RPC endpoint wallet or the wallet name parameter must be provided");
     }
 
-    return *wallet_name;
+    return std::string{*wallet_name};
 }
 
 bool GetWalletNameFromJSONRPCRequest(const JSONRPCRequest& request, std::string& wallet_name)
@@ -126,7 +127,7 @@ void PushParentDescriptors(const CWallet& wallet, const CScript& script_pubkey, 
     entry.pushKV("parent_descs", std::move(parent_descs));
 }
 
-void HandleWalletError(const std::shared_ptr<CWallet> wallet, DatabaseStatus& status, bilingual_str& error)
+void HandleWalletError(const std::shared_ptr<CWallet>& wallet, DatabaseStatus& status, bilingual_str& error)
 {
     if (!wallet) {
         // Map bad format to not found, since bad format is returned when the
@@ -144,8 +145,12 @@ void HandleWalletError(const std::shared_ptr<CWallet> wallet, DatabaseStatus& st
             case DatabaseStatus::FAILED_ALREADY_EXISTS:
                 code = RPC_WALLET_ALREADY_EXISTS;
                 break;
+            case DatabaseStatus::FAILED_NEW_UNNAMED:
             case DatabaseStatus::FAILED_INVALID_BACKUP_FILE:
                 code = RPC_INVALID_PARAMETER;
+                break;
+            case DatabaseStatus::FAILED_ENCRYPT:
+                code = RPC_WALLET_ENCRYPTION_FAILED;
                 break;
             default: // RPC_WALLET_ERROR is returned for all other cases.
                 break;

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2022 The Bitcoin Core developers
+// Copyright (c) 2016-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,11 +17,14 @@
 
 #include <unordered_map>
 
-CBlockHeaderAndShortTxIDs::CBlockHeaderAndShortTxIDs(const CBlock& block, const uint64_t nonce) :
-        nonce(nonce),
-        shorttxids(block.vtx.size() - 1), prefilledtxn(1), header(block) {
+CBlockHeaderAndShortTxIDs::CBlockHeaderAndShortTxIDs(const CBlock& block, uint64_t nonce)
+    : nonce(nonce),
+      shorttxids(block.vtx.size() - 1),
+      prefilledtxn(1),
+      header(block)
+{
     FillShortTxIDSelector();
-    //TODO: Use our mempool prior to block acceptance to predictively fill more than just the coinbase
+    // TODO: Use our mempool prior to block acceptance to predictively fill more than just the coinbase
     prefilledtxn[0] = {0, block.vtx[0]};
     for (size_t i = 1; i < block.vtx.size(); i++) {
         const CTransaction& tx = *block.vtx[i];
@@ -29,20 +32,21 @@ CBlockHeaderAndShortTxIDs::CBlockHeaderAndShortTxIDs(const CBlock& block, const 
     }
 }
 
-void CBlockHeaderAndShortTxIDs::FillShortTxIDSelector() const {
+void CBlockHeaderAndShortTxIDs::FillShortTxIDSelector() const
+{
     DataStream stream{};
     stream << header << nonce;
     CSHA256 hasher;
     hasher.Write((unsigned char*)&(*stream.begin()), stream.end() - stream.begin());
     uint256 shorttxidhash;
     hasher.Finalize(shorttxidhash.begin());
-    shorttxidk0 = shorttxidhash.GetUint64(0);
-    shorttxidk1 = shorttxidhash.GetUint64(1);
+    m_hasher.emplace(shorttxidhash.GetUint64(0), shorttxidhash.GetUint64(1));
 }
 
-uint64_t CBlockHeaderAndShortTxIDs::GetShortID(const Wtxid& wtxid) const {
+uint64_t CBlockHeaderAndShortTxIDs::GetShortID(const Wtxid& wtxid) const
+{
     static_assert(SHORTTXIDS_LENGTH == 6, "shorttxids calculation assumes 6-byte shorttxids");
-    return SipHashUint256(shorttxidk0, shorttxidk1, wtxid.ToUint256()) & 0xffffffffffffL;
+    return (*Assert(m_hasher))(wtxid.ToUint256()) & 0xffffffffffffL;
 }
 
 /* Reconstructing a compact block is in the hot-path for block relay,
@@ -188,40 +192,44 @@ ReadStatus PartiallyDownloadedBlock::FillBlock(CBlock& block, const std::vector<
 {
     if (header.IsNull()) return READ_STATUS_INVALID;
 
-    uint256 hash = header.GetHash();
     block = header;
     block.vtx.resize(txn_available.size());
 
-    unsigned int tx_missing_size = 0;
     size_t tx_missing_offset = 0;
     for (size_t i = 0; i < txn_available.size(); i++) {
         if (!txn_available[i]) {
-            if (vtx_missing.size() <= tx_missing_offset)
+            if (tx_missing_offset >= vtx_missing.size()) {
                 return READ_STATUS_INVALID;
+            }
             block.vtx[i] = vtx_missing[tx_missing_offset++];
-            tx_missing_size += block.vtx[i]->GetTotalSize();
-        } else
+        } else {
             block.vtx[i] = std::move(txn_available[i]);
+        }
     }
 
     // Make sure we can't call FillBlock again.
     header.SetNull();
     txn_available.clear();
 
-    if (vtx_missing.size() != tx_missing_offset)
+    if (vtx_missing.size() != tx_missing_offset) {
         return READ_STATUS_INVALID;
+    }
 
     // Check for possible mutations early now that we have a seemingly good block
     IsBlockMutatedFn check_mutated{m_check_block_mutated_mock ? m_check_block_mutated_mock : IsBlockMutated};
-    if (check_mutated(/*block=*/block,
-                       /*check_witness_root=*/segwit_active)) {
+    if (check_mutated(/*block=*/block, /*check_witness_root=*/segwit_active)) {
         return READ_STATUS_FAILED; // Possible Short ID collision
     }
 
-    LogDebug(BCLog::CMPCTBLOCK, "Successfully reconstructed block %s with %u txn prefilled, %u txn from mempool (incl at least %u from extra pool) and %u txn (%u bytes) requested\n", hash.ToString(), prefilled_count, mempool_count, extra_count, vtx_missing.size(), tx_missing_size);
-    if (vtx_missing.size() < 5) {
-        for (const auto& tx : vtx_missing) {
-            LogDebug(BCLog::CMPCTBLOCK, "Reconstructed block %s required tx %s\n", hash.ToString(), tx->GetHash().ToString());
+    if (LogAcceptCategory(BCLog::CMPCTBLOCK, BCLog::Level::Debug)) {
+        const uint256 hash{block.GetHash()};
+        uint32_t tx_missing_size{0};
+        for (const auto& tx : vtx_missing) tx_missing_size += tx->ComputeTotalSize();
+        LogDebug(BCLog::CMPCTBLOCK, "Successfully reconstructed block %s with %u txn prefilled, %u txn from mempool (incl at least %u from extra pool) and %u txn (%u bytes) requested\n", hash.ToString(), prefilled_count, mempool_count, extra_count, vtx_missing.size(), tx_missing_size);
+        if (vtx_missing.size() < 5) {
+            for (const auto& tx : vtx_missing) {
+                LogDebug(BCLog::CMPCTBLOCK, "Reconstructed block %s required tx %s\n", hash.ToString(), tx->GetHash().ToString());
+            }
         }
     }
 

@@ -64,6 +64,8 @@ COINBASE_MATURITY = 2000
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"
 
+NULL_OUTPOINT = COutPoint(0, 0xffffffff)
+
 NORMAL_GBT_REQUEST_PARAMS = {"rules": ["segwit"]}
 VERSIONBITS_LAST_OLD_BLOCK_VERSION = 4
 MIN_BLOCKS_TO_KEEP = 288
@@ -84,6 +86,9 @@ assert_equal(uint256_from_compact(DIFF_4_N_BITS), DIFF_4_TARGET)
 
 # From BIP325
 SIGNET_HEADER = b"\xec\xc7\xda\xa2"
+
+# Number of blocks to create in temporary blockchain branch for reorg testing
+FORK_LENGTH = 10
 
 def nbits_str(nbits):
     return f"{nbits:08x}"
@@ -114,6 +119,26 @@ def create_block(hashprev=None, coinbase=None, ntime=None, *, version=4, tmpl=No
     block.hashMerkleRoot = block.calc_merkle_root()
     return block
 
+def create_empty_fork(node, fork_length=FORK_LENGTH):
+    '''
+        Creates a fork using node's chaintip as the starting point.
+        Returns a list of blocks to submit in order.
+    '''
+    tip = int(node.getbestblockhash(), 16)
+    height = node.getblockcount()
+    block_time = node.getblock(node.getbestblockhash())['time'] + 1
+
+    blocks = []
+    for _ in range(fork_length):
+        block = create_block(tip, create_coinbase(height + 1), block_time)
+        block.solve()
+        blocks.append(block)
+        tip = block.hash_int
+        block_time += 1
+        height += 1
+
+    return blocks
+
 def get_witness_script(witness_root, witness_nonce):
     witness_commitment = hash256(ser_uint256(witness_root) + ser_uint256(witness_nonce))
     output_data = WITNESS_COMMITMENT_HEADER + witness_commitment
@@ -140,7 +165,7 @@ def add_witness_commitment(block, nonce=0, is_pos=False):
 def script_BIP34_coinbase_height(height):
     if height <= 16:
         res = CScriptOp.encode_op_n(height)
-        # Append dummy to increase scriptSig size to 2 (see bad-cb-length consensus rule)
+        # Append dummy extraNonce to increase scriptSig size to 2 (see bad-cb-length consensus rule)
         return CScript([res, OP_0])
     return CScript([CScriptNum(height)])
 
@@ -155,7 +180,7 @@ def create_coinbase(height, pubkey=None, *, script_pubkey=None, extra_output_scr
     script. This is useful to pad block weight/sigops as needed. """
     coinbase = CTransaction()
     coinbase.nLockTime = height - 1
-    coinbase.vin.append(CTxIn(COutPoint(0, 0xffffffff), script_BIP34_coinbase_height(height), MAX_SEQUENCE_NONFINAL))
+    coinbase.vin.append(CTxIn(NULL_OUTPOINT, script_BIP34_coinbase_height(height), MAX_SEQUENCE_NONFINAL))
     coinbaseoutput = CTxOut()
     if nValue:
         coinbaseoutput.nValue = nValue

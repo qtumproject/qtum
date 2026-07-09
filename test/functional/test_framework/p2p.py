@@ -22,9 +22,11 @@ P2PTxInvStore: A p2p interface class that inherits from P2PDataStore, and keeps
 
 import asyncio
 from collections import defaultdict
+import ipaddress
 from io import BytesIO
 import logging
 import platform
+import socket
 import struct
 import sys
 import threading
@@ -75,6 +77,9 @@ from test_framework.messages import (
     NODE_WITNESS,
     MAGIC_BYTES,
     sha256,
+)
+from test_framework.netutil import (
+    set_ephemeral_port_range,
 )
 from test_framework.util import (
     assert_not_equal,
@@ -735,15 +740,13 @@ class NetworkThread(threading.Thread):
 
         NetworkThread.listeners = {}
         NetworkThread.protos = {}
-        if platform.system() == 'Windows':
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-        NetworkThread.network_event_loop = asyncio.new_event_loop()
 
     def run(self):
         """Start the network thread."""
+        NetworkThread.network_event_loop = asyncio.SelectorEventLoop() if platform.system() == "Windows" else asyncio.new_event_loop()
         self.network_event_loop.run_forever()
 
-    def close(self, *, timeout=10):
+    def close(self, *, timeout):
         """Close the connections and network event loop."""
         self.network_event_loop.call_soon_threadsafe(self.network_event_loop.stop)
         wait_until_helper_internal(lambda: not self.network_event_loop.is_running(), timeout=timeout)
@@ -787,13 +790,28 @@ class NetworkThread(threading.Thread):
                 cls.protos[(addr, port)] = None
             return response
 
-        if (addr, port) not in cls.listeners:
+        if port == 0 or (addr, port) not in cls.listeners:
             # When creating a listener on a given (addr, port) we only need to
             # do it once. If we want different behaviors for different
             # connections, we can accomplish this by providing different
             # `proto` functions
 
-            listener = await cls.network_event_loop.create_server(peer_protocol, addr, port)
+            if port == 0:
+                # Manually create the socket in order to set the range to be
+                # used for the port before the bind() call.
+                if ipaddress.ip_address(addr).version == 4:
+                    address_family = socket.AF_INET
+                else:
+                    address_family = socket.AF_INET6
+                s = socket.socket(address_family)
+                set_ephemeral_port_range(s)
+                s.bind((addr, 0))
+                s.listen()
+                listener = await cls.network_event_loop.create_server(peer_protocol, sock=s)
+                port = listener.sockets[0].getsockname()[1]
+            else:
+                listener = await cls.network_event_loop.create_server(peer_protocol, addr, port)
+
             logger.debug("Listening server on %s:%d should be started" % (addr, port))
             cls.listeners[(addr, port)] = listener
 
@@ -866,8 +884,8 @@ class P2PDataStore(P2PInterface):
          - the on_getheaders handler will ensure that any getheaders are responded to
          - if force_send is False: wait for getdata for each of the blocks. The on_getdata handler will
            ensure that any getdata messages are responded to. Otherwise send the full block unsolicited.
-         - if success is True: assert that the node's tip advances to the most recent block
-         - if success is False: assert that the node's tip doesn't advance
+         - if success is True: assert that the node's tip is the last block in blocks at the end of the operation.
+         - if success is False: assert that the node's tip isn't the last block in blocks at the end of the operation
          - if reject_reason is set: assert that the correct reject message is logged"""
 
         with p2p_lock:
@@ -955,3 +973,27 @@ class P2PTxInvStore(P2PInterface):
         self.wait_until(lambda: set(self.tx_invs_received.keys()) == set([int(tx, 16) for tx in txns]), timeout=timeout)
         # Flush messages and wait for the getdatas to be processed
         self.sync_with_ping()
+
+def start_p2p_listener(network_thread, listener):
+    listen_addr = ""
+    listen_port = 0
+
+    def on_listen_done(addr, port):
+        nonlocal listen_addr
+        nonlocal listen_port
+        listen_addr = addr
+        listen_port = port
+
+    # Use port=0 to let the OS assign an available port. This
+    # avoids "address already in use" errors when tests run
+    # concurrently or ports are still in TIME_WAIT state.
+    network_thread.listen(
+        addr="127.0.0.1",
+        port=0,
+        p2p=listener,
+        callback=on_listen_done)
+
+    # Wait until the callback has been called.
+    wait_until_helper_internal(lambda: listen_port != 0)
+
+    return listen_addr, listen_port

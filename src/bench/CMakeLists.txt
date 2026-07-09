@@ -56,6 +56,8 @@ add_executable(bench_qtum
   verify_script.cpp
 )
 
+add_windows_application_manifest(bench_qtum)
+
 include(TargetDataSources)
 target_raw_data_sources(bench_qtum NAMESPACE benchmark::data
   data/blockbench.raw
@@ -81,9 +83,5 @@ if(ENABLE_WALLET)
   )
   target_link_libraries(bench_qtum bitcoin_wallet)
 endif()
-
-add_test(NAME bench_sanity_check
-  COMMAND bench_qtum -sanity-check
-)
 
 install_binary_component(bench_qtum INTERNAL)

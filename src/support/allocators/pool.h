@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Bitcoin Core developers
+// Copyright (c) 2022-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -155,7 +155,7 @@ class PoolResource final
     void AllocateChunk()
     {
         // if there is still any available memory left, put it into the freelist.
-        size_t remaining_available_bytes = std::distance(m_available_memory_it, m_available_memory_end);
+        size_t remaining_available_bytes = m_available_memory_end - m_available_memory_it;
         if (0 != remaining_available_bytes) {
             ASAN_UNPOISON_MEMORY_REGION(m_available_memory_it, sizeof(ListNode));
             PlacementAddToList(m_available_memory_it, m_free_lists[remaining_available_bytes / ELEM_ALIGN_BYTES]);
@@ -350,13 +350,6 @@ bool operator==(const PoolAllocator<T1, MAX_BLOCK_SIZE_BYTES, ALIGN_BYTES>& a,
                 const PoolAllocator<T2, MAX_BLOCK_SIZE_BYTES, ALIGN_BYTES>& b) noexcept
 {
     return a.resource() == b.resource();
-}
-
-template <class T1, class T2, std::size_t MAX_BLOCK_SIZE_BYTES, std::size_t ALIGN_BYTES>
-bool operator!=(const PoolAllocator<T1, MAX_BLOCK_SIZE_BYTES, ALIGN_BYTES>& a,
-                const PoolAllocator<T2, MAX_BLOCK_SIZE_BYTES, ALIGN_BYTES>& b) noexcept
-{
-    return !(a == b);
 }
 
 #endif // BITCOIN_SUPPORT_ALLOCATORS_POOL_H

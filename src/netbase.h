@@ -60,7 +60,8 @@ class Proxy
 public:
     Proxy() : m_is_unix_socket(false), m_tor_stream_isolation(false) {}
     explicit Proxy(const CService& _proxy, bool tor_stream_isolation = false) : proxy(_proxy), m_is_unix_socket(false), m_tor_stream_isolation(tor_stream_isolation) {}
-    explicit Proxy(const std::string path, bool tor_stream_isolation = false) : m_unix_socket_path(path), m_is_unix_socket(true), m_tor_stream_isolation(tor_stream_isolation) {}
+    explicit Proxy(std::string path, bool tor_stream_isolation = false)
+        : m_unix_socket_path(std::move(path)), m_is_unix_socket(true), m_tor_stream_isolation(tor_stream_isolation) {}
 
     CService proxy;
     std::string m_unix_socket_path;
@@ -132,7 +133,7 @@ public:
     {
         AssertLockNotHeld(m_mutex);
         LOCK(m_mutex);
-        return m_reachable.count(net) > 0;
+        return m_reachable.contains(net);
     }
 
     [[nodiscard]] bool Contains(const CNetAddr& addr) const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex)
@@ -361,5 +362,8 @@ bool IsBadPort(uint16_t port);
  * @return a copy of `service` either unmodified or changed to CJDNS.
  */
 CService MaybeFlipIPv6toCJDNS(const CService& service);
+
+/** Get the bind address for a socket as CService. */
+CService GetBindAddress(const Sock& sock);
 
 #endif // BITCOIN_NETBASE_H

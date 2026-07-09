@@ -60,6 +60,7 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(inter
         case RecvWithAddress:
         case RecvFromOther:
             rec.address = wtx.receiver_address;
+            break;
         default:
             break;
         }

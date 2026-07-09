@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2022 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -22,6 +22,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <vector>
 
@@ -118,7 +119,7 @@ static RPCHelpMan getdescriptorinfo()
         {
             FlatSigningProvider provider;
             std::string error;
-            auto descs = Parse(request.params[0].get_str(), provider, error);
+            auto descs = Parse(self.Arg<std::string_view>("descriptor"), provider, error);
             if (descs.empty()) {
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, error);
             }
@@ -223,7 +224,7 @@ static RPCHelpMan deriveaddresses()
         },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
         {
-            const std::string desc_str = request.params[0].get_str();
+            auto desc_str{self.Arg<std::string_view>("descriptor")};
 
             int64_t range_begin = 0;
             int64_t range_end = 0;

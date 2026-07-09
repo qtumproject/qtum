@@ -6,11 +6,11 @@
 #ifndef BITCOIN_STREAMS_H
 #define BITCOIN_STREAMS_H
 
-#include <logging.h>
 #include <serialize.h>
 #include <span.h>
 #include <support/allocators/zeroafterfree.h>
 #include <util/check.h>
+#include <util/log.h>
 #include <util/obfuscation.h>
 #include <util/overflow.h>
 #include <util/syserror.h>
@@ -117,6 +117,9 @@ public:
 
     void ignore(size_t n)
     {
+        if (n > m_data.size()) {
+            throw std::ios_base::failure("SpanReader::ignore(): end of data");
+        }
         m_data = m_data.subspan(n);
     }
 };
@@ -195,7 +198,6 @@ public:
     //
     // Stream subset
     //
-    bool eof() const             { return size() == 0; }
     int in_avail() const         { return size(); }
 
     void read(std::span<value_type> dst)
@@ -434,6 +436,9 @@ public:
 
     /** Find position within the file. Will throw if unknown. */
     int64_t tell();
+
+    /** Return the size of the file. Will throw if unknown. */
+    int64_t size();
 
     /** Wrapper around FileCommit(). */
     bool Commit();

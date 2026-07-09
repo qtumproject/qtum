@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2021 The Bitcoin Core developers
+// Copyright (c) 2016-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,8 +8,10 @@
 #include <consensus/params.h>
 
 #include <array>
+#include <cassert>
 #include <optional>
 #include <string>
+#include <string_view>
 
 struct VBDeploymentInfo {
     /** Deployment name */
@@ -28,6 +30,6 @@ inline std::string DeploymentName(Consensus::DeploymentPos pos)
     return VersionBitsDeploymentInfo[pos].name;
 }
 
-std::optional<Consensus::BuriedDeployment> GetBuriedDeployment(const std::string_view deployment_name);
+std::optional<Consensus::BuriedDeployment> GetBuriedDeployment(std::string_view deployment_name);
 
 #endif // BITCOIN_DEPLOYMENTINFO_H

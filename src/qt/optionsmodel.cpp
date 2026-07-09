@@ -63,7 +63,6 @@ static const char* SettingName(OptionsModel::OptionID option)
     case OptionsModel::ReserveBalance: return "reservebalance";
     case OptionsModel::LogEvents: return "logevents";
     case OptionsModel::SuperStaking: return "superstaking";
-
     default: throw std::logic_error(strprintf("GUI option %i has no corresponding node setting.", option));
     }
 }
@@ -100,14 +99,14 @@ static common::SettingsValue PruneSetting(bool prune_enabled, int prune_size_gb)
 static bool PruneEnabled(const common::SettingsValue& prune_setting)
 {
     // -prune=1 setting is manual pruning mode, so disabled for purposes of the gui
-    return SettingToInt(prune_setting, 0) > 1;
+    return SettingTo<int64_t>(prune_setting, 0) > 1;
 }
 
 //! Get pruning size value to show in GUI from bitcoin -prune setting. If
 //! pruning is not enabled, just show default recommended pruning size (2GB).
 static int PruneSizeGB(const common::SettingsValue& prune_setting)
 {
-    int value = SettingToInt(prune_setting, 0);
+    int value = SettingTo<int64_t>(prune_setting, 0);
     return value > 1 ? PruneMiBtoGB(value) : DEFAULT_PRUNE_TARGET_GB;
 }
 
@@ -250,7 +249,6 @@ bool OptionsModel::Init(bilingual_str& error)
 
     // Wallet
 #ifdef ENABLE_WALLET
-
     if (!settings.contains("bZeroBalanceAddressToken"))
         settings.setValue("bZeroBalanceAddressToken", wallet::DEFAULT_ZERO_BALANCE_ADDRESS_TOKEN);
     bZeroBalanceAddressToken = settings.value("bZeroBalanceAddressToken").toBool();
@@ -503,7 +501,7 @@ QVariant OptionsModel::getOption(OptionID option, const std::string& suffix) con
                suffix.empty()          ? getOption(option, "-prev") :
                                          DEFAULT_PRUNE_TARGET_GB;
     case DatabaseCache:
-        return qlonglong(SettingToInt(setting(), DEFAULT_DB_CACHE >> 20));
+        return qlonglong(SettingTo<int64_t>(setting(), node::GetDefaultDBCache() >> 20));
     case LogEvents:
         return SettingToBool(setting(), fLogEvents);
 #ifdef ENABLE_WALLET
@@ -511,7 +509,7 @@ QVariant OptionsModel::getOption(OptionID option, const std::string& suffix) con
         return SettingToBool(setting(), false);
 #endif
     case ThreadsScriptVerif:
-        return qlonglong(SettingToInt(setting(), DEFAULT_SCRIPTCHECK_THREADS));
+        return qlonglong(SettingTo<int64_t>(setting(), DEFAULT_SCRIPTCHECK_THREADS));
     case Listen:
         return SettingToBool(setting(), DEFAULT_LISTEN);
     case Server:

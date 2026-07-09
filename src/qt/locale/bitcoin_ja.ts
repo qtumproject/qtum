@@ -59,11 +59,11 @@
         <translation type="unfinished">選択(&amp;C)</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">これらは、あなたが知っている送信先の Qtum アドレスです。コインを送る前に必ず、金額と受取用アドレスを確認してください。</translation>
+        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">これらは、あなたが知っている送信先の Bitcoin アドレスです。コインを送る前に必ず、金額と受取用アドレスを確認してください。</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">これが支払いを受け取るためのあなたのビットコインアドレスです。新しいアドレスを作成するには、受信タブの「新しい受信アドレスを作成」ボタンを使用してください。署名は「レガシー」タイプのアドレスでのみ可能です。</translation>
     </message>
@@ -164,8 +164,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ウォレットの暗号化の確認</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">警告: ウォレットの暗号化後にパスフレーズを忘れてしまった場合、&lt;b&gt;あなたの Qtum はすべて失われます&lt;/b&gt;！</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <translation type="unfinished">警告: ウォレットの暗号化後にパスフレーズを忘れてしまった場合、&lt;b&gt;あなたの Bitcoin はすべて失われます&lt;/b&gt;！</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -192,8 +192,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">戻る</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">ウォレットを暗号化しても、コンピュータに感染したマルウェアなどによる Qtum の盗難を完全に防ぐことはできないことにご注意ください。</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">ウォレットを暗号化しても、コンピュータに感染したマルウェアなどによる Bitcoin の盗難を完全に防ぐことはできないことにご注意ください。</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -327,8 +327,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">金額</translation>
     </message>
     <message>
-        <source>Enter a Qtum address (e.g. %1)</source>
-        <translation type="unfinished">Qtum アドレスを入力してください (例: %1)</translation>
+        <source>Enter a Bitcoin address (e.g. %1)</source>
+        <translation type="unfinished">Bitcoin アドレスを入力してください (例: %1)</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -368,6 +368,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Address Fetch</source>
         <extracomment>Short-lived peer connection type that solicits known addresses from a peer.</extracomment>
         <translation type="unfinished">アドレスのフェッチ</translation>
+    </message>
+    <message>
+        <source>Private Broadcast</source>
+        <extracomment>Short-lived peer connection type that is used for broadcasting privacy-sensitive data.</extracomment>
+        <translation type="unfinished">プライベートブロードキャスト</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -510,8 +515,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">プロキシは&lt;b&gt;有効&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">Qtum アドレスにコインを送る</translation>
+        <source>Send coins to a Bitcoin address</source>
+        <translation type="unfinished">Bitcoin アドレスにコインを送る</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -554,16 +559,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">メッセージを署名…(&amp;m)</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Qtum アドレスでメッセージに署名することで、そのアドレスの所有権を証明する</translation>
+        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <translation type="unfinished">Bitcoin アドレスでメッセージに署名することで、そのアドレスの所有権を証明する</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">メッセージを検証…(&amp;V)</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">メッセージを検証して、指定された Qtum アドレスで署名されたことを確認する</translation>
+        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <translation type="unfinished">メッセージを検証して、指定された Bitcoin アドレスで署名されたことを確認する</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -619,11 +624,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Connecting to peers…</source>
-        <translation type="unfinished">ピアに接続中...</translation>
+        <translation type="unfinished">ピアに接続中…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">支払いをリクエストする（QRコードと qtum:で始まるURIを生成する）</translation>
+        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <translation type="unfinished">支払いをリクエストする（QRコードと bitcoin:で始まるURIを生成する）</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -676,7 +681,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ブロックは最新</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction</source>
+        <source>Load Partially Signed Bitcoin Transaction</source>
         <translation type="unfinished">部分的に署名されたビットコインのトランザクションを読み込み</translation>
     </message>
     <message>
@@ -684,7 +689,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">PSBTをクリップボードから読む…</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>
+        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
         <translation type="unfinished">部分的に署名されたビットコインのトランザクションをクリップボードから読み込み</translation>
     </message>
     <message>
@@ -704,8 +709,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">受取用アドレス一覧(&amp;R)...</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source>
-        <translation type="unfinished">qtum: URIを開く</translation>
+        <source>Open a bitcoin: URI</source>
+        <translation type="unfinished">bitcoin: URIを開く</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -742,8 +747,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ウォレットの移行</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation type="unfinished">%1 のヘルプ メッセージを表示し、使用可能な Qtum のコマンドラインオプション一覧を見る。</translation>
+        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
+        <translation type="unfinished">%1 のヘルプ メッセージを表示し、使用可能な Bitcoin のコマンドラインオプション一覧を見る。</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -770,12 +775,29 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Restore Wallet</source>
         <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
-        <translation type="unfinished">ウォレットを復元</translation>
+        <translation type="unfinished">ウォレットを復</translation>
     </message>
     <message>
         <source>Wallet Name</source>
         <extracomment>Label of the input field where the name of the wallet is entered.</extracomment>
         <translation type="unfinished">ウォレット名</translation>
+    </message>
+    <message>
+        <source>Invalid Wallet Name</source>
+        <translation type="unfinished">無効なウォレット名</translation>
+    </message>
+    <message>
+        <source>Wallet name cannot be empty</source>
+        <translation type="unfinished">ウォレット名は空にはできません</translation>
+    </message>
+    <message>
+        <source>Restore and Migrate Wallet Backup</source>
+        <translation type="unfinished">ウォレットバックアップの復元と移行</translation>
+    </message>
+    <message>
+        <source>Restore and Migrate Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">ウォレットの復元と移行</translation>
     </message>
     <message>
         <source>&amp;Window</source>
@@ -802,7 +824,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">表示</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>%n ビットコイン ネットワークへのアクティブな接続。</numerusform>
@@ -1000,7 +1022,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Copy transaction &amp;ID and output index</source>
-        <translation type="unfinished">取引IDとアウトプットのインデックスをコピー</translation>
+        <translation type="unfinished">取引IDとアウトプットのインデックスをコピー(&amp;I)</translation>
     </message>
     <message>
         <source>L&amp;ock unspent</source>
@@ -1136,6 +1158,40 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">解決可能だが監視されないスクリプトは '%1' という名前の新しいウォレットに移行されました。</translation>
     </message>
     <message>
+        <source>Restore and Migrate wallet</source>
+        <translation type="unfinished">ウォレットの復元と移行</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to restore the wallet file &lt;i&gt;%1&lt;/i&gt; to &lt;i&gt;%2&lt;/i&gt; and migrate it?</source>
+        <translation type="unfinished">ウォレットファイル&lt;i&gt;%1&lt;/i&gt;を復元し&lt;i&gt;%2&lt;/i&gt;に移行してもよろしいですか？</translation>
+    </message>
+    <message>
+        <source>Restoring the wallet will copy the backup file to the wallets directory and place it in the standard wallet directory layout. The original file will not be modified.
+
+Migrating the wallet will convert the restored wallet to one or more descriptor wallets. A new wallet backup will need to be made.
+If this wallet contains any watchonly scripts, a new wallet will be created which contains those watchonly scripts.
+If this wallet contains any solvable but not watched scripts, a different and new wallet will be created which contains those scripts.
+
+The migration process will create a backup of the wallet before migrating. This backup file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory for this wallet. In the event of an incorrect migration, the backup can be restored with the "Restore Wallet" functionality.</source>
+        <translation type="unfinished">ウォレットの復元では、バックアップファイルをウォレットディレクトリにコピーし、標準のウォレットディレクトリレイアウトに配置します。元のファイルは変更されません。
+
+ウォレットの移行では、復元されたウォレットを１つ以上のディスクリプターウォレットに変換します。新しいウォレットバックアップを作成する必要があります。
+このウォレットに監視専用スクリプトが含まれている場合、それらの監視専用スクリプトを含む新しいウォレットが作成されます。
+このウォレットに解決可能だが非監視スクリプトが含まれている場合、それらのスクリプトを含む別の新しいウォレットが作成されます。
+
+移行プロセスでは、移行前にウォレットのバックアップが作成されます。このバックアップファイルの名前は&lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bakで、このウォレット用のディレクトリ内に保存されます。間違った移行が行われた場合、「ウォレットの復元」機能をしよいうしてバックアップを復元できます。</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">ウォレットを復元</translation>
+    </message>
+    <message>
+        <source>Restoring Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the restore wallets progress window which indicates to the user that wallets are currently being restored.</extracomment>
+        <translation type="unfinished">ウォレット &lt;b&gt;%1&lt;/b&gt; を復元中...</translation>
+    </message>
+    <message>
         <source>Migration failed</source>
         <translation type="unfinished">移行に失敗しました</translation>
     </message>
@@ -1259,8 +1315,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">秘密鍵を無効化</translation>
     </message>
     <message>
-        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
-        <translation type="unfinished">空ウォレットを作成。空ウォレットには、最初は秘密鍵やスクリプトがありません。後から秘密鍵やアドレスをインポート、またはHDシードを設定できます。</translation>
+        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported using descriptors at a later time.</source>
+        <translation type="unfinished">空のウォレットを作成します。空のウォレットには、最初は秘密鍵やスクリプトが含まれていません。秘密鍵とアドレスは、後からディスクリプターを使用してインポートできます。</translation>
     </message>
     <message>
         <source>Make Blank Wallet</source>
@@ -1319,8 +1375,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">送金先アドレスを編集</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">入力されたアドレス "%1" は無効な Qtum アドレスです。</translation>
+        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <translation type="unfinished">入力されたアドレス "%1" は無効な Bitcoin アドレスです。</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1468,8 +1524,8 @@ The migration process will create a backup of the wallet before migrating. This 
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">%1 は Qtum ブロックチェーンのコピーをダウンロードし保存します。</translation>
+        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
+        <translation type="unfinished">%1 は Bitcoin ブロックチェーンのコピーをダウンロードし保存します。</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1491,12 +1547,12 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">フォーム</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">最近の取引がまだ表示されていない可能性があります。そのため、ウォレットの残高が正しく表示されていないかもしれません。この情報は、ウォレットが Qtum ネットワークへの同期が完了すると正確なものとなります。詳細は下記を参照してください。</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <translation type="unfinished">最近の取引がまだ表示されていない可能性があります。そのため、ウォレットの残高が正しく表示されていないかもしれません。この情報は、ウォレットが Bitcoin ネットワークへの同期が完了すると正確なものとなります。詳細は下記を参照してください。</translation>
     </message>
     <message>
-        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">まだ表示されていない取引が関係する Qtum の使用を試みた場合、ネットワークから認証を受けられません。</translation>
+        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">まだ表示されていない取引が関係する Bitcoin の使用を試みた場合、ネットワークから認証を受けられません。</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1546,8 +1602,8 @@ The migration process will create a backup of the wallet before migrating. This 
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open qtum URI</source>
-        <translation type="unfinished">qtum URIを開く</translation>
+        <source>Open bitcoin URI</source>
+        <translation type="unfinished">bitcoin URIを開く</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -1595,8 +1651,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">%1 対応スクリプトのフルパス（例：C:\Downloads\hwi.exe や /Users/you/Downloads/hwi.py）。マルウェアにコインを盗まれないようご注意ください。</translation>
     </message>
     <message>
-        <source>Automatically open the Qtum client port on the router. This only works when your router supports PCP or NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">自動的にルーター上の Qtum クライアントのポートを開放します。これは、あなたのルーターが PCP または NAT-PMP をサポートし、有効になっている場合にのみ機能します。外部ポートはランダムで構いません。</translation>
+        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports PCP or NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation type="unfinished">自動的にルーター上の Bitcoin クライアントのポートを開放します。これは、あなたのルーターが PCP または NAT-PMP をサポートし、有効になっている場合にのみ機能します。外部ポートはランダムで構いません。</translation>
     </message>
     <message>
         <source>Map port using PCP or NA&amp;T-PMP</source>
@@ -1726,8 +1782,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">外部からの接続を許可する(&amp;g)</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">SOCKS5 プロキシ経由で Qtum ネットワークに接続する。</translation>
+        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">SOCKS5 プロキシ経由で Bitcoin ネットワークに接続する。</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1806,8 +1862,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">コインコントロール機能を表示するか否か。</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Tor onion service用の別のSOCKS5プロキシを介してQtumネットワークに接続します。</translation>
+        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Tor onion service用の別のSOCKS5プロキシを介してBitcoinネットワークに接続します。</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -1899,8 +1955,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">フォーム</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">表示されている情報は古い可能性があります。ウォレットは接続確立後に Qtum ネットワークと自動的に同期しますが、同期処理はまだ完了していません。</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <translation type="unfinished">表示されている情報は古い可能性があります。ウォレットは接続確立後に Bitcoin ネットワークと自動的に同期しますが、同期処理はまだ完了していません。</translation>
     </message>
     <message>
         <source>Available:</source>
@@ -1944,7 +2000,7 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings-&gt;Mask values.</source>
-        <translation type="unfinished">概要タブでプライバシーモードが有効になっています。値のマスクを解除するには、設定-&gt;マスクの値のチェックを外してください。</translation>
+        <translation type="unfinished">概要タブでプライバシーモードが有効になっています。値のマスクを解除するには、設定 -&gt; 値を隠す のチェックを外してください。</translation>
     </message>
 </context>
 <context>
@@ -1955,11 +2011,11 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Sign Tx</source>
-        <translation type="unfinished">署名されたトランザクション</translation>
+        <translation type="unfinished">取引に署名</translation>
     </message>
     <message>
         <source>Broadcast Tx</source>
-        <translation type="unfinished">Txをブロードキャスト</translation>
+        <translation type="unfinished">取引をブロードキャスト</translation>
     </message>
     <message>
         <source>Copy to Clipboard</source>
@@ -1975,11 +2031,11 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Failed to load transaction: %1</source>
-        <translation type="unfinished">%1 : トランザクションの読込失敗</translation>
+        <translation type="unfinished">取引の読込に失敗: %1</translation>
     </message>
     <message>
         <source>Failed to sign transaction: %1</source>
-        <translation type="unfinished">%1 : トランザクション署名失敗</translation>
+        <translation type="unfinished">取引の署名に失敗: %1</translation>
     </message>
     <message>
         <source>Cannot sign inputs while wallet is locked.</source>
@@ -1989,25 +2045,27 @@ The migration process will create a backup of the wallet before migrating. This 
         <source>Could not sign any more inputs.</source>
         <translation type="unfinished">これ以上インプットに署名できませんでした。</translation>
     </message>
-    <message>
-        <source>Signed %1 inputs, but more signatures are still required.</source>
-        <translation type="unfinished">%1個のインプットに署名しましたが、さらに多くの署名が必要です。</translation>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
-        <translation type="unfinished">トランザクションへの署名が成功しました。トランザクションのブロードキャストの準備ができています。</translation>
+        <translation type="unfinished">取引への署名に成功しました。取引はブロードキャストの準備ができています。</translation>
     </message>
     <message>
         <source>Unknown error processing transaction.</source>
-        <translation type="unfinished">トランザクション処理中の不明なエラー。</translation>
+        <translation type="unfinished">取引処理中の不明なエラー。</translation>
     </message>
     <message>
         <source>Transaction broadcast successfully! Transaction ID: %1</source>
-        <translation type="unfinished">トランザクションのブロードキャストに成功しました！トランザクションID: %1</translation>
+        <translation type="unfinished">取引のブロードキャストに成功！ 取引 ID: %1</translation>
     </message>
     <message>
         <source>Transaction broadcast failed: %1</source>
-        <translation type="unfinished">トランザクションのブロードキャストが失敗しました: %1</translation>
+        <translation type="unfinished">取引のブロードキャストに失敗しました: %1</translation>
     </message>
     <message>
         <source>PSBT copied to clipboard.</source>
@@ -2015,12 +2073,12 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Save Transaction Data</source>
-        <translation type="unfinished">トランザクションデータの保存</translation>
+        <translation type="unfinished">取引データの保存</translation>
     </message>
     <message>
         <source>Partially Signed Transaction (Binary)</source>
         <extracomment>Expanded name of the binary PSBT file format. See: BIP 174.</extracomment>
-        <translation type="unfinished">部分的に署名されたトランザクション（バイナリ）</translation>
+        <translation type="unfinished">部分的に署名された取引（バイナリ）</translation>
     </message>
     <message>
         <source>PSBT saved to disk.</source>
@@ -2050,9 +2108,11 @@ The migration process will create a backup of the wallet before migrating. This 
         <source>or</source>
         <translation type="unfinished">または</translation>
     </message>
-    <message>
-        <source>Transaction has %1 unsigned inputs.</source>
-        <translation type="unfinished">取引には %1 個の未署名インプットがあります。</translation>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>Transaction is missing some information about inputs.</source>
@@ -2090,16 +2150,16 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">支払いリクエストのエラー</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source>
-        <translation type="unfinished">Qtum を起動できません: click-to-pay handler</translation>
+        <source>Cannot start bitcoin: click-to-pay handler</source>
+        <translation type="unfinished">Bitcoin を起動できません: click-to-pay handler</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">URIの処理</translation>
     </message>
     <message>
-        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
-        <translation type="unfinished">'qtum://' は正しいURIではありません｡ 'qtum:'を使用してください｡</translation>
+        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
+        <translation type="unfinished">'bitcoin://' は正しいURIではありません｡ 'bitcoin:'を使用してください｡</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -2110,8 +2170,8 @@ BIP70には広範なセキュリティー上の問題があるので、ウォレ
 このエラーが発生した場合、事業者に対してBIP21に対応したURIを要求してください。</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
-        <translation type="unfinished">URIを解析できませんでした！ Qtum アドレスが無効であるか、URIパラメーターが不正な形式である可能性があります。</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
+        <translation type="unfinished">URIを解析できませんでした！ Bitcoin アドレスが無効であるか、URIパラメーターが不正な形式である可能性があります。</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2259,8 +2319,8 @@ BIP70には広範なセキュリティー上の問題があるので、ウォレ
         <translation type="unfinished">ローカルアドレス</translation>
     </message>
     <message>
-        <source>Network addresses that your Qtum node is currently using to communicate with other nodes.</source>
-        <translation type="unfinished">Qtumノードが現在他のノード通信するために使用しているネットワークアドレス</translation>
+        <source>Network addresses that your Bitcoin node is currently using to communicate with other nodes.</source>
+        <translation type="unfinished">Bitcoinノードが現在他のノード通信するために使用しているネットワークアドレス</translation>
     </message>
     <message>
         <source>Block chain</source>
@@ -2337,10 +2397,6 @@ BIP70には広範なセキュリティー上の問題があるので、ウォレ
     <message>
         <source>Transaction Relay</source>
         <translation type="unfinished">取引のリレー</translation>
-    </message>
-    <message>
-        <source>Starting Block</source>
-        <translation type="unfinished">開始ブロック</translation>
     </message>
     <message>
         <source>Synced Headers</source>
@@ -2560,6 +2616,11 @@ BIP70には広範なセキュリティー上の問題があるので、ウォレ
         <translation type="unfinished">アドレス収集用アウトバウンド: 短時間接続、アドレス収集用</translation>
     </message>
     <message>
+        <source>Private broadcast: short-lived, for broadcasting privacy-sensitive transactions</source>
+        <extracomment>Explanatory text for a short-lived outbound peer connection that is used to broadcast privacy-sensitive data (like our transactions).</extracomment>
+        <translation type="unfinished">プライベートブロードキャスト: プライバシーに配慮した取引をブロードキャストするためもので、短命</translation>
+    </message>
+    <message>
         <source>detecting: peer could be v1 or v2</source>
         <extracomment>Explanatory text for "detecting" transport type.</extracomment>
         <translation type="unfinished">検出中: ピアは v1 でも v2 でもよい</translation>
@@ -2714,8 +2775,8 @@ For more information on using this console, type %6.
         <translation type="unfinished">メッセージ (&amp;M):</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">支払いリクエストに添付する任意のメッセージで、支払リクエストの開封時に表示されます。注意: メッセージは Qtum ネットワーク上へ送信されません。</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
+        <translation type="unfinished">支払いリクエストに添付する任意のメッセージで、支払リクエストの開封時に表示されます。注意: メッセージは Bitcoin ネットワーク上へ送信されません。</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -3011,7 +3072,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
 注意: 手数料はbyte単位で計算されます。"100 satoshis / kvB"という手数料率のとき、500 仮想バイト (1 kvBの半分)の取引の手数料はたったの50 satoshisと計算されます。</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
         <translation type="unfinished">ブロック内の空きより取引の量が少ない場合、マイナーや中継ノードは最低限の手数料でも処理することがあります。この最低限の手数料だけを支払っても問題ありませんが、一度取引の需要がネットワークの処理能力を超えてしまった場合には、取引が永久に承認されなくなってしまう可能性があることに注意してください。</translation>
     </message>
     <message>
@@ -3097,7 +3158,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">未署名で作成(&amp;e)</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">オフラインの %1 ウォレット、あるいはPSBTに対応したハードウェアウォレットで使用するためのPSBT(部分的に署名された取引)を作成します。</translation>
     </message>
     <message>
@@ -3128,12 +3189,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>Save Transaction Data</source>
-        <translation type="unfinished">取引データの保存</translation>
+        <translation type="unfinished">トランザクションデータの保存</translation>
     </message>
     <message>
         <source>Partially Signed Transaction (Binary)</source>
         <extracomment>Expanded name of the binary PSBT file format. See: BIP 174.</extracomment>
-        <translation type="unfinished">部分的に署名された取引（バイナリ）</translation>
+        <translation type="unfinished">部分的に署名されたトランザクション（バイナリ）</translation>
     </message>
     <message>
         <source>PSBT saved</source>
@@ -3153,9 +3214,9 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">手数料は後から上乗せ可能です(Replace-By-Fee(手数料の上乗せ: BIP-125)機能が有効)。</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">取引の提案を確認してください。これにより、部分的に署名されたQtum取引（PSBT）が作成されます。これを保存するかコピーして例えばオフラインの %1 ウォレットやPSBTを扱えるハードウェアウォレットで残りの署名が出来ます。</translation>
+        <translation type="unfinished">取引の提案を確認してください。これにより、部分的に署名されたBitcoin取引（PSBT）が作成されます。これを保存するかコピーして例えばオフラインの %1 ウォレットやPSBTを扱えるハードウェアウォレットで残りの署名が出来ます。</translation>
     </message>
     <message>
         <source>%1 from wallet '%2'</source>
@@ -3167,9 +3228,9 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">この取引を作成しますか？</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitcoin Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">取引を確認してください。 この取引を作成して送信するか、部分的に署名されたQtum取引（Partially Signed Qtum Transaction: PSBT）を作成できます。これを保存またはコピーして、オフラインの %1 ウォレットやPSBT互換のハードウェアウォレットなどで署名できます。</translation>
+        <translation type="unfinished">取引を確認してください。 この取引を作成して送信するか、部分的に署名されたBitcoin取引（Partially Signed Bitcoin Transaction: PSBT）を作成できます。これを保存またはコピーして、オフラインの %1 ウォレットやPSBT互換のハードウェアウォレットなどで署名できます。</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3225,10 +3286,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">金額が残高を超えています。</translation>
     </message>
     <message>
-        <source>The total exceeds your balance when the %1 transaction fee is included.</source>
-        <translation type="unfinished">取引手数料 %1 を含めた総額が残高を超えています。</translation>
-    </message>
-    <message>
         <source>Duplicate address found: addresses should only be used once each.</source>
         <translation type="unfinished">重複したアドレスが見つかりました: アドレスはそれぞれ一度のみ使用することができます。</translation>
     </message>
@@ -3247,8 +3304,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Qtum address</source>
-        <translation type="unfinished">警告: 無効な Qtum アドレスです</translation>
+        <source>Warning: Invalid Bitcoin address</source>
+        <translation type="unfinished">警告: 無効な Bitcoin アドレスです</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -3286,8 +3343,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">これまでに使用したことがあるアドレスから選択</translation>
     </message>
     <message>
-        <source>The Qtum address to send the payment to</source>
-        <translation type="unfinished">送金先 Qtum アドレス</translation>
+        <source>The Bitcoin address to send the payment to</source>
+        <translation type="unfinished">送金先 Bitcoin アドレス</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -3302,8 +3359,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">選択した単位での送金額</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished">手数料は送金する金額から差し引かれます。送金先には金額欄で指定した額よりも少ない Qtum が送られます。送金先が複数ある場合は、手数料は均等に分けられます。</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation type="unfinished">手数料は送金する金額から差し引かれます。送金先には金額欄で指定した額よりも少ない Bitcoin が送られます。送金先が複数ある場合は、手数料は均等に分けられます。</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -3322,8 +3379,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">このアドレスに対するラベルを入力することで、送金したことがあるアドレスの一覧に追加することができます</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">qtum URIに添付されていたメッセージです。これは参照用として取引とともに保存されます。注意: メッセージは Qtum ネットワーク上へ送信されません。</translation>
+        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
+        <translation type="unfinished">bitcoin URIに添付されていたメッセージです。これは参照用として取引とともに保存されます。注意: メッセージは Bitcoin ネットワーク上へ送信されません。</translation>
     </message>
 </context>
 <context>
@@ -3348,12 +3405,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">メッセージに署名(&amp;S)</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">あなたの所有しているレガシー（P2PKH）アドレスによりメッセージや合意書に署名をすることで、それらアドレスに対して送られたビットコインを受け取ることができることを証明できます。フィッシング攻撃により不正にあなたの識別情報を署名させられてしまうことを防ぐために、不明確なものやランダムなものに対して署名しないよう注意してください。あなたが同意した、よく詳細の記された文言にのみ署名するようにしてください。</translation>
     </message>
     <message>
-        <source>The Qtum address to sign the message with</source>
-        <translation type="unfinished">メッセージの署名に使用する Qtum アドレス</translation>
+        <source>The Bitcoin address to sign the message with</source>
+        <translation type="unfinished">メッセージの署名に使用する Bitcoin アドレス</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -3376,8 +3433,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">この署名をクリップボードにコピー</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Qtum address</source>
-        <translation type="unfinished">メッセージに署名してこの Qtum アドレスを所有していることを証明</translation>
+        <source>Sign the message to prove you own this Bitcoin address</source>
+        <translation type="unfinished">メッセージに署名してこの Bitcoin アドレスを所有していることを証明</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -3400,8 +3457,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">送金先のアドレスと、メッセージ（改行やスペース、タブなども完全に一致させること）および署名を以下に入力し、メッセージを検証します。中間者攻撃により騙されるのを防ぐため、署名対象のメッセージから書かれていること以上の意味を読み取ろうとしないでください。また、これは署名作成者がこのアドレスで受け取れることを証明するだけであり、取引の送信権限を証明するものではありません！</translation>
     </message>
     <message>
-        <source>The Qtum address the message was signed with</source>
-        <translation type="unfinished">メッセージの署名に使われた Qtum アドレス</translation>
+        <source>The Bitcoin address the message was signed with</source>
+        <translation type="unfinished">メッセージの署名に使われた Bitcoin アドレス</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -3412,8 +3469,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">メッセージの署名時に生成された署名</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
-        <translation type="unfinished">メッセージを検証して指定された Qtum アドレスで署名されたことを確認</translation>
+        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
+        <translation type="unfinished">メッセージを検証して指定された Bitcoin アドレスで署名されたことを確認</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -4098,8 +4155,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">エラー: ダンプファイルの識別子レコードが不正です。得られた値は"%s"で、期待値は"%s"です。</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">エラー: ダンプファイルのバージョンがサポート外です。このバージョンの Qtum ウォレットは、バージョン 1 のダンプファイルのみをサポートします。バージョン%sのダンプファイルでした。</translation>
+        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">エラー: ダンプファイルのバージョンがサポート外です。このバージョンの Bitcoin ウォレットは、バージョン 1 のダンプファイルのみをサポートします。バージョン%sのダンプファイルでした。</translation>
     </message>
     <message>
         <source>Error: Unable to produce descriptors for this legacy wallet. Make sure to provide the wallet's passphrase if it is encrypted.</source>
@@ -4192,10 +4249,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
         <translation type="unfinished">警告: 秘密鍵が無効なウォレット {%s} で秘密鍵を検出しました</translation>
-    </message>
-    <message>
-        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation type="unfinished">警告: ピアと完全に合意が取れていないようです！ このノードもしくは他のノードのアップグレードが必要な可能性があります。</translation>
     </message>
     <message>
         <source>Witness data for blocks after height %d requires validation. Please restart with -reindex.</source>
@@ -4300,14 +4353,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">オプション「-checkpoints」が設定されていますが、チェックポイントは削除されています。このオプションは効果がありません。</translation>
     </message>
     <message>
-        <source>Option '-maxorphantx' is set but no longer has any effect (see release notes). Please remove it from your configuration.</source>
-        <translation type="unfinished">オプション「-maxorphantx」が設定されていますが、効果はありません（リリースノートを参照）。設定から削除してください。</translation>
-    </message>
-    <message>
-        <source>Options '-datacarrier' or '-datacarriersize' are set but are marked as deprecated. They will be removed in a future version.</source>
-        <translation type="unfinished">オプション「-datacarrier」または「-datacarriersize」が設定されていますが、非推奨とマークされています。これらは将来のバージョンで削除される予定です。</translation>
-    </message>
-    <message>
         <source>Outbound connections restricted to CJDNS (-onlynet=cjdns) but -cjdnsreachable is not provided</source>
         <translation type="unfinished">アウトバウンド接続がCJDNS (-onlynet=cjdns)に制限されていますが、-cjdnsreachableが設定されていません。</translation>
     </message>
@@ -4398,10 +4443,6 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">whitebindは受信接続のみに使用できます（"out"が渡されました）</translation>
     </message>
     <message>
-        <source>-paytxfee is deprecated and will be fully removed in v31.0.</source>
-        <translation type="unfinished">-paytxfee は非推奨となり、v31.0 で完全に削除されます。</translation>
-    </message>
-    <message>
         <source>A fatal internal error occurred, see debug.log for details: </source>
         <translation type="unfinished">致命的な内部エラーが発生しました。詳細はデバッグ用のログファイル debug.log を参照してください:</translation>
     </message>
@@ -4414,8 +4455,12 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">ブロック検証が中断されました</translation>
     </message>
     <message>
-        <source>Cannot add WalletDescriptor to a non-descriptor wallet</source>
-        <translation type="unfinished">WalletDescriptor を非ディスクリプターウォレットに追加することはできません</translation>
+        <source>Can't spend unconfirmed version %d pre-selected input with a version 3 tx</source>
+        <translation type="unfinished">バージョン3のtxで、未確認バージョン1%dの事前選択されたインプットを使うことはできません</translation>
+    </message>
+    <message>
+        <source>Can't spend unconfirmed version 3 pre-selected input with a version %d tx</source>
+        <translation type="unfinished">バージョン1%dのtxで、未確認バージョン3の事前選択されたインプットを使うことはできません</translation>
     </message>
     <message>
         <source>Cannot write to directory '%s'; check permissions.</source>
@@ -4466,20 +4511,12 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">楕円曲線暗号の健全性チェックに失敗しました。%sを終了します。</translation>
     </message>
     <message>
-        <source>Error creating %s</source>
-        <translation type="unfinished">%sの作成エラー</translation>
-    </message>
-    <message>
         <source>Error initializing block database</source>
         <translation type="unfinished">ブロックデータベースの初期化時にエラーが発生しました</translation>
     </message>
     <message>
         <source>Error loading %s</source>
         <translation type="unfinished">%s の読み込みエラー</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">%s の読み込みエラー: 秘密鍵の無効化はウォレットの生成時のみ可能です</translation>
     </message>
     <message>
         <source>Error loading %s: Wallet corrupted</source>
@@ -4630,10 +4667,6 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">ブロックの書き込み時にファイルを閉じることができませんでした。</translation>
     </message>
     <message>
-        <source>Failed to connect best block (%s).</source>
-        <translation type="unfinished">ベストブロック（%s）への接続に失敗しました。</translation>
-    </message>
-    <message>
         <source>Failed to disconnect block.</source>
         <translation type="unfinished">ブロックの切断に失敗しました。</translation>
     </message>
@@ -4656,14 +4689,6 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Failed to write block.</source>
         <translation type="unfinished">ブロックの書き込みに失敗しました。</translation>
-    </message>
-    <message>
-        <source>Failed to write to block index database.</source>
-        <translation type="unfinished">ブロックインデックスデータベースの書き込みに失敗しました。</translation>
-    </message>
-    <message>
-        <source>Failed to write to coin database.</source>
-        <translation type="unfinished">コインデータベースへの書き込みに失敗しました。</translation>
     </message>
     <message>
         <source>Failed to write undo data.</source>
@@ -4718,12 +4743,24 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">無効なP2Pアクセス権: '%s'</translation>
     </message>
     <message>
-        <source>Invalid amount for %s=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation type="unfinished">%s=&lt;amount&gt; オプションに対する不正な設定: '%s'（最低でも %s が必要です）</translation>
-    </message>
-    <message>
         <source>Invalid amount for %s=&lt;amount&gt;: '%s'</source>
         <translation type="unfinished">%s=&lt;amount&gt; オプションに対する不正な設定: '%s'</translation>
+    </message>
+    <message>
+        <source>A %zu MiB dbcache may be too large for a system memory of only %zu MiB.</source>
+        <translation type="unfinished">%zuMiBのdbcacheは、%zuMiBのシステムメモリには大きすぎる可能性があります。</translation>
+    </message>
+    <message>
+        <source>Creating wallet…</source>
+        <translation type="unfinished">ウォレットを作成中...</translation>
+    </message>
+    <message>
+        <source>Duplicate binding configuration for address %s. Please check your -bind, -bind=...=onion and -whitebind settings.</source>
+        <translation type="unfinished">アドレス%sのバインド設定が重複しています。-bindおよび-bind=...=onion、-whitebindの設定を確認してください。</translation>
+    </message>
+    <message>
+        <source>Error creating %s: Could not write version metadata.</source>
+        <translation type="unfinished">%s作成エラー: バージョンメタデータを書き込めませんでした。</translation>
     </message>
     <message>
         <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
@@ -4788,6 +4825,26 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Only direction was set, no permissions: '%s'</source>
         <translation type="unfinished">方向のみが設定されており、権限がありません: '%s'</translation>
+    </message>
+    <message>
+        <source>Option '-limitancestorsize' is given but ancestor size limits have been replaced with cluster size limits (see -limitclustersize). This option has no effect.</source>
+        <translation type="unfinished">「-limitancestorsize」オプションが指定されていますが、祖先サイズの制限はクラスターサイズの制限に置き換えられています（-limitclustersize を参照）。このオプションは効果がありません。</translation>
+    </message>
+    <message>
+        <source>Option '-limitdescendantsize' is given but descendant size limits have been replaced with cluster size limits (see -limitclustersize). This option has no effect.</source>
+        <translation type="unfinished">「-limitdescendantsize」オプションが指定されていますが、子孫サイズの制限はクラスターサイズの制限に置き換えられています（-limitclustersize を参照）。このオプションは効果がありません。</translation>
+    </message>
+    <message>
+        <source>Private broadcast of own transactions requested (-privatebroadcast) and -proxyrandomize is disabled. Tor circuits for private broadcast connections may be correlated to other connections over Tor. For maximum privacy set -proxyrandomize=1.</source>
+        <translation type="unfinished">自身のトランザクションのプライベートブロードキャスト（-privatebroadcast）が要求されており、-proxyrandomize が無効になっています。プライベートブロードキャスト接続用のTor回線が、Tor経由の他の接続と関連付けられる可能性があります。最大限のプライバシーを確保するには、-proxyrandomize=1 を設定してください。</translation>
+    </message>
+    <message>
+        <source>Private broadcast of own transactions requested (-privatebroadcast), but -connect is also configured. They are incompatible because the private broadcast needs to open new connections to randomly chosen Tor or I2P peers. Consider using -maxconnections=0 -addnode=... instead</source>
+        <translation type="unfinished">自身のトランザクションのプライベートブロードキャスト（-privatebroadcast）が要求されていますが、-connect も設定されています。プライベートブロードキャストはランダムに選択されたTorまたはI2Pピアへの新しい接続を開く必要があるため、これらは互換性がありません。代わりに -maxconnections=0 -addnode=... の使用を検討してください。</translation>
+    </message>
+    <message>
+        <source>Private broadcast of own transactions requested (-privatebroadcast), but none of Tor or I2P networks is reachable</source>
+        <translation type="unfinished">自身のトランザクションのプライベートブロードキャスト（-privatebroadcast）が要求されていますが、到達可能なTorネットワークもI2Pネットワークもありません。</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>
@@ -4886,6 +4943,10 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">ブロックをディスクに保存中にシステムエラー: %s</translation>
     </message>
     <message>
+        <source>The %s path uses exFAT, which is known to have intermittent corruption problems on macOS. Move this directory to a different filesystem to avoid data loss.</source>
+        <translation type="unfinished">%sパスはexFATを使用しており、macOS上で断続的に破損問題が発生することが知られています。データ損失を避けるため、このディレクトリを別のファイルシステムに移動してください。</translation>
+    </message>
+    <message>
         <source>The source code is available from %s.</source>
         <translation type="unfinished">ソースコードは %s から入手できます。</translation>
     </message>
@@ -4916,10 +4977,6 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>This is the minimum transaction fee you pay on every transaction.</source>
         <translation type="unfinished">これは、全ての取引に対して最低限支払うべき手数料です。</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">これは、取引を送信する場合に支払う取引手数料です。</translation>
     </message>
     <message>
         <source>Transaction %s does not belong to this wallet</source>
@@ -5008,6 +5065,10 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Wallet file creation failed: %s</source>
         <translation type="unfinished">ウォレットファイルの作成に失敗しました：%s</translation>
+    </message>
+    <message>
+        <source>Warning: Found invalid chain more than 6 blocks longer than our best chain. This could be due to database corruption or consensus incompatibility with peers.</source>
+        <translation type="unfinished">警告: ベストチェーンより6ブロック以上長い無効なチェーンが見つかりました。これはデータベースの破損、またはピアとのコンセンサスの非互換性が原因である可能性があります。</translation>
     </message>
     <message>
         <source>acceptstalefeeestimates is not supported on %s chain.</source>

@@ -82,7 +82,7 @@ Otherwise, if you don't need QR encoding support, use the `-DWITH_QRENCODE=OFF` 
 #### Notifications
 ###### ZeroMQ
 
-Qtum Core can provide notifications via ZeroMQ. If the package is installed, support will be compiled in.
+Qtum Core can provide notifications via ZeroMQ. To compile ZMQ support, install the following dependency and pass `-DWITH_ZMQ=ON` when configuring.
 ```bash
 pkgin install zeromq
 ```
@@ -93,7 +93,7 @@ There is an included test suite that is useful for testing code changes when dev
 To run the test suite (recommended), you will need to have Python 3 installed:
 
 ```bash
-pkgin install python310 py310-zmq
+pkgin install python313 py313-zmq
 ```
 
 ## Building Qtum Core

@@ -35,24 +35,25 @@ struct CompressedHeader {
         hashMerkleRoot.SetNull();
         hashStateRoot.SetNull();
         hashUTXORoot.SetNull();
-        vchBlockSigDlgt.clear();
         prevoutStake.SetNull();
+        vchBlockSigDlgt.clear();
     }
 
-    CompressedHeader(const CBlockHeader& header)
+    explicit CompressedHeader(const CBlockHeader& header)
+        : nVersion{header.nVersion},
+          hashMerkleRoot{header.hashMerkleRoot},
+          nTime{header.nTime},
+          nBits{header.nBits},
+          nNonce{header.nNonce},
+          hashStateRoot{header.hashStateRoot},
+          hashUTXORoot{header.hashUTXORoot},
+          prevoutStake{header.prevoutStake},
+          vchBlockSigDlgt{header.vchBlockSigDlgt}
     {
-        nVersion = header.nVersion;
-        hashMerkleRoot = header.hashMerkleRoot;
-        nTime = header.nTime;
-        nBits = header.nBits;
-        nNonce = header.nNonce;
-        hashStateRoot = header.hashStateRoot;
-        hashUTXORoot = header.hashUTXORoot;
-        vchBlockSigDlgt = header.vchBlockSigDlgt;
-        prevoutStake = header.prevoutStake;
     }
 
-    CBlockHeader GetFullHeader(const uint256& hash_prev_block) {
+    CBlockHeader GetFullHeader(const uint256& hash_prev_block) const
+    {
         CBlockHeader ret;
         ret.nVersion = nVersion;
         ret.hashPrevBlock = hash_prev_block;
@@ -62,8 +63,8 @@ struct CompressedHeader {
         ret.nNonce = nNonce;
         ret.hashStateRoot = hashStateRoot;
         ret.hashUTXORoot = hashUTXORoot;
-        ret.vchBlockSigDlgt = vchBlockSigDlgt;
         ret.prevoutStake = prevoutStake;
+        ret.vchBlockSigDlgt = vchBlockSigDlgt;
         return ret;
     };
 };
@@ -152,7 +153,8 @@ public:
      * minimum_required_work: amount of chain work required to accept the chain
      */
     HeadersSyncState(NodeId id, const Consensus::Params& consensus_params,
-            const CBlockIndex* chain_start, const arith_uint256& minimum_required_work);
+                     const HeadersSyncParams& params, const CBlockIndex& chain_start,
+                     const arith_uint256& minimum_required_work);
 
     /** Result data structure for ProcessNextHeaders. */
     struct ProcessingResult {
@@ -181,7 +183,7 @@ public:
      * ProcessingResult.request_more: if true, the caller is suggested to call
      *                       NextHeadersRequestLocator and send a getheaders message using it.
      */
-    ProcessingResult ProcessNextHeaders(const std::vector<CBlockHeader>&
+    ProcessingResult ProcessNextHeaders(std::span<const CBlockHeader>
             received_headers, bool full_headers_message);
 
     /** Issue the next GETHEADERS message to our peer.
@@ -195,8 +197,8 @@ protected:
     /** The (secret) offset on the heights for which to create commitments.
      *
      * m_header_commitments entries are created at any height h for which
-     * (h % HEADER_COMMITMENT_PERIOD) == m_commit_offset. */
-    const unsigned m_commit_offset;
+     * (h % m_params.commitment_period) == m_commit_offset. */
+    const size_t m_commit_offset;
 
 private:
     /** Clear out all download state that might be in progress (freeing any used
@@ -211,7 +213,7 @@ private:
      *  processed headers.
      *  On failure, this invokes Finalize() and returns false.
      */
-    bool ValidateAndStoreHeadersCommitments(const std::vector<CBlockHeader>& headers);
+    bool ValidateAndStoreHeadersCommitments(std::span<const CBlockHeader> headers);
 
     /** In PRESYNC, process and update state for a single header */
     bool ValidateAndProcessSingleHeader(const CBlockHeader& current);
@@ -230,8 +232,11 @@ private:
     /** We use the consensus params in our anti-DoS calculations */
     const Consensus::Params& m_consensus_params;
 
+    /** Parameters that impact memory usage for a given chain, especially when attacked. */
+    const HeadersSyncParams m_params;
+
     /** Store the last block in our block index that the peer's chain builds from */
-    const CBlockIndex* m_chain_start{nullptr};
+    const CBlockIndex& m_chain_start;
 
     /** Minimum work that we're looking for on this chain. */
     const arith_uint256 m_minimum_required_work;

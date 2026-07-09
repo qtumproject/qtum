@@ -14,6 +14,7 @@ For a description of arguments recognized by test scripts, see
 
 import argparse
 from collections import deque
+from concurrent import futures
 import configparser
 import csv
 import datetime
@@ -28,6 +29,11 @@ import sys
 import tempfile
 import re
 import logging
+from test_framework.util import (
+    Binaries,
+    export_env_build_path,
+    get_binary_paths,
+)
 
 # Minimum amount of space to run the tests.
 MIN_FREE_SPACE = 1.1 * 1024 * 1024 * 1024
@@ -90,7 +96,12 @@ EXTENDED_SCRIPTS = [
     'feature_dbcrash.py',
 ]
 
+# Special script to run each bench sanity check
+TOOL_BENCH_SANITY_CHECK = "tool_bench_sanity_check.py"
+
 BASE_SCRIPTS = [
+    # Special scripts that are "expanded" later
+    TOOL_BENCH_SANITY_CHECK,
     # Scripts that are run by default.
     # Longest test should go first, to favor running tests in parallel
     # vv Tests less than 5m vv
@@ -257,7 +268,6 @@ BASE_SCRIPTS = [
     'feature_utxo_set_hash.py',
     'feature_rbf.py',
     'mempool_packages.py',
-    'mempool_package_onemore.py',
     'mempool_package_limits.py',
     'mempool_package_rbf.py',
     'tool_utxo_to_sqlite.py',
@@ -280,6 +290,7 @@ BASE_SCRIPTS = [
     'p2p_initial_headers_sync.py',
     'feature_nulldummy.py',
     'mempool_accept.py',
+    'p2p_addr_selfannouncement.py',
     'mempool_expiry.py',
     'wallet_importdescriptors.py',
     # 'wallet_crosschain.py',
@@ -304,6 +315,7 @@ BASE_SCRIPTS = [
     'rpc_dumptxoutset.py',
     'feature_minchainwork.py',
     'rpc_estimatefee.py',
+    'p2p_private_broadcast.py',
     'rpc_getblockstats.py',
     'feature_port.py',
     'feature_bind_port_externalip.py',
@@ -327,6 +339,7 @@ BASE_SCRIPTS = [
     'feature_includeconf.py',
     'feature_addrman.py',
     'feature_asmap.py',
+    'feature_chain_tiebreaks.py',
     'feature_fastprune.py',
     'feature_framework_miniwallet.py',
     'mempool_unbroadcast.py',
@@ -344,25 +357,30 @@ BASE_SCRIPTS = [
     'p2p_sendtxrcncl.py',
     'rpc_scantxoutset.py',
     'feature_unsupported_utxo_db.py',
+    'mempool_cluster.py',
     'feature_logging.py',
     'interface_ipc.py',
+    'interface_ipc_mining.py',
     'feature_anchors.py',
     'mempool_datacarrier.py',
     'feature_coinstatsindex.py',
     'feature_coinstatsindex_compatibility.py',
-    # 'wallet_orphanedreward.py', // N/A in Qtum due to rolling checkpoints 
+    # 'wallet_orphanedreward.py', // N/A in Qtum due to rolling checkpoints
+    'wallet_musig.py',
     'wallet_timelock.py',
     'p2p_permissions.py',
     'feature_blocksdir.py',
     'wallet_startup.py',
+    'p2p_private_broadcast_retry_v1.py',
     'feature_remove_pruned_files_on_startup.py',
     'p2p_i2p_ports.py',
     'p2p_i2p_sessions.py',
     'feature_presegwit_node_upgrade.py',
     'feature_settings.py',
     'rpc_getdescriptorinfo.py',
-    'rpc_mempool_info.py',
+    'rpc_gettxspendingprevout.py',
     'rpc_help.py',
+    'feature_framework_testshell.py',
     'tool_rpcauth.py',
     'p2p_handshake.py',
     'p2p_handshake.py --v2transport',
@@ -435,6 +453,7 @@ BASE_SCRIPTS = [
     'qtum_evm_staticcall.py',
     'qtum_evm_constantinople_precompiles.py',
     'qtum_evm_constantinople_opcodes.py',
+    'qtum_evm_pectra_precompiles.py',
     'qtum_block_index_cleanup.py',
     'qtum_pod.py',
     'qtum_simple_delegation_contract.py',
@@ -472,8 +491,7 @@ def main():
     parser.add_argument('--ansi', action='store_true', default=sys.stdout.isatty(), help="Use ANSI colors and dots in output (enabled by default when standard output is a TTY)")
     parser.add_argument('--combinedlogslen', '-c', type=int, default=0, metavar='n', help='On failure, print a log (of length n lines) to the console, combined from the test framework and all test nodes.')
     parser.add_argument('--coverage', action='store_true', help='generate a basic coverage report for the RPC interface')
-    parser.add_argument('--ci', action='store_true', help='Run checks and code that are usually only enabled in a continuous integration environment')
-    parser.add_argument('--exclude', '-x', help='specify a comma-separated-list of scripts to exclude.')
+    parser.add_argument('--exclude', '-x', action='append', help='specify a script to exclude. Can be specified multiple times. The .py extension is optional.')
     parser.add_argument('--extended', action='store_true', help='run the extended test suite in addition to the basic tests')
     parser.add_argument('--help', '-h', '-?', action='store_true', help='print help text and exit')
     parser.add_argument('--jobs', '-j', type=int, default=4, help='how many test scripts to run in parallel. Default=4.')
@@ -487,7 +505,8 @@ def main():
     parser.add_argument('--resultsfile', '-r', help='store test results (as CSV) to the provided file')
 
     args, unknown_args = parser.parse_known_args()
-    fail_on_warn = args.ci
+    # Fail on self-check warnings before running the tests.
+    fail_on_warn = True
     if not args.ansi:
         global DEFAULT, BOLD, GREEN, RED
         DEFAULT = ("", "")
@@ -502,7 +521,7 @@ def main():
     # Read config generated by configure.
     config = configparser.ConfigParser()
     configfile = os.path.abspath(os.path.dirname(__file__)) + "/../config.ini"
-    config.read_file(open(configfile, encoding="utf8"))
+    config.read_file(open(configfile))
 
     passon_args.append("--configfile=%s" % configfile)
 
@@ -531,8 +550,10 @@ def main():
         print("Re-compile with the -DBUILD_DAEMON=ON build option")
         sys.exit(1)
 
-    # Build list of tests
-    test_list = []
+    export_env_build_path(config)
+
+    # Build tests
+    test_list = deque()
     if tests:
         # Individual tests have been specified. Run specified tests that exist
         # in the ALL_SCRIPTS list. Accept names with or without a .py extension.
@@ -551,7 +572,7 @@ def main():
             script = script + ".py" if ".py" not in script else script
             matching_scripts = [s for s in ALL_SCRIPTS if s.startswith(script)]
             if matching_scripts:
-                test_list.extend(matching_scripts)
+                test_list += matching_scripts
             else:
                 print("{}WARNING!{} Test '{}' not found in full test list.".format(BOLD[1], BOLD[0], test))
     elif args.extended:
@@ -566,7 +587,7 @@ def main():
     if args.exclude:
 
         def print_warning_missing_test(test_name):
-            print("{}WARNING!{} Test '{}' not found in current test list. Check the --exclude list.".format(BOLD[1], BOLD[0], test_name))
+            print("{}WARNING!{} Test '{}' not found in current test list. Check the --exclude options.".format(BOLD[1], BOLD[0], test_name))
             if fail_on_warn:
                 sys.exit(1)
 
@@ -574,10 +595,16 @@ def main():
             if not exclude_list:
                 print_warning_missing_test(exclude_test)
             for exclude_item in exclude_list:
+                print("Excluding %s" % exclude_item)
                 test_list.remove(exclude_item)
 
-        exclude_tests = [test.strip() for test in args.exclude.split(",")]
-        for exclude_test in exclude_tests:
+        for exclude_test in args.exclude:
+            if ',' in exclude_test:
+                print("{}WARNING!{} --exclude '{}' contains a comma. Use --exclude for each test.".format(BOLD[1], BOLD[0], exclude_test))
+                if fail_on_warn:
+                    sys.exit(1)
+
+        for exclude_test in args.exclude:
             # A space in the name indicates it has arguments such as "rpc_bind.py --ipv4"
             if ' ' in exclude_test:
                 remove_tests([test for test in test_list if test.replace('.py', '') == exclude_test.replace('.py', '')])
@@ -585,8 +612,17 @@ def main():
                 # Exclude all variants of a test
                 remove_tests([test for test in test_list if test.split('.py')[0] == exclude_test.split('.py')[0]])
 
+    if config["components"].getboolean("BUILD_BENCH") and TOOL_BENCH_SANITY_CHECK in test_list:
+        # Remove it, and expand it for each bench in the list
+        test_list.remove(TOOL_BENCH_SANITY_CHECK)
+        bench_cmd = Binaries(get_binary_paths(config), bin_dir=None).bench_argv() + ["-list"]
+        bench_list = subprocess.check_output(bench_cmd, text=True).splitlines()
+        bench_list = [f"{TOOL_BENCH_SANITY_CHECK} --bench={b}" for b in bench_list]
+        # Start with special scripts (variable, unknown runtime)
+        test_list.extendleft(reversed(bench_list))
+
     if args.filter:
-        test_list = list(filter(re.compile(args.filter).search, test_list))
+        test_list = deque(filter(re.compile(args.filter).search, test_list))
 
     if not test_list:
         print("No valid test scripts specified. Check that your test is in one "
@@ -627,6 +663,11 @@ def main():
 
 def run_tests(*, test_list, build_dir, tmpdir, jobs=1, enable_coverage=False, args=None, combined_logs_len=0, failfast=False, use_term_control, results_filepath=None):
     args = args or []
+
+    # Some optional Python dependencies (e.g. pycapnp) may emit warnings or fail under
+    # CPython free-threaded builds when the GIL is disabled. Force it on for all
+    # functional tests so every child process inherits PYTHON_GIL=1.
+    os.environ["PYTHON_GIL"] = "1"
 
     # Warn if bitcoind is already running
     try:
@@ -773,7 +814,7 @@ def print_results(test_results, max_len_name, runtime):
 
 
 def write_results(test_results, filepath, total_runtime):
-    with open(filepath, mode="w", encoding="utf8") as results_file:
+    with open(filepath, mode="w") as results_file:
         results_writer = csv.writer(results_file)
         results_writer.writerow(['test', 'status', 'duration(seconds)'])
         all_passed = True
@@ -786,15 +827,15 @@ class TestHandler:
     """
     Trigger the test scripts passed in via the list.
     """
-
     def __init__(self, *, num_tests_parallel, tests_dir, tmpdir, test_list, flags, use_term_control):
         assert num_tests_parallel >= 1
+        self.executor = futures.ThreadPoolExecutor(max_workers=num_tests_parallel)
         self.num_jobs = num_tests_parallel
         self.tests_dir = tests_dir
         self.tmpdir = tmpdir
         self.test_list = test_list
         self.flags = flags
-        self.jobs = []
+        self.jobs = {}
         self.use_term_control = use_term_control
 
     def done(self):
@@ -803,7 +844,7 @@ class TestHandler:
     def get_next(self):
         while len(self.jobs) < self.num_jobs and self.test_list:
             # Add tests
-            test = self.test_list.pop(0)
+            test = self.test_list.popleft()
             portseed = len(self.test_list)
             portseed_arg = ["--portseed={}".format(portseed)]
             log_stdout = tempfile.SpooledTemporaryFile(max_size=2**16)
@@ -811,47 +852,58 @@ class TestHandler:
             test_argv = test.split()
             testdir = "{}/{}_{}".format(self.tmpdir, re.sub(".py$", "", test_argv[0]), portseed)
             tmpdir_arg = ["--tmpdir={}".format(testdir)]
-            self.jobs.append((test,
-                              time.time(),
-                              subprocess.Popen([sys.executable, self.tests_dir + test_argv[0]] + test_argv[1:] + self.flags + portseed_arg + tmpdir_arg,
-                                               text=True,
-                                               stdout=log_stdout,
-                                               stderr=log_stderr),
-                              testdir,
-                              log_stdout,
-                              log_stderr))
-        if not self.jobs:
-            raise IndexError('pop from empty list')
+
+            def proc_wait(task):
+                task[2].wait()
+                return task
+
+            task = [
+                test,
+                time.time(),
+                subprocess.Popen(
+                    [sys.executable, self.tests_dir + test_argv[0]] + test_argv[1:] + self.flags + portseed_arg + tmpdir_arg,
+                    text=True,
+                    stdout=log_stdout,
+                    stderr=log_stderr,
+                ),
+                testdir,
+                log_stdout,
+                log_stderr,
+            ]
+            fut = self.executor.submit(proc_wait, task)
+            self.jobs[fut] = test
+        assert self.jobs  # Must not be empty here
 
         # Print remaining running jobs when all jobs have been started.
         if not self.test_list:
-            print("Remaining jobs: [{}]".format(", ".join(j[0] for j in self.jobs)))
+            print("Remaining jobs: [{}]".format(", ".join(sorted(self.jobs.values()))))
 
         dot_count = 0
         while True:
             # Return all procs that have finished, if any. Otherwise sleep until there is one.
-            time.sleep(.5)
+            procs = futures.wait(self.jobs.keys(), timeout=.5, return_when=futures.FIRST_COMPLETED)
+            self.jobs = {fut: self.jobs[fut] for fut in procs.not_done}
             ret = []
-            for job in self.jobs:
-                (name, start_time, proc, testdir, log_out, log_err) = job
-                if proc.poll() is not None:
-                    log_out.seek(0), log_err.seek(0)
-                    [stdout, stderr] = [log_file.read().decode('utf-8') for log_file in (log_out, log_err)]
-                    log_out.close(), log_err.close()
-                    skip_reason = None
-                    if proc.returncode == TEST_EXIT_PASSED and stderr == "":
-                        status = "Passed"
-                    elif proc.returncode == TEST_EXIT_SKIPPED:
-                        status = "Skipped"
-                        skip_reason = re.search(r"Test Skipped: (.*)", stdout).group(1)
-                    else:
-                        status = "Failed"
-                    self.jobs.remove(job)
-                    if self.use_term_control:
-                        clearline = '\r' + (' ' * dot_count) + '\r'
-                        print(clearline, end='', flush=True)
-                    dot_count = 0
-                    ret.append((TestResult(name, status, int(time.time() - start_time)), testdir, stdout, stderr, skip_reason))
+            for job in procs.done:
+                (name, start_time, proc, testdir, log_out, log_err) = job.result()
+
+                log_out.seek(0), log_err.seek(0)
+                [stdout, stderr] = [log_file.read().decode('utf-8') for log_file in (log_out, log_err)]
+                log_out.close(), log_err.close()
+                skip_reason = None
+                if proc.returncode == TEST_EXIT_PASSED and stderr == "":
+                    status = "Passed"
+                elif proc.returncode == TEST_EXIT_SKIPPED:
+                    status = "Skipped"
+                    skip_reason = re.search(r"Test Skipped: (.*)", stdout).group(1).strip()
+                else:
+                    status = "Failed"
+
+                if self.use_term_control:
+                    clearline = '\r' + (' ' * dot_count) + '\r'
+                    print(clearline, end='', flush=True)
+                dot_count = 0
+                ret.append((TestResult(name, status, int(time.time() - start_time)), testdir, stdout, stderr, skip_reason))
             if ret:
                 return ret
             if self.use_term_control:
@@ -974,7 +1026,7 @@ class RPCCoverage():
         if not os.path.isfile(coverage_ref_filename):
             raise RuntimeError("No coverage reference found")
 
-        with open(coverage_ref_filename, 'r', encoding="utf8") as coverage_ref_file:
+        with open(coverage_ref_filename, 'r') as coverage_ref_file:
             all_cmds.update([line.strip() for line in coverage_ref_file.readlines()])
 
         for root, _, files in os.walk(self.dir):
@@ -983,7 +1035,7 @@ class RPCCoverage():
                     coverage_filenames.add(os.path.join(root, filename))
 
         for filename in coverage_filenames:
-            with open(filename, 'r', encoding="utf8") as coverage_file:
+            with open(filename, 'r') as coverage_file:
                 covered_cmds.update([line.strip() for line in coverage_file.readlines()])
 
         return all_cmds - covered_cmds

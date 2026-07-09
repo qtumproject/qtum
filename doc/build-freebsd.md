@@ -1,6 +1,6 @@
 # FreeBSD Build Guide
 
-**Updated for FreeBSD [14.3](https://www.freebsd.org/releases/14.3R/announce/)**
+**Updated for FreeBSD [15.0](https://www.freebsd.org/releases/15.0R/announce/)**
 
 This guide describes how to build qtumd, command-line utilities, and GUI on FreeBSD.
 
@@ -64,7 +64,7 @@ Otherwise, if you don't need QR encoding support, use the `-DWITH_QRENCODE=OFF` 
 #### Notifications
 ###### ZeroMQ
 
-Qtum Core can provide notifications via ZeroMQ. If the package is installed, support will be compiled in.
+Qtum Core can provide notifications via ZeroMQ. To compile ZMQ support, install the following dependency and pass `-DWITH_ZMQ=ON` when configuring.
 ```bash
 pkg install libzmq4
 ```

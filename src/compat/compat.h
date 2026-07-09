@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2022 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -38,6 +38,18 @@
 typedef u_short sa_family_t;
 #endif
 
+// Brace style in the IN6ADDR_*_INIT macros differs across platforms.
+#if defined(__illumos__)
+#define COMPAT_IN6ADDR_ANY_INIT {{IN6ADDR_ANY_INIT}}
+#else
+#define COMPAT_IN6ADDR_ANY_INIT IN6ADDR_ANY_INIT
+#endif
+#if defined(__illumos__) || defined(_MSC_VER)
+#define COMPAT_IN6ADDR_LOOPBACK_INIT {{IN6ADDR_LOOPBACK_INIT}}
+#else
+#define COMPAT_IN6ADDR_LOOPBACK_INIT IN6ADDR_LOOPBACK_INIT
+#endif
+
 // We map Linux / BSD error functions and codes, to the equivalent
 // Windows definitions, and use the WSA* names throughout our code.
 // Note that glibc defines EWOULDBLOCK as EAGAIN (see errno.h).
@@ -73,14 +85,6 @@ typedef unsigned int SOCKET;
 #ifdef _MSC_VER
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
-#endif
-
-// The type of the option value passed to getsockopt & setsockopt
-// differs between Windows and non-Windows.
-#ifndef WIN32
-typedef void* sockopt_arg_type;
-#else
-typedef char* sockopt_arg_type;
 #endif
 
 #ifdef WIN32

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2022 The Bitcoin Core developers
+# Copyright (c) 2015-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test processing of unrequested blocks.
@@ -235,6 +235,7 @@ class AcceptBlockTest(BitcoinTestFramework):
         assert_equal(self.nodes[0].getbestblockhash(), all_blocks[286].hash_hex)
         assert_raises_rpc_error(-1, "Block not available (not fully downloaded)", self.nodes[0].getblock, all_blocks[287].hash_hex)
         self.log.info("Successfully reorged to longer chain")
+
         # 8. Create a chain which is invalid at a height longer than the
         # current chain, but which has more blocks on top of that
         block_289f = create_block(all_blocks[284].hash_int, create_coinbase(289), all_blocks[284].nTime+1)
@@ -290,7 +291,7 @@ class AcceptBlockTest(BitcoinTestFramework):
         headers_message = msg_headers()
         headers_message.headers.append(CBlockHeader(block_293))
         test_node.send_without_ping(headers_message)
-        # test_node.wait_for_disconnect()s
+        # test_node.wait_for_disconnect()
         self.restart_node(0, extra_args=["-minimumchainwork=0x10"])
         self.restart_node(1, extra_args=["-minimumchainwork=0x10"])
         self.connect_nodes(0, 1)

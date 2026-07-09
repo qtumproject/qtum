@@ -58,13 +58,13 @@
         <translation type="unfinished">&amp;Roghnaigh</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Seo iad do sheoltaí Qtum chun íocaíochtaí a sheoladh. Seiceáil i gcónaí an méid agus an seoladh glactha sula seoltar boinn.</translation>
+        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Seo iad do sheoltaí Bitcoin chun íocaíochtaí a sheoladh. Seiceáil i gcónaí an méid agus an seoladh glactha sula seoltar boinn.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Seo iad do sheoltaí Qtum chun glacadh le híocaíochtaí. Úsáid an cnaipe ‘Cruthaigh seoladh glactha nua’ sa cluaisín glactha chun seoltaí nua a chruthú.
+        <translation type="unfinished">Seo iad do sheoltaí Bitcoin chun glacadh le híocaíochtaí. Úsáid an cnaipe ‘Cruthaigh seoladh glactha nua’ sa cluaisín glactha chun seoltaí nua a chruthú.
 Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
     </message>
     <message>
@@ -164,8 +164,8 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">Deimhnigh criptiú sparán</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
-        <translation type="unfinished">Rabhadh: Má chriptíonn tú do sparán agus má chailleann tú do pasfhrása, &lt;b&gt;caillfidh tú GACH CEANN DE DO QTUM&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <translation type="unfinished">Rabhadh: Má chriptíonn tú do sparán agus má chailleann tú do pasfhrása, &lt;b&gt;caillfidh tú GACH CEANN DE DO BITCOIN&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -192,8 +192,8 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">Ar ais</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Cuimhnigh nach dtugann chriptiú do sparán cosaint go hiomlán do do qtums ó bheith goidte ag bogearraí mailíseacha atá ag ionfhabhtú do ríomhaire.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Cuimhnigh nach dtugann chriptiú do sparán cosaint go hiomlán do do bitcoins ó bheith goidte ag bogearraí mailíseacha atá ag ionfhabhtú do ríomhaire.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -323,8 +323,8 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">Suim</translation>
     </message>
     <message>
-        <source>Enter a Qtum address (e.g. %1)</source>
-        <translation type="unfinished">Iontráil seoladh Qtum (m.sh.%1)</translation>
+        <source>Enter a Bitcoin address (e.g. %1)</source>
+        <translation type="unfinished">Iontráil seoladh Bitcoin (m.sh.%1)</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -370,6 +370,11 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <source>Address Fetch</source>
         <extracomment>Short-lived peer connection type that solicits known addresses from a peer.</extracomment>
         <translation type="unfinished">Seoladh Fetch</translation>
+    </message>
+    <message>
+        <source>Private Broadcast</source>
+        <extracomment>Short-lived peer connection type that is used for broadcasting privacy-sensitive data.</extracomment>
+        <translation type="unfinished">Craoladh Príobháideach</translation>
     </message>
     <message>
         <source>%1 d</source>
@@ -516,8 +521,8 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">Seachfhreastalaí &lt;b&gt;cumasaithe&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source>
-        <translation type="unfinished">Seol boinn chuig seoladh Qtum</translation>
+        <source>Send coins to a Bitcoin address</source>
+        <translation type="unfinished">Seol boinn chuig seoladh Bitcoin</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -560,16 +565,16 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">Sínigh &amp;teachtaireacht…</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source>
-        <translation type="unfinished">Sínigh teachtaireachtaí le do sheoltaí Qtum chun a chruthú gur leat iad</translation>
+        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
+        <translation type="unfinished">Sínigh teachtaireachtaí le do sheoltaí Bitcoin chun a chruthú gur leat iad</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Fíoraigh teachtaireacht…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
-        <translation type="unfinished">Teachtaireachtaí a fhíorú lena chinntiú go raibh siad sínithe le seoltaí sainithe Qtum</translation>
+        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
+        <translation type="unfinished">Teachtaireachtaí a fhíorú lena chinntiú go raibh siad sínithe le seoltaí sainithe Bitcoin</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -590,6 +595,10 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
     <message>
         <source>Close All Wallets…</source>
         <translation type="unfinished">Dún Gach Sparán…</translation>
+    </message>
+    <message>
+        <source>Restore and Migrate Wallet File…</source>
+        <translation type="unfinished">Athchóirigh agus Imircigh Comhad Sparán…</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -628,8 +637,8 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">Ag nascadh le piaraí…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and qtum: URIs)</source>
-        <translation type="unfinished">Iarr íocaíochtaí (gineann cóid QR agus qtum: URIs)</translation>
+        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <translation type="unfinished">Iarr íocaíochtaí (gineann cóid QR agus bitcoin: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -684,16 +693,16 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">Suas chun dáta</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction</source>
-        <translation type="unfinished">Lódáil Idirbheart Qtum Sínithe go Páirteach</translation>
+        <source>Load Partially Signed Bitcoin Transaction</source>
+        <translation type="unfinished">Lódáil Idirbheart Bitcoin Sínithe go Páirteach</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Luchtaigh PSBT ón &amp;gearrthaisce…</translation>
     </message>
     <message>
-        <source>Load Partially Signed Qtum Transaction from clipboard</source>
-        <translation type="unfinished">Lódáil Idirbheart Qtum Sínithe go Páirteach ón gearrthaisce</translation>
+        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <translation type="unfinished">Lódáil Idirbheart Bitcoin Sínithe go Páirteach ón gearrthaisce</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -712,8 +721,8 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">S&amp;eoltaí glacadh</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source>
-        <translation type="unfinished">Oscail qtum: URI</translation>
+        <source>Open a bitcoin: URI</source>
+        <translation type="unfinished">Oscail bitcoin: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -750,8 +759,8 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">Imirce sparán</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
-        <translation type="unfinished">Taispeáin an %1 teachtaireacht chabhrach chun liosta a fháil de roghanna Qtum líne na n-orduithe féideartha</translation>
+        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
+        <translation type="unfinished">Taispeáin an %1 teachtaireacht chabhrach chun liosta a fháil de roghanna Bitcoin líne na n-orduithe féideartha</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -786,6 +795,23 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">Ainm Sparán</translation>
     </message>
     <message>
+        <source>Invalid Wallet Name</source>
+        <translation type="unfinished">Ainm Sparáin Neamhbhailí</translation>
+    </message>
+    <message>
+        <source>Wallet name cannot be empty</source>
+        <translation type="unfinished">Ní féidir ainm an sparáin a fhágáil folamh</translation>
+    </message>
+    <message>
+        <source>Restore and Migrate Wallet Backup</source>
+        <translation type="unfinished">Athchóirigh agus Imircigh Cúltaca Sparán</translation>
+    </message>
+    <message>
+        <source>Restore and Migrate Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">Athchóirigh agus Imirce Sparán</translation>
+    </message>
+    <message>
         <source>&amp;Window</source>
         <translation type="unfinished">&amp;Fuinneog</translation>
     </message>
@@ -810,12 +836,12 @@ Ní féidir síniú ach le seoltaí 'oidhreachta'.</translation>
         <translation type="unfinished">S&amp;conas</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n nasc(í) gníomhacha le líonra Qtum.</numerusform>
-            <numerusform>%n nasc(í) gníomhacha le líonra Qtum.</numerusform>
-            <numerusform>%n nasc(í) gníomhacha le líonra Qtum.</numerusform>
+            <numerusform>%n nasc(í) gníomhacha le líonra Bitcoin.</numerusform>
+            <numerusform>%n nasc(í) gníomhacha le líonra Bitcoin.</numerusform>
+            <numerusform>%n nasc(í) gníomhacha le líonra Bitcoin.</numerusform>
         </translation>
     </message>
     <message>
@@ -1146,6 +1172,40 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <translation type="unfinished">Aistríodh scripteanna intuaslagtha ach nach bhfuiltear ag faire orthu go sparán nua darb ainm '%1'.</translation>
     </message>
     <message>
+        <source>Restore and Migrate wallet</source>
+        <translation type="unfinished">Athchóirigh agus Imirce an sparán</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to restore the wallet file &lt;i&gt;%1&lt;/i&gt; to &lt;i&gt;%2&lt;/i&gt; and migrate it?</source>
+        <translation type="unfinished">An bhfuil tú cinnte gur mian leat an comhad sparán &lt;i&gt;%1&lt;/i&gt; a athchóiriú go &lt;i&gt;%2&lt;/i&gt; agus é a aistriú?</translation>
+    </message>
+    <message>
+        <source>Restoring the wallet will copy the backup file to the wallets directory and place it in the standard wallet directory layout. The original file will not be modified.
+
+Migrating the wallet will convert the restored wallet to one or more descriptor wallets. A new wallet backup will need to be made.
+If this wallet contains any watchonly scripts, a new wallet will be created which contains those watchonly scripts.
+If this wallet contains any solvable but not watched scripts, a different and new wallet will be created which contains those scripts.
+
+The migration process will create a backup of the wallet before migrating. This backup file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory for this wallet. In the event of an incorrect migration, the backup can be restored with the "Restore Wallet" functionality.</source>
+        <translation type="unfinished">Má athbhunaítear an sparán, cóipeálfar an comhad cúltaca chuig an eolaire sparán agus cuirfear é i leagan amach caighdeánach an eolaire sparán. Ní dhéanfar an comhad bunaidh a mhodhnú.
+
+Má aistrítear an sparán, tiontófar an sparán athchóirithe go sparán tuairisciúil amháin nó níos mó. Beidh gá le cúltaca nua sparán a dhéanamh.
+Má tá aon scripteanna faire amháin sa sparán seo, cruthófar sparán nua ina mbeidh na scripteanna faire amháin sin.
+Má tá aon scripteanna inréitithe ach nach bhfuil faire orthu sa sparán seo, cruthófar sparán difriúil agus nua ina mbeidh na scripteanna sin.
+
+Cruthófar cúltaca den sparán le linn an phróisis imirce sula ndéantar an t-imirce. Tabharfar &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak ar an gcomhad cúltaca seo agus is féidir é a fháil san eolaire don sparán seo. I gcás imirce mhícheart, is féidir an cúltaca a athchóiriú leis an fheidhmiúlacht "Athchóirigh Sparán".</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">Athchóirigh Sparán</translation>
+    </message>
+    <message>
+        <source>Restoring Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the restore wallets progress window which indicates to the user that wallets are currently being restored.</extracomment>
+        <translation type="unfinished">Sparán á Athchóiriú&lt;b&gt;%1&lt;/b&gt;…</translation>
+    </message>
+    <message>
         <source>Migration failed</source>
         <translation type="unfinished">Theip ar an imirce</translation>
     </message>
@@ -1269,8 +1329,8 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <translation type="unfinished">Díchumasaigh Eochracha Príobháideacha</translation>
     </message>
     <message>
-        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
-        <translation type="unfinished">Déan sparán glan. Níl eochracha príobháideacha nó scripteanna ag sparán glan i dtosach. Is féidir eochracha agus seoltaí príobháideacha a iompórtáil, nó is féidir síol Cinnteachaíocha Ordlathach a shocrú níos déanaí.</translation>
+        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported using descriptors at a later time.</source>
+        <translation type="unfinished">Cruthaigh sparán bán. Ní bhíonn eochracha príobháideacha ná scripteanna ag sparán bán ar dtús. Is féidir eochracha príobháideacha agus seoltaí a allmhairiú ag baint úsáide as tuairiscí ag tráth níos déanaí.</translation>
     </message>
     <message>
         <source>Make Blank Wallet</source>
@@ -1329,8 +1389,8 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <translation type="unfinished">Eagarthóireacht seoladh seoladh</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Qtum address.</source>
-        <translation type="unfinished">Níl seoladh bailí Qtum í an seoladh iontráilte "%1".</translation>
+        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <translation type="unfinished">Níl seoladh bailí Bitcoin í an seoladh iontráilte "%1".</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1486,8 +1546,8 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Qtum block chain.</source>
-        <translation type="unfinished">Íoslódáileafar %1 and stórálfaidh cóip de bhlocshlabhra Qtum.</translation>
+        <source>%1 will download and store a copy of the Bitcoin block chain.</source>
+        <translation type="unfinished">Íoslódáileafar %1 and stórálfaidh cóip de bhlocshlabhra Bitcoin.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1509,12 +1569,12 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <translation type="unfinished">Foirm</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the qtum network, as detailed below.</source>
-        <translation type="unfinished">B’fhéidir nach mbeidh idirbhearta dheireanacha le feiceáil fós, agus dá bhrí sin d’fhéadfadh go mbeadh iarmhéid do sparán mícheart. Beidh an faisnéis seo ceart nuair a bheidh do sparán críochnaithe ag sioncrónú leis an líonra qtum, mar atá luaite thíos.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <translation type="unfinished">B’fhéidir nach mbeidh idirbhearta dheireanacha le feiceáil fós, agus dá bhrí sin d’fhéadfadh go mbeadh iarmhéid do sparán mícheart. Beidh an faisnéis seo ceart nuair a bheidh do sparán críochnaithe ag sioncrónú leis an líonra bitcoin, mar atá luaite thíos.</translation>
     </message>
     <message>
-        <source>Attempting to spend qtums that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Ní ghlacfaidh an líonra le hiarrachtí qtums a chaitheamh a mbaineann le hidirbhearta nach bhfuil ar taispeáint go fóill.</translation>
+        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">Ní ghlacfaidh an líonra le hiarrachtí bitcoins a chaitheamh a mbaineann le hidirbhearta nach bhfuil ar taispeáint go fóill.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -1564,8 +1624,8 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open qtum URI</source>
-        <translation type="unfinished">Oscail URI qtum</translation>
+        <source>Open bitcoin URI</source>
+        <translation type="unfinished">Oscail URI bitcoin</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -1613,8 +1673,8 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <translation type="unfinished">Conair iomlán chuig script comhoiriúnach %1 (m.sh. C:\Downloads\hwi.exe nó /Users/you/Downloads/hwi.py). Tabhair aire: is féidir le malware do bhoinn a ghoid!</translation>
     </message>
     <message>
-        <source>Automatically open the Qtum client port on the router. This only works when your router supports PCP or NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">Oscail calafort cliant Qtum go huathoibríoch ar an ródaire. Ní oibríonn sé seo ach amháin nuair a thacaíonn do ródaire le PCP nó NAT-PMP agus go bhfuil sé cumasaithe. D'fhéadfadh an port seachtrach a bheith randamach.</translation>
+        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports PCP or NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation type="unfinished">Oscail calafort cliant Bitcoin go huathoibríoch ar an ródaire. Ní oibríonn sé seo ach amháin nuair a thacaíonn do ródaire le PCP nó NAT-PMP agus go bhfuil sé cumasaithe. D'fhéadfadh an port seachtrach a bheith randamach.</translation>
     </message>
     <message>
         <source>Map port using PCP or NA&amp;T-PMP</source>
@@ -1744,8 +1804,8 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <translation type="unfinished">Ceadai&amp;gh naisc isteach</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Ceangail leis an líonra Qtum trí sheachfhreastalaí SOCKS5.</translation>
+        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Ceangail leis an líonra Bitcoin trí sheachfhreastalaí SOCKS5.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -1820,8 +1880,8 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <translation type="unfinished">Gnéithe rialúchán bonn a thaispeáint nó nach.</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Ceangail le líonra Qtum trí seachfhreastalaí SOCKS5 ar leith do sheirbhísí Tor oinniún.</translation>
+        <source>Connect to the Bitcoin network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Ceangail le líonra Bitcoin trí seachfhreastalaí SOCKS5 ar leith do sheirbhísí Tor oinniún.</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -1917,8 +1977,8 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <translation type="unfinished">Foirm</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">Féadfaidh an fhaisnéis a thaispeántar a bheith as dáta. Déanann do sparán sioncrónú go huathoibríoch leis an líonra Qtum tar éis nasc a bhunú, ach níl an próiseas seo críochnaithe fós.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <translation type="unfinished">Féadfaidh an fhaisnéis a thaispeántar a bheith as dáta. Déanann do sparán sioncrónú go huathoibríoch leis an líonra Bitcoin tar éis nasc a bhunú, ach níl an próiseas seo críochnaithe fós.</translation>
     </message>
     <message>
         <source>Available:</source>
@@ -2007,9 +2067,13 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <source>Could not sign any more inputs.</source>
         <translation type="unfinished">Níorbh fhéidir níos mó ionchuir a shíniú.</translation>
     </message>
-    <message>
-        <source>Signed %1 inputs, but more signatures are still required.</source>
-        <translation type="unfinished">Ionchuir %1 sínithe, ach tá tuilleadh sínithe fós ag teastáil.</translation>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform>%n ionchur sínithe, ach tá níos mó sínithe fós ag teastáil.</numerusform>
+            <numerusform>%n ionchur sínithe, ach tá níos mó sínithe fós ag teastáil.</numerusform>
+            <numerusform>%n ionchur sínithe, ach tá níos mó sínithe fós ag teastáil.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
@@ -2068,9 +2132,13 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <source>or</source>
         <translation type="unfinished">nó</translation>
     </message>
-    <message>
-        <source>Transaction has %1 unsigned inputs.</source>
-        <translation type="unfinished">Tá %1 ionchur gan sín ag an idirbheart.</translation>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform>Tá %n ionchur(anna) gan síniú san idirbheart.</numerusform>
+            <numerusform>Tá %n ionchur(anna) gan síniú san idirbheart.</numerusform>
+            <numerusform>Tá %n ionchur(anna) gan síniú san idirbheart.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Transaction is missing some information about inputs.</source>
@@ -2108,16 +2176,16 @@ Cruthóidh an próiseas imirce cúltaca den sparán roimh imirce. Ainmneofar an 
         <translation type="unfinished">Earráid iarratais íocaíocht</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source>
-        <translation type="unfinished">Ní féidir qtum a thosú: láimhseálaí cliceáil-chun-íoc</translation>
+        <source>Cannot start bitcoin: click-to-pay handler</source>
+        <translation type="unfinished">Ní féidir bitcoin a thosú: láimhseálaí cliceáil-chun-íoc</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation type="unfinished">Láimhseála URI</translation>
     </message>
     <message>
-        <source>'qtum://' is not a valid URI. Use 'qtum:' instead.</source>
-        <translation type="unfinished">Ní URI bailí é 'qtum://'. Úsáid 'qtum:' ina ionad.</translation>
+        <source>'bitcoin://' is not a valid URI. Use 'bitcoin:' instead.</source>
+        <translation type="unfinished">Ní URI bailí é 'bitcoin://'. Úsáid 'bitcoin:' ina ionad.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -2128,8 +2196,8 @@ De bharr lochtanna slándála forleathan in BIP70, moltar go láidir neamhaird a
 Má tá an earráid seo á fáil agat ba cheart duit iarraidh ar an díoltóir URI atá comhoiriúnach le BIP21 a sholáthar.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Qtum address or malformed URI parameters.</source>
-        <translation type="unfinished">Ní féidir URI a pharsáil! Is féidir le seoladh neamhbhailí Qtum nó paraiméadair URI drochfhoirmithe a bheith mar an chúis.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
+        <translation type="unfinished">Ní féidir URI a pharsáil! Is féidir le seoladh neamhbhailí Bitcoin nó paraiméadair URI drochfhoirmithe a bheith mar an chúis.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2281,8 +2349,8 @@ Má tá an earráid seo á fáil agat ba cheart duit iarraidh ar an díoltóir U
         <translation type="unfinished">Seoltaí Áitiúla</translation>
     </message>
     <message>
-        <source>Network addresses that your Qtum node is currently using to communicate with other nodes.</source>
-        <translation type="unfinished">Seoltaí líonra go bhfuil do nód Qtum úsáid faoi láthair chun cumarsáid a dhéanamh le nóid eile.</translation>
+        <source>Network addresses that your Bitcoin node is currently using to communicate with other nodes.</source>
+        <translation type="unfinished">Seoltaí líonra go bhfuil do nód Bitcoin úsáid faoi láthair chun cumarsáid a dhéanamh le nóid eile.</translation>
     </message>
     <message>
         <source>Block chain</source>
@@ -2359,10 +2427,6 @@ Má tá an earráid seo á fáil agat ba cheart duit iarraidh ar an díoltóir U
     <message>
         <source>Transaction Relay</source>
         <translation type="unfinished">Leaschraolacháin Idirbheart</translation>
-    </message>
-    <message>
-        <source>Starting Block</source>
-        <translation type="unfinished">Bloc Tosaigh</translation>
     </message>
     <message>
         <source>Synced Headers</source>
@@ -2582,6 +2646,11 @@ Má tá an earráid seo á fáil agat ba cheart duit iarraidh ar an díoltóir U
         <translation type="unfinished">Faigh Seoladh Amach: gearrthéarmach, chun seoltaí a lorg</translation>
     </message>
     <message>
+        <source>Private broadcast: short-lived, for broadcasting privacy-sensitive transactions</source>
+        <extracomment>Explanatory text for a short-lived outbound peer connection that is used to broadcast privacy-sensitive data (like our transactions).</extracomment>
+        <translation type="unfinished">Craoladh príobháideach: gearrshaolach, le haghaidh craoladh idirbheart íogair ó thaobh príobháideachta de</translation>
+    </message>
+    <message>
         <source>detecting: peer could be v1 or v2</source>
         <extracomment>Explanatory text for "detecting" transport type.</extracomment>
         <translation type="unfinished">bhrath: d’fhéadfadh v1 nó v2 a bheith i gcomhghleacaí</translation>
@@ -2736,8 +2805,8 @@ Chun tuilleadh eolais a fháil faoin gconsól seo a úsáid, clóscríobh %6.
         <translation type="unfinished">&amp;Teachtaireacht</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Qtum network.</source>
-        <translation type="unfinished">Teachtaireacht roghnach le ceangal leis an iarratas íocaíocht, a thaispeánfar nuair a osclaítear an iarraidh. Nóta: Ní sheolfar an teachtaireacht leis an íocaíocht thar líonra Qtum.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
+        <translation type="unfinished">Teachtaireacht roghnach le ceangal leis an iarratas íocaíocht, a thaispeánfar nuair a osclaítear an iarraidh. Nóta: Ní sheolfar an teachtaireacht leis an íocaíocht thar líonra Bitcoin.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -3041,8 +3110,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
 Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní thabharfadh ráta táille "100 satoshis in aghaidh an kvB" le haghaidh méid idirbhirt 500 beart fíorúil (leath de 1 kvB) táille ach 50 satoshis ar deireadh thiar.</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for qtum transactions than the network can process.</source>
-        <translation type="unfinished">Nuair a bhíonn méid idirbhirt níos lú ná spás sna bloic, féadfaidh mianadóirí chomh maith le nóid athsheachadadh táille íosta a fhorfheidhmiú. Tá sé sách maith an táille íosta seo a íoc, ach bíodh a fhios agat go bhféadfadh idirbheart nach ndeimhnítear riamh a bheith mar thoradh air seo a nuair a bhíonn níos mó éilimh ar idirbhearta qtum ná mar is féidir leis an líonra a phróiseáil.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitcoin transactions than the network can process.</source>
+        <translation type="unfinished">Nuair a bhíonn méid idirbhirt níos lú ná spás sna bloic, féadfaidh mianadóirí chomh maith le nóid athsheachadadh táille íosta a fhorfheidhmiú. Tá sé sách maith an táille íosta seo a íoc, ach bíodh a fhios agat go bhféadfadh idirbheart nach ndeimhnítear riamh a bheith mar thoradh air seo a nuair a bhíonn níos mó éilimh ar idirbhearta bitcoin ná mar is féidir leis an líonra a phróiseáil.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -3127,8 +3196,8 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">Cruthaigh Gan Sín</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Qtum Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Cruthaíonn Idirbheart Qtum Sínithe go Páirteach (IBSP) le húsáid le e.g. sparán as líne %1, nó sparán crua-earraí atá comhoiriúnach le IBSP.</translation>
+        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Cruthaíonn Idirbheart Bitcoin Sínithe go Páirteach (IBSP) le húsáid le e.g. sparán as líne %1, nó sparán crua-earraí atá comhoiriúnach le IBSP.</translation>
     </message>
     <message>
         <source>%1 to '%2'</source>
@@ -3183,9 +3252,9 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">Féadfaidh tú an táille a mhéadú níos déanaí (comhartha chuig Athchuir-Le-Táille, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Qtum Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Le do thoil, déan athbhreithniú ar do thogra idirbhirt. Tabharfaidh sé seo Idirbheart Qtum Sínithe go Páirteach (IBSP) ar féidir leat a shábháil nó a chóipeáil agus a shíniú ansin le m.sh. sparán as líne %1, nó sparán crua-earraí atá comhoiriúnach le IBSP.</translation>
+        <translation type="unfinished">Le do thoil, déan athbhreithniú ar do thogra idirbhirt. Tabharfaidh sé seo Idirbheart Bitcoin Sínithe go Páirteach (IBSP) ar féidir leat a shábháil nó a chóipeáil agus a shíniú ansin le m.sh. sparán as líne %1, nó sparán crua-earraí atá comhoiriúnach le IBSP.</translation>
     </message>
     <message>
         <source>%1 from wallet '%2'</source>
@@ -3197,9 +3266,9 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">Ar mhaith leat an t-idirbheart seo a chruthú?</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Qtum Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitcoin Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">Le do thoil, athbhreithnigh d'idirbheart. Is féidir leat an t-idirbheart seo a chruthú agus a sheoladh nó Idirbheart Qtum Páirt-Sínithe (PSBT) a chruthú, ar féidir leat a shábháil nó a chóipeáil agus a shíniú ansin le, m.sh., sparán %1 as líne, nó sparán crua-earraí PSBT-comhoiriúnach.</translation>
+        <translation type="unfinished">Le do thoil, athbhreithnigh d'idirbheart. Is féidir leat an t-idirbheart seo a chruthú agus a sheoladh nó Idirbheart Bitcoin Páirt-Sínithe (PSBT) a chruthú, ar féidir leat a shábháil nó a chóipeáil agus a shíniú ansin le, m.sh., sparán %1 as líne, nó sparán crua-earraí PSBT-comhoiriúnach.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3249,10 +3318,6 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">Sáraíonn an méid d’iarmhéid.</translation>
     </message>
     <message>
-        <source>The total exceeds your balance when the %1 transaction fee is included.</source>
-        <translation type="unfinished">Sáraíonn an t-iomlán d’iarmhéid nuair a chuirtear an táille idirbhirt %1 san áireamh.</translation>
-    </message>
-    <message>
         <source>Duplicate address found: addresses should only be used once each.</source>
         <translation type="unfinished">Seoladh dúblach faighte: níor cheart seoltaí a úsáid ach uair amháin an ceann.</translation>
     </message>
@@ -3273,8 +3338,8 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Qtum address</source>
-        <translation type="unfinished">Rabhadh: Seoladh neamhbhailí Qtum</translation>
+        <source>Warning: Invalid Bitcoin address</source>
+        <translation type="unfinished">Rabhadh: Seoladh neamhbhailí Bitcoin</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -3312,8 +3377,8 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">Roghnaigh seoladh a úsáideadh roimhe seo</translation>
     </message>
     <message>
-        <source>The Qtum address to send the payment to</source>
-        <translation type="unfinished">Seoladh Qtum chun an íocaíocht a sheoladh chuig</translation>
+        <source>The Bitcoin address to send the payment to</source>
+        <translation type="unfinished">Seoladh Bitcoin chun an íocaíocht a sheoladh chuig</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -3328,8 +3393,8 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">An méid atá le seoladh san aonad roghnaithe</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less qtums than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
-        <translation type="unfinished">Bainfear an táille ón méid a sheolfar. Gheobhaidh an faighteoir níos lú qtums ná mar a iontrálann tú sa réimse méid. Má roghnaítear faighteoirí iolracha, roinntear an táille go cothrom.</translation>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <translation type="unfinished">Bainfear an táille ón méid a sheolfar. Gheobhaidh an faighteoir níos lú bitcoins ná mar a iontrálann tú sa réimse méid. Má roghnaítear faighteoirí iolracha, roinntear an táille go cothrom.</translation>
     </message>
     <message>
         <source>S&amp;ubtract fee from amount</source>
@@ -3348,8 +3413,8 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">Iontráil lipéad don seoladh seo chun é a chur le liosta na seoltaí úsáidte</translation>
     </message>
     <message>
-        <source>A message that was attached to the qtum: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Qtum network.</source>
-        <translation type="unfinished">Teachtaireacht a bhí ceangailte leis an qtum: URI a stórálfar leis an idirbheart le haghaidh do thagairt. Nóta: Ní sheolfar an teachtaireacht seo thar líonra Qtum.</translation>
+        <source>A message that was attached to the bitcoin: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitcoin network.</source>
+        <translation type="unfinished">Teachtaireacht a bhí ceangailte leis an bitcoin: URI a stórálfar leis an idirbheart le haghaidh do thagairt. Nóta: Ní sheolfar an teachtaireacht seo thar líonra Bitcoin.</translation>
     </message>
 </context>
 <context>
@@ -3374,12 +3439,12 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">&amp;Sínigh Teachtaireacht</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Is féidir leat teachtaireachtaí/comhaontuithe a shíniú le do sheoltaí oidhreachta (P2PKH) lena chruthú gur féidir leat qtums a sheoltar chucu a fháil. Bí cúramach gan aon rud doiléir nó randamach a shíniú, mar seans go ndéanfaidh ionsaithe fioscaireachta iarracht tú a mhealladh chun d'aitheantas a shíniú leo. Ná sínigh ach ráitis mhionsonraithe a n-aontaíonn tú leo.</translation>
+        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation type="unfinished">Is féidir leat teachtaireachtaí/comhaontuithe a shíniú le do sheoltaí oidhreachta (P2PKH) lena chruthú gur féidir leat bitcoins a sheoltar chucu a fháil. Bí cúramach gan aon rud doiléir nó randamach a shíniú, mar seans go ndéanfaidh ionsaithe fioscaireachta iarracht tú a mhealladh chun d'aitheantas a shíniú leo. Ná sínigh ach ráitis mhionsonraithe a n-aontaíonn tú leo.</translation>
     </message>
     <message>
-        <source>The Qtum address to sign the message with</source>
-        <translation type="unfinished">An seoladh Qtum chun an teachtaireacht a shíniú le</translation>
+        <source>The Bitcoin address to sign the message with</source>
+        <translation type="unfinished">An seoladh Bitcoin chun an teachtaireacht a shíniú le</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -3402,8 +3467,8 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">Cóipeáil an síniú reatha chuig an ghearrthaisce</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Qtum address</source>
-        <translation type="unfinished">Sínigh an teachtaireacht chun a chruthú gur leat an seoladh Qtum seo</translation>
+        <source>Sign the message to prove you own this Bitcoin address</source>
+        <translation type="unfinished">Sínigh an teachtaireacht chun a chruthú gur leat an seoladh Bitcoin seo</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -3426,8 +3491,8 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">Cuir isteach seoladh an ghlacadóra, teachtaireacht  (déan cinnte go gcóipeálann tú bristeacha líne, spásanna, táib, srl. go díreach) agus sínigh thíos chun an teachtaireacht a fhíorú. Bí cúramach gan níos mó a léamh isteach sa síniú ná mar atá sa teachtaireacht sínithe féin, ionas nach dtarlóidh ionsaí socadáin duit. Tabhair faoi deara nach gcruthóidh sé seo ach go bhfaigheann an páirtí sínithe leis an seoladh, ní féidir leis seolta aon idirbhirt a chruthú!</translation>
     </message>
     <message>
-        <source>The Qtum address the message was signed with</source>
-        <translation type="unfinished">An seoladh Qtum a síníodh an teachtaireacht leis</translation>
+        <source>The Bitcoin address the message was signed with</source>
+        <translation type="unfinished">An seoladh Bitcoin a síníodh an teachtaireacht leis</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -3438,8 +3503,8 @@ Nóta: Ós rud é go ríomhtar an táille ar bhonn in aghaidh an bheart, ní tha
         <translation type="unfinished">An síniú a tugadh nuair a síníodh an teachtaireacht</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Qtum address</source>
-        <translation type="unfinished">Fíoraigh an teachtaireacht lena chinntiú go raibh sí sínithe leis an seoladh Qtum sainithe </translation>
+        <source>Verify the message to ensure it was signed with the specified Bitcoin address</source>
+        <translation type="unfinished">Fíoraigh an teachtaireacht lena chinntiú go raibh sí sínithe leis an seoladh Bitcoin sainithe </translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -4123,8 +4188,8 @@ Téigh go Comhad &gt; Oscail Sparán chun sparán a lódáil.
         <translation type="unfinished">Earráid: Tá taifead aitheantóra Dumpfile mícheart. Fuair ​​​​tú "%s", bhíothas ag súil le "%s".</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of qtum-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Earráid: Ní thacaítear leis an leagan Dumpfile. Ní thacaíonn an leagan seo de qtum-sparán ach le leagan 1 dumpfiles. Fuair ​​​​tú dumpfile le leagan %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of bitcoin-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Earráid: Ní thacaítear leis an leagan Dumpfile. Ní thacaíonn an leagan seo de bitcoin-sparán ach le leagan 1 dumpfiles. Fuair ​​​​tú dumpfile le leagan %s</translation>
     </message>
     <message>
         <source>Error: Unable to produce descriptors for this legacy wallet. Make sure to provide the wallet's passphrase if it is encrypted.</source>
@@ -4217,10 +4282,6 @@ Téigh go Comhad &gt; Oscail Sparán chun sparán a lódáil.
     <message>
         <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
         <translation type="unfinished">Rabhadh: Eochracha príobháideacha braite i sparán {%s} le heochracha príobháideacha díchumasaithe</translation>
-    </message>
-    <message>
-        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation type="unfinished">Rabhadh: Is cosúil nach n-aontaímid go hiomlán lenár piaraí! B’fhéidir go mbeidh ort uasghrádú a dhéanamh, nó b’fhéidir go mbeidh ar nóid eile uasghrádú.</translation>
     </message>
     <message>
         <source>Witness data for blocks after height %d requires validation. Please restart with -reindex.</source>
@@ -4324,14 +4385,6 @@ Téigh go Comhad &gt; Oscail Sparán chun sparán a lódáil.
         <translation type="unfinished">Tá an rogha '-checkpoints' socraithe ach baineadh seicphointí. Níl aon éifeacht ag an rogha seo.</translation>
     </message>
     <message>
-        <source>Option '-maxorphantx' is set but no longer has any effect (see release notes). Please remove it from your configuration.</source>
-        <translation type="unfinished">Tá an rogha '-maxorphantx' socraithe ach níl aon éifeacht aici a thuilleadh (féach nótaí scaoilte). Bain as do chumraíocht í le do thoil.</translation>
-    </message>
-    <message>
-        <source>Options '-datacarrier' or '-datacarriersize' are set but are marked as deprecated. They will be removed in a future version.</source>
-        <translation type="unfinished">Tá na roghanna '-datacarrier' nó '-datacarriersize' socraithe ach tá siad marcáilte mar as feidhm. Bainfear iad i leagan amach anseo.</translation>
-    </message>
-    <message>
         <source>Outbound connections restricted to CJDNS (-onlynet=cjdns) but -cjdnsreachable is not provided</source>
         <translation type="unfinished">Naisc amach teoranta do CJDNS (-onlynet=cjdns) ach ní chuirtear -cjdnsreachable ar fáil</translation>
     </message>
@@ -4421,10 +4474,6 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
         <translation type="unfinished">ní féidir ceangaltán bán a úsáid ach amháin le haghaidh naisc isteach (ritheadh ​​​​"amach")</translation>
     </message>
     <message>
-        <source>-paytxfee is deprecated and will be fully removed in v31.0.</source>
-        <translation type="unfinished">Tá -paytxfee imithe i léig agus bainfear go hiomlán é i leagan 31.0.</translation>
-    </message>
-    <message>
         <source>A fatal internal error occurred, see debug.log for details: </source>
         <translation type="unfinished">Tharla earráid mharfach inmheánach, féach debug.log le haghaidh sonraí:</translation>
     </message>
@@ -4437,8 +4486,12 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
         <translation type="unfinished">Cuireadh isteach ar an bhfíorú blocála</translation>
     </message>
     <message>
-        <source>Cannot add WalletDescriptor to a non-descriptor wallet</source>
-        <translation type="unfinished">Ní féidir WalletDescriptor a chur le sparán neamh-thuairisciúil</translation>
+        <source>Can't spend unconfirmed version %d pre-selected input with a version 3 tx</source>
+        <translation type="unfinished">Ní féidir leagan %d ionchur réamhroghnaithe neamhdheimhnithe a chaitheamh le haistriú leagan 3</translation>
+    </message>
+    <message>
+        <source>Can't spend unconfirmed version 3 pre-selected input with a version %d tx</source>
+        <translation type="unfinished">Ní féidir ionchur réamhroghnaithe neamhdheimhnithe leagan 3 a chaitheamh le leagan %d tx</translation>
     </message>
     <message>
         <source>Cannot write to directory '%s'; check permissions.</source>
@@ -4473,6 +4526,10 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
         <translation type="unfinished">Níorbh fhéidir comhad asmap %s a pharsáil</translation>
     </message>
     <message>
+        <source>Could not read embedded asmap data</source>
+        <translation type="unfinished">Níorbh fhéidir sonraí asmap leabaithe a léamh</translation>
+    </message>
+    <message>
         <source>Could not top up scriptPubKeys</source>
         <translation type="unfinished">Níorbh fhéidir scriptPubKeys a athlánú</translation>
     </message>
@@ -4493,8 +4550,8 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
         <translation type="unfinished">Teip seiceála sláintíochta cripteagrafaíochta cuar éilipseach. Tá %s ag múchadh.</translation>
     </message>
     <message>
-        <source>Error creating %s</source>
-        <translation type="unfinished">Earráid cruthaithe %s</translation>
+        <source>Embedded asmap data not available</source>
+        <translation type="unfinished">Níl sonraí asmap leabaithe ar fáil</translation>
     </message>
     <message>
         <source>Error initializing block database</source>
@@ -4503,10 +4560,6 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
     <message>
         <source>Error loading %s</source>
         <translation type="unfinished">Earráid lódáil %s</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">Earráid lódáil %s: Ní féidir eochracha príobháideacha a dhíchumasú ach le linn cruthaithe</translation>
     </message>
     <message>
         <source>Error loading %s: Wallet corrupted</source>
@@ -4657,10 +4710,6 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
         <translation type="unfinished">Theip ar an gcomhad a dhúnadh agus bloc á scríobh.</translation>
     </message>
     <message>
-        <source>Failed to connect best block (%s).</source>
-        <translation type="unfinished">Theip ar nascadh an bhloc is fearr (%s).</translation>
-    </message>
-    <message>
         <source>Failed to disconnect block.</source>
         <translation type="unfinished">Theip ar dhínascadh an bhloc.</translation>
     </message>
@@ -4683,14 +4732,6 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
     <message>
         <source>Failed to write block.</source>
         <translation type="unfinished">Theip ar scríobh an bhloc.</translation>
-    </message>
-    <message>
-        <source>Failed to write to block index database.</source>
-        <translation type="unfinished">Theip ar scríobh chuig an mbunachar sonraí innéacs bloc.</translation>
-    </message>
-    <message>
-        <source>Failed to write to coin database.</source>
-        <translation type="unfinished">Theip ar scríobh chuig an mbunachar sonraí boinn.</translation>
     </message>
     <message>
         <source>Failed to write undo data.</source>
@@ -4745,12 +4786,24 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
         <translation type="unfinished">Cead neamhbhailí P2P: '%s'</translation>
     </message>
     <message>
-        <source>Invalid amount for %s=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation type="unfinished">Méid neamhbhailí le haghaidh %s=1: '%s' (ar a laghad %s)</translation>
-    </message>
-    <message>
         <source>Invalid amount for %s=&lt;amount&gt;: '%s'</source>
         <translation type="unfinished">Méid neamhbhailí le haghaidh %s=&lt;amount&gt;: '%s'</translation>
+    </message>
+    <message>
+        <source>A %zu MiB dbcache may be too large for a system memory of only %zu MiB.</source>
+        <translation type="unfinished">B’fhéidir go bhfuil dbcache %zu MiB ró-mhór do chuimhne chórais de %zu MiB amháin.</translation>
+    </message>
+    <message>
+        <source>Creating wallet…</source>
+        <translation type="unfinished">Ag cruthú sparán…</translation>
+    </message>
+    <message>
+        <source>Duplicate binding configuration for address %s. Please check your -bind, -bind=...=onion and -whitebind settings.</source>
+        <translation type="unfinished">Cumraíocht cheangail dhúblach don seoladh %s. Seiceáil do shocruithe -bind, -bind=...=onion agus -whitebind le do thoil.</translation>
+    </message>
+    <message>
+        <source>Error creating %s: Could not write version metadata.</source>
+        <translation type="unfinished">Earráid ag cruthú %s: Níorbh fhéidir meiteashonraí an leagain a scríobh.</translation>
     </message>
     <message>
         <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
@@ -4817,12 +4870,36 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
         <translation type="unfinished">Níor socraíodh ach treo, gan cead: '%s'</translation>
     </message>
     <message>
+        <source>Option '-limitancestorsize' is given but ancestor size limits have been replaced with cluster size limits (see -limitclustersize). This option has no effect.</source>
+        <translation type="unfinished">Tugtar an rogha '-limitancestorsize' ach tá teorainneacha méide braisle curtha in ionad teorainneacha méide sinsear (féach -limitclustersize). Níl aon éifeacht ag an rogha seo.</translation>
+    </message>
+    <message>
+        <source>Option '-limitdescendantsize' is given but descendant size limits have been replaced with cluster size limits (see -limitclustersize). This option has no effect.</source>
+        <translation type="unfinished">Tugtar an rogha '-limitdescendantsize' ach tá teorainneacha méide braisle curtha in ionad teorainneacha méide an tsliochtaigh (féach -limitclustersize). Níl aon éifeacht ag an rogha seo.</translation>
+    </message>
+    <message>
+        <source>Private broadcast of own transactions requested (-privatebroadcast) and -proxyrandomize is disabled. Tor circuits for private broadcast connections may be correlated to other connections over Tor. For maximum privacy set -proxyrandomize=1.</source>
+        <translation type="unfinished">Tá craoladh príobháideach d'idirbhearta féin a iarradh (-privatebroadcast) agus -proxyrandomize díchumasaithe. Féadfar ciorcaid Tor le haghaidh naisc chraolta príobháideacha a chomhghaolú le naisc eile thar Tor. Chun príobháideacht uasta a shocrú, socraítear -proxyrandomize=1.</translation>
+    </message>
+    <message>
+        <source>Private broadcast of own transactions requested (-privatebroadcast), but -connect is also configured. They are incompatible because the private broadcast needs to open new connections to randomly chosen Tor or I2P peers. Consider using -maxconnections=0 -addnode=... instead</source>
+        <translation type="unfinished">Iarradh craoladh príobháideach ar idirbhearta féin (-privatebroadcast), ach tá -connect cumraithe freisin. Níl siad comhoiriúnach mar ní mór don chraoladh príobháideach naisc nua a oscailt chuig piaraí Tor nó I2P a roghnaítear go randamach. Smaoinigh ar -maxconnections=0 -addnode=... a úsáid ina ionad.</translation>
+    </message>
+    <message>
+        <source>Private broadcast of own transactions requested (-privatebroadcast), but none of Tor or I2P networks is reachable</source>
+        <translation type="unfinished">Iarradh craoladh príobháideach ar idirbhearta féin (-privatebroadcast), ach níl aon cheann de líonraí Tor ná I2P inrochtana</translation>
+    </message>
+    <message>
         <source>Prune cannot be configured with a negative value.</source>
         <translation type="unfinished">Ní féidir Bearradh a bheidh cumraithe le luach diúltach.</translation>
     </message>
     <message>
         <source>Prune mode is incompatible with -txindex.</source>
         <translation type="unfinished">Tá an mód bearrtha neamh-chomhoiriúnach le -txindex.</translation>
+    </message>
+    <message>
+        <source>Prune mode is incompatible with -txospenderindex.</source>
+        <translation type="unfinished">Níl mód bearrtha comhoiriúnach le -txospenderindex.</translation>
     </message>
     <message>
         <source>Pruning blockstore…</source>
@@ -4913,12 +4990,20 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
         <translation type="unfinished">Earráid chórais agus an bloc á shábháil ar an diosca: %s</translation>
     </message>
     <message>
+        <source>The %s path uses exFAT, which is known to have intermittent corruption problems on macOS. Move this directory to a different filesystem to avoid data loss.</source>
+        <translation type="unfinished">Úsáideann an cosán %s exFAT, a bhfuil aithne air go mbíonn fadhbanna truaillithe uaineacha aige ar macOS. Bog an t-eolaire seo go córas comhad difriúil chun cailliúint sonraí a sheachaint.</translation>
+    </message>
+    <message>
         <source>The source code is available from %s.</source>
         <translation type="unfinished">Tá an cód foinseach ar fáil ó %s.</translation>
     </message>
     <message>
         <source>The specified config file %s does not exist</source>
         <translation type="unfinished">Níl an comhad cumraíochta sonraithe %s ann</translation>
+    </message>
+    <message>
+        <source>The total exceeds your balance when the %s transaction fee is included.</source>
+        <translation type="unfinished">Sáraíonn an t-iomlán d’iarmhéid nuair a chuirtear an táille idirbhirt %s san áireamh.</translation>
     </message>
     <message>
         <source>The transaction amount is too small to pay the fee</source>
@@ -4943,10 +5028,6 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
     <message>
         <source>This is the minimum transaction fee you pay on every transaction.</source>
         <translation type="unfinished">Is é seo an táille idirbhirt íosta a íocann tú ar gach idirbheart.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">Seo an táille idirbhirt a íocfaidh tú má sheolann tú idirbheart.</translation>
     </message>
     <message>
         <source>Transaction %s does not belong to this wallet</source>
@@ -5035,6 +5116,10 @@ Ní féidir cúltaca an sparán a chur ar ais.</translation>
     <message>
         <source>Wallet file creation failed: %s</source>
         <translation type="unfinished">Theip ar chruthú comhaid sparán: %s</translation>
+    </message>
+    <message>
+        <source>Warning: Found invalid chain more than 6 blocks longer than our best chain. This could be due to database corruption or consensus incompatibility with peers.</source>
+        <translation type="unfinished">Rabhadh: Fuarthas slabhra neamhbhailí atá níos mó ná 6 bhloc níos faide ná ár slabhra is fearr. D’fhéadfadh sé seo a bheith mar gheall ar thruailliú bunachar sonraí nó neamh-chomhoiriúnacht chomhaontaithe le piaraí.</translation>
     </message>
     <message>
         <source>acceptstalefeeestimates is not supported on %s chain.</source>

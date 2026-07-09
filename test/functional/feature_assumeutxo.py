@@ -38,6 +38,7 @@ from test_framework.util import (
     assert_equal,
     assert_not_equal,
     assert_raises_rpc_error,
+    dumb_sync_blocks,
     ensure_for,
     sha256sum_file,
     try_rpc,
@@ -105,7 +106,7 @@ class AssumeutxoTest(BitcoinTestFramework):
         invalid_magics = [
             # magic, name, real
             [MAGIC_BYTES["mainnet"], "main", True],
-                       [["testnet4"], "testnet4", True],
+            [MAGIC_BYTES["testnet4"], "testnet4", True],
             [MAGIC_BYTES["signet"], "signet", True],
             [0x00000000.to_bytes(4, 'big'), "", False],
             [0xffffffff.to_bytes(4, 'big'), "", False],
@@ -156,6 +157,7 @@ class AssumeutxoTest(BitcoinTestFramework):
                 "Bad snapshot data after deserializing 0 coins - bad tx out value"
             ],  # Amount exceeds MAX_MONEY
         ]
+
         for content, offset, wrong_hash, custom_message in cases:
             with open(bad_snapshot_path, "wb") as f:
                 # Prior to offset: Snapshot magic, snapshot version, network magic, hash, coins count
@@ -346,6 +348,29 @@ class AssumeutxoTest(BitcoinTestFramework):
         assert 'NETWORK' in ibd_node.getpeerinfo()[0]['servicesnames']
         self.sync_blocks(nodes=(ibd_node, snapshot_node))
 
+    def test_sync_to_most_work_chain_after_background_validation(self):
+        """
+        After background validation completes, node should be able
+        to download and process blocks from peers without the snapshot block in their chain.
+        """
+        self.log.info("Testing sync to the most-work chain without the snapshot block after background validation")
+
+        forking_node = self.nodes[0]
+        snapshot_node = self.nodes[2]  # Has already completed background validation
+
+        self.log.info("Forking node switches to an alternative chain that forks one block before the snapshot block")
+        fork_point = SNAPSHOT_BASE_HEIGHT - 1
+        forking_node_old_height = forking_node.getblockcount()
+        forking_node_old_chainwork = int(forking_node.getblockchaininfo()['chainwork'], 16)
+        forking_node.invalidateblock(forking_node.getblockhash(fork_point + 1))
+
+        self.log.info("Mine one more block than original chain to make the new chain have most work")
+        self.generate(forking_node, nblocks=(forking_node_old_height - fork_point) + 1, sync_fun=self.no_op)
+        assert int(forking_node.getblockchaininfo()['chainwork'], 16) > forking_node_old_chainwork
+
+        self.log.info("Snapshot node should reorg to the most-work chain without the snapshot block")
+        self.sync_blocks(nodes=(snapshot_node, forking_node))
+
     def assert_only_network_limited_service(self, node):
         node_services = node.getnetworkinfo()['localservicesnames']
         assert 'NETWORK' not in node_services
@@ -428,7 +453,6 @@ class AssumeutxoTest(BitcoinTestFramework):
         # In order for the snapshot to activate, we have to ferry over the new
         # headers to n1 and n2 so that they see the header of the snapshot's
         # base block while disconnected from n0.
-        
         for i in range(1, 4100):
             block = n0.getblock(n0.getblockhash(i), 0)
             # make n1 and n2 aware of the new header, but don't give them the
@@ -436,7 +460,7 @@ class AssumeutxoTest(BitcoinTestFramework):
             n1.submitheader(block)
             n2.submitheader(block)
             n3.submitheader(block)
-        
+
         # Ensure everyone is seeing the same headers.
         for n in self.nodes:
             assert_equal(n.getblockchaininfo()["headers"], SNAPSHOT_BASE_HEIGHT)
@@ -481,7 +505,7 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         # Use a hash instead of a height
         prev_snap_hash = n0.getblockhash(prev_snap_height)
-        dump_output5 = n0.dumptxoutset('utxos5.dat', rollback=self.convert_to_json_for_cli(prev_snap_hash))
+        dump_output5 = n0.dumptxoutset('utxos5.dat', rollback=prev_snap_hash)
         assert_equal(sha256sum_file(dump_output4['path']), sha256sum_file(dump_output5['path']))
 
         # Ensure n0 is back at the tip
@@ -608,30 +632,17 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         PAUSE_HEIGHT = FINAL_HEIGHT - 40
 
-        self.log.info("Restarting node to stop at height %d", PAUSE_HEIGHT)
-        self.restart_node(1, extra_args=[
-            f"-stopatheight={PAUSE_HEIGHT}", *self.extra_args[1]])
-
-        # Upon restart during snapshot tip sync, the node must remain in 'limited' mode.
+        self.log.info(f"Sync node up to height {PAUSE_HEIGHT}")
+        # During snapshot tip sync, the node must remain in 'limited' mode.
         self.assert_only_network_limited_service(n1)
-
-        # Finally connect the nodes and let them sync.
-        #
-        # Set `wait_for_connect=False` to avoid a race between performing connection
-        # assertions and the -stopatheight tripping.
-        self.connect_nodes(0, 1, wait_for_connect=False)
-
-        n1.wait_until_stopped(timeout=5)
+        dumb_sync_blocks(src=n0, dst=n1, height=PAUSE_HEIGHT)
 
         self.log.info("Checking that blocks are segmented on disk")
         assert self.has_blockfile(n1, "00000"), "normal blockfile missing"
         assert self.has_blockfile(n1, "00001"), "assumed blockfile missing"
         assert not self.has_blockfile(n1, "00010"), "too many blockfiles"
 
-        self.log.info("Restarted node before snapshot validation completed, reloading...")
-        self.restart_node(1, extra_args=self.extra_args[1])
-
-        # Upon restart, the node must remain in 'limited' mode
+        # The node must remain in 'limited' mode
         self.assert_only_network_limited_service(n1)
 
         # Send snapshot block to n1 out of order. This makes the test less
@@ -673,6 +684,7 @@ class AssumeutxoTest(BitcoinTestFramework):
                 self.restart_node(i, extra_args=self.extra_args[i])
 
             assert_equal(n.getblockchaininfo()["blocks"], FINAL_HEIGHT)
+
             chainstate = n.getchainstates()['chainstates'][-1]
             assert_equal(chainstate['blocks'], FINAL_HEIGHT)
 
@@ -773,6 +785,8 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         # The following test cleans node2 and node3 chain directories.
         # self.test_sync_from_assumeutxo_node(snapshot=dump_output)
+
+        self.test_sync_to_most_work_chain_after_background_validation()
 
 @dataclass
 class Block:

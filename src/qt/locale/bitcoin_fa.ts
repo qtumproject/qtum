@@ -14,6 +14,10 @@
         <translation type="unfinished">&amp;جدید</translation>
     </message>
     <message>
+        <source>Copy the currently selected address to the clipboard</source>
+        <translation type="unfinished">آدرس انتخاب شده کنونی را در حافظه رونوشت کن</translation>
+    </message>
+    <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">داده های موجود در برگه فعلی را به یک فایل صادر کنید</translation>
     </message>
@@ -26,10 +30,6 @@
         <translation type="unfinished">&amp;حذف</translation>
     </message>
     <message>
-        <source>Choose the address to send coins to</source>
-        <translation type="unfinished">آدرسی را برای ارسال سکه‌ها انتخاب کنید</translation>
-    </message>
-    <message>
         <source>Choose the address to receive coins with</source>
         <translation type="unfinished">آدرسی را برای دریافت سکه‌ها انتخاب کنید</translation>
     </message>
@@ -38,11 +38,11 @@
         <translation type="unfinished">&amp;انتخاب</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">اینها آدرس های بیت کوین شما برای ارسال پرداخت هستند. همیشه قبل از ارسال سکه، مبلغ و آدرس دریافت کننده را بررسی کنید.</translation>
     </message>
     <message>
-        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">اینها آدرس های بیت کوین شما برای دریافت هستند. از دکمه "ایجاد آدرس دریافت جدید" در برگه دریافت برای ایجاد آدرس های جدید استفاده کنید.
 امضا فقط با آدرس هایی از نوع "میراث" امکان پذیر است.</translation>
@@ -66,7 +66,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Comma separated file</source>
         <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
-        <translation type="unfinished">فایل جدا شده با کاما</translation>
+        <translation type="unfinished">فایل جدا شده با ویرگول</translation>
     </message>
     </context>
 <context>
@@ -103,11 +103,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">سفارشی...</translation>
     </message>
     <message>
-        <source>Amount</source>
-        <translation type="unfinished">میزان وجه:</translation>
-    </message>
-    <message>
-        <source>Enter a Qtum address (e.g. %1)</source>
+        <source>Enter a Bitcoin address (e.g. %1)</source>
         <translation type="unfinished">آدرس بیت کوین را وارد کنید (به طور مثال %1)</translation>
     </message>
     <message>
@@ -155,7 +151,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="unfinished">%1 دقیقه قبل</translation>
+        <translation type="unfinished">£%1 گیگابایت</translation>
     </message>
     <message>
         <source>%1 s</source>
@@ -164,10 +160,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>None</source>
         <translation type="unfinished">هیچ کدام</translation>
-    </message>
-    <message>
-        <source>N/A</source>
-        <translation type="unfinished">موجود نیست</translation>
     </message>
     <message>
         <source>%1 ms</source>
@@ -305,7 +297,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پراکسی &lt;b&gt;فعال&lt;/b&gt; شده است: %1</translation>
     </message>
     <message>
-        <source>Send coins to a Qtum address</source>
+        <source>Send coins to a Bitcoin address</source>
         <translation type="unfinished">ارسال کوین به آدرس بیت کوین</translation>
     </message>
     <message>
@@ -347,7 +339,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ثبت &amp;پیام</translation>
     </message>
     <message>
-        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
         <translation type="unfinished">پیام‌ها را با آدرس بیت‌کوین خود امضا کنید تا مالکیت آن‌ها را اثبات کنید</translation>
     </message>
     <message>
@@ -355,7 +347,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">پیام تایید</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
         <translation type="unfinished">پیام‌ها را تأیید کنید تا مطمئن شوید که با آدرس‌های بیت‌کوین مشخص‌شده امضا شده‌اند</translation>
     </message>
     <message>
@@ -409,6 +401,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Processing blocks on disk…</source>
         <translation type="unfinished">در حال پردازش بلوکها روی دیسک..</translation>
+    </message>
+    <message>
+        <source>Connecting to peers…</source>
+        <translation type="unfinished">در حال اتصال به همتاهای شبکه(پیِر ها)...</translation>
+    </message>
+    <message>
+        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <translation type="unfinished">درخواست پرداخت (ساخت کد QR و بیت‌کوین: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -481,7 +481,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ادرس درسافت</translation>
     </message>
     <message>
-        <source>Open a qtum: URI</source>
+        <source>Open a bitcoin: URI</source>
         <translation type="unfinished">بارک کردن یک بیت‌کوین: URI</translation>
     </message>
     <message>
@@ -504,11 +504,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">بازیابی کیف پول…</translation>
     </message>
     <message>
-        <source>Close all wallets</source>
-        <translation type="unfinished">همه‌ی کیف پول‌ها را ببند</translation>
-    </message>
-    <message>
-        <source>Show the %1 help message to get a list with possible Qtum command-line options</source>
+        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
         <translation type="unfinished">برای دریافت لیستی از گزینه های خط فرمان بیت کوین ، پیام راهنمایی %1 را نشان دهید</translation>
     </message>
     <message>
@@ -524,6 +520,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Load Wallet Backup</source>
         <extracomment>The title for Restore Wallet File Windows</extracomment>
         <translation type="unfinished">بارگیری پشتیبان‌گیری کیف پول</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">بازیابی کیف پول</translation>
     </message>
     <message>
         <source>Wallet Name</source>
@@ -551,7 +552,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">مخفی کن</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Qtum network.</source>
+        <source>%n active connection(s) to Bitcoin network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>%n اتصال(های) فعال به شبکه بیت کوین.</numerusform>
@@ -586,16 +587,66 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">خطا: %1</translation>
     </message>
     <message>
+        <source>Date: %1
+</source>
+        <translation type="unfinished">تاریخ: %1
+</translation>
+    </message>
+    <message>
+        <source>Amount: %1
+</source>
+        <translation type="unfinished">مبلغ: %1
+</translation>
+    </message>
+    <message>
+        <source>Wallet: %1
+</source>
+        <translation type="unfinished">کیف پول: %1
+</translation>
+    </message>
+    <message>
+        <source>Type: %1
+</source>
+        <translation type="unfinished">نوع: %1
+</translation>
+    </message>
+    <message>
+        <source>Label: %1
+</source>
+        <translation type="unfinished">برچسب: %1
+</translation>
+    </message>
+    <message>
+        <source>Address: %1
+</source>
+        <translation type="unfinished">آدرس: %1
+</translation>
+    </message>
+    <message>
+        <source>Sent transaction</source>
+        <translation type="unfinished">تراکنش ارسالی</translation>
+    </message>
+    <message>
+        <source>Incoming transaction</source>
+        <translation type="unfinished">تراکنش دریافتی</translation>
+    </message>
+    <message>
         <source>Private key &lt;b&gt;disabled&lt;/b&gt;</source>
         <translation type="unfinished">کلید خصوصی &lt;b&gt;غیر فعال &lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
+        <translation type="unfinished">کیف پول است &lt;b&gt; رمزگذاری شده &lt;/b&gt; و در حال حاضر &lt;b&gt; تفسیر شده است &lt;/b&gt;
+ </translation>
+    </message>
+    <message>
+        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
+        <translation type="unfinished">کیف پول است &lt;b&gt; رمزگذاری شده &lt;/b&gt; و در حال حاضر &lt;b&gt; تفسیر شده &lt;/b&gt;
+ </translation>
     </message>
     </context>
 <context>
     <name>CoinControlDialog</name>
-    <message>
-        <source>After Fee:</source>
-        <translation type="unfinished">بعد از احتساب کارمزد</translation>
-    </message>
     <message>
         <source>Change:</source>
         <translation type="unfinished">تغییر</translation>
@@ -759,6 +810,57 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
+    <name>EditAddressDialog</name>
+    <message>
+        <source>Edit Address</source>
+        <translation type="unfinished">ویرایش آدرس</translation>
+    </message>
+    <message>
+        <source>&amp;Label</source>
+        <translation type="unfinished">برچسب</translation>
+    </message>
+    <message>
+        <source>The label associated with this address list entry</source>
+        <translation type="unfinished">برچسب مرتبط با لیست آدرس ورودی</translation>
+    </message>
+    <message>
+        <source>The address associated with this address list entry. This can only be modified for sending addresses.</source>
+        <translation type="unfinished">برچسب مرتبط با لیست آدرس ورودی می باشد. این می تواند فقط  برای آدرس های ارسالی اصلاح شود.</translation>
+    </message>
+    <message>
+        <source>&amp;Address</source>
+        <translation type="unfinished">آدرس</translation>
+    </message>
+    <message>
+        <source>New sending address</source>
+        <translation type="unfinished">آدرس ارسالی جدید</translation>
+    </message>
+    <message>
+        <source>Edit receiving address</source>
+        <translation type="unfinished">ویرایش آدرس دریافتی</translation>
+    </message>
+    <message>
+        <source>Edit sending address</source>
+        <translation type="unfinished">ویرایش آدرس ارسالی</translation>
+    </message>
+    <message>
+        <source>The entered address "%1" is not a valid Bitcoin address.</source>
+        <translation type="unfinished">آدرس وارد شده "%1" آدرس معتبر بیت کوین نیست.</translation>
+    </message>
+    <message>
+        <source>The entered address "%1" is already in the address book with label "%2".</source>
+        <translation type="unfinished">آدرس وارد شده "%1" در حال حاظر در دفترچه آدرس ها موجود است با برچسب "%2" .</translation>
+    </message>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation type="unfinished">نمیتوان کیف پول را باز کرد.</translation>
+    </message>
+    <message>
+        <source>New key generation failed.</source>
+        <translation type="unfinished">تولید کلید جدید به خطا انجامید.</translation>
+    </message>
+</context>
+<context>
     <name>Intro</name>
     <message numerus="yes">
         <source>%n GB of space available</source>
@@ -785,11 +887,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
             <numerusform>(sufficient to restore backups %n day(s) old)</numerusform>
         </translation>
     </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">خطا</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>ModalOverlay</name>
     <message>
@@ -805,7 +903,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">حداکثر اندازهٔ کش پایگاه داده. اطمینان حاصل کنید که حافظهٔ RAM کافی دارید. کش بزرگ‌تر می‌تواند به همگام‌سازی سریع‌تر کمک کند، اما پس از آن، این مزیت برای بیشتر کاربردها چندان محسوس نیست. کاهش اندازهٔ کش باعث کاهش مصرف حافظه می‌شود. حافظهٔ استفاده‌نشدهٔ mempool با این کش به‌صورت مشترک استفاده می‌شود.</translation>
     </message>
     <message>
-        <source>Automatically open the Qtum client port on the router. This only works when your router supports PCP or NAT-PMP and it is enabled. The external port could be random.</source>
+        <source>Automatically open the Bitcoin client port on the router. This only works when your router supports PCP or NAT-PMP and it is enabled. The external port could be random.</source>
         <translation type="unfinished">باز کردن خودکار پورت کلاینت بیت‌کوین روی روتر. این ویژگی تنها زمانی کار می‌کند که روتر شما از PCP یا NAT-PMP پشتیبانی کند و این قابلیت فعال باشد. پورت خارجی ممکن است به‌صورت تصادفی انتخاب شود.</translation>
     </message>
     <message>
@@ -909,7 +1007,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">اجازه ورود و اتصالات</translation>
     </message>
     <message>
-        <source>Connect to the Qtum network through a SOCKS5 proxy.</source>
+        <source>Connect to the Bitcoin network through a SOCKS5 proxy.</source>
         <translation type="unfinished">از طریق یک پروکسی SOCKS5 به شبکه بیت کوین متصل شوید.</translation>
     </message>
     <message>
@@ -1085,8 +1183,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">فرم</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Qtum network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">اطلاعات نمایش داده شده ممکن است قدیمی باشد. کیف پول شما پس از برقراری اتصال به طور خودکار با شبکه Qtum همگام سازی می شود ، اما این روند هنوز کامل نشده است.
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <translation type="unfinished">اطلاعات نمایش داده شده ممکن است قدیمی باشد. کیف پول شما پس از برقراری اتصال به طور خودکار با شبکه Bitcoin همگام سازی می شود ، اما این روند هنوز کامل نشده است.
  </translation>
     </message>
     <message>
@@ -1148,6 +1246,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Cannot sign inputs while wallet is locked.</source>
         <translation type="unfinished">وقتی کیف پول قفل است، نمی توان ورودی ها را امضا کرد.</translation>
     </message>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
+    </message>
     <message>
         <source>Unknown error processing transaction.</source>
         <translation type="unfinished">مشکل نامشخصی در پردازش عملیات رخ داده.</translation>
@@ -1177,9 +1281,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>or</source>
         <translation type="unfinished">یا</translation>
     </message>
-    <message>
-        <source>Transaction has %1 unsigned inputs.</source>
-        <translation type="unfinished">%1Transaction has  unsigned inputs.</translation>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>Transaction still needs signature(s).</source>
@@ -1195,6 +1301,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
  </translation>
     </message>
     <message>
+        <source>(But this wallet does not have the right keys.)</source>
+        <translation type="unfinished">(اما این کیف پول کلید درست را ندارد.)</translation>
+    </message>
+    <message>
         <source>Transaction status is unknown.</source>
         <translation type="unfinished">وضعیت عملیات نامشخص است.</translation>
     </message>
@@ -1206,7 +1316,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">درخواست پرداخت با خطا مواجه شد</translation>
     </message>
     <message>
-        <source>Cannot start qtum: click-to-pay handler</source>
+        <source>Cannot start bitcoin: click-to-pay handler</source>
         <translation type="unfinished">نمی توان بیت کوین را شروع کرد: کنترل کننده کلیک برای پرداخت
  </translation>
     </message>
@@ -1265,7 +1375,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Address</source>
         <extracomment>Title of Peers Table column which contains the IP/Onion/I2P address of the connected peer.</extracomment>
-        <translation type="unfinished">آدرس</translation>
+        <translation type="unfinished">نشانی</translation>
     </message>
     <message>
         <source>Type</source>
@@ -1281,15 +1391,11 @@ If you are receiving this error you should request the merchant provide a BIP21 
 <context>
     <name>RPCConsole</name>
     <message>
-        <source>Network</source>
-        <translation type="unfinished">شبکه</translation>
-    </message>
-    <message>
         <source>Local Addresses</source>
         <translation type="unfinished">آدرس‌های محلی</translation>
     </message>
     <message>
-        <source>Network addresses that your Qtum node is currently using to communicate with other nodes.</source>
+        <source>Network addresses that your Bitcoin node is currently using to communicate with other nodes.</source>
         <translation type="unfinished">آدرس‌های شبکه ای که گره بیت کوین شما در حال حاضر از آنها برای ارتباط با گره های دیگر استفاده می کند.</translation>
     </message>
     <message>
@@ -1311,10 +1417,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Last Transaction</source>
         <translation type="unfinished">اخرین تراکنش</translation>
-    </message>
-    <message>
-        <source>User Agent</source>
-        <translation type="unfinished">نماینده کاربر</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -1356,6 +1458,10 @@ If you are receiving this error you should request the merchant provide a BIP21 
 <context>
     <name>ReceiveCoinsDialog</name>
     <message>
+        <source>Copy &amp;label</source>
+        <translation type="unfinished">تکثیر برچسب</translation>
+    </message>
+    <message>
         <source>Copy &amp;amount</source>
         <translation type="unfinished">روگرفت م&amp;قدار</translation>
     </message>
@@ -1385,12 +1491,16 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">کپی مقدار</translation>
     </message>
     <message>
-        <source>Copy amount</source>
-        <translation type="unfinished">کپی مقدار</translation>
+        <source>Copy fee</source>
+        <translation type="unfinished">کپی هزینه</translation>
     </message>
     <message>
         <source>Copy after fee</source>
         <translation type="unfinished">کپی کردن بعد از احتساب کارمزد</translation>
+    </message>
+    <message>
+        <source>Copy bytes</source>
+        <translation type="unfinished">کپی کردن بایت ها</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -1431,8 +1541,12 @@ If you are receiving this error you should request the merchant provide a BIP21 
 <context>
     <name>SignVerifyMessageDialog</name>
     <message>
-        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">می‌توانید پیام‌ها/توافق‌نامه‌هایی را با آدرس‌های قدیمی خود (P2PKH) امضا کنید تا ثابت کنید که می‌توانید بیت‌کوین‌های ارسال شده برای آنها را دریافت کنید. مراقب باشید هیچ چیز مبهم یا تصادفی را امضا نکنید، زیرا حملات فیشینگ ممکن است سعی کنند شما را فریب دهند تا با هویت خود آنها را امضا کنید. فقط اظهارات کاملاً مفصلی را که قابل قبول هستند را امضا کنید.</translation>
+    </message>
+    <message>
+        <source>Copy the current signature to the clipboard</source>
+        <translation type="unfinished">امضا کنونی را در حافظه رونوشت کن</translation>
     </message>
     <message>
         <source>The entered address does not refer to a legacy (P2PKH) key. Message signing for SegWit and other non-P2PKH address types is not supported in this version of %1. Please check the address and try again.</source>
@@ -1470,29 +1584,8 @@ If you are receiving this error you should request the merchant provide a BIP21 
 <context>
     <name>TransactionView</name>
     <message>
-        <source>Copy &amp;amount</source>
-        <translation type="unfinished">روگرفت م&amp;قدار</translation>
-    </message>
-    <message>
-        <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
-        <translation type="unfinished">فایل جدا شده با کاما</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished">نوع</translation>
-    </message>
-    </context>
-<context>
-    <name>WalletFrame</name>
-    <message>
-        <source>Create a new wallet</source>
-        <translation type="unfinished">کیف پول جدیدی ایجاد کنید
- </translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">خطا</translation>
+        <source>Address</source>
+        <translation type="unfinished">نشانی</translation>
     </message>
     </context>
 <context>
@@ -1529,6 +1622,10 @@ If you are receiving this error you should request the merchant provide a BIP21 
 <context>
     <name>bitcoin-core</name>
     <message>
+        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
+        <translation type="unfinished">%sدرخواست گوش دادن به پورت %u. این پورت به عنوان پورت "بد" در نظر  گرفته شده بنابراین بعید است که یک همتا به آن متصل شود. برای مشاهده جزییات و دیدن فهرست کامل فایل doc/p2p-bad-ports.md را مشاهده کنید.</translation>
+    </message>
+    <message>
         <source>Error starting/committing db txn for wallet transactions removal process</source>
         <translation type="unfinished">خطا در شروع یا انجام تراکنش پایگاه داده برای فرآیند حذف تراکنش‌های کیف پول</translation>
     </message>
@@ -1563,6 +1660,14 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">حداکثر وزن تراکنش بسیار کم است، امکان افزودن خروجی تغییر (change output) وجود ندارد</translation>
     </message>
     <message>
+        <source>Option '-checkpoints' is set but checkpoints were removed. This option has no effect.</source>
+        <translation type="unfinished">گزینه '-checkpoints' نهاده شده ولی checkpoint ها پاک شده‌اند. این گزینه کاربردی ندارد.</translation>
+    </message>
+    <message>
+        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of a pruned node)</source>
+        <translation type="unfinished">«هرس‌سازی (Prune): آخرین همگام‌سازی کیف پول فراتر از داده‌های هرس‌شده است. لازم است ‎-reindex‎ را اجرا کنید (در صورت استفاده از نود هرس‌شده، باید کل بلاک‌چین دوباره دانلود شود).»</translation>
+    </message>
+    <message>
         <source>Rename of '%s' -&gt; '%s' failed. Cannot clean up the background chainstate leveldb directory.</source>
         <translation type="unfinished">تغییر نام '%s' به '%s' با شکست مواجه شد. نمی‌توان پوشهٔ leveldb مربوط به chainstate پس‌زمینه را پاک‌سازی کرد</translation>
     </message>
@@ -1581,6 +1686,14 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>The combination of the pre-selected inputs and the wallet automatic inputs selection exceeds the transaction maximum weight. Please try sending a smaller amount or manually consolidating your wallet's UTXOs</source>
         <translation type="unfinished">ترکیب ورودی‌های از پیش انتخاب‌شده و ورودی‌های انتخاب‌شده به‌صورت خودکار توسط کیف‌پول از حداکثر وزن تراکنش فراتر رفته است. لطفاً مقدار کمتری ارسال کنید یا UTXOهای کیف‌پول را به‌صورت دستی تجمیع کنید</translation>
+    </message>
+    <message>
+        <source>The inputs size exceeds the maximum weight. Please try sending a smaller amount or manually consolidating your wallet's UTXOs</source>
+        <translation type="unfinished">اندازه ورودی از حداکثر مقدار موجودی بیشتر است.  لطفاً مقدار کمتری ارسال کنید یا به صورت دستی مقدار موجودی خرج نشده کیف پول خود را در ارسال تراکنش اعمال کنید. </translation>
+    </message>
+    <message>
+        <source>The preselected coins total amount does not cover the transaction target. Please allow other inputs to be automatically selected or include more coins manually</source>
+        <translation type="unfinished">مقدار کل بیتکوینی که از پیش انتخاب کردید کمتر از مبلغ مورد نظر برای انجام تراکنش است .  لطفاً اجازه دهید ورودی های دیگر به طور خودکار انتخاب شوند یا مقدار بیتکوین های بیشتری را به صورت دستی اضافه کنید</translation>
     </message>
     <message>
         <source>Your computer's date and time appear to be more than %d minutes out of sync with the network, this may lead to consensus failure. After you've confirmed your computer's clock, this message should no longer appear when you restart your node. Without a restart, it should stop showing automatically after you've connected to a sufficient number of new outbound peers, which may take some time. You can inspect the `timeoffset` field of the `getpeerinfo` and `getnetworkinfo` RPC methods to get more info.</source>
@@ -1620,6 +1733,14 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">بررسی سلامت رمزنگاری منحنی بیضوی با شکست مواجه شد. %s در حال خاموش شدن است.</translation>
     </message>
     <message>
+        <source>Error loading databases</source>
+        <translation type="unfinished">خطا در بارگذاری پایگاه های داده</translation>
+    </message>
+    <message>
+        <source>Error opening coins database</source>
+        <translation type="unfinished">خطا در بازکردن پایگاه داده بلاک coins</translation>
+    </message>
+    <message>
         <source>Error reading configuration file: %s</source>
         <translation type="unfinished">خطا در خواندن فایل تنظیمات: %s</translation>
     </message>
@@ -1636,6 +1757,10 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">خطا: خواندن بهترین سابقه یاب بلوک کیف پول امکان پذیر نیست</translation>
     </message>
     <message>
+        <source>Error: Unable to write data to disk for wallet %s</source>
+        <translation type="unfinished">خطا: ناتوان در نوشتن داده روی دیسک برای کیف پول %s</translation>
+    </message>
+    <message>
         <source>Error: Unable to write solvable wallet best block locator record</source>
         <translation type="unfinished">خطا: نوشتن بهترین سابقه یاب بلوک کیف پول قابل حل امکان پذیر نیست</translation>
     </message>
@@ -1648,8 +1773,24 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">خطا: تراکنش پایگاه داده را نمی توان برای کیف پول اجرا کرد %s</translation>
     </message>
     <message>
+        <source>Failed to disconnect block.</source>
+        <translation type="unfinished">گسستن بلاک شکست خورد.</translation>
+    </message>
+    <message>
+        <source>Failed to read block.</source>
+        <translation type="unfinished">خواندن بلاک شکست خورد.</translation>
+    </message>
+    <message>
+        <source>Failed to write block.</source>
+        <translation type="unfinished">نوشتن بلاک شکست خورد.</translation>
+    </message>
+    <message>
         <source>Failure removing transaction: %s</source>
         <translation type="unfinished">عدم موفقیت در حذف تراکنش:%s</translation>
+    </message>
+    <message>
+        <source>Maximum transaction weight must be between %d and %d</source>
+        <translation type="unfinished">حداکثر وزن تراکنش باید میان %d و %d باشد</translation>
     </message>
     <message>
         <source>Transaction %s does not belong to this wallet</source>
@@ -1660,12 +1801,40 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">عدم موفقیت در ساخت فایل کیف پول: %s</translation>
     </message>
     <message>
+        <source>Do you want to rebuild the databases now?</source>
+        <translation type="unfinished">آیا اکنون تمایل به بازسازی پایگاه های داده دارید؟</translation>
+    </message>
+    <message>
         <source>Error: Could not add watchonly tx %s to watchonly wallet</source>
         <translation type="unfinished">خطا:‌ نشد تراکنش فقط قابل مشاهده %s به کیف پول فقط قابل مشاهده اضافه شود</translation>
     </message>
     <message>
         <source>Error: Could not delete watchonly transactions. </source>
         <translation type="unfinished">خطا: تراکنش های فقط دیدنی حذف نشد.</translation>
+    </message>
+    <message>
+        <source>Error: Wallet does not exist</source>
+        <translation type="unfinished">خطا: کیف پول وجود ندارد</translation>
+    </message>
+    <message>
+        <source>Error: cannot remove legacy wallet records</source>
+        <translation type="unfinished">خطا: نمیتوان پیشینه کیف پول قدیمی را پاک کرد</translation>
+    </message>
+    <message>
+        <source>Failed to start indexes, shutting down…</source>
+        <translation type="unfinished">آغاز فهرست ها شکست خورد، در حال خاموش کردن...</translation>
+    </message>
+    <message>
+        <source>Invalid -proxy address or hostname, ends with '=': '%s'</source>
+        <translation type="unfinished">نشانی یا نام میزبان -proxy نادرست است، با '=' پایان می یابد: '%s'</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available. %d available, %d required.</source>
+        <translation type="unfinished">ویژگی‌‌‌نما های فایل کافی نیستند. دردسترس %d، مورد نیاز %d</translation>
+    </message>
+    <message>
+        <source>Unrecognized network in -proxy='%s': '%s'</source>
+        <translation type="unfinished">تارنورد (Network) در -proxy='%s' شناسا نیست: '%s'</translation>
     </message>
     </context>
 </TS>

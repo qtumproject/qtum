@@ -43,6 +43,7 @@
 #include <memory>
 #include <optional>
 #include <queue>
+#include <string_view>
 #include <thread>
 #include <unordered_set>
 #include <vector>
@@ -72,6 +73,8 @@ static const int MAX_ADDNODE_CONNECTIONS = 8;
 static const int MAX_BLOCK_RELAY_ONLY_CONNECTIONS = 2;
 /** Maximum number of feeler connections */
 static const int MAX_FEELER_CONNECTIONS = 1;
+/** Maximum number of private broadcast connections */
+static constexpr size_t MAX_PRIVATE_BROADCAST_CONNECTIONS{64};
 /** -listen default */
 static const bool DEFAULT_LISTEN = true;
 /** The maximum number of peer connections to maintain. */
@@ -82,6 +85,8 @@ static const std::string DEFAULT_MAX_UPLOAD_TARGET{"0M"};
 static const bool DEFAULT_BLOCKSONLY = false;
 /** -peertimeout default */
 static const int64_t DEFAULT_PEER_CONNECT_TIMEOUT = 60;
+/** Default for -privatebroadcast. */
+static constexpr bool DEFAULT_PRIVATE_BROADCAST{false};
 /** Number of file descriptors required for message capture **/
 static const int NUM_FDS_MESSAGE_CAPTURE = 1;
 /** Interval for ASMap Health Check **/
@@ -416,7 +421,7 @@ private:
     size_t m_bytes_sent GUARDED_BY(m_send_mutex) {0};
 
 public:
-    explicit V1Transport(const NodeId node_id) noexcept;
+    explicit V1Transport(NodeId node_id) noexcept;
 
     bool ReceivedMessageComplete() const override EXCLUSIVE_LOCKS_REQUIRED(!m_recv_mutex)
     {
@@ -664,6 +669,7 @@ public:
 struct CNodeOptions
 {
     NetPermissionFlags permission_flags = NetPermissionFlags::None;
+    std::optional<Proxy> proxy_override = {};
     std::unique_ptr<i2p::sam::Session> i2p_sam_session = nullptr;
     bool prefer_evict = false;
     size_t recv_flood_size{DEFAULT_MAXRECEIVEBUFFER * 1000};
@@ -706,6 +712,10 @@ public:
     std::atomic<std::chrono::seconds> m_last_recv{0s};
     //! Unix epoch time at peer connection
     const std::chrono::seconds m_connected;
+
+    //! Proxy to use regardless of global proxy settings if reconnecting to this node.
+    const std::optional<Proxy> m_proxy_override;
+
     // Address of this peer
     const CAddress addr;
     // Bind address of our side of the connection
@@ -738,6 +748,10 @@ public:
     std::atomic_bool fPauseRecv{false};
     std::atomic_bool fPauseSend{false};
 
+    /** Network key used to prevent fingerprinting our node across networks.
+     *  Influenced by the network and the bind address (+ bind port for inbounds) */
+    const uint64_t m_network_key;
+
     const ConnectionType m_conn_type;
 
     /** Move all messages from the received queue to the processing queue. */
@@ -768,6 +782,7 @@ public:
             case ConnectionType::MANUAL:
             case ConnectionType::ADDR_FETCH:
             case ConnectionType::FEELER:
+            case ConnectionType::PRIVATE_BROADCAST:
                 return false;
         } // no default case, so the compiler can warn about missing cases
 
@@ -789,6 +804,7 @@ public:
         case ConnectionType::FEELER:
         case ConnectionType::BLOCK_RELAY:
         case ConnectionType::ADDR_FETCH:
+        case ConnectionType::PRIVATE_BROADCAST:
                 return false;
         case ConnectionType::OUTBOUND_FULL_RELAY:
         case ConnectionType::MANUAL:
@@ -810,6 +826,11 @@ public:
         return m_conn_type == ConnectionType::ADDR_FETCH;
     }
 
+    bool IsPrivateBroadcastConn() const
+    {
+        return m_conn_type == ConnectionType::PRIVATE_BROADCAST;
+    }
+
     bool IsInboundConn() const {
         return m_conn_type == ConnectionType::INBOUND;
     }
@@ -823,6 +844,7 @@ public:
             case ConnectionType::OUTBOUND_FULL_RELAY:
             case ConnectionType::BLOCK_RELAY:
             case ConnectionType::ADDR_FETCH:
+            case ConnectionType::PRIVATE_BROADCAST:
                 return true;
         } // no default case, so the compiler can warn about missing cases
 
@@ -889,6 +911,7 @@ public:
           const std::string& addrNameIn,
           ConnectionType conn_type_in,
           bool inbound_onion,
+          uint64_t network_key,
           CNodeOptions&& node_opts = {});
     CNode(const CNode&) = delete;
     CNode& operator=(const CNode&) = delete;
@@ -1025,21 +1048,21 @@ public:
     virtual bool HasAllDesirableServiceFlags(ServiceFlags services) const = 0;
 
     /**
-    * Process protocol messages received from a given node
-    *
-    * @param[in]   pnode           The node which we have received messages from.
-    * @param[in]   interrupt       Interrupt condition for processing threads
-    * @return                      True if there is more work to be done
-    */
-    virtual bool ProcessMessages(CNode* pnode, std::atomic<bool>& interrupt) EXCLUSIVE_LOCKS_REQUIRED(g_msgproc_mutex) = 0;
+     * Process protocol messages received from a given node
+     *
+     * @param[in]   node            The node which we have received messages from.
+     * @param[in]   interrupt       Interrupt condition for processing threads
+     * @return                      True if there is more work to be done
+     */
+    virtual bool ProcessMessages(CNode& node, std::atomic<bool>& interrupt) EXCLUSIVE_LOCKS_REQUIRED(g_msgproc_mutex) = 0;
 
     /**
-    * Send queued protocol messages to a given node.
-    *
-    * @param[in]   pnode           The node which we are sending messages to.
-    * @return                      True if there is more work to be done
-    */
-    virtual bool SendMessages(CNode* pnode) EXCLUSIVE_LOCKS_REQUIRED(g_msgproc_mutex) = 0;
+     * Send queued protocol messages to a given node.
+     *
+     * @param[in]   node            The node which we are sending messages to.
+     * @return                      True if there is more work to be done
+     */
+    virtual bool SendMessages(CNode& node) EXCLUSIVE_LOCKS_REQUIRED(g_msgproc_mutex) = 0;
 
 
 protected:
@@ -1080,6 +1103,7 @@ public:
         bool m_i2p_accept_incoming;
         bool whitelist_forcerelay = DEFAULT_WHITELISTFORCERELAY;
         bool whitelist_relay = DEFAULT_WHITELISTRELAY;
+        bool m_capture_messages = false;
     };
 
     void Init(const Options& connOptions) EXCLUSIVE_LOCKS_REQUIRED(!m_added_nodes_mutex, !m_total_bytes_sent_mutex)
@@ -1117,19 +1141,29 @@ public:
         m_onion_binds = connOptions.onion_binds;
         whitelist_forcerelay = connOptions.whitelist_forcerelay;
         whitelist_relay = connOptions.whitelist_relay;
+        m_capture_messages = connOptions.m_capture_messages;
     }
 
-    CConnman(uint64_t seed0, uint64_t seed1, AddrMan& addrman, const NetGroupManager& netgroupman,
-             const CChainParams& params, bool network_active = true);
+    // test only
+    void SetCaptureMessages(bool cap) { m_capture_messages = cap; }
+
+    CConnman(uint64_t seed0,
+             uint64_t seed1,
+             AddrMan& addrman,
+             const NetGroupManager& netgroupman,
+             const CChainParams& params,
+             bool network_active = true,
+             std::shared_ptr<CThreadInterrupt> interrupt_net = std::make_shared<CThreadInterrupt>());
 
     ~CConnman();
 
     bool Start(CScheduler& scheduler, const Options& options) EXCLUSIVE_LOCKS_REQUIRED(!m_total_bytes_sent_mutex, !m_added_nodes_mutex, !m_addr_fetches_mutex, !mutexMsgProc);
 
     void StopThreads();
-    void StopNodes();
-    void Stop()
+    void StopNodes() EXCLUSIVE_LOCKS_REQUIRED(!m_reconnections_mutex);
+    void Stop() EXCLUSIVE_LOCKS_REQUIRED(!m_reconnections_mutex)
     {
+        AssertLockNotHeld(m_reconnections_mutex);
         StopThreads();
         StopNodes();
     };
@@ -1138,7 +1172,94 @@ public:
     bool GetNetworkActive() const { return fNetworkActive; };
     bool GetUseAddrmanOutgoing() const { return m_use_addrman_outgoing; };
     void SetNetworkActive(bool active);
-    void OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CountingSemaphoreGrant<>&& grant_outbound, const char* strDest, ConnectionType conn_type, bool use_v2transport) EXCLUSIVE_LOCKS_REQUIRED(!m_unused_i2p_sessions_mutex);
+
+    /**
+     * Open a new P2P connection and initialize it with the PeerManager at `m_msgproc`.
+     * @param[in] addrConnect Address to connect to, if `pszDest` is `nullptr`.
+     * @param[in] fCountFailure Increment the number of connection attempts to this address in Addrman.
+     * @param[in] grant_outbound Take ownership of this grant, to be released later when the connection is closed.
+     * @param[in] pszDest Address to resolve and connect to.
+     * @param[in] conn_type Type of the connection to open, must not be `ConnectionType::INBOUND`.
+     * @param[in] use_v2transport Use P2P encryption, (aka V2 transport, BIP324).
+     * @param[in] proxy_override Optional proxy to use and override normal proxy selection.
+     * @retval true The connection was opened successfully.
+     * @retval false The connection attempt failed.
+     */
+    bool OpenNetworkConnection(const CAddress& addrConnect,
+                               bool fCountFailure,
+                               CountingSemaphoreGrant<>&& grant_outbound,
+                               const char* pszDest,
+                               ConnectionType conn_type,
+                               bool use_v2transport,
+                               const std::optional<Proxy>& proxy_override)
+        EXCLUSIVE_LOCKS_REQUIRED(!m_unused_i2p_sessions_mutex);
+
+    /// Group of private broadcast related members.
+    class PrivateBroadcast
+    {
+    public:
+        /**
+         * Remember if we ever established at least one outbound connection to a
+         * Tor peer, including sending and receiving P2P messages. If this is
+         * true then the Tor proxy indeed works and is a proxy to the Tor network,
+         * not a misconfigured ordinary SOCKS5 proxy as -proxy or -onion. If that
+         * is the case, then we assume that connecting to an IPv4 or IPv6 address
+         * via that proxy will be done through the Tor network and a Tor exit node.
+         */
+        std::atomic_bool m_outbound_tor_ok_at_least_once{false};
+
+        /**
+         * Semaphore used to guard against opening too many connections.
+         * Opening private broadcast connections will be paused if this is equal to 0.
+         */
+        std::counting_semaphore<> m_sem_conn_max{MAX_PRIVATE_BROADCAST_CONNECTIONS};
+
+        /**
+         * Choose a network to open a connection to.
+         * @param[out] proxy Optional proxy to override the normal proxy selection.
+         * Will be set if !std::nullopt is returned. Could be set to `std::nullopt`
+         * if there is no need to override the proxy that would be used for connecting
+         * to the returned network.
+         * @retval std::nullopt No network could be selected.
+         * @retval !std::nullopt The network was selected and `proxy` is set (maybe to `std::nullopt`).
+         */
+        std::optional<Network> PickNetwork(std::optional<Proxy>& proxy) const;
+
+        /// Get the pending number of connections to open.
+        size_t NumToOpen() const;
+
+        /**
+         * Increment the number of new connections of type `ConnectionType::PRIVATE_BROADCAST`
+         * to be opened by `CConnman::ThreadPrivateBroadcast()`.
+         * @param[in] n Increment by this number.
+         */
+        void NumToOpenAdd(size_t n);
+
+        /**
+         * Decrement the number of new connections of type `ConnectionType::PRIVATE_BROADCAST`
+         * to be opened by `CConnman::ThreadPrivateBroadcast()`.
+         * @param[in] n Decrement by this number.
+         * @return The number of connections that remain to be opened after the operation.
+         */
+        size_t NumToOpenSub(size_t n);
+
+        /// Wait for the number of needed connections to become greater than 0.
+        void NumToOpenWait() const;
+
+    protected:
+        /**
+         * Check if private broadcast can be done to IPv4 or IPv6 peers and if so via which proxy.
+         * If private broadcast connections should not be opened to IPv4 or IPv6, then this will
+         * return an empty optional.
+         */
+        std::optional<Proxy> ProxyForIPv4or6() const;
+
+        /// Number of `ConnectionType::PRIVATE_BROADCAST` connections to open.
+        std::atomic_size_t m_num_to_open{0};
+
+        friend struct ConnmanTestMsg;
+    } m_private_broadcast;
+
     bool CheckIncomingNonce(uint64_t nonce);
     void ASMapHealthCheck();
 
@@ -1180,7 +1301,7 @@ public:
      * @param[in] network        Select only addresses of this network (nullopt = all).
      * @param[in] filtered       Select only addresses that are considered high quality (false = all).
      */
-    std::vector<CAddress> GetAddressesUnsafe(size_t max_addresses, size_t max_pct, std::optional<Network> network, const bool filtered = true) const;
+    std::vector<CAddress> GetAddressesUnsafe(size_t max_addresses, size_t max_pct, std::optional<Network> network, bool filtered = true) const;
     /**
      * Return addresses from the per-requestor cache. If no cache entry exists, it is populated with
      * randomly selected addresses. This function can be used in untrusted contexts.
@@ -1217,7 +1338,7 @@ public:
     int GetExtraBlockRelayCount() const;
 
     bool AddNode(const AddedNodeParams& add) EXCLUSIVE_LOCKS_REQUIRED(!m_added_nodes_mutex);
-    bool RemoveAddedNode(const std::string& node) EXCLUSIVE_LOCKS_REQUIRED(!m_added_nodes_mutex);
+    bool RemoveAddedNode(std::string_view node) EXCLUSIVE_LOCKS_REQUIRED(!m_added_nodes_mutex);
     bool AddedNodesContain(const CAddress& addr) const EXCLUSIVE_LOCKS_REQUIRED(!m_added_nodes_mutex);
     std::vector<AddedNodeInfo> GetAddedNodeInfo(bool include_connected) const EXCLUSIVE_LOCKS_REQUIRED(!m_added_nodes_mutex);
 
@@ -1240,7 +1361,7 @@ public:
     std::map<CNetAddr, LocalServiceInfo> getNetLocalAddresses() const;
     uint32_t GetMappedAS(const CNetAddr& addr) const;
     void GetNodeStats(std::vector<CNodeStats>& vstats) const;
-    bool DisconnectNode(const std::string& node);
+    bool DisconnectNode(std::string_view node);
     bool DisconnectNode(const CSubNet& subnet);
     bool DisconnectNode(const CNetAddr& addr);
     bool DisconnectNode(NodeId id);
@@ -1281,7 +1402,7 @@ public:
     void WakeMessageHandler() EXCLUSIVE_LOCKS_REQUIRED(!mutexMsgProc);
 
     /** Return true if we should disconnect the peer for failing an inactivity check. */
-    bool ShouldRunInactivityChecks(const CNode& node, std::chrono::seconds now) const;
+    bool ShouldRunInactivityChecks(const CNode& node, std::chrono::microseconds now) const;
 
     bool MultipleManualOrFullOutboundConns(Network net) const EXCLUSIVE_LOCKS_REQUIRED(m_nodes_mutex);
 
@@ -1313,6 +1434,7 @@ private:
     void ThreadOpenConnections(std::vector<std::string> connect, std::span<const std::string> seed_nodes) EXCLUSIVE_LOCKS_REQUIRED(!m_addr_fetches_mutex, !m_added_nodes_mutex, !m_nodes_mutex, !m_unused_i2p_sessions_mutex, !m_reconnections_mutex);
     void ThreadMessageHandler() EXCLUSIVE_LOCKS_REQUIRED(!mutexMsgProc);
     void ThreadI2PAcceptIncoming();
+    void ThreadPrivateBroadcast() EXCLUSIVE_LOCKS_REQUIRED(!m_unused_i2p_sessions_mutex);
     void AcceptConnection(const ListenSocket& hListenSocket);
 
     /**
@@ -1331,7 +1453,7 @@ private:
     void DisconnectNodes() EXCLUSIVE_LOCKS_REQUIRED(!m_reconnections_mutex, !m_nodes_mutex);
     void NotifyNumConnectionsChanged();
     /** Return true if the peer is inactive and should be disconnected. */
-    bool InactivityCheck(const CNode& node) const;
+    bool InactivityCheck(const CNode& node, std::chrono::microseconds now) const;
 
     /**
      * Generate a collection of sockets to check for IO readiness.
@@ -1365,18 +1487,49 @@ private:
 
     uint64_t CalculateKeyedNetGroup(const CNetAddr& ad) const;
 
-    CNode* FindNode(const CNetAddr& ip);
-    CNode* FindNode(const std::string& addrName);
-    CNode* FindNode(const CService& addr);
+    /**
+     * Determine whether we're already connected to a given "host:port".
+     * Note that for inbound connections, the peer is likely using a random outbound
+     * port on their side, so this will likely not match any inbound connections.
+     * @param[in] host String of the form "host[:port]", e.g. "localhost" or "localhost:8333" or "1.2.3.4:8333".
+     * @return true if connected to `host`.
+     */
+    bool AlreadyConnectedToHost(std::string_view host) const;
 
     /**
-     * Determine whether we're already connected to a given address, in order to
-     * avoid initiating duplicate connections.
+     * Determine whether we're already connected to a given address:port.
+     * Note that for inbound connections, the peer is likely using a random outbound
+     * port on their side, so this will likely not match any inbound connections.
+     * @param[in] addr_port Address and port to check.
+     * @return true if connected to addr_port.
      */
-    bool AlreadyConnectedToAddress(const CAddress& addr);
+    bool AlreadyConnectedToAddressPort(const CService& addr_port) const;
+
+    /**
+     * Determine whether we're already connected to a given address.
+     */
+    bool AlreadyConnectedToAddress(const CNetAddr& addr) const;
 
     bool AttemptToEvictConnection();
-    CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool fCountFailure, ConnectionType conn_type, bool use_v2transport) EXCLUSIVE_LOCKS_REQUIRED(!m_unused_i2p_sessions_mutex);
+
+    /**
+     * Open a new P2P connection.
+     * @param[in] addrConnect Address to connect to, if `pszDest` is `nullptr`.
+     * @param[in] pszDest Address to resolve and connect to.
+     * @param[in] fCountFailure Increment the number of connection attempts to this address in Addrman.
+     * @param[in] conn_type Type of the connection to open, must not be `ConnectionType::INBOUND`.
+     * @param[in] use_v2transport Use P2P encryption, (aka V2 transport, BIP324).
+     * @param[in] proxy_override Optional proxy to use and override normal proxy selection.
+     * @return Newly created CNode object or nullptr if the connection failed.
+     */
+    CNode* ConnectNode(CAddress addrConnect,
+                       const char* pszDest,
+                       bool fCountFailure,
+                       ConnectionType conn_type,
+                       bool use_v2transport,
+                       const std::optional<Proxy>& proxy_override)
+        EXCLUSIVE_LOCKS_REQUIRED(!m_unused_i2p_sessions_mutex);
+
     void AddWhitelistPermissionFlags(NetPermissionFlags& flags, std::optional<CNetAddr> addr, const std::vector<NetWhitelistPermissions>& ranges) const;
 
     void DeleteNode(CNode* pnode);
@@ -1446,7 +1599,7 @@ private:
     std::vector<ListenSocket> vhListenSocket;
     std::atomic<bool> fNetworkActive{true};
     bool fAddressesInitialized{false};
-    AddrMan& addrman;
+    std::reference_wrapper<AddrMan> addrman;
     const NetGroupManager& m_netgroupman;
     std::deque<std::string> m_addr_fetches GUARDED_BY(m_addr_fetches_mutex);
     Mutex m_addr_fetches_mutex;
@@ -1555,11 +1708,9 @@ private:
 
     /**
      * This is signaled when network activity should cease.
-     * A pointer to it is saved in `m_i2p_sam_session`, so make sure that
-     * the lifetime of `interruptNet` is not shorter than
-     * the lifetime of `m_i2p_sam_session`.
+     * A copy of this is saved in `m_i2p_sam_session`.
      */
-    CThreadInterrupt interruptNet;
+    const std::shared_ptr<CThreadInterrupt> m_interrupt_net;
 
     /**
      * I2P SAM session.
@@ -1574,6 +1725,7 @@ private:
     std::thread threadOpenConnections;
     std::thread threadMessageHandler;
     std::thread threadI2PAcceptIncoming;
+    std::thread threadPrivateBroadcast;
 
     /** flag for deciding to connect to an extra outbound peer,
      *  in excess of m_max_outbound_full_relay
@@ -1605,6 +1757,11 @@ private:
     bool whitelist_relay;
 
     /**
+     * flag for whether messages are captured
+     */
+    bool m_capture_messages{false};
+
+    /**
      * Mutex protecting m_i2p_sam_sessions.
      */
     Mutex m_unused_i2p_sessions_mutex;
@@ -1626,6 +1783,7 @@ private:
     /** Struct for entries in m_reconnections. */
     struct ReconnectionInfo
     {
+        std::optional<Proxy> proxy_override;
         CAddress addr_connect;
         CountingSemaphoreGrant<> grant;
         std::string destination;
