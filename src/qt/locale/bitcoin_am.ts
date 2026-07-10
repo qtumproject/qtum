@@ -54,11 +54,11 @@
         <translation type="unfinished">ምረጥ</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">ክፍያዎችን ለመላክ እነዚህ  የእርስዎ ቢትኮይን አድራሻዎች ናቸው። ሳንቲሞችን/ኮይኖች ከመላክዎ በፊት ሁል ጊዜ መጠኑን እና የተቀባዩን አድራሻ ያረጋግጡ።</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">እነኚህ የቢትኮይን አድራሻዎች የክፍያ መቀበያ አድራሻዎችዎ ናችው። "ተቀበል" በሚለው መደብ ውስጥ ያለውን "አዲስ የመቀበያ አድራሻ ይፍጠሩ" የሚለውን አዝራር ይጠቀሙ።
 መፈረም የሚቻለው "ሌጋሲ" በሚል ምድብ ስር በተመደቡ አድራሻዎች ብቻ ነው።</translation>
@@ -160,7 +160,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">የቢትኮይን ቦርሳዎን ማመስጠር ያረጋግጡ</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">ማስጠንቀቂያ: የቢትኮይን ቦርሳዎን አመስጥረው የይለፍ-ሐረግዎን ካጡት&lt;b&gt;ቢትኮይኖቾን በሙሉ ያጣሉ&lt;/b&gt;!</translation>
     </message>
     <message>
@@ -379,8 +379,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;የይለፍ ቃል ቀይር…</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation type="unfinished">በእርሶ የተያዙ መሆኑን ለማረጋገጥ በBitcoin አድራሻዎችዎ መልዕክቶችን ይፈርሙ</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation type="unfinished">በእርሶ የተያዙ መሆኑን ለማረጋገጥ በQtum አድራሻዎችዎ መልዕክቶችን ይፈርሙ</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -443,11 +443,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">እሳድግ</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n active connection(s) to Bitcoin network.</numerusform>
-            <numerusform>%n active connection(s) to Bitcoin network.</numerusform>
+            <numerusform>%n active connection(s) to Qtum network.</numerusform>
+            <numerusform>%n active connection(s) to Qtum network.</numerusform>
         </translation>
     </message>
     <message>
@@ -618,7 +618,7 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">እንኳን  ወድ %1 በደህና መጣህ።</translation>
     </message>
     <message>
-        <source>Bitcoin</source>
+        <source>Qtum</source>
         <translation type="unfinished">ቢትኮይን</translation>
     </message>
     <message numerus="yes">
@@ -724,8 +724,8 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">የአካባቢ አድራሻዎች</translation>
     </message>
     <message>
-        <source>Network addresses that your Bitcoin node is currently using to communicate with other nodes.</source>
-        <translation type="unfinished">የእርስዎ Bitcoin ኖድ ከሌሎች ኖዶች ጋር ለመገናኘት በአሁኑ ጊዜ እየተጠቀመበት ያለው የአውታረ መረብ አድራሻ።</translation>
+        <source>Network addresses that your Qtum node is currently using to communicate with other nodes.</source>
+        <translation type="unfinished">የእርስዎ Qtum ኖድ ከሌሎች ኖዶች ጋር ለመገናኘት በአሁኑ ጊዜ እየተጠቀመበት ያለው የአውታረ መረብ አድራሻ።</translation>
     </message>
     <message>
         <source>Hide Peers Detail</source>
@@ -838,7 +838,7 @@ The migration process will create a backup of the wallet before migrating. This 
 <context>
     <name>SignVerifyMessageDialog</name>
     <message>
-        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your legacy (P2PKH) addresses to prove you can receive qtums sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">ወደ እነርሱ የተላኩ ቢትኮይን መቀበል እንደሚችሉ ለማረጋገጥ ከርስዎ (P2PKH) አድራሻዎች ጋር መልዕክቶችን/ስምምነቶችን መፈረም ይችላሉ። የማስገር ጥቃቶች እርስዎን ማንነትዎን በእነሱ ላይ እንዲፈርሙ ሊያታልሉዎት ስለሚችሉ ግልጽ ያልሆነ ወይም በዘፈቀደ ላለመፈረም ይጠንቀቁ። የተስማሙባቸውን ሙሉ ዝርዝር መግለጫዎች ብቻ ይፈርሙ።</translation>
     </message>
     <message>

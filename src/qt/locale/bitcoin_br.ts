@@ -54,13 +54,13 @@
         <translation type="unfinished">C&amp;hoaz</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Ho adresoù Bitcoin evit kas paeamantoù int. Gwirekaat ar sammad hag an adres a resev bewezh a-raok kas gwenneien.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Ho adresoù Qtum evit kas paeamantoù int. Gwirekaat ar sammad hag an adres a resev bewezh a-raok kas gwenneien.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Ho adresoù Bitcoin evit resev paeamantoù eo. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <translation type="unfinished">Ho adresoù Qtum evit resev paeamantoù eo. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</translation>
     </message>
     <message>
@@ -123,8 +123,8 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
         <translation type="unfinished">Kadarnaat sifrañ an doug-moneiz</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Diwall: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Diwall: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Wallet encrypted</source>
@@ -242,8 +242,8 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
         <translation type="unfinished">Doug-moneiz:</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation type="unfinished">Kas gwenneien d'un adres Bitcoin</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">Kas gwenneien d'un adres Qtum</translation>
     </message>
     <message>
         <source>&amp;Send</source>
@@ -334,7 +334,7 @@ Signing is only possible with addresses of the type 'legacy'.</translation>
         <translation type="unfinished">&amp;Diskouel</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
