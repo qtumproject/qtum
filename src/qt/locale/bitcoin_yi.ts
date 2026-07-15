@@ -54,11 +54,11 @@
         <translation type="unfinished">C&amp;אויסקלײַבן</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">דאס זיינע אייער ביטקוין אדרעסן צו שיקן צאלונגען. אלעמאל איבערקוקן די סומעאון די באקומער אדרעס איידער איר שיקט די מאָנעס.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">דאס זיינע אייער קטום אדרעסן צו שיקן צאלונגען. אלעמאל איבערקוקן די סומעאון די באקומער אדרעס איידער איר שיקט די מאָנעס.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">די זענען אייער ביטקאָין־אַדרעסן פֿאַר באקומען צאָלונגען. ניצט דעם קנעפּל „שאַפֿן אַ נײַע באקומען־אַדרעס“ 
 אין די „באקומען“־טעב, צו שאַפֿן נײַעאַדרעסן.אונterschרייבן איז בלויז מעגלעך מיט אַדרעסן פון דעם טיפּ „לעגאַסי“.</translation>
@@ -160,7 +160,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">אָפּלייקענען וואָלעט ענקריפּשאַן</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
         <translation type="unfinished">ווארענונג: אויב איר קריפּטירט אייער וואָלעט און פאַרלירן אייער פּאַראָל, וועט איר &lt;b&gt;פאַרלירן אַלע אייער ביטקאָינס &lt;/b&gt;!</translation>
     </message>
     <message>
@@ -188,7 +188,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">צוריק</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">געדענקט אַז ענקריפּטינג דיין בייַטל טוט נישט גאָר באַשיצן דיין ביטקאָינס פון סטאָלען דורך מאַלוואַרע ינפעקטינג דיין קאָמפּיוטער.</translation>
     </message>
     <message>
@@ -387,7 +387,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />

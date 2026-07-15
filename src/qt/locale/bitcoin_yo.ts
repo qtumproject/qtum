@@ -54,13 +54,13 @@
         <translation type="unfinished">yan</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Àwọn àdírẹ́sì Bitcoin rẹ fún fífi owó àpólà ránṣẹ́ ni wọ̀nyí. Máa ṣàyẹ̀wò iye owó àti àdírẹ́sì agbàwọlé dáadáa kí o tó ránṣẹ́.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Àwọn àdírẹ́sì Qtum rẹ fún fífi owó àpólà ránṣẹ́ ni wọ̀nyí. Máa ṣàyẹ̀wò iye owó àti àdírẹ́sì agbàwọlé dáadáa kí o tó ránṣẹ́.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Àwọn àdírẹ́sì Bitcoin rẹ fún gbigba owó àpólà ni wọ̀nyí. Lo bọ́tìnì ‘Ṣẹ̀dá àdírẹ́sì agbàwọlé tuntun’ nínú taabu gbigba láti ṣẹ̀dá àwọn àdírẹ́sì tuntun
+        <translation type="unfinished">Àwọn àdírẹ́sì Qtum rẹ fún gbigba owó àpólà ni wọ̀nyí. Lo bọ́tìnì ‘Ṣẹ̀dá àdírẹ́sì agbàwọlé tuntun’ nínú taabu gbigba láti ṣẹ̀dá àwọn àdírẹ́sì tuntun
 Fífọwọ́sowọ́pọ̀ jẹ́ ẹni pé ó ṣeé ṣe pẹ̀lú àwọn àdírẹ́sì irú ‘legacy’ nìkan</translation>
     </message>
     <message>
@@ -160,8 +160,8 @@ Fífọwọ́sowọ́pọ̀ jẹ́ ẹni pé ó ṣeé ṣe pẹ̀lú àwọn à
         <translation type="unfinished">Ṣàfihàn ìdánimọ̀ ìṣìfúná apò-owó</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Ìkìlọ̀: Bí o bá ṣìfúná apò-owó rẹ tí o sì pàdánù ọ̀rọ̀-ìfàṣẹsí rẹ, ìwọ yóò&lt;b&gt;ìwọ yóò sọnù gbogbo àwọn Bitcoin rẹ&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Ìkìlọ̀: Bí o bá ṣìfúná apò-owó rẹ tí o sì pàdánù ọ̀rọ̀-ìfàṣẹsí rẹ, ìwọ yóò&lt;b&gt;ìwọ yóò sọnù gbogbo àwọn Qtum rẹ&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -188,8 +188,8 @@ Fífọwọ́sowọ́pọ̀ jẹ́ ẹni pé ó ṣeé ṣe pẹ̀lú àwọn à
         <translation type="unfinished">Padà</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Rántí pé ṣíìfúná apò-owó rẹ kì í lè dáàbò bo àwọn Bitcoin rẹ pátápátá kúrò lọ́wọ́ ìjìnlẹ̀ olè sọ́fitiwia búburú tó bá kó kọ̀mpútà rẹ</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Rántí pé ṣíìfúná apò-owó rẹ kì í lè dáàbò bo àwọn Qtum rẹ pátápátá kúrò lọ́wọ́ ìjìnlẹ̀ olè sọ́fitiwia búburú tó bá kó kọ̀mpútà rẹ</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -403,8 +403,8 @@ Fífọwọ́sowọ́pọ̀ jẹ́ ẹni pé ó ṣeé ṣe pẹ̀lú àwọn à
         <translation type="unfinished">Iṣẹ́ nẹ́tíwọ́ọ̀kì ti wa ní pípà</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation type="unfinished">Rán owó kóìn sí àdírẹ́sì Bitcoin kan</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">Rán owó kóìn sí àdírẹ́sì Qtum kan</translation>
     </message>
     <message>
         <source>&amp;Send</source>
@@ -469,7 +469,7 @@ Fífọwọ́sowọ́pọ̀ jẹ́ ẹni pé ó ṣeé ṣe pẹ̀lú àwọn à
         <translation type="unfinished">Ti Apamowo</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />

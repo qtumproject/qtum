@@ -54,13 +54,13 @@
         <translation type="unfinished">Nanga</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Hedzi ndi ḓiresi dzaṋu dza Bitcoin dza u rumela mbadelo. Tshifhinga tshoṱhe ṱolani tshelede na ḓiresi ine na ḓo i ṱanganedza musi ni sa athu rumela tshelede ya tsimbi.</translation>
+        <source>These are your Qtum addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Hedzi ndi ḓiresi dzaṋu dza Qtum dza u rumela mbadelo. Tshifhinga tshoṱhe ṱolani tshelede na ḓiresi ine na ḓo i ṱanganedza musi ni sa athu rumela tshelede ya tsimbi.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Qtum addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Hedzi ndi ḓiresi dzaṋu dza Bitcoin dza u ṱanganedza mbadelo. Shumisani butoni ya 'Sika ḓiresi ntswa ya u ṱanganedza' kha thebu ya u ṱanganedza u sika ḓiresi ntswa.U saina zwi konadzea fhedzi nga ḓiresi dza lushaka lwa 'legacy'.</translation>
+        <translation type="unfinished">Hedzi ndi ḓiresi dzaṋu dza Qtum dza u ṱanganedza mbadelo. Shumisani butoni ya 'Sika ḓiresi ntswa ya u ṱanganedza' kha thebu ya u ṱanganedza u sika ḓiresi ntswa.U saina zwi konadzea fhedzi nga ḓiresi dza lushaka lwa 'legacy'.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -159,8 +159,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Kha vha khwaṱhisedze u ṅwalulula tshipatshi</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
-        <translation type="unfinished">Tsevho: Arali na ṅwalulula tshipatshi tshaṋu nahone na xelelwa nga passphrase yaṋu, ni ḓo XELELA BITCOIN DZANU DZOṰHE!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR QTUMS&lt;/b&gt;!</source>
+        <translation type="unfinished">Tsevho: Arali na ṅwalulula tshipatshi tshaṋu nahone na xelelwa nga passphrase yaṋu, ni ḓo XELELA QTUM DZANU DZOṰHE!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -187,8 +187,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Murahu</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Humbulani uri u ṅwalulula tshipatshi tshaṋu a zwi nga koni u tsireledza nga vhuḓalo bitcoins dzaṋu kha u tswiwa nga malware ine ya kavhila khomphyutha yaṋu.</translation>
+        <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Humbulani uri u ṅwalulula tshipatshi tshaṋu a zwi nga koni u tsireledza nga vhuḓalo qtums dzaṋu kha u tswiwa nga malware ine ya kavhila khomphyutha yaṋu.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -403,8 +403,8 @@ Faela ya zwishumiswa %1 i nga vha yo tshinyala kana i sa shumi.</translation>
         <translation type="unfinished">Proxy yo tendelwa: %1.</translation>
     </message>
     <message>
-        <source>Send coins to a Bitcoin address</source>
-        <translation type="unfinished">Rumelani tshelede ya tsimbi kha ḓiresi ya Bitcoin .</translation>
+        <source>Send coins to a Qtum address</source>
+        <translation type="unfinished">Rumelani tshelede ya tsimbi kha ḓiresi ya Qtum .</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -447,16 +447,16 @@ Faela ya zwishumiswa %1 i nga vha yo tshinyala kana i sa shumi.</translation>
         <translation type="unfinished">Saina &amp;mulaedza...</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation type="unfinished">Saini milaedza nga ḓiresi dzaṋu dza Bitcoin u sumbedza uri ndi vhaṋe vhayo .</translation>
+        <source>Sign messages with your Qtum addresses to prove you own them</source>
+        <translation type="unfinished">Saini milaedza nga ḓiresi dzaṋu dza Qtum u sumbedza uri ndi vhaṋe vhayo .</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Kha vha khwaṱhisedze mulaedza...</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation type="unfinished">Kha vha khwaṱhisedze milaedza u vhona uri yo sainiwa nga ḓiresi dzo bulwaho dza Bitcoin </translation>
+        <source>Verify messages to ensure they were signed with specified Qtum addresses</source>
+        <translation type="unfinished">Kha vha khwaṱhisedze milaedza u vhona uri yo sainiwa nga ḓiresi dzo bulwaho dza Qtum </translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -516,8 +516,8 @@ U ṱanganya ṱhoho (%1%)...</translation>
         <translation type="unfinished">U ṱumana na thangana dza murole...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">Humbelani mbadelo (u bveledza khoudu dza QR na bitcoin: URI)</translation>
+        <source>Request payments (generates QR codes and qtum: URIs)</source>
+        <translation type="unfinished">Humbelani mbadelo (u bveledza khoudu dza QR na qtum: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -538,7 +538,7 @@ U ṱanganya ṱhoho (%1%)...</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Qtum network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
