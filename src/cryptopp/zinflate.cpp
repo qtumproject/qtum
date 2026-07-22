@@ -550,12 +550,18 @@ bool Inflator::DecodeBody()
 						break;
 					}
 		case DISTANCE_BITS:
+					CRYPTOPP_ASSERT(m_distance < COUNTOF(distanceExtraBits));
+					if (m_distance >= COUNTOF(distanceExtraBits))
+						throw BadDistanceErr();
 					bits = distanceExtraBits[m_distance];
 					if (!m_reader.FillBuffer(bits))
 					{
 						m_nextDecode = DISTANCE_BITS;
 						break;
 					}
+					CRYPTOPP_ASSERT(m_distance < COUNTOF(distanceStarts));
+					if (m_distance >= COUNTOF(distanceStarts))
+						throw BadDistanceErr();
 					m_distance = m_reader.GetBits(bits) + distanceStarts[m_distance];
 					OutputPast(m_literal, m_distance);
 				}
