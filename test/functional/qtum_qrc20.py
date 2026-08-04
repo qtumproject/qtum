@@ -10,6 +10,7 @@ from test_framework.p2p import *
 from test_framework.address import *
 from test_framework.qtum import *
 from test_framework.script import *
+from test_framework.wallet_util import generate_keypair
 import time
 import pprint
 pp = pprint.PrettyPrinter()
@@ -57,7 +58,7 @@ class QtumQRC20Test(BitcoinTestFramework):
         f = io.BytesIO(hex_str_to_bytes(tx_to_double_spend_raw_hex))
         tx_to_double_spend = CTransaction()
         tx_to_double_spend.deserialize(f)
-        signer_privkey = origin_node.dumpprivkey(signer_address)
+        signer_privkey = self.creator_wif
 
         value = sum(vout.nValue for vout in tx_to_double_spend.vout)
         tx = CTransaction()
@@ -70,7 +71,9 @@ class QtumQRC20Test(BitcoinTestFramework):
     def run_test(self):
         self.node = self.nodes[0]
         self.reorg_node = self.nodes[1]
-        self.creator = self.node.getnewaddress()
+        self.creator_wif, creator_pubkey = generate_keypair(wif=True)
+        self.creator = key_to_p2pkh(creator_pubkey)
+        wallet_importprivkey(self.node, self.creator_wif, 0)
         self.receiver = self.reorg_node.getnewaddress()
         generatesynchronized(self.reorg_node, 50, self.receiver, self.nodes)
         generatesynchronized(self.node, 50, self.creator, self.nodes)

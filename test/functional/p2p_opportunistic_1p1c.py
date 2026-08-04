@@ -386,7 +386,7 @@ class PackageRelayTest(BitcoinTestFramework):
         parent_high = self.wallet.create_self_transfer(fee_rate=FEERATE_1SAT_VB*10, confirmed_only=True)
         child = self.wallet.create_self_transfer_multi(
             utxos_to_spend=[parent_high["new_utxo"], parent_low["new_utxo"]],
-            fee_per_output=999*parent_low["tx"].get_vsize(),
+            fee_per_output=int(999*FEERATE_1SAT_VB*COIN/1000)*parent_low["tx"].get_vsize(),
         )
 
         peer_sender = node.add_outbound_p2p_connection(P2PInterface(), p2p_idx=1, connection_type="outbound-full-relay")

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from test_framework.test_framework import BitcoinTestFramework
+from test_framework.util import wallet_importprivkey
 from test_framework.qtum import activate_mpos
 from test_framework.qtumconfig import COINBASE_MATURITY
 from test_framework.address import byte_to_base58
@@ -20,7 +21,7 @@ class QtumCallContractTimestampTest(BitcoinTestFramework):
     def run_test(self):
         self.node = self.nodes[0]
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
-        self.node.importprivkey(privkey)
+        wallet_importprivkey(self.node, privkey, 0)
 
         self.generatetoaddress(self.node, 100 + COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")
 

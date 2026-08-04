@@ -34,7 +34,6 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
                             help="Run the DoS variable height test")
         parser.add_argument("--run-standard-tests", dest="run_standard_tests", default=False, action="store_true",
                             help="Run all other tests")
-        self.add_wallet_options(parser)
 
 
     def skip_test_if_missing_module(self):
@@ -121,9 +120,9 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-(COINBASE_MATURITY+1)), int(time.time())&0xfffffff0)
         msg = msg_headers()
         msg.headers.extend([block_header])
-        self.p2p_node.send_message(msg)
+        self.p2p_node.send_without_ping(msg)
         time.sleep(1)
-        self.assert_chain_tip_rejected(block_header.hash)
+        self.assert_chain_tip_rejected(block_header.hash_hex)
         self._remove_from_staking_prevouts(block_header.prevoutStake)
 
     def can_submit_header_after_rolling_checkpoint_test(self):
@@ -131,9 +130,9 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         block_header = self._create_pos_header(self.node, self.staking_prevouts, self.node.getblockhash(self.node.getblockcount()-COINBASE_MATURITY))
         msg = msg_headers()
         msg.headers.extend([block_header])
-        self.p2p_node.send_message(msg)
+        self.p2p_node.send_without_ping(msg)
         time.sleep(1)
-        self.assert_chain_tip_accepted(block_header.hash)
+        self.assert_chain_tip_accepted(block_header.hash_hex)
         self._remove_from_staking_prevouts(block_header.prevoutStake)
 
     def cannot_submit_header_oversized_signature_test(self):
@@ -141,9 +140,9 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         block_header.vchBlockSig = b'x'*7999812
         msg = msg_headers()
         msg.headers.extend([block_header])
-        self.p2p_node.send_message(msg)
+        self.p2p_node.send_without_ping(msg)
         time.sleep(1)
-        self.assert_chain_tip_rejected(block_header.hash)
+        self.assert_chain_tip_rejected(block_header.hash_hex)
         self._remove_from_staking_prevouts(block_header.prevoutStake)
 
     def cannot_submit_invalid_prevout_test(self):
@@ -151,9 +150,9 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         block_header.prevoutStake.n = 0xffff
         msg = msg_headers()
         msg.headers.extend([block_header])
-        self.p2p_node.send_message(msg)
+        self.p2p_node.send_without_ping(msg)
         time.sleep(1)
-        self.assert_chain_tip_rejected(block_header.hash)
+        self.assert_chain_tip_rejected(block_header.hash_hex)
         self._remove_from_staking_prevouts(block_header.prevoutStake)
 
     # Constant height header spam cause ban (in our case disconnect) after a max of COINBASE_MATURITY headers
@@ -166,7 +165,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             block_header = self._create_pos_header(self.node, self.staking_prevouts, prevblock['hash'], nTime=t+0x10*i, nNonce=i)
             msg = msg_headers()
             msg.headers.extend([block_header])
-            self.p2p_node.send_message(msg)
+            self.p2p_node.send_without_ping(msg)
         self.p2p_node.wait_for_disconnect(timeout=5)
 
     # Variable height header spam cause ban (in our case disconnect) after a max of 1504(?) headers
@@ -180,7 +179,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             block_header = self._create_pos_header(self.node, self.staking_prevouts, prevblock['hash'], nTime=t+0x10*i, nNonce=i)
             msg = msg_headers()
             msg.headers.extend([block_header])
-            self.p2p_node.send_message(msg)
+            self.p2p_node.send_without_ping(msg)
 
         self.p2p_node.wait_for_disconnect(timeout=5)
         self.node.setmocktime(0)
@@ -227,16 +226,16 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
             blocks.append(block)
             self._remove_from_staking_prevouts(block.prevoutStake)
             tip['height'] += 1
-            tip['hash'] = block.hash
+            tip['hash'] = block.hash_hex
             tip['time'] += 0x10
             tip['modifier'] = bytes_to_hex_str(hash256(ser_uint256(block.prevoutStake.hash) + ser_uint256(int(tip['modifier'], 16)))[::-1])
 
         msg = msg_headers()
         msg.headers.extend([CBlockHeader(b) for b in blocks])
-        self.p2p_node.send_message(msg)
+        self.p2p_node.send_without_ping(msg)
         self.node.gettxoutsetinfo()
         for block in blocks:
-            self.p2p_node.send_message(msg_block(block))
+            self.p2p_node.send_without_ping(msg_block(block))
             self.p2p_node.sync_with_ping()
 
         new_size = get_dir_size("{}/regtest/blocks/".format(self.node.datadir_path))
@@ -264,7 +263,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         for i in range(400):
             block.nNonce = i
             block.sign_block(block_sig_key)
-            self.p2p_node.send_message(msg_block(block))
+            self.p2p_node.send_without_ping(msg_block(block))
         time.sleep(10)
 
         new_size = get_dir_size("{}/regtest/blocks/".format(self.node.datadir_path))
@@ -274,7 +273,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
     def run_test(self):
         self.node = self.nodes[0]
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)        
-        self.node.importprivkey(privkey)
+        wallet_importprivkey(self.node, privkey, 0)
         self.node.setmocktime(int(time.time() - 1000*24*60*60))
         generatesynchronized(self.node, 1000 + COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
         self.staking_prevouts = collect_prevouts(self.node)

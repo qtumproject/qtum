@@ -752,7 +752,7 @@ class OrphanHandlingTest(BitcoinTestFramework):
         # parent_peekaboo_AB spends A and B. It is replaced by tx_replacer_BC (conflicting UTXO B),
         # and then replaced by tx_replacer_C (conflicting UTXO C). This replacement cycle is used to
         # ensure that parent_peekaboo_AB can be reintroduced without requiring package RBF.
-        FEE_INCREMENT = 2400
+        FEE_INCREMENT = 100000
         parent_peekaboo_AB = self.wallet.create_self_transfer_multi(
             utxos_to_spend=[coin_A, coin_B],
             num_outputs=1,

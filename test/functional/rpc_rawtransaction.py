@@ -246,7 +246,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         assert 'fee' not in gottx
         # check that verbosity 2 for a mempool tx will fallback to verbosity 1
         # Do this with a pruned chain, as a regression test for https://github.com/bitcoin/bitcoin/pull/29003
-        generatesynchronized(self.nodes[2], 4000, None, self.nodes)
+        generatesynchronized(self.nodes[2], 4000, self.nodes[2].get_deterministic_priv_key().address, self.nodes)
         assert_greater_than(self.nodes[2].pruneblockchain(2500), 0)
         mempool_tx = self.wallet.send_self_transfer(from_node=self.nodes[2])['txid']
         gottx = self.nodes[2].getrawtransaction(txid=mempool_tx, verbosity=2)

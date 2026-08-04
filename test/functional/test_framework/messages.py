@@ -96,10 +96,11 @@ TX_MIN_STANDARD_VERSION = 1
 TX_MAX_STANDARD_VERSION = 3
 
 MAGIC_BYTES = {
-    "mainnet": b"\xf9\xbe\xb4\xd9",
+    "mainnet": b"\xf1\xcf\xa6\xd3",
+    "testnet": b"\x0d\x22\x15\x06",
     "testnet4": b"\x1c\x16\x3f\x28",
     "regtest": b"\xfd\xdd\xc6\xe1",
-    "signet": b"\x0a\x03\xcf\x40",
+    "signet": b"\x7a\xf9\x82\x59",
 }
 
 def sha256(s):
@@ -828,8 +829,8 @@ class CBlockHeader:
             % (self.nVersion, self.hashPrevBlock, self.hashMerkleRoot,
                time.ctime(self.nTime), self.nBits, self.nNonce)
 
-# BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
-# assert_equal(BLOCK_HEADER_SIZE, 80)
+BLOCK_HEADER_SIZE = len(CBlockHeader().serialize())
+assert_equal(BLOCK_HEADER_SIZE, 181)
 
 class CBlock(CBlockHeader):
     __slots__ = ("vtx",)

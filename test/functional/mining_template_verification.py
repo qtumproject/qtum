@@ -25,6 +25,7 @@ from test_framework.util import (
 
 from test_framework.messages import (
     BLOCK_HEADER_SIZE,
+    COIN,
     uint256_from_compact,
 )
 
@@ -74,7 +75,11 @@ class MiningTemplateVerificationTest(BitcoinTestFramework):
         no_tx_block.vtx.clear()
         no_tx_block.hashMerkleRoot = 0
         no_tx_block.solve()
-        assert_template(node, no_tx_block, 'bad-blk-length', rehash=False)
+        # Qtum returns "bad-cb-missing" instead of Bitcoin's "bad-blk-length"
+        # because the block size limit check (bad-blk-length) was moved from
+        # CheckBlock to ConnectBlock in Qtum (validation.cpp:3474), since it
+        # depends on DGP values. So CheckBlock hits the coinbase check first.
+        assert_template(node, no_tx_block, 'bad-cb-missing', rehash=False)
 
     def truncated_final_transaction_test(self, node, block):
         self.log.info("Truncated final transaction")
@@ -139,9 +144,10 @@ class MiningTemplateVerificationTest(BitcoinTestFramework):
         self.log.info("Bad timestamps")
         bad_block = copy.deepcopy(block)
         bad_block.nTime = 2**32 - 1
-        assert_template(node, bad_block, 'time-too-new')
+        # Qtum only enforces time-too-new/time-too-old for PoS blocks, not PoW
+        assert_template(node, bad_block, None)
         bad_block.nTime = 0
-        assert_template(node, bad_block, 'time-too-old')
+        assert_template(node, bad_block, None)
 
     def current_tip_test(self, node, block):
         self.log.info("Block must build on the current tip")
@@ -203,7 +209,8 @@ class MiningTemplateVerificationTest(BitcoinTestFramework):
         block_2_hash = node.getblockhash(block_0_height + 2)
 
         bad_tx = copy.deepcopy(tx)
-        bad_tx["tx"].vout[0].nValue = 10000000000
+        # Set output value to 1 satoshi more than the input to trigger bad-txns-in-belowout
+        bad_tx["tx"].vout[0].nValue += int(COIN * bad_tx["fee"]) + 1
         bad_tx_hex = bad_tx["tx"].serialize().hex()
         assert_equal(
             node.testmempoolaccept([bad_tx_hex])[0]["reject-reason"],

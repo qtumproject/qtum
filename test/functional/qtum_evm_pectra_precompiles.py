@@ -11,10 +11,7 @@ import pprint
 pp = pprint.PrettyPrinter()  
   
 class QtumEVMPectraTest(BitcoinTestFramework):  
-    def add_options(self, parser):  
-        self.add_wallet_options(parser)  
-  
-    def set_test_params(self):  
+    def set_test_params(self):
         self.setup_clean_chain = True  
         self.num_nodes = 1  
         # Fork activates at block height 2399 (set to 2400 to activate at 2399)

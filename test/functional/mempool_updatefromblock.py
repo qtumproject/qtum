@@ -16,6 +16,7 @@ from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import assert_equal, assert_greater_than_or_equal, assert_raises_rpc_error
 from test_framework.wallet import MiniWallet
 from test_framework.mempool_util import DEFAULT_CLUSTER_LIMIT
+from test_framework.blocktools import COINBASE_MATURITY
 
 MAX_DISCONNECTED_TX_POOL_BYTES = 20_000_000
 
@@ -25,7 +26,7 @@ CUSTOM_DESCENDANT_COUNT = CUSTOM_ANCESTOR_COUNT
 class MempoolUpdateFromBlockTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
-        self.extra_args = [['-limitclustersize=1000']]
+        self.extra_args = [['-minrelaytxfee=0', '-blockmintxfee=0', '-limitclustersize=1000']]
 
     def trigger_reorg(self, fork_blocks):
         """Trigger reorg of the fork blocks."""
@@ -49,6 +50,7 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
         More details: https://en.wikipedia.org/wiki/Tournament_(graph_theory)
         """
         wallet = MiniWallet(self.nodes[0])
+        self.generate(wallet, COINBASE_MATURITY + 1)
 
         # Prep for fork with empty blocks to not use invalidateblock directly
         # for reorg case. The rpc has different codepath
@@ -124,7 +126,7 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
         # Generate coins for the hundreds of transactions we will make
         parent_target_vsize = 100_000
         wallet = MiniWallet(self.nodes[0])
-        self.generate(wallet, (MAX_DISCONNECTED_TX_POOL_BYTES // parent_target_vsize) + 100)
+        self.generate(wallet, COINBASE_MATURITY + (MAX_DISCONNECTED_TX_POOL_BYTES // parent_target_vsize) + 100)
 
         assert_equal(self.nodes[0].getrawmempool(), [])
 
@@ -177,7 +179,7 @@ class MempoolUpdateFromBlockTest(BitcoinTestFramework):
         self.log.info('Check that too long chains on reorg are handled')
 
         wallet = MiniWallet(self.nodes[0])
-        self.generate(wallet, 101)
+        self.generate(wallet, COINBASE_MATURITY + 101)
 
         assert_equal(self.nodes[0].getrawmempool(), [])
 

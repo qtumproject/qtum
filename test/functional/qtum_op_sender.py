@@ -8,6 +8,8 @@ from test_framework.qtum import *
 from test_framework.address import *
 from test_framework.blocktools import *
 from test_framework.key import *
+from test_framework.messages import uint256_from_str
+from test_framework.wallet_util import generate_keypair
 
 
 # If this is an OP_SENDER output, make sure that the signature is an empty byte vector
@@ -135,7 +137,7 @@ class QtumOpSenderTest(BitcoinTestFramework):
         unspent = self.unspents.pop()
         amount = sum(output.nValue for output in outputs)
         change = int(unspent['amount'])*COIN - gasCost - amount
-        wif = self.nodes[0].dumpprivkey(unspent['address'])
+        wif = self.mining_wif
         vin_key = wif_to_ECKey(wif)
         tx = CTransaction()
         prevout = COutPoint(int(unspent['txid'], 16), unspent['vout'])
@@ -217,7 +219,7 @@ class QtumOpSenderTest(BitcoinTestFramework):
             unspent = self.unspents.pop()
             amount = COIN
             change = int(unspent['amount'])*COIN - 40000000 - amount
-            wif = self.nodes[0].dumpprivkey(unspent['address'])
+            wif = self.mining_wif
             vin_key = wif_to_ECKey(wif)
             tx = CTransaction()
             prevout = COutPoint(int(unspent['txid'], 16), unspent['vout'])
@@ -452,8 +454,9 @@ class QtumOpSenderTest(BitcoinTestFramework):
         assert(False)
 
     def run_test(self):
-        wif = self.nodes[0].dumpprivkey(self.nodes[0].getnewaddress())
-        key = wif_to_ECKey(wif)
+        self.mining_wif, mining_pubkey = generate_keypair(wif=True)
+        wallet_importprivkey(self.nodes[0], self.mining_wif, 0)
+        key = wif_to_ECKey(self.mining_wif)
         for i in range(100+COINBASE_MATURITY):
             block = create_block(int(self.nodes[0].getbestblockhash(), 16), create_coinbase(self.nodes[0].getblockcount()+1), int(time.time()))
             block.vtx[0].vout[0].scriptPubKey = CScript([key.get_pubkey().get_bytes(), OP_CHECKSIG])

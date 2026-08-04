@@ -176,7 +176,12 @@ class HTTPBasicsTest (BitcoinTestFramework):
             headers=headers_chunked,
             encode_chunked=True)
         out1 = conn.getresponse().read()
-        assert_equal(out1, b'{"result":"high-hash","error":null}\n')
+        # Qtum returns "bad-cb-missing" instead of Bitcoin's "high-hash" because
+        # the all-zeros garbage block has prevoutStake.n=0x00000000, which is NOT
+        # the null value (NULL_INDEX=0xFFFFFFFF). So IsProofOfStake() returns true,
+        # the PoW check is skipped, and CheckBlock falls through to the coinbase
+        # check which fails on the empty vtx list.
+        assert_equal(out1, b'{"result":"bad-cb-missing","error":null}\n')
 
 
         self.log.info("Check -rpcservertimeout")

@@ -114,10 +114,10 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
 
     def verify_contract_txs_are_added_last_test(self, with_restart=False, use_staking=False):
         # Set the fee really high so that it should normally be added first if we only looked at the fee/size
+        old_block_count = self.node.getblockcount()
         contract_txid = self.node.createcontract("00", 4*10**6, 0.0001)['txid']
         normal_txid = self.node.sendtoaddress(self.node.getnewaddress(), 1)
 
-        old_block_count = self.node.getblockcount()
         if with_restart:
             self.restart_node()
         block_hash = self.stake_or_mine(old_block_count=old_block_count, use_staking=use_staking)
@@ -134,6 +134,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
     def verify_contract_txs_internal_order_test(self, with_restart=False, use_staking=False):
         contract_address = list(self.node.listcontracts().keys())[0]
         sender = self.node.getnewaddress()
+        old_block_count = self.node.getblockcount()
         tx4 = self.send_op_call_outputs_with_gas_price(contract_address, [0.0001])
         tx5 = self.send_op_call_outputs_with_gas_price(contract_address, [0.0001, 0.0001])
         tx3 = self.send_op_call_outputs_with_gas_price(contract_address, [0.00010001])
@@ -165,6 +166,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
     # Expected transaction ordering in the block should thus be tx1, tx2, tx3, tx4
     def verify_ancestor_chain_with_contract_txs_test(self, with_restart=False, use_staking=False):
         contract_address = list(self.node.listcontracts().keys())[0]
+        old_block_count = self.node.getblockcount()
         tx1 = self.send_transaction_with_fee(0.01)
         tx2 = self.send_transaction_with_fee(0.005)
         tx3 = self.send_transaction_with_fee(0.001)
@@ -206,6 +208,7 @@ class QtumTransactionPrioritizationTest(BitcoinTestFramework):
                 break
         address = self.node.getnewaddress()
         expected_tx_order = []
+        old_block_count = self.node.getblockcount()
 
         for (expected_tx_index, gas_price) in [(1, 60), (2, 50), (7, 40), (8, 50)]:
             tx = CTransaction()

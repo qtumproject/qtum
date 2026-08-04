@@ -11,6 +11,7 @@ def enumerate(args):
     sys.stdout.write(json.dumps([]))
 
 parser = argparse.ArgumentParser(prog='./no_signer.py', description='No external signer connected mock')
+parser.add_argument('--chain', default='main')
 
 subparsers = parser.add_subparsers(description='Commands', dest='command')
 subparsers.required = True

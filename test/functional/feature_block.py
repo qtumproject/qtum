@@ -119,9 +119,9 @@ class FullBlockTest(BitcoinTestFramework):
         #self.send_blocks([b_dup_cb])
 
         # Add gigantic boundary scripts that respect all other limits
-        max_valid_script = CScript([b'\x01' * MAX_SCRIPT_ELEMENT_SIZE] * 19 + [b'\x01' * 62])
+        max_valid_script = CScript([b'\x01' * MAX_SCRIPT_ELEMENT_SIZE] * 246 + [b'\x01' * 339])
         assert_equal(len(max_valid_script), MAX_SCRIPT_SIZE)
-        min_invalid_script = CScript([b'\x01' * MAX_SCRIPT_ELEMENT_SIZE] * 19 + [b'\x01' * 63])
+        min_invalid_script = CScript([b'\x01' * MAX_SCRIPT_ELEMENT_SIZE] * 246 + [b'\x01' * 340])
         assert_equal(len(min_invalid_script), MAX_SCRIPT_SIZE + 1)
 
         b0 = self.next_block(0, additional_output_scripts=[max_valid_script, min_invalid_script])
@@ -150,7 +150,7 @@ class FullBlockTest(BitcoinTestFramework):
         # MAX_SCRIPT_SIZE testing now that coins are mature
         tx = CTransaction()
         tx.vin.append(max_size_spendable_output)
-        tx.vout.append(CTxOut(0, CScript([])))
+        tx.vout.append(CTxOut(0, CScript([OP_TRUE])))
         block = self.generateblock(self.nodes[0], output="raw(55)", transactions=[tx.serialize().hex()])
         assert_equal(block["hash"], self.nodes[0].getbestblockhash())
         self.nodes[0].invalidateblock(block["hash"])

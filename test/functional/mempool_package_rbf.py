@@ -154,7 +154,10 @@ class PackageRBFTest(BitcoinTestFramework):
         # Package 2 has a higher feerate but lower absolute fee
         package_hex2, package_txns2 = self.create_simple_package(coin, parent_fee=DEFAULT_FEE, child_fee=DEFAULT_CHILD_FEE - Decimal("0.00000001"))
         pkg_results2 = node.submitpackage(package_hex2)
-        assert_equal(f"package RBF failed: insufficient anti-DoS fees, rejecting replacement {package_txns2[1].txid_hex}, less fees than conflicting txs; {PACKAGE_FEE_MINUS_ONE} < {PACKAGE_FEE}", pkg_results2["package_msg"])
+        # .normalize() is needed because PACKAGE_FEE=Decimal("0.0020") has a trailing
+        # zero, but C++ FormatMoney trims trailing zeros (FormatMoney(200000)="0.002").
+        # Bitcoin's DEFAULT_FEE=0.0001 produces PACKAGE_FEE=0.0005 (no trailing zero).
+        assert_equal(f"package RBF failed: insufficient anti-DoS fees, rejecting replacement {package_txns2[1].txid_hex}, less fees than conflicting txs; {PACKAGE_FEE_MINUS_ONE} < {PACKAGE_FEE.normalize()}", pkg_results2["package_msg"])
         self.assert_mempool_contents(expected=package_txns1)
 
         self.log.info("Check replacement pays for incremental bandwidth")

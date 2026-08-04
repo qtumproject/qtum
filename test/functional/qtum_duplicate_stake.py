@@ -42,13 +42,13 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         alt_block.sign_block(block_sig_key)
 
         # Send <block> to node
-        self.p2p_node.send_message(msg_block(block))
+        self.p2p_node.send_without_ping(msg_block(block))
         # Send <alt_block> to alt_node
-        self.p2p_alt_node.send_message(msg_block(alt_block))
+        self.p2p_alt_node.send_without_ping(msg_block(alt_block))
         time.sleep(2)
 
-        assert_equal(self.node.getbestblockhash(), block.hash)
-        assert_equal(self.alt_node.getbestblockhash(), alt_block.hash)
+        assert_equal(self.node.getbestblockhash(), block.hash_hex)
+        assert_equal(self.alt_node.getbestblockhash(), alt_block.hash_hex)
 
         # Build a longer chain on alt_node
         self.generate(self.alt_node, 1)
@@ -73,13 +73,13 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         alt_block.sign_block(alt_block_sig_key)
 
         # Send <alt_block> to alt_node
-        self.p2p_alt_node.send_message(msg_block(alt_block))
+        self.p2p_alt_node.send_without_ping(msg_block(alt_block))
         # Send <block> to node
-        self.p2p_node.send_message(msg_block(block))
+        self.p2p_node.send_without_ping(msg_block(block))
         time.sleep(2)
 
-        assert_equal(self.node.getbestblockhash(), block.hash)
-        assert_equal(self.alt_node.getbestblockhash(), alt_block.hash)
+        assert_equal(self.node.getbestblockhash(), block.hash_hex)
+        assert_equal(self.alt_node.getbestblockhash(), alt_block.hash_hex)
         # Build a longer chain on alt_node
         self.generate(self.alt_node, 1)
         self.sync_all()
@@ -104,15 +104,15 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
         alt_block.sign_block(alt_block_sig_key)
 
         # Send <alt_block> to alt_node
-        self.p2p_alt_node.send_message(msg_block(alt_block))
+        self.p2p_alt_node.send_without_ping(msg_block(alt_block))
         time.sleep(5)
         generatesynchronized(self.alt_node, COINBASE_MATURITY, None, self.nodes)
         time.sleep(5)
         
         # Send <block> to node
-        self.p2p_node.send_message(msg_block(block))
+        self.p2p_node.send_without_ping(msg_block(block))
         time.sleep(5)
-        assert_raises_rpc_error(-5, "Block not found", self.node.getblockheader, block.hash)
+        assert_raises_rpc_error(-5, "Block not found", self.node.getblockheader, block.hash_hex)
 
         time.sleep(2)
         self.sync_all()
@@ -122,7 +122,7 @@ class QtumDuplicateStakeTest(BitcoinTestFramework):
     def run_test(self):
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
         for n in self.nodes:
-            n.importprivkey(privkey)
+            wallet_importprivkey(n, privkey, 0)
 
         self.node = self.nodes[0]
         self.alt_node = self.nodes[1]

@@ -7,6 +7,7 @@ from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 from test_framework.util import *
+from test_framework.wallet_util import generate_keypair
 
 class QtumSimpleDelegationContractTest(BitcoinTestFramework):
     def set_test_params(self):
@@ -21,12 +22,16 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         for n in self.nodes: n.setmocktime(int(time.time()) - 1000000)
 
         self.delegator = self.nodes[0]
-        delegator_address = self.delegator.getnewaddress()
+        delegator_wif, delegator_pubkey = generate_keypair(wif=True)
+        delegator_address = key_to_p2pkh(delegator_pubkey)
+        wallet_importprivkey(self.delegator, delegator_wif, 0)
         delegator_address_hex = p2pkh_to_hex_hash(delegator_address)
 
         self.staker = self.nodes[1]
-        staker_address = self.staker.getnewaddress()
-        staker_privkey = self.staker.dumpprivkey(staker_address)
+        staker_wif, staker_pubkey = generate_keypair(wif=True)
+        staker_address = key_to_p2pkh(staker_pubkey)
+        wallet_importprivkey(self.staker, staker_wif, 0)
+        staker_privkey = staker_wif
         staker_eckey = wif_to_ECKey(staker_privkey)
 
         self.generatetoaddress(self.staker, 1, staker_address)
@@ -55,7 +60,7 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         for n in self.nodes: n.setmocktime(nTime+100)
         block = create_delegated_pos_block(self.staker, staker_eckey, staker_prevout_for_nas, delegator_address_hex, pod, fee, delegator_prevouts, nFees=0, nTime=nTime)
         assert_equal(self.staker.submitblock(bytes_to_hex_str(block.serialize())), None)
-        assert_equal(self.staker.getbestblockhash(), block.hash)
+        assert_equal(self.staker.getbestblockhash(), block.hash_hex)
 
 
 

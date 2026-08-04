@@ -33,7 +33,7 @@ import time
 # Constants from net_processing
 HEADERS_DOWNLOAD_TIMEOUT_BASE_SEC = 15 * 60
 HEADERS_DOWNLOAD_TIMEOUT_PER_HEADER_MS = 1
-POW_TARGET_SPACING_SEC = 10 * 60
+POW_TARGET_SPACING_SEC = 32  # Qtum regtest target spacing (nRBTPowTargetSpacing, since nReduceBlocktimeHeight=0)
 
 
 def calculate_headers_timeout(best_header_time, current_time):

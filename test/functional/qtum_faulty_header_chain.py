@@ -40,7 +40,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         coinbase = create_coinbase(block_height+1)
         coinbase.vout[0].nValue = 0
         coinbase.vout[0].scriptPubKey = b""
-        block = create_block(parent_block.sha256, coinbase, (parent_block.nTime + 0x10) & 0xfffffff0)
+        block = create_block(parent_block.hash_int, coinbase, (parent_block.nTime + 0x10) & 0xfffffff0)
         if not block.solve_stake(parent_block_stake_modifier, staking_prevouts):
             return None
 
@@ -66,7 +66,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
 
     def calculate_stake_modifier(self, parent_block_modifier, current_block):
         data = b""
-        data += ser_uint256(current_block.sha256 if current_block.prevoutStake.serialize() == COutPoint(0, 0xffffffff).serialize() else current_block.prevoutStake.hash)
+        data += ser_uint256(current_block.hash_int if current_block.prevoutStake.serialize() == COutPoint(0, 0xffffffff).serialize() else current_block.prevoutStake.hash)
         data += ser_uint256(parent_block_modifier)
         return uint256_from_str(hash256(data))
 
@@ -74,7 +74,7 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         self.node = self.nodes[0]
         self.alt_node = self.nodes[1]
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
-        self.node.importprivkey(privkey)
+        wallet_importprivkey(self.node, privkey, 0)
         self.start_p2p_connection()
         self.node.setmocktime(int(time.time())-10000)
         generatesynchronized(self.node, 100+COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq", self.nodes)
@@ -95,22 +95,22 @@ class QtumHeaderSpamTest(BitcoinTestFramework):
         block = self.create_pos_block(self.staking_prevouts, block, stake_modifier, block_height)
         self._remove_from_staking_prevouts(block)
         self._remove_from_staking_prevouts(block)
-        self.p2p_node.send_message(msg_headers([CBlockHeader(block)]))
+        self.p2p_node.send_without_ping(msg_headers([CBlockHeader(block)]))
         time.sleep(0.05)
-        assert(self.node.getblockheader(block.hash))
-        assert_raises_rpc_error(-1, "Block not available (not fully downloaded)", self.node.getblock, block.hash)
-        self.p2p_node.send_message(msg_block(block))
+        assert(self.node.getblockheader(block.hash_hex))
+        assert_raises_rpc_error(-1, "Block not available (not fully downloaded)", self.node.getblock, block.hash_hex)
+        self.p2p_node.send_without_ping(msg_block(block))
         time.sleep(0.05)
-        assert(self.node.getblockheader(block.hash))
-        assert(self.node.getblock(block.hash))
+        assert(self.node.getblockheader(block.hash_hex))
+        assert(self.node.getblock(block.hash_hex))
 
         # Make sure that the identical block with only a modified nonce (i.e. the same prevoutStake but different block hash is not accepted)
         block.nNonce += 1
         self.sign_block_with_standard_private_key(block)
-        self.p2p_node.send_message(msg_headers([CBlockHeader(block)]))
+        self.p2p_node.send_without_ping(msg_headers([CBlockHeader(block)]))
         time.sleep(0.05)
-        assert_raises_rpc_error(-5, "Block not found", self.node.getblockheader, block.hash)
-        assert_raises_rpc_error(-5, "Block not found", self.node.getblock, block.hash)
+        assert_raises_rpc_error(-5, "Block not found", self.node.getblockheader, block.hash_hex)
+        assert_raises_rpc_error(-5, "Block not found", self.node.getblock, block.hash_hex)
 
         # Make sure that the chain is still reorgable if presented with a longer chain
         blocks = [block]

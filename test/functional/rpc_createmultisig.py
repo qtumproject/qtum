@@ -23,12 +23,18 @@ from test_framework.wallet import (
     MiniWallet,
     getnewdestination,
 )
-from test_framework.qtumconfig import COINBASE_MATURITY, INITIAL_BLOCK_REWARD
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 class RpcCreateMultiSigTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 3
+        self.extra_args = [["-minrelaytxfee=0"]] * 3
+
+    def skip_test_if_missing_module(self):
+        # Qtum registers createmultisig as a wallet RPC (src/wallet/rpc/addresses.cpp),
+        # unlike Bitcoin v30.2 where it's a non-wallet RPC (src/rpc/output_script.cpp).
+        self.skip_if_no_wallet()
 
     def create_keys(self, num_keys):
         self.pub = []
@@ -73,6 +79,8 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         pubkeys = self.pub[0:20]
 
         self.log.info('Test legacy redeem script max size limit')
+        # Disabled: Qtum's MAX_SCRIPT_ELEMENT_SIZE is 128000 (not Bitcoin's 520),
+        # so a 684-byte redeem script does not exceed the limit.
         # assert_raises_rpc_error(-8, "redeemScript exceeds size limit: 684 > 520", node1.createmultisig, 16, pubkeys, 'legacy')
 
         self.log.info('Test valid 16-20 multisig p2sh-legacy and bech32 (no wallet)')
@@ -80,8 +88,8 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         self.do_multisig(nkeys=20, nsigs=16, output_type="bech32")
 
         self.log.info('Test invalid 16-21 multisig p2sh-legacy and bech32 (no wallet)')
-        assert_raises_rpc_error(-8, "Number of keys involved in the multisignature address creation > 20", wallet_multi.addmultisigaddress, 16, self.pub, 'p2sh-segwit')
-        assert_raises_rpc_error(-8, "Number of keys involved in the multisignature address creation > 20", wallet_multi.addmultisigaddress, 16, self.pub, 'bech32')
+        assert_raises_rpc_error(-8, "Number of keys involved in the multisignature address creation > 20", node1.createmultisig, 16, self.pub, 'p2sh-segwit')
+        assert_raises_rpc_error(-8, "Number of keys involved in the multisignature address creation > 20", node1.createmultisig, 16, self.pub, 'bech32')
 
     def do_multisig(self, nkeys, nsigs, output_type):
         node0, _node1, node2 = self.nodes
@@ -104,10 +112,10 @@ class RpcCreateMultiSigTest(BitcoinTestFramework):
         mredeem = msig["redeemScript"]
         assert_equal(desc, msig['descriptor'])
         if output_type == 'bech32':
-            assert madd[0:4] == "qcrt"  # actually a bech32 address
+            assert_equal(madd[0:4], "qcrt")  # actually a bech32 address
 
         spk = address_to_scriptpubkey(madd)
-        value = decimal.Decimal("0.4000")
+        value = decimal.Decimal("0.40000000")
         tx = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=spk, amount=int(value * COIN))
         prevtxs = [{"txid": tx["txid"], "vout": tx["sent_vout"], "scriptPubKey": spk.hex(), "redeemScript": mredeem, "amount": value}]
 

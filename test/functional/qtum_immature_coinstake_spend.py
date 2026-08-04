@@ -58,7 +58,7 @@ class QtumPrematureCoinstakeSpendTest(BitcoinTestFramework):
     def run_test(self):
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
         for n in self.nodes:
-            n.importprivkey(privkey)
+            wallet_importprivkey(n, privkey, 0)
 
         self.node = self.nodes[0]
         self.node.setmocktime(int(time.time()) - 1000000)
@@ -67,7 +67,7 @@ class QtumPrematureCoinstakeSpendTest(BitcoinTestFramework):
         # These are used by default by create_pos_block
         for i in range(0xff+1):
             privkey = byte_to_base58(hash256(struct.pack('<I', i)), 239)
-            self.node.importprivkey(privkey)
+            wallet_importprivkey(self.node, privkey, 0)
 
         activate_mpos(self.node)
 

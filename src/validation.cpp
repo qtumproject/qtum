@@ -6263,7 +6263,7 @@ bool ChainstateManager::AcceptBlock(const std::shared_ptr<const CBlock>& pblock,
     // Check that the block satisfies synchronized checkpoint
     if (!m_blockman.CheckSync(nHeight, ActiveTip())) {
         LogError("AcceptBlock() : rejected by synchronized checkpoint");
-        return false;
+        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "checkpoint-conflict", "rejected by synchronized checkpoint");
     }
 
     // Check timestamp against prev

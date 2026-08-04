@@ -89,6 +89,7 @@ from test_framework.util import (
     softfork_active,
     bytes_to_hex_str,
     hex_str_to_bytes,
+    wallet_importprivkey,
 )
 from test_framework.wallet import MiniWallet
 from test_framework.wallet_util import generate_keypair
@@ -130,7 +131,7 @@ def sign_p2pk_witness_input(script, tx_to, in_idx, hashtype, value, key):
     sign_input_segwitv0(tx_to, in_idx, script, value, key, hashtype)
 
 def submit_old_blocks(node, n):
-    node.importprivkey("cRComRro8wTGnDTGqgpyP5vwwo24Tn831cPu3PZEdr2532JVPjrZ")
+    wallet_importprivkey(node, "cRComRro8wTGnDTGqgpyP5vwwo24Tn831cPu3PZEdr2532JVPjrZ", 0)
     pubkey = "03716d5678c829d09cdfdb4bec058712de3ecd99968a4a064336ffb592342e21f9"
     num_blocks_old = node.getblockcount()
     for i in range(0, n):

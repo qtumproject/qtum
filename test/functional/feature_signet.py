@@ -111,11 +111,11 @@ class SignetBasicTest(BitcoinTestFramework):
         import pprint
         pp = pprint.PrettyPrinter()
         pp.pprint(self.nodes[0].getblock(hex(block.hashPrevBlock)[2:].zfill(64)))
-        pp.pprint(self.nodes[0].getblock(hex(block.sha256)[2:].zfill(64)))
+        pp.pprint(self.nodes[0].getblock(block.hash_hex))
         pp.pprint(self.nodes[0].getblock(self.nodes[0].getbestblockhash()))
 
         print("PREV", hex(block.hashPrevBlock)[2:].zfill(64))
-        print("PREV", hex(block.sha256)[2:].zfill(64))
+        print("PREV", block.hash_hex)
         print("BEST", self.nodes[0].getbestblockhash(), self.nodes[0].getblockcount())
         pp.pprint(self.nodes[0].gettransaction(self.nodes[0].getblock(self.nodes[0].getbestblockhash())['tx'][0], True))
         return

@@ -27,7 +27,7 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
 
     def run_test(self):
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
-        self.nodes[0].importprivkey(privkey)
+        wallet_importprivkey(self.nodes[0], privkey, 0)
         self.disconnect_nodes(0, 1)
         for n in self.nodes: n.setmocktime(int(time.time())-10000)
         # First generate some blocks so we have 20 valid staking txs for the node we run the test on (node#0)
@@ -92,7 +92,7 @@ class QtumPOSConflictingStakingMempoolTxTest(BitcoinTestFramework):
 
         print('node#0 %d; blockcount=%d' % (0, self.nodes[0].getblockcount()))
         print('node#1 %d; blockcount=%d' % (0, self.nodes[1].getblockcount()))
-        # Now we should have a balance equal to 
+        # Now we should have a balance equal to
         assert_equal(int(self.nodes[0].getbalance()*COIN), int((19*(INITIAL_BLOCK_REWARD-0.01)+INITIAL_BLOCK_REWARD)*COIN))
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())
 if __name__ == '__main__':

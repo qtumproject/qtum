@@ -23,7 +23,7 @@ class QtumAssignMPoSFeesToGasRefundTest(BitcoinTestFramework):
     def run_test(self):
         self.node = self.nodes[0]
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
-        self.node.importprivkey(privkey)
+        wallet_importprivkey(self.node, privkey, 0)
 
         self.node.setmocktime(int(time.time()) - 1000000)
         self.generatetoaddress(self.node, 200 + COINBASE_MATURITY, "qSrM9K6FMhZ29Vkp8Rdk8Jp66bbfpjFETq")

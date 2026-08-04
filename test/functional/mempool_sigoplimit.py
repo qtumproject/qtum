@@ -230,7 +230,7 @@ class BytesPerSigOpTest(BitcoinTestFramework):
             else:
                 bytespersigop_parameter = f"-bytespersigop={bytes_per_sigop}"
                 self.log.info(f"Test sigops limit setting {bytespersigop_parameter}...")
-                self.restart_node(0, extra_args=[bytespersigop_parameter])
+                self.restart_node(0, extra_args=[bytespersigop_parameter, "-minrelaytxfee=0"])
 
             for num_sigops in (69, 101, 142, 183, 222):
                 self.test_sigops_limit(bytes_per_sigop, num_sigops)

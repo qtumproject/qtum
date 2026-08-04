@@ -34,6 +34,7 @@ from test_framework.mempool_util import (
     TRUC_MAX_VSIZE,
     TRUC_CHILD_MAX_VSIZE,
 )
+from test_framework.qtumconfig import COINBASE_MATURITY
 
 # sweep alice and bob's wallets and clear the mempool
 def cleanup(func):
@@ -68,9 +69,10 @@ class WalletV3Test(BitcoinTestFramework):
         self.skip_if_no_wallet()
 
     def set_test_params(self):
-        getcontext().prec=10
+        getcontext().prec=28
         self.num_nodes = 1
         self.setup_clean_chain = True
+        self.extra_args = [["-minrelaytxfee=0", "-blockmintxfee=0", "-incrementalrelayfee=0", "-mintxfee=0", "-deprecatedrpc=settxfee"]]
 
     def send_tx(self, from_wallet, inputs, outputs, version):
         raw_tx = from_wallet.createrawtransaction(inputs=inputs, outputs=outputs, version=version)
@@ -104,7 +106,10 @@ class WalletV3Test(BitcoinTestFramework):
         self.nodes[0].createwallet("charlie")
         self.charlie = self.nodes[0].get_wallet_rpc("charlie")
 
-        self.generatetoaddress(self.nodes[0], 100, self.charlie.getnewaddress())
+        for wallet in [self.alice, self.bob, self.charlie]:
+            wallet.settxfee(Decimal("0.00001000"))
+
+        self.generatetoaddress(self.nodes[0], COINBASE_MATURITY + 100, self.charlie.getnewaddress())
 
         self.run_test_with_swapped_versions(self.tx_spends_unconfirmed_tx_with_wrong_version)
         self.run_test_with_swapped_versions(self.va_tx_spends_confirmed_vb_tx)
@@ -187,7 +192,7 @@ class WalletV3Test(BitcoinTestFramework):
 
         # alice spends her output with a v3 transaction
         alice_unspent = self.alice.listunspent(minconf=0)[0]
-        outputs = {self.alice.getnewaddress() : alice_unspent['amount'] - Decimal(0.00000120)}
+        outputs = {self.alice.getnewaddress() : alice_unspent['amount'] - Decimal("0.00000120")}
         self.send_tx(self.alice, [alice_unspent], outputs, 3)
 
         # bob tries to spend money
@@ -216,7 +221,7 @@ class WalletV3Test(BitcoinTestFramework):
 
         # bob spends his output with a v3 transaction
         bob_unspent = self.bob.listunspent(minconf=0)[0]
-        outputs = {self.bob.getnewaddress() : bob_unspent['amount'] - Decimal(0.00000120)}
+        outputs = {self.bob.getnewaddress() : bob_unspent['amount'] - Decimal("0.00000120")}
         self.send_tx(self.bob, [bob_unspent], outputs, 3)
 
         # alice tries to spend money
@@ -239,7 +244,7 @@ class WalletV3Test(BitcoinTestFramework):
 
         # alice spends her output
         alice_unspent = self.alice.listunspent(minconf=0)[0]
-        outputs = {self.alice.getnewaddress() : alice_unspent['amount'] - Decimal(0.00000120)}
+        outputs = {self.alice.getnewaddress() : alice_unspent['amount'] - Decimal("0.00000120")}
         alice_tx = self.alice.createrawtransaction(inputs=[alice_unspent], outputs=outputs, version=version_b)
 
         assert_raises_rpc_error(
@@ -258,7 +263,7 @@ class WalletV3Test(BitcoinTestFramework):
 
         # alice spends her output
         alice_unspent = self.alice.listunspent(minconf=0)[0]
-        outputs = {self.alice.getnewaddress() : alice_unspent['amount'] - Decimal(0.00000120)}
+        outputs = {self.alice.getnewaddress() : alice_unspent['amount'] - Decimal("0.00000120")}
         alice_tx = self.alice.createrawtransaction(inputs=[alice_unspent], outputs=outputs) # don't set the version here
 
         assert_raises_rpc_error(
@@ -278,19 +283,19 @@ class WalletV3Test(BitcoinTestFramework):
 
         # alice spends her output with a v3 transaction
         alice_unspent = self.alice.listunspent(minconf=0)[0]
-        alice_fee = Decimal(0.00000120)
+        alice_fee = Decimal("0.00000120")
         outputs = {self.alice.getnewaddress() : alice_unspent['amount'] - alice_fee}
         alice_txid = self.send_tx(self.alice, [alice_unspent], outputs, 3)
 
         # bob tries to spend money
         bob_unspent = self.bob.listunspent(minconf=0)[0]
-        outputs = {self.bob.getnewaddress() : bob_unspent['amount'] - Decimal(0.00010120)}
+        outputs = {self.bob.getnewaddress() : bob_unspent['amount'] - Decimal("0.00010120")}
         bob_txid = self.send_tx(self.bob, [bob_unspent], outputs, 3)
 
         assert_equal(self.alice.gettransaction(alice_txid)['mempoolconflicts'], [bob_txid])
 
         self.log.info("Test that re-submitting Alice's transaction with a higher fee removes bob's tx as a mempool conflict")
-        fee_delta = Decimal(0.00030120)
+        fee_delta = Decimal("0.00030120")
         outputs = {self.alice.getnewaddress() : alice_unspent['amount'] - fee_delta}
         alice_txid = self.send_tx(self.alice, [alice_unspent], outputs, 3)
         assert_equal(self.alice.gettransaction(alice_txid)['mempoolconflicts'], [])
@@ -310,7 +315,7 @@ class WalletV3Test(BitcoinTestFramework):
         alice_unspent = self.alice.listunspent(minconf=0, maxconf=0)[0]
 
         # alice spends both of her outputs
-        outputs = {self.charlie.getnewaddress() : alice_v2_unspent['amount'] + alice_unspent['amount'] - Decimal(0.00005120)}
+        outputs = {self.charlie.getnewaddress() : alice_v2_unspent['amount'] + alice_unspent['amount'] - Decimal("0.00005120")}
         self.send_tx(self.alice, [alice_v2_unspent, alice_unspent], outputs, 3)
         # bob can't create a transaction
         outputs = {self.bob.getnewaddress() : 1.999}
@@ -323,7 +328,7 @@ class WalletV3Test(BitcoinTestFramework):
             bob_tx, {'include_unsafe': True}
         )
         # alice fee-bumps her tx so it only spends the v2 utxo
-        outputs = {self.charlie.getnewaddress() : alice_v2_unspent['amount'] - Decimal(0.00015120)}
+        outputs = {self.charlie.getnewaddress() : alice_v2_unspent['amount'] - Decimal("0.00015120")}
         self.send_tx(self.alice, [alice_v2_unspent], outputs, 2)
         # bob can now create a transaction
         outputs = {self.bob.getnewaddress() : 1.999}
@@ -347,12 +352,12 @@ class WalletV3Test(BitcoinTestFramework):
         outputs = {self.bob.getnewaddress() : 1.999}
         bob_txid = self.send_tx(self.bob, inputs, outputs, 3)
         # alice spends both of her utxos, replacing bob's tx
-        outputs = {self.charlie.getnewaddress() : alice_v2_unspent['amount'] + alice_unspent['amount'] - Decimal(0.00005120)}
+        outputs = {self.charlie.getnewaddress() : alice_v2_unspent['amount'] + alice_unspent['amount'] - Decimal("0.00005120")}
         alice_txid = self.send_tx(self.alice, [alice_v2_unspent, alice_unspent], outputs, 3)
         # bob's tx now has a mempool conflict
         assert_equal(self.bob.gettransaction(bob_txid)['mempoolconflicts'], [alice_txid])
         # alice fee-bumps her tx so it only spends the v2 utxo
-        outputs = {self.charlie.getnewaddress() : alice_v2_unspent['amount'] - Decimal(0.00015120)}
+        outputs = {self.charlie.getnewaddress() : alice_v2_unspent['amount'] - Decimal("0.00015120")}
         self.send_tx(self.alice, [alice_v2_unspent], outputs, 2)
         # bob's tx now has non conflicts and can be rebroadcast
         bob_tx = self.bob.gettransaction(bob_txid)

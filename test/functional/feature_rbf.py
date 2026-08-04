@@ -113,7 +113,7 @@ class ReplaceByFeeTest(BitcoinTestFramework):
         tx.vout[0].scriptPubKey[-1] ^= 1
         tx_hex = tx.serialize().hex()
 
-        # This will raise an exception due to insufficient fee
+        # This will raise an exception due to insuff        # 
         reject_reason = "insufficient fee"
         reject_details = f"{reject_reason}, rejecting replacement {tx.txid_hex}, not enough additional fees to relay; 0.00 < 0.00000011"
         res = self.nodes[0].testmempoolaccept(rawtxs=[tx_hex])[0]

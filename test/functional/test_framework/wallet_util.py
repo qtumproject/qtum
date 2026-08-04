@@ -50,7 +50,6 @@ def get_generate_key():
                p2sh_p2wpkh_redeem_script=key_to_p2wpkh_script(pubkey).hex(),
                p2sh_p2wpkh_addr=key_to_p2sh_p2wpkh(pubkey))
 
-
 def test_address(node, address, **kwargs):
     """Get address info for `address` and test whether the returned values are as expected."""
     addr_info = node.getaddressinfo(address)

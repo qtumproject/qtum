@@ -7,6 +7,7 @@ from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.blocktools import *
 from test_framework.key import *
+from test_framework.messages import uint256_from_str
 import io
 import time
 
@@ -82,7 +83,7 @@ class QtumPOSSegwitTest(BitcoinTestFramework):
     def run_test(self):
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
         for n in self.nodes:
-            n.importprivkey(privkey)
+            wallet_importprivkey(n, privkey, 0)
 
         self.node = self.nodes[0]
         self.node.setmocktime(int(time.time()) - 2*COINBASE_MATURITY)
@@ -122,7 +123,7 @@ class QtumPOSSegwitTest(BitcoinTestFramework):
 
         child_tx = CTransaction()
         for i in range(NUM_OUTPUTS):
-            child_tx.vin.append(CTxIn(COutPoint(parent_tx.sha256, i), b""))
+            child_tx.vin.append(CTxIn(COutPoint(parent_tx.txid_int, i), b""))
         child_tx.vout = [CTxOut(value - 100000, CScript([OP_TRUE]))]
         for i in range(NUM_OUTPUTS):
             child_tx.wit.vtxinwit.append(CTxInWitness())

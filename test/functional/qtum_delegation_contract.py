@@ -7,6 +7,7 @@ from test_framework.p2p import *
 from test_framework.qtum import *
 from test_framework.qtumconfig import *
 from test_framework.util import *
+from test_framework.wallet_util import generate_keypair
 import pprint
 import shutil
 pp = pprint.PrettyPrinter()
@@ -80,7 +81,7 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
             use_pos_reward = True if self.staker.getblockcount() > 5000 else False
             block = create_delegated_pos_block(self.staker, self.staker_eckey, staker_prevout_for_nas, self.delegator_address_hex, pod, fee, delegator_prevouts, nFees=0, nTime=t, use_pos_reward=use_pos_reward)
             assert_equal(self.staker.submitblock(bytes_to_hex_str(block.serialize())), None)
-            assert_equal(self.staker.getbestblockhash(), block.hash)
+            assert_equal(self.staker.getbestblockhash(), block.hash_hex)
             self.used_delegator_prevouts.append(block.prevoutStake)
             self.sync_all()
 
@@ -109,7 +110,7 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
 
         block = create_delegated_pos_block(self.staker, self.staker_eckey, staker_prevout_for_nas, self.delegator_address_hex, pod, fee, delegator_prevouts, nFees=0, nTime=t, use_pos_reward=use_pos_reward)
         assert_equal(self.staker.submitblock(bytes_to_hex_str(block.serialize())), None)
-        assert_equal(self.staker.getbestblockhash(), block.hash)
+        assert_equal(self.staker.getbestblockhash(), block.hash_hex)
         self.sync_all()
 
         # 2.
@@ -403,7 +404,7 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         generatesynchronized(self.staker, 1, None, self.nodes)
 
         # reimport the staker privkey to begin staking
-        self.staker.importprivkey(self.staker_privkey)
+        wallet_importprivkey(self.staker, self.staker_privkey, 0)
 
         self.stake_one_block(self.staker, t)
 
@@ -525,15 +526,19 @@ class QtumSimpleDelegationContractTest(BitcoinTestFramework):
         for n in self.nodes: n.setmocktime(int(time.time()) - 1199)
         self.used_delegator_prevouts = []
         self.delegator = self.nodes[0]
-        self.delegator_address = self.delegator.getnewaddress()
+        self.delegator_wif, delegator_pubkey = generate_keypair(wif=True)
+        self.delegator_address = key_to_p2pkh(delegator_pubkey)
+        wallet_importprivkey(self.delegator, self.delegator_wif, 0)
         self.delegator_address_hex = p2pkh_to_hex_hash(self.delegator_address)
-        self.delegator_privkey = self.delegator.dumpprivkey(self.delegator_address)
+        self.delegator_privkey = self.delegator_wif
         self.delegator_eckey = wif_to_ECKey(self.delegator_privkey)
 
         self.staker = self.nodes[1]
-        self.staker_address = self.staker.getnewaddress()
+        self.staker_wif, staker_pubkey = generate_keypair(wif=True)
+        self.staker_address = key_to_p2pkh(staker_pubkey)
+        wallet_importprivkey(self.staker, self.staker_wif, 0)
         self.staker_address_hex = p2pkh_to_hex_hash(self.staker_address)
-        self.staker_privkey = self.staker.dumpprivkey(self.staker_address)
+        self.staker_privkey = self.staker_wif
         self.staker_eckey = wif_to_ECKey(self.staker_privkey)
 
         self.wallet_clean_path = self.nodes[5].datadir_path / "regtest" / "wallets"

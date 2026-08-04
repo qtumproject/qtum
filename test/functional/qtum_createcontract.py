@@ -63,7 +63,7 @@ class CreatecontractTest(BitcoinTestFramework):
         assert_equal(ret, expected_account_info)
 
     def createcontract_with_sender_test(self):
-        self.node.importprivkey("cQWxca9y9XBf4c6ohTwRQ9Kf4GZyRybhGBfzaFgkvRpw8HjbRC58")
+        wallet_importprivkey(self.node, "cQWxca9y9XBf4c6ohTwRQ9Kf4GZyRybhGBfzaFgkvRpw8HjbRC58", 0)
         self.node.sendtoaddress("qabmqZk3re5b9UpUcznxDkCnCsnKdmPktT", 0.1)
         self.generate(self.node, 1)
 

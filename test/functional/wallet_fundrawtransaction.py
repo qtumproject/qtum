@@ -44,13 +44,12 @@ class RawTransactionsTest(BitcoinTestFramework):
     def set_test_params(self):
         self.num_nodes = 4
         self.extra_args = [[
-            "-minrelaytxfee=0.00001000",
+            "-addresstype=bech32",
         ] for i in range(self.num_nodes)]
 
         self.setup_clean_chain = True
         # whitelist peers to speed up tx relay / mempool sync
         self.noban_tx_relay = True
-        self.extra_args = [["-addresstype=bech32"]] * self.num_nodes
         self.rpc_timeout = 90  # to prevent timeouts in `test_transaction_too_large`
         self.supports_cli = False
 
@@ -572,7 +571,7 @@ class RawTransactionsTest(BitcoinTestFramework):
         self.nodes[2].createwallet(wallet_name='wmulti', disable_private_keys=True)
         wmulti = self.nodes[2].get_wallet_rpc('wmulti')
         w2 = self.nodes[2].get_wallet_rpc(self.default_wallet_name)
-        mSigObj = self.nodes[2].createmultisig(
+        mSigObj = w2.createmultisig(
             2,
             [
                 addr1Obj['pubkey'],

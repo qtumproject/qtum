@@ -700,6 +700,12 @@ private:
                                  bool via_compact_block, const std::string& message = "")
         EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
 
+    /**
+     * Potentially disconnect and discourage a node based on the contents of a TxValidationState object
+     */
+    void MaybePunishNodeForTx(NodeId nodeid, const TxValidationState& state)
+        EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
+
     /** Maybe disconnect a peer and discourage future connections from its address.
      *
      * @param[in]   pnode     The node to check.
@@ -2123,6 +2129,20 @@ void PeerManagerImpl::MaybePunishNodeForBlock(NodeId nodeid, const BlockValidati
     }
 }
 
+// Punish the node for sending invalid transaction for specific violation which are critical for Qtum
+void PeerManagerImpl::MaybePunishNodeForTx(NodeId nodeid, const TxValidationState& state)
+{
+    PeerRef peer{GetPeerRef(nodeid)};
+    switch (state.GetResult()) {
+    case TxValidationResult::TX_INVALID_SENDER_SCRIPT:
+    case TxValidationResult::TX_GAS_EXCEEDS_LIMIT:
+        if (peer) Misbehaving(*peer, "");
+        return;
+    default:
+        break;
+    }
+}
+
 bool PeerManagerImpl::BlockRequestAllowed(const CBlockIndex& block_index)
 {
     AssertLockHeld(cs_main);
@@ -3386,6 +3406,8 @@ std::optional<node::PackageToValidate> PeerManagerImpl::ProcessInvalidTx(NodeId 
     for (const Txid& parent_txid : unique_parents) {
         if (peer) AddKnownTx(*peer, parent_txid.ToUint256());
     }
+
+    MaybePunishNodeForTx(nodeid, state);
 
     return package_to_validate;
 }

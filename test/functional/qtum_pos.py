@@ -65,7 +65,7 @@ class QtumPOSTest(BitcoinTestFramework):
     def run_test(self):
         self.node = self.nodes[0]
         privkey = byte_to_base58(hash256(struct.pack('<I', 0)), 239)
-        self.node.importprivkey(privkey)
+        wallet_importprivkey(self.node, privkey, 0)
         self.bootstrap_p2p()
         # returns a test case that asserts that the current tip was accepted
         # First generate some blocks so we have some spendable coins
