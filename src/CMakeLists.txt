@@ -120,8 +120,6 @@ add_library(ethash STATIC EXCLUDE_FROM_ALL
 
 # Add evmone library
 add_library(evmone STATIC EXCLUDE_FROM_ALL
-  evmone/evmc/lib/instructions/instruction_metrics.c
-  evmone/evmc/lib/instructions/instruction_names.c
   evmone/lib/evmone/advanced_analysis.cpp
   evmone/lib/evmone/advanced_execution.cpp
   evmone/lib/evmone/advanced_instructions.cpp
@@ -129,7 +127,6 @@ add_library(evmone STATIC EXCLUDE_FROM_ALL
   evmone/lib/evmone/baseline_execution.cpp
   evmone/lib/evmone/baseline_instruction_table.cpp
   evmone/lib/evmone/delegation.cpp
-  evmone/lib/evmone/eof.cpp
   evmone/lib/evmone/instructions_calls.cpp
   evmone/lib/evmone/instructions_storage.cpp
   evmone/lib/evmone/tracing.cpp
@@ -138,13 +135,17 @@ add_library(evmone STATIC EXCLUDE_FROM_ALL
   evmone/lib/evmone_precompiles/bls.cpp
   evmone/lib/evmone_precompiles/bn254.cpp
   evmone/lib/evmone_precompiles/kzg.cpp
+  evmone/lib/evmone_precompiles/kzg_precomputed_lines.cpp
+  evmone/lib/evmone_precompiles/modexp.cpp
+  evmone/lib/evmone_precompiles/mulmod.cpp
   evmone/lib/evmone_precompiles/ripemd160.cpp
   evmone/lib/evmone_precompiles/secp256k1.cpp
+  evmone/lib/evmone_precompiles/secp256r1.cpp
   evmone/lib/evmone_precompiles/sha256.cpp
   evmone/lib/evmone_precompiles/pairing/bn254/pairing.cpp
 )
 target_link_libraries(evmone PRIVATE blst ethash)
-target_compile_definitions(evmone PRIVATE PROJECT_VERSION="\\\"0.16.0\\\"")
+target_compile_definitions(evmone PRIVATE PROJECT_VERSION="\\\"0.22.0\\\"")
 
 # Home for common functionality shared by different executables and libraries.
 # Similar to `bitcoin_util` library, but higher-level.

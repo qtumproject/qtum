@@ -5,10 +5,11 @@
 #include "LastBlockHashesFace.h"
 #include <boost/thread.hpp>
 #include <exception>
-#include <evmc/instructions.h>
+#include <evmone/instructions_opcodes.hpp>
 
 using namespace dev;
 using namespace dev::eth;
+using namespace evmone;
 
 namespace // anonymous
 {

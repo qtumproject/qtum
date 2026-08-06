@@ -9,11 +9,15 @@
 #include <bit>
 #include <cassert>
 #include <climits>
+#include <compare>
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>   // fputs
+#include <cstdlib>  // abort
 #include <cstring>
 #include <limits>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -24,21 +28,16 @@
     #pragma warning(disable : 5030)  // Allow unknown attributes.
 #endif
 
-
 #ifndef __has_builtin
     #define __has_builtin(NAME) 0
 #endif
 
+#ifndef __has_feature
+    #define __has_feature(NAME) 0
+#endif
+
 #ifdef _MSC_VER
     #include <intrin.h>
-#endif
-
-#if !defined(__has_builtin)
-    #define __has_builtin(NAME) 0
-#endif
-
-#if !defined(__has_feature)
-    #define __has_feature(NAME) 0
 #endif
 
 #if __has_builtin(__builtin_expect)
@@ -47,7 +46,7 @@
     #define INTX_UNLIKELY(EXPR) (bool{EXPR})
 #endif
 
-#if !defined(NDEBUG)
+#ifndef NDEBUG
     #define INTX_REQUIRE assert
 #else
     #define INTX_REQUIRE(X) (X) ? (void)0 : intx::unreachable()
@@ -55,7 +54,7 @@
 
 
 // Detect compiler support for 128-bit integer __int128
-#if defined(__SIZEOF_INT128__)
+#ifdef __SIZEOF_INT128__
     #define INTX_HAS_BUILTIN_INT128 1
 #else
     #define INTX_HAS_BUILTIN_INT128 0
@@ -112,8 +111,7 @@ struct div_result
 };
 
 /// Addition with carry.
-inline constexpr result_with_carry<uint64_t> addc(
-    uint64_t x, uint64_t y, bool carry = false) noexcept
+constexpr result_with_carry<uint64_t> addc(uint64_t x, uint64_t y, bool carry = false) noexcept
 {
 #if __has_builtin(__builtin_addcll)
     if (!std::is_constant_evaluated())
@@ -141,8 +139,7 @@ inline constexpr result_with_carry<uint64_t> addc(
 }
 
 /// Subtraction with carry (borrow).
-inline constexpr result_with_carry<uint64_t> subc(
-    uint64_t x, uint64_t y, bool carry = false) noexcept
+constexpr result_with_carry<uint64_t> subc(uint64_t x, uint64_t y, bool carry = false) noexcept
 {
 // Use __builtin_subcll if available (except buggy Xcode 14.3.1 on arm64).
 #if __has_builtin(__builtin_subcll) && __apple_build_version__ != 14030022
@@ -172,7 +169,7 @@ inline constexpr result_with_carry<uint64_t> subc(
 
 /// Addition with carry.
 template <unsigned N>
-inline constexpr result_with_carry<uint<N>> addc(
+constexpr result_with_carry<uint<N>> addc(
     const uint<N>& x, const uint<N>& y, bool carry = false) noexcept
 {
     uint<N> s;
@@ -189,7 +186,7 @@ inline constexpr result_with_carry<uint<N>> addc(
 /// Performs subtraction of two unsigned numbers and returns the difference
 /// and the carry bit (aka borrow, overflow).
 template <unsigned N>
-inline constexpr result_with_carry<uint<N>> subc(
+constexpr result_with_carry<uint<N>> subc(
     const uint<N>& x, const uint<N>& y, bool carry = false) noexcept
 {
     uint<N> z;
@@ -231,6 +228,14 @@ public:
         requires std::is_convertible_v<T, uint64_t>
       : words_{static_cast<uint64_t>(x), 0}
     {}
+
+    /// Constructs from words with words[0] being the least significant word.
+    /// The size of the span must be less than or equal to num_words.
+    constexpr explicit uint(std::span<const uint64_t> words) noexcept
+    {
+        INTX_REQUIRE(words.size() <= num_words);
+        std::ranges::copy(words, words_);
+    }
 
 #if INTX_HAS_BUILTIN_INT128
     constexpr explicit(false) uint(builtin_uint128 x) noexcept
@@ -313,6 +318,14 @@ public:
     friend constexpr bool operator>(uint x, uint y) noexcept { return y < x; }
     friend constexpr bool operator>=(uint x, uint y) noexcept { return !(x < y); }
 
+    friend constexpr std::strong_ordering operator<=>(uint x, uint y) noexcept
+    {
+        if (x == y)
+            return std::strong_ordering::equal;
+
+        return (x < y) ? std::strong_ordering::less : std::strong_ordering::greater;
+    }
+
     friend constexpr uint operator~(uint x) noexcept { return {~x[0], ~x[1]}; }
     friend constexpr uint operator|(uint x, uint y) noexcept { return {x[0] | y[0], x[1] | y[1]}; }
     friend constexpr uint operator&(uint x, uint y) noexcept { return {x[0] & y[0], x[1] & y[1]}; }
@@ -320,14 +333,21 @@ public:
 
     friend constexpr uint operator<<(uint x, uint64_t shift) noexcept
     {
-        return (shift < 64) ?
-                   // Find the part moved from lo to hi.
-                   // For shift == 0 right shift by (64 - shift) is invalid so
-                   // split it into 2 shifts by 1 and (63 - shift).
-                   uint{x[0] << shift, (x[1] << shift) | ((x[0] >> 1) >> (63 - shift))} :
+        if (shift < 64)
+        {
+            // Find the part moved from lo to hi.
+            // For shift == 0 right shift by (64 - shift) is invalid so
+            // split it into 2 shifts by 1 and (63 - shift).
+            return {x[0] << shift, (x[1] << shift) | ((x[0] >> 1) >> (63 - shift))};
+        }
+        if (shift < 128)
+        {
+            // The lo part becomes the shifted hi part.
+            return {0, x[0] << (shift - 64)};
+        }
 
-                   // Guarantee "defined" behavior for shifts larger than 128.
-                   (shift < 128) ? uint{0, x[0] << (shift - 64)} : 0;
+        // Guarantee "defined" behavior for shifts larger than 128.
+        return 0;
     }
 
     friend constexpr uint operator<<(uint x, std::integral auto shift) noexcept
@@ -346,14 +366,21 @@ public:
 
     friend constexpr uint operator>>(uint x, uint64_t shift) noexcept
     {
-        return (shift < 64) ?
-                   // Find the part moved from lo to hi.
-                   // For shift == 0 left shift by (64 - shift) is invalid so
-                   // split it into 2 shifts by 1 and (63 - shift).
-                   uint{(x[0] >> shift) | ((x[1] << 1) << (63 - shift)), x[1] >> shift} :
+        if (shift < 64)
+        {
+            // Find the part moved from lo to hi.
+            // For shift == 0 left shift by (64 - shift) is invalid so
+            // split it into 2 shifts by 1 and (63 - shift).
+            return {(x[0] >> shift) | ((x[1] << 1) << (63 - shift)), x[1] >> shift};
+        }
+        if (shift < 128)
+        {
+            // The lo part becomes the shifted hi part.
+            return {x[1] >> (shift - 64), 0};
+        }
 
-                   // Guarantee "defined" behavior for shifts larger than 128.
-                   (shift < 128) ? uint{x[1] >> (shift - 64)} : 0;
+        // Guarantee "defined" behavior for shifts larger than 128.
+        return 0;
     }
 
     friend constexpr uint operator>>(uint x, std::integral auto shift) noexcept
@@ -398,7 +425,7 @@ using uint128 = uint<128>;
 ///
 /// This keeps the multiprecision addition until CodeGen so the pattern is not
 /// broken during other optimizations.
-inline constexpr uint128 fast_add(uint128 x, uint128 y) noexcept
+constexpr uint128 fast_add(uint128 x, uint128 y) noexcept
 {
 #if INTX_HAS_BUILTIN_INT128
     return builtin_uint128{x} + builtin_uint128{y};
@@ -408,7 +435,7 @@ inline constexpr uint128 fast_add(uint128 x, uint128 y) noexcept
 }
 
 /// Full unsigned multiplication 64 x 64 -> 128.
-inline constexpr uint128 umul(uint64_t x, uint64_t y) noexcept
+constexpr uint128 umul(uint64_t x, uint64_t y) noexcept
 {
 #if INTX_HAS_BUILTIN_INT128
     return builtin_uint128{x} * builtin_uint128{y};
@@ -419,19 +446,19 @@ inline constexpr uint128 umul(uint64_t x, uint64_t y) noexcept
         const auto lo = _umul128(x, y, &hi);
         return {lo, hi};
     }
-    // For constexpr fallback to portable variant.
+    // For constexpr fallback to the portable variant.
 #endif
 
     // Portable full unsigned multiplication 64 x 64 -> 128.
-    uint64_t xl = x & 0xffffffff;
-    uint64_t xh = x >> 32;
-    uint64_t yl = y & 0xffffffff;
-    uint64_t yh = y >> 32;
+    uint64_t xlo = x & 0xffffffff;
+    uint64_t xhi = x >> 32;
+    uint64_t ylo = y & 0xffffffff;
+    uint64_t yhi = y >> 32;
 
-    uint64_t t0 = xl * yl;
-    uint64_t t1 = xh * yl;
-    uint64_t t2 = xl * yh;
-    uint64_t t3 = xh * yh;
+    uint64_t t0 = xlo * ylo;
+    uint64_t t1 = xhi * ylo;
+    uint64_t t2 = xlo * yhi;
+    uint64_t t3 = xhi * yhi;
 
     uint64_t u1 = t1 + (t0 >> 32);
     uint64_t u2 = t2 + (u1 & 0xffffffff);
@@ -441,26 +468,47 @@ inline constexpr uint128 umul(uint64_t x, uint64_t y) noexcept
     return {lo, hi};
 }
 
-inline constexpr unsigned clz(std::unsigned_integral auto x) noexcept
+constexpr uint64_t bit_test(uint64_t x, size_t bit_index) noexcept
+{
+    // This pattern matches BT instruction on x86.
+    // On architectures without dedicated instruction,
+    // this is likely converted to (x >> bit_index) & 1.
+    return (x & (uint64_t{1} << bit_index)) != 0;
+}
+
+constexpr unsigned clz(std::unsigned_integral auto x) noexcept
 {
     return static_cast<unsigned>(std::countl_zero(x));
 }
 
-inline constexpr unsigned clz(uint128 x) noexcept
+constexpr unsigned ctz(std::unsigned_integral auto x) noexcept
 {
-    // In this order `h == 0` we get less instructions than in case of `h != 0`.
+    return static_cast<unsigned>(std::countr_zero(x));
+}
+
+/// Counts the number of bits needed to represent the value. For 0 returns 0.
+///
+/// This works like std::bit_width, but returns unsigned.
+constexpr unsigned bit_width(std::unsigned_integral auto x) noexcept
+{
+    return static_cast<unsigned>(std::numeric_limits<decltype(x)>::digits) - clz(x);
+}
+
+constexpr unsigned clz(uint128 x) noexcept
+{
+    // In this order `h == 0` we get fewer instructions than in the case of `h != 0`.
     return x[1] == 0 ? clz(x[0]) + 64 : clz(x[1]);
 }
 
 template <typename T>
 T bswap(T x) noexcept = delete;  // Disable type auto promotion
 
-inline constexpr uint8_t bswap(uint8_t x) noexcept
+constexpr uint8_t bswap(uint8_t x) noexcept
 {
     return x;
 }
 
-inline constexpr uint16_t bswap(uint16_t x) noexcept
+constexpr uint16_t bswap(uint16_t x) noexcept
 {
 #if __has_builtin(__builtin_bswap16)
     return __builtin_bswap16(x);
@@ -473,7 +521,7 @@ inline constexpr uint16_t bswap(uint16_t x) noexcept
 #endif
 }
 
-inline constexpr uint32_t bswap(uint32_t x) noexcept
+constexpr uint32_t bswap(uint32_t x) noexcept
 {
 #if __has_builtin(__builtin_bswap32)
     return __builtin_bswap32(x);
@@ -487,7 +535,7 @@ inline constexpr uint32_t bswap(uint32_t x) noexcept
 #endif
 }
 
-inline constexpr uint64_t bswap(uint64_t x) noexcept
+constexpr uint64_t bswap(uint64_t x) noexcept
 {
 #if __has_builtin(__builtin_bswap64)
     return __builtin_bswap64(x);
@@ -502,7 +550,7 @@ inline constexpr uint64_t bswap(uint64_t x) noexcept
 #endif
 }
 
-inline constexpr uint128 bswap(uint128 x) noexcept
+constexpr uint128 bswap(uint128 x) noexcept
 {
     return {bswap(x[1]), bswap(x[0])};
 }
@@ -525,7 +573,7 @@ constexpr auto reciprocal_table = []() noexcept {
 /// Computes the reciprocal (2^128 - 1) / d - 2^64 for normalized d.
 ///
 /// Based on Algorithm 2 from "Improved division by invariant integers".
-inline constexpr uint64_t reciprocal_2by1(uint64_t d) noexcept
+constexpr uint64_t reciprocal_2by1(uint64_t d) noexcept
 {
     INTX_REQUIRE(d & 0x8000000000000000);  // Must be normalized.
 
@@ -546,7 +594,7 @@ inline constexpr uint64_t reciprocal_2by1(uint64_t d) noexcept
     return v4;
 }
 
-inline constexpr uint64_t reciprocal_3by2(uint128 d) noexcept
+constexpr uint64_t reciprocal_3by2(uint128 d) noexcept
 {
     auto v = reciprocal_2by1(d[1]);
     auto p = d[1] * v;
@@ -577,7 +625,7 @@ inline constexpr uint64_t reciprocal_3by2(uint128 d) noexcept
     return v;
 }
 
-inline constexpr div_result<uint64_t> udivrem_2by1(uint128 u, uint64_t d, uint64_t v) noexcept
+constexpr div_result<uint64_t> udivrem_2by1(uint128 u, uint64_t d, uint64_t v) noexcept
 {
     auto q = umul(v, u[1]);
     q = fast_add(q, u);
@@ -601,7 +649,7 @@ inline constexpr div_result<uint64_t> udivrem_2by1(uint128 u, uint64_t d, uint64
     return {q[1], r};
 }
 
-inline constexpr div_result<uint64_t, uint128> udivrem_3by2(
+constexpr div_result<uint64_t, uint128> udivrem_3by2(
     uint64_t u2, uint64_t u1, uint64_t u0, uint128 d, uint64_t v) noexcept
 {
     auto q = umul(v, u2);
@@ -631,7 +679,7 @@ inline constexpr div_result<uint64_t, uint128> udivrem_3by2(
     return {q[1], r};
 }
 
-inline constexpr div_result<uint128> udivrem(uint128 x, uint128 y) noexcept
+constexpr div_result<uint128> udivrem(uint128 x, uint128 y) noexcept
 {
     if (y[1] == 0)
     {
@@ -676,7 +724,7 @@ inline constexpr div_result<uint128> udivrem(uint128 x, uint128 y) noexcept
     return {res.quot, res.rem >> lsh};
 }
 
-inline constexpr div_result<uint128> sdivrem(uint128 x, uint128 y) noexcept
+constexpr div_result<uint128> sdivrem(uint128 x, uint128 y) noexcept
 {
     constexpr auto sign_mask = uint128{1} << 127;
     const auto x_is_neg = (x & sign_mask) != 0;
@@ -711,8 +759,6 @@ struct numeric_limits<intx::uint<N>>  // NOLINT(cert-dcl58-cpp)
     static constexpr bool has_infinity = false;
     static constexpr bool has_quiet_NaN = false;
     static constexpr bool has_signaling_NaN = false;
-    static constexpr float_denorm_style has_denorm = denorm_absent;
-    static constexpr bool has_denorm_loss = false;
     static constexpr float_round_style round_style = round_toward_zero;
     static constexpr bool is_iec559 = false;
     static constexpr bool is_bounded = true;
@@ -753,35 +799,35 @@ template <typename T>
 #endif
 }
 
-inline constexpr int from_dec_digit(char c)
+constexpr uint8_t from_dec_digit(char c)
 {
     if (c < '0' || c > '9')
         throw_<std::invalid_argument>("invalid digit");
-    return c - '0';
+    return static_cast<uint8_t>(c - '0');
 }
 
-inline constexpr int from_hex_digit(char c)
+constexpr uint8_t from_hex_digit(char c)
 {
     if (c >= 'a' && c <= 'f')
-        return c - ('a' - 10);
+        return static_cast<uint8_t>(c - ('a' - 10));
     if (c >= 'A' && c <= 'F')
-        return c - ('A' - 10);
+        return static_cast<uint8_t>(c - ('A' - 10));
     return from_dec_digit(c);
 }
 
 template <typename Int>
-inline constexpr Int from_string(const char* str)
+constexpr Int from_string(const char* str)
 {
     auto s = str;
     auto x = Int{};
-    int num_digits = 0;
+    size_t num_digits = 0;
 
-    if (s[0] == '0' && s[1] == 'x')
+    if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X'))
     {
         s += 2;
         while (const auto c = *s++)
         {
-            if (++num_digits > int{sizeof(x) * 2})
+            if (++num_digits > sizeof(x) * 2)
                 throw_<std::out_of_range>(str);
             x = (x << uint64_t{4}) | from_hex_digit(c);
         }
@@ -802,7 +848,7 @@ inline constexpr Int from_string(const char* str)
 }
 
 template <typename Int>
-inline constexpr Int from_string(const std::string& s)
+constexpr Int from_string(const std::string& s)
 {
     return from_string<Int>(s.c_str());
 }
@@ -862,11 +908,25 @@ public:
             words_[i] = x[i];
     }
 
+#if INTX_HAS_BUILTIN_INT128
+    constexpr explicit(false) uint(builtin_uint128 x) noexcept
+      : words_{uint64_t(x), uint64_t(x >> 64)}
+    {}
+#endif
+
     template <typename... T>
     constexpr explicit(false) uint(T... v) noexcept
         requires std::conjunction_v<std::is_convertible<T, uint64_t>...>
       : words_{static_cast<uint64_t>(v)...}
     {}
+
+    /// Constructs from words with words[0] being the least significant word.
+    /// The size of the span must be less than or equal to num_words.
+    constexpr explicit uint(std::span<const uint64_t> words) noexcept
+    {
+        INTX_REQUIRE(words.size() <= num_words);
+        std::ranges::copy(words, words_);
+    }
 
     constexpr uint64_t& operator[](size_t i) noexcept { return words_[i]; }
 
@@ -894,25 +954,44 @@ public:
         return static_cast<Int>(words_[0]);
     }
 
-    friend inline constexpr uint operator+(const uint& x, const uint& y) noexcept
+    constexpr uint& operator=(uint64_t v) noexcept
+    {
+        words_[0] = v;
+        for (size_t i = 1; i < num_words; ++i)
+            words_[i] = 0;
+        return *this;
+    }
+
+    template <unsigned M>
+    constexpr uint& operator=(const uint<M>& x) noexcept
+        requires(M <= N)
+    {
+        for (size_t i = 0; i < uint<M>::num_words; ++i)
+            words_[i] = x[i];
+        for (size_t i = uint<M>::num_words; i < num_words; ++i)
+            words_[i] = 0;
+        return *this;
+    }
+
+    friend constexpr uint operator+(const uint& x, const uint& y) noexcept
     {
         return addc(x, y).value;
     }
 
-    inline constexpr uint& operator+=(const uint& y) noexcept { return *this = *this + y; }
+    constexpr uint& operator+=(const uint& y) noexcept { return *this = *this + y; }
 
-    inline constexpr uint operator-() const noexcept { return ~*this + uint{1}; }
+    constexpr uint operator-() const noexcept { return ~*this + uint{1}; }
 
-    friend inline constexpr uint operator-(const uint& x, const uint& y) noexcept
+    friend constexpr uint operator-(const uint& x, const uint& y) noexcept
     {
         return subc(x, y).value;
     }
 
-    inline constexpr uint& operator-=(const uint& y) noexcept { return *this = *this - y; }
+    constexpr uint& operator-=(const uint& y) noexcept { return *this = *this - y; }
 
     /// Multiplication implementation using word access
     /// and discarding the high part of the result product.
-    friend inline constexpr uint operator*(const uint& x, const uint& y) noexcept
+    friend constexpr uint operator*(const uint& x, const uint& y) noexcept
     {
         uint<N> p;
         for (size_t j = 0; j < num_words; j++)
@@ -930,24 +1009,24 @@ public:
         return p;
     }
 
-    inline constexpr uint& operator*=(const uint& y) noexcept { return *this = *this * y; }
+    constexpr uint& operator*=(const uint& y) noexcept { return *this = *this * y; }
 
-    friend inline constexpr uint operator/(const uint& x, const uint& y) noexcept
+    friend constexpr uint operator/(const uint& x, const uint& y) noexcept
     {
         return udivrem(x, y).quot;
     }
 
-    friend inline constexpr uint operator%(const uint& x, const uint& y) noexcept
+    friend constexpr uint operator%(const uint& x, const uint& y) noexcept
     {
         return udivrem(x, y).rem;
     }
 
-    inline constexpr uint& operator/=(const uint& y) noexcept { return *this = *this / y; }
+    constexpr uint& operator/=(const uint& y) noexcept { return *this = *this / y; }
 
-    inline constexpr uint& operator%=(const uint& y) noexcept { return *this = *this % y; }
+    constexpr uint& operator%=(const uint& y) noexcept { return *this = *this % y; }
 
 
-    inline constexpr uint operator~() const noexcept
+    constexpr uint operator~() const noexcept
     {
         uint z;
         for (size_t i = 0; i < num_words; ++i)
@@ -955,7 +1034,7 @@ public:
         return z;
     }
 
-    friend inline constexpr uint operator|(const uint& x, const uint& y) noexcept
+    friend constexpr uint operator|(const uint& x, const uint& y) noexcept
     {
         uint z;
         for (size_t i = 0; i < num_words; ++i)
@@ -963,9 +1042,9 @@ public:
         return z;
     }
 
-    inline constexpr uint& operator|=(const uint& y) noexcept { return *this = *this | y; }
+    constexpr uint& operator|=(const uint& y) noexcept { return *this = *this | y; }
 
-    friend inline constexpr uint operator&(const uint& x, const uint& y) noexcept
+    friend constexpr uint operator&(const uint& x, const uint& y) noexcept
     {
         uint z;
         for (size_t i = 0; i < num_words; ++i)
@@ -973,9 +1052,9 @@ public:
         return z;
     }
 
-    inline constexpr uint& operator&=(const uint& y) noexcept { return *this = *this & y; }
+    constexpr uint& operator&=(const uint& y) noexcept { return *this = *this & y; }
 
-    friend inline constexpr uint operator^(const uint& x, const uint& y) noexcept
+    friend constexpr uint operator^(const uint& x, const uint& y) noexcept
     {
         uint z;
         for (size_t i = 0; i < num_words; ++i)
@@ -983,9 +1062,9 @@ public:
         return z;
     }
 
-    inline constexpr uint& operator^=(const uint& y) noexcept { return *this = *this ^ y; }
+    constexpr uint& operator^=(const uint& y) noexcept { return *this = *this ^ y; }
 
-    friend inline constexpr bool operator==(const uint& x, const uint& y) noexcept
+    friend constexpr bool operator==(const uint& x, const uint& y) noexcept
     {
         uint64_t folded = 0;
         for (size_t i = 0; i < num_words; ++i)
@@ -993,7 +1072,7 @@ public:
         return folded == 0;
     }
 
-    friend inline constexpr bool operator<(const uint& x, const uint& y) noexcept
+    friend constexpr bool operator<(const uint& x, const uint& y) noexcept
     {
         if constexpr (N == 256)
         {
@@ -1013,7 +1092,15 @@ public:
     friend constexpr bool operator>=(const uint& x, const uint& y) noexcept { return !(x < y); }
     friend constexpr bool operator<=(const uint& x, const uint& y) noexcept { return !(y < x); }
 
-    friend inline constexpr uint operator<<(const uint& x, uint64_t shift) noexcept
+    friend constexpr std::strong_ordering operator<=>(const uint& x, const uint& y) noexcept
+    {
+        if (x == y)
+            return std::strong_ordering::equal;
+
+        return (x < y) ? std::strong_ordering::less : std::strong_ordering::greater;
+    }
+
+    friend constexpr uint operator<<(const uint& x, uint64_t shift) noexcept
     {
         if (shift >= num_bits) [[unlikely]]
             return 0;
@@ -1061,13 +1148,13 @@ public:
         }
     }
 
-    friend inline constexpr uint operator<<(const uint& x, std::integral auto shift) noexcept
+    friend constexpr uint operator<<(const uint& x, std::integral auto shift) noexcept
     {
         static_assert(sizeof(shift) <= sizeof(uint64_t));
         return x << static_cast<uint64_t>(shift);
     }
 
-    friend inline constexpr uint operator<<(const uint& x, const uint& shift) noexcept
+    friend constexpr uint operator<<(const uint& x, const uint& shift) noexcept
     {
         // TODO: This optimisation should be handled by operator<.
         uint64_t high_words_fold = 0;
@@ -1080,7 +1167,7 @@ public:
         return x << shift[0];
     }
 
-    friend inline constexpr uint operator>>(const uint& x, uint64_t shift) noexcept
+    friend constexpr uint operator>>(const uint& x, uint64_t shift) noexcept
     {
         if (shift >= num_bits) [[unlikely]]
             return 0;
@@ -1128,13 +1215,13 @@ public:
         }
     }
 
-    friend inline constexpr uint operator>>(const uint& x, std::integral auto shift) noexcept
+    friend constexpr uint operator>>(const uint& x, std::integral auto shift) noexcept
     {
         static_assert(sizeof(shift) <= sizeof(uint64_t));
         return x >> static_cast<uint64_t>(shift);
     }
 
-    friend inline constexpr uint operator>>(const uint& x, const uint& shift) noexcept
+    friend constexpr uint operator>>(const uint& x, const uint& shift) noexcept
     {
         uint64_t high_words_fold = 0;
         for (size_t i = 1; i < num_words; ++i)
@@ -1158,7 +1245,7 @@ using uint256 = uint<256>;
 /// Interprets the arguments as two's complement signed integers
 /// and checks the "less than" relation.
 template <unsigned N>
-inline constexpr bool slt(const uint<N>& x, const uint<N>& y) noexcept
+constexpr bool slt(const uint<N>& x, const uint<N>& y) noexcept
 {
     constexpr auto top_word_idx = uint<N>::num_words - 1;
     const auto x_neg = static_cast<int64_t>(x[top_word_idx]) < 0;
@@ -1167,26 +1254,16 @@ inline constexpr bool slt(const uint<N>& x, const uint<N>& y) noexcept
 }
 
 
-inline constexpr uint64_t* as_words(uint128& x) noexcept
+template <unsigned N>
+constexpr std::span<uint64_t, uint<N>::num_words> as_words(uint<N>& x) noexcept
 {
-    return &x[0];
-}
-
-inline constexpr const uint64_t* as_words(const uint128& x) noexcept
-{
-    return &x[0];
+    return std::span<uint64_t, uint<N>::num_words>{&x[0], uint<N>::num_words};
 }
 
 template <unsigned N>
-inline constexpr uint64_t* as_words(uint<N>& x) noexcept
+constexpr std::span<const uint64_t, uint<N>::num_words> as_words(const uint<N>& x) noexcept
 {
-    return &x[0];
-}
-
-template <unsigned N>
-inline constexpr const uint64_t* as_words(const uint<N>& x) noexcept
-{
-    return &x[0];
+    return std::span<const uint64_t, uint<N>::num_words>{&x[0], uint<N>::num_words};
 }
 
 template <typename T>
@@ -1204,7 +1281,7 @@ inline const uint8_t* as_bytes(const T& x) noexcept
 }
 
 template <unsigned N>
-inline constexpr uint<2 * N> umul(const uint<N>& x, const uint<N>& y) noexcept
+constexpr uint<2 * N> umul(const uint<N>& x, const uint<N>& y) noexcept
 {
     constexpr auto num_words = uint<N>::num_words;
 
@@ -1225,24 +1302,31 @@ inline constexpr uint<2 * N> umul(const uint<N>& x, const uint<N>& y) noexcept
 }
 
 template <unsigned N>
-inline constexpr uint<N> exp(uint<N> base, uint<N> exponent) noexcept
+constexpr uint<N> exp(uint<N> base, uint<N> exponent) noexcept
 {
     auto result = uint<N>{1};
     if (base == 2)
         return result << exponent;
 
-    while (exponent != 0)
+    for (size_t i = bit_width(exponent); i > 0; --i)
     {
-        if ((exponent & 1) != 0)
+        result *= result;
+        if (bit_test(exponent, i - 1))
             result *= base;
-        base *= base;
-        exponent >>= 1;
     }
     return result;
 }
 
 template <unsigned N>
-inline constexpr unsigned count_significant_words(const uint<N>& x) noexcept
+constexpr bool bit_test(const uint<N>& x, size_t bit_index) noexcept
+{
+    const auto w = x[bit_index / uint<N>::word_num_bits];
+    const auto b = bit_index % uint<N>::word_num_bits;
+    return bit_test(w, b);
+}
+
+template <unsigned N>
+constexpr unsigned count_significant_words(const uint<N>& x) noexcept
 {
     for (size_t i = uint<N>::num_words; i > 0; --i)
     {
@@ -1252,20 +1336,20 @@ inline constexpr unsigned count_significant_words(const uint<N>& x) noexcept
     return 0;
 }
 
-inline constexpr unsigned count_significant_bytes(uint64_t x) noexcept
+constexpr unsigned count_significant_bytes(uint64_t x) noexcept
 {
     return (64 - clz(x) + 7) / 8;
 }
 
 template <unsigned N>
-inline constexpr unsigned count_significant_bytes(const uint<N>& x) noexcept
+constexpr unsigned count_significant_bytes(const uint<N>& x) noexcept
 {
     const auto w = count_significant_words(x);
     return (w != 0) ? count_significant_bytes(x[w - 1]) + (w - 1) * 8 : 0;
 }
 
 template <unsigned N>
-inline constexpr unsigned clz(const uint<N>& x) noexcept
+constexpr unsigned clz(const uint<N>& x) noexcept
 {
     constexpr unsigned num_words = uint<N>::num_words;
     const auto s = count_significant_words(x);
@@ -1274,10 +1358,28 @@ inline constexpr unsigned clz(const uint<N>& x) noexcept
     return clz(x[s - 1]) + (num_words - s) * 64;
 }
 
+template <unsigned N>
+constexpr unsigned ctz(const uint<N>& x) noexcept
+{
+    for (size_t i = 0; i < uint<N>::num_words; ++i)
+    {
+        if (x[i] != 0)
+            return static_cast<unsigned>(i * uint<N>::word_num_bits) + ctz(x[i]);
+    }
+    return uint<N>::num_bits;
+}
+
+/// Counts the number of bits needed to represent the value. For 0 returns 0.
+template <unsigned N>
+constexpr unsigned bit_width(const uint<N>& x) noexcept
+{
+    return uint<N>::num_bits - clz(x);
+}
+
 namespace internal
 {
 /// Counts the number of zero leading bits in nonzero argument x.
-inline constexpr unsigned clz_nonzero(uint64_t x) noexcept
+constexpr unsigned clz_nonzero(uint64_t x) noexcept
 {
     INTX_REQUIRE(x != 0);
     return static_cast<unsigned>(std::countl_zero(x));
@@ -1288,8 +1390,8 @@ struct normalized_div_args  // NOLINT(cppcoreguidelines-pro-type-member-init)
 {
     uint<N> divisor;
     uint<M + 64> numerator;
-    int num_divisor_words;
-    int num_numerator_words;
+    size_t num_divisor_words;
+    size_t num_numerator_words;
     unsigned shift;
 };
 
@@ -1300,12 +1402,12 @@ template <unsigned M, unsigned N>
     constexpr auto num_numerator_words = uint<M>::num_words;
     constexpr auto num_denominator_words = uint<N>::num_words;
 
-    auto* u = as_words(numerator);
-    auto* v = as_words(denominator);
+    const auto u = as_words(numerator);
+    const auto v = as_words(denominator);
 
     normalized_div_args<M, N> na;
-    auto* un = as_words(na.numerator);
-    auto* vn = as_words(na.divisor);
+    const auto un = as_words(na.numerator);
+    const auto vn = as_words(na.divisor);
 
     auto& m = na.num_numerator_words;
     for (m = num_numerator_words; m > 0 && u[m - 1] == 0; --m)
@@ -1318,12 +1420,12 @@ template <unsigned M, unsigned N>
     na.shift = clz_nonzero(v[n - 1]);  // Use clz_nonzero() to avoid clang analyzer's warning.
     if (na.shift)
     {
-        for (int i = num_denominator_words - 1; i > 0; --i)
+        for (size_t i = num_denominator_words - 1; i != 0; --i)
             vn[i] = (v[i] << na.shift) | (v[i - 1] >> (64 - na.shift));
         vn[0] = v[0] << na.shift;
 
         un[num_numerator_words] = u[num_numerator_words - 1] >> (64 - na.shift);
-        for (int i = num_numerator_words - 1; i > 0; --i)
+        for (size_t i = num_numerator_words - 1; i != 0; --i)
             un[i] = (u[i] << na.shift) | (u[i - 1] >> (64 - na.shift));
         un[0] = u[0] << na.shift;
     }
@@ -1341,25 +1443,23 @@ template <unsigned M, unsigned N>
 }
 
 /// Divides arbitrary long unsigned integer by 64-bit unsigned integer (1 word).
-/// @param u    The array of a normalized numerator words. It will contain
-///             the quotient after execution.
-/// @param len  The number of numerator words.
-/// @param d    The normalized divisor.
-/// @return     The remainder.
-inline constexpr uint64_t udivrem_by1(uint64_t u[], int len, uint64_t d) noexcept
+/// @param u  The normalized numerator words. It will contain the quotient after execution.
+/// @param d  The normalized divisor.
+/// @return   The remainder.
+constexpr uint64_t udivrem_by1(std::span<uint64_t> u, uint64_t d) noexcept
 {
-    INTX_REQUIRE(len >= 2);
+    INTX_REQUIRE(u.size() >= 2);
 
     const auto reciprocal = reciprocal_2by1(d);
 
-    auto rem = u[len - 1];  // Set the top word as remainder.
-    u[len - 1] = 0;         // Reset the word being a part of the result quotient.
+    auto rem = u[u.size() - 1];  // Set the top word as remainder.
+    u[u.size() - 1] = 0;         // Reset the word being a part of the result quotient.
 
-    auto it = &u[len - 2];
+    auto it = u.end() - 2;
     while (true)
     {
         std::tie(*it, rem) = udivrem_2by1({*it, rem}, d, reciprocal);
-        if (it == &u[0])
+        if (it == u.begin())
             break;
         --it;
     }
@@ -1368,25 +1468,23 @@ inline constexpr uint64_t udivrem_by1(uint64_t u[], int len, uint64_t d) noexcep
 }
 
 /// Divides arbitrary long unsigned integer by 128-bit unsigned integer (2 words).
-/// @param u    The array of a normalized numerator words. It will contain the
-///             quotient after execution.
-/// @param len  The number of numerator words.
-/// @param d    The normalized divisor.
-/// @return     The remainder.
-inline constexpr uint128 udivrem_by2(uint64_t u[], int len, uint128 d) noexcept
+/// @param u  The normalized numerator words. It will contain the quotient after execution.
+/// @param d  The normalized divisor.
+/// @return   The remainder.
+constexpr uint128 udivrem_by2(std::span<uint64_t> u, uint128 d) noexcept
 {
-    INTX_REQUIRE(len >= 3);
+    INTX_REQUIRE(u.size() >= 3);
 
     const auto reciprocal = reciprocal_3by2(d);
 
-    auto rem = uint128{u[len - 2], u[len - 1]};  // Set the 2 top words as remainder.
-    u[len - 1] = u[len - 2] = 0;  // Reset these words being a part of the result quotient.
+    auto rem = uint128{u[u.size() - 2], u[u.size() - 1]};  // Set the 2 top words as remainder.
+    u[u.size() - 1] = u[u.size() - 2] = 0;  // Reset the words being a part of the result quotient.
 
-    auto it = &u[len - 3];
+    auto it = u.end() - 3;
     while (true)
     {
         std::tie(*it, rem) = udivrem_3by2(rem[1], rem[0], *it, d, reciprocal);
-        if (it == &u[0])
+        if (it == u.begin())
             break;
         --it;
     }
@@ -1394,46 +1492,46 @@ inline constexpr uint128 udivrem_by2(uint64_t u[], int len, uint128 d) noexcept
     return rem;
 }
 
-/// s = x + y.
-inline constexpr bool add(uint64_t s[], const uint64_t x[], const uint64_t y[], int len) noexcept
+/// Add y to x as: x[] += y[].
+constexpr bool add(uint64_t x[], std::span<const uint64_t> y) noexcept
 {
     // OPT: Add MinLen template parameter and unroll first loop iterations.
-    INTX_REQUIRE(len >= 2);
+    INTX_REQUIRE(y.size() >= 2);
 
     bool carry = false;
-    for (int i = 0; i < len; ++i)
-        std::tie(s[i], carry) = addc(x[i], y[i], carry);
+    for (size_t i = 0; i < y.size(); ++i)
+        std::tie(x[i], carry) = addc(x[i], y[i], carry);
     return carry;
 }
 
-/// r = x - multiplier * y.
-inline constexpr uint64_t submul(
-    uint64_t r[], const uint64_t x[], const uint64_t y[], int len, uint64_t multiplier) noexcept
+/// Subtract y multiplied by multiplier from x as: x[] -= multiplier * y[].
+constexpr uint64_t submul(uint64_t x[], std::span<const uint64_t> y, uint64_t multiplier) noexcept
 {
     // OPT: Add MinLen template parameter and unroll first loop iterations.
-    INTX_REQUIRE(len >= 1);
+    INTX_REQUIRE(!y.empty());
 
     uint64_t borrow = 0;
-    for (int i = 0; i < len; ++i)
+    for (size_t i = 0; i < y.size(); ++i)
     {
         const auto s = x[i] - borrow;
         const auto p = umul(y[i], multiplier);
         borrow = p[1] + (x[i] < s);
-        r[i] = s - p[0];
-        borrow += (s < r[i]);
+        x[i] = s - p[0];
+        borrow += (s < x[i]);
     }
     return borrow;
 }
 
-inline constexpr void udivrem_knuth(
-    uint64_t q[], uint64_t u[], int ulen, const uint64_t d[], int dlen) noexcept
+constexpr void udivrem_knuth(
+    uint64_t q[], std::span<uint64_t> u, std::span<const uint64_t> d) noexcept
 {
-    INTX_REQUIRE(dlen >= 3);
-    INTX_REQUIRE(ulen >= dlen);
+    INTX_REQUIRE(d.size() >= 3);
+    INTX_REQUIRE(u.size() > d.size());
 
-    const auto divisor = uint128{d[dlen - 2], d[dlen - 1]};
+    const auto divisor = uint128{d[d.size() - 2], d[d.size() - 1]};
     const auto reciprocal = reciprocal_3by2(divisor);
-    for (int j = ulen - dlen - 1; j >= 0; --j)
+    const auto dlen = d.size();
+    for (size_t j = u.size() - dlen - 1; true; --j)
     {
         const auto u2 = u[j + dlen];
         const auto u1 = u[j + dlen - 1];
@@ -1444,7 +1542,7 @@ inline constexpr void udivrem_knuth(
         {
             qhat = ~uint64_t{0};
 
-            u[j + dlen] = u2 - submul(&u[j], &u[j], d, dlen, qhat);
+            u[j + dlen] = u2 - submul(&u[j], d, qhat);
         }
         else
         {
@@ -1452,18 +1550,20 @@ inline constexpr void udivrem_knuth(
             std::tie(qhat, rhat) = udivrem_3by2(u2, u1, u0, divisor, reciprocal);
 
             bool carry{};
-            const auto overflow = submul(&u[j], &u[j], d, dlen - 2, qhat);
+            const auto overflow = submul(&u[j], d.subspan(0, d.size() - 2), qhat);
             std::tie(u[j + dlen - 2], carry) = subc(rhat[0], overflow);
             std::tie(u[j + dlen - 1], carry) = subc(rhat[1], carry);
 
             if (INTX_UNLIKELY(carry))
             {
                 --qhat;
-                u[j + dlen - 1] += divisor[1] + add(&u[j], &u[j], d, dlen - 1);
+                u[j + dlen - 1] += divisor[1] + add(&u[j], d.subspan(0, d.size() - 1));
             }
         }
 
         q[j] = qhat;  // Store quotient digit.
+        if (j == 0)   // Loop exit condition.
+            break;
     }
 }
 
@@ -1474,33 +1574,37 @@ constexpr div_result<uint<M>, uint<N>> udivrem(const uint<M>& u, const uint<N>& 
 {
     auto na = internal::normalize(u, v);
 
-    if (na.num_numerator_words <= na.num_divisor_words)
+    // The span of the normalized numerator significant words. Will be modified.
+    const auto un = as_words(na.numerator).subspan(0, static_cast<size_t>(na.num_numerator_words));
+    // The span of the normalized divisor significant words.
+    const auto dn = as_words(na.divisor).subspan(0, static_cast<size_t>(na.num_divisor_words));
+
+    INTX_REQUIRE(!dn.empty());
+    INTX_REQUIRE(dn.size() <= uint<N>::num_words);
+    INTX_REQUIRE(un.size() <= uint<M>::num_words + 1);
+
+    if (un.size() <= dn.size())
         return {0, static_cast<uint<N>>(u)};
 
-    if (na.num_divisor_words == 1)
+    static_assert(uint<N>::num_words >= 2, "no support for uint<64> yet");
+    if (dn.size() == 1)
     {
-        const auto r = internal::udivrem_by1(
-            as_words(na.numerator), na.num_numerator_words, as_words(na.divisor)[0]);
+        const auto r = internal::udivrem_by1(un, dn[0]);
         return {static_cast<uint<M>>(na.numerator), r >> na.shift};
     }
 
-    if (na.num_divisor_words == 2)
+    if (dn.size() == 2)
     {
-        const auto d = as_words(na.divisor);
-        const auto r =
-            internal::udivrem_by2(as_words(na.numerator), na.num_numerator_words, {d[0], d[1]});
+        const auto r = internal::udivrem_by2(un, static_cast<uint128>(na.divisor));
         return {static_cast<uint<M>>(na.numerator), r >> na.shift};
     }
-
-    auto un = as_words(na.numerator);  // Will be modified.
 
     uint<M> q;
-    internal::udivrem_knuth(
-        as_words(q), &un[0], na.num_numerator_words, as_words(na.divisor), na.num_divisor_words);
+    internal::udivrem_knuth(&q[0], un, dn);
 
     uint<N> r;
     auto rw = as_words(r);
-    for (int i = 0; i < na.num_divisor_words - 1; ++i)
+    for (size_t i = 0; i < na.num_divisor_words - 1; ++i)
         rw[i] = na.shift ? (un[i] >> na.shift) | (un[i + 1] << (64 - na.shift)) : un[i];
     rw[na.num_divisor_words - 1] = un[na.num_divisor_words - 1] >> na.shift;
 
@@ -1508,7 +1612,7 @@ constexpr div_result<uint<M>, uint<N>> udivrem(const uint<M>& u, const uint<N>& 
 }
 
 template <unsigned N>
-inline constexpr div_result<uint<N>> sdivrem(const uint<N>& u, const uint<N>& v) noexcept
+constexpr div_result<uint<N>> sdivrem(const uint<N>& u, const uint<N>& v) noexcept
 {
     const auto sign_mask = uint<N>{1} << (uint<N>::num_bits - 1);
     auto u_is_neg = (u & sign_mask) != 0;
@@ -1524,13 +1628,13 @@ inline constexpr div_result<uint<N>> sdivrem(const uint<N>& u, const uint<N>& v)
     return {q_is_neg ? -res.quot : res.quot, u_is_neg ? -res.rem : res.rem};
 }
 
-inline constexpr uint256 bswap(const uint256& x) noexcept
+constexpr uint256 bswap(const uint256& x) noexcept
 {
     return {bswap(x[3]), bswap(x[2]), bswap(x[1]), bswap(x[0])};
 }
 
 template <unsigned N>
-inline constexpr uint<N> bswap(const uint<N>& x) noexcept
+constexpr uint<N> bswap(const uint<N>& x) noexcept
 {
     constexpr auto num_words = uint<N>::num_words;
     uint<N> z;
@@ -1540,7 +1644,7 @@ inline constexpr uint<N> bswap(const uint<N>& x) noexcept
 }
 
 
-inline constexpr uint256 addmod(const uint256& x, const uint256& y, const uint256& mod) noexcept
+constexpr uint256 addmod(const uint256& x, const uint256& y, const uint256& mod) noexcept
 {
     // Fast path for mod >= 2^192, with x and y at most slightly bigger than mod.
     // This is always the case when x and y are already reduced modulo mod.
@@ -1574,37 +1678,39 @@ inline constexpr uint256 addmod(const uint256& x, const uint256& y, const uint25
     return udivrem(n, mod).rem;
 }
 
-inline constexpr uint256 mulmod(const uint256& x, const uint256& y, const uint256& mod) noexcept
+constexpr uint256 mulmod(const uint256& x, const uint256& y, const uint256& mod) noexcept
 {
     return udivrem(umul(x, y), mod).rem;
 }
 
+#define INTX_JOIN(X, Y) X##Y
 /// Define type alias uintN = uint<N> and the matching literal ""_uN.
 /// The literal operators are defined in the intx::literals namespace.
-#define DEFINE_ALIAS_AND_LITERAL(N)                   \
-    using uint##N = uint<N>;                          \
-    namespace literals                                \
-    {                                                 \
-    consteval uint##N operator"" _u##N(const char* s) \
-    {                                                 \
-        return from_string<uint##N>(s);               \
-    }                                                 \
+#define DEFINE_ALIAS_AND_LITERAL(N)                               \
+    using uint##N = uint<N>;                                      \
+    namespace literals                                            \
+    {                                                             \
+    consteval uint##N INTX_JOIN(operator"", _u##N)(const char* s) \
+    {                                                             \
+        return from_string<uint##N>(s);                           \
+    }                                                             \
     }
-DEFINE_ALIAS_AND_LITERAL(128);
-DEFINE_ALIAS_AND_LITERAL(192);
-DEFINE_ALIAS_AND_LITERAL(256);
-DEFINE_ALIAS_AND_LITERAL(320);
-DEFINE_ALIAS_AND_LITERAL(384);
-DEFINE_ALIAS_AND_LITERAL(448);
-DEFINE_ALIAS_AND_LITERAL(512);
+DEFINE_ALIAS_AND_LITERAL(128)
+DEFINE_ALIAS_AND_LITERAL(192)
+DEFINE_ALIAS_AND_LITERAL(256)
+DEFINE_ALIAS_AND_LITERAL(320)
+DEFINE_ALIAS_AND_LITERAL(384)
+DEFINE_ALIAS_AND_LITERAL(448)
+DEFINE_ALIAS_AND_LITERAL(512)
 #undef DEFINE_ALIAS_AND_LITERAL
+#undef INTX_JOIN
 
 using namespace literals;
 
 /// Convert native representation to/from little-endian byte order.
 /// intx and built-in integral types are supported.
 template <typename T>
-inline constexpr T to_little_endian(const T& x) noexcept
+constexpr T to_little_endian(const T& x) noexcept
 {
     if constexpr (std::endian::native == std::endian::little)
         return x;
@@ -1622,7 +1728,7 @@ inline constexpr T to_little_endian(const T& x) noexcept
 /// Convert native representation to/from big-endian byte order.
 /// intx and built-in integral types are supported.
 template <typename T>
-inline constexpr T to_big_endian(const T& x) noexcept
+constexpr T to_big_endian(const T& x) noexcept
 {
     if constexpr (std::endian::native == std::endian::little)
         return bswap(x);
@@ -1691,6 +1797,21 @@ inline T load(const uint8_t (&src)[M]) noexcept
     return x;
 }
 
+/// Loads an integer value from the span of bytes of big-endian order.
+/// If the size of bytes is smaller than the result, the value is zero-extended.
+template <typename T, std::size_t Extent>
+inline T load(std::span<const uint8_t, Extent> src) noexcept
+{
+    if constexpr (Extent != std::dynamic_extent)  // NOLINTNEXTLINE(bugprone-sizeof-expression)
+        static_assert(Extent <= sizeof(T), "source bytes must not exceed the value size");
+    else
+        assert(src.size() <= sizeof(T));  // source bytes must not exceed the value size
+    T x{};
+    std::memcpy(&as_bytes(x)[sizeof(T) - src.size()], src.data(), src.size());
+    x = to_big_endian(x);
+    return x;
+}
+
 template <typename IntT, typename T>
 inline IntT load(const T& t) noexcept
 {
@@ -1703,6 +1824,14 @@ inline void store(uint8_t (&dst)[sizeof(T)], const T& x) noexcept
 {
     const auto d = to_big_endian(x);
     std::memcpy(dst, &d, sizeof(d));
+}
+
+/// Stores an integer value into the span of bytes in big-endian order.
+template <typename T>
+inline void store(std::span<uint8_t, sizeof(T)> dst, const T& x) noexcept
+{
+    const auto d = to_big_endian(x);
+    std::memcpy(dst.data(), &d, sizeof(d));
 }
 
 /// Stores an SrcT value in .bytes field of type DstT. The .bytes must be an array of uint8_t
@@ -1724,6 +1853,21 @@ inline void trunc(uint8_t (&dst)[M], const uint<N>& x) noexcept
     static_assert(M < N / 8, "destination must be smaller than the source value");
     const auto d = to_big_endian(x);
     std::memcpy(dst, &as_bytes(d)[sizeof(d) - M], M);
+}
+
+/// Stores the truncated value of an integer into the span of bytes.
+/// Only the least significant bytes from big-endian representation of the uint
+/// are stored in the result up to the span size.
+template <unsigned N, std::size_t Extent>
+inline void trunc(std::span<uint8_t, Extent> dst, const uint<N>& x) noexcept
+{
+    if constexpr (Extent != std::dynamic_extent)  // NOLINTNEXTLINE(bugprone-sizeof-expression)
+        static_assert(Extent < sizeof(x), "destination must be smaller than the source value");
+    else
+        assert(dst.size() <= sizeof(x));  // destination must be not larger than the source value
+
+    const auto d = to_big_endian(x);
+    std::copy_n(&as_bytes(d)[sizeof(d) - dst.size()], dst.size(), dst.begin());
 }
 
 /// Stores the truncated value of an uint in the .bytes field of an object of type T.

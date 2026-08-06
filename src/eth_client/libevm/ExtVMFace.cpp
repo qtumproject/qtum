@@ -5,8 +5,8 @@
 #include "ExtVMFace.h"
 
 #include <evmc/helpers.h>
-#include <evmc/instructions.h>
-using namespace evmc;
+#include <evmone/instructions_opcodes.hpp>
+using namespace evmone;
 
 namespace dev
 {
