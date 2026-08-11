@@ -716,6 +716,7 @@ void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
     argsman.AddArg("-shanghaiheight=<n>", "Use given block height to check contracts with EVM Shanghai (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-cancunheight=<n>", "Use given block height to check contracts with EVM Cancun (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-pectraheight=<n>", "Use given block height to check contracts with EVM Pectra (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-osakaheight=<n>", "Use given block height to check contracts with EVM Osaka (regtest-only)", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
     SetupChainParamsBaseOptions(argsman);
 
@@ -1471,6 +1472,20 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         {
             UpdatePectraHeight(pectraheight);
             LogInfo("Activate EVM Pectra at block height %d\n.", pectraheight);
+        }
+    }
+
+    if (args.IsArgSet("-osakaheight")) {
+        // Allow overriding EVM Osaka block height for testing
+        if (!chainparams.MineBlocksOnDemand()) {
+            return InitError(Untranslated("Short EVM Osaka height may only be overridden on regtest."));
+        }
+
+        int osakaheight = args.GetIntArg("-osakaheight", 0);
+        if(osakaheight >= 0)
+        {
+            UpdateOsakaHeight(osakaheight);
+            LogInfo("Activate EVM Osaka at block height %d\n.", osakaheight);
         }
     }
 

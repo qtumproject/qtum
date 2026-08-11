@@ -33,6 +33,7 @@ struct EVMSchedule
     bool eip6049Mode = false;
     bool eip1153Mode = false;
     bool eip7600Mode = false;
+    bool eip7607Mode = false;
     bool haveBitwiseShifting = false;
     bool haveRevert = false;
     bool haveReturnData = false;
@@ -224,8 +225,16 @@ static const EVMSchedule PectraSchedule = [] {
     return schedule;
 }();
 
+static const EVMSchedule OsakaSchedule = [] {
+    EVMSchedule schedule = PectraSchedule;
+    // Osaka revision
+    schedule.eip7607Mode = true;
+
+    return schedule;
+}();
+
 static const EVMSchedule ExperimentalSchedule = [] {
-    EVMSchedule schedule = ShanghaiSchedule;
+    EVMSchedule schedule = OsakaSchedule;
     schedule.accountVersion = 1;
     schedule.blockhashGas = 800;
     return schedule;
@@ -234,7 +243,7 @@ static const EVMSchedule ExperimentalSchedule = [] {
 inline EVMSchedule const& latestScheduleForAccountVersion(u256 const& _version)
 {
     if (_version == 0)
-        return ShanghaiSchedule;
+        return OsakaSchedule;
     else if (_version == ExperimentalSchedule.accountVersion)
         return ExperimentalSchedule;
     else

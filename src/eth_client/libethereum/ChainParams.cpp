@@ -133,6 +133,7 @@ void ChainParams::loadConfig(
     setOptionalU256Parameter(shanghaiForkBlock, c_shanghaiForkBlock);
     setOptionalU256Parameter(cancunForkBlock, c_cancunForkBlock);
     setOptionalU256Parameter(pectraForkBlock, c_pectraForkBlock);
+    setOptionalU256Parameter(osakaForkBlock, c_osakaForkBlock);
 
     lastForkBlock = findMaxForkBlockNumber(params);
     lastForkWithAdditionalEIPsSchedule = forkScheduleForBlockNumber(lastForkBlock);

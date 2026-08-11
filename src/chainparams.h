@@ -113,4 +113,9 @@ void UpdateCancunHeight(int nHeight);
  * Allows modifying the pectra block height regtest parameter.
  */
 void UpdatePectraHeight(int nHeight);
+
+/**
+ * Allows modifying the osaka block height regtest parameter.
+ */
+void UpdateOsakaHeight(int nHeight);
 #endif // BITCOIN_CHAINPARAMS_H

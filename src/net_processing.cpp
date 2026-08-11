@@ -3900,6 +3900,13 @@ void PeerManagerImpl::ProcessMessage(Peer& peer, CNode& pfrom, const std::string
             return;
         }
 
+        if (nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMOSAKA && m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nOsakaHeight) {
+            // disconnect from peers older than this proto version
+            LogDebug(BCLog::NET, "peer=%d using obsolete version after evm Osaka hardfork %i; disconnecting\n", pfrom.GetId(), nVersion);
+            pfrom.fDisconnect = true;
+            return;
+        }
+
         if (!vRecv.empty()) {
             // The version message includes information about the sending node which we don't use:
             //   - 8 bytes (service bits)
@@ -4101,6 +4108,13 @@ void PeerManagerImpl::ProcessMessage(Peer& peer, CNode& pfrom, const std::string
     if (pfrom.nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMPECTRA && m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nPectraHeight) {
         // disconnect from peers older than this proto version
         LogDebug(BCLog::NET, "peer=%d using obsolete version after evm Pectra hardfork %i; disconnecting\n", pfrom.GetId(), pfrom.nVersion);
+        pfrom.fDisconnect = true;
+        return;
+    }
+
+    if (pfrom.nVersion < MIN_PEER_PROTO_VERSION_AFTER_EVMOSAKA && m_chainman.ActiveChain().Tip()->nHeight >= m_chainparams.GetConsensus().nOsakaHeight) {
+        // disconnect from peers older than this proto version
+        LogDebug(BCLog::NET, "peer=%d using obsolete version after evm Osaka hardfork %i; disconnecting\n", pfrom.GetId(), pfrom.nVersion);
         pfrom.fDisconnect = true;
         return;
     }

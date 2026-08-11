@@ -14,6 +14,8 @@ namespace
 {
 evmc_revision toRevision(EVMSchedule const& _schedule) noexcept
 {
+    if (_schedule.eip7607Mode)
+        return EVMC_OSAKA;
     if (_schedule.eip7600Mode)
         return EVMC_PRAGUE;
     if (_schedule.eip1153Mode)
