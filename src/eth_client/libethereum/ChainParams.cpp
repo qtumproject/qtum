@@ -185,11 +185,16 @@ void ChainParams::loadConfig(
         {Address{0x10}, PrecompiledContract{"map_fp_to_G1_bls", pectraForkBlock + 1}});
     precompiled.insert(
         {Address{0x11}, PrecompiledContract{"map_fp2_to_G2_bls", pectraForkBlock + 1}});
+
     // 0x80 to 0x84 used for DGP
     precompiled.insert({Address{0x85}, PrecompiledContract{"btc_ecrecover", qip6ForkBlock}});
     // 0x86 used for Delegation Contract
     precompiled.insert(
         {qtumutils::eth_getHistoryStorageAddress(), PrecompiledContract{"historical_hashes", pectraForkBlock + 1}});
+
+    // The address range between 0x100 and 0x1ff is officially reserved by EIP-7587
+    precompiled.insert(
+        {Address{0x100}, PrecompiledContract{"p256verify", osakaForkBlock + 1}});
 
     stateRoot = _stateRoot ? _stateRoot : calculateStateRoot(true);
 }

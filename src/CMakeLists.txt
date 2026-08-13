@@ -232,6 +232,7 @@ add_library(bitcoin_common STATIC EXCLUDE_FROM_ALL
   eth_client/libdevcrypto/LibBls.cpp
   eth_client/libdevcrypto/LibSnark.cpp
   eth_client/libdevcrypto/LibKzg.cpp
+  eth_client/libdevcrypto/LibSecp256r1.cpp
   eth_client/libethashseal/GenesisInfo.cpp
   eth_client/libethashseal/genesis/qtumNetwork.cpp
   eth_client/libethcore/BlockHeader.cpp

@@ -13,6 +13,7 @@
 #include <libdevcrypto/LibSnark.h>
 #include <libdevcrypto/LibKzg.h>
 #include <libdevcrypto/LibBls.h>
+#include <libdevcrypto/LibSecp256r1.h>
 #include <libethcore/Common.h>
 #include <qtum/qtumutils.h>
 #include <algorithm>
@@ -475,5 +476,16 @@ ETH_REGISTER_PRECOMPILED(historical_hashes)(bytesConstRef input)
     }
     catch (...) {}
     return {false, {}};
+}
+
+ETH_REGISTER_PRECOMPILED_PRICER(p256verify)
+(bytesConstRef /*_in*/, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
+{
+    return 6900;
+}
+
+ETH_REGISTER_PRECOMPILED(p256verify)(bytesConstRef _in)
+{
+    return dev::crypto::p256verify(_in);
 }
 }
