@@ -7,8 +7,8 @@ func PairingAggregatePkInG1(ctx Pairing, PK *P1Affine, pkValidate bool,
     }
 
     r := C.blst_pairing_chk_n_aggr_pk_in_g1(&ctx[0],
-                                            PK, C.bool(pkValidate),
-                                            sig, C.bool(sigGroupcheck),
+                                            PK.asPtr(), C.bool(pkValidate),
+                                            sig.asPtr(), C.bool(sigGroupcheck),
                                             ptrOrNil(msg), C.size_t(len(msg)),
                                             ptrOrNil(aug), C.size_t(len(aug)))
 
@@ -25,9 +25,9 @@ func PairingMulNAggregatePkInG1(ctx Pairing, PK *P1Affine, pkValidate bool,
     }
 
     r := C.blst_pairing_chk_n_mul_n_aggr_pk_in_g1(&ctx[0],
-                                                  PK, C.bool(pkValidate),
-                                                  sig, C.bool(sigGroupcheck),
-                                                  &rand.b[0], C.size_t(randBits),
+                                                  PK.asPtr(), C.bool(pkValidate),
+                                                  sig.asPtr(), C.bool(sigGroupcheck),
+                                                  &rand.cgo.b[0], C.size_t(randBits),
                                                   ptrOrNil(msg), C.size_t(len(msg)),
                                                   ptrOrNil(aug), C.size_t(len(aug)))
 
@@ -41,7 +41,7 @@ func PairingMulNAggregatePkInG1(ctx Pairing, PK *P1Affine, pkValidate bool,
 // P1 Serdes
 func (p1 *P1Affine) Serialize() []byte {
     var out [BLST_P1_SERIALIZE_BYTES]byte
-    C.blst_p1_affine_serialize((*C.byte)(&out[0]), p1)
+    C.blst_p1_affine_serialize((*C.byte)(&out[0]), &p1.cgo)
     return out[:]
 }
 
@@ -49,14 +49,14 @@ func (p1 *P1Affine) Deserialize(in []byte) *P1Affine {
     if len(in) != BLST_P1_SERIALIZE_BYTES {
         return nil
     }
-    if C.blst_p1_deserialize(p1, (*C.byte)(&in[0])) != C.BLST_SUCCESS {
+    if C.blst_p1_deserialize(&p1.cgo, (*C.byte)(&in[0])) != C.BLST_SUCCESS {
         return nil
     }
     return p1
 }
 func (p1 *P1Affine) Compress() []byte {
     var out [BLST_P1_COMPRESS_BYTES]byte
-    C.blst_p1_affine_compress((*C.byte)(&out[0]), p1)
+    C.blst_p1_affine_compress((*C.byte)(&out[0]), &p1.cgo)
     return out[:]
 }
 
@@ -64,17 +64,17 @@ func (p1 *P1Affine) Uncompress(in []byte) *P1Affine {
     if len(in) != BLST_P1_COMPRESS_BYTES {
         return nil
     }
-    if C.blst_p1_uncompress(p1, (*C.byte)(&in[0])) != C.BLST_SUCCESS {
+    if C.blst_p1_uncompress(&p1.cgo, (*C.byte)(&in[0])) != C.BLST_SUCCESS {
         return nil
     }
     return p1
 }
 
 func (p1 *P1Affine) InG1() bool {
-  return bool(C.blst_p1_affine_in_g1(p1))
+  return bool(C.blst_p1_affine_in_g1(&p1.cgo))
 }
 
-func (_ *P1Affine) BatchUncompress(in [][]byte) []*P1Affine {
+func (*P1Affine) BatchUncompress(in [][]byte) []*P1Affine {
     // Allocate space for all of the resulting points. Later we'll save pointers
     // and return those so that the result could be used in other functions,
     // such as MultipleAggregateVerify.
@@ -128,12 +128,12 @@ func (_ *P1Affine) BatchUncompress(in [][]byte) []*P1Affine {
 
 func (p1 *P1) Serialize() []byte {
     var out [BLST_P1_SERIALIZE_BYTES]byte
-    C.blst_p1_serialize((*C.byte)(&out[0]), p1)
+    C.blst_p1_serialize((*C.byte)(&out[0]), &p1.cgo)
     return out[:]
 }
 func (p1 *P1) Compress() []byte {
     var out [BLST_P1_COMPRESS_BYTES]byte
-    C.blst_p1_compress((*C.byte)(&out[0]), p1)
+    C.blst_p1_compress((*C.byte)(&out[0]), &p1.cgo)
     return out[:]
 }
 
@@ -145,7 +145,7 @@ func (p1 *P1) MultAssign(scalarIf interface{}, optional ...int) *P1 {
         scalar = (*C.byte)(&val[0])
         nbits = len(val)*8
     case *Scalar:
-        scalar = &val.b[0]
+        scalar = &val.cgo.b[0]
         nbits = 255
     default:
         panic(fmt.Sprintf("unsupported type %T", val))
@@ -153,7 +153,7 @@ func (p1 *P1) MultAssign(scalarIf interface{}, optional ...int) *P1 {
     if len(optional) > 0 {
         nbits = optional[0]
     }
-    C.blst_p1_mult(p1, p1, scalar, C.size_t(nbits))
+    C.blst_p1_mult(&p1.cgo, &p1.cgo, scalar, C.size_t(nbits))
     return p1
 }
 
@@ -165,9 +165,9 @@ func (p1 *P1) Mult(scalarIf interface{}, optional ...int) *P1 {
 func (p1 *P1) AddAssign(pointIf interface{}) *P1 {
     switch val := pointIf.(type) {
     case *P1:
-        C.blst_p1_add_or_double(p1, p1, val)
+        C.blst_p1_add_or_double(&p1.cgo, &p1.cgo, &val.cgo)
     case *P1Affine:
-        C.blst_p1_add_or_double_affine(p1, p1, val)
+        C.blst_p1_add_or_double_affine(&p1.cgo, &p1.cgo, &val.cgo)
     default:
         panic(fmt.Sprintf("unsupported type %T", val))
     }
@@ -180,19 +180,19 @@ func (p1 *P1) Add(pointIf interface{}) *P1 {
 }
 
 func (p1 *P1) SubAssign(pointIf interface{}) *P1 {
-    var x *Fp
+    var x *C.blst_fp
     var affine C.bool
     switch val := pointIf.(type) {
     case *P1:
-        x = &val.x
+        x = &val.cgo.x
         affine = false
     case *P1Affine:
-        x = &val.x
+        x = &val.cgo.x
         affine = true
     default:
         panic(fmt.Sprintf("unsupported type %T", val))
     }
-    C.go_p1_sub_assign(p1, x, affine)
+    C.go_p1_sub_assign(&p1.cgo, x, affine)
     return p1
 }
 
@@ -209,15 +209,15 @@ func P1Generator() *P1 {
 //                          group generator point"
 func (acc *P1) MultNAccumulate(pointIf interface{}, scalarIf interface{},
                                optional ...int) *P1 {
-    var x *Fp
+    var x *C.blst_fp
     var affine C.bool
     if pointIf != nil {
         switch val := pointIf.(type) {
         case *P1:
-            x = &val.x
+            x = &val.cgo.x
             affine = false
         case *P1Affine:
-            x = &val.x
+            x = &val.cgo.x
             affine = true
         default:
             panic(fmt.Sprintf("unsupported type %T", val))
@@ -230,7 +230,7 @@ func (acc *P1) MultNAccumulate(pointIf interface{}, scalarIf interface{},
         scalar = (*C.byte)(&val[0])
         nbits = len(val)*8
     case *Scalar:
-        scalar = &val.b[0]
+        scalar = &val.cgo.b[0]
         nbits = 255
     default:
         panic(fmt.Sprintf("unsupported type %T", val))
@@ -238,7 +238,7 @@ func (acc *P1) MultNAccumulate(pointIf interface{}, scalarIf interface{},
     if len(optional) > 0 {
         nbits = optional[0]
     }
-    C.go_p1_mult_n_acc(acc, x, affine, scalar, C.size_t(nbits))
+    C.go_p1_mult_n_acc(&acc.cgo, x, affine, scalar, C.size_t(nbits))
     return acc
 }
 
@@ -248,12 +248,12 @@ func (acc *P1) MultNAccumulate(pointIf interface{}, scalarIf interface{},
 
 func (p *P1) ToAffine() *P1Affine {
     var pa P1Affine
-    C.blst_p1_to_affine(&pa, p)
+    C.blst_p1_to_affine(&pa.cgo, &p.cgo)
     return &pa
 }
 
 func (p *P1) FromAffine(pa *P1Affine) {
-    C.blst_p1_from_affine(p, pa)
+    C.blst_p1_from_affine(&p.cgo, &pa.cgo)
 }
 
 //
@@ -268,9 +268,9 @@ func HashToG1(msg []byte, dst []byte,
         aug = optional[0]
     }
 
-    C.blst_hash_to_g1(&q, ptrOrNil(msg), C.size_t(len(msg)),
-                          ptrOrNil(dst), C.size_t(len(dst)),
-                          ptrOrNil(aug), C.size_t(len(aug)))
+    C.blst_hash_to_g1(&q.cgo, ptrOrNil(msg), C.size_t(len(msg)),
+                              ptrOrNil(dst), C.size_t(len(dst)),
+                              ptrOrNil(aug), C.size_t(len(aug)))
     return &q
 }
 
@@ -283,9 +283,9 @@ func EncodeToG1(msg []byte, dst []byte,
         aug = optional[0]
     }
 
-    C.blst_encode_to_g1(&q, ptrOrNil(msg), C.size_t(len(msg)),
-                            ptrOrNil(dst), C.size_t(len(dst)),
-                            ptrOrNil(aug), C.size_t(len(aug)))
+    C.blst_encode_to_g1(&q.cgo, ptrOrNil(msg), C.size_t(len(msg)),
+                                ptrOrNil(dst), C.size_t(len(dst)),
+                                ptrOrNil(aug), C.size_t(len(aug)))
     return &q
 }
 
@@ -302,7 +302,8 @@ func P1sToAffine(points []*P1, optional ...int) P1Affines {
     }
     ret := make([]P1Affine, npoints)
     _cgoCheckPointer := func(...interface{}) {}
-    C.blst_p1s_to_affine(&ret[0], &points[0], C.size_t(npoints))
+    C.blst_p1s_to_affine(&ret[0].cgo, (**C.blst_p1)(unsafe.Pointer(&points[0])),
+                         C.size_t(npoints))
     return ret
 }
 
@@ -320,7 +321,7 @@ func (points P1s) ToAffine(optional ...P1Affines) P1Affines {
     }
 
     if maxProcs < 2 || npoints < 768 {
-        C.go_p1slice_to_affine(&ret[0], &points[0], C.size_t(npoints))
+        C.go_p1slice_to_affine(&ret[0].cgo, &points[0].cgo, C.size_t(npoints))
         return ret
     }
 
@@ -338,7 +339,7 @@ func (points P1s) ToAffine(optional ...P1Affines) P1Affines {
         }
         rem -= 1
         go func(out *P1Affine, inp *P1, delta int) {
-            C.go_p1slice_to_affine(out, inp, C.size_t(delta))
+            C.go_p1slice_to_affine(&out.cgo, &inp.cgo, C.size_t(delta))
             wg.Done()
         }(&ret[x], &points[x], delta)
     }
@@ -360,7 +361,8 @@ func P1AffinesAdd(points []*P1Affine, optional ...int) *P1 {
     }
     var ret P1
     _cgoCheckPointer := func(...interface{}) {}
-    C.blst_p1s_add(&ret, &points[0], C.size_t(npoints))
+    C.blst_p1s_add(&ret.cgo, (**C.blst_p1_affine)(unsafe.Pointer(&points[0])),
+                             C.size_t(npoints))
     return &ret
 }
 
@@ -368,7 +370,7 @@ func (points P1Affines) Add() *P1 {
     npoints := len(points)
     if maxProcs < 2 || npoints < 768 {
         var ret P1
-        C.go_p1slice_add(&ret, &points[0], C.size_t(npoints))
+        C.go_p1slice_add(&ret.cgo, &points[0].cgo, C.size_t(npoints))
         return &ret
     }
 
@@ -386,7 +388,7 @@ func (points P1Affines) Add() *P1 {
         rem -= 1
         go func(points *P1Affine, delta int) {
             var ret P1
-            C.go_p1slice_add(&ret, points, C.size_t(delta))
+            C.go_p1slice_add(&ret.cgo, &points.cgo, C.size_t(delta))
             msgs <- ret
         }(&points[x], delta)
     }
@@ -394,7 +396,7 @@ func (points P1Affines) Add() *P1 {
     ret := <- msgs
     for i := 1; i < nslices; i++ {
         msg := <- msgs
-        C.blst_p1_add_or_double(&ret, &ret, &msg)
+        C.blst_p1_add_or_double(&ret.cgo, &ret.cgo, &msg.cgo)
     }
     return &ret
 }
@@ -442,7 +444,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
         if nbits <= 248 {
             scalars = make([]*C.byte, npoints)
             for i := range scalars {
-                scalars[i] = &val[i].b[0]
+                scalars[i] = &val[i].cgo.b[0]
             }
         }
     case []*Scalar:
@@ -451,7 +453,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
         }
         scalars = make([]*C.byte, npoints)
         for i := range scalars {
-            scalars[i] = &val[i].b[0]
+            scalars[i] = &val[i].cgo.b[0]
         }
     default:
         panic(fmt.Sprintf("unsupported type %T",val))
@@ -463,16 +465,16 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
         sz := int(C.blst_p1s_mult_pippenger_scratch_sizeof(C.size_t(npoints)))/8
         scratch := make([]uint64, sz)
 
-        pointsBySlice := [2]*P1Affine{nil, nil}
-        var p_points **P1Affine
+        pointsBySlice := [2]*C.blst_p1_affine{nil, nil}
+        var p_points **C.blst_p1_affine
         switch val := pointsIf.(type) {
         case []*P1Affine:
-            p_points = &val[0]
+            p_points = (**C.blst_p1_affine)(unsafe.Pointer(&val[0]))
         case []P1Affine:
-            pointsBySlice[0] = &val[0]
+            pointsBySlice[0] = &val[0].cgo
             p_points = &pointsBySlice[0]
         case P1Affines:
-            pointsBySlice[0] = &val[0]
+            pointsBySlice[0] = &val[0].cgo
             p_points = &pointsBySlice[0]
         }
 
@@ -486,7 +488,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
             p_scalars = &scalars[0]
         case []Scalar:
             if nbits > 248 {
-                scalarsBySlice[0] = &val[0].b[0]
+                scalarsBySlice[0] = &val[0].cgo.b[0]
                 p_scalars = &scalarsBySlice[0]
             } else {
                 p_scalars = &scalars[0]
@@ -497,9 +499,9 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
 
         var ret P1
         _cgoCheckPointer := func(...interface{}) {}
-        C.blst_p1s_mult_pippenger(&ret, p_points, C.size_t(npoints),
-                                        p_scalars, C.size_t(nbits),
-                                        (*C.limb_t)(&scratch[0]))
+        C.blst_p1s_mult_pippenger(&ret.cgo, p_points, C.size_t(npoints),
+                                            p_scalars, C.size_t(nbits),
+                                            (*C.limb_t)(&scratch[0]))
 
         for i := range(scalars) {
             scalars[i] = nil
@@ -544,7 +546,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
                         scalar = scalars[workItem]
                     case []Scalar:
                         if nbits > 248 {
-                            scalar = &val[workItem].b[0]
+                            scalar = &val[workItem].cgo.b[0]
                         } else {
                             scalar = scalars[workItem]
                         }
@@ -552,8 +554,8 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
                         scalar = scalars[workItem]
                     }
 
-                    C.go_p1_mult_n_acc(&acc, &point.x, true,
-                                             scalar, C.size_t(nbits))
+                    C.go_p1_mult_n_acc(&acc.cgo, &point.cgo.x, true,
+                                                 scalar, C.size_t(nbits))
                 }
 
                 msgs <- acc
@@ -563,7 +565,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
         ret := <-msgs
         for tid := 1; tid < numThreads; tid++ {
             point := <- msgs
-            C.blst_p1_add_or_double(&ret, &ret, &point);
+            C.blst_p1_add_or_double(&ret.cgo, &ret.cgo, &point.cgo);
         }
 
         for i := range(scalars) {
@@ -615,7 +617,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
     for tid := 0; tid < numThreads; tid++ {
         go func() {
             scratch := make([]uint64, sz << uint(window-1))
-            pointsBySlice := [2]*P1Affine{nil, nil}
+            pointsBySlice := [2]*C.blst_p1_affine{nil, nil}
             scalarsBySlice := [2]*C.byte{nil, nil}
             _cgoCheckPointer := func(...interface{}) {}
 
@@ -628,15 +630,15 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
                 x := grid[workItem].x
                 y := grid[workItem].y
 
-                var p_points **P1Affine
+                var p_points **C.blst_p1_affine
                 switch val := pointsIf.(type) {
                 case []*P1Affine:
-                    p_points = &val[x]
+                    p_points = (**C.blst_p1_affine)(unsafe.Pointer(&val[x]))
                 case []P1Affine:
-                    pointsBySlice[0] = &val[x]
+                    pointsBySlice[0] = &val[x].cgo
                     p_points = &pointsBySlice[0]
                 case P1Affines:
-                    pointsBySlice[0] = &val[x]
+                    pointsBySlice[0] = &val[x].cgo
                     p_points = &pointsBySlice[0]
                 }
 
@@ -649,7 +651,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
                     p_scalars = &scalars[x]
                 case []Scalar:
                     if nbits > 248 {
-                        scalarsBySlice[0] = &val[x].b[0]
+                        scalarsBySlice[0] = &val[x].cgo.b[0]
                         p_scalars = &scalarsBySlice[0]
                     } else {
                         p_scalars = &scalars[x]
@@ -658,7 +660,7 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
                     p_scalars = &scalars[x]
                 }
 
-                C.blst_p1s_tile_pippenger(&grid[workItem].point,
+                C.blst_p1s_tile_pippenger(&grid[workItem].point.cgo,
                                           p_points, C.size_t(grid[workItem].dx),
                                           p_scalars, C.size_t(nbits),
                                           (*C.limb_t)(&scratch[0]),
@@ -684,14 +686,14 @@ func P1AffinesMult(pointsIf interface{}, scalarsIf interface{}, nbits int) *P1 {
         rows[y/window] = true       // mark the "row"
         for grid[row].y == y {      // if it's current "row", process it
             for row < total && grid[row].y == y {
-                C.blst_p1_add_or_double(&ret, &ret, &grid[row].point)
+                C.blst_p1_add_or_double(&ret.cgo, &ret.cgo, &grid[row].point.cgo)
                 row++
             }
             if y == 0 {
                 break               // one can as well 'return &ret' here
             }
             for j := 0; j < window; j++ {
-                C.blst_p1_double(&ret, &ret)
+                C.blst_p1_double(&ret.cgo, &ret.cgo)
             }
             y -= window
             if !rows[y/window] {    // see if next "row" was marked already
@@ -749,7 +751,7 @@ func P1AffinesValidate(pointsIf interface{}) bool {
                 panic(fmt.Sprintf("unsupported type %T", val))
             }
 
-            if !C.go_p1_affine_validate(point, true) {
+            if !C.go_p1_affine_validate(&point.cgo, true) {
                 return false
             }
         }
@@ -784,7 +786,7 @@ func P1AffinesValidate(pointsIf interface{}) bool {
                     panic(fmt.Sprintf("unsupported type %T", val))
                 }
 
-                if !C.go_p1_affine_validate(point, true) {
+                if !C.go_p1_affine_validate(&point.cgo, true) {
                     atomic.StoreInt32(&valid, 0)
                     break
                 }

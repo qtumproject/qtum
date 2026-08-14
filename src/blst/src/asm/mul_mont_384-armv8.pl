@@ -30,6 +30,7 @@ $code.=<<___;
 .text
 
 .globl	add_mod_384x384
+.hidden	add_mod_384x384
 .type	add_mod_384x384,%function
 .align	5
 add_mod_384x384:
@@ -111,6 +112,7 @@ __add_mod_384x384:
 .size	__add_mod_384x384,.-__add_mod_384x384
 
 .globl	sub_mod_384x384
+.hidden	sub_mod_384x384
 .type	sub_mod_384x384,%function
 .align	5
 sub_mod_384x384:

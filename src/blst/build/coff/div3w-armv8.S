@@ -7,6 +7,7 @@
 .endef
 .p2align	5
 div_3_limbs:
+	hint	#34
 	ldp	x4,x5,[x0]	// load R
 	eor	x0,x0,x0	// Q = 0
 	mov	x3,#64		// loop counter
@@ -43,6 +44,7 @@ div_3_limbs:
 .endef
 .p2align	5
 quot_rem_128:
+	hint	#34
 	ldp	x3,x4,[x1]
 
 	mul	x5,x3,x2	// divisor[0:1} * quotient
@@ -82,6 +84,7 @@ quot_rem_128:
 .endef
 .p2align	5
 quot_rem_64:
+	hint	#34
 	ldr	x3,[x1]
 	ldr	x8,[x0]	// load 1 limb of the dividend
 

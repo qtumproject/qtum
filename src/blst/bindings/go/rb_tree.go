@@ -69,7 +69,7 @@ func (tree *rbTree) insert(data *[]byte) bool {
     /* re-balance |tree| */
     for k >= 2 /* && IS_RED(y = nodes[k-1]) */ {
         y := nodes[k-1]
-        if y.colour == black  { //nolint:gosimple
+        if y.colour == black  { //nolint:staticcheck
             break
         }
 
@@ -77,7 +77,7 @@ func (tree *rbTree) insert(data *[]byte) bool {
         x := nodes[k-2]         /* |z|'s grandparent    */
         s := x.leafs[ydir^1]    /* |z|'s uncle          */
 
-        if s != nil && s.colour == red { //nolint:gosimple,revive
+        if s != nil && s.colour == red { //nolint:staticcheck,revive
             x.colour = red
             y.colour = black
             s.colour = black
@@ -130,7 +130,7 @@ func (tree *rbTree) insert(data *[]byte) bool {
 func Uniq(msgs []Message) bool {
     n := len(msgs)
 
-    if n == 1 {
+    if n == 1 { //nolint:staticcheck
         return true
     } else if n == 2 {
         return !bytes.Equal(msgs[0], msgs[1])

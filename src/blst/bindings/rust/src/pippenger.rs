@@ -163,10 +163,9 @@ macro_rules! pippenger_mult_impl {
                 }
 
                 if npoints < 32 {
-                    let (tx, rx) = channel();
                     let counter = Arc::new(AtomicUsize::new(0));
                     let n_workers = core::cmp::min(ncpus, npoints);
-
+                    let (tx, rx) = sync_channel(n_workers);
                     for _ in 0..n_workers {
                         let tx = tx.clone();
                         let counter = counter.clone();
@@ -248,8 +247,8 @@ macro_rules! pippenger_mult_impl {
                 row_sync.resize_with(ny, Default::default);
                 let row_sync = Arc::new(row_sync);
                 let counter = Arc::new(AtomicUsize::new(0));
-                let (tx, rx) = channel();
                 let n_workers = core::cmp::min(ncpus, total);
+                let (tx, rx) = sync_channel(n_workers);
                 for _ in 0..n_workers {
                     let tx = tx.clone();
                     let counter = counter.clone();
@@ -337,12 +336,11 @@ macro_rules! pippenger_mult_impl {
                     return ret;
                 }
 
-                let (tx, rx) = channel();
                 let counter = Arc::new(AtomicUsize::new(0));
                 let nchunks = (npoints + 255) / 256;
                 let chunk = npoints / nchunks + 1;
-
                 let n_workers = core::cmp::min(ncpus, nchunks);
+                let (tx, rx) = sync_channel(n_workers);
                 for _ in 0..n_workers {
                     let tx = tx.clone();
                     let counter = counter.clone();

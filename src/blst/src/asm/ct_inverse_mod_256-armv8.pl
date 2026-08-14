@@ -63,7 +63,7 @@ def ct_inverse_mod_256(inp, mod):
         v += mod
     if v < 0:
         v += mod
-    elif v == 1<<512
+    elif v == 1<<512:
         v -= mod
 
     return v & (2**512 - 1) # to be reduced % mod
@@ -143,7 +143,7 @@ ct_inverse_mod_256:
 	mov	$g0, $g1			// |g1|
 	cadd	$out_ptr, $out_ptr, #8*4	// pointer to dst |b|
 	bl	__smul_256_n_shift_by_31
-	str	$f0, [$out_ptr,#8*9]		// initialize |v| with |f1|
+	str	$f0, [$out_ptr,#8*10]		// initialize |v| with |f1|
 
 	////////////////////////////////////////// second iteration
 	eor	$in_ptr, $in_ptr, #256		// flip-flop src |a|b|u|v|
@@ -166,19 +166,17 @@ ct_inverse_mod_256:
 	bl	__smul_256_n_shift_by_31
 
 	ldr	@acc[4], [$in_ptr,#8*8]		// |u|
-	ldr	@acc[5], [$in_ptr,#8*13]	// |v|
+	ldr	@acc[5], [$in_ptr,#8*14]	// |v|
 	madd	@acc[0], $f_, @acc[4], xzr	// |u|*|f0|
 	madd	@acc[0], $g_, @acc[5], @acc[0]	// |v|*|g0|
-	str	@acc[0], [$out_ptr,#8*4]
 	asr	@acc[1], @acc[0], #63		// sign extension
-	stp	@acc[1], @acc[1], [$out_ptr,#8*5]
-	stp	@acc[1], @acc[1], [$out_ptr,#8*7]
+	stp	@acc[0], @acc[1], [$out_ptr,#8*4]
+	stp	@acc[1], @acc[1], [$out_ptr,#8*6]
 
 	madd	@acc[0], $f0, @acc[4], xzr	// |u|*|f1|
 	madd	@acc[0], $g0, @acc[5], @acc[0]	// |v|*|g1|
-	str	@acc[0], [$out_ptr,#8*9]
 	asr	@acc[1], @acc[0], #63		// sign extension
-	stp	@acc[1], @acc[1], [$out_ptr,#8*10]
+	stp	@acc[0], @acc[1], [$out_ptr,#8*10]
 	stp	@acc[1], @acc[1], [$out_ptr,#8*12]
 ___
 for($i=2; $i<15; $i++) {
@@ -204,21 +202,28 @@ $code.=<<___;
 
 	cadd	$out_ptr, $out_ptr, #8*4	// pointer to destination |u|
 	bl	__smul_256x63
+___
+$code.=<<___	if ($i==7);
+	asr	@t[5], @t[5], #63
+	str	@t[5], [$out_ptr,#8*4]
+___
+$code.=<<___	if ($i>7);
 	adc	@t[3], @t[3], @t[4]
 	str	@t[3], [$out_ptr,#8*4]
-
+___
+$code.=<<___;
 	mov	$f_, $f0			// corrected |f1|
 	mov	$g_, $g0			// corrected |g1|
-	cadd	$out_ptr, $out_ptr, #8*5	// pointer to destination |v|
+	cadd	$out_ptr, $out_ptr, #8*6	// pointer to destination |v|
 	bl	__smul_256x63
 ___
 $code.=<<___	if ($i>7);
 	bl	__smul_512x63_tail
 ___
-$code.=<<___	if ($i<=7);
-	adc	@t[3], @t[3], @t[4]
-	stp	@t[3], @t[3], [$out_ptr,#8*4]
-	stp	@t[3], @t[3], [$out_ptr,#8*6]
+$code.=<<___	if ($i==7);
+	asr	@t[5], @t[5], #63		// sign extension
+	stp	@t[5], @t[5], [$out_ptr,#8*4]
+	stp	@t[5], @t[5], [$out_ptr,#8*6]
 ___
 }
 $code.=<<___;
@@ -301,7 +306,7 @@ ___
 for($j=0; $j<2; $j++) {
 my $f_ = $f_;   $f_ = $g_          if ($j);
 my @acc = @acc; @acc = @acc[4..7]  if ($j);
-my $k = 8*8+8*5*$j;
+my $k = 8*8+8*6*$j;
 $code.=<<___;
 	ldp	@acc[0], @acc[1], [$in_ptr,#8*0+$k]	// load |u| (or |v|)
 	asr	$f1, $f_, #63		// |f_|'s sign as mask (or |g_|'s)
@@ -359,9 +364,9 @@ $code.=<<___;
 .align	5
 __smul_512x63_tail:
 	umulh	@t[5], @acc[3], $f_
-	ldp	@acc[1], @acc[2], [$in_ptr,#8*18]	// load rest of |v|
+	ldr	@acc[1], [$in_ptr,#8*19]	// load rest of |v|
 	adc	@t[7], @t[7], xzr
-	ldr	@acc[3], [$in_ptr,#8*20]
+	ldp	@acc[2], @acc[3], [$in_ptr,#8*20]
 	and	@t[3], @t[3], $f_
 
 	umulh	@acc[7], @acc[7], $g_	// resume |v|*|g1| chain

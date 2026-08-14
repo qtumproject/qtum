@@ -7,7 +7,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|add_mod_384|[FUNC]
 	ALIGN	32
 |add_mod_384| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -27,7 +27,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -73,7 +73,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|add_mod_384x|[FUNC]
 	ALIGN	32
 |add_mod_384x| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -101,7 +101,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -110,7 +110,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|rshift_mod_384|[FUNC]
 	ALIGN	32
 |rshift_mod_384| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -137,7 +137,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -172,7 +172,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|div_by_2_mod_384|[FUNC]
 	ALIGN	32
 |div_by_2_mod_384| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -196,7 +196,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -205,7 +205,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|lshift_mod_384|[FUNC]
 	ALIGN	32
 |lshift_mod_384| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -232,7 +232,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -270,7 +270,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|mul_by_3_mod_384|[FUNC]
 	ALIGN	32
 |mul_by_3_mod_384| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -300,7 +300,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -309,7 +309,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|mul_by_8_mod_384|[FUNC]
 	ALIGN	32
 |mul_by_8_mod_384| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -335,7 +335,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -344,7 +344,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|mul_by_3_mod_384x|[FUNC]
 	ALIGN	32
 |mul_by_3_mod_384x| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -389,7 +389,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -398,7 +398,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|mul_by_8_mod_384x|[FUNC]
 	ALIGN	32
 |mul_by_8_mod_384x| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -435,7 +435,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -444,7 +444,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|cneg_mod_384|[FUNC]
 	ALIGN	32
 |cneg_mod_384| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -486,7 +486,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -495,7 +495,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|sub_mod_384|[FUNC]
 	ALIGN	32
 |sub_mod_384| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -515,7 +515,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -558,7 +558,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|sub_mod_384x|[FUNC]
 	ALIGN	32
 |sub_mod_384x| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -586,7 +586,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -595,7 +595,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|mul_by_1_plus_i_mod_384x|[FUNC]
 	ALIGN	32
 |mul_by_1_plus_i_mod_384x| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -628,7 +628,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -637,6 +637,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|sgn0_pty_mod_384|[FUNC]
 	ALIGN	32
 |sgn0_pty_mod_384| PROC
+	hint	#34
 	ldp	x10,x11,[x0]
 	ldp	x12,x13,[x0,#16]
 	ldp	x14,x15,[x0,#32]
@@ -674,6 +675,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|sgn0_pty_mod_384x|[FUNC]
 	ALIGN	32
 |sgn0_pty_mod_384x| PROC
+	hint	#34
 	ldp	x10,x11,[x0]
 	ldp	x12,x13,[x0,#16]
 	ldp	x14,x15,[x0,#32]
@@ -755,14 +757,14 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|vec_select_32|[FUNC]
 	ALIGN	32
 |vec_select_32| PROC
+	hint	#34
 	dup	v6.2d, x3
-	ld1	{v0.2d, v1.2d, v2.2d}, [x1],#48
+	ld1	{v0.2d, v1.2d}, [x1]
 	cmeq	v6.2d, v6.2d, #0
-	ld1	{v3.2d, v4.2d, v5.2d}, [x2],#48
+	ld1	{v3.2d, v4.2d}, [x2]
 	bit	v0.16b, v3.16b, v6.16b
 	bit	v1.16b, v4.16b, v6.16b
-	bit	v2.16b, v5.16b, v6.16b
-	st1	{v0.2d, v1.2d, v2.2d}, [x0]
+	st1	{v0.2d, v1.2d}, [x0]
 	ret
 	ENDP
 
@@ -770,6 +772,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|vec_select_48|[FUNC]
 	ALIGN	32
 |vec_select_48| PROC
+	hint	#34
 	dup	v6.2d, x3
 	ld1	{v0.2d, v1.2d, v2.2d}, [x1],#48
 	cmeq	v6.2d, v6.2d, #0
@@ -785,6 +788,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|vec_select_96|[FUNC]
 	ALIGN	32
 |vec_select_96| PROC
+	hint	#34
 	dup	v6.2d, x3
 	ld1	{v0.2d, v1.2d, v2.2d}, [x1],#48
 	cmeq	v6.2d, v6.2d, #0
@@ -806,6 +810,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|vec_select_192|[FUNC]
 	ALIGN	32
 |vec_select_192| PROC
+	hint	#34
 	dup	v6.2d, x3
 	ld1	{v0.2d, v1.2d, v2.2d}, [x1],#48
 	cmeq	v6.2d, v6.2d, #0
@@ -839,6 +844,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|vec_select_144|[FUNC]
 	ALIGN	32
 |vec_select_144| PROC
+	hint	#34
 	dup	v6.2d, x3
 	ld1	{v0.2d, v1.2d, v2.2d}, [x1],#48
 	cmeq	v6.2d, v6.2d, #0
@@ -866,6 +872,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|vec_select_288|[FUNC]
 	ALIGN	32
 |vec_select_288| PROC
+	hint	#34
 	dup	v6.2d, x3
 	ld1	{v0.2d, v1.2d, v2.2d}, [x1],#48
 	cmeq	v6.2d, v6.2d, #0
@@ -911,6 +918,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|vec_prefetch|[FUNC]
 	ALIGN	32
 |vec_prefetch| PROC
+	hint	#34
 	add	x1, x1, x0
 	sub	x1, x1, #1
 	mov	x2, #64
@@ -951,6 +959,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|vec_is_zero_16x|[FUNC]
 	ALIGN	32
 |vec_is_zero_16x| PROC
+	hint	#34
 	ld1	{v0.2d}, [x0], #16
 	lsr	x1, x1, #4
 	sub	x1, x1, #1
@@ -976,6 +985,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|vec_is_equal_16x|[FUNC]
 	ALIGN	32
 |vec_is_equal_16x| PROC
+	hint	#34
 	ld1	{v0.2d}, [x0], #16
 	ld1	{v1.2d}, [x1], #16
 	lsr	x2, x2, #4

@@ -8,10 +8,10 @@
 # https://eprint.iacr.org/2020/972. Performance is >5x better than
 # modulus-specific FLT addition chain...
 #
-# void ct_inverse_mod_383(vec768 ret, const vec384 inp, const vec384 mod);
+# void ct_inverse_mod_384(vec768 ret, const vec384 inp, const vec384 mod);
 #
 $python_ref.=<<'___';
-def ct_inverse_mod_383(inp, mod):
+def ct_inverse_mod_384(inp, mod):
     a, u = inp, 1
     b, v = mod, 0
 
@@ -19,7 +19,7 @@ def ct_inverse_mod_383(inp, mod):
     w = 64
     mask = (1 << w) - 1
 
-    for i in range(0, 766 // k):
+    for i in range(0, 768 // k):
         # __ab_approximation_62
         n = max(a.bit_length(), b.bit_length())
         if n < 128:
@@ -37,19 +37,19 @@ def ct_inverse_mod_383(inp, mod):
                 a_, f0, g0 = a_-b_, f0-f1, g0-g1
             a_, f1, g1 = a_ >> 1, f1 << 1, g1 << 1
 
-        # __smulq_383_n_shift_by_62
+        # __smulq_384_n_shift_by_62
         a, b = (a*f0 + b*g0) >> k, (a*f1 + b*g1) >> k
         if a < 0:
             a, f0, g0 = -a, -f0, -g0
         if b < 0:
             b, f1, g1 = -b, -f1, -g1
 
-        # __smulq_767x63
+        # __smulq_768x63
         u, v = u*f0 + v*g0, u*f1 + v*g1
 
-    if 766 % k:
+    if 768 % k:
         f0, g0, f1, g1 = 1, 0, 0, 1
-        for j in range(0, 766 % k):
+        for j in range(0, 768 % k):
             if a & 1:
                 if a < b:
                     a, b, f0, g0, f1, g1 = b, a, f1, g1, f0, g0
@@ -58,8 +58,13 @@ def ct_inverse_mod_383(inp, mod):
 
         v = u*f1 + v*g1
 
+    mod <<= 768 - mod.bit_length()  # align to the left
     if v < 0:
-        v += mod << (768 - mod.bit_length())    # left aligned
+        v += mod
+    if v < 0:
+        v += mod
+    elif v == 1<<768:
+        v -= mod
 
     return v & (2**768 - 1) # to be reduced % mod
 ___
@@ -79,7 +84,7 @@ open STDOUT,"| \"$^X\" \"$xlate\" $flavour \"$output\""
     or die "can't call $xlate: $!";
 
 $code.=<<___ if ($flavour =~ /masm/);
-.extern	ct_inverse_mod_383\$1
+.extern	ct_inverse_mod_384\$1
 ___
 
 my ($out_ptr, $in_ptr, $n_ptr, $nx_ptr) = ("%rdi", "%rsi", "%rdx", "%rcx");
@@ -93,15 +98,15 @@ $code.=<<___;
 .comm	__blst_platform_cap,4
 .text
 
-.globl	ct_inverse_mod_383
-.hidden	ct_inverse_mod_383
-.type	ct_inverse_mod_383,\@function,4,"unwind"
+.globl	ct_inverse_mod_384
+.hidden	ct_inverse_mod_384
+.type	ct_inverse_mod_384,\@function,4,"unwind"
 .align	32
-ct_inverse_mod_383:
+ct_inverse_mod_384:
 .cfi_startproc
 #ifdef __BLST_PORTABLE__
 	testl	\$1, __blst_platform_cap(%rip)
-	jnz	ct_inverse_mod_383\$1
+	jnz	ct_inverse_mod_384\$1
 #endif
 	push	%rbp
 .cfi_push	%rbp
@@ -163,7 +168,7 @@ ct_inverse_mod_383:
 
 	mov	\$256, $out_ptr
 	xor	$in_ptr, $out_ptr	# pointer to destination |a|b|u|v|
-	call	__smulq_383_n_shift_by_62
+	call	__smulq_384_n_shift_by_62
 	#mov	$f0, 8*7(%rsp)		# corrected |f0|
 	#mov	$g0, 8*8(%rsp)		# corrected |g0|
 	mov	$f0, 8*12($out_ptr)	# initialize |u| with |f0|
@@ -171,10 +176,10 @@ ct_inverse_mod_383:
 	mov	8*9(%rsp), $f0		# |f1|
 	mov	8*10(%rsp), $g0		# |g1|
 	lea	8*6($out_ptr), $out_ptr	# pointer to destination |b|
-	call	__smulq_383_n_shift_by_62
+	call	__smulq_384_n_shift_by_62
 	#mov	$f0, 8*9(%rsp)		# corrected |f1|
 	#mov	$g0, 8*10(%rsp)		# corrected |g1|
-	mov	$f0, 8*12($out_ptr)	# initialize |v| with |f1|
+	mov	$f0, 8*13($out_ptr)	# initialize |v| with |f1|
 
 	################################# second iteration
 	xor	\$256, $in_ptr		# flip-flop pointer to source |a|b|u|v|
@@ -187,19 +192,19 @@ ct_inverse_mod_383:
 
 	mov	\$256, $out_ptr
 	xor	$in_ptr, $out_ptr	# pointer to destination |a|b|u|v|
-	call	__smulq_383_n_shift_by_62
+	call	__smulq_384_n_shift_by_62
 	mov	$f0, 8*7(%rsp)		# corrected |f0|
 	mov	$g0, 8*8(%rsp)		# corrected |g0|
 
 	mov	8*9(%rsp), $f0		# |f1|
 	mov	8*10(%rsp), $g0		# |g1|
 	lea	8*6($out_ptr), $out_ptr	# pointer to destination |b|
-	call	__smulq_383_n_shift_by_62
+	call	__smulq_384_n_shift_by_62
 	#mov	$f0, 8*9(%rsp)		# corrected |f1|
 	#mov	$g0, 8*10(%rsp)		# corrected |g1|
 
 	mov	8*12($in_ptr), %rax	# |u|
-	mov	8*18($in_ptr), @acc[3]	# |v|
+	mov	8*19($in_ptr), @acc[3]	# |v|
 	mov	$f0, %rbx
 	mov	%rax, @acc[2]
 	imulq	8*7(%rsp)		# |u|*|f0|
@@ -216,6 +221,7 @@ ct_inverse_mod_383:
 	mov	@acc[1], 8*9($out_ptr)
 	mov	@acc[1], 8*10($out_ptr)
 	mov	@acc[1], 8*11($out_ptr)
+	mov	@acc[1], 8*12($out_ptr)
 	lea	8*12($in_ptr),$in_ptr	# make in_ptr "rewindable" with xor
 
 	mov	@acc[2], %rax
@@ -226,17 +232,18 @@ ct_inverse_mod_383:
 	imulq	%rcx			# |v|*|g1|
 	add	%rax, @acc[0]
 	adc	%rdx, @acc[1]
-	mov	@acc[0], 8*12($out_ptr)	# destination |v|
-	mov	@acc[1], 8*13($out_ptr)
-	sar	\$63, @acc[1]		# sign extension
+	mov	@acc[0], 8*13($out_ptr)	# destination |v|
 	mov	@acc[1], 8*14($out_ptr)
+	sar	\$63, @acc[1]		# sign extension
 	mov	@acc[1], 8*15($out_ptr)
 	mov	@acc[1], 8*16($out_ptr)
 	mov	@acc[1], 8*17($out_ptr)
+	mov	@acc[1], 8*18($out_ptr)
+	mov	@acc[1], 8*19($out_ptr)
 ___
 for($i=2; $i<11; $i++) {
-my $smul_767x63  = $i>5 ? "__smulq_767x63"
-                        : "__smulq_383x63";
+my $smul_768x63  = $i>5 ? "__smulq_768x63"
+                        : "__smulq_384x63";
 $code.=<<___;
 	xor	\$256+8*12, $in_ptr	# flip-flop pointer to source |a|b|u|v|
 	mov	\$62, $cnt
@@ -248,14 +255,14 @@ $code.=<<___;
 
 	mov	\$256, $out_ptr
 	xor	$in_ptr, $out_ptr	# pointer to destination |a|b|u|v|
-	call	__smulq_383_n_shift_by_62
+	call	__smulq_384_n_shift_by_62
 	mov	$f0, 8*7(%rsp)		# corrected |f0|
 	mov	$g0, 8*8(%rsp)		# corrected |g0|
 
 	mov	8*9(%rsp), $f0		# |f1|
 	mov	8*10(%rsp), $g0		# |g1|
 	lea	8*6($out_ptr), $out_ptr	# pointer to destination |b|
-	call	__smulq_383_n_shift_by_62
+	call	__smulq_384_n_shift_by_62
 	mov	$f0, 8*9(%rsp)		# corrected |f1|
 	mov	$g0, 8*10(%rsp)		# corrected |g1|
 
@@ -263,21 +270,19 @@ $code.=<<___;
 	mov	8*8(%rsp), $g0		# |g0|
 	lea	8*12($in_ptr), $in_ptr	# pointer to source |u|v|
 	lea	8*6($out_ptr), $out_ptr	# pointer to destination |u|
-	call	__smulq_383x63
+	call	__smulq_384x63
 
 	mov	8*9(%rsp), $f0		# |f1|
 	mov	8*10(%rsp), $g0		# |g1|
-	lea	8*6($out_ptr),$out_ptr	# pointer to destination |v|
-	call	$smul_767x63
+	lea	8*7($out_ptr),$out_ptr	# pointer to destination |v|
+	call	$smul_768x63
 ___
 $code.=<<___	if ($i==5);
-	sar	\$63, @acc[5]		# sign extension
-	mov	@acc[5], 8*6($out_ptr)
-	mov	@acc[5], 8*7($out_ptr)
-	mov	@acc[5], 8*8($out_ptr)
-	mov	@acc[5], 8*9($out_ptr)
-	mov	@acc[5], 8*10($out_ptr)
-	mov	@acc[5], 8*11($out_ptr)
+	mov	@acc[6], 8*7($out_ptr)	# sign extension
+	mov	@acc[6], 8*8($out_ptr)
+	mov	@acc[6], 8*9($out_ptr)
+	mov	@acc[6], 8*10($out_ptr)
+	mov	@acc[6], 8*11($out_ptr)
 ___
 }
 $code.=<<___;
@@ -304,16 +309,16 @@ $code.=<<___;
 	#mov	8*8(%rsp), $g0		# |g0|
 	lea	8*12($in_ptr), $in_ptr	# pointer to source |u|v|
 	lea	8*12($out_ptr),$out_ptr	# pointer to destination |u|
-	call	__smulq_383x63
+	call	__smulq_384x63
 
 	mov	8*9(%rsp), $f0		# |f1|
 	mov	8*10(%rsp), $g0		# |g1|
-	lea	8*6($out_ptr),$out_ptr	# pointer to destination |v|
-	call	__smulq_767x63
+	lea	8*7($out_ptr),$out_ptr	# pointer to destination |v|
+	call	__smulq_768x63
 
 	################################# last iteration
 	xor	\$256+8*12, $in_ptr	# flip-flop pointer to source |a|b|u|v|
-	mov	\$22, $cnt		# 766 % 62
+	mov	\$24, $cnt		# 768 % 62
 	#call	__ab_approximation_62	# |a| and |b| are exact, just load
 	mov	8*0($in_ptr), @acc[0]	# |a_lo|
 	xor	@acc[1],      @acc[1]	# |a_hi|
@@ -329,44 +334,84 @@ $code.=<<___;
 	#mov	8*8(%rsp), $g0		# |g0|
 	lea	8*12($in_ptr), $in_ptr	# pointer to source |u|v|
 	#lea	8*6($out_ptr), $out_ptr	# pointer to destination |u|
-	#call	__smulq_383x63
+	#call	__smulq_384x63
 
 	#mov	8*9(%rsp), $f0		# |f1|
 	#mov	8*10(%rsp), $g0		# |g1|
 	mov	$f1, $f0
 	mov	$g1, $g0
 	mov	8*4(%rsp), $out_ptr	# original out_ptr
-	call	__smulq_767x63
+	call	__smulq_768x63
 
 	mov	8*5(%rsp), $in_ptr	# original n_ptr
-	mov	%rax, %rdx		# top limb of the result
-	sar	\$63, %rax		# result's sign as mask
+	mov	%rdx, @acc[5]		# the excess limb, -1, 0, or 1
+	sar	\$63, @acc[5]		# result's sign as mask
 
-	mov	%rax, @acc[0]		# mask |modulus|
-	mov	%rax, @acc[1]
-	mov	%rax, @acc[2]
+	mov	@acc[5], @acc[0]	# mask |modulus|
+	mov	@acc[5], @acc[1]
+	mov	@acc[5], @acc[2]
 	and	8*0($in_ptr), @acc[0]
 	and	8*1($in_ptr), @acc[1]
-	mov	%rax, @acc[3]
+	mov	@acc[5], @acc[3]
 	and	8*2($in_ptr), @acc[2]
 	and	8*3($in_ptr), @acc[3]
-	mov	%rax, @acc[4]
+	mov	@acc[5], @acc[4]
 	and	8*4($in_ptr), @acc[4]
-	and	8*5($in_ptr), %rax
+	and	8*5($in_ptr), @acc[5]
 
 	add	@acc[0], @acc[6]	# conditionally add |modulus|<<384
 	adc	@acc[1], @acc[7]
 	adc	@acc[2], @acc[8]
 	adc	@acc[3], @acc[9]
 	adc	@acc[4], %rcx
-	adc	%rax,    %rdx
+	adc	@acc[5], %rax
+	adc	\$0, %rdx
+
+	mov	%rdx, @acc[5]
+	neg	%rdx
+	or	%rdx, @acc[5]		# excess bit or sign as mask
+	sar	\$63, %rdx		# excess bit as mask
+
+	mov	@acc[5], @acc[0]	# mask |modulus|
+	mov	@acc[5], @acc[1]
+	mov	@acc[5], @acc[2]
+	and	8*0($in_ptr), @acc[0]
+	and	8*1($in_ptr), @acc[1]
+	mov	@acc[5], @acc[3]
+	and	8*2($in_ptr), @acc[2]
+	and	8*3($in_ptr), @acc[3]
+	mov	@acc[5], @acc[4]
+	and	8*4($in_ptr), @acc[4]
+	and	8*5($in_ptr), @acc[5]
+
+	xor	%rdx, @acc[0]		# conditionally negate |modulus|
+	xor	$in_ptr, $in_ptr
+	xor	%rdx, @acc[1]
+	sub	%rdx, $in_ptr
+	xor	%rdx, @acc[2]
+	xor	%rdx, @acc[3]
+	xor	%rdx, @acc[4]
+	xor	%rdx, @acc[5]
+	add	$in_ptr, @acc[0]
+	adc	\$0,  @acc[1]
+	adc	\$0,  @acc[2]
+	adc	\$0,  @acc[3]
+	adc	\$0,  @acc[4]
+	adc	\$0,  @acc[5]
+
+	add	@acc[0], @acc[6]	# final adjustment for |modulus|<<384
+	adc	@acc[1], @acc[7]
+	adc	@acc[2], @acc[8]
+	adc	@acc[3], @acc[9]
+	adc	@acc[4], %rcx
+	adc	@acc[5], %rax
 
 	mov	@acc[6], 8*6($out_ptr)	# store absolute value
 	mov	@acc[7], 8*7($out_ptr)
 	mov	@acc[8], 8*8($out_ptr)
 	mov	@acc[9], 8*9($out_ptr)
 	mov	%rcx,    8*10($out_ptr)
-	mov	%rdx,    8*11($out_ptr)
+	mov	%rax,    8*11($out_ptr)
 
 	lea	$frame(%rsp), %r8	# size optimization
 	mov	8*0(%r8),%r15
@@ -386,7 +431,7 @@ $code.=<<___;
 .cfi_epilogue
 	ret
 .cfi_endproc
-.size	ct_inverse_mod_383,.-ct_inverse_mod_383
+.size	ct_inverse_mod_384,.-ct_inverse_mod_384
 ___
 ########################################################################
 # see corresponding commentary in ctx_inverse_mod_384-x86_64...
@@ -396,15 +441,16 @@ my @acc = map("%r$_",(8..15),"bx","bp","cx","di");
 my $fx = @acc[9];
 
 $code.=<<___;
-.type	__smulq_767x63,\@abi-omnipotent
+.type	__smulq_768x63,\@abi-omnipotent
 .align	32
-__smulq_767x63:
+__smulq_768x63:
 	mov	8*0($in_ptr), @acc[0]	# load |u|
 	mov	8*1($in_ptr), @acc[1]
 	mov	8*2($in_ptr), @acc[2]
 	mov	8*3($in_ptr), @acc[3]
 	mov	8*4($in_ptr), @acc[4]
 	mov	8*5($in_ptr), @acc[5]
+	mov	8*6($in_ptr), @acc[6]	# sign limb
 
 	mov	$f0, $fx
 	sar	\$63, $f0		# |f0|'s sign as mask
@@ -413,7 +459,7 @@ __smulq_767x63:
 
 	mov	$out_ptr, 8*1(%rsp)
 	mov	$in_ptr, 8*2(%rsp)
-	lea	8*6($in_ptr), $in_ptr	# pointer to |v|
+	lea	8*7($in_ptr), $in_ptr	# pointer to |v|
 
 	xor	$f0, $fx		# conditionally negate |f0|
 	add	%rax, $fx
@@ -424,16 +470,20 @@ __smulq_767x63:
 	xor	$f0, @acc[3]
 	xor	$f0, @acc[4]
 	xor	$f0, @acc[5]
+	xor	$f0, @acc[6]
 	add	@acc[0], %rax
 	adc	\$0, @acc[1]
 	adc	\$0, @acc[2]
 	adc	\$0, @acc[3]
 	adc	\$0, @acc[4]
 	adc	\$0, @acc[5]
+	adc	\$0, @acc[6]
 
 	mulq	$fx			# |u|*|f0|
 	mov	%rax, 8*0($out_ptr)	# offload |u|*|f0|
 	mov	@acc[1], %rax
+	and	$fx, @acc[6]
+	neg	@acc[6]
 	mov	%rdx, @acc[1]
 ___
 for($i=1; $i<5; $i++) {
@@ -447,14 +497,14 @@ $code.=<<___;
 ___
 }
 $code.=<<___;
-	imulq	$fx
+	mulq	$fx
 	add	%rax, @acc[$i]
-	adc	\$0, %rdx
+	adc	%rdx, @acc[6]
 
 	mov	@acc[5], 8*5($out_ptr)
-	mov	%rdx, 8*6($out_ptr)
-	sar	\$63, %rdx		# sign extension
-	mov	%rdx, 8*7($out_ptr)
+	mov	@acc[6], 8*6($out_ptr)
+	sar	\$63, @acc[6]		# sign extension
+	mov	@acc[6], 8*7($out_ptr)
 ___
 {
 my $fx=$in_ptr;
@@ -522,48 +572,50 @@ $code.=<<___;
 ___
 }
 $code.=<<___;
-	mov	8*1(%rsp), %rdx		# out_ptr
-	imulq	$fx, %rax
-	mov	8*2(%rsp), $in_ptr	# restore original in_ptr
+	imulq	$fx
+	mov	8*1(%rsp), $in_ptr	# borrow for out_ptr
 	add	@acc[11], %rax
+	adc	\$0, %rdx		# used in the final step
 
-	add	8*0(%rdx), @acc[0]	# accumulate |u|*|f0|
-	adc	8*1(%rdx), @acc[1]
-	adc	8*2(%rdx), @acc[2]
-	adc	8*3(%rdx), @acc[3]
-	adc	8*4(%rdx), @acc[4]
-	adc	8*5(%rdx), @acc[5]
-	adc	8*6(%rdx), @acc[6]
-	mov	8*7(%rdx), @acc[11]	# sign extension
+	add	8*0($in_ptr), @acc[0]	# accumulate |u|*|f0|
+	adc	8*1($in_ptr), @acc[1]
+	adc	8*2($in_ptr), @acc[2]
+	adc	8*3($in_ptr), @acc[3]
+	adc	8*4($in_ptr), @acc[4]
+	adc	8*5($in_ptr), @acc[5]
+	adc	8*6($in_ptr), @acc[6]
+	mov	8*7($in_ptr), @acc[11]	# sign extension
 	adc	@acc[11], @acc[7]
 	adc	@acc[11], @acc[8]
 	adc	@acc[11], @acc[9]
 	adc	@acc[11], @acc[10]
 	adc	@acc[11], %rax
+	adc	@acc[11], %rdx
 
-	mov	%rdx, $out_ptr		# restore original out_ptr
+	lea	($in_ptr), $out_ptr	# restore original out_ptr
+	mov	8*2(%rsp), $in_ptr	# restore original in_ptr
 
-	mov	@acc[0], 8*0(%rdx)
-	mov	@acc[1], 8*1(%rdx)
-	mov	@acc[2], 8*2(%rdx)
-	mov	@acc[3], 8*3(%rdx)
-	mov	@acc[4], 8*4(%rdx)
-	mov	@acc[5], 8*5(%rdx)
-	mov	@acc[6], 8*6(%rdx)
-	mov	@acc[7], 8*7(%rdx)
-	mov	@acc[8], 8*8(%rdx)
-	mov	@acc[9], 8*9(%rdx)
-	mov	@acc[10], 8*10(%rdx)
-	mov	%rax,     8*11(%rdx)
+	mov	@acc[0], 8*0($out_ptr)
+	mov	@acc[1], 8*1($out_ptr)
+	mov	@acc[2], 8*2($out_ptr)
+	mov	@acc[3], 8*3($out_ptr)
+	mov	@acc[4], 8*4($out_ptr)
+	mov	@acc[5], 8*5($out_ptr)
+	mov	@acc[6], 8*6($out_ptr)
+	mov	@acc[7], 8*7($out_ptr)
+	mov	@acc[8], 8*8($out_ptr)
+	mov	@acc[9], 8*9($out_ptr)
+	mov	@acc[10], 8*10($out_ptr)
+	mov	%rax,     8*11($out_ptr)
 
 	ret
-.size	__smulq_767x63,.-__smulq_767x63
+.size	__smulq_768x63,.-__smulq_768x63
 ___
 }
 $code.=<<___;
-.type	__smulq_383x63,\@abi-omnipotent
+.type	__smulq_384x63,\@abi-omnipotent
 .align	32
-__smulq_383x63:
+__smulq_384x63:
 ___
 for($j=0; $j<2; $j++) {
 $code.=<<___;
@@ -573,6 +625,7 @@ $code.=<<___;
 	mov	8*3($in_ptr), @acc[3]
 	mov	8*4($in_ptr), @acc[4]
 	mov	8*5($in_ptr), @acc[5]
+	mov	8*6($in_ptr), @acc[6]	# sign/excess limb
 
 	mov	%rdx, $fx
 	sar	\$63, %rdx		# |f0|'s sign as mask (or |g0|'s)
@@ -588,16 +641,20 @@ $code.=<<___;
 	xor	%rdx, @acc[3]
 	xor	%rdx, @acc[4]
 	xor	%rdx, @acc[5]
+	xor	%rdx, @acc[6]
 	add	@acc[0], %rax
 	adc	\$0, @acc[1]
 	adc	\$0, @acc[2]
 	adc	\$0, @acc[3]
 	adc	\$0, @acc[4]
 	adc	\$0, @acc[5]
+	adc	\$0, @acc[6]
 
 	mulq	$fx			# |u|*|f0| (or |v|*|g0|)
 	mov	%rax, @acc[0]
 	mov	@acc[1], %rax
+	and	$fx, @acc[6]
+	neg	@acc[6]
 	mov	%rdx, @acc[1]
 ___
 for($i=1; $i<5; $i++) {
@@ -610,10 +667,11 @@ $code.=<<___;
 ___
 }
 $code.=<<___	if ($j==0);
-	imulq	$fx, %rax
-	add	%rax, @acc[$i]
+	mulq	$fx
+	add	%rax, @acc[5]
+	adc	%rdx, @acc[6]
 
-	lea	8*6($in_ptr), $in_ptr	# pointer to |v|
+	lea	8*7($in_ptr), $in_ptr	# pointer to |v|
 	mov	$g0, %rdx
 
 	mov	@acc[0], 8*0($out_ptr)	# offload |u|*|f0|
@@ -621,21 +679,24 @@ $code.=<<___	if ($j==0);
 	mov	@acc[2], 8*2($out_ptr)
 	mov	@acc[3], 8*3($out_ptr)
 	mov	@acc[4], 8*4($out_ptr)
-	mov	@acc[5], 8*5($out_ptr)
+	mov	@acc[5], @acc[7]
+	mov	@acc[6], @acc[8]
 ___
 }
 $code.=<<___;
-	imulq	$fx, %rax
-	add	%rax, @acc[$i]
+	mulq	$fx
+	add	%rax, @acc[5]
+	adc	%rdx, @acc[6]
 
-	lea	-8*6($in_ptr), $in_ptr	# restore original in_ptr
+	lea	-8*7($in_ptr), $in_ptr	# restore original in_ptr
 
 	add	8*0($out_ptr), @acc[0]	# accumulate |u|*|f0|
 	adc	8*1($out_ptr), @acc[1]
 	adc	8*2($out_ptr), @acc[2]
 	adc	8*3($out_ptr), @acc[3]
 	adc	8*4($out_ptr), @acc[4]
-	adc	8*5($out_ptr), @acc[5]
+	adc	@acc[7],       @acc[5]
+	adc	@acc[8],       @acc[6]
 
 	mov	@acc[0], 8*0($out_ptr)
 	mov	@acc[1], 8*1($out_ptr)
@@ -643,19 +704,21 @@ $code.=<<___;
 	mov	@acc[3], 8*3($out_ptr)
 	mov	@acc[4], 8*4($out_ptr)
 	mov	@acc[5], 8*5($out_ptr)
+	mov	@acc[6], 8*6($out_ptr)
 
 	ret
-.size	__smulq_383x63,.-__smulq_383x63
+.size	__smulq_384x63,.-__smulq_384x63
 ___
 {
 $code.=<<___;
-.type	__smulq_383_n_shift_by_62,\@abi-omnipotent
+.type	__smulq_384_n_shift_by_62,\@abi-omnipotent
 .align	32
-__smulq_383_n_shift_by_62:
+__smulq_384_n_shift_by_62:
 	mov	$f0, @acc[8]
 ___
 my $f0 = @acc[8];
 for($j=0; $j<2; $j++) {
+my $top = $j==0 ? @acc[6] : @acc[7];
 $code.=<<___;
 	mov	8*0($in_ptr), @acc[0]	# load |a| (or |b|)
 	mov	8*1($in_ptr), @acc[1]
@@ -678,6 +741,7 @@ $code.=<<___;
 	xor	%rdx, @acc[3]
 	xor	%rdx, @acc[4]
 	xor	%rdx, @acc[5]
+	mov	%rdx, $top
 	add	@acc[0], %rax
 	adc	\$0, @acc[1]
 	adc	\$0, @acc[2]
@@ -688,6 +752,8 @@ $code.=<<___;
 	mulq	$fx			# |a|*|f0| (or |b|*|g0|)
 	mov	%rax, @acc[0]
 	mov	@acc[1], %rax
+	and	$fx, $top
+	neg	$top
 	mov	%rdx, @acc[1]
 ___
 for($i=1; $i<5; $i++) {
@@ -700,12 +766,11 @@ $code.=<<___;
 ___
 }
 $code.=<<___	if ($j==0);
-	imulq	$fx
+	mulq	$fx
 	add	%rax, @acc[$i]
-	adc	\$0, %rdx
+	adc	%rdx, $top
 
 	lea	8*6($in_ptr), $in_ptr	# pointer to |b|
-	mov	%rdx, @acc[6]
 	mov	$g0, %rdx
 
 	mov	@acc[0], 8*0($out_ptr)
@@ -717,11 +782,12 @@ $code.=<<___	if ($j==0);
 ___
 }
 $code.=<<___;
-	imulq	$fx
+	mulq	$fx
 	add	%rax, @acc[$i]
-	adc	\$0, %rdx
+	adc	%rdx, @acc[7]
 
 	lea	-8*6($in_ptr), $in_ptr	# restore original in_ptr
+	mov	$f0, %rdx
 
 	add	8*0($out_ptr), @acc[0]
 	adc	8*1($out_ptr), @acc[1]
@@ -729,8 +795,7 @@ $code.=<<___;
 	adc	8*3($out_ptr), @acc[3]
 	adc	8*4($out_ptr), @acc[4]
 	adc	8*5($out_ptr), @acc[5]
-	adc	%rdx,          @acc[6]
-	mov	$f0, %rdx
+	adc	@acc[7],       @acc[6]
 
 	shrd	\$62, @acc[1], @acc[0]
 	shrd	\$62, @acc[2], @acc[1]
@@ -769,7 +834,7 @@ $code.=<<___;
 	add	$fx, $g0
 
 	ret	# __SGX_LVI_HARDENING_CLOBBER__=@acc[0]
-.size	__smulq_383_n_shift_by_62,.-__smulq_383_n_shift_by_62
+.size	__smulq_384_n_shift_by_62,.-__smulq_384_n_shift_by_62
 ___
 } }
 

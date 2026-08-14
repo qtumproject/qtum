@@ -26,6 +26,7 @@ $code.=<<___;
 .type	div_3_limbs,%function
 .align	5
 div_3_limbs:
+	hint	#34
 	ldp	x4,x5,[x0]	// load R
 	eor	x0,x0,x0	// Q = 0
 	mov	x3,#64		// loop counter
@@ -68,6 +69,7 @@ $code.=<<___;
 .type	quot_rem_128,%function
 .align	5
 quot_rem_128:
+	hint	#34
 	ldp	@div[0],@div[1],[$divisor]
 
 	mul	@acc[0],@div[0],$quot	// divisor[0:1} * quotient
@@ -105,6 +107,7 @@ quot_rem_128:
 .type	quot_rem_64,%function
 .align	5
 quot_rem_64:
+	hint	#34
 	ldr	@div[0],[$divisor]
 	ldr	@t[0],[$div_rem]	// load 1 limb of the dividend
 

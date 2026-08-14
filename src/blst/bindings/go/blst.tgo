@@ -158,15 +158,15 @@ const BLST_P1_SERIALIZE_BYTES = BLST_FP_BYTES * 2
 const BLST_P2_COMPRESS_BYTES = BLST_FP_BYTES * 2
 const BLST_P2_SERIALIZE_BYTES = BLST_FP_BYTES * 4
 
-type Scalar = C.blst_scalar
-type Fp = C.blst_fp
-type Fp2 = C.blst_fp2
+type Scalar struct{ cgo C.blst_scalar }
+type Fp struct{ cgo C.blst_fp }
+type Fp2 struct{ cgo C.blst_fp2 }
 type Fp6 = C.blst_fp6
-type Fp12 = C.blst_fp12
-type P1 = C.blst_p1
-type P2 = C.blst_p2
-type P1Affine = C.blst_p1_affine
-type P2Affine = C.blst_p2_affine
+type Fp12 struct{ cgo C.blst_fp12 }
+type P1 struct{ cgo C.blst_p1 }
+type P2 struct{ cgo C.blst_p2 }
+type P1Affine struct{ cgo C.blst_p1_affine }
+type P2Affine struct{ cgo C.blst_p2_affine }
 type Message = []byte
 type Pairing = []C.blst_pairing
 type SecretKey = Scalar
@@ -195,11 +195,11 @@ func initMaxProcs() int {
     return maxProcs
 }
 
-func SetMaxProcs(max int) {
-    if max <= 0 {
-        max = 1
+func SetMaxProcs(procs int) {
+    if procs <= 0 {
+        procs = 1
     }
-    maxProcs = max
+    maxProcs = procs
 }
 
 func numThreads(maxThreads int) int {
@@ -219,9 +219,9 @@ func numThreads(maxThreads int) int {
 }
 
 var cgo_pairingSizeOf = C.blst_pairing_sizeof()
-var cgo_p1Generator = *C.blst_p1_generator()
-var cgo_p2Generator = *C.blst_p2_generator()
-var cgo_fp12One = *C.blst_fp12_one()
+var cgo_p1Generator = P1{*C.blst_p1_generator()}
+var cgo_p2Generator = P2{*C.blst_p2_generator()}
+var cgo_fp12One = Fp12{*C.blst_fp12_one()}
 
 //
 // Secret key
@@ -240,8 +240,8 @@ func KeyGen(ikm []byte, optional ...[]byte) *SecretKey {
     if len(ikm) < 32 {
         return nil
     }
-    C.blst_keygen(&sk, (*C.byte)(&ikm[0]), C.size_t(len(ikm)),
-                       ptrOrNil(info), C.size_t(len(info)))
+    C.blst_keygen(&sk.cgo, (*C.byte)(&ikm[0]), C.size_t(len(ikm)),
+                           ptrOrNil(info), C.size_t(len(info)))
     // Postponing secret key zeroing till garbage collection can be too
     // late to be effective, but every little bit helps...
     runtime.SetFinalizer(&sk, func(sk *SecretKey) { sk.Zeroize() })
@@ -257,8 +257,8 @@ func KeyGenV3(ikm []byte, optional ...[]byte) *SecretKey {
     if len(optional) > 0 {
         info = optional[0]
     }
-    C.blst_keygen_v3(&sk, (*C.byte)(&ikm[0]), C.size_t(len(ikm)),
-                          ptrOrNil(info), C.size_t(len(info)))
+    C.blst_keygen_v3(&sk.cgo, (*C.byte)(&ikm[0]), C.size_t(len(ikm)),
+                              ptrOrNil(info), C.size_t(len(info)))
     // Postponing secret key zeroing till garbage collection can be too
     // late to be effective, but every little bit helps...
     runtime.SetFinalizer(&sk, func(sk *SecretKey) { sk.Zeroize() })
@@ -274,9 +274,9 @@ func KeyGenV45(ikm []byte, salt []byte, optional ...[]byte) *SecretKey {
     if len(optional) > 0 {
         info = optional[0]
     }
-    C.blst_keygen_v4_5(&sk, (*C.byte)(&ikm[0]), C.size_t(len(ikm)),
-                            (*C.byte)(&salt[0]), C.size_t(len(salt)),
-                            ptrOrNil(info), C.size_t(len(info)))
+    C.blst_keygen_v4_5(&sk.cgo, (*C.byte)(&ikm[0]), C.size_t(len(ikm)),
+                                (*C.byte)(&salt[0]), C.size_t(len(salt)),
+                                ptrOrNil(info), C.size_t(len(info)))
     // Postponing secret key zeroing till garbage collection can be too
     // late to be effective, but every little bit helps...
     runtime.SetFinalizer(&sk, func(sk *SecretKey) { sk.Zeroize() })
@@ -292,9 +292,9 @@ func KeyGenV5(ikm []byte, salt []byte, optional ...[]byte) *SecretKey {
     if len(optional) > 0 {
         info = optional[0]
     }
-    C.blst_keygen_v5(&sk, (*C.byte)(&ikm[0]), C.size_t(len(ikm)),
-                          (*C.byte)(&salt[0]), C.size_t(len(salt)),
-                          ptrOrNil(info), C.size_t(len(info)))
+    C.blst_keygen_v5(&sk.cgo, (*C.byte)(&ikm[0]), C.size_t(len(ikm)),
+                              (*C.byte)(&salt[0]), C.size_t(len(salt)),
+                              ptrOrNil(info), C.size_t(len(info)))
     // Postponing secret key zeroing till garbage collection can be too
     // late to be effective, but every little bit helps...
     runtime.SetFinalizer(&sk, func(sk *SecretKey) { sk.Zeroize() })
@@ -306,7 +306,7 @@ func DeriveMasterEip2333(ikm []byte) *SecretKey {
         return nil
     }
     var sk SecretKey
-    C.blst_derive_master_eip2333(&sk, (*C.byte)(&ikm[0]), C.size_t(len(ikm)))
+    C.blst_derive_master_eip2333(&sk.cgo, (*C.byte)(&ikm[0]), C.size_t(len(ikm)))
     // Postponing secret key zeroing till garbage collection can be too
     // late to be effective, but every little bit helps...
     runtime.SetFinalizer(&sk, func(sk *SecretKey) { sk.Zeroize() })
@@ -315,7 +315,7 @@ func DeriveMasterEip2333(ikm []byte) *SecretKey {
 
 func (master *SecretKey) DeriveChildEip2333(child_index uint32) *SecretKey {
     var sk SecretKey
-    C.blst_derive_child_eip2333(&sk, master, C.uint(child_index))
+    C.blst_derive_child_eip2333(&sk.cgo, &master.cgo, C.uint(child_index))
     // Postponing secret key zeroing till garbage collection can be too
     // late to be effective, but every little bit helps...
     runtime.SetFinalizer(&sk, func(sk *SecretKey) { sk.Zeroize() })
@@ -350,16 +350,16 @@ func PairingFinalVerify(ctx Pairing, optional ...*Fp12) bool {
     if len(optional) > 0 {
         gtsig = optional[0]
     }
-    return bool(C.blst_pairing_finalverify(&ctx[0], gtsig))
+    return bool(C.blst_pairing_finalverify(&ctx[0], gtsig.asPtr()))
 }
 
 func PairingRawAggregate(ctx Pairing, q *P2Affine, p *P1Affine) {
-    C.blst_pairing_raw_aggregate(&ctx[0], q, p)
+    C.blst_pairing_raw_aggregate(&ctx[0], &q.cgo, &p.cgo)
 }
 
 func PairingAsFp12(ctx Pairing) *Fp12 {
     var pt Fp12
-    C.go_pairing_as_fp12(&pt, &ctx[0])
+    C.go_pairing_as_fp12(&pt.cgo, &ctx[0])
     return &pt
 }
 
@@ -368,12 +368,12 @@ func Fp12One() Fp12 {
 }
 
 func Fp12FinalVerify(pt1 *Fp12, pt2 *Fp12) bool {
-    return bool(C.blst_fp12_finalverify(pt1, pt2))
+    return bool(C.blst_fp12_finalverify(&pt1.cgo, &pt2.cgo))
 }
 
 func Fp12MillerLoop(q *P2Affine, p *P1Affine) *Fp12 {
     var pt Fp12
-    C.blst_miller_loop(&pt, q, p)
+    C.blst_miller_loop(&pt.cgo, &q.cgo, &p.cgo)
     return &pt
 }
 
@@ -387,7 +387,7 @@ func Fp12MillerLoopN(qs []P2Affine, ps []P1Affine) *Fp12 {
 
     if nThreads == 1 || nElems == 1 {
         var pt Fp12
-        C.go_miller_loop_n(&pt, &qs[0], &ps[0], C.size_t(nElems), false)
+        C.go_miller_loop_n(&pt.cgo, &qs[0].cgo, &ps[0].cgo, C.size_t(nElems), false)
         return &pt
     }
 
@@ -417,7 +417,7 @@ func Fp12MillerLoopN(qs []P2Affine, ps []P1Affine) *Fp12 {
                 if n > stride {
                     n = stride
                 }
-                C.go_miller_loop_n(&acc, &qs[work], &ps[work], C.size_t(n),
+                C.go_miller_loop_n(&acc.cgo, &qs[work].cgo, &ps[work].cgo, C.size_t(n),
                                    C.bool(!first))
                 first = false
             }
@@ -431,30 +431,38 @@ func Fp12MillerLoopN(qs []P2Affine, ps []P1Affine) *Fp12 {
     }
 
     var pt Fp12
-    C.go_fp12slice_mul(&pt, &ret[0], C.size_t(nThreads))
+    C.go_fp12slice_mul(&pt.cgo, &ret[0].cgo, C.size_t(nThreads))
     return &pt
 }
 
 func (pt *Fp12) MulAssign(p *Fp12) {
-    C.blst_fp12_mul(pt, pt, p)
+    C.blst_fp12_mul(&pt.cgo, &pt.cgo, &p.cgo)
 }
 
 func (pt *Fp12) FinalExp() {
-    C.blst_final_exp(pt, pt)
+    C.blst_final_exp(&pt.cgo, &pt.cgo)
 }
 
 func (pt *Fp12) InGroup() bool {
-    return bool(C.blst_fp12_in_group(pt))
+    return bool(C.blst_fp12_in_group(&pt.cgo))
 }
 
 func (pt *Fp12) ToBendian() []byte {
     var out [BLST_FP_BYTES*12]byte
-    C.blst_bendian_from_fp12((*C.byte)(&out[0]), pt)
+    C.blst_bendian_from_fp12((*C.byte)(&out[0]), &pt.cgo)
     return out[:]
 }
 
 func (pt1 *Fp12) Equals(pt2 *Fp12) bool {
     return *pt1 == *pt2
+}
+
+func (pt *Fp12) asPtr() *C.blst_fp12 {
+    if (pt != nil) {
+        return &pt.cgo
+    }
+
+    return nil
 }
 
 func ptrOrNil(bytes []byte) *C.byte {

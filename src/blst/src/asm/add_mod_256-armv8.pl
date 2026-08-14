@@ -33,6 +33,7 @@ $code.=<<___;
 .type	add_mod_256,%function
 .align	5
 add_mod_256:
+	hint	#34
 	ldp	@a[0],@a[1],[$a_ptr]
 	ldp	@b[0],@b[1],[$b_ptr]
 
@@ -67,6 +68,7 @@ add_mod_256:
 .type	mul_by_3_mod_256,%function
 .align	5
 mul_by_3_mod_256:
+	hint	#34
 	ldp	@b[0],@b[1],[$a_ptr]
 	ldp	@b[2],@b[3],[$a_ptr,#16]
 
@@ -116,6 +118,7 @@ mul_by_3_mod_256:
 .type	lshift_mod_256,%function
 .align	5
 lshift_mod_256:
+	hint	#34
 	ldp	@a[0],@a[1],[$a_ptr]
 	ldp	@a[2],@a[3],[$a_ptr,#16]
 
@@ -154,6 +157,7 @@ lshift_mod_256:
 .type	rshift_mod_256,%function
 .align	5
 rshift_mod_256:
+	hint	#34
 	ldp	@a[0],@a[1],[$a_ptr]
 	ldp	@a[2],@a[3],[$a_ptr,#16]
 

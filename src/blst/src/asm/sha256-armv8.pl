@@ -81,9 +81,11 @@ my ($ABCD_SAVE,$EFGH_SAVE)=("v18.16b","v19.16b");
 
 $code.=<<___;
 .globl	${pre}sha256_block_armv8
+.hidden	${pre}sha256_block_armv8
 .type	${pre}sha256_block_armv8,%function
 .align	6
 ${pre}sha256_block_armv8:
+	hint		#34
 .Lv8_entry:
 	stp		c29,c30,[csp,#-2*__SIZEOF_POINTER__]!
 	add		c29,csp,#0
@@ -341,9 +343,11 @@ sub body_00_15 () {
 
 $code.=<<___;
 .globl	${pre}sha256_block_data_order
+.hidden	${pre}sha256_block_data_order
 .type	${pre}sha256_block_data_order,%function
 .align	4
 ${pre}sha256_block_data_order:
+	hint	#34
 	adrp	c16,__blst_platform_cap
 	ldr	w16,[c16,#:lo12:__blst_platform_cap]
 	tst	w16,#1
@@ -453,6 +457,7 @@ $code.=<<___;
 .type	${pre}sha256_emit,%function
 .align	4
 ${pre}sha256_emit:
+	hint	#34
 	ldp	x4,x5,[$inp]
 	ldp	x6,x7,[$inp,#16]
 #ifndef	__AARCH64EB__
@@ -481,6 +486,7 @@ ${pre}sha256_emit:
 .type	${pre}sha256_bcopy,%function
 .align	4
 ${pre}sha256_bcopy:
+	hint	#34
 .Loop_bcopy:
 	ldrb	w3,[$inp],#1
 	sub	$len,$len,#1
@@ -494,6 +500,7 @@ ${pre}sha256_bcopy:
 .type	${pre}sha256_hcopy,%function
 .align	4
 ${pre}sha256_hcopy:
+	hint	#34
 	ldp	x4,x5,[$inp]
 	ldp	x6,x7,[$inp,#16]
 	stp	x4,x5,[$out]

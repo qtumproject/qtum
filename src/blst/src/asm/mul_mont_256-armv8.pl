@@ -38,6 +38,7 @@ $code.=<<___;
 .type	mul_mont_sparse_256,%function
 .align	5
 mul_mont_sparse_256:
+	hint	#34
 	stp	c29,c30,[csp,#-8*__SIZEOF_POINTER__]!
 	add	c29,csp,#0
 	stp	c19,c20,[csp,#2*__SIZEOF_POINTER__]
