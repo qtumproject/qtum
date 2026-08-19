@@ -152,6 +152,7 @@ add_executable(test_qtum
   qtumtests/kzg_tests.cpp
   qtumtests/bls_tests.cpp
   qtumtests/pectrafork_tests.cpp
+  qtumtests/secp256r1_tests.cpp
 )
 
 include(TargetDataSources)
@@ -187,6 +188,16 @@ target_json_data_sources(test_qtum
   qtumtests/data/fail_map_fp_to_G1_bls.json
   qtumtests/data/map_fp2_to_G2_bls.json
   qtumtests/data/fail_map_fp2_to_G2_bls.json
+  qtumtests/data/secp256r1_k_and_s.json
+  qtumtests/data/secp256r1_modified_r_s.json
+  qtumtests/data/secp256r1_public_key.json
+  qtumtests/data/secp256r1_shamir_multiplication.json
+  qtumtests/data/secp256r1_signature_specific.json
+  qtumtests/data/secp256r1_small_large_r_s.json
+  qtumtests/data/secp256r1_special_case_hash.json
+  qtumtests/data/secp256r1_special_case_r_s.json
+  qtumtests/data/secp256r1_special_points.json
+  qtumtests/data/secp256r1_u1_u2.json
   data/base58_encode_decode.json
   data/bip341_wallet_vectors.json
   data/blockfilters.json

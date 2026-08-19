@@ -70,7 +70,11 @@ BOOST_AUTO_TEST_CASE(kzg_verify_proof_constant){
 BOOST_AUTO_TEST_CASE(checking_point_evaluation){
     // Call point_evaluation 0xa
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
-    dev::u256 blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    dev::u256 blockNumber = 0;
+    {
+        LOCK(::cs_main);
+        blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    }
     RunPrecompiledTests(point_evaluation, point_evaluation, params, blockNumber);
 }
 

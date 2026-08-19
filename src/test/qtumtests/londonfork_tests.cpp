@@ -256,7 +256,11 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
     //------------------------------------
 
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
-    dev::u256 blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    dev::u256 blockNumber = 0;
+    {
+        LOCK(::cs_main);
+        blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    }
 
     // Call btc_ecrecover 0x85
     RunPrecompiledTests(btc_ecrecover, btc_ecrecover, params, blockNumber);
@@ -399,7 +403,11 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
     //------------------------------------
 
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
-    dev::u256 blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    dev::u256 blockNumber = 0;
+    {
+        LOCK(::cs_main);
+        blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    }
 
     // Call btc_ecrecover 0x85
     RunPrecompiledTests(btc_ecrecover, btc_ecrecover, params, blockNumber);
