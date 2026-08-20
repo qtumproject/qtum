@@ -19,7 +19,8 @@ public:
      */
     PrecompiledTester(const std::string& _name,
                       const dev::eth::ChainOperationParams& _chainParams,
-                      const dev::u256& _blockNumber):
+                      const dev::u256& _blockNumber,
+                      const std::string& gasSuffix = std::string()):
         chainParams(_chainParams),
         blockNumber(_blockNumber),
         callName(_name)
@@ -27,6 +28,7 @@ public:
         // Get the executor and gas pricer for the precompiled contract
         exec = dev::eth::PrecompiledRegistrar::executor(_name);
         cost = dev::eth::PrecompiledRegistrar::pricer(_name);
+        gasName = "Gas" + gasSuffix;
     }
 
     /**
@@ -52,7 +54,7 @@ public:
                 std::string strInput = tv["Input"].get_str();
                 std::string strExpected = tv["Expected"].get_str();
                 std::string strName = tv["Name"].get_str();
-                int gas = tv["Gas"].getInt<int>();
+                int gas = tv[gasName].getInt<int>();
                 bool result = true;
                 if(tv.exists("Result"))
                     result = tv["Result"].get_bool();
@@ -100,13 +102,20 @@ private:
     dev::eth::ChainOperationParams chainParams;
     dev::u256 blockNumber;
     std::string callName;
+    std::string gasName;
 };
 
-#define RunPrecompiledTests(contract, data, params, blockNumber)\
+#define RunPrecompiledTestsBase(contract, data, params, blockNumber, gasSuffix)\
     do {\
         std::string name = #contract;\
-        PrecompiledTester tester(name, params, blockNumber);\
+        PrecompiledTester tester(name, params, blockNumber, gasSuffix);\
         tester.performTests(json_tests::data);\
     } while(false)
+
+#define RunPrecompiledTests(contract, data, params, blockNumber) RunPrecompiledTestsBase(contract, data, params, blockNumber, "")
+
+#define RunOldPrecompiledTests(contract, data, params, blockNumber) RunPrecompiledTestsBase(contract, data, params, blockNumber, "Old")
+
+#define RunNewPrecompiledTests(contract, data, params, blockNumber) RunPrecompiledTestsBase(contract, data, params, blockNumber, "New")
 
 #endif // QTUMTESTS_PRECOMPILED_UTILS_H

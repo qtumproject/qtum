@@ -163,7 +163,6 @@ target_json_data_sources(test_qtum
   qtumtests/data/ripemd160.json
   qtumtests/data/identity.json
   qtumtests/data/modexp.json
-  qtumtests/data/modexp_eip2565.json
   qtumtests/data/alt_bn128_G1_add.json
   qtumtests/data/alt_bn128_G1_mul.json
   qtumtests/data/alt_bn128_pairing_product.json
