@@ -3,64 +3,55 @@
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023d45c5740946b2a147f59262ee6f5bc90bd01ed280528b62b3aed5fc93f06f739b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #3: Modified r or s, e.g. by adding or subtracting the order of the group",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #3: Modified r or s, e.g. by adding or subtracting the order of the group"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023d45c5741946b2a137f59262ee6f5bc91001af27a5e1117a64733950642a3d1e8b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #5: Modified r or s, e.g. by adding or subtracting the order of the group",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #5: Modified r or s, e.g. by adding or subtracting the order of the group"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050232ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e184cd60b865d442f5a3c7b11eb6c4e0ae79578ec6353a20bf783ecb4b6ea97b8252927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #8: Modified r or s, e.g. by adding or subtracting the order of the group",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #8: Modified r or s, e.g. by adding or subtracting the order of the group"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca60502329a3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e18b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #118: modify first byte of integer",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #118: modify first byte of integer"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050232ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e98b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b49156847db2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #120: modify last byte of integer",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #120: modify last byte of integer"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050232ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e18b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b491568475b2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #121: modify last byte of integer",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #121: modify last byte of integer"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050232ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e1800b329f479a2bbd0a5c384ee1493b1f5186a87139cac5df4087c134b491568472927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #124: truncated integer",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #124: truncated integer"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050232ba3a8be6b94d5ec80a6d9d1190a436effe50d85a1eee859b8cc6af9bd5c2e18b329f47aa2bbd0a4c384ee1493b1f518ada018ef05465583885980861905228a2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #139: Modified r or s, e.g. by adding or subtracting the order of the group",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #139: Modified r or s, e.g. by adding or subtracting the order of the group"
   },
   {
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25ffffffff00000001000000000000000000000000fffffffffffffffffffffffcffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63254ed705d16f80987e2d9b1a6957d29ce22febf7d10fa515153182415c8361baaca4b1fc105ee5ce80d514ec1238beae2037a6f83625593620d460819e8682160926",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #636: r too large",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #636: r too large"
   },
   {
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63254fffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63254e3cd8d2f81d6953b0844c09d7b560d527cd2ef67056893eadafa52c8501387d59ee41fdb4d10402ce7a0c5e3b747adfa3a490b62a6b7719068903485c0bb6dc2d",

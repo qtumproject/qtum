@@ -9,8 +9,7 @@
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050237fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8555555550000000055555555555555553ef7a8e48d07df81a693439654210c70b533d4695dd5b8c5e07757e55e6e516f7e2c88fa0239e23f60e8ec07dd70f2871b134ee58cc583278456863f33c3a85d881f7d4a39850143e29d4eaf009afe47",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #136: point at infinity during verify",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #136: point at infinity during verify"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050236f2347cab7dd76858fe0555ac3bc99048c4aacafdfb6bcbe05ea6c42c4934569bb726660235793aa9957a61e76e00c2c435109cf9a15dd624d53f4301047856b5b812fd521aafa69835a849cce6fbdeb6983b442d2444fe70e134c027fc46963838a40f2a36092e9004e92d8d940cf5638550ce672ce8b8d4e15eba5499249e9",
@@ -22,57 +21,49 @@
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050236f2347cab7dd76858fe0555ac3bc99048c4aacafdfb6bcbe05ea6c42c4934569bb726660235793aa9957a61e76e00c2c435109cf9a15dd624d53f4301047856b5b812fd521aafa69835a849cce6fbdeb6983b442d2444fe70e134c027fc469637c75bf0c5c9f6d17ffb16d2726bf30a9c7aaf31a8d317472b1ea145ab66db616",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #172: duplication bug",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #172: duplication bug"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000001555555550000000055555555555555553ef7a8e48d07df81a693439654210c706adda82b90261b0f319faa0d878665a6b6da497f09c903176222c34acfef72a647e6f50dcc40ad5d9b59f7602bb222fad71a41bf5e1f9df4959a364c62e488d9",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #173: point with x-coordinate 0",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #173: point with x-coordinate 0"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023555555550000000055555555555555553ef7a8e48d07df81a693439654210c703333333300000000333333333333333325c7cbbc549e52e763f1f55a327a3aa9dd86d3b5f4a13e8511083b78002081c53ff467f11ebd98a51a633db76665d25045d5c8200c89f2fa10d849349226d21d8dfaed6ff8d5cb3e1b7e17474ebc18f7",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #175: comparison with point at infinity ",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #175: comparison with point at infinity "
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023249249246db6db6ddb6db6db6db6db6dad4591868595a8ee6bf5f864ff7be0c26b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #188: testing point duplication",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #188: testing point duplication"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca60502344a5ad0ad0636d9f12bc9e0a6bdd5e1cbcb012ea7bf091fcec15b0c43202d52e249249246db6db6ddb6db6db6db6db6dad4591868595a8ee6bf5f864ff7be0c26b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #189: testing point duplication",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #189: testing point duplication"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023249249246db6db6ddb6db6db6db6db6dad4591868595a8ee6bf5f864ff7be0c26b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296b01cbd1c01e58065711814b583f061e9d431cca994cea1313449bf97c840ae0a",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #190: testing point duplication",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #190: testing point duplication"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca60502344a5ad0ad0636d9f12bc9e0a6bdd5e1cbcb012ea7bf091fcec15b0c43202d52e249249246db6db6ddb6db6db6db6db6dad4591868595a8ee6bf5f864ff7be0c26b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296b01cbd1c01e58065711814b583f061e9d431cca994cea1313449bf97c840ae0a",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #191: testing point duplication",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #191: testing point duplication"
   },
   {
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e257fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8555555550000000055555555555555553ef7a8e48d07df81a693439654210c700203736fcb198b15d8d7a0c80f66dddd15259240aa78d08aae67c467de04503434383438d5041ea9a387ee8e4d4e84b4471b160c6bcf2568b072f8f20e87a996",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #654: point at infinity during verify",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #654: point at infinity during verify"
   },
   {
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e256f2347cab7dd76858fe0555ac3bc99048c4aacafdfb6bcbe05ea6c42c4934569f21d907e3890916dc4fa1f4703c1e50d3f54ddf7383e44023a41de562aa18ed80158137755b901f797a90d4ca8887e023cb2ef63b2ba2c0d455edaef42cf237e2a964fc00d377a8592b8b61aafa7a4aaa7c7b9fd2b41d6e0e17bd1ba5677edcd",
@@ -84,49 +75,42 @@
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e256f2347cab7dd76858fe0555ac3bc99048c4aacafdfb6bcbe05ea6c42c4934569f21d907e3890916dc4fa1f4703c1e50d3f54ddf7383e44023a41de562aa18ed80158137755b901f797a90d4ca8887e023cb2ef63b2ba2c0d455edaef42cf237ed569b03ef2c8857b6d4749e550585b5558384603d4be291f1e842e45a9881232",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #690: duplication bug",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #690: duplication bug"
   },
   {
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25555555550000000055555555555555553ef7a8e48d07df81a693439654210c703333333300000000333333333333333325c7cbbc549e52e763f1f55a327a3aa9664ce273320d918d8bdb2e61201b4549b36b7cdc54e33b84adb6f2c10aac831e49e68831f18bda2973ac3d76bfbc8c5ee1cceed2dd862e2dc7c915c736cef1f4",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #693: comparison with point at infinity ",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #693: comparison with point at infinity "
   },
   {
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25249249246db6db6ddb6db6db6db6db6dad4591868595a8ee6bf5f864ff7be0c26b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #706: testing point duplication",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #706: testing point duplication"
   },
   {
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25acd155416a8b77f34089464733ff7cd39c400e9c69af7beb9eac5054ed2ec72c249249246db6db6ddb6db6db6db6db6dad4591868595a8ee6bf5f864ff7be0c26b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c2964fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #707: testing point duplication",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #707: testing point duplication"
   },
   {
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25249249246db6db6ddb6db6db6db6db6dad4591868595a8ee6bf5f864ff7be0c26b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296b01cbd1c01e58065711814b583f061e9d431cca994cea1313449bf97c840ae0a",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #708: testing point duplication",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #708: testing point duplication"
   },
   {
     "Input": "532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25acd155416a8b77f34089464733ff7cd39c400e9c69af7beb9eac5054ed2ec72c249249246db6db6ddb6db6db6db6db6dad4591868595a8ee6bf5f864ff7be0c26b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296b01cbd1c01e58065711814b583f061e9d431cca994cea1313449bf97c840ae0a",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaVerify SHA-256 #709: testing point duplication",
-    "Result": false
+    "Name": "EcdsaVerify SHA-256 #709: testing point duplication"
   },
   {
     "Input": "2f77668a9dfbf8d5848b9eeb4a7145ca94c6ed9236e4a773f6dcafa5132b2f9170bebe684cdcb5ca72a42f0d873879359bd1781a591809947628d313a3814f67aec03aca8f5587a4d535fa31027bbe9cc0e464b1c3577f4c2dcde6b2094798a900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
     "Expected": "",
     "Gas": 6900,
-    "Name": "reference point errors",
-    "Result": false
+    "Name": "reference point errors"
   }
 ]

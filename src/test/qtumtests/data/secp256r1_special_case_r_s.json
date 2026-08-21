@@ -3,343 +3,294 @@
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #9: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #9: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #10: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #10: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000000ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325512927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #11: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #11: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000000ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325502927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #12: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #12: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000000ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325522927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #13: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #13: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000000ffffffff00000001000000000000000000000000ffffffffffffffffffffffff2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #14: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #14: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000000ffffffff000000010000000000000000000000010000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #15: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #15: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #16: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #16: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000012927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #17: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #17: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000001ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325512927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #18: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #18: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000001ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325502927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #19: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #19: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000001ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325522927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #20: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #20: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000001ffffffff00000001000000000000000000000000ffffffffffffffffffffffff2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #21: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #21: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca6050230000000000000000000000000000000000000000000000000000000000000001ffffffff000000010000000000000000000000010000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #22: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #22: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63255100000000000000000000000000000000000000000000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #23: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #23: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63255100000000000000000000000000000000000000000000000000000000000000012927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #24: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #24: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325512927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #25: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #25: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325502927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #26: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #26: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325522927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #27: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #27: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551ffffffff00000001000000000000000000000000ffffffffffffffffffffffff2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #28: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #28: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551ffffffff000000010000000000000000000000010000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #29: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #29: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63255000000000000000000000000000000000000000000000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #30: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #30: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63255000000000000000000000000000000000000000000000000000000000000000012927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #31: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #31: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325512927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #32: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #32: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325502927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #33: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #33: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325522927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #34: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #34: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550ffffffff00000001000000000000000000000000ffffffffffffffffffffffff2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #35: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #35: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632550ffffffff000000010000000000000000000000010000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #36: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #36: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63255200000000000000000000000000000000000000000000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #37: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #37: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc63255200000000000000000000000000000000000000000000000000000000000000012927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #38: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #38: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325512927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #39: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #39: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325502927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #40: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #40: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325522927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #41: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #41: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552ffffffff00000001000000000000000000000000ffffffffffffffffffffffff2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #42: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #42: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632552ffffffff000000010000000000000000000000010000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #43: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #43: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000000ffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #44: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #44: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000000ffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000012927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #45: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #45: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000000ffffffffffffffffffffffffffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325512927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #46: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #46: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000000ffffffffffffffffffffffffffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325502927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #47: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #47: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000000ffffffffffffffffffffffffffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325522927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #48: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #48: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000000ffffffffffffffffffffffffffffffff00000001000000000000000000000000ffffffffffffffffffffffff2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #49: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #49: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000000ffffffffffffffffffffffffffffffff000000010000000000000000000000010000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #50: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #50: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff0000000100000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #51: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #51: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff0000000100000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000012927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #52: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #52: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000001000000000000000000000000ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325512927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #53: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #53: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000001000000000000000000000000ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325502927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #54: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #54: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000001000000000000000000000000ffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc6325522927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #55: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #55: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000001000000000000000000000000ffffffff00000001000000000000000000000000ffffffffffffffffffffffff2927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #56: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #56: Signature with special case values for r and s"
   },
   {
     "Input": "bb5a52f42f9c9261ed4361f59422a1e30036e7c32b270c8807a419feca605023ffffffff00000001000000000000000000000001000000000000000000000000ffffffff000000010000000000000000000000010000000000000000000000002927b10512bae3eddcfe467828128bad2903269919f7086069c8c4df6c732838c7787964eaac00e5921fb1498a60f4606766b3d9685001558d1a974e7341513e",
     "Expected": "",
     "Gas": 6900,
-    "Name": "EcdsaP1363Verify SHA-256 #57: Signature with special case values for r and s",
-    "Result": false
+    "Name": "EcdsaP1363Verify SHA-256 #57: Signature with special case values for r and s"
   }
 ]
