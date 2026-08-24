@@ -202,7 +202,7 @@ ETH_REGISTER_PRECOMPILED(modexp)(bytesConstRef _in)
 
 namespace
 {
-    bigint expLengthAdjust(bigint const& _expOffset, bigint const& _expLength, bytesConstRef _in)
+    bigint expLengthAdjust(bigint const& _expOffset, bigint const& _expLength, bytesConstRef _in, bool eip7883Mode)
     {
         if (_expLength <= 32)
         {
@@ -213,7 +213,8 @@ namespace
         {
             bigint const expFirstWord(parseBigEndianRightPadded(_in, _expOffset, 32));
             size_t const highestBit(expFirstWord ? msb(expFirstWord) : 0);
-            return 8 * (_expLength - 32) + highestBit;
+            bigint multiplier = eip7883Mode ? 16 : 8;
+            return multiplier * (_expLength - 32) + highestBit;
         }
     }
 
@@ -230,25 +231,47 @@ namespace
 
 ETH_REGISTER_PRECOMPILED_PRICER(modexp)(bytesConstRef _in, ChainOperationParams const& _chainParams, u256 const& _blockNumber)
 {
+    bool eip198Mode = _blockNumber < _chainParams.berlinForkBlock;
+    bool eip2565Mode = !eip198Mode && (_blockNumber <= _chainParams.osakaForkBlock);
+    bool eip7883Mode = !(eip198Mode || eip2565Mode);
+
     bigint const baseLength(parseBigEndianRightPadded(_in, 0, 32));
     bigint const expLength(parseBigEndianRightPadded(_in, 32, 32));
     bigint const modLength(parseBigEndianRightPadded(_in, 64, 32));
 
     bigint const maxLength(max(modLength, baseLength));
-    bigint const adjustedExpLength(expLengthAdjust(baseLength + 96, expLength, _in));
+    bigint const adjustedExpLength(expLengthAdjust(baseLength + 96, expLength, _in, eip7883Mode));
 
     bigint gas = maxLength;
-    if(_blockNumber < _chainParams.berlinForkBlock)
+    if (eip198Mode)
     {
+        // eip198 mode gas usage
         gas = multComplexity(maxLength) * max<bigint>(adjustedExpLength, 1) / 20;
     }
-    else
+    else if (eip2565Mode)
     {
+        // eip2565 mode gas usage
         gas += 7;
         gas /= 8;
         gas *= gas;
         gas = gas * max<bigint>(adjustedExpLength, 1) / 3;
         gas = max<bigint>(200, gas);
+    }
+    else
+    {
+        // eip7883 mode gas usage
+        gas += 7;
+        gas /= 8;
+        if (maxLength > 32)
+        {
+            gas = 2 * gas * gas;
+        }
+        else
+        {
+            gas = 16;
+        }
+        gas = gas * max<bigint>(adjustedExpLength, 1);
+        gas = max<bigint>(500, gas);
     }
 
     return gas;

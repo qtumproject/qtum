@@ -153,6 +153,7 @@ add_executable(test_qtum
   qtumtests/bls_tests.cpp
   qtumtests/pectrafork_tests.cpp
   qtumtests/secp256r1_tests.cpp
+  qtumtests/osakafork_tests.cpp
 )
 
 include(TargetDataSources)
@@ -163,6 +164,7 @@ target_json_data_sources(test_qtum
   qtumtests/data/ripemd160.json
   qtumtests/data/identity.json
   qtumtests/data/modexp.json
+  qtumtests/data/modexp_eip7883.json
   qtumtests/data/alt_bn128_G1_add.json
   qtumtests/data/alt_bn128_G1_mul.json
   qtumtests/data/alt_bn128_pairing_product.json
