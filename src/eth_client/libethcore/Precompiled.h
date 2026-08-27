@@ -16,7 +16,8 @@ namespace eth
 {
 struct ChainOperationParams;
 
-using PrecompiledExecutor = std::function<std::pair<bool, bytes>(bytesConstRef _in)>;
+using PrecompiledExecutor = std::function<std::pair<bool, bytes>(bytesConstRef _in, 
+    ChainOperationParams const& _chainParams, u256 const& _blockNumber)>;
 using PrecompiledPricer = std::function<bigint(
     bytesConstRef _in, ChainOperationParams const& _chainParams, u256 const& _blockNumber)>;
 
@@ -51,7 +52,7 @@ private:
 };
 
 // TODO: unregister on unload with a static object.
-#define ETH_REGISTER_PRECOMPILED(Name) static std::pair<bool, bytes> __eth_registerPrecompiledFunction ## Name(bytesConstRef _in); static PrecompiledExecutor __eth_registerPrecompiledFactory ## Name = ::dev::eth::PrecompiledRegistrar::registerExecutor(#Name, &__eth_registerPrecompiledFunction ## Name); static std::pair<bool, bytes> __eth_registerPrecompiledFunction ## Name
+#define ETH_REGISTER_PRECOMPILED(Name) static std::pair<bool, bytes> __eth_registerPrecompiledFunction ## Name(bytesConstRef _in, ChainOperationParams const& _chainParams, u256 const& _blockNumber); static PrecompiledExecutor __eth_registerPrecompiledFactory ## Name = ::dev::eth::PrecompiledRegistrar::registerExecutor(#Name, &__eth_registerPrecompiledFunction ## Name); static std::pair<bool, bytes> __eth_registerPrecompiledFunction ## Name
 #define ETH_REGISTER_PRECOMPILED_PRICER(Name)                                                   \
     static bigint __eth_registerPricerFunction##Name(                                           \
         bytesConstRef _in, ChainOperationParams const& _chainParams, u256 const& _blockNumber); \

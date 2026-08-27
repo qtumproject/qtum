@@ -79,7 +79,7 @@ private:
 
     void executorTest(const dev::bytes& in, const dev::bytes& expected, const std::string& testName, bool result)
     {
-        auto res = exec(dev::bytesConstRef(in.data(), in.size()));
+        auto res = exec(dev::bytesConstRef(in.data(), in.size()), chainParams, blockNumber);
         BOOST_CHECK(res.first == result);
         BOOST_CHECK_EQUAL_COLLECTIONS(res.second.begin(), res.second.end(), expected.begin(), expected.end());
         BOOST_CHECK_MESSAGE(res.second == expected, strprintf("Output not correct for precompiled contract %s in test %s", callName, testName));

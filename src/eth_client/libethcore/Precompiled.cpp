@@ -59,7 +59,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(btc_ecrecover)
     return 3000;
 }
 
-ETH_REGISTER_PRECOMPILED(btc_ecrecover)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(btc_ecrecover)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     struct
     {
@@ -87,7 +87,7 @@ ETH_REGISTER_PRECOMPILED(btc_ecrecover)(bytesConstRef _in)
     return {true, {}};
 }
 
-ETH_REGISTER_PRECOMPILED(ecrecover)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(ecrecover)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     struct
     {
@@ -127,7 +127,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(sha256)
     return linearPricer(60, 12, _in);
 }
 
-ETH_REGISTER_PRECOMPILED(sha256)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(sha256)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return {true, dev::sha256(_in).asBytes()};
 }
@@ -138,7 +138,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(ripemd160)
     return linearPricer(600, 120, _in);
 }
 
-ETH_REGISTER_PRECOMPILED(ripemd160)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(ripemd160)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return {true, h256(dev::ripemd160(_in), h256::AlignRight).asBytes()};
 }
@@ -149,7 +149,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(identity)
     return linearPricer(15, 3, _in);
 }
 
-ETH_REGISTER_PRECOMPILED(identity)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(identity)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return {true, _in.toBytes()};
 }
@@ -176,11 +176,23 @@ bigint parseBigEndianRightPadded(bytesConstRef _in, bigint const& _begin, bigint
     return ret;
 }
 
-ETH_REGISTER_PRECOMPILED(modexp)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(modexp)(bytesConstRef _in, ChainOperationParams const& _chainParams, u256 const& _blockNumber)
 {
     bigint const baseLength(parseBigEndianRightPadded(_in, 0, 32));
     bigint const expLength(parseBigEndianRightPadded(_in, 32, 32));
     bigint const modLength(parseBigEndianRightPadded(_in, 64, 32));
+
+    bool eip7823Mode = _blockNumber > _chainParams.osakaForkBlock;
+    if (eip7823Mode)
+    {
+        // If any of these inputs are larger than the limit, returns an error, and consumes all gas.
+        static bigint maxInputLength = 1024;
+        if ((baseLength > maxInputLength) || (expLength > maxInputLength) || (modLength > maxInputLength))
+        {
+            return {false, bytes{}};
+        }
+    }
+
     assert(modLength <= numeric_limits<size_t>::max() / 8); // Otherwise gas should be too expensive.
     assert(baseLength <= numeric_limits<size_t>::max() / 8); // Otherwise, gas should be too expensive.
     if (modLength == 0 && baseLength == 0)
@@ -277,7 +289,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(modexp)(bytesConstRef _in, ChainOperationParams 
     return gas;
 }
 
-ETH_REGISTER_PRECOMPILED(alt_bn128_G1_add)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(alt_bn128_G1_add)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::alt_bn128_G1_add(_in);
 }
@@ -288,7 +300,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(alt_bn128_G1_add)
     return _blockNumber < _chainParams.istanbulForkBlock ? 500 : 150;
 }
 
-ETH_REGISTER_PRECOMPILED(alt_bn128_G1_mul)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(alt_bn128_G1_mul)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::alt_bn128_G1_mul(_in);
 }
@@ -299,7 +311,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(alt_bn128_G1_mul)
     return _blockNumber < _chainParams.istanbulForkBlock ? 40000 : 6000;
 }
 
-ETH_REGISTER_PRECOMPILED(alt_bn128_pairing_product)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(alt_bn128_pairing_product)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::alt_bn128_pairing_product(_in);
 }
@@ -311,7 +323,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(alt_bn128_pairing_product)
     return _blockNumber < _chainParams.istanbulForkBlock ? 100000 + k * 80000 : 45000 + k * 34000;
 }
 
-ETH_REGISTER_PRECOMPILED(blake2_compression)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(blake2_compression)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     static constexpr size_t roundsSize = 4;
     static constexpr size_t stateVectorSize = 8 * 8;
@@ -354,7 +366,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(point_evaluation)
     return 50000;
 }
 
-ETH_REGISTER_PRECOMPILED(point_evaluation)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(point_evaluation)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::point_evaluation_execute(_in);
 }
@@ -394,7 +406,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(add_G1_bls)
     return 375;
 }
 
-ETH_REGISTER_PRECOMPILED(add_G1_bls)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(add_G1_bls)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::add_G1_bls(_in);
 }
@@ -410,7 +422,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(msm_G1_bls)
     return k * 12000 * msm_discount(true, k) / 1000;
 }
 
-ETH_REGISTER_PRECOMPILED(msm_G1_bls)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(msm_G1_bls)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::msm_G1_bls(_in);
 }
@@ -421,7 +433,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(add_G2_bls)
     return 600;
 }
 
-ETH_REGISTER_PRECOMPILED(add_G2_bls)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(add_G2_bls)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::add_G2_bls(_in);
 }
@@ -437,7 +449,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(msm_G2_bls)
     return k * 22500 * msm_discount(false, k) / 1000;
 }
 
-ETH_REGISTER_PRECOMPILED(msm_G2_bls)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(msm_G2_bls)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::msm_G2_bls(_in);
 }
@@ -449,7 +461,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(pairing_check_bls)
     return 32600 * k + 37700;
 }
 
-ETH_REGISTER_PRECOMPILED(pairing_check_bls)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(pairing_check_bls)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::pairing_check_bls(_in);
 }
@@ -460,7 +472,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(map_fp_to_G1_bls)
     return 5500;
 }
 
-ETH_REGISTER_PRECOMPILED(map_fp_to_G1_bls)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(map_fp_to_G1_bls)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::map_fp_to_G1_bls(_in);
 }
@@ -471,7 +483,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(map_fp2_to_G2_bls)
     return 23800;
 }
 
-ETH_REGISTER_PRECOMPILED(map_fp2_to_G2_bls)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(map_fp2_to_G2_bls)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::map_fp2_to_G2_bls(_in);
 }
@@ -482,7 +494,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(historical_hashes)
     return 4725;
 }
 
-ETH_REGISTER_PRECOMPILED(historical_hashes)(bytesConstRef input)
+ETH_REGISTER_PRECOMPILED(historical_hashes)(bytesConstRef input, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     size_t input_size = input.size();
     if (input_size != 32)
@@ -507,7 +519,7 @@ ETH_REGISTER_PRECOMPILED_PRICER(p256verify)
     return 6900;
 }
 
-ETH_REGISTER_PRECOMPILED(p256verify)(bytesConstRef _in)
+ETH_REGISTER_PRECOMPILED(p256verify)(bytesConstRef _in, ChainOperationParams const& /*_chainParams*/, u256 const& /*_blockNumber*/)
 {
     return dev::crypto::p256verify(_in);
 }

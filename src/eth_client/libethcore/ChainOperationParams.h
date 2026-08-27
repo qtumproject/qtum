@@ -27,7 +27,10 @@ public:
     {
         return m_cost(_in, _chainParams, _blockNumber);
     }
-    std::pair<bool, bytes> execute(bytesConstRef _in) const { return m_execute(_in); }
+    std::pair<bool, bytes> execute(bytesConstRef _in, ChainOperationParams const& _chainParams, u256 const& _blockNumber) const 
+    {
+        return m_execute(_in, _chainParams, _blockNumber);
+    }
 
     u256 const& startingBlock() const { return m_startingBlock; }
 
