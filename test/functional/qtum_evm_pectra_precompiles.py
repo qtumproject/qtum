@@ -15,7 +15,7 @@ class QtumEVMPectraTest(BitcoinTestFramework):
         self.setup_clean_chain = True  
         self.num_nodes = 1  
         # Fork activates at block height 2399 (set to 2400 to activate at 2399)
-        self.extra_args = [['-txindex', '-logevents=1', '-pectraheight=2400']]  
+        self.extra_args = [['-txindex', '-logevents=1', '-pectraheight=2400', '-osakaheight=100000']]  
   
     def skip_test_if_missing_module(self):  
         self.skip_if_no_wallet()  

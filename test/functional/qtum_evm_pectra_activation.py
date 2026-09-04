@@ -20,10 +20,10 @@ class QtumEVMLondonTest(BitcoinTestFramework):
         self.num_nodes = 4
         pectraheight=10000
         self.extra_args = [
-                ['-txindex', '-logevents=1', '-staking=0','-pectraheight={}'.format(pectraheight), '-addrindex'],
-                ['-txindex', '-logevents=1', '-staking=1', '-pectraheight={}'.format(pectraheight)],
-                ['-txindex', '-logevents=1', '-staking=1', '-pectraheight={}'.format(pectraheight)],
-                ['-txindex', '-logevents=1', '-staking=1', '-pectraheight={}'.format(pectraheight)],
+                ['-txindex', '-logevents=1', '-staking=0','-pectraheight={}'.format(pectraheight), '-addrindex', '-osakaheight=100000'],
+                ['-txindex', '-logevents=1', '-staking=1', '-pectraheight={}'.format(pectraheight), '-osakaheight=100000'],
+                ['-txindex', '-logevents=1', '-staking=1', '-pectraheight={}'.format(pectraheight), '-osakaheight=100000'],
+                ['-txindex', '-logevents=1', '-staking=1', '-pectraheight={}'.format(pectraheight), '-osakaheight=100000'],
             ]
     
     def skip_test_if_missing_module(self):
