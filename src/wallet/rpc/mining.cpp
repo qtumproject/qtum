@@ -214,7 +214,7 @@ RPCHelpMan getstakinginfo()
 
     UniValue obj(UniValue::VOBJ);
 
-    obj.pushKV("enabled", gArgs.GetBoolArg("-staking", true));
+    obj.pushKV("enabled", gArgs.GetBoolArg("-staking", node::DEFAULT_STAKE));
     obj.pushKV("staking", staking);
     obj.pushKV("errors", pwallet->chain().getWarnings().original);
 

@@ -47,6 +47,7 @@
 #include <node/interface_ui.h>
 #include <util/translation.h>
 #include <validation.h>
+#include <node/miner.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -217,7 +218,7 @@ BitcoinGUI::BitcoinGUI(interfaces::Node& node, const PlatformStyle *_platformSty
 
     updateLedgerIcon();
 
-    if (gArgs.GetBoolArg("-staking", true))
+    if (gArgs.GetBoolArg("-staking", node::DEFAULT_STAKE))
     {
         timerStakingIcon = new QTimer(labelStakingIcon);
         connect(timerStakingIcon, SIGNAL(timeout()), this, SLOT(updateStakingIcon()));

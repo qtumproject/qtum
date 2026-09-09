@@ -84,19 +84,19 @@ void WalletInit::AddWalletOptions(ArgsManager& argsman) const
     argsman.AddArg("-walletrejectlongchains", strprintf("Wallet will not create transactions that violate mempool chain limits (default: %u)", DEFAULT_WALLET_REJECT_LONG_CHAINS), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
     argsman.AddArg("-walletcrosschain", strprintf("Allow reusing wallet files across chains (default: %u)", DEFAULT_WALLETCROSSCHAIN), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::WALLET_DEBUG_TEST);
 
-    argsman.AddArg("-staking=<true/false>", "Enables or disables staking (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-stakecache=<true/false>", "Enables or disables the staking cache; significantly improves staking performance, but can use a lot of memory (enabled by default)", ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-rpcmaxgasprice", strprintf("The max value (in satoshis) for gas price allowed through RPC (default: %u)", MAX_RPC_GAS_PRICE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-reservebalance", strprintf("Reserved balance not used for staking (default: %u)", wallet::DEFAULT_RESERVE_BALANCE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-staking", strprintf("Enables or disables staking (default: %u)", node::DEFAULT_STAKE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-stakecache", strprintf("Enables or disables the staking cache; significantly improves staking performance, but can use a lot of memory (default: %u)", node::DEFAULT_STAKE_CACHE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-rpcmaxgasprice=<n>", strprintf("The max value (in satoshis) for gas price allowed through RPC (default: %u)", MAX_RPC_GAS_PRICE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-reservebalance=<amt>", strprintf("Reserved balance not used for staking (default: %s)", FormatMoney(wallet::DEFAULT_RESERVE_BALANCE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-usechangeaddress", strprintf("Use change address (default: %u)", wallet::DEFAULT_USE_CHANGE_ADDRESS), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-stakingminutxovalue=<amt>", strprintf("The min value of utxo (in %s) selected for super staking (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_STAKING_MIN_UTXO_VALUE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-stakingminfee=<n>", strprintf("The min fee (in percentage) to accept when super staking (default: %u)", wallet::DEFAULT_STAKING_MIN_FEE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-superstaking=<true/false>", strprintf("Enables or disables super staking (default: %u)", node::DEFAULT_SUPER_STAKE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-superstaking", strprintf("Enables or disables super staking (default: %u)", node::DEFAULT_SUPER_STAKE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-minstakerutxosize=<amt>", strprintf("The min value of utxo (in %s) selected for staking (default: %s)", CURRENCY_UNIT, FormatMoney(wallet::DEFAULT_STAKER_MIN_UTXO_SIZE)), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-maxstakerutxoscriptcache=<n>", strprintf("Set max staker utxo script cache for staking (default: %d)", wallet::DEFAULT_STAKER_MAX_UTXO_SCRIPT_CACHE), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-stakerthreads=<n>", strprintf("Set the number of threads the staker use for processing (default is the number of cores to your machine: %d)", GetNumCores()), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     argsman.AddArg("-maxstakerwaitforbestheader=<n>", strprintf("Set max staker wait for best header in milliseconds (default: %d)", node::DEFAULT_MAX_STAKER_WAIT_FOR_BEST_BLOCK_HEADER), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
-    argsman.AddArg("-signpsbtwithhwitool", strprintf("Sign PSBT with HWI tool"), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
+    argsman.AddArg("-signpsbtwithhwitool", strprintf("Sign PSBT with HWI tool (default: %d)", wallet::DEFAULT_SIGN_PSBT_WITH_HWI_TOOL), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     if (node::ENABLE_HARDWARE_STAKE) {
         argsman.AddArg("-stakerledgerid=<path>", strprintf("Set the ledger fingerprint to use for staking"), ArgsManager::ALLOW_ANY, OptionsCategory::WALLET);
     }
