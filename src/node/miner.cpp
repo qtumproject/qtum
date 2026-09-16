@@ -2171,6 +2171,8 @@ void ThreadStakeMiner(wallet::CWallet *pwallet)
 
 void StakeQtums(bool fStake, wallet::CWallet *pwallet)
 {
+    if (!pwallet) return;
+    LOCK(pwallet->cs_wallet);
     if (pwallet->stakeThread != nullptr)
     {
         pwallet->stakeThread->join_all();
