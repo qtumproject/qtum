@@ -7,7 +7,7 @@
 export LC_ALL=C.UTF-8
 
 export CI_IMAGE_NAME_TAG="mirror.gcr.io/ubuntu:24.04"
-export APT_LLVM_V="21"
+export APT_LLVM_V="22"
 LIBCXX_DIR="/cxx_build/"
 export MSAN_FLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O1 -fno-optimize-sibling-calls"
 # -lstdc++ to resolve link issues due to upstream packaging
@@ -25,7 +25,7 @@ export BITCOIN_CONFIG="\
  -DCMAKE_C_FLAGS_DEBUG='' \
  -DCMAKE_CXX_FLAGS_DEBUG='' \
  -DBUILD_FOR_FUZZING=ON \
- -DSANITIZERS=fuzzer,memory \
+ -DSANITIZERS=memory \
  -DAPPEND_CPPFLAGS='-DBOOST_MULTI_INDEX_ENABLE_SAFE_MODE -U_FORTIFY_SOURCE' \
 "
 export USE_INSTRUMENTED_LIBCPP="MemoryWithOrigins"

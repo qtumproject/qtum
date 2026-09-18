@@ -12,6 +12,7 @@
 #include <array>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 enum class OutputType {
@@ -31,7 +32,7 @@ static constexpr auto OUTPUT_TYPES = std::array{
     OutputType::P2PK,
 };
 
-std::optional<OutputType> ParseOutputType(const std::string& str);
+std::optional<OutputType> ParseOutputType(std::string_view str);
 const std::string& FormatOutputType(OutputType type);
 std::string FormatAllOutputTypes();
 

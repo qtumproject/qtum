@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,6 +11,10 @@
 #include <crypto/common.h>
 #include <pubkey.h>
 #include <streams.h>
+
+#include <memory>
+#include <span>
+#include <sstream>
 
 // Used to serialize the header without signature
 // Workaround due to removing serialization templates in Bitcoin Core 0.18

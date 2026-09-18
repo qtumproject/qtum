@@ -9,7 +9,6 @@
 #include <test/qtumtests/data/ripemd160.json.h>
 #include <test/qtumtests/data/identity.json.h>
 #include <test/qtumtests/data/modexp.json.h>
-#include <test/qtumtests/data/modexp_eip2565.json.h>
 #include <test/qtumtests/data/alt_bn128_G1_add.json.h>
 #include <test/qtumtests/data/alt_bn128_G1_mul.json.h>
 #include <test/qtumtests/data/alt_bn128_pairing_product.json.h>
@@ -256,7 +255,11 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
     //------------------------------------
 
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
-    dev::u256 blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    dev::u256 blockNumber = 0;
+    {
+        LOCK(::cs_main);
+        blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    }
 
     // Call btc_ecrecover 0x85
     RunPrecompiledTests(btc_ecrecover, btc_ecrecover, params, blockNumber);
@@ -274,7 +277,7 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
     RunPrecompiledTests(identity, identity, params, blockNumber);
 
     // Call modexp 0x5
-    RunPrecompiledTests(modexp, modexp_eip2565, params, blockNumber);
+    RunNewPrecompiledTests(modexp, modexp, params, blockNumber);
 
     // Call alt_bn128_G1_add 0x6
     RunPrecompiledTests(alt_bn128_G1_add, alt_bn128_G1_add, params, blockNumber);
@@ -399,7 +402,11 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
     //------------------------------------
 
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
-    dev::u256 blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    dev::u256 blockNumber = 0;
+    {
+        LOCK(::cs_main);
+        blockNumber = m_node.chainman->ActiveChain().Tip()->nHeight;
+    }
 
     // Call btc_ecrecover 0x85
     RunPrecompiledTests(btc_ecrecover, btc_ecrecover, params, blockNumber);
@@ -417,7 +424,7 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
     RunPrecompiledTests(identity, identity, params, blockNumber);
 
     // Call modexp 0x5
-    RunPrecompiledTests(modexp, modexp, params, blockNumber);
+    RunOldPrecompiledTests(modexp, modexp, params, blockNumber);
 
     // Call alt_bn128_G1_add 0x6
     RunPrecompiledTests(alt_bn128_G1_add, alt_bn128_G1_add, params, blockNumber);

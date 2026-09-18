@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.com/supranational/blst.svg?branch=master)](https://travis-ci.com/github/supranational/blst) [![Actions status](https://github.com/supranational/blst/workflows/build/badge.svg)](https://github.com/supranational/blst/actions) [![CodeQL status](https://github.com/supranational/blst/workflows/CodeQL/badge.svg)](https://github.com/supranational/blst/actions/workflows/codeql-analysis.yml)
+[![Actions status](https://github.com/supranational/blst/workflows/build/badge.svg)](https://github.com/supranational/blst/actions) [![CodeQL status](https://github.com/supranational/blst/workflows/CodeQL/badge.svg)](https://github.com/supranational/blst/actions/workflows/codeql-analysis.yml)
 <div align="left">
   <img src=blst_logo_small.png>
 </div>
@@ -212,7 +212,7 @@ For more details see the Rust binding [readme](bindings/rust/README.md).
     * **Asm** - folder containing Perl scripts that are used to generate assembly code for different hardware platforms including x86 with ADX instructions, x86 without ADX instructions, and ARMv8, and [ABI](https://en.wikipedia.org/wiki/Application_binary_interface)[1]
 * **Build** - this folder containing a set of pre-generated assembly files for a variety of operating systems and maintenance scripts.
     * **Cheri** - assembly code for use on [CHERI](https://www.cl.cam.ac.uk/research/security/ctsrd/cheri/) platforms
-    * **Coff** - assembly code for use on Window systems with GNU toolchain
+    * **Coff** - assembly code for use on Windows systems with GNU or LLVM toolchain
     * **Elf** - assembly code for use on Unix systems
     * **Mach-o** - assembly code for use on Apple operating systems
     * **Win64** - assembly code for use on Windows systems with Microsoft toolchain

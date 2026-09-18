@@ -87,6 +87,7 @@ dont_touch = (('Fp12', 'foo1234'),)
 mapping = [('P1', 'P2'),
            ('p1', 'p2'),
            ('Fp', 'Fp2'),
+           ('C.blst_fp', 'C.blst_fp2'),
            ('G1', 'G2'),
            ('g1', 'g2')
           ]

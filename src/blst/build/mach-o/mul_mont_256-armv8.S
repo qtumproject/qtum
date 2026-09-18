@@ -5,6 +5,7 @@
 
 .align	5
 _mul_mont_sparse_256:
+	hint	#34
 	stp	x29,x30,[sp,#-8*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -196,7 +197,7 @@ _mul_mont_sparse_256:
 
 .align	5
 _sqr_mont_sparse_256:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -297,7 +298,7 @@ _sqr_mont_sparse_256:
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 .globl	_from_mont_256
@@ -305,7 +306,7 @@ _sqr_mont_sparse_256:
 
 .align	5
 _from_mont_256:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-2*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 
@@ -330,7 +331,7 @@ _from_mont_256:
 	stp	x12,x13,[x0,#16]
 
 	ldr	x29,[sp],#2*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -339,7 +340,7 @@ _from_mont_256:
 
 .align	5
 _redc_mont_256:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-2*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 
@@ -374,7 +375,7 @@ _redc_mont_256:
 	stp	x12,x13,[x0,#16]
 
 	ldr	x29,[sp],#2*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 

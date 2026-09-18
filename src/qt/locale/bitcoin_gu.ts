@@ -184,6 +184,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ચાલુ રાખો</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation type="unfinished">પાછળ </translation>
+    </message>
+    <message>
         <source>Remember that encrypting your wallet cannot fully protect your qtums from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">યાદ રાખો કે તમારા વૉલેટને એન્ક્રિપ્ટ કરવાથી તમારા કમ્પ્યુટરને સંક્રમિત કરતા માલવેર દ્વારા ચોરાઈ જવાથી તમારા બિટકોઈનને સંપૂર્ણપણે સુરક્ષિત કરી શકાશે નહીં.</translation>
     </message>
@@ -1118,6 +1122,16 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">ઉકેલી શકાય તેવી પરંતુ જોયેલી સ્ક્રિપ્ટો '%1' નામના નવા વૉલેટમાં સ્થાનાંતરિત કરવામાં આવી છે.</translation>
     </message>
     <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">વૉલેટ પુનઃસ્થાપિત કરો</translation>
+    </message>
+    <message>
+        <source>Restoring Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the restore wallets progress window which indicates to the user that wallets are currently being restored.</extracomment>
+        <translation type="unfinished">વૉલેટ પુનઃસ્થાપિત કરી રહ્યાં છીએ &lt;b&gt;%1&lt;/b&gt;...</translation>
+    </message>
+    <message>
         <source>Migration failed</source>
         <translation type="unfinished">સ્થળાંતર નિષ્ફળ થયું</translation>
     </message>
@@ -1239,10 +1253,6 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>Disable Private Keys</source>
         <translation type="unfinished">ખાનગી ચાવીને અક્ષમ કરો</translation>
-    </message>
-    <message>
-        <source>Make a blank wallet. Blank wallets do not initially have private keys or scripts. Private keys and addresses can be imported, or an HD seed can be set, at a later time.</source>
-        <translation type="unfinished">ખાલી પાકીટ બનાવો. ખાલી વોલેટ્સમાં શરૂઆતમાં ખાનગી કી અથવા સ્ક્રિપ્ટ હોતી નથી. ખાનગી કીઓ અને સરનામાંઓ આયાત કરી શકાય છે અથવા પછીના સમયે HD સીડ સેટ કરી શકાય છે.</translation>
     </message>
     <message>
         <source>Make Blank Wallet</source>
@@ -1574,6 +1584,11 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>Enabling pruning significantly reduces the disk space required to store transactions. All blocks are still fully validated. Reverting this setting requires re-downloading the entire blockchain.</source>
         <translation type="unfinished">કાપણીને સક્ષમ કરવાથી વ્યવહારો સ્ટોર કરવા માટે જરૂરી ડિસ્ક જગ્યા નોંધપાત્ર રીતે ઘટાડે છે. બધા બ્લોક હજુ પણ સંપૂર્ણ રીતે માન્ય છે. આ સેટિંગને પાછું ફેરવવા માટે સમગ્ર બ્લોકચેનને ફરીથી ડાઉનલોડ કરવાની જરૂર છે.</translation>
+    </message>
+    <message>
+        <source>Maximum database cache size. Make sure you have enough RAM. A larger cache can contribute to faster sync, after which the benefit is less pronounced for most use cases. Lowering the cache size will reduce memory usage. Unused mempool memory is shared for this cache.</source>
+        <extracomment>Tooltip text for Options window setting that sets the size of the database cache. Explains the corresponding effects of increasing/decreasing this value.</extracomment>
+        <translation type="unfinished">મહત્તમ ડેટાબેઝ કેશ કદ. ખાતરી કરો કે તમારી પાસે પૂરતી રેમ છે. મોટી કેશ ઝડપી સમન્વયનમાં ફાળો આપી શકે છે, જેના પછી મોટાભાગના ઉપયોગના કિસ્સાઓમાં ફાયદો ઓછો સ્પષ્ટ થાય છે. કેશ કદ ઘટાડવાથી મેમરી વપરાશ ઘટશે. આ કેશ માટે ન વપરાયેલ મેમ્પૂલ મેમરી શેર કરવામાં આવે છે.</translation>
     </message>
     <message>
         <source>Size of &amp;database cache</source>
@@ -1978,9 +1993,12 @@ The migration process will create a backup of the wallet before migrating. This 
         <source>Could not sign any more inputs.</source>
         <translation type="unfinished">કોઈપણ વધુ ઇનપુટ્સ પર સહી કરી શકાઈ નથી.</translation>
     </message>
-    <message>
-        <source>Signed %1 inputs, but more signatures are still required.</source>
-        <translation type="unfinished">સહી કરેલ %1 ઇનપુટ્સ, પરંતુ હજુ વધુ સહીઓ જરૂરી છે.</translation>
+    <message numerus="yes">
+        <source>Signed %n input(s), but more signatures are still required.</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>Signed transaction successfully. Transaction is ready to broadcast.</source>
@@ -2039,9 +2057,12 @@ The migration process will create a backup of the wallet before migrating. This 
         <source>or</source>
         <translation type="unfinished">અથવા</translation>
     </message>
-    <message>
-        <source>Transaction has %1 unsigned inputs.</source>
-        <translation type="unfinished">વ્યવહારમાં સહી વગરના %1 ઇનપુટ્સ છે.</translation>
+    <message numerus="yes">
+        <source>Transaction has %n unsigned input(s).</source>
+        <translation type="unfinished">
+            <numerusform />
+            <numerusform />
+        </translation>
     </message>
     <message>
         <source>Transaction is missing some information about inputs.</source>
@@ -2253,6 +2274,14 @@ BIP70 માં વ્યાપક સુરક્ષા ખામીઓને �
         <translation type="unfinished">જોડાણોની સંખ્યા</translation>
     </message>
     <message>
+        <source>Local Addresses</source>
+        <translation type="unfinished">સ્થાનિક સરનામું</translation>
+    </message>
+    <message>
+        <source>Network addresses that your Qtum node is currently using to communicate with other nodes.</source>
+        <translation type="unfinished">નેટવર્ક સરનામાં જેનો ઉપયોગ તમારા બિટકોઇન નોડ હાલમાં અન્ય નોડ્સ સાથે વાતચીત કરવા માટે કરી રહ્યા છે.</translation>
+    </message>
+    <message>
         <source>Block chain</source>
         <translation type="unfinished">બ્લોક સાંકળ</translation>
     </message>
@@ -2301,6 +2330,10 @@ BIP70 માં વ્યાપક સુરક્ષા ખામીઓને �
         <translation type="unfinished">વિગતવાર માહિતી જોવા માટે પીઅર પસંદ કરો.</translation>
     </message>
     <message>
+        <source>Hide Peers Detail</source>
+        <translation type="unfinished">પીઅર્સ વિગતો છુપાવો</translation>
+    </message>
+    <message>
         <source>The transport layer version: %1</source>
         <translation type="unfinished">પરિવહન સ્તર સંસ્કરણ:%1</translation>
     </message>
@@ -2323,10 +2356,6 @@ BIP70 માં વ્યાપક સુરક્ષા ખામીઓને �
     <message>
         <source>Transaction Relay</source>
         <translation type="unfinished">ટ્રાન્ઝેક્શન રિલે</translation>
-    </message>
-    <message>
-        <source>Starting Block</source>
-        <translation type="unfinished">પ્રારંભ બ્લોક</translation>
     </message>
     <message>
         <source>Synced Headers</source>
@@ -2478,6 +2507,10 @@ BIP70 માં વ્યાપક સુરક્ષા ખામીઓને �
     <message>
         <source>Last block time</source>
         <translation type="unfinished">છેલ્લા બ્લોક નો સમય</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished">&amp; ખોલો </translation>
     </message>
     <message>
         <source>Inbound: initiated by peer</source>
@@ -2784,6 +2817,10 @@ For more information on using this console, type %6.
         <translation type="unfinished">જૂના પાકીટ સાથે સુસંગત સરનામું જનરેટ કરે છે.</translation>
     </message>
     <message>
+        <source>Generates a native segwit address (BIP-173). Some old wallets don't support it.</source>
+        <translation type="unfinished">મૂળ સેગવિટ સરનામું (BIP-173) જનરેટ કરે છે. કેટલાક જૂના વોલેટ તેને સપોર્ટ કરતા નથી.</translation>
+    </message>
+    <message>
         <source>Could not unlock wallet.</source>
         <translation type="unfinished">વૉલેટ અનલૉક કરી શકાયું નથી.</translation>
     </message>
@@ -2833,6 +2870,10 @@ For more information on using this console, type %6.
 <context>
     <name>SendCoinsDialog</name>
     <message>
+        <source>Coin Control Features</source>
+        <translation type="unfinished">સિક્કા નિયંત્રણ સુવિધાઓ</translation>
+    </message>
+    <message>
         <source>Quantity:</source>
         <translation type="unfinished">જથ્થો:</translation>
     </message>
@@ -2855,6 +2896,14 @@ For more information on using this console, type %6.
     <message>
         <source>Change:</source>
         <translation type="unfinished">બદલો:</translation>
+    </message>
+    <message>
+        <source>If this is activated, but the change address is empty or invalid, change will be sent to a newly generated address.</source>
+        <translation type="unfinished">જો આ સક્રિય થયેલ હોય, પરંતુ ફેરફાર સરનામું ખાલી હોય અથવા અમાન્ય હોય, તો ફેરફાર નવા જનરેટ કરેલા સરનામાં પર મોકલવામાં આવશે.</translation>
+    </message>
+    <message>
+        <source>Custom change address</source>
+        <translation type="unfinished">સરનામું કસ્ટમાઇઝ કરો</translation>
     </message>
     <message>
         <source>Hide</source>

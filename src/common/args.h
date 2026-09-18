@@ -11,6 +11,7 @@
 #include <util/chaintype.h>
 #include <util/fs.h>
 
+#include <concepts>
 #include <cstdint>
 #include <iosfwd>
 #include <list>
@@ -89,8 +90,11 @@ struct SectionInfo {
 std::string SettingToString(const common::SettingsValue&, const std::string&);
 std::optional<std::string> SettingToString(const common::SettingsValue&);
 
-int64_t SettingToInt(const common::SettingsValue&, int64_t);
-std::optional<int64_t> SettingToInt(const common::SettingsValue&);
+template <std::integral Int>
+Int SettingTo(const common::SettingsValue&, Int);
+
+template <std::integral Int>
+std::optional<Int> SettingTo(const common::SettingsValue&);
 
 bool SettingToBool(const common::SettingsValue&, bool);
 std::optional<bool> SettingToBool(const common::SettingsValue&);
@@ -293,8 +297,14 @@ protected:
      * @param nDefault (e.g. 1)
      * @return command-line argument (0 if invalid number) or default value
      */
-    int64_t GetIntArg(const std::string& strArg, int64_t nDefault) const;
-    std::optional<int64_t> GetIntArg(const std::string& strArg) const;
+    template <std::integral Int>
+    Int GetArg(const std::string& strArg, Int nDefault) const;
+
+    template <std::integral Int>
+    std::optional<Int> GetArg(const std::string& strArg) const;
+
+    int64_t GetIntArg(const std::string& strArg, int64_t nDefault) const { return GetArg<int64_t>(strArg, nDefault); }
+    std::optional<int64_t> GetIntArg(const std::string& strArg) const { return GetArg<int64_t>(strArg); }
 
     /**
      * Return boolean argument or default value
@@ -484,22 +494,5 @@ std::string HelpMessageGroup(const std::string& message);
  * @return the formatted string
  */
 std::string HelpMessageOpt(const std::string& option, const std::string& message);
-
-namespace common {
-#ifdef WIN32
-class WinCmdLineArgs
-{
-public:
-    WinCmdLineArgs();
-    ~WinCmdLineArgs();
-    std::pair<int, char**> get();
-
-private:
-    int argc;
-    char** argv;
-    std::vector<std::string> args;
-};
-#endif
-} // namespace common
 
 #endif // BITCOIN_COMMON_ARGS_H

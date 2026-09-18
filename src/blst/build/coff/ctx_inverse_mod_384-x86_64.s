@@ -1,22 +1,22 @@
 .text	
 
-.globl	ctx_inverse_mod_383
+.globl	ctx_inverse_mod_384
 
-.def	ctx_inverse_mod_383;	.scl 2;	.type 32;	.endef
+.def	ctx_inverse_mod_384;	.scl 2;	.type 32;	.endef
 .p2align	5
-ctx_inverse_mod_383:
+ctx_inverse_mod_384:
 	.byte	0xf3,0x0f,0x1e,0xfa
 	movq	%rdi,8(%rsp)
 	movq	%rsi,16(%rsp)
 	movq	%rsp,%r11
-.LSEH_begin_ctx_inverse_mod_383:
+.LSEH_begin_ctx_inverse_mod_384:
 
 
 	movq	%rcx,%rdi
 	movq	%rdx,%rsi
 	movq	%r8,%rdx
 	movq	%r9,%rcx
-ct_inverse_mod_383$1:
+ct_inverse_mod_384$1:
 	pushq	%rbp
 
 	pushq	%rbx
@@ -31,7 +31,7 @@ ct_inverse_mod_383$1:
 
 	subq	$1112,%rsp
 
-.LSEH_body_ctx_inverse_mod_383:
+.LSEH_body_ctx_inverse_mod_384:
 
 
 	leaq	88+511(%rsp),%rax
@@ -81,7 +81,7 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 
 
 	movq	%rdx,96(%rdi)
@@ -89,10 +89,10 @@ ct_inverse_mod_383$1:
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 
 
-	movq	%rdx,96(%rdi)
+	movq	%rdx,104(%rdi)
 
 
 	xorq	$256,%rsi
@@ -105,19 +105,19 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 
 
 
 	movq	96(%rsi),%rax
-	movq	144(%rsi),%r11
+	movq	152(%rsi),%r11
 	movq	%rdx,%rbx
 	movq	%rax,%r10
 	imulq	56(%rsp)
@@ -134,6 +134,7 @@ ct_inverse_mod_383$1:
 	movq	%r9,72(%rdi)
 	movq	%r9,80(%rdi)
 	movq	%r9,88(%rdi)
+	movq	%r9,96(%rdi)
 	leaq	96(%rsi),%rsi
 
 	movq	%r10,%rax
@@ -144,13 +145,14 @@ ct_inverse_mod_383$1:
 	imulq	%rcx
 	addq	%rax,%r8
 	adcq	%rdx,%r9
-	movq	%r8,96(%rdi)
-	movq	%r9,104(%rdi)
-	sarq	$63,%r9
+	movq	%r8,104(%rdi)
 	movq	%r9,112(%rdi)
+	sarq	$63,%r9
 	movq	%r9,120(%rdi)
 	movq	%r9,128(%rdi)
 	movq	%r9,136(%rdi)
+	movq	%r9,144(%rdi)
+	movq	%r9,152(%rdi)
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -161,14 +163,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -176,12 +178,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -192,14 +194,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -207,12 +209,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -223,14 +225,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -238,12 +240,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -254,14 +256,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -269,12 +271,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -285,14 +287,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -300,12 +302,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -316,14 +318,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -331,12 +333,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -347,14 +349,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -362,12 +364,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -378,14 +380,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -393,12 +395,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -409,14 +411,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -424,12 +426,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -440,14 +442,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -455,19 +457,17 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
-	sarq	$63,%r13
-	movq	%r13,48(%rdi)
-	movq	%r13,56(%rdi)
-	movq	%r13,64(%rdi)
-	movq	%r13,72(%rdi)
-	movq	%r13,80(%rdi)
-	movq	%r13,88(%rdi)
+	leaq	56(%rdi),%rdi
+	call	__smulx_384x63
+	movq	%r14,56(%rdi)
+	movq	%r14,64(%rdi)
+	movq	%r14,72(%rdi)
+	movq	%r14,80(%rdi)
+	movq	%r14,88(%rdi)
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -478,14 +478,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -493,12 +493,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -509,14 +509,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -524,12 +524,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -540,14 +540,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -555,12 +555,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -571,14 +571,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -586,12 +586,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -602,14 +602,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -617,12 +617,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -633,14 +633,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -648,12 +648,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -664,14 +664,14 @@ ct_inverse_mod_383$1:
 
 	movq	$256,%rdi
 	xorq	%rsi,%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,56(%rsp)
 	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_383_n_shift_by_31
+	call	__smulx_384_n_shift_by_31
 	movq	%rdx,72(%rsp)
 	movq	%rcx,80(%rsp)
 
@@ -679,43 +679,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
-	xorq	$256+96,%rsi
-	movl	$31,%edi
-	call	__ab_approximation_31
-
-
-	movq	%r12,72(%rsp)
-	movq	%r13,80(%rsp)
-
-	movq	$256,%rdi
-	xorq	%rsi,%rdi
-	call	__smulx_191_n_shift_by_31
-	movq	%rdx,56(%rsp)
-	movq	%rcx,64(%rsp)
-
-	movq	72(%rsp),%rdx
-	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_191_n_shift_by_31
-	movq	%rdx,72(%rsp)
-	movq	%rcx,80(%rsp)
-
-	movq	56(%rsp),%rdx
-	movq	64(%rsp),%rcx
-	leaq	96(%rsi),%rsi
-	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
-
-	movq	72(%rsp),%rdx
-	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -741,12 +710,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -772,12 +741,12 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
-	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 	xorq	$256+96,%rsi
 	movl	$31,%edi
 	call	__ab_approximation_31
@@ -803,21 +772,52 @@ ct_inverse_mod_383$1:
 	movq	64(%rsp),%rcx
 	leaq	96(%rsi),%rsi
 	leaq	48(%rdi),%rdi
-	call	__smulx_383x63
+	call	__smulx_384x63
+
+	movq	72(%rsp),%rdx
+	movq	80(%rsp),%rcx
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
+	xorq	$256+96,%rsi
+	movl	$31,%edi
+	call	__ab_approximation_31
+
+
+	movq	%r12,72(%rsp)
+	movq	%r13,80(%rsp)
+
+	movq	$256,%rdi
+	xorq	%rsi,%rdi
+	call	__smulx_191_n_shift_by_31
+	movq	%rdx,56(%rsp)
+	movq	%rcx,64(%rsp)
 
 	movq	72(%rsp),%rdx
 	movq	80(%rsp),%rcx
 	leaq	48(%rdi),%rdi
-	call	__smulx_767x63
+	call	__smulx_191_n_shift_by_31
+	movq	%rdx,72(%rsp)
+	movq	%rcx,80(%rsp)
+
+	movq	56(%rsp),%rdx
+	movq	64(%rsp),%rcx
+	leaq	96(%rsi),%rsi
+	leaq	48(%rdi),%rdi
+	call	__smulx_384x63
+
+	movq	72(%rsp),%rdx
+	movq	80(%rsp),%rcx
+	leaq	56(%rdi),%rdi
+	call	__smulx_768x63
 
 	xorq	$256+96,%rsi
-	movl	$53,%edi
+	movl	$55,%edi
 
 	movq	0(%rsi),%r8
 
 	movq	48(%rsi),%r10
 
-	call	__tail_loop_53
+	call	__tail_loop_55
 
 
 
@@ -834,40 +834,80 @@ ct_inverse_mod_383$1:
 	movq	%r12,%rdx
 	movq	%r13,%rcx
 	movq	32(%rsp),%rdi
-	call	__smulx_767x63
+	call	__smulx_768x63
 
 	movq	40(%rsp),%rsi
-	movq	%rax,%rdx
-	sarq	$63,%rax
+	movq	%rdx,%r13
+	sarq	$63,%r13
 
-	movq	%rax,%r8
-	movq	%rax,%r9
-	movq	%rax,%r10
+	movq	%r13,%r8
+	movq	%r13,%r9
+	movq	%r13,%r10
 #ifdef	__SGX_LVI_HARDENING__
 	lfence
 #endif
 	andq	0(%rsi),%r8
 	andq	8(%rsi),%r9
-	movq	%rax,%r11
+	movq	%r13,%r11
 	andq	16(%rsi),%r10
 	andq	24(%rsi),%r11
-	movq	%rax,%r12
+	movq	%r13,%r12
 	andq	32(%rsi),%r12
-	andq	40(%rsi),%rax
+	andq	40(%rsi),%r13
 
 	addq	%r8,%r14
 	adcq	%r9,%r15
 	adcq	%r10,%rbx
 	adcq	%r11,%rbp
 	adcq	%r12,%rcx
-	adcq	%rax,%rdx
+	adcq	%r13,%rax
+	adcq	$0,%rdx
+
+	movq	%rdx,%r13
+	negq	%rdx
+	orq	%rdx,%r13
+	sarq	$63,%rdx
+
+	movq	%r13,%r8
+	movq	%r13,%r9
+	movq	%r13,%r10
+	andq	0(%rsi),%r8
+	andq	8(%rsi),%r9
+	movq	%r13,%r11
+	andq	16(%rsi),%r10
+	andq	24(%rsi),%r11
+	movq	%r13,%r12
+	andq	32(%rsi),%r12
+	andq	40(%rsi),%r13
+
+	xorq	%rdx,%r8
+	xorq	%rsi,%rsi
+	xorq	%rdx,%r9
+	subq	%rdx,%rsi
+	xorq	%rdx,%r10
+	xorq	%rdx,%r11
+	xorq	%rdx,%r12
+	xorq	%rdx,%r13
+	addq	%rsi,%r8
+	adcq	$0,%r9
+	adcq	$0,%r10
+	adcq	$0,%r11
+	adcq	$0,%r12
+	adcq	$0,%r13
+
+	addq	%r8,%r14
+	adcq	%r9,%r15
+	adcq	%r10,%rbx
+	adcq	%r11,%rbp
+	adcq	%r12,%rcx
+	adcq	%r13,%rax
 
 	movq	%r14,48(%rdi)
 	movq	%r15,56(%rdi)
 	movq	%rbx,64(%rdi)
 	movq	%rbp,72(%rdi)
 	movq	%rcx,80(%rdi)
-	movq	%rdx,88(%rdi)
+	movq	%rax,88(%rdi)
 
 	leaq	1112(%rsp),%r8
 	movq	0(%r8),%r15
@@ -884,7 +924,7 @@ ct_inverse_mod_383$1:
 
 	leaq	48(%r8),%rsp
 
-.LSEH_epilogue_ctx_inverse_mod_383:
+.LSEH_epilogue_ctx_inverse_mod_384:
 	mov	8(%rsp),%rdi
 	mov	16(%rsp),%rsi
 
@@ -898,10 +938,10 @@ ct_inverse_mod_383$1:
 	.byte	0xf3,0xc3
 #endif
 
-.LSEH_end_ctx_inverse_mod_383:
-.def	__smulx_767x63;	.scl 3;	.type 32;	.endef
+.LSEH_end_ctx_inverse_mod_384:
+.def	__smulx_768x63;	.scl 3;	.type 32;	.endef
 .p2align	5
-__smulx_767x63:
+__smulx_768x63:
 	.byte	0xf3,0x0f,0x1e,0xfa
 
 	movq	0(%rsi),%r8
@@ -910,6 +950,7 @@ __smulx_767x63:
 	movq	24(%rsi),%r11
 	movq	32(%rsi),%r12
 	movq	40(%rsi),%r13
+	movq	48(%rsi),%r14
 
 	movq	%rdx,%rax
 	sarq	$63,%rax
@@ -918,7 +959,7 @@ __smulx_767x63:
 
 	movq	%rdi,8(%rsp)
 	movq	%rsi,16(%rsp)
-	leaq	48(%rsi),%rsi
+	leaq	56(%rsi),%rsi
 
 	xorq	%rax,%rdx
 	addq	%rbp,%rdx
@@ -928,37 +969,41 @@ __smulx_767x63:
 	xorq	%rax,%r10
 	xorq	%rax,%r11
 	xorq	%rax,%r12
-	xorq	%r13,%rax
+	xorq	%rax,%r13
+	xorq	%rax,%r14
 	addq	%rbp,%r8
 	adcq	$0,%r9
 	adcq	$0,%r10
 	adcq	$0,%r11
 	adcq	$0,%r12
-	adcq	$0,%rax
+	adcq	$0,%r13
+	adcq	$0,%r14
+
+	andq	%rdx,%r14
+	negq	%r14
 
 	mulxq	%r8,%r8,%rbp
-	mulxq	%r9,%r9,%r13
+	mulxq	%r9,%r9,%rax
 	addq	%rbp,%r9
 	mulxq	%r10,%r10,%rbp
-	adcq	%r13,%r10
-	mulxq	%r11,%r11,%r13
+	adcq	%rax,%r10
+	mulxq	%r11,%r11,%rax
 	adcq	%rbp,%r11
 	mulxq	%r12,%r12,%rbp
-	adcq	%r13,%r12
-	adcq	$0,%rbp
-	imulq	%rdx
-	addq	%rbp,%rax
-	adcq	$0,%rdx
+	adcq	%rax,%r12
+	mulxq	%r13,%r13,%rax
+	adcq	%rbp,%r13
+	adcq	%rax,%r14
 
 	movq	%r8,0(%rdi)
 	movq	%r9,8(%rdi)
 	movq	%r10,16(%rdi)
 	movq	%r11,24(%rdi)
 	movq	%r12,32(%rdi)
-	movq	%rax,40(%rdi)
-	movq	%rdx,48(%rdi)
-	sarq	$63,%rdx
-	movq	%rdx,56(%rdi)
+	movq	%r13,40(%rdi)
+	movq	%r14,48(%rdi)
+	sarq	$63,%r14
+	movq	%r14,56(%rdi)
 	movq	%rcx,%rdx
 	movq	%rcx,%rax
 
@@ -993,7 +1038,7 @@ __smulx_767x63:
 	xorq	%rax,%rbx
 	xorq	%rax,%rbp
 	xorq	%rax,%rcx
-	xorq	%rax,%rdi
+	xorq	%rdi,%rax
 	addq	%rsi,%r8
 	adcq	$0,%r9
 	adcq	$0,%r10
@@ -1005,286 +1050,33 @@ __smulx_767x63:
 	adcq	$0,%rbx
 	adcq	$0,%rbp
 	adcq	$0,%rcx
-	adcq	$0,%rdi
+	adcq	$0,%rax
 
-	mulxq	%r8,%r8,%rax
-	mulxq	%r9,%r9,%rsi
-	addq	%rax,%r9
-	mulxq	%r10,%r10,%rax
-	adcq	%rsi,%r10
-	mulxq	%r11,%r11,%rsi
-	adcq	%rax,%r11
-	mulxq	%r12,%r12,%rax
-	adcq	%rsi,%r12
-	mulxq	%r13,%r13,%rsi
-	adcq	%rax,%r13
-	mulxq	%r14,%r14,%rax
-	adcq	%rsi,%r14
-	mulxq	%r15,%r15,%rsi
-	adcq	%rax,%r15
-	mulxq	%rbx,%rbx,%rax
-	adcq	%rsi,%rbx
-	mulxq	%rbp,%rbp,%rsi
-	adcq	%rax,%rbp
-	mulxq	%rcx,%rcx,%rax
-	adcq	%rsi,%rcx
-	mulxq	%rdi,%rdi,%rsi
-	movq	8(%rsp),%rdx
-	movq	16(%rsp),%rsi
-	adcq	%rdi,%rax
-
-	addq	0(%rdx),%r8
-	adcq	8(%rdx),%r9
-	adcq	16(%rdx),%r10
-	adcq	24(%rdx),%r11
-	adcq	32(%rdx),%r12
-	adcq	40(%rdx),%r13
-	adcq	48(%rdx),%r14
-	movq	56(%rdx),%rdi
-	adcq	%rdi,%r15
+	mulxq	%r8,%r8,%rsi
+	mulxq	%r9,%r9,%rdi
+	addq	%rsi,%r9
+	mulxq	%r10,%r10,%rsi
+	adcq	%rdi,%r10
+	mulxq	%r11,%r11,%rdi
+	adcq	%rsi,%r11
+	mulxq	%r12,%r12,%rsi
+	adcq	%rdi,%r12
+	mulxq	%r13,%r13,%rdi
+	adcq	%rsi,%r13
+	mulxq	%r14,%r14,%rsi
+	adcq	%rdi,%r14
+	mulxq	%r15,%r15,%rdi
+	adcq	%rsi,%r15
+	mulxq	%rbx,%rbx,%rsi
 	adcq	%rdi,%rbx
-	adcq	%rdi,%rbp
+	mulxq	%rbp,%rbp,%rdi
+	adcq	%rsi,%rbp
+	mulxq	%rcx,%rcx,%rsi
 	adcq	%rdi,%rcx
-	adcq	%rdi,%rax
-
-	movq	%rdx,%rdi
-
-	movq	%r8,0(%rdx)
-	movq	%r9,8(%rdx)
-	movq	%r10,16(%rdx)
-	movq	%r11,24(%rdx)
-	movq	%r12,32(%rdx)
-	movq	%r13,40(%rdx)
-	movq	%r14,48(%rdx)
-	movq	%r15,56(%rdx)
-	movq	%rbx,64(%rdx)
-	movq	%rbp,72(%rdx)
-	movq	%rcx,80(%rdx)
-	movq	%rax,88(%rdx)
-
-	
-#ifdef	__SGX_LVI_HARDENING__
-	popq	%r8
-	lfence
-	jmpq	*%r8
-	ud2
-#else
-	.byte	0xf3,0xc3
-#endif
-
-.def	__smulx_383x63;	.scl 3;	.type 32;	.endef
-.p2align	5
-__smulx_383x63:
-	.byte	0xf3,0x0f,0x1e,0xfa
-
-	movq	0+0(%rsi),%r8
-	movq	0+8(%rsi),%r9
-	movq	0+16(%rsi),%r10
-	movq	0+24(%rsi),%r11
-	movq	0+32(%rsi),%r12
-	movq	0+40(%rsi),%r13
-
-	movq	%rdx,%rbp
-	sarq	$63,%rbp
-	xorq	%rax,%rax
-	subq	%rbp,%rax
-
-	xorq	%rbp,%rdx
-	addq	%rax,%rdx
-
-	xorq	%rbp,%r8
-	xorq	%rbp,%r9
-	xorq	%rbp,%r10
-	xorq	%rbp,%r11
-	xorq	%rbp,%r12
-	xorq	%rbp,%r13
-	addq	%rax,%r8
-	adcq	$0,%r9
-	adcq	$0,%r10
-	adcq	$0,%r11
-	adcq	$0,%r12
-	adcq	$0,%r13
-
-	mulxq	%r8,%r8,%rbp
-	mulxq	%r9,%r9,%rax
-	addq	%rbp,%r9
-	mulxq	%r10,%r10,%rbp
-	adcq	%rax,%r10
-	mulxq	%r11,%r11,%rax
-	adcq	%rbp,%r11
-	mulxq	%r12,%r12,%rbp
-	adcq	%rax,%r12
-	mulxq	%r13,%r13,%rax
-	movq	%rcx,%rdx
-	adcq	%rbp,%r13
-
-	movq	%r8,0(%rdi)
-	movq	%r9,8(%rdi)
-	movq	%r10,16(%rdi)
-	movq	%r11,24(%rdi)
-	movq	%r12,32(%rdi)
-	movq	%r13,40(%rdi)
-	movq	48+0(%rsi),%r8
-	movq	48+8(%rsi),%r9
-	movq	48+16(%rsi),%r10
-	movq	48+24(%rsi),%r11
-	movq	48+32(%rsi),%r12
-	movq	48+40(%rsi),%r13
-
-	movq	%rdx,%rbp
-	sarq	$63,%rbp
-	xorq	%rax,%rax
-	subq	%rbp,%rax
-
-	xorq	%rbp,%rdx
-	addq	%rax,%rdx
-
-	xorq	%rbp,%r8
-	xorq	%rbp,%r9
-	xorq	%rbp,%r10
-	xorq	%rbp,%r11
-	xorq	%rbp,%r12
-	xorq	%rbp,%r13
-	addq	%rax,%r8
-	adcq	$0,%r9
-	adcq	$0,%r10
-	adcq	$0,%r11
-	adcq	$0,%r12
-	adcq	$0,%r13
-
-	mulxq	%r8,%r8,%rbp
-	mulxq	%r9,%r9,%rax
-	addq	%rbp,%r9
-	mulxq	%r10,%r10,%rbp
-	adcq	%rax,%r10
-	mulxq	%r11,%r11,%rax
-	adcq	%rbp,%r11
-	mulxq	%r12,%r12,%rbp
-	adcq	%rax,%r12
-	mulxq	%r13,%r13,%rax
-	adcq	%rbp,%r13
-
-	addq	0(%rdi),%r8
-	adcq	8(%rdi),%r9
-	adcq	16(%rdi),%r10
-	adcq	24(%rdi),%r11
-	adcq	32(%rdi),%r12
-	adcq	40(%rdi),%r13
-
-	movq	%r8,0(%rdi)
-	movq	%r9,8(%rdi)
-	movq	%r10,16(%rdi)
-	movq	%r11,24(%rdi)
-	movq	%r12,32(%rdi)
-	movq	%r13,40(%rdi)
-
-	
-#ifdef	__SGX_LVI_HARDENING__
-	popq	%r8
-	lfence
-	jmpq	*%r8
-	ud2
-#else
-	.byte	0xf3,0xc3
-#endif
-
-.def	__smulx_383_n_shift_by_31;	.scl 3;	.type 32;	.endef
-.p2align	5
-__smulx_383_n_shift_by_31:
-	.byte	0xf3,0x0f,0x1e,0xfa
-
-	movq	%rdx,%rbx
-	xorq	%r14,%r14
-	movq	0+0(%rsi),%r8
-	movq	0+8(%rsi),%r9
-	movq	0+16(%rsi),%r10
-	movq	0+24(%rsi),%r11
-	movq	0+32(%rsi),%r12
-	movq	0+40(%rsi),%r13
-
-	movq	%rdx,%rax
-	sarq	$63,%rax
-	xorq	%rbp,%rbp
-	subq	%rax,%rbp
-
-	xorq	%rax,%rdx
-	addq	%rbp,%rdx
-
-	xorq	%rax,%r8
-	xorq	%rax,%r9
-	xorq	%rax,%r10
-	xorq	%rax,%r11
-	xorq	%rax,%r12
-	xorq	%r13,%rax
-	addq	%rbp,%r8
-	adcq	$0,%r9
-	adcq	$0,%r10
-	adcq	$0,%r11
-	adcq	$0,%r12
-	adcq	$0,%rax
-
-	mulxq	%r8,%r8,%rbp
-	mulxq	%r9,%r9,%r13
-	addq	%rbp,%r9
-	mulxq	%r10,%r10,%rbp
-	adcq	%r13,%r10
-	mulxq	%r11,%r11,%r13
-	adcq	%rbp,%r11
-	mulxq	%r12,%r12,%rbp
-	adcq	%r13,%r12
-	adcq	$0,%rbp
+	movq	8(%rsp),%rdi
+	adcq	$0,%rsi
 	imulq	%rdx
-	addq	%rbp,%rax
-	adcq	%rdx,%r14
-
-	movq	%rcx,%rdx
-
-	movq	%r8,0(%rdi)
-	movq	%r9,8(%rdi)
-	movq	%r10,16(%rdi)
-	movq	%r11,24(%rdi)
-	movq	%r12,32(%rdi)
-	movq	%rax,40(%rdi)
-	movq	48+0(%rsi),%r8
-	movq	48+8(%rsi),%r9
-	movq	48+16(%rsi),%r10
-	movq	48+24(%rsi),%r11
-	movq	48+32(%rsi),%r12
-	movq	48+40(%rsi),%r13
-
-	movq	%rdx,%rax
-	sarq	$63,%rax
-	xorq	%rbp,%rbp
-	subq	%rax,%rbp
-
-	xorq	%rax,%rdx
-	addq	%rbp,%rdx
-
-	xorq	%rax,%r8
-	xorq	%rax,%r9
-	xorq	%rax,%r10
-	xorq	%rax,%r11
-	xorq	%rax,%r12
-	xorq	%r13,%rax
-	addq	%rbp,%r8
-	adcq	$0,%r9
-	adcq	$0,%r10
-	adcq	$0,%r11
-	adcq	$0,%r12
-	adcq	$0,%rax
-
-	mulxq	%r8,%r8,%rbp
-	mulxq	%r9,%r9,%r13
-	addq	%rbp,%r9
-	mulxq	%r10,%r10,%rbp
-	adcq	%r13,%r10
-	mulxq	%r11,%r11,%r13
-	adcq	%rbp,%r11
-	mulxq	%r12,%r12,%rbp
-	adcq	%r13,%r12
-	adcq	$0,%rbp
-	imulq	%rdx
-	addq	%rbp,%rax
+	addq	%rsi,%rax
 	adcq	$0,%rdx
 
 	addq	0(%rdi),%r8
@@ -1292,16 +1084,292 @@ __smulx_383_n_shift_by_31:
 	adcq	16(%rdi),%r10
 	adcq	24(%rdi),%r11
 	adcq	32(%rdi),%r12
-	adcq	40(%rdi),%rax
-	adcq	%rdx,%r14
+	adcq	40(%rdi),%r13
+	adcq	48(%rdi),%r14
+	movq	56(%rdi),%rsi
+	adcq	%rsi,%r15
+	adcq	%rsi,%rbx
+	adcq	%rsi,%rbp
+	adcq	%rsi,%rcx
+	adcq	%rsi,%rax
+	adcq	%rsi,%rdx
+
+	movq	16(%rsp),%rsi
+
+	movq	%r8,0(%rdi)
+	movq	%r9,8(%rdi)
+	movq	%r10,16(%rdi)
+	movq	%r11,24(%rdi)
+	movq	%r12,32(%rdi)
+	movq	%r13,40(%rdi)
+	movq	%r14,48(%rdi)
+	movq	%r15,56(%rdi)
+	movq	%rbx,64(%rdi)
+	movq	%rbp,72(%rdi)
+	movq	%rcx,80(%rdi)
+	movq	%rax,88(%rdi)
+
+	
+#ifdef	__SGX_LVI_HARDENING__
+	popq	%r8
+	lfence
+	jmpq	*%r8
+	ud2
+#else
+	.byte	0xf3,0xc3
+#endif
+
+.def	__smulx_384x63;	.scl 3;	.type 32;	.endef
+.p2align	5
+__smulx_384x63:
+	.byte	0xf3,0x0f,0x1e,0xfa
+
+	movq	0+0(%rsi),%r8
+	movq	0+8(%rsi),%r9
+	movq	0+16(%rsi),%r10
+	movq	0+24(%rsi),%r11
+	movq	0+32(%rsi),%r12
+	movq	0+40(%rsi),%r13
+	movq	0+48(%rsi),%r14
+
+	movq	%rdx,%rbp
+	sarq	$63,%rbp
+	xorq	%rax,%rax
+	subq	%rbp,%rax
+
+	xorq	%rbp,%rdx
+	addq	%rax,%rdx
+
+	xorq	%rbp,%r8
+	xorq	%rbp,%r9
+	xorq	%rbp,%r10
+	xorq	%rbp,%r11
+	xorq	%rbp,%r12
+	xorq	%rbp,%r13
+	xorq	%rbp,%r14
+	addq	%rax,%r8
+	adcq	$0,%r9
+	adcq	$0,%r10
+	adcq	$0,%r11
+	adcq	$0,%r12
+	adcq	$0,%r13
+	adcq	$0,%r14
+
+	andq	%rdx,%r14
+	negq	%r14
+
+	mulxq	%r8,%r8,%rbp
+	mulxq	%r9,%r9,%rax
+	addq	%rbp,%r9
+	mulxq	%r10,%r10,%rbp
+	adcq	%rax,%r10
+	mulxq	%r11,%r11,%rax
+	adcq	%rbp,%r11
+	mulxq	%r12,%r12,%rbp
+	adcq	%rax,%r12
+	mulxq	%r13,%r13,%rax
+	movq	%rcx,%rdx
+	adcq	%rbp,%r13
+	adcq	%rax,%r14
+
+	movq	%r8,0(%rdi)
+	movq	%r9,8(%rdi)
+	movq	%r10,16(%rdi)
+	movq	%r11,24(%rdi)
+	movq	%r12,32(%rdi)
+	movq	%r13,%r15
+	movq	%r14,%rbx
+	movq	56+0(%rsi),%r8
+	movq	56+8(%rsi),%r9
+	movq	56+16(%rsi),%r10
+	movq	56+24(%rsi),%r11
+	movq	56+32(%rsi),%r12
+	movq	56+40(%rsi),%r13
+	movq	56+48(%rsi),%r14
+
+	movq	%rdx,%rbp
+	sarq	$63,%rbp
+	xorq	%rax,%rax
+	subq	%rbp,%rax
+
+	xorq	%rbp,%rdx
+	addq	%rax,%rdx
+
+	xorq	%rbp,%r8
+	xorq	%rbp,%r9
+	xorq	%rbp,%r10
+	xorq	%rbp,%r11
+	xorq	%rbp,%r12
+	xorq	%rbp,%r13
+	xorq	%rbp,%r14
+	addq	%rax,%r8
+	adcq	$0,%r9
+	adcq	$0,%r10
+	adcq	$0,%r11
+	adcq	$0,%r12
+	adcq	$0,%r13
+	adcq	$0,%r14
+
+	andq	%rdx,%r14
+	negq	%r14
+
+	mulxq	%r8,%r8,%rbp
+	mulxq	%r9,%r9,%rax
+	addq	%rbp,%r9
+	mulxq	%r10,%r10,%rbp
+	adcq	%rax,%r10
+	mulxq	%r11,%r11,%rax
+	adcq	%rbp,%r11
+	mulxq	%r12,%r12,%rbp
+	adcq	%rax,%r12
+	mulxq	%r13,%r13,%rax
+	adcq	%rbp,%r13
+	adcq	%rax,%r14
+
+	addq	0(%rdi),%r8
+	adcq	8(%rdi),%r9
+	adcq	16(%rdi),%r10
+	adcq	24(%rdi),%r11
+	adcq	32(%rdi),%r12
+	adcq	%r15,%r13
+	adcq	%rbx,%r14
+
+	movq	%r8,0(%rdi)
+	movq	%r9,8(%rdi)
+	movq	%r10,16(%rdi)
+	movq	%r11,24(%rdi)
+	movq	%r12,32(%rdi)
+	movq	%r13,40(%rdi)
+	movq	%r14,48(%rdi)
+
+	
+#ifdef	__SGX_LVI_HARDENING__
+	popq	%r8
+	lfence
+	jmpq	*%r8
+	ud2
+#else
+	.byte	0xf3,0xc3
+#endif
+
+.def	__smulx_384_n_shift_by_31;	.scl 3;	.type 32;	.endef
+.p2align	5
+__smulx_384_n_shift_by_31:
+	.byte	0xf3,0x0f,0x1e,0xfa
+
+	movq	%rdx,%rbx
+	movq	0+0(%rsi),%r8
+	movq	0+8(%rsi),%r9
+	movq	0+16(%rsi),%r10
+	movq	0+24(%rsi),%r11
+	movq	0+32(%rsi),%r12
+	movq	0+40(%rsi),%r13
+
+	movq	%rdx,%rax
+	sarq	$63,%rax
+	xorq	%rbp,%rbp
+	subq	%rax,%rbp
+
+	xorq	%rax,%rdx
+	addq	%rbp,%rdx
+
+	xorq	%rax,%r8
+	xorq	%rax,%r9
+	xorq	%rax,%r10
+	xorq	%rax,%r11
+	xorq	%rax,%r12
+	xorq	%rax,%r13
+	addq	%rbp,%r8
+	adcq	$0,%r9
+	adcq	$0,%r10
+	adcq	$0,%r11
+	adcq	$0,%r12
+	adcq	$0,%r13
+
+	andq	%rdx,%rax
+	negq	%rax
+
+	mulxq	%r8,%r8,%rbp
+	mulxq	%r9,%r9,%r14
+	addq	%rbp,%r9
+	mulxq	%r10,%r10,%rbp
+	adcq	%r14,%r10
+	mulxq	%r11,%r11,%r14
+	adcq	%rbp,%r11
+	mulxq	%r12,%r12,%rbp
+	adcq	%r14,%r12
+	mulxq	%r13,%r13,%r14
+	adcq	%rbp,%r13
+	adcq	%rax,%r14
+
+	movq	%rcx,%rdx
+
+	movq	%r8,0(%rdi)
+	movq	%r9,8(%rdi)
+	movq	%r10,16(%rdi)
+	movq	%r11,24(%rdi)
+	movq	%r12,32(%rdi)
+	movq	%r13,40(%rdi)
+	movq	%r14,%r15
+	movq	48+0(%rsi),%r8
+	movq	48+8(%rsi),%r9
+	movq	48+16(%rsi),%r10
+	movq	48+24(%rsi),%r11
+	movq	48+32(%rsi),%r12
+	movq	48+40(%rsi),%r13
+
+	movq	%rdx,%rax
+	sarq	$63,%rax
+	xorq	%rbp,%rbp
+	subq	%rax,%rbp
+
+	xorq	%rax,%rdx
+	addq	%rbp,%rdx
+
+	xorq	%rax,%r8
+	xorq	%rax,%r9
+	xorq	%rax,%r10
+	xorq	%rax,%r11
+	xorq	%rax,%r12
+	xorq	%rax,%r13
+	addq	%rbp,%r8
+	adcq	$0,%r9
+	adcq	$0,%r10
+	adcq	$0,%r11
+	adcq	$0,%r12
+	adcq	$0,%r13
+
+	andq	%rdx,%rax
+	negq	%rax
+
+	mulxq	%r8,%r8,%rbp
+	mulxq	%r9,%r9,%r14
+	addq	%rbp,%r9
+	mulxq	%r10,%r10,%rbp
+	adcq	%r14,%r10
+	mulxq	%r11,%r11,%r14
+	adcq	%rbp,%r11
+	mulxq	%r12,%r12,%rbp
+	adcq	%r14,%r12
+	mulxq	%r13,%r13,%r14
+	adcq	%rbp,%r13
+	adcq	%rax,%r14
+
+	addq	0(%rdi),%r8
+	adcq	8(%rdi),%r9
+	adcq	16(%rdi),%r10
+	adcq	24(%rdi),%r11
+	adcq	32(%rdi),%r12
+	adcq	40(%rdi),%r13
+	adcq	%r15,%r14
 	movq	%rbx,%rdx
 
 	shrdq	$31,%r9,%r8
 	shrdq	$31,%r10,%r9
 	shrdq	$31,%r11,%r10
 	shrdq	$31,%r12,%r11
-	shrdq	$31,%rax,%r12
-	shrdq	$31,%r14,%rax
+	shrdq	$31,%r13,%r12
+	shrdq	$31,%r14,%r13
 
 	sarq	$63,%r14
 	xorq	%rbp,%rbp
@@ -1312,20 +1380,20 @@ __smulx_383_n_shift_by_31:
 	xorq	%r14,%r10
 	xorq	%r14,%r11
 	xorq	%r14,%r12
-	xorq	%r14,%rax
+	xorq	%r14,%r13
 	addq	%rbp,%r8
 	adcq	$0,%r9
 	adcq	$0,%r10
 	adcq	$0,%r11
 	adcq	$0,%r12
-	adcq	$0,%rax
+	adcq	$0,%r13
 
 	movq	%r8,0(%rdi)
 	movq	%r9,8(%rdi)
 	movq	%r10,16(%rdi)
 	movq	%r11,24(%rdi)
 	movq	%r12,32(%rdi)
-	movq	%rax,40(%rdi)
+	movq	%r13,40(%rdi)
 
 	xorq	%r14,%rdx
 	xorq	%r14,%rcx
@@ -1578,9 +1646,9 @@ __inner_loop_31:
 #endif
 
 
-.def	__tail_loop_53;	.scl 3;	.type 32;	.endef
+.def	__tail_loop_55;	.scl 3;	.type 32;	.endef
 .p2align	5
-__tail_loop_53:
+__tail_loop_55:
 	.byte	0xf3,0x0f,0x1e,0xfa
 
 	movq	$1,%rdx
@@ -1588,7 +1656,7 @@ __tail_loop_53:
 	xorq	%r12,%r12
 	movq	$1,%r13
 
-.Loop_53:
+.Loop_55:
 	xorq	%rax,%rax
 	testq	$1,%r8
 	movq	%r10,%rbx
@@ -1615,7 +1683,7 @@ __tail_loop_53:
 	subq	%rax,%rdx
 	subq	%rbx,%rcx
 	subl	$1,%edi
-	jnz	.Loop_53
+	jnz	.Loop_55
 
 	
 #ifdef	__SGX_LVI_HARDENING__
@@ -1629,28 +1697,28 @@ __tail_loop_53:
 
 .section	.pdata
 .p2align	2
-.rva	.LSEH_begin_ctx_inverse_mod_383
-.rva	.LSEH_body_ctx_inverse_mod_383
-.rva	.LSEH_info_ctx_inverse_mod_383_prologue
+.rva	.LSEH_begin_ctx_inverse_mod_384
+.rva	.LSEH_body_ctx_inverse_mod_384
+.rva	.LSEH_info_ctx_inverse_mod_384_prologue
 
-.rva	.LSEH_body_ctx_inverse_mod_383
-.rva	.LSEH_epilogue_ctx_inverse_mod_383
-.rva	.LSEH_info_ctx_inverse_mod_383_body
+.rva	.LSEH_body_ctx_inverse_mod_384
+.rva	.LSEH_epilogue_ctx_inverse_mod_384
+.rva	.LSEH_info_ctx_inverse_mod_384_body
 
-.rva	.LSEH_epilogue_ctx_inverse_mod_383
-.rva	.LSEH_end_ctx_inverse_mod_383
-.rva	.LSEH_info_ctx_inverse_mod_383_epilogue
+.rva	.LSEH_epilogue_ctx_inverse_mod_384
+.rva	.LSEH_end_ctx_inverse_mod_384
+.rva	.LSEH_info_ctx_inverse_mod_384_epilogue
 
 .section	.xdata
 .p2align	3
-.LSEH_info_ctx_inverse_mod_383_prologue:
+.LSEH_info_ctx_inverse_mod_384_prologue:
 .byte	1,0,5,0x0b
 .byte	0,0x74,1,0
 .byte	0,0x64,2,0
 .byte	0,0xb3
 .byte	0,0
 .long	0,0
-.LSEH_info_ctx_inverse_mod_383_body:
+.LSEH_info_ctx_inverse_mod_384_body:
 .byte	1,0,18,0
 .byte	0x00,0xf4,0x8b,0x00
 .byte	0x00,0xe4,0x8c,0x00
@@ -1663,7 +1731,7 @@ __tail_loop_53:
 .byte	0x00,0x01,0x91,0x00
 .byte	0x00,0x00,0x00,0x00
 .byte	0x00,0x00,0x00,0x00
-.LSEH_info_ctx_inverse_mod_383_epilogue:
+.LSEH_info_ctx_inverse_mod_384_epilogue:
 .byte	1,0,4,0
 .byte	0x00,0x74,0x01,0x00
 .byte	0x00,0x64,0x02,0x00

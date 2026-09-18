@@ -191,12 +191,6 @@ private:
     //! obfuscation key storage key, null-prefixed to avoid collisions
     inline static const std::string OBFUSCATION_KEY{"\000obfuscate_key", 14}; // explicit size to avoid truncation at leading \0
 
-    //! path to filesystem storage
-    const fs::path m_path;
-
-    //! whether or not the database resides in memory
-    bool m_is_memory;
-
     std::optional<std::string> ReadImpl(std::span<const std::byte> key) const;
     bool ExistsImpl(std::span<const std::byte> key) const;
     size_t EstimateSizeImpl(std::span<const std::byte> key1, std::span<const std::byte> key2) const;
@@ -220,9 +214,9 @@ public:
             return false;
         }
         try {
-            DataStream ssValue{MakeByteSpan(*strValue)};
+            std::span ssValue{MakeWritableByteSpan(*strValue)};
             m_obfuscation(ssValue);
-            ssValue >> value;
+            SpanReader{ssValue} >> value;
         } catch (const std::exception&) {
             return false;
         }
@@ -230,19 +224,11 @@ public:
     }
 
     template <typename K, typename V>
-    bool Write(const K& key, const V& value, bool fSync = false)
+    void Write(const K& key, const V& value, bool fSync = false)
     {
         CDBBatch batch(*this);
         batch.Write(key, value);
-        return WriteBatch(batch, fSync);
-    }
-
-    //! @returns filesystem path to the on-disk data.
-    std::optional<fs::path> StoragePath() {
-        if (m_is_memory) {
-            return {};
-        }
-        return m_path;
+        WriteBatch(batch, fSync);
     }
 
     template <typename K>
@@ -255,14 +241,20 @@ public:
     }
 
     template <typename K>
-    bool Erase(const K& key, bool fSync = false)
+    void Erase(const K& key, bool fSync = false)
     {
         CDBBatch batch(*this);
         batch.Erase(key);
-        return WriteBatch(batch, fSync);
+        WriteBatch(batch, fSync);
     }
 
-    bool WriteBatch(CDBBatch& batch, bool fSync = false);
+    void WriteBatch(CDBBatch& batch, bool fSync = false);
+
+    //! Perform a blocking full compaction of the underlying LevelDB.
+    void CompactFull();
+
+    //! Return a LevelDB property value, if available.
+    std::optional<std::string> GetProperty(const std::string& property) const;
 
     // Get an estimate of LevelDB memory usage (in bytes).
     size_t DynamicMemoryUsage() const;

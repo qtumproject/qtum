@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2021 The Bitcoin Core developers
+// Copyright (c) 2015-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -31,7 +31,7 @@ namespace {
 void MakeSingleColorImage(QImage& img, const QColor& colorbase, double opacity = 1)
 {
     //Opacity representation in percentage (0, 1) i.e. (0%, 100%)
-    if(opacity > 1 && opacity < 0) opacity = 1;
+    if(opacity > 1 || opacity < 0) opacity = 1;
 
     img = img.convertToFormat(QImage::Format_ARGB32);
     for (int x = img.width(); x--; )

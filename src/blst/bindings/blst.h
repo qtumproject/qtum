@@ -23,15 +23,17 @@ typedef __UINT64_TYPE__ uint64_t;
 
 #ifdef __cplusplus
 extern "C" {
-#elif defined(__BLST_CGO__)
+#elif !defined(__STDC_VERSION__) || __STDC_VERSION__<202311
+# if defined(__BLST_CGO__)
 typedef _Bool bool; /* it's assumed that cgo calls modern enough compiler */
-#elif !defined(bool)
-# if defined(__STDC_VERSION__) && __STDC_VERSION__>=199901
-#  define bool _Bool
-# else
-#  define bool int
+# elif !defined(bool)
+#  if defined(__STDC_VERSION__) && __STDC_VERSION__>=199901
+#   define bool _Bool
+#  else
+#   define bool int
+#  endif
+#  define __blst_h_bool__
 # endif
-# define __blst_h_bool__
 #endif
 
 #ifdef SWIG

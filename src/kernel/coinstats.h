@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Bitcoin Core developers
+// Copyright (c) 2022-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,8 +7,6 @@
 
 #include <arith_uint256.h>
 #include <consensus/amount.h>
-#include <crypto/muhash.h>
-#include <streams.h>
 #include <uint256.h>
 
 #include <cstdint>
@@ -19,6 +17,7 @@ class CCoinsView;
 class Coin;
 class COutPoint;
 class CScript;
+class MuHash3072;
 namespace node {
 class BlockManager;
 } // namespace node

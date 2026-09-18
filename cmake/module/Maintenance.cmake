@@ -18,30 +18,6 @@ function(setup_split_debug_script)
   endif()
 endfunction()
 
-function(add_maintenance_targets)
-  if(NOT TARGET Python3::Interpreter)
-    return()
-  endif()
-
-  foreach(target IN ITEMS qtum qtumd qtum-node qtum-qt qtum-gui qtum-cli qtum-tx qtum-util qtum-wallet test_qtum bench_qtum)
-    if(TARGET ${target})
-      list(APPEND executables $<TARGET_FILE:${target}>)
-    endif()
-  endforeach()
-
-  add_custom_target(check-symbols
-    COMMAND ${CMAKE_COMMAND} -E echo "Running symbol and dynamic library checks..."
-    COMMAND Python3::Interpreter ${PROJECT_SOURCE_DIR}/contrib/guix/symbol-check.py ${executables}
-    VERBATIM
-  )
-
-  add_custom_target(check-security
-    COMMAND ${CMAKE_COMMAND} -E echo "Checking binary security..."
-    COMMAND Python3::Interpreter ${PROJECT_SOURCE_DIR}/contrib/guix/security-check.py ${executables}
-    VERBATIM
-  )
-endfunction()
-
 function(add_windows_deploy_target)
   if(MINGW AND TARGET qtum AND TARGET qtum-qt AND TARGET qtumd AND TARGET qtum-cli AND TARGET qtum-tx AND TARGET qtum-wallet AND TARGET qtum-util AND TARGET test_qtum)
     find_program(MAKENSIS_EXECUTABLE makensis)
@@ -96,24 +72,24 @@ function(add_macos_deploy_target)
       VERBATIM
     )
 
-    string(REPLACE " " "-" osx_volname ${CLIENT_NAME})
+    set(macos_zip "bitcoin-macos-app")
     if(CMAKE_HOST_APPLE)
       add_custom_command(
-        OUTPUT ${PROJECT_BINARY_DIR}/${osx_volname}.zip
-        COMMAND Python3::Interpreter ${PROJECT_SOURCE_DIR}/contrib/macdeploy/macdeployqtplus ${macos_app} ${osx_volname} -translations-dir=${QT_TRANSLATIONS_DIR} -zip
+        OUTPUT ${PROJECT_BINARY_DIR}/${macos_zip}.zip
+        COMMAND Python3::Interpreter ${PROJECT_SOURCE_DIR}/contrib/macdeploy/macdeployqtplus ${macos_app} -translations-dir=${QT_TRANSLATIONS_DIR} -zip=${macos_zip}
         DEPENDS ${PROJECT_BINARY_DIR}/${macos_app}/Contents/MacOS/Qtum-Qt
         VERBATIM
       )
       add_custom_target(deploydir
-        DEPENDS ${PROJECT_BINARY_DIR}/${osx_volname}.zip
+        DEPENDS ${PROJECT_BINARY_DIR}/${macos_zip}.zip
       )
       add_custom_target(deploy
-        DEPENDS ${PROJECT_BINARY_DIR}/${osx_volname}.zip
+        DEPENDS ${PROJECT_BINARY_DIR}/${macos_zip}.zip
       )
     else()
       add_custom_command(
         OUTPUT ${PROJECT_BINARY_DIR}/dist/${macos_app}/Contents/MacOS/Qtum-Qt
-        COMMAND ${CMAKE_COMMAND} -E env OBJDUMP=${CMAKE_OBJDUMP} $<TARGET_FILE:Python3::Interpreter> ${PROJECT_SOURCE_DIR}/contrib/macdeploy/macdeployqtplus ${macos_app} ${osx_volname} -translations-dir=${QT_TRANSLATIONS_DIR}
+        COMMAND ${CMAKE_COMMAND} -E env OBJDUMP=${CMAKE_OBJDUMP} $<TARGET_FILE:Python3::Interpreter> ${PROJECT_SOURCE_DIR}/contrib/macdeploy/macdeployqtplus ${macos_app} -translations-dir=${QT_TRANSLATIONS_DIR}
         DEPENDS ${PROJECT_BINARY_DIR}/${macos_app}/Contents/MacOS/Qtum-Qt
         VERBATIM
       )
@@ -128,13 +104,13 @@ function(add_macos_deploy_target)
         )
       else()
         add_custom_command(
-          OUTPUT ${PROJECT_BINARY_DIR}/dist/${osx_volname}.zip
+          OUTPUT ${PROJECT_BINARY_DIR}/dist/${macos_zip}.zip
           WORKING_DIRECTORY dist
-          COMMAND ${PROJECT_SOURCE_DIR}/cmake/script/macos_zip.sh ${ZIP_EXECUTABLE} ${osx_volname}.zip
+          COMMAND ${PROJECT_SOURCE_DIR}/cmake/script/macos_zip.sh ${ZIP_EXECUTABLE} ${macos_zip}.zip
           VERBATIM
         )
         add_custom_target(deploy
-          DEPENDS ${PROJECT_BINARY_DIR}/dist/${osx_volname}.zip
+          DEPENDS ${PROJECT_BINARY_DIR}/dist/${macos_zip}.zip
         )
       endif()
     endif()

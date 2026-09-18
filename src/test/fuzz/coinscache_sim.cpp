@@ -70,7 +70,7 @@ struct PrecomputedData
                 coins[i].out.scriptPubKey[0] = OP_HASH160;
                 coins[i].out.scriptPubKey[1] = 20;
                 std::copy(hash.begin(), hash.begin() + 20, coins[i].out.scriptPubKey.begin() + 2);
-                coins[i].out.scriptPubKey[12] = OP_EQUAL;
+                coins[i].out.scriptPubKey[22] = OP_EQUAL;
                 break;
             case 2: /* P2WPKH */
                 coins[i].out.scriptPubKey.resize(22);
@@ -138,8 +138,6 @@ struct CacheLevel
 /** Class for the base of the hierarchy (roughly simulating a memory-backed CCoinsViewDB).
  *
  * The initial state consists of the empty UTXO set.
- * Coins whose output index is 4 (mod 5) have GetCoin() always succeed after being spent.
- * This exercises code paths with spent, non-DIRTY cache entries.
  */
 class CoinsViewBottom final : public CCoinsView
 {
@@ -148,14 +146,11 @@ class CoinsViewBottom final : public CCoinsView
 public:
     std::optional<Coin> GetCoin(const COutPoint& outpoint) const final
     {
-        // TODO GetCoin shouldn't return spent coins
-        if (auto it = m_data.find(outpoint); it != m_data.end()) return it->second;
+        if (auto it{m_data.find(outpoint)}; it != m_data.end()) {
+            assert(!it->second.IsSpent());
+            return it->second;
+        }
         return std::nullopt;
-    }
-
-    bool HaveCoin(const COutPoint& outpoint) const final
-    {
-        return m_data.count(outpoint);
     }
 
     uint256 GetBestBlock() const final { return {}; }
@@ -163,22 +158,24 @@ public:
     std::unique_ptr<CCoinsViewCursor> Cursor() const final { return {}; }
     size_t EstimateSize() const final { return m_data.size(); }
 
-    bool BatchWrite(CoinsViewCacheCursor& cursor, const uint256&) final
+    void BatchWrite(CoinsViewCacheCursor& cursor, const uint256&) final
     {
         for (auto it{cursor.Begin()}; it != cursor.End(); it = cursor.NextAndMaybeErase(*it)) {
             if (it->second.IsDirty()) {
-                if (it->second.coin.IsSpent() && (it->first.n % 5) != 4) {
+                if (it->second.coin.IsSpent()) {
                     m_data.erase(it->first);
-                } else if (cursor.WillErase(*it)) {
-                    m_data[it->first] = std::move(it->second.coin);
                 } else {
-                    m_data[it->first] = it->second.coin;
+                    if (cursor.WillErase(*it)) {
+                        m_data[it->first] = std::move(it->second.coin);
+                    } else {
+                        m_data[it->first] = it->second.coin;
+                    }
                 }
             } else {
                 /* For non-dirty entries being written, compare them with what we have. */
                 auto it2 = m_data.find(it->first);
                 if (it->second.coin.IsSpent()) {
-                    assert(it2 == m_data.end() || it2->second.IsSpent());
+                    assert(it2 == m_data.end());
                 } else {
                     assert(it2 != m_data.end());
                     assert(it->second.coin.out == it2->second.out);
@@ -187,7 +184,6 @@ public:
                 }
             }
         }
-        return true;
     }
 };
 
@@ -261,10 +257,12 @@ FUZZ_TARGET(coinscache_sim)
                 // Look up in simulation data.
                 auto sim = lookup(outpointidx);
                 // Look up in real caches.
-                auto realcoin = caches.back()->GetCoin(data.outpoints[outpointidx]);
+                auto realcoin = provider.ConsumeBool() ?
+                    caches.back()->PeekCoin(data.outpoints[outpointidx]) :
+                    caches.back()->GetCoin(data.outpoints[outpointidx]);
                 // Compare results.
                 if (!sim.has_value()) {
-                    assert(!realcoin || realcoin->IsSpent());
+                    assert(!realcoin);
                 } else {
                     assert(realcoin && !realcoin->IsSpent());
                     const auto& simcoin = data.coins[sim->first];
@@ -376,7 +374,11 @@ FUZZ_TARGET(coinscache_sim)
             [&]() { // Add a cache level (if not already at the max).
                 if (caches.size() != MAX_CACHES) {
                     // Apply to real caches.
-                    caches.emplace_back(new CCoinsViewCache(&*caches.back(), /*deterministic=*/true));
+                    if (provider.ConsumeBool()) {
+                        caches.emplace_back(new CCoinsViewCache(&*caches.back(), /*deterministic=*/true));
+                    } else {
+                        caches.emplace_back(new CoinsViewOverlay(&*caches.back(), /*deterministic=*/true));
+                    }
                     // Apply to simulation data.
                     sim_caches[caches.size()].Wipe();
                 }
@@ -392,7 +394,7 @@ FUZZ_TARGET(coinscache_sim)
                 // Apply to simulation data.
                 flush();
                 // Apply to real caches.
-                caches.back()->Flush();
+                caches.back()->Flush(/*reallocate_cache=*/provider.ConsumeBool());
             },
 
             [&]() { // Sync.
@@ -402,12 +404,12 @@ FUZZ_TARGET(coinscache_sim)
                 caches.back()->Sync();
             },
 
-            [&]() { // Flush + ReallocateCache.
-                // Apply to simulation data.
-                flush();
+            [&]() { // Reset.
+                sim_caches[caches.size()].Wipe();
                 // Apply to real caches.
-                caches.back()->Flush();
-                caches.back()->ReallocateCache();
+                {
+                    const auto reset_guard{caches.back()->CreateResetGuard()};
+                }
             },
 
             [&]() { // GetCacheSize
@@ -449,7 +451,7 @@ FUZZ_TARGET(coinscache_sim)
             }
         }
 
-        // HaveCoinInCache ignores spent coins, so GetCacheSize() may exceed it. */
+        // HaveCoinInCache ignores spent coins, so GetCacheSize() may exceed it.
         assert(cache.GetCacheSize() >= cache_size);
     }
 
@@ -458,7 +460,7 @@ FUZZ_TARGET(coinscache_sim)
         auto realcoin = bottom.GetCoin(data.outpoints[outpointidx]);
         auto sim = lookup(outpointidx, 0);
         if (!sim.has_value()) {
-            assert(!realcoin || realcoin->IsSpent());
+            assert(!realcoin);
         } else {
             assert(realcoin && !realcoin->IsSpent());
             assert(realcoin->out == data.coins[sim->first].out);

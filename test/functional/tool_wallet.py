@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2022 The Bitcoin Core developers
+# Copyright (c) 2018-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test qtum-wallet."""
@@ -84,7 +84,7 @@ class ToolWalletTest(BitcoinTestFramework):
 
     def read_dump(self, filename):
         dump = OrderedDict()
-        with open(filename, "r", encoding="utf8") as f:
+        with open(filename, "r") as f:
             for row in f:
                 row = row.strip()
                 key, value = row.split(',')
@@ -99,7 +99,7 @@ class ToolWalletTest(BitcoinTestFramework):
     def write_dump(self, dump, filename, magic=None, skip_checksum=False):
         if magic is None:
             magic = "BITCOIN_CORE_WALLET_DUMP"
-        with open(filename, "w", encoding="utf8") as f:
+        with open(filename, "w") as f:
             row = ",".join([magic, dump[magic]]) + "\n"
             f.write(row)
             for k, v in dump.items():
@@ -137,6 +137,7 @@ class ToolWalletTest(BitcoinTestFramework):
         self.assert_raises_tool_error('Error parsing command line arguments: Invalid parameter -foo', '-foo')
         self.assert_raises_tool_error('No method provided. Run `qtum-wallet -help` for valid methods.')
         self.assert_raises_tool_error('Wallet name must be provided when creating a new wallet.', 'create')
+        self.assert_raises_tool_error('Wallet name must be provided when creating a new wallet.', 'createfromdump')
         error = f"SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another instance of {self.config['environment']['CLIENT_NAME']}?"
         self.assert_raises_tool_error(
             error,
@@ -158,7 +159,7 @@ class ToolWalletTest(BitcoinTestFramework):
         #
         # self.log.debug('Setting wallet file permissions to 400 (read-only)')
         # os.chmod(self.wallet_path, stat.S_IRUSR)
-        # assert self.wallet_permissions() in ['400', '666'] # Sanity check. 666 because Appveyor.
+        # assert self.wallet_permissions() in ['400', '666'] # Sanity check. 666 on Windows.
         # shasum_before = self.wallet_shasum()
         timestamp_before = self.wallet_timestamp()
         self.log.debug('Wallet file timestamp before calling info: {}'.format(timestamp_before))
@@ -169,7 +170,7 @@ class ToolWalletTest(BitcoinTestFramework):
         self.log_wallet_timestamp_comparison(timestamp_before, timestamp_after)
         self.log.debug('Setting wallet file permissions back to 600 (read/write)')
         os.chmod(self.wallet_path, stat.S_IRUSR | stat.S_IWUSR)
-        assert self.wallet_permissions() in ['600', '666']  # Sanity check. 666 because Appveyor.
+        assert self.wallet_permissions() in ['600', '666']  # Sanity check. 666 on Windows.
         #
         # TODO: Wallet tool info should not write to the wallet file.
         # The following lines should be uncommented and the tests still succeed:
@@ -320,12 +321,6 @@ class ToolWalletTest(BitcoinTestFramework):
         self.write_dump(dump_data, bad_sum_wallet_dump)
         self.assert_raises_tool_error('Error: Checksum is not the correct size', '-wallet=badload', '-dumpfile={}'.format(bad_sum_wallet_dump), 'createfromdump')
         assert not (self.nodes[0].wallets_path / "badload").is_dir()
-        self.assert_raises_tool_error('Error: Checksum is not the correct size', '-wallet=', '-dumpfile={}'.format(bad_sum_wallet_dump), 'createfromdump')
-        assert self.nodes[0].wallets_path.exists()
-        assert not (self.nodes[0].wallets_path / "wallet.dat").exists()
-
-        self.log.info('Checking createfromdump with an unnamed wallet')
-        self.do_tool_createfromdump("", "wallet.dump")
 
     def test_chainless_conflicts(self):
         self.log.info("Test wallet tool when wallet contains conflicting transactions")
@@ -428,6 +423,15 @@ class ToolWalletTest(BitcoinTestFramework):
         self.assert_raises_tool_error("Invalid parameter -descriptors", "-wallet=legacy", "-descriptors=false", "create")
         assert not (self.nodes[0].wallets_path / "legacy").exists()
 
+    def test_no_create_unnamed(self):
+        self.log.info("Test that unnamed (default) wallets cannot be created")
+
+        self.assert_raises_tool_error("Wallet name cannot be empty", "-wallet=", "create")
+        assert not (self.nodes[0].wallets_path / "wallet.dat").exists()
+
+        self.assert_raises_tool_error("Wallet name cannot be empty", "-wallet=", "-dumpfile=wallet.dump", "createfromdump")
+        assert not (self.nodes[0].wallets_path / "wallet.dat").exists()
+
     def run_test(self):
         self.wallet_path = self.nodes[0].wallets_path / self.default_wallet_name / self.wallet_data_filename
         self.test_invalid_tool_commands_and_args()
@@ -440,6 +444,7 @@ class ToolWalletTest(BitcoinTestFramework):
         self.test_chainless_conflicts()
         self.test_dump_very_large_records()
         self.test_no_create_legacy()
+        self.test_no_create_unnamed()
 
 
 if __name__ == '__main__':

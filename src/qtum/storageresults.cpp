@@ -8,7 +8,7 @@ StorageResults::StorageResults(std::string const& _path){
     options.create_if_missing = true;
     leveldb::Status status = leveldb::DB::Open(options, path, &db);
     assert(status.ok());
-    LogPrintf("Opened LevelDB successfully\n");
+    LogInfo("Opened LevelDB successfully\n");
 }
 
 StorageResults::~StorageResults()
@@ -26,7 +26,7 @@ void StorageResults::clearCacheResult(){
 }
 
 void StorageResults::wipeResults(){
-    LogPrintf("Wiping LevelDB in %s\n", path);
+    LogInfo("Wiping LevelDB in %s\n", path);
     bool opened = db;
     if (opened) {
         delete db;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2021 The Bitcoin Core developers
+# Copyright (c) 2017-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test various command line arguments and configuration file parameters."""
@@ -73,7 +73,7 @@ class SettingsTest(BitcoinTestFramework):
         # Test invalid json
         with settings.open("w") as fp:
             fp.write("invalid json")
-        node.assert_start_raises_init_error(expected_msg='does not contain valid JSON. This is probably caused by disk corruption or a crash', match=ErrorMatch.PARTIAL_REGEX)
+        node.assert_start_raises_init_error(expected_msg='does not contain valid JSON. This may be caused by a crash, power loss, full disk, or storage error', match=ErrorMatch.PARTIAL_REGEX)
 
         # Test invalid json object
         with settings.open("w") as fp:

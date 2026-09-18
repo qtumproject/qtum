@@ -8,6 +8,7 @@
 #include <interfaces/wallet.h>
 #include <key_io.h>
 #include <util/strencodings.h>
+
 #include <cstdint>
 
 #include <QDateTime>

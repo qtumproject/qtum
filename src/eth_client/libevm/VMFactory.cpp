@@ -4,7 +4,6 @@
 
 #include "VMFactory.h"
 #include "EVMC.h"
-#include <evmc/loader.h>
 #include <evmone/evmone.h>
 
 namespace po = boost::program_options;

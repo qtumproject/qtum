@@ -60,6 +60,7 @@ else()
         COMMAND ${CMAKE_COMMAND} -E env
                 CC=${BLST_CC}
                 AR=${CMAKE_AR}
+                RANLIB=${CMAKE_RANLIB}
                 ${BLST_BUILD_SCRIPT} ${BLST_BUILD_SCRIPT_FLAGS}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${BLST_BUILD_SCRIPT}

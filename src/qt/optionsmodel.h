@@ -119,6 +119,7 @@ public:
     bool getEnablePSBTControls() const { return m_enable_psbt_controls; }
     const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
     bool getCheckForUpdates() const { return fCheckForUpdates; }
+
     /** Whether -signer was set or not */
     bool hasSigner();
 

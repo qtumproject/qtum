@@ -27,7 +27,10 @@ public:
     {
         return m_cost(_in, _chainParams, _blockNumber);
     }
-    std::pair<bool, bytes> execute(bytesConstRef _in) const { return m_execute(_in); }
+    std::pair<bool, bytes> execute(bytesConstRef _in, ChainOperationParams const& _chainParams, u256 const& _blockNumber) const 
+    {
+        return m_execute(_in, _chainParams, _blockNumber);
+    }
 
     u256 const& startingBlock() const { return m_startingBlock; }
 
@@ -102,6 +105,7 @@ public:
     u256 shanghaiForkBlock = c_infiniteBlockNumber;
     u256 cancunForkBlock = c_infiniteBlockNumber;
     u256 pectraForkBlock = c_infiniteBlockNumber;
+    u256 osakaForkBlock = c_infiniteBlockNumber;
     AdditionalEIPs lastForkAdditionalEIPs;
     int chainID = 0;    // Distinguishes different chains (mainnet, Ropsten, etc).
     int networkID = 0;  // Distinguishes different sub protocols.

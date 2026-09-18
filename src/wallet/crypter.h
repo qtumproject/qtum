@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2021 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -79,7 +79,7 @@ private:
     int BytesToKeySHA512AES(std::span<const unsigned char> salt, const SecureString& key_data, int count, unsigned char* key, unsigned char* iv) const;
 
 public:
-    bool SetKeyFromPassphrase(const SecureString& key_data, std::span<const unsigned char> salt, const unsigned int rounds, const unsigned int derivation_method);
+    bool SetKeyFromPassphrase(const SecureString& key_data, std::span<const unsigned char> salt, unsigned int rounds, unsigned int derivation_method);
     bool Encrypt(const CKeyingMaterial& vchPlaintext, std::vector<unsigned char> &vchCiphertext) const;
     bool Decrypt(std::span<const unsigned char> ciphertext, CKeyingMaterial& plaintext) const;
     bool SetKey(const CKeyingMaterial& new_key, std::span<const unsigned char> new_iv);

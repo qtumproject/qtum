@@ -97,8 +97,8 @@ class QtumEVMHistoricalDataTest(BitcoinTestFramework):
 
         # Set activation height via command line arguments
         self.extra_args = [
-            ["-staking=1", "-logevents", "-pectraheight=2500"],
-            ["-logevents", "-pectraheight=2500"],
+            ["-staking=1", "-logevents", "-pectraheight=2500", '-osakaheight=100000'],
+            ["-logevents", "-pectraheight=2500", '-osakaheight=100000'],
         ]
 
     def skip_test_if_missing_module(self):

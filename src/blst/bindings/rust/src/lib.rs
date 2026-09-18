@@ -19,7 +19,7 @@ use core::ptr;
 use zeroize::Zeroize;
 
 #[cfg(feature = "std")]
-use std::sync::{atomic::*, mpsc::channel, Arc};
+use std::sync::{atomic::*, mpsc::sync_channel, Arc};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -190,11 +190,10 @@ impl blst_fp12 {
             }
         }
 
-        let (tx, rx) = channel();
         let counter = Arc::new(AtomicUsize::new(0));
-
         let stride = core::cmp::min((n_elems + n_workers - 1) / n_workers, 16);
         n_workers = core::cmp::min((n_elems + stride - 1) / stride, n_workers);
+        let (tx, rx) = sync_channel(n_workers);
         for _ in 0..n_workers {
             let tx = tx.clone();
             let counter = counter.clone();
@@ -540,6 +539,7 @@ macro_rules! sig_variant_impl {
         $sig_ser_size:expr,
         $pk_add_or_dbl:ident,
         $pk_add_or_dbl_aff:ident,
+        $pk_cneg:ident,
         $sig_add_or_dbl:ident,
         $sig_add_or_dbl_aff:ident,
         $pk_is_inf:ident,
@@ -547,6 +547,7 @@ macro_rules! sig_variant_impl {
         $sig_aggr_in_group:ident,
     ) => {
         /// Secret Key
+        #[repr(transparent)]
         #[derive(Default, Debug, Clone, Zeroize)]
         #[zeroize(drop)]
         pub struct SecretKey {
@@ -775,6 +776,29 @@ macro_rules! sig_variant_impl {
             }
         }
 
+        // From<by-value> traits are not provided to discourage duplication
+        // of the secret key material.
+        impl<'a> From<&'a SecretKey> for &'a blst_scalar {
+            fn from(sk: &'a SecretKey) -> Self {
+                unsafe {
+                    transmute::<&SecretKey, Self>(sk)
+                }
+            }
+        }
+
+        impl<'a> core::convert::TryFrom<&'a blst_scalar> for &'a SecretKey {
+            type Error = BLST_ERROR;
+
+            fn try_from(sk: &'a blst_scalar) -> Result<Self, Self::Error> {
+                unsafe {
+                    if !blst_sk_check(sk) {
+                        return Err(BLST_ERROR::BLST_BAD_ENCODING);
+                    }
+                    Ok(transmute::<&blst_scalar, Self>(sk))
+                }
+            }
+        }
+
         #[repr(transparent)]
         #[derive(Default, Debug, Clone, Copy)]
         pub struct PublicKey {
@@ -900,6 +924,24 @@ macro_rules! sig_variant_impl {
             }
         }
 
+        impl From<PublicKey> for $pk_aff {
+            fn from(pk: PublicKey) -> Self {
+                pk.point
+            }
+        }
+
+        impl<'a> From<&'a PublicKey> for &'a $pk_aff {
+            fn from(pk: &'a PublicKey) -> Self {
+                &pk.point
+            }
+        }
+
+        impl From<$pk_aff> for PublicKey {
+            fn from(point: $pk_aff) -> Self {
+                Self { point }
+            }
+        }
+
         #[repr(transparent)]
         #[derive(Debug, Clone, Copy)]
         pub struct AggregatePublicKey {
@@ -1002,6 +1044,14 @@ macro_rules! sig_variant_impl {
                 }
             }
 
+            pub fn sub_aggregate(&mut self, agg_pk: &AggregatePublicKey) {
+                unsafe {
+                    let mut tmp = agg_pk.clone();
+                    $pk_cneg(&mut tmp.point, true);
+                    $pk_add_or_dbl(&mut self.point, &self.point, &tmp.point);
+                }
+            }
+
             pub fn add_public_key(
                 &mut self,
                 pk: &PublicKey,
@@ -1014,6 +1064,24 @@ macro_rules! sig_variant_impl {
                     $pk_add_or_dbl_aff(&mut self.point, &self.point, &pk.point);
                 }
                 Ok(())
+            }
+        }
+
+        impl From<AggregatePublicKey> for $pk {
+            fn from(pk: AggregatePublicKey) -> Self {
+                pk.point
+            }
+        }
+
+        impl<'a> From<&'a AggregatePublicKey> for &'a $pk {
+            fn from(pk: &'a AggregatePublicKey) -> Self {
+                &pk.point
+            }
+        }
+
+        impl From<$pk> for AggregatePublicKey {
+            fn from(point: $pk) -> Self {
+                Self { point }
             }
         }
 
@@ -1139,11 +1207,10 @@ macro_rules! sig_variant_impl {
                 // TODO - check msg uniqueness?
 
                 let pool = mt::da_pool();
-                let (tx, rx) = channel();
                 let counter = Arc::new(AtomicUsize::new(0));
                 let valid = Arc::new(AtomicBool::new(true));
-
                 let n_workers = core::cmp::min(pool.max_count(), n_elems);
+                let (tx, rx) = sync_channel(n_workers);
                 for _ in 0..n_workers {
                     let tx = tx.clone();
                     let counter = counter.clone();
@@ -1261,11 +1328,10 @@ macro_rules! sig_variant_impl {
                 // TODO - check msg uniqueness?
 
                 let pool = mt::da_pool();
-                let (tx, rx) = channel();
                 let counter = Arc::new(AtomicUsize::new(0));
                 let valid = Arc::new(AtomicBool::new(true));
-
                 let n_workers = core::cmp::min(pool.max_count(), n_elems);
+                let (tx, rx) = sync_channel(n_workers);
                 for _ in 0..n_workers {
                     let tx = tx.clone();
                     let counter = counter.clone();
@@ -1468,6 +1534,24 @@ macro_rules! sig_variant_impl {
             }
         }
 
+        impl From<Signature> for $sig_aff {
+            fn from(sig: Signature) -> Self {
+                sig.point
+            }
+        }
+
+        impl<'a> From<&'a Signature> for &'a $sig_aff {
+            fn from(sig: &'a Signature) -> Self {
+                &sig.point
+            }
+        }
+
+        impl From<$sig_aff> for Signature {
+            fn from(point: $sig_aff) -> Self {
+                Self { point }
+            }
+        }
+
         #[repr(transparent)]
         #[derive(Debug, Clone, Copy)]
         pub struct AggregateSignature {
@@ -1606,6 +1690,24 @@ macro_rules! sig_variant_impl {
 
             pub fn subgroup_check(&self) -> bool {
                 unsafe { $sig_aggr_in_group(&self.point) }
+            }
+        }
+
+        impl From<AggregateSignature> for $sig {
+            fn from(sig: AggregateSignature) -> Self {
+                sig.point
+            }
+        }
+
+        impl<'a> From<&'a AggregateSignature> for &'a $sig {
+            fn from(sig: &'a AggregateSignature) -> Self {
+                &sig.point
+            }
+        }
+
+        impl From<$sig> for AggregateSignature {
+            fn from(point: $sig) -> Self {
+                Self { point }
             }
         }
 
@@ -2127,6 +2229,7 @@ pub mod min_pk {
         192,
         blst_p1_add_or_double,
         blst_p1_add_or_double_affine,
+        blst_p1_cneg,
         blst_p2_add_or_double,
         blst_p2_add_or_double_affine,
         blst_p1_affine_is_inf,
@@ -2171,6 +2274,7 @@ pub mod min_sig {
         96,
         blst_p2_add_or_double,
         blst_p2_add_or_double_affine,
+        blst_p2_cneg,
         blst_p1_add_or_double,
         blst_p1_add_or_double_affine,
         blst_p2_affine_is_inf,

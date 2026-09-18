@@ -1,4 +1,4 @@
-// Copyright (c) 2022 The Bitcoin Core developers
+// Copyright (c) 2022-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -43,7 +43,7 @@ static void WalletLoadingDescriptors(benchmark::Bench& bench)
     // Loading the wallet will also create it
     uint64_t create_flags = WALLET_FLAG_DESCRIPTORS;
     auto database = CreateMockableWalletDatabase();
-    auto wallet = TestLoadWallet(std::move(database), context, create_flags);
+    auto wallet = TestCreateWallet(std::move(database), context, create_flags);
 
     // Generate a bunch of transactions and addresses to put into the wallet
     for (int i = 0; i < 1000; ++i) {
@@ -56,7 +56,7 @@ static void WalletLoadingDescriptors(benchmark::Bench& bench)
     TestUnloadWallet(std::move(wallet));
 
     bench.epochs(5).run([&] {
-        wallet = TestLoadWallet(std::move(database), context, create_flags);
+        wallet = TestLoadWallet(std::move(database), context);
 
         // Cleanup
         database = DuplicateMockDatabase(wallet->GetDatabase());
@@ -64,5 +64,5 @@ static void WalletLoadingDescriptors(benchmark::Bench& bench)
     });
 }
 
-BENCHMARK(WalletLoadingDescriptors, benchmark::PriorityLevel::HIGH);
+BENCHMARK(WalletLoadingDescriptors);
 } // namespace wallet

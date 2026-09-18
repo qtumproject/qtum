@@ -172,7 +172,7 @@ void secp256k1_sha256_initialize_tagged(secp256k1_sha256 *hash, const unsigned c
 }
 
 void secp256k1_sha256_clear(secp256k1_sha256 *hash) {
-    secp256k1_memclear(hash, sizeof(*hash));
+    secp256k1_memclear_explicit(hash, sizeof(*hash));
 }
 
 void secp256k1_hmac_sha256_initialize(secp256k1_hmac_sha256 *hash, const unsigned char *key, size_t keylen) {
@@ -200,7 +200,7 @@ void secp256k1_hmac_sha256_initialize(secp256k1_hmac_sha256 *hash, const unsigne
         rkey[n] ^= 0x5c ^ 0x36;
     }
     secp256k1_sha256_write(&hash->inner, rkey, sizeof(rkey));
-    secp256k1_memclear(rkey, sizeof(rkey));
+    secp256k1_memclear_explicit(rkey, sizeof(rkey));
 }
 
 void secp256k1_hmac_sha256_write(secp256k1_hmac_sha256 *hash, const unsigned char *data, size_t size) {
@@ -211,12 +211,12 @@ void secp256k1_hmac_sha256_finalize(secp256k1_hmac_sha256 *hash, unsigned char *
     unsigned char temp[32];
     secp256k1_sha256_finalize(&hash->inner, temp);
     secp256k1_sha256_write(&hash->outer, temp, 32);
-    secp256k1_memclear(temp, sizeof(temp));
+    secp256k1_memclear_explicit(temp, sizeof(temp));
     secp256k1_sha256_finalize(&hash->outer, out32);
 }
 
 void secp256k1_hmac_sha256_clear(secp256k1_hmac_sha256 *hash) {
-    secp256k1_memclear(hash, sizeof(*hash));
+    secp256k1_memclear_explicit(hash, sizeof(*hash));
 }
 
 void secp256k1_rfc6979_hmac_sha256_initialize(secp256k1_rfc6979_hmac_sha256 *rng, const unsigned char *key, size_t keylen) {
@@ -265,7 +265,7 @@ void secp256k1_rfc6979_hmac_sha256_generate(secp256k1_rfc6979_hmac_sha256 *rng, 
 
     while (outlen > 0) {
         secp256k1_hmac_sha256 hmac;
-        int now = outlen;
+        size_t now = outlen;
         secp256k1_hmac_sha256_initialize(&hmac, rng->k, 32);
         secp256k1_hmac_sha256_write(&hmac, rng->v, 32);
         secp256k1_hmac_sha256_finalize(&hmac, rng->v);
@@ -285,7 +285,7 @@ void secp256k1_rfc6979_hmac_sha256_finalize(secp256k1_rfc6979_hmac_sha256 *rng) 
 }
 
 void secp256k1_rfc6979_hmac_sha256_clear(secp256k1_rfc6979_hmac_sha256 *rng) {
-    secp256k1_memclear(rng, sizeof(*rng));
+    secp256k1_memclear_explicit(rng, sizeof(*rng));
 }
 
 #undef Round

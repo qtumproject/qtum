@@ -18,14 +18,20 @@ def newer(*files):
     if not os.path.exists(rh):
         return True
     for lh in files[:-1]:
-        if os.stat(lh).st_ctime > os.stat(rh).st_ctime:
+        if os.stat(lh).st_mtime > os.stat(rh).st_mtime:
             return True
     return False
 
 
 if newer("../blst.h", "../libblst.a"):
     print("building libblst.a...") or sys.stdout.flush()
-    subprocess.check_call(["../build.sh", "-fvisibility=hidden"] + sys.argv[1:], cwd="..")
+    cmd = ["../build.sh", "-fvisibility=hidden"] + sys.argv[1:]
+    if sysconfig.get_config_var('MACHDEP') == 'darwin':
+        cmd.extend(["-arch", "arm64", "-arch", "x86_64"])
+    try:
+        subprocess.check_call(cmd, cwd="..")
+    except:
+        subprocess.check_call(["sh"] + cmd, cwd="..")
 
 if newer("../blst.swg", "../blst.h", "../blst.hpp", "blst_wrap.cpp"):
     print("swig-ing...") or sys.stdout.flush()
@@ -33,15 +39,23 @@ if newer("../blst.swg", "../blst.h", "../blst.hpp", "blst_wrap.cpp"):
                                    "-o", "blst_wrap.cpp", "-outdir", ".",
                                    "../blst.swg"])
 
-if newer("blst_wrap.cpp", "../libblst.a", "_blst.so"):
-    print("compiling _blst.so...") or sys.stdout.flush()
+blst_so = "_blst"+sysconfig.get_config_var('EXT_SUFFIX')
+
+if newer("blst_wrap.cpp", "../libblst.a", blst_so):
+    print("compiling %s..." % blst_so) or sys.stdout.flush()
     if sysconfig.get_config_var('MACHDEP') == 'darwin':
-        cmd = ["c++", "-bundle", "-undefined", "dynamic_lookup"]
-    else:
+        cmd = ["c++", "-bundle", "-undefined", "dynamic_lookup",
+               "-arch", "arm64", "-arch", "x86_64"]
+    elif blst_so.endswith(".so"):
         cmd = ["c++", "-shared", "-Wl,-Bsymbolic"]
-    cmd.extend(["-o", "_blst.so", "-fPIC", "-fvisibility=hidden",
+    else:
+        cmd = ["c++", "-shared"]
+    cmd.extend(["-o", blst_so, "-fPIC", "-fvisibility=hidden",
                 "-I"+sysconfig.get_config_var('INCLUDEPY'), "-I..",
                 "-O", "-Wall", "blst_wrap.cpp", "../libblst.a"])
+    if sysconfig.get_config_var('LIBPYTHON'):
+        cmd.extend(["-L"+sysconfig.get_config_var('LIBDIR'),
+                    sysconfig.get_config_var('LIBPYTHON')])
     try:
         pre = subprocess.check_output(["c++", "-dM", "-E", "-x", "c++", "/dev/null"],
                                       stderr=subprocess.STDOUT)
@@ -50,6 +64,7 @@ if newer("blst_wrap.cpp", "../libblst.a", "_blst.so"):
             cmd.extend(["-std=c++11"])
     except:
         pass
+    print(" ".join(["+"] + cmd))
     subprocess.check_call(cmd)
 
 print("testing...") or sys.stdout.flush()

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2022 The Bitcoin Core developers
+// Copyright (c) 2011-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -148,9 +148,7 @@ OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabWindow));
     /* hide launch at startup option on macOS */
     ui->bitcoinAtStartup->setVisible(false);
-
     ui->tabMain->layout()->removeWidget(ui->bitcoinAtStartup);
-
 #endif
 
     /* remove Wallet tab and 3rd party-URL textbox in case of -disablewallet */

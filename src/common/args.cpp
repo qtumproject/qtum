@@ -19,8 +19,6 @@
 #include <util/string.h>
 
 #ifdef WIN32
-#include <codecvt>
-#include <shellapi.h>
 #include <shlobj.h>
 #endif
 
@@ -115,7 +113,7 @@ std::optional<common::SettingsValue> InterpretValue(const KeyInfo& key, const st
         }
         // Double negatives like -nofoo=0 are supported (but discouraged)
         if (value && !InterpretBool(*value)) {
-            LogPrintf("Warning: parsed potentially confusing double-negative -%s=%s\n", key.name, *value);
+            LogWarning("Parsed potentially confusing double-negative -%s=%s", key.name, *value);
             return true;
         }
         return false;
@@ -166,7 +164,7 @@ std::list<SectionInfo> ArgsManager::GetUnrecognizedSections() const
 
     LOCK(cs_args);
     std::list<SectionInfo> unrecognized = m_config_sections;
-    unrecognized.remove_if([](const SectionInfo& appeared){ return available_sections.find(appeared.m_name) != available_sections.end(); });
+    unrecognized.remove_if([](const SectionInfo& appeared){ return available_sections.contains(appeared.m_name); });
     return unrecognized;
 }
 
@@ -400,7 +398,7 @@ static void SaveErrors(const std::vector<std::string> errors, std::vector<std::s
         if (error_out) {
             error_out->emplace_back(error);
         } else {
-            LogPrintf("%s\n", error);
+            LogWarning("%s", error);
         }
     }
 }
@@ -422,7 +420,7 @@ bool ArgsManager::ReadSettingsFile(std::vector<std::string>* errors)
     for (const auto& setting : m_settings.rw_settings) {
         KeyInfo key = InterpretKey(setting.first); // Split setting key into section and argname
         if (!GetArgFlags('-' + key.name)) {
-            LogPrintf("Ignoring unknown rw_settings value %s\n", setting.first);
+            LogWarning("Ignoring unknown rw_settings value %s", setting.first);
         }
     }
     return true;
@@ -485,29 +483,33 @@ std::string SettingToString(const common::SettingsValue& value, const std::strin
     return SettingToString(value).value_or(strDefault);
 }
 
-int64_t ArgsManager::GetIntArg(const std::string& strArg, int64_t nDefault) const
+template <std::integral Int>
+Int ArgsManager::GetArg(const std::string& strArg, Int nDefault) const
 {
-    return GetIntArg(strArg).value_or(nDefault);
+    return GetArg<Int>(strArg).value_or(nDefault);
 }
 
-std::optional<int64_t> ArgsManager::GetIntArg(const std::string& strArg) const
+template <std::integral Int>
+std::optional<Int> ArgsManager::GetArg(const std::string& strArg) const
 {
     const common::SettingsValue value = GetSetting(strArg);
-    return SettingToInt(value);
+    return SettingTo<Int>(value);
 }
 
-std::optional<int64_t> SettingToInt(const common::SettingsValue& value)
+template <std::integral Int>
+std::optional<Int> SettingTo(const common::SettingsValue& value)
 {
     if (value.isNull()) return std::nullopt;
     if (value.isFalse()) return 0;
     if (value.isTrue()) return 1;
-    if (value.isNum()) return value.getInt<int64_t>();
-    return LocaleIndependentAtoi<int64_t>(value.get_str());
+    if (value.isNum()) return value.getInt<Int>();
+    return LocaleIndependentAtoi<Int>(value.get_str());
 }
 
-int64_t SettingToInt(const common::SettingsValue& value, int64_t nDefault)
+template <std::integral Int>
+Int SettingTo(const common::SettingsValue& value, Int nDefault)
 {
-    return SettingToInt(value).value_or(nDefault);
+    return SettingTo<Int>(value).value_or(nDefault);
 }
 
 bool ArgsManager::GetBoolArg(const std::string& strArg, bool fDefault) const
@@ -532,6 +534,23 @@ bool SettingToBool(const common::SettingsValue& value, bool fDefault)
 {
     return SettingToBool(value).value_or(fDefault);
 }
+
+#define INSTANTIATE_INT_TYPE(Type)                                                    \
+    template Type ArgsManager::GetArg<Type>(const std::string&, Type) const;          \
+    template std::optional<Type> ArgsManager::GetArg<Type>(const std::string&) const; \
+    template Type SettingTo<Type>(const common::SettingsValue&, Type);                \
+    template std::optional<Type> SettingTo<Type>(const common::SettingsValue&)
+
+INSTANTIATE_INT_TYPE(int8_t);
+INSTANTIATE_INT_TYPE(uint8_t);
+INSTANTIATE_INT_TYPE(int16_t);
+INSTANTIATE_INT_TYPE(uint16_t);
+INSTANTIATE_INT_TYPE(int32_t);
+INSTANTIATE_INT_TYPE(uint32_t);
+INSTANTIATE_INT_TYPE(int64_t);
+INSTANTIATE_INT_TYPE(uint64_t);
+
+#undef INSTANTIATE_INT_TYPE
 
 bool ArgsManager::SoftSetArg(const std::string& strArg, const std::string& strValue)
 {
@@ -834,7 +853,7 @@ std::variant<ChainType, std::string> ArgsManager::GetChainArg() const
 
 bool ArgsManager::UseDefaultSection(const std::string& arg) const
 {
-    return m_network == ChainTypeToString(ChainType::MAIN) || m_network_only_args.count(arg) == 0;
+    return m_network == ChainTypeToString(ChainType::MAIN) || !m_network_only_args.contains(arg);
 }
 
 common::SettingsValue ArgsManager::GetSetting(const std::string& arg) const
@@ -862,7 +881,7 @@ void ArgsManager::logArgsPrefix(
             std::optional<unsigned int> flags = GetArgFlags('-' + arg.first);
             if (flags) {
                 std::string value_str = (*flags & SENSITIVE) ? "****" : value.write();
-                LogPrintf("%s %s%s=%s\n", prefix, section_str, arg.first, value_str);
+                LogInfo("%s %s%s=%s\n", prefix, section_str, arg.first, value_str);
             }
         }
     }
@@ -875,7 +894,7 @@ void ArgsManager::LogArgs() const
         logArgsPrefix("Config file arg:", section.first, section.second);
     }
     for (const auto& setting : m_settings.rw_settings) {
-        LogPrintf("Setting file arg: %s = %s\n", setting.first, setting.second.write());
+        LogInfo("Setting file arg: %s = %s\n", setting.first, setting.second.write());
     }
     logArgsPrefix("Command-line arg:", "", m_settings.command_line_options);
 }
@@ -913,30 +932,3 @@ std::map<std::string, std::vector<std::string>> ArgsManager::getArgsList(const s
 
     return ret;
 }
-
-namespace common {
-#ifdef WIN32
-WinCmdLineArgs::WinCmdLineArgs()
-{
-    wchar_t** wargv = CommandLineToArgvW(GetCommandLineW(), &argc);
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf8_cvt;
-    argv = new char*[argc];
-    args.resize(argc);
-    for (int i = 0; i < argc; i++) {
-        args[i] = utf8_cvt.to_bytes(wargv[i]);
-        argv[i] = &*args[i].begin();
-    }
-    LocalFree(wargv);
-}
-
-WinCmdLineArgs::~WinCmdLineArgs()
-{
-    delete[] argv;
-}
-
-std::pair<int, char**> WinCmdLineArgs::get()
-{
-    return std::make_pair(argc, argv);
-}
-#endif
-} // namespace common

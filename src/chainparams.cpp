@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2022 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -231,4 +231,9 @@ void UpdateCancunHeight(int nHeight)
 void UpdatePectraHeight(int nHeight)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdatePectraHeight(nHeight);
+}
+
+void UpdateOsakaHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateOsakaHeight(nHeight);
 }

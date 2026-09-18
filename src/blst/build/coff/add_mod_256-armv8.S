@@ -7,6 +7,7 @@
 .endef
 .p2align	5
 add_mod_256:
+	hint	#34
 	ldp	x8,x9,[x1]
 	ldp	x12,x13,[x2]
 
@@ -43,6 +44,7 @@ add_mod_256:
 .endef
 .p2align	5
 mul_by_3_mod_256:
+	hint	#34
 	ldp	x12,x13,[x1]
 	ldp	x14,x15,[x1,#16]
 
@@ -94,6 +96,7 @@ mul_by_3_mod_256:
 .endef
 .p2align	5
 lshift_mod_256:
+	hint	#34
 	ldp	x8,x9,[x1]
 	ldp	x10,x11,[x1,#16]
 
@@ -134,6 +137,7 @@ lshift_mod_256:
 .endef
 .p2align	5
 rshift_mod_256:
+	hint	#34
 	ldp	x8,x9,[x1]
 	ldp	x10,x11,[x1,#16]
 

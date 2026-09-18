@@ -1,4 +1,4 @@
-// Copyright (c) 2023 The Bitcoin Core developers
+// Copyright (c) 2023-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -48,12 +48,12 @@ static void AlertNotify(const std::string& strMessage)
 
 namespace node {
 
-kernel::InterruptResult KernelNotifications::blockTip(SynchronizationState state, CBlockIndex& index, double verification_progress)
+kernel::InterruptResult KernelNotifications::blockTip(SynchronizationState state, const CBlockIndex& index, double verification_progress)
 {
     {
         LOCK(m_tip_block_mutex);
         Assume(index.GetBlockHash() != uint256::ZERO);
-        m_tip_block = index.GetBlockHash();
+        m_state.tip_block = index.GetBlockHash();
         m_tip_block_cv.notify_all();
     }
 
@@ -103,7 +103,7 @@ void KernelNotifications::fatalError(const bilingual_str& message)
 std::optional<uint256> KernelNotifications::TipBlock()
 {
     AssertLockHeld(m_tip_block_mutex);
-    return m_tip_block;
+    return m_state.tip_block;
 };
 
 

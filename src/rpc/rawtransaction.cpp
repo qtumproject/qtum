@@ -241,79 +241,6 @@ static RPCHelpMan fromhexaddress()
     };
 }
 
-static std::vector<RPCResult> DecodeExpanded(bool isExpanded, bool isVin)
-{
-    if(isExpanded)
-    {
-        if(isVin) {
-            return {
-                {RPCResult::Type::STR_AMOUNT, "value", /*optional=*/true, "The value in " + CURRENCY_UNIT + " (only if address index is enabled)"},
-                {RPCResult::Type::NUM, "valueSat", /*optional=*/true, "The value in Sat (only if address index is enabled)"},
-                {RPCResult::Type::STR, "address", /*optional=*/true, "The Qtum address (only if address index is enabled)"},
-            };
-        }
-        else {
-            return {
-                {RPCResult::Type::NUM, "valueSat", /*optional=*/true, "The value in Sat (only if address index is enabled)"},
-                {RPCResult::Type::STR_HEX, "spentTxId", /*optional=*/true, "The spent txid (only if address index is enabled)"},
-                {RPCResult::Type::NUM, "spentIndex", /*optional=*/true, "The spent index (only if address index is enabled)"},
-                {RPCResult::Type::NUM, "spentHeight", /*optional=*/true, "The spent height (only if address index is enabled)"},
-            };
-        }
-
-    }
-    return {};
-}
-
-static std::vector<RPCResult> DecodeTxDoc(const std::string& txid_field_doc, bool isExpanded = false)
-{
-    return {
-        {RPCResult::Type::STR_HEX, "txid", txid_field_doc},
-        {RPCResult::Type::STR_HEX, "hash", "The transaction hash (differs from txid for witness transactions)"},
-        {RPCResult::Type::NUM, "size", "The serialized transaction size"},
-        {RPCResult::Type::NUM, "vsize", "The virtual transaction size (differs from size for witness transactions)"},
-        {RPCResult::Type::NUM, "weight", "The transaction's weight (between vsize*4-3 and vsize*4)"},
-        {RPCResult::Type::NUM, "version", "The version"},
-        {RPCResult::Type::NUM_TIME, "locktime", "The lock time"},
-        {RPCResult::Type::ARR, "vin", "",
-        {
-            {RPCResult::Type::OBJ, "", "",
-            {
-                Cat<std::vector<RPCResult>>(
-                {
-                    {RPCResult::Type::STR_HEX, "coinbase", /*optional=*/true, "The coinbase value (only if coinbase transaction)"},
-                    {RPCResult::Type::STR_HEX, "txid", /*optional=*/true, "The transaction id (if not coinbase transaction)"},
-                    {RPCResult::Type::NUM, "vout", /*optional=*/true, "The output number (if not coinbase transaction)"},
-                    {RPCResult::Type::OBJ, "scriptSig", /*optional=*/true, "The script (if not coinbase transaction)",
-                    {
-                        {RPCResult::Type::STR, "asm", "Disassembly of the signature script"},
-                        {RPCResult::Type::STR_HEX, "hex", "The raw signature script bytes, hex-encoded"},
-                    }},
-                    {RPCResult::Type::ARR, "txinwitness", /*optional=*/true, "",
-                    {
-                        {RPCResult::Type::STR_HEX, "hex", "hex-encoded witness data (if any)"},
-                    }},
-                    {RPCResult::Type::NUM, "sequence", "The script sequence number"},
-                },
-                DecodeExpanded(isExpanded, true)),
-            }},
-        }},
-        {RPCResult::Type::ARR, "vout", "",
-        {
-            {RPCResult::Type::OBJ, "", "",
-            {
-                Cat<std::vector<RPCResult>>(
-                {
-                    {RPCResult::Type::STR_AMOUNT, "value", "The value in " + CURRENCY_UNIT},
-                    {RPCResult::Type::NUM, "n", "index"},
-                    {RPCResult::Type::OBJ, "scriptPubKey", "", ScriptPubKeyDoc()},
-                },
-                DecodeExpanded(isExpanded, false)),
-            }},
-        }},
-    };
-}
-
 static std::vector<RPCArg> CreateTxDoc()
 {
     return {
@@ -497,7 +424,7 @@ static RPCHelpMan getrawtransaction()
                              {RPCResult::Type::NUM, "height", /*optional=*/true, "The block height"},
                              {RPCResult::Type::STR_HEX, "hex", "The serialized, hex-encoded data for 'txid'"},
                          },
-                         DecodeTxDoc(/*txid_field_doc=*/"The transaction id (same as provided)", true)),
+                         DecodeTxDoc(/*txid_field_doc=*/"The transaction id (same as provided)", /*wallet=*/false, true)),
                     },
                     RPCResult{"for verbosity = 2",
                         RPCResult::Type::OBJ, "", "",
@@ -560,7 +487,7 @@ static RPCHelpMan getrawtransaction()
     }
 
     uint256 hash_block;
-    const CTransactionRef tx = GetTransaction(blockindex, node.mempool.get(), txid, hash_block, chainman.m_blockman);
+    const CTransactionRef tx = GetTransaction(blockindex, node.mempool.get(), txid, chainman.m_blockman, hash_block);
     if (!tx) {
         std::string errmsg;
         if (blockindex) {
@@ -838,7 +765,7 @@ static RPCHelpMan decoderawtransaction()
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
-                    DecodeTxDoc(/*txid_field_doc=*/"The transaction id"),
+                    DecodeTxDoc(/*txid_field_doc=*/"The transaction id", /*wallet=*/false),
                 },
                 RPCExamples{
                     HelpExampleCli("decoderawtransaction", "\"hexstring\"")
@@ -1593,7 +1520,7 @@ static RPCHelpMan decodepsbt()
     result.pushKV("global_xpubs", std::move(global_xpubs));
 
     // PSBT version
-    result.pushKV("psbt_version", static_cast<uint64_t>(psbtx.GetVersion()));
+    result.pushKV("psbt_version", psbtx.GetVersion());
 
     // Proprietary
     UniValue proprietary(UniValue::VARR);
@@ -1929,8 +1856,8 @@ static RPCHelpMan decodepsbt()
             UniValue tree(UniValue::VARR);
             for (const auto& [depth, leaf_ver, script] : output.m_tap_tree) {
                 UniValue elem(UniValue::VOBJ);
-                elem.pushKV("depth", (int)depth);
-                elem.pushKV("leaf_ver", (int)leaf_ver);
+                elem.pushKV("depth", depth);
+                elem.pushKV("leaf_ver", leaf_ver);
                 elem.pushKV("script", HexStr(script));
                 tree.push_back(std::move(elem));
             }
@@ -2344,7 +2271,7 @@ static RPCHelpMan joinpsbts()
             merged_psbt.AddOutput(psbt.tx->vout[i], psbt.outputs[i]);
         }
         for (auto& xpub_pair : psbt.m_xpubs) {
-            if (merged_psbt.m_xpubs.count(xpub_pair.first) == 0) {
+            if (!merged_psbt.m_xpubs.contains(xpub_pair.first)) {
                 merged_psbt.m_xpubs[xpub_pair.first] = xpub_pair.second;
             } else {
                 merged_psbt.m_xpubs[xpub_pair.first].insert(xpub_pair.second.begin(), xpub_pair.second.end());
@@ -2474,7 +2401,7 @@ static RPCHelpMan analyzepsbt()
     if (!inputs_result.empty()) result.pushKV("inputs", std::move(inputs_result));
 
     if (psbta.estimated_vsize != std::nullopt) {
-        result.pushKV("estimated_vsize", (int)*psbta.estimated_vsize);
+        result.pushKV("estimated_vsize", *psbta.estimated_vsize);
     }
     if (psbta.estimated_feerate != std::nullopt) {
         result.pushKV("estimated_feerate", ValueFromAmount(psbta.estimated_feerate->GetFeePerK()));

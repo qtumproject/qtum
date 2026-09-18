@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2022 The Bitcoin Core developers
+// Copyright (c) 2011-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,7 +7,7 @@
 #include <arith_uint256.h>
 #include <chain.h>
 #include <consensus/params.h>
-#include <consensus/validation.h>
+#include <crypto/hex_base.h>
 #include <dbwrapper.h>
 #include <flatfile.h>
 #include <hash.h>
@@ -15,34 +15,45 @@
 #include <kernel/chainparams.h>
 #include <kernel/messagestartchars.h>
 #include <kernel/notifications_interface.h>
-#include <logging.h>
+#include <kernel/types.h>
 #include <pow.h>
-#include <pos.h>
+#include <qtum/posutils.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
 #include <random.h>
 #include <serialize.h>
 #include <signet.h>
-#include <span.h>
 #include <streams.h>
 #include <sync.h>
 #include <tinyformat.h>
 #include <uint256.h>
 #include <undo.h>
-#include <util/batchpriority.h>
 #include <util/check.h>
+#include <util/expected.h>
 #include <util/fs.h>
+#include <util/log.h>
 #include <util/obfuscation.h>
+#include <util/overflow.h>
+#include <util/result.h>
 #include <util/signalinterrupt.h>
 #include <util/strencodings.h>
 #include <util/syserror.h>
+#include <util/time.h>
 #include <util/translation.h>
 #include <validation.h>
 #include <chainparams.h>
 
+#include <cerrno>
+#include <compare>
 #include <cstddef>
+#include <cstdio>
+#include <exception>
 #include <map>
 #include <optional>
+#include <ostream>
+#include <span>
+#include <stdexcept>
+#include <system_error>
 #include <unordered_map>
 
 namespace kernel {
@@ -92,12 +103,12 @@ bool BlockTreeDB::ReadBlockFileInfo(int nFile, CBlockFileInfo& info)
     return Read(std::make_pair(DB_BLOCK_FILES, nFile), info);
 }
 
-bool BlockTreeDB::WriteReindexing(bool fReindexing)
+void BlockTreeDB::WriteReindexing(bool fReindexing)
 {
     if (fReindexing) {
-        return Write(DB_REINDEX_FLAG, uint8_t{'1'});
+        Write(DB_REINDEX_FLAG, uint8_t{'1'});
     } else {
-        return Erase(DB_REINDEX_FLAG);
+        Erase(DB_REINDEX_FLAG);
     }
 }
 
@@ -111,7 +122,7 @@ bool BlockTreeDB::ReadLastBlockFile(int& nFile)
     return Read(DB_LAST_BLOCK, nFile);
 }
 
-bool BlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockFileInfo*>>& fileInfo, int nLastFile, const std::vector<const CBlockIndex*>& blockinfo)
+void BlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockFileInfo*>>& fileInfo, int nLastFile, const std::vector<const CBlockIndex*>& blockinfo)
 {
     CDBBatch batch(*this);
     for (const auto& [file, info] : fileInfo) {
@@ -121,12 +132,12 @@ bool BlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockFi
     for (const CBlockIndex* bi : blockinfo) {
         batch.Write(std::make_pair(DB_BLOCK_INDEX, bi->GetBlockHash()), CDiskBlockIndex{bi});
     }
-    return WriteBatch(batch, true);
+    WriteBatch(batch, true);
 }
 
-bool BlockTreeDB::WriteFlag(const std::string& name, bool fValue)
+void BlockTreeDB::WriteFlag(const std::string& name, bool fValue)
 {
-    return Write(std::make_pair(DB_FLAG, name), fValue ? uint8_t{'1'} : uint8_t{'0'});
+    Write(std::make_pair(DB_FLAG, name), fValue ? uint8_t{'1'} : uint8_t{'0'});
 }
 
 bool BlockTreeDB::ReadFlag(const std::string& name, bool& fValue)
@@ -194,11 +205,16 @@ bool BlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, s
     return true;
 }
 
+std::string CBlockFileInfo::ToString() const
+{
+    return strprintf("CBlockFileInfo(blocks=%u, size=%u, heights=%u...%u, time=%s...%s)", nBlocks, nSize, nHeightFirst, nHeightLast, FormatISO8601Date(nTimeFirst), FormatISO8601Date(nTimeLast));
+}
+
 /////////////////////////////////////////////////////// // qtum
-bool BlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const std::vector<uint256>& hash) {
+void BlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const std::vector<uint256>& hash) {
     CDBBatch batch(*this);
     batch.Write(std::make_pair(DB_HEIGHTINDEX, heightIndex), hash);
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
 int BlockTreeDB::ReadHeightIndex(int low, int high, int minconf,
@@ -254,7 +270,7 @@ int BlockTreeDB::ReadHeightIndex(int low, int high, int minconf,
     return curheight;
 }
 
-bool BlockTreeDB::EraseHeightIndex(const unsigned int &height) {
+void BlockTreeDB::EraseHeightIndex(const unsigned int &height) {
 
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
     CDBBatch batch(*this);
@@ -271,10 +287,10 @@ bool BlockTreeDB::EraseHeightIndex(const unsigned int &height) {
         }
     }
 
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
-bool BlockTreeDB::WipeHeightIndex() {
+void BlockTreeDB::WipeHeightIndex() {
 
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
     CDBBatch batch(*this);
@@ -291,14 +307,13 @@ bool BlockTreeDB::WipeHeightIndex() {
         }
     }
 
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
-
-bool BlockTreeDB::WriteStakeIndex(unsigned int height, uint160 address) {
+void BlockTreeDB::WriteStakeIndex(unsigned int height, uint160 address) {
     CDBBatch batch(*this);
     batch.Write(std::make_pair(DB_STAKEINDEX, height), address);
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
 bool BlockTreeDB::ReadStakeIndex(unsigned int height, uint160& address){
@@ -339,7 +354,7 @@ bool BlockTreeDB::ReadStakeIndex(unsigned int high, unsigned int low, std::vecto
     return true;
 }
 
-bool BlockTreeDB::EraseStakeIndex(unsigned int height) {
+void BlockTreeDB::EraseStakeIndex(unsigned int height) {
 
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
     CDBBatch batch(*this);
@@ -356,13 +371,13 @@ bool BlockTreeDB::EraseStakeIndex(unsigned int height) {
         }
     }
 
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
-bool BlockTreeDB::WriteDelegateIndex(unsigned int height, uint160 address, uint8_t fee) {
+void BlockTreeDB::WriteDelegateIndex(unsigned int height, uint160 address, uint8_t fee) {
     CDBBatch batch(*this);
     batch.Write(std::make_pair(DB_DELEGATEINDEX, height), DelegateEntry(address, fee));
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
 bool BlockTreeDB::ReadDelegateIndex(unsigned int height, uint160& address, uint8_t& fee){
@@ -386,7 +401,7 @@ bool BlockTreeDB::ReadDelegateIndex(unsigned int height, uint160& address, uint8
     return false;
 }
 
-bool BlockTreeDB::EraseDelegateIndex(unsigned int height) {
+void BlockTreeDB::EraseDelegateIndex(unsigned int height) {
 
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
     CDBBatch batch(*this);
@@ -403,21 +418,21 @@ bool BlockTreeDB::EraseDelegateIndex(unsigned int height) {
         }
     }
 
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
-bool BlockTreeDB::WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount > >&vect) {
+void BlockTreeDB::WriteAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount > >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
         batch.Write(std::make_pair(DB_ADDRESSINDEX, it->first), it->second);
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
-bool BlockTreeDB::EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount > >&vect) {
+void BlockTreeDB::EraseAddressIndex(const std::vector<std::pair<CAddressIndexKey, CAmount > >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
         batch.Erase(std::make_pair(DB_ADDRESSINDEX, it->first));
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
 bool BlockTreeDB::ReadAddressIndex(uint256 addressHash, int type,
@@ -454,7 +469,7 @@ bool BlockTreeDB::ReadAddressIndex(uint256 addressHash, int type,
     return true;
 }
 
-bool BlockTreeDB::UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect) {
+void BlockTreeDB::UpdateAddressUnspentIndex(const std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue > >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
@@ -463,7 +478,7 @@ bool BlockTreeDB::UpdateAddressUnspentIndex(const std::vector<std::pair<CAddress
             batch.Write(std::make_pair(DB_ADDRESSUNSPENTINDEX, it->first), it->second);
         }
     }
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
 bool BlockTreeDB::ReadAddressUnspentIndex(uint256 addressHash, int type,
@@ -491,10 +506,10 @@ bool BlockTreeDB::ReadAddressUnspentIndex(uint256 addressHash, int type,
     return true;
 }
 
-bool BlockTreeDB::WriteTimestampIndex(const CTimestampIndexKey &timestampIndex) {
+void BlockTreeDB::WriteTimestampIndex(const CTimestampIndexKey &timestampIndex) {
     CDBBatch batch(*this);
     batch.Write(std::make_pair(DB_TIMESTAMPINDEX, timestampIndex), 0);
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
 bool BlockTreeDB::ReadTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes, ChainstateManager &chainman) {
@@ -523,10 +538,10 @@ bool BlockTreeDB::ReadTimestampIndex(const unsigned int &high, const unsigned in
     return true;
 }
 
-bool BlockTreeDB::WriteTimestampBlockIndex(const CTimestampBlockIndexKey &blockhashIndex, const CTimestampBlockIndexValue &logicalts) {
+void BlockTreeDB::WriteTimestampBlockIndex(const CTimestampBlockIndexKey &blockhashIndex, const CTimestampBlockIndexValue &logicalts) {
     CDBBatch batch(*this);
     batch.Write(std::make_pair(DB_BLOCKHASHINDEX, blockhashIndex), logicalts);
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
 bool BlockTreeDB::ReadTimestampBlockIndex(const uint256 &hash, unsigned int &ltimestamp) {
@@ -543,7 +558,7 @@ bool BlockTreeDB::ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) {
     return Read(std::make_pair(DB_SPENTINDEX, key), value);
 }
 
-bool BlockTreeDB::UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect) {
+void BlockTreeDB::UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, CSpentIndexValue> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<CSpentIndexKey,CSpentIndexValue> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
         if (it->second.IsNull()) {
@@ -552,7 +567,7 @@ bool BlockTreeDB::UpdateSpentIndex(const std::vector<std::pair<CSpentIndexKey, C
             batch.Write(std::make_pair(DB_SPENTINDEX, it->first), it->second);
         }
     }
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 
 bool BlockTreeDB::blockOnchainActive(const uint256 &hash, ChainstateManager &chainman) {
@@ -565,12 +580,12 @@ bool BlockTreeDB::blockOnchainActive(const uint256 &hash, ChainstateManager &cha
     return pblockindex && chainman.ActiveChain().Contains(pblockindex);
 }
 
-bool BlockTreeDB::EraseBlockIndex(const std::vector<uint256> &vect)
+void BlockTreeDB::EraseBlockIndex(const std::vector<uint256> &vect)
 {
     CDBBatch batch(*this);
     for (std::vector<uint256>::const_iterator it=vect.begin(); it!=vect.end(); it++)
         batch.Erase(std::make_pair(DB_BLOCK_INDEX, *it));
-    return WriteBatch(batch);
+    WriteBatch(batch);
 }
 ///////////////////////////////////////////////////////
 } // namespace kernel
@@ -583,12 +598,13 @@ bool CBlockIndexWorkComparator::operator()(const CBlockIndex* pa, const CBlockIn
     if (pa->nChainWork > pb->nChainWork) return false;
     if (pa->nChainWork < pb->nChainWork) return true;
 
-    // ... then by earliest time received, ...
+    // ... then by earliest activatable time, ...
     if (pa->nSequenceId < pb->nSequenceId) return false;
     if (pa->nSequenceId > pb->nSequenceId) return true;
 
     // Use pointer address as tie breaker (should only happen with blocks
-    // loaded from disk, as those all have id 0).
+    // loaded from disk, as those share the same id: 0 for blocks on the
+    // best chain, 1 for all others).
     if (pa < pb) return false;
     if (pa > pb) return true;
 
@@ -640,7 +656,7 @@ CBlockIndex* BlockManager::AddToBlockIndex(const CBlockHeader& block, CBlockInde
     // We assign the sequence id to blocks only when the full data is available,
     // to avoid miners withholding blocks but broadcasting headers, to get a
     // competitive advantage.
-    pindexNew->nSequenceId = 0;
+    pindexNew->nSequenceId = SEQ_ID_INIT_FROM_DISK;
 
     if (pindexNew->IsProofOfStake())
         setStakeSeen.insert(std::make_pair(pindexNew->prevoutStake, pindexNew->nTime));
@@ -701,8 +717,7 @@ void BlockManager::PruneOneBlockFile(const int fileNumber)
 void BlockManager::FindFilesToPruneManual(
     std::set<int>& setFilesToPrune,
     int nManualPruneHeight,
-    const Chainstate& chain,
-    ChainstateManager& chainman)
+    const Chainstate& chain)
 {
     assert(IsPruneMode() && nManualPruneHeight > 0);
 
@@ -711,7 +726,7 @@ void BlockManager::FindFilesToPruneManual(
         return;
     }
 
-    const auto [min_block_to_prune, last_block_can_prune] = chainman.GetPruneRange(chain, nManualPruneHeight);
+    const auto [min_block_to_prune, last_block_can_prune] = chain.GetPruneRange(nManualPruneHeight);
 
     int count = 0;
     for (int fileNumber = 0; fileNumber < this->MaxBlockfileNum(); fileNumber++) {
@@ -735,9 +750,16 @@ void BlockManager::FindFilesToPrune(
     ChainstateManager& chainman)
 {
     LOCK2(cs_main, cs_LastBlockFile);
-    // Distribute our -prune budget over all chainstates.
+    // Compute `target` value with maximum size (in bytes) of blocks below the
+    // `last_prune` height which should be preserved and not pruned. The
+    // `target` value will be derived from the -prune preference provided by the
+    // user. If there is a historical chainstate being used to populate indexes
+    // and validate the snapshot, the target is divided by two so half of the
+    // block storage will be reserved for the historical chainstate, and the
+    // other half will be reserved for the most-work chainstate.
+    const int num_chainstates{chainman.HistoricalChainstate() ? 2 : 1};
     const auto target = std::max(
-        MIN_DISK_SPACE_FOR_BLOCK_FILES, GetPruneTarget() / chainman.GetAll().size());
+        MIN_DISK_SPACE_FOR_BLOCK_FILES, GetPruneTarget() / num_chainstates);
     const uint64_t target_sync_height = chainman.m_best_header->nHeight;
 
     if (chain.m_chain.Height() < 0 || target == 0) {
@@ -747,7 +769,7 @@ void BlockManager::FindFilesToPrune(
         return;
     }
 
-    const auto [min_block_to_prune, last_block_can_prune] = chainman.GetPruneRange(chain, last_prune);
+    const auto [min_block_to_prune, last_block_can_prune] = chain.GetPruneRange(last_prune);
 
     uint64_t nCurrentUsage = CalculateCurrentUsage();
     // We don't check to prune until after we've allocated new space for files
@@ -890,10 +912,18 @@ bool BlockManager::LoadBlockIndex(const std::optional<uint256>& snapshot_blockha
                 pindex->m_chain_tx_count = pindex->nTx;
             }
         }
-        if (!(pindex->nStatus & BLOCK_FAILED_MASK) && pindex->pprev && (pindex->pprev->nStatus & BLOCK_FAILED_MASK)) {
-            pindex->nStatus |= BLOCK_FAILED_CHILD;
+
+        if (pindex->nStatus & BLOCK_FAILED_CHILD) {
+            // BLOCK_FAILED_CHILD is deprecated, but may still exist on disk. Replace it with BLOCK_FAILED_VALID.
+            pindex->nStatus = (pindex->nStatus & ~BLOCK_FAILED_CHILD) | BLOCK_FAILED_VALID;
             m_dirty_blockindex.insert(pindex);
         }
+        if (!(pindex->nStatus & BLOCK_FAILED_VALID) && pindex->pprev && (pindex->pprev->nStatus & BLOCK_FAILED_VALID)) {
+            // All descendants of invalid blocks are invalid too.
+            pindex->nStatus |= BLOCK_FAILED_VALID;
+            m_dirty_blockindex.insert(pindex);
+        }
+
         if (pindex->pprev) {
             pindex->BuildSkip();
         }
@@ -902,7 +932,7 @@ bool BlockManager::LoadBlockIndex(const std::optional<uint256>& snapshot_blockha
     return true;
 }
 
-bool BlockManager::WriteBlockIndexDB()
+void BlockManager::WriteBlockIndexDB()
 {
     AssertLockHeld(::cs_main);
     std::vector<std::pair<int, const CBlockFileInfo*>> vFiles;
@@ -918,10 +948,7 @@ bool BlockManager::WriteBlockIndexDB()
         m_dirty_blockindex.erase(it++);
     }
     int max_blockfile = WITH_LOCK(cs_LastBlockFile, return this->MaxBlockfileNum());
-    if (!m_block_tree_db->WriteBatchSync(vFiles, max_blockfile, vBlocks)) {
-        return false;
-    }
-    return true;
+    m_block_tree_db->WriteBatchSync(vFiles, max_blockfile, vBlocks);
 }
 
 bool BlockManager::LoadBlockIndexDB(const std::optional<uint256>& snapshot_blockhash)
@@ -985,11 +1012,11 @@ bool BlockManager::LoadBlockIndexDB(const std::optional<uint256>& snapshot_block
 
     ///////////////////////////////////////////////////////////// // qtum
     m_block_tree_db->ReadFlag("addrindex", fAddressIndex);
-    LogPrintf("LoadBlockIndexDB(): address index %s\n", fAddressIndex ? "enabled" : "disabled");
+    LogInfo("LoadBlockIndexDB(): address index %s\n", fAddressIndex ? "enabled" : "disabled");
     /////////////////////////////////////////////////////////////
     // Check whether we have a transaction index
     m_block_tree_db->ReadFlag("logevents", fLogEvents);
-    LogPrintf("%s: log events index %s\n", __func__, fLogEvents ? "enabled" : "disabled");
+    LogInfo("%s: log events index %s\n", __func__, fLogEvents ? "enabled" : "disabled");
 
     return true;
 }
@@ -1018,7 +1045,7 @@ bool BlockManager::IsBlockPruned(const CBlockIndex& block) const
     return m_have_pruned && !(block.nStatus & BLOCK_HAVE_DATA) && (block.nTx > 0);
 }
 
-const CBlockIndex* BlockManager::GetFirstBlock(const CBlockIndex& upper_block, uint32_t status_mask, const CBlockIndex* lower_block) const
+const CBlockIndex& BlockManager::GetFirstBlock(const CBlockIndex& upper_block, uint32_t status_mask, const CBlockIndex* lower_block) const
 {
     AssertLockHeld(::cs_main);
     const CBlockIndex* last_block = &upper_block;
@@ -1026,7 +1053,7 @@ const CBlockIndex* BlockManager::GetFirstBlock(const CBlockIndex& upper_block, u
     while (last_block->pprev && ((last_block->pprev->nStatus & status_mask) == status_mask)) {
         if (lower_block) {
             // Return if we reached the lower_block
-            if (last_block == lower_block) return lower_block;
+            if (last_block == lower_block) return *lower_block;
             // if range was surpassed, means that 'lower_block' is not part of the 'upper_block' chain
             // and so far this is not allowed.
             assert(last_block->nHeight >= lower_block->nHeight);
@@ -1034,13 +1061,21 @@ const CBlockIndex* BlockManager::GetFirstBlock(const CBlockIndex& upper_block, u
         last_block = last_block->pprev;
     }
     assert(last_block != nullptr);
-    return last_block;
+    return *last_block;
 }
 
-bool BlockManager::CheckBlockDataAvailability(const CBlockIndex& upper_block, const CBlockIndex& lower_block)
+bool BlockManager::CheckBlockDataAvailability(const CBlockIndex& upper_block, const CBlockIndex& lower_block, BlockStatus block_status)
 {
-    if (!(upper_block.nStatus & BLOCK_HAVE_DATA)) return false;
-    return GetFirstBlock(upper_block, BLOCK_HAVE_DATA, &lower_block) == &lower_block;
+    if (!(upper_block.nStatus & block_status)) return false;
+    const auto& first_block = GetFirstBlock(upper_block, block_status, &lower_block);
+    // Special case: the genesis block has no undo data
+    if (block_status & BLOCK_HAVE_UNDO && lower_block.nHeight == 0 && first_block.nHeight == 1) {
+        // This might indicate missing data, or it could simply reflect the expected absence of undo data for the genesis block.
+        // To distinguish between the two, check if all required block data *except* undo is available up to the genesis block.
+        BlockStatus flags{block_status & ~BLOCK_HAVE_UNDO};
+        return first_block.pprev && first_block.pprev->nStatus & flags;
+    }
+    return &first_block == &lower_block;
 }
 
 bool BlockManager::CheckHardened(int nHeight, const uint256& hash, const CCheckpointData& data)
@@ -1325,7 +1360,7 @@ FlatFilePos BlockManager::FindNextBlockPos(unsigned int nAddSize, unsigned int n
         // a reindex. A flush error might also leave some of the data files
         // untrimmed.
         if (!FlushBlockFile(last_blockfile, /*fFinalize=*/true, finalize_undo)) {
-            LogPrintLevel(BCLog::BLOCKSTORAGE, BCLog::Level::Warning,
+            LogWarning(
                           "Failed to flush previous block file %05i (finalize=1, finalize_undo=%i) before opening new block file %05i\n",
                           last_blockfile, finalize_undo, nFile);
         }
@@ -1449,7 +1484,7 @@ bool BlockManager::WriteBlockUndo(const CBlockUndo& blockundo, BlockValidationSt
             // fact it is. Note though, that a failed flush might leave the data
             // file untrimmed.
             if (!FlushUndoFile(pos.nFile, true)) {
-                LogPrintLevel(BCLog::BLOCKSTORAGE, BCLog::Level::Warning, "Failed to flush undo file %05i\n", pos.nFile);
+                LogWarning("Failed to flush undo file %05i\n", pos.nFile);
             }
         } else if (pos.nFile == cursor.file_num && block.nHeight > cursor.undo_height) {
             cursor.undo_height = block.nHeight;
@@ -1469,14 +1504,14 @@ bool BlockManager::ReadBlock(Block& block, const FlatFilePos& pos, const std::op
     block.SetNull();
 
     // Open history file to read
-    std::vector<std::byte> block_data;
-    if (!ReadRawBlock(block_data, pos)) {
+    const auto block_data{ReadRawBlock(pos)};
+    if (!block_data) {
         return false;
     }
 
     try {
         // Read block
-        SpanReader{block_data} >> TX_WITH_WITNESS(block);
+        SpanReader{*block_data} >> TX_WITH_WITNESS(block);
     } catch (const std::exception& e) {
         LogError("Deserialize or I/O error - %s at %s while reading block", e.what(), pos.ToString());
         return false;
@@ -1513,19 +1548,19 @@ bool BlockManager::ReadBlock(CBlock& block, const CBlockIndex& index) const
     return ReadBlock(block, block_pos, index.GetBlockHash());
 }
 
-bool BlockManager::ReadRawBlock(std::vector<std::byte>& block, const FlatFilePos& pos) const
+BlockManager::ReadRawBlockResult BlockManager::ReadRawBlock(const FlatFilePos& pos, std::optional<std::pair<size_t, size_t>> block_part) const
 {
     if (pos.nPos < STORAGE_HEADER_BYTES) {
         // If nPos is less than STORAGE_HEADER_BYTES, we can't read the header that precedes the block data
         // This would cause an unsigned integer underflow when trying to position the file cursor
         // This can happen after pruning or default constructed positions
         LogError("Failed for %s while reading raw block storage header", pos.ToString());
-        return false;
+        return util::Unexpected{ReadRawError::IO};
     }
     AutoFile filein{OpenBlockFile({pos.nFile, pos.nPos - STORAGE_HEADER_BYTES}, /*fReadOnly=*/true)};
     if (filein.IsNull()) {
         LogError("OpenBlockFile failed for %s while reading raw block", pos.ToString());
-        return false;
+        return util::Unexpected{ReadRawError::IO};
     }
 
     try {
@@ -1537,23 +1572,31 @@ bool BlockManager::ReadRawBlock(std::vector<std::byte>& block, const FlatFilePos
         if (blk_start != GetParams().MessageStart()) {
             LogError("Block magic mismatch for %s: %s versus expected %s while reading raw block",
                 pos.ToString(), HexStr(blk_start), HexStr(GetParams().MessageStart()));
-            return false;
+            return util::Unexpected{ReadRawError::IO};
         }
 
         if (blk_size > MAX_SIZE) {
             LogError("Block data is larger than maximum deserialization size for %s: %s versus %s while reading raw block",
                 pos.ToString(), blk_size, MAX_SIZE);
-            return false;
+            return util::Unexpected{ReadRawError::IO};
         }
 
-        block.resize(blk_size); // Zeroing of memory is intentional here
-        filein.read(block);
+        if (block_part) {
+            const auto [offset, size]{*block_part};
+            if (size == 0 || SaturatingAdd(offset, size) > blk_size) {
+                return util::Unexpected{ReadRawError::BadPartRange}; // Avoid logging - offset/size come from untrusted REST input
+            }
+            filein.seek(offset, SEEK_CUR);
+            blk_size = size;
+        }
+
+        std::vector<std::byte> data(blk_size); // Zeroing of memory is intentional here
+        filein.read(data);
+        return data;
     } catch (const std::exception& e) {
         LogError("Read from block file failed: %s for %s while reading raw block", e.what(), pos.ToString());
-        return false;
+        return util::Unexpected{ReadRawError::IO};
     }
-
-    return true;
 }
 
 FlatFilePos BlockManager::WriteBlock(const CBlock& block, int nHeight)
@@ -1689,26 +1732,27 @@ void ImportBlocks(ChainstateManager& chainman, std::span<const fs::path> import_
 
     // -reindex
     if (!chainman.m_blockman.m_blockfiles_indexed) {
-        int nFile = 0;
+        int total_files{0};
+        while (fs::exists(chainman.m_blockman.GetBlockPosFilename(FlatFilePos(total_files, 0)))) {
+            total_files++;
+        }
+
         // Map of disk positions for blocks with unknown parent (only used for reindex);
         // parent hash -> child disk position, multiple children can have the same parent.
         std::multimap<uint256, FlatFilePos> blocks_with_unknown_parent;
-        while (true) {
+
+        for (int nFile{0}; nFile < total_files; ++nFile) {
             FlatFilePos pos(nFile, 0);
-            if (!fs::exists(chainman.m_blockman.GetBlockPosFilename(pos))) {
-                break; // No block files left to reindex
-            }
             AutoFile file{chainman.m_blockman.OpenBlockFile(pos, /*fReadOnly=*/true)};
             if (file.IsNull()) {
                 break; // This error is logged in OpenBlockFile
             }
-            LogInfo("Reindexing block file blk%05u.dat...", (unsigned int)nFile);
+            LogInfo("Reindexing block file blk%05u.dat (%d%% complete)...", (unsigned int)nFile, nFile * 100 / total_files);
             chainman.LoadExternalBlockFile(file, &pos, &blocks_with_unknown_parent);
             if (chainman.m_interrupt) {
                 LogInfo("Interrupt requested. Exit reindexing.");
                 return;
             }
-            nFile++;
         }
         WITH_LOCK(::cs_main, chainman.m_blockman.m_block_tree_db->WriteReindexing(false));
         chainman.m_blockman.m_blockfiles_indexed = true;
@@ -1728,21 +1772,13 @@ void ImportBlocks(ChainstateManager& chainman, std::span<const fs::path> import_
                 return;
             }
         } else {
-            LogPrintf("Warning: Could not open blocks file %s\n", fs::PathToString(path));
+            LogWarning("Could not open blocks file %s", fs::PathToString(path));
         }
     }
 
     // scan for better chains in the block chain database, that are not yet connected in the active best chain
-
-    // We can't hold cs_main during ActivateBestChain even though we're accessing
-    // the chainman unique_ptrs since ABC requires us not to be holding cs_main, so retrieve
-    // the relevant pointers before the ABC call.
-    for (Chainstate* chainstate : WITH_LOCK(::cs_main, return chainman.GetAll())) {
-        BlockValidationState state;
-        if (!chainstate->ActivateBestChain(state, nullptr)) {
-            chainman.GetNotifications().fatalError(strprintf(_("Failed to connect best block (%s)."), state.ToString()));
-            return;
-        }
+    if (auto result = chainman.ActivateBestChains(); !result) {
+        chainman.GetNotifications().fatalError(util::ErrorString(result));
     }
     // End scope of ImportingNow
 }

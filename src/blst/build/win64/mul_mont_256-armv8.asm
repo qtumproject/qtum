@@ -7,6 +7,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|mul_mont_sparse_256|[FUNC]
 	ALIGN	32
 |mul_mont_sparse_256| PROC
+	hint	#34
 	stp	x29,x30,[sp,#-8*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -198,7 +199,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|sqr_mont_sparse_256|[FUNC]
 	ALIGN	32
 |sqr_mont_sparse_256| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-6*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -299,7 +300,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	ldp	x19,x20,[x29,#2*__SIZEOF_POINTER__]
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#6*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -307,7 +308,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|from_mont_256|[FUNC]
 	ALIGN	32
 |from_mont_256| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-2*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 
@@ -332,7 +333,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	stp	x12,x13,[x0,#16]
 
 	ldr	x29,[sp],#2*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 
@@ -341,7 +342,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|redc_mont_256|[FUNC]
 	ALIGN	32
 |redc_mont_256| PROC
-	DCDU	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-2*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 
@@ -376,7 +377,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	stp	x12,x13,[x0,#16]
 
 	ldr	x29,[sp],#2*__SIZEOF_POINTER__
-	DCDU	3573752767
+	hint	#29
 	ret
 	ENDP
 

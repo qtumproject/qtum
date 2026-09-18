@@ -5,6 +5,7 @@
 
 .align	5
 _add_mod_256:
+	hint	#34
 	ldp	x8,x9,[x1]
 	ldp	x12,x13,[x2]
 
@@ -39,6 +40,7 @@ _add_mod_256:
 
 .align	5
 _mul_by_3_mod_256:
+	hint	#34
 	ldp	x12,x13,[x1]
 	ldp	x14,x15,[x1,#16]
 
@@ -88,6 +90,7 @@ _mul_by_3_mod_256:
 
 .align	5
 _lshift_mod_256:
+	hint	#34
 	ldp	x8,x9,[x1]
 	ldp	x10,x11,[x1,#16]
 
@@ -126,6 +129,7 @@ Loop_lshift_mod_256:
 
 .align	5
 _rshift_mod_256:
+	hint	#34
 	ldp	x8,x9,[x1]
 	ldp	x10,x11,[x1,#16]
 

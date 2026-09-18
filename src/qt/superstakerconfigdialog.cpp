@@ -38,8 +38,13 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
 
     ui->buttonOk->setEnabled(false);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,7,0)
+    connect(ui->cbRecommended, &QCheckBox::checkStateChanged, this, &SuperStakerConfigDialog::changeConfigEnabled);
+    connect(ui->cbCustom, &QCheckBox::checkStateChanged, this, &SuperStakerConfigDialog::changeConfigEnabled);
+#else
     connect(ui->cbRecommended, &QCheckBox::stateChanged, this, &SuperStakerConfigDialog::changeConfigEnabled);
     connect(ui->cbCustom, &QCheckBox::stateChanged, this, &SuperStakerConfigDialog::changeConfigEnabled);
+#endif
     connect(ui->cbListType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SuperStakerConfigDialog::chooseAddressType);
 
     connect(ui->sbMinFee, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SuperStakerConfigDialog::on_enableOkButton);

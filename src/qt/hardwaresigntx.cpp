@@ -166,10 +166,9 @@ bool HardwareSignTx::process(QWidget *widget, WalletModel *model, const QString 
             if(resultTool.contains("contracts"))
             {
                 QList<QVariant> contracts = resultTool["contracts"].toList();
-                for(QVariant contract : contracts)
+                if(contracts.size() > 0)
                 {
-                    result["address"] = contract.toMap()["address"];
-                    break;
+                    result["address"] = contracts[0].toMap()["address"];
                 }
             }
         }

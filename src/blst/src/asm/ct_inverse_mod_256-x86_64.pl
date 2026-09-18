@@ -62,7 +62,7 @@ def ct_inverse_mod_256(inp, mod):
         v += mod
     if v < 0:
         v += mod
-    elif v == 1<<512
+    elif v == 1<<512:
         v -= mod
 
     return v & (2**512 - 1) # to be reduced % mod
@@ -366,10 +366,10 @@ ___
 # bit-length of the |f?| and |g?| single-limb multiplicands. However!
 # The latter should not be taken literally, as they are always chosen so
 # that "bad things" don't happen. For example, there comes a point when
-# |v| grows beyond 383 bits, while |u| remains 383 bits wide. Yet, we
-# always call __smul_383x63 to perform |u|*|f0|+|v|*|g0| step. This is
+# |v| grows beyond 256 bits, while |u| remains 256 bits wide. Yet, we
+# always call __smulq_256x63 to perform |u|*|f0|+|v|*|g0| step. This is
 # because past that point |f0| is always 1 and |g0| is always 0. And,
-# since |u| never grows beyond 383 bits, __smul_767x63 doesn't have to
+# since |u| never grows beyond 256 bits, __smulq_512x63 doesn't have to
 # perform full-width |u|*|f1| multiplication, half-width one with sign
 # extension is sufficient...
 $code.=<<___;

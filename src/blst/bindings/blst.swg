@@ -20,6 +20,24 @@
 
 #if defined(SWIGPYTHON)
 
+%header %{
+#if PY_VERSION_HEX<0x030d0000
+/* Tailored polyfill, for example no need to handle |n_bytes| == 0 here */
+Py_ssize_t PyLong_AsNativeBytes(PyObject* v, void* buffer, Py_ssize_t n_bytes,
+                                int flags)
+{
+    return _PyLong_AsByteArray((PyLongObject*)v,
+                               (unsigned char*)buffer, n_bytes,
+                               flags&1, (flags&4) == 0) < 0 ? -1 : n_bytes;
+}
+# define My_PYLONG_FLAGS (1 | 4 | 8)
+#else
+# define My_PYLONG_FLAGS (Py_ASNATIVEBYTES_LITTLE_ENDIAN | \
+                          Py_ASNATIVEBYTES_UNSIGNED_BUFFER | \
+                          Py_ASNATIVEBYTES_REJECT_NEGATIVE)
+#endif
+%}
+
 // some sorcery to allow assignments as output, e.g.
 //      hash = blst.encode_to_g1(b"foo")
 %typemap(in, numinputs=0) OBJECT *OUTPUT($1_basetype temp) %{ $1 = &temp; %}
@@ -27,8 +45,7 @@
     PyObject *obj = SWIG_NewPointerObj(memcpy(malloc(sizeof($1_basetype)),
                                               $1,sizeof($1_basetype)),
                                        $descriptor, SWIG_POINTER_NEW);
-    $result = ($result==NULL) ? obj
-                              : SWIG_Python_AppendOutput($result, obj);
+    $result = SWIG_AppendOutput($result, obj);
 }
 %apply OBJECT *OUTPUT {
     blst_p1        *out, blst_p1        *out_pk, blst_p1        *out_sig,
@@ -118,6 +135,7 @@
                                             "expecting 'bytes' or 'bytearray'");
     }
 %}
+%typemap(freearg) (const byte *STRING, size_t LENGTH) ""
 
 // let users use Python 'int', 'bytes' and 'bytearray' as scalars
 %typemap(in) (const byte* scalar, size_t nbits) %{
@@ -139,7 +157,7 @@
         $2 = _PyLong_NumBits($input);
         $1 = ($1_ltype)alloca(nbytes = ($2 + 7)/8);
 
-        if (_PyLong_AsByteArray((PyLongObject*)$input, $1, nbytes, 1, 0) < 0)
+        if (PyLong_AsNativeBytes($input, $1, nbytes, My_PYLONG_FLAGS) < 0)
             SWIG_exception_fail(SWIG_OverflowError, "in method '$symname'");
     } else {
         SWIG_exception_fail(SWIG_TypeError, "in method '$symname', "
@@ -265,8 +283,8 @@
             bytes = std::unique_ptr<byte[]>(new byte[_global_npoints*nbytes]);
             byte* scalar = bytes.get();
             for (size_t i = 0; i < _global_npoints; i++, scalar += nbytes)
-                _PyLong_AsByteArray((PyLongObject*)PyList_GET_ITEM($input, i),
-                                    scalar, nbytes, 1, 0);
+                PyLong_AsNativeBytes(PyList_GET_ITEM($input, i),
+                                     scalar, nbytes, My_PYLONG_FLAGS);
 
             scalars[0] = bytes.get();
             scalars[1] = nullptr;
@@ -524,6 +542,12 @@ import java.nio.file.*;
 %typemap(jstype) (const byte* scalar, size_t nbits) "java.math.BigInteger"
 %typemap(javain) (const byte* scalar, size_t nbits) "$javainput.toByteArray()"
 
+%typemap(jni)    (const byte *STRING, size_t LENGTH) "jbyteArray"
+%typemap(jtype)  (const byte *STRING, size_t LENGTH) "byte[]"
+%typemap(jstype) (const byte *STRING, size_t LENGTH) "byte[]"
+%typemap(javain) (const byte *STRING, size_t LENGTH) "$javainput"
+%typemap(freearg)(const byte *STRING, size_t LENGTH) ""
+
 #elif defined(SWIGJAVASCRIPT) && defined(SWIG_JAVASCRIPT_V8)
 
 %header %{
@@ -625,6 +649,7 @@ import java.nio.file.*;
                                             "expecting <Buffer> or <String>");
     }
 %}
+%typemap(freearg) (const byte *STRING, size_t LENGTH) ""
 
 // return |this|
 %typemap(out) SELF* OUTPUT %{ (void)$1; $result = args.Holder(); %}
@@ -649,6 +674,7 @@ import java.nio.file.*;
        (const byte *aug,    size_t aug_len),
        (const byte *IKM,    size_t IKM_len),
        (const byte *info,   size_t info_len),
+       (const byte *salt,   size_t salt_len),
        (const byte *in,     size_t len)
 }
 
@@ -657,8 +683,7 @@ import java.nio.file.*;
 %typemap(argout) byte out[ANY] {
 #if defined(SWIGPYTHON)
     PyObject *obj = SWIG_FromCharPtrAndSize((char *)$1, $1_dim0);
-    $result = ($result==NULL) ? obj
-                              : SWIG_Python_AppendOutput($result, obj);
+    $result = SWIG_AppendOutput($result, obj);
 #elif defined(SWIGJAVA)
     $result = JCALL(NewByteArray, $1_dim0);
     if ($result != $null) {

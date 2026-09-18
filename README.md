@@ -140,7 +140,7 @@ Make sure to check out these resources as well for more information and to keep 
 
 ### Validate and Reproduce Binaries
 
-Qtum uses a tool called Guix to make reproducible builds that can be verified by anyone. Instructions on setting up a Guix VM and building Qtum are provided in [Gitan Building](https://github.com/qtumproject/qtum/blob/master/contrib/guix/README.md)
+Qtum uses a tool called Guix to make reproducible builds that can be verified by anyone. Instructions on setting up a Guix VM and building Qtum are provided in [Guix Building](https://github.com/qtumproject/qtum/blob/master/contrib/guix/README.md)
 
 ### Build on Ubuntu
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2025 The Bitcoin Core developers
+// Copyright (c) 2025-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,6 +7,7 @@
 #include <rpc/server.h>
 
 #include <boost/test/unit_test.hpp>
+#include <test/util/common.h>
 #include <test/util/setup_common.h>
 
 using node::NodeContext;

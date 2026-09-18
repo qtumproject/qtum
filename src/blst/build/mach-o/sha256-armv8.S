@@ -43,9 +43,11 @@ LK256:
 .align	2
 .align	2
 .globl	_blst_sha256_block_armv8
+.private_extern	_blst_sha256_block_armv8
 
 .align	6
 _blst_sha256_block_armv8:
+	hint	#34
 Lv8_entry:
 	stp	x29,x30,[sp,#-2*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
@@ -182,9 +184,11 @@ Loop_hw:
 	ret
 
 .globl	_blst_sha256_block_data_order
+.private_extern	_blst_sha256_block_data_order
 
 .align	4
 _blst_sha256_block_data_order:
+	hint	#34
 	adrp	x16,___blst_platform_cap@PAGE
 	ldr	w16,[x16,___blst_platform_cap@PAGEOFF]
 	tst	w16,#1
@@ -1034,6 +1038,7 @@ L_00_48:
 
 .align	4
 _blst_sha256_emit:
+	hint	#34
 	ldp	x4,x5,[x1]
 	ldp	x6,x7,[x1,#16]
 #ifndef	__AARCH64EB__
@@ -1062,6 +1067,7 @@ _blst_sha256_emit:
 
 .align	4
 _blst_sha256_bcopy:
+	hint	#34
 Loop_bcopy:
 	ldrb	w3,[x1],#1
 	sub	x2,x2,#1
@@ -1075,6 +1081,7 @@ Loop_bcopy:
 
 .align	4
 _blst_sha256_hcopy:
+	hint	#34
 	ldp	x4,x5,[x1]
 	ldp	x6,x7,[x1,#16]
 	stp	x4,x5,[x0]

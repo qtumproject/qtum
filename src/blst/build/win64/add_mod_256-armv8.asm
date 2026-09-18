@@ -7,6 +7,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|add_mod_256|[FUNC]
 	ALIGN	32
 |add_mod_256| PROC
+	hint	#34
 	ldp	x8,x9,[x1]
 	ldp	x12,x13,[x2]
 
@@ -41,6 +42,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|mul_by_3_mod_256|[FUNC]
 	ALIGN	32
 |mul_by_3_mod_256| PROC
+	hint	#34
 	ldp	x12,x13,[x1]
 	ldp	x14,x15,[x1,#16]
 
@@ -90,6 +92,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|lshift_mod_256|[FUNC]
 	ALIGN	32
 |lshift_mod_256| PROC
+	hint	#34
 	ldp	x8,x9,[x1]
 	ldp	x10,x11,[x1,#16]
 
@@ -128,6 +131,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|rshift_mod_256|[FUNC]
 	ALIGN	32
 |rshift_mod_256| PROC
+	hint	#34
 	ldp	x8,x9,[x1]
 	ldp	x10,x11,[x1,#16]
 

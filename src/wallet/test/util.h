@@ -32,8 +32,10 @@ const std::string ADDRESS_BCRT1_UNSPENDABLE = "qcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqq
 
 std::unique_ptr<CWallet> CreateSyncedWallet(interfaces::Chain& chain, CChain& cchain, const CKey& key);
 
+std::shared_ptr<CWallet> TestCreateWallet(WalletContext& context);
+std::shared_ptr<CWallet> TestCreateWallet(std::unique_ptr<WalletDatabase> database, WalletContext& context, uint64_t create_flags);
 std::shared_ptr<CWallet> TestLoadWallet(WalletContext& context);
-std::shared_ptr<CWallet> TestLoadWallet(std::unique_ptr<WalletDatabase> database, WalletContext& context, uint64_t create_flags);
+std::shared_ptr<CWallet> TestLoadWallet(std::unique_ptr<WalletDatabase> database, WalletContext& context);
 void TestUnloadWallet(std::shared_ptr<CWallet>&& wallet);
 
 // Creates a copy of the provided database
@@ -117,7 +119,7 @@ public:
 std::unique_ptr<WalletDatabase> CreateMockableWalletDatabase(MockableData records = {});
 MockableDatabase& GetMockableDatabase(CWallet& wallet);
 
-DescriptorScriptPubKeyMan* CreateDescriptor(CWallet& keystore, const std::string& desc_str, const bool success);
+DescriptorScriptPubKeyMan* CreateDescriptor(CWallet& keystore, const std::string& desc_str, bool success);
 } // namespace wallet
 
 #endif // BITCOIN_WALLET_TEST_UTIL_H

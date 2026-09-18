@@ -5,12 +5,27 @@
 """Test indices in conjunction with prune."""
 import concurrent.futures
 import os
+from test_framework.authproxy import JSONRPCException
 from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_node import TestNode
 from test_framework.util import (
     assert_equal,
     assert_greater_than,
     assert_raises_rpc_error,
 )
+
+from typing import List, Any
+
+def send_batch_request(node: TestNode, method: str, params: List[Any]) -> List[Any]:
+    """Send batch request and parse all results"""
+    data = [getattr(node, method).get_request(*p) for p in params]
+    response = node.batch(data)
+    result = []
+    for item in response:
+        assert "error" not in item, item["error"]
+        result.append(item["result"])
+
+    return result
 
 
 class FeatureIndexPruneTest(BitcoinTestFramework):
@@ -57,6 +72,13 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
         for i in range(3):
             self.restart_node(i, extra_args=["-fastprune", "-prune=1"])
 
+    def check_for_block(self, node, hash):
+        try:
+            self.nodes[node].getblock(hash)
+            return True
+        except JSONRPCException:
+            return False
+
     def run_test(self):
         filter_nodes = [self.nodes[0], self.nodes[2]]
         stats_nodes = [self.nodes[1], self.nodes[2]]
@@ -67,7 +89,7 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
         for node in filter_nodes:
             assert_greater_than(len(node.getblockfilter(tip)['filter']), 0)
         for node in stats_nodes:
-            assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=self.convert_to_json_for_cli(tip))['muhash']
+            assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=tip)['muhash']
 
         self.generate(self.nodes[0], 1000)
         self.sync_index(height=3100)
@@ -85,14 +107,14 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
         for node in filter_nodes:
             assert_greater_than(len(node.getblockfilter(tip)['filter']), 0)
         for node in stats_nodes:
-            assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=self.convert_to_json_for_cli(tip))['muhash']
+            assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=tip)['muhash']
 
         self.log.info("check if we can access the blockfilter and coinstats of a pruned block")
         height_hash = self.nodes[0].getblockhash(2)
         for node in filter_nodes:
             assert_greater_than(len(node.getblockfilter(height_hash)['filter']), 0)
         for node in stats_nodes:
-            assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=self.convert_to_json_for_cli(height_hash))['muhash']
+            assert node.gettxoutsetinfo(hash_type="muhash", hash_or_height=height_hash)['muhash']
 
         # mine and sync index up to a height that will later be the pruneheight
         self.generate(self.nodes[0], 51)
@@ -106,7 +128,7 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
             assert_raises_rpc_error(-1, msg, node.getblockfilter, height_hash)
         for node in stats_nodes:
             msg = "Querying specific block heights requires coinstatsindex"
-            assert_raises_rpc_error(-8, msg, node.gettxoutsetinfo, "muhash", self.convert_to_json_for_cli(height_hash))
+            assert_raises_rpc_error(-8, msg, node.gettxoutsetinfo, "muhash", height_hash)
 
         self.generate(self.nodes[0], 749)
 
@@ -130,11 +152,37 @@ class FeatureIndexPruneTest(BitcoinTestFramework):
             self.stop_node(i)
 
         self.log.info("make sure we get an init error when starting the nodes again with the indices")
-        filter_msg = "Error: basic block filter index best block of the index goes beyond pruned data. Please disable the index or reindex (which will download the whole blockchain again)"
-        stats_msg = "Error: coinstatsindex best block of the index goes beyond pruned data. Please disable the index or reindex (which will download the whole blockchain again)"
+        filter_msg = "Error: basic block filter index best block of the index goes beyond pruned data (including undo data). Please disable the index or reindex (which will download the whole blockchain again)"
+        stats_msg = "Error: coinstatsindex best block of the index goes beyond pruned data (including undo data). Please disable the index or reindex (which will download the whole blockchain again)"
         end_msg = f"{os.linesep}Error: A fatal internal error occurred, see debug.log for details: Failed to start indexes, shutting down…"
         for i, msg in enumerate([filter_msg, stats_msg, filter_msg]):
             self.nodes[i].assert_start_raises_init_error(extra_args=self.extra_args[i], expected_msg=msg+end_msg)
+
+        self.log.info("fetching the missing blocks with getblockfrompeer doesn't work for block filter index and coinstatsindex")
+        # Only checking the first two nodes since this test takes a long time
+        # and the third node is kind of redundant in this context
+        for i, msg in enumerate([filter_msg, stats_msg]):
+            self.restart_node(i, extra_args=["-prune=1", "-fastprune"])
+            node = self.nodes[i]
+            prune_height = node.getblockchaininfo()["pruneheight"]
+            self.connect_nodes(i, 3)
+            peers = node.getpeerinfo()
+            assert_equal(len(peers), 1)
+            peer_id = peers[0]["id"]
+
+            # 1500 is the height to where the indices were able to sync previously
+            hashes = send_batch_request(node, "getblockhash", [[a] for a in range(1500, prune_height)])
+            send_batch_request(node, "getblockfrompeer", [[bh, peer_id] for bh in hashes])
+            # Ensure all necessary blocks have been fetched before proceeding
+            for bh in hashes:
+                self.wait_until(lambda: self.check_for_block(i, bh), timeout=10)
+
+            # Upon restart we expect the same errors as previously although all
+            # necessary blocks have been fetched. Both indices need the undo
+            # data of the blocks to be available as well and getblockfrompeer
+            # can not provide that.
+            self.stop_node(i)
+            node.assert_start_raises_init_error(extra_args=self.extra_args[i], expected_msg=msg+end_msg)
 
         self.log.info("make sure the nodes start again with the indices and an additional -reindex arg")
         for i in range(3):

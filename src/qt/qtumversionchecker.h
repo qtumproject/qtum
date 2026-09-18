@@ -58,6 +58,15 @@ public:
         return compareAll(other) == 0;
     }
 
+    Version& operator=(const Version& v) {
+        if (this != &v) {
+            _major = v._major;
+            _minor = v._minor;
+            _revision = v._revision;
+        }
+        return *this;
+    }
+
     void SetNull()
     {
         _major = 0;

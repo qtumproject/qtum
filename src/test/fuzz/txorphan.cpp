@@ -196,9 +196,13 @@ FUZZ_TARGET(txorphan, .init = initialize_orphanage)
                 [&] {
                     // Make a block out of txs and then EraseForBlock
                     CBlock block;
+                    int64_t block_weight{0};
                     int num_txs = fuzzed_data_provider.ConsumeIntegralInRange<unsigned int>(0, 1000);
                     for (int i{0}; i < num_txs; ++i) {
                         auto& tx_to_remove = PickValue(fuzzed_data_provider, tx_history);
+                        const auto tx_weight = GetTransactionWeight(*tx_to_remove);
+                        if (block_weight + tx_weight > dgpMaxBlockWeight) break;
+                        block_weight += tx_weight;
                         block.vtx.push_back(tx_to_remove);
                     }
                     orphanage->EraseForBlock(block);
@@ -339,7 +343,7 @@ FUZZ_TARGET(txorphan_protected, .init = initialize_orphanage)
                     }
                 },
                 [&] { // EraseTx
-                    if (protected_wtxids.count(tx->GetWitnessHash())) {
+                    if (protected_wtxids.contains(tx->GetWitnessHash())) {
                         protected_wtxids.erase(wtxid);
                     }
                     orphanage->EraseTx(wtxid);
@@ -616,7 +620,7 @@ FUZZ_TARGET(txorphanage_sim)
                 real->EraseForBlock(block);
                 std::erase_if(sim_announcements, [&](auto& ann) {
                     for (auto& txin : txn[ann.tx]->vin) {
-                        if (spent.count(txin.prevout)) return true;
+                        if (spent.contains(txin.prevout)) return true;
                     }
                     return false;
                 });

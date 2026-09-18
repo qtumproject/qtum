@@ -8,10 +8,10 @@
 # https://eprint.iacr.org/2020/972. Performance is >12x better [on
 # Cortex cores] than modulus-specific FLT addition chain...
 #
-# void ct_inverse_mod_383(vec768 ret, const vec384 inp, const vec384 mod);
+# void ct_inverse_mod_384(vec768 ret, const vec384 inp, const vec384 mod);
 #
 $python_ref.=<<'___';
-def ct_inverse_mod_383(inp, mod):
+def ct_inverse_mod_384(inp, mod):
     a, u = inp, 1
     b, v = mod, 0
 
@@ -19,7 +19,7 @@ def ct_inverse_mod_383(inp, mod):
     w = 64
     mask = (1 << w) - 1
 
-    for i in range(0, 766 // k):
+    for i in range(0, 768 // k):
         # __ab_approximation_62
         n = max(a.bit_length(), b.bit_length())
         if n < 128:
@@ -37,19 +37,19 @@ def ct_inverse_mod_383(inp, mod):
                 a_, f0, g0 = a_-b_, f0-f1, g0-g1
             a_, f1, g1 = a_ >> 1, f1 << 1, g1 << 1
 
-        # __smul_383_n_shift_by_62
+        # __smul_384_n_shift_by_62
         a, b = (a*f0 + b*g0) >> k, (a*f1 + b*g1) >> k
         if a < 0:
             a, f0, g0 = -a, -f0, -g0
         if b < 0:
             b, f1, g1 = -b, -f1, -g1
 
-        # __smul_767x63
+        # __smul_768x63
         u, v = u*f0 + v*g0, u*f1 + v*g1
 
-    if 766 % k:
+    if 768 % k:
         f0, g0, f1, g1 = 1, 0, 0, 1
-        for j in range(0, 766 % k):
+        for j in range(0, 768 % k):
             if a & 1:
                 if a < b:
                     a, b, f0, g0, f1, g1 = b, a, f1, g1, f0, g0
@@ -58,8 +58,13 @@ def ct_inverse_mod_383(inp, mod):
 
         v = u*f1 + v*g1
 
+    mod <<= 768 - mod.bit_length()  # align to the left
     if v < 0:
-        v += mod << (768 - mod.bit_length())    # left aligned
+        v += mod
+    if v < 0:
+        v += mod
+    elif v == 1<<768:
+        v -= mod
 
     return v & (2**768 - 1) # to be reduced % mod
 ___
@@ -90,11 +95,11 @@ $frame = 32+2*512;
 $code.=<<___;
 .text
 
-.globl	ct_inverse_mod_383
-.hidden	ct_inverse_mod_383
-.type	ct_inverse_mod_383, %function
+.globl	ct_inverse_mod_384
+.hidden	ct_inverse_mod_384
+.type	ct_inverse_mod_384, %function
 .align	5
-ct_inverse_mod_383:
+ct_inverse_mod_384:
 	paciasp
 	stp	c29, c30, [csp,#-16*__SIZEOF_POINTER__]!
 	add	c29, csp, #0
@@ -137,14 +142,14 @@ ct_inverse_mod_383:
 #ifdef	__CHERI_PURE_CAPABILITY__
 	scvalue $out_ptr, csp, $out_ptr
 #endif
-	bl	__smul_383_n_shift_by_62
+	bl	__smul_384_n_shift_by_62
 	str	$f0,[$out_ptr,#8*12]		// initialize |u| with |f0|
 
 	mov	$f0, $f1			// |f1|
 	mov	$g0, $g1			// |g1|
 	cadd	$out_ptr, $out_ptr, #8*6	// pointer to dst |b|
-	bl	__smul_383_n_shift_by_62
-	str	$f0, [$out_ptr,#8*12]		// initialize |v| with |f1|
+	bl	__smul_384_n_shift_by_62
+	str	$f0, [$out_ptr,#8*14]		// initialize |v| with |f1|
 
 	////////////////////////////////////////// second iteration
 	eor	$in_ptr, $in_ptr, #256		// flip-flop src |a|b|u|v|
@@ -158,17 +163,17 @@ ct_inverse_mod_383:
 #ifdef	__CHERI_PURE_CAPABILITY__
 	scvalue $out_ptr, csp, $out_ptr
 #endif
-	bl	__smul_383_n_shift_by_62
+	bl	__smul_384_n_shift_by_62
 	mov	$f_, $f0			// corrected |f0|
 	mov	$g_, $g0			// corrected |g0|
 
 	mov	$f0, $f1			// |f1|
 	mov	$g0, $g1			// |g1|
 	cadd	$out_ptr, $out_ptr, #8*6	// pointer to destination |b|
-	bl	__smul_383_n_shift_by_62
+	bl	__smul_384_n_shift_by_62
 
 	ldr	@acc[4], [$in_ptr,#8*12]	// |u|
-	ldr	@acc[5], [$in_ptr,#8*18]	// |v|
+	ldr	@acc[5], [$in_ptr,#8*20]	// |v|
 	mul	@acc[0], $f_, @acc[4]		// |u|*|f0|
 	smulh	@acc[1], $f_, @acc[4]
 	mul	@acc[2], $g_, @acc[5]		// |v|*|g0|
@@ -186,10 +191,10 @@ ct_inverse_mod_383:
 	smulh	@acc[3], $g0, @acc[5]
 	adds	@acc[0], @acc[0], @acc[2]
 	adc	@acc[1], @acc[1], @acc[3]
-	stp	@acc[0], @acc[1], [$out_ptr,#8*12]
+	stp	@acc[0], @acc[1], [$out_ptr,#8*14]
 	asr	@acc[2], @acc[1], #63		// sign extension
-	stp	@acc[2], @acc[2], [$out_ptr,#8*14]
 	stp	@acc[2], @acc[2], [$out_ptr,#8*16]
+	stp	@acc[2], @acc[2], [$out_ptr,#8*18]
 ___
 for($i=2; $i<11; $i++) {
 $code.=<<___;
@@ -204,25 +209,34 @@ $code.=<<___;
 #ifdef	__CHERI_PURE_CAPABILITY__
 	scvalue $out_ptr, csp, $out_ptr
 #endif
-	bl	__smul_383_n_shift_by_62
+	bl	__smul_384_n_shift_by_62
 	mov	$f_, $f0			// corrected |f0|
 	mov	$g_, $g0			// corrected |g0|
 
 	mov	$f0, $f1			// |f1|
 	mov	$g0, $g1			// |g1|
 	cadd	$out_ptr, $out_ptr, #8*6	// pointer to destination |b|
-	bl	__smul_383_n_shift_by_62
+	bl	__smul_384_n_shift_by_62
 
 	cadd	$out_ptr, $out_ptr, #8*6	// pointer to destination |u|
-	bl	__smul_383x63
-
-	mov	$f_, $f0			// corrected |f1|
-	mov	$g_, $g0			// corrected |g1|
-	cadd	$out_ptr, $out_ptr, #8*6	// pointer to destination |v|
-	bl	__smul_383x63
+	bl	__smul_384x63
+___
+$code.=<<___	if ($i==5);
+	asr	@t[5], @t[5], #63
+	str	@t[5], [$out_ptr,#8*6]
 ___
 $code.=<<___	if ($i>5);
-	bl	__smul_767x63_tail
+	adc	@t[3], @t[3], @t[4]
+	str	@t[3], [$out_ptr,#8*6]
+___
+$code.=<<___;
+	mov	$f_, $f0			// corrected |f1|
+	mov	$g_, $g0			// corrected |g1|
+	cadd	$out_ptr, $out_ptr, #8*8	// pointer to destination |v|
+	bl	__smul_384x63
+___
+$code.=<<___	if ($i>5);
+	bl	__smul_768x63_tail
 ___
 $code.=<<___	if ($i==5);
 	asr	@t[5], @t[5], #63		// sign extension
@@ -255,20 +269,22 @@ $code.=<<___;
 	mov	$f0, $f1
 	mov	$g0, $g1
 	cadd	$out_ptr, $out_ptr, #8*12	// pointer to dst |u|
-	bl	__smul_383x63
+	bl	__smul_384x63
+	adc	@t[3], @t[3], @t[4]
+	str	@t[3], [$out_ptr,#8*6]
 
 	mov	$f_, $f0			// exact |f1|
 	mov	$g_, $g0			// exact |g1|
-	cadd	$out_ptr, $out_ptr, #8*6	// pointer to dst |v|
-	bl	__smul_383x63
-	bl	__smul_767x63_tail
+	cadd	$out_ptr, $out_ptr, #8*8	// pointer to dst |v|
+	bl	__smul_384x63
+	bl	__smul_768x63_tail
 
 	////////////////////////////////////////// last iteration
 	eor	$in_ptr, $in_ptr, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
 	scvalue $in_ptr, csp, $in_ptr
 #endif
-	mov	$cnt, #22			// 766 % 62
+	mov	$cnt, #24			// 768 % 62
 	//bl	__ab_approximation_62		// |a| and |b| are exact,
 	ldr	$a_lo, [$in_ptr,#8*0]		// just load
 	eor	$a_hi, $a_hi, $a_hi
@@ -279,25 +295,60 @@ $code.=<<___;
 	mov	$f_, $f1
 	mov	$g_, $g1
 	ldp	c0, c15, [csp]			// original out_ptr and n_ptr
-	bl	__smul_383x63
-	bl	__smul_767x63_tail
+	bl	__smul_384x63
+	bl	__smul_768x63_tail
 	ldr	c30, [c29,#__SIZEOF_POINTER__]
 
-	asr	@t[0], @acc[5], #63		// sign as mask
-	ldp	@acc[6], @acc[7], [$f0,#8*0]
+	smulh	@t[1], @acc[5], $g_		// figure out top-most limb
+	adc	@t[4], @t[4], @t[6]
+	ldp	@acc[6], @acc[7], [$f0,#8*0]	// load |mod|
+	add	@t[1], @t[1], @t[4]		// @t[1] is 1, 0 or -1
 	ldp	@acc[8], @acc[9], [$f0,#8*2]
+	asr	@t[0], @t[1], #63		// sign as mask
 	ldp	@acc[10], @acc[11], [$f0,#8*4]
 
-	and	@acc[6], @acc[6], @t[0]		// add mod<<384 conditionally
-	and	@acc[7], @acc[7], @t[0]
-	adds	@acc[0], @acc[0], @acc[6]
-	and	@acc[8], @acc[8], @t[0]
+	and	@t[4],   @acc[6], @t[0]		// add mod<<384 conditionally
+	and	@t[5],   @acc[7], @t[0]
+	adds	@acc[0], @acc[0], @t[4]
+	and	@t[6],   @acc[8], @t[0]
+	adcs	@acc[1], @acc[1], @t[5]
+	and	@t[7],   @acc[9], @t[0]
+	adcs	@acc[2], @acc[2], @t[6]
+	and	@t[4],   @acc[10], @t[0]
+	adcs	@acc[3], @acc[3], @t[7]
+	and	@t[5],   @acc[11], @t[0]
+	adcs	@acc[4], @acc[4], @t[4]
+	adcs	@acc[5], @t[3],   @t[5]
+	adc	@t[1], @t[1], xzr		// @t[1] is 1, 0 or -1
+
+	neg	@t[0], @t[1]
+	orr	@t[1], @t[1], @t[0]		// excess bit or sign as mask
+	asr	@t[0], @t[0], #63		// excess bit as mask
+
+	and	@acc[6], @acc[6], @t[1]		// mask |mod|
+	and	@acc[7], @acc[7], @t[1]
+	and	@acc[8], @acc[8], @t[1]
+	and	@acc[9], @acc[9], @t[1]
+	and	@acc[10], @acc[10], @t[1]
+	and	@acc[11], @acc[11], @t[1]
+
+	eor	@acc[6],  @acc[6], @t[0]	// conditionally negate |mod|
+	eor	@acc[7],  @acc[7], @t[0]
+	adds	@acc[6],  @acc[6], @t[0], lsr#63
+	eor	@acc[8],  @acc[8], @t[0]
+	adcs	@acc[7],  @acc[7], xzr
+	eor	@acc[9],  @acc[9], @t[0]
+	adcs	@acc[8],  @acc[8], xzr
+	eor	@acc[10], @acc[10], @t[0]
+	adcs	@acc[9],  @acc[9], xzr
+	eor	@acc[11], @acc[11], @t[0]
+	adcs	@acc[10], @acc[10], xzr
+	adc	@acc[11], @acc[11], xzr
+
+	adds	@acc[0], @acc[0], @acc[6]	// final adjustment for |mod|<<384
 	adcs	@acc[1], @acc[1], @acc[7]
-	and	@acc[9], @acc[9], @t[0]
 	adcs	@acc[2], @acc[2], @acc[8]
-	and	@acc[10], @acc[10], @t[0]
 	adcs	@acc[3], @acc[3], @acc[9]
-	and	@acc[11], @acc[11], @t[0]
 	stp	@acc[0], @acc[1], [$out_ptr,#8*6]
 	adcs	@acc[4], @acc[4], @acc[10]
 	stp	@acc[2], @acc[3], [$out_ptr,#8*8]
@@ -313,18 +364,18 @@ $code.=<<___;
 	ldr	c29, [csp],#16*__SIZEOF_POINTER__
 	autiasp
 	ret
-.size	ct_inverse_mod_383,.-ct_inverse_mod_383
+.size	ct_inverse_mod_384,.-ct_inverse_mod_384
 
 ////////////////////////////////////////////////////////////////////////
 // see corresponding commentary in ctx_inverse_mod_384-x86_64...
-.type	__smul_383x63, %function
+.type	__smul_384x63, %function
 .align	5
-__smul_383x63:
+__smul_384x63:
 ___
 for($j=0; $j<2; $j++) {
 my $f_ = $f_;   $f_ = $g_          if ($j);
 my @acc = @acc; @acc = @acc[6..11] if ($j);
-my $k = 8*12+8*6*$j;
+my $k = 8*12+8*8*$j;
 $code.=<<___;
 	ldp	@acc[0], @acc[1], [$in_ptr,#8*0+$k]	// load |u| (or |v|)
 	asr	$f1, $f_, #63		// |f_|'s sign as mask (or |g_|'s)
@@ -333,6 +384,7 @@ $code.=<<___;
 	ldp	@acc[4], @acc[5], [$in_ptr,#8*4+$k]
 
 	eor	@acc[0], @acc[0], $f1	// conditionally negate |u| (or |v|)
+	ldr	@t[3+$j], [$in_ptr,#8*6+$k]
 	sub	$f_, $f_, $f1
 	eor	@acc[1], @acc[1], $f1
 	adds	@acc[0], @acc[0], $f1, lsr#63
@@ -347,25 +399,29 @@ $code.=<<___;
 	 umulh	@t[1], @acc[1], $f_
 	adcs	@acc[4], @acc[4], xzr
 	 umulh	@t[2], @acc[2], $f_
+	eor	@t[3+$j], @t[3+$j], $f1
+	 mul	@acc[0], @acc[0], $f_
 	adcs	@acc[5], @acc[5], xzr
-	 umulh	@t[3], @acc[3], $f_
+	 mul	@acc[1], @acc[1], $f_
+	adcs	@t[3+$j], @t[3+$j], xzr
 ___
 $code.=<<___	if ($j);
-	adc	$g1, xzr, xzr		// used in __smul_767x63_tail
+	adc	$g1, xzr, xzr		// used in __smul_768x63_tail
 ___
 $code.=<<___;
-	umulh	@t[4], @acc[4], $f_
-	mul	@acc[0], @acc[0], $f_
-	mul	@acc[1], @acc[1], $f_
+	 cmp	$f_, #0
 	mul	@acc[2], @acc[2], $f_
+	 csel	@t[3+$j], @t[3+$j], xzr, ne
 	adds	@acc[1], @acc[1], @t[0]
-	mul	@acc[3], @acc[3], $f_
+	umulh	@t[0], @acc[3], $f_
 	adcs	@acc[2], @acc[2], @t[1]
+	umulh	@t[1], @acc[4], $f_
+	mul	@acc[3], @acc[3], $f_
 	mul	@acc[4], @acc[4], $f_
 	adcs	@acc[3], @acc[3], @t[2]
 	mul	@t[5+$j],@acc[5], $f_
-	adcs	@acc[4], @acc[4], @t[3]
-	adcs	@t[5+$j],@t[5+$j],@t[4]
+	adcs	@acc[4], @acc[4], @t[0]
+	adcs	@t[5+$j],@t[5+$j],@t[1]
 ___
 $code.=<<___	if ($j==0);
 	adc	@t[7], xzr, xzr
@@ -383,41 +439,41 @@ $code.=<<___;
 	stp	@acc[2], @acc[3], [$out_ptr,#8*2]
 	adcs	@t[5],   @t[5],   @t[6]
 	stp	@acc[4], @t[5],   [$out_ptr,#8*4]
-	adc	@t[6],   @t[7],   xzr	// used in __smul_767x63_tail
 
 	ret
-.size	__smul_383x63,.-__smul_383x63
+.size	__smul_384x63,.-__smul_384x63
 
-.type	__smul_767x63_tail, %function
+.type	__smul_768x63_tail, %function
 .align	5
-__smul_767x63_tail:
-	smulh	@t[5],   @acc[5], $f_
-	ldp	@acc[0], @acc[1], [$in_ptr,#8*24]	// load rest of |v|
-	umulh	@acc[11],@acc[11], $g_
-	ldp	@acc[2], @acc[3], [$in_ptr,#8*26]
-	ldp	@acc[4], @acc[5], [$in_ptr,#8*28]
+__smul_768x63_tail:
+	umulh	@t[5], @acc[5], $f_
+	ldr	@acc[1], [$in_ptr,#8*27]// load rest of |v|
+	adc	@t[7], @t[7], xzr
+	ldp	@acc[2], @acc[3], [$in_ptr,#8*28]
+	and	@t[3], @t[3], $f_
+	ldp	@acc[4], @acc[5], [$in_ptr,#8*30]
+	sub	@t[5], @t[5], @t[3]	// tie up |u|*|f1| chain
 
-	eor	@acc[0], @acc[0], $f1	// conditionally negate rest of |v|
-	eor	@acc[1], @acc[1], $f1
+	umulh	@acc[11], @acc[11], $g_	// resume |v|*|g1| chain
+	eor	@acc[1], @acc[1], $f1	// conditionally negate rest of |v|
 	eor	@acc[2], @acc[2], $f1
-	adds	@acc[0], @acc[0], $g1
 	eor	@acc[3], @acc[3], $f1
-	adcs	@acc[1], @acc[1], xzr
+	adds	@acc[1], @acc[1], $g1
 	eor	@acc[4], @acc[4], $f1
 	adcs	@acc[2], @acc[2], xzr
 	eor	@acc[5], @acc[5], $f1
 	adcs	@acc[3], @acc[3], xzr
-	 umulh	@t[0], @acc[0], $g_
+	 umulh	@t[0], @t[4],   $g_
 	adcs	@acc[4], @acc[4], xzr
 	 umulh	@t[1], @acc[1], $g_
 	adc	@acc[5], @acc[5], xzr
 
 	umulh	@t[2], @acc[2], $g_
-	 add	@acc[11], @acc[11], @t[6]
+	 add	@acc[11], @acc[11], @t[7]
 	umulh	@t[3], @acc[3], $g_
 	 asr	@t[6], @t[5], #63
-	umulh	@t[4], @acc[4], $g_
-	mul	@acc[0], @acc[0], $g_
+	umulh	@t[7], @acc[4], $g_
+	mul	@acc[0], @t[4],   $g_
 	mul	@acc[1], @acc[1], $g_
 	mul	@acc[2], @acc[2], $g_
 	adds	@acc[0], @acc[0], @acc[11]
@@ -425,10 +481,11 @@ __smul_767x63_tail:
 	adcs	@acc[1], @acc[1], @t[0]
 	mul	@acc[4], @acc[4], $g_
 	adcs	@acc[2], @acc[2], @t[1]
-	mul	@acc[5], @acc[5], $g_
+	mul	@t[0],   @acc[5], $g_
 	adcs	@acc[3], @acc[3], @t[2]
 	adcs	@acc[4], @acc[4], @t[3]
-	adc	@acc[5], @acc[5], @t[4]
+	adcs	@t[3],   @t[0], @t[7]
+	adc	@t[4], xzr, xzr		// used in the final step
 
 	adds	@acc[0], @acc[0], @t[5]
 	adcs	@acc[1], @acc[1], @t[6]
@@ -437,15 +494,15 @@ __smul_767x63_tail:
 	stp	@acc[0], @acc[1], [$out_ptr,#8*6]
 	adcs	@acc[4], @acc[4], @t[6]
 	stp	@acc[2], @acc[3], [$out_ptr,#8*8]
-	adc	@acc[5], @acc[5], @t[6]
-	stp	@acc[4], @acc[5], [$out_ptr,#8*10]
+	adcs	@t[3],   @t[3],   @t[6]	// carry is used in the final step
+	stp	@acc[4], @t[3],   [$out_ptr,#8*10]
 
 	ret
-.size	__smul_767x63_tail,.-__smul_767x63_tail
+.size	__smul_768x63_tail,.-__smul_768x63_tail
 
-.type	__smul_383_n_shift_by_62, %function
+.type	__smul_384_n_shift_by_62, %function
 .align	5
-__smul_383_n_shift_by_62:
+__smul_384_n_shift_by_62:
 ___
 for($j=0; $j<2; $j++) {
 my $f0 = $f0;   $f0 = $g0           if ($j);
@@ -471,25 +528,27 @@ $code.=<<___;
 	adcs	@acc[3], @acc[3], xzr
 	 umulh	@t[1], @acc[1], @t[7]
 	eor	@acc[5], @acc[5], @t[6]
-	 umulh	@t[2], @acc[2], @t[7]
+	 mul	@acc[0], @acc[0], @t[7]
 	adcs	@acc[4], @acc[4], xzr
-	 umulh	@t[3], @acc[3], @t[7]
+	 mul	@acc[1], @acc[1], @t[7]
 	adc	@acc[5], @acc[5], xzr
 
-	umulh	@t[4], @acc[4], @t[7]
-	smulh	@t[5+$j], @acc[5], @t[7]
-	mul	@acc[0], @acc[0], @t[7]
-	mul	@acc[1], @acc[1], @t[7]
-	mul	@acc[2], @acc[2], @t[7]
+	umulh	@t[2], @acc[2], @t[7]
+	 and	@t[6], @t[6], @t[7]
+	umulh	@t[3], @acc[3], @t[7]
 	adds	@acc[1], @acc[1], @t[0]
+	mul	@acc[2], @acc[2], @t[7]
+	umulh	@t[0], @acc[4], @t[7]
+	 neg	@t[6], @t[6]
 	mul	@acc[3], @acc[3], @t[7]
 	adcs	@acc[2], @acc[2], @t[1]
+	umulh	@t[1], @acc[5], @t[7]
 	mul	@acc[4], @acc[4], @t[7]
 	adcs	@acc[3], @acc[3], @t[2]
 	mul	@acc[5], @acc[5], @t[7]
 	adcs	@acc[4], @acc[4], @t[3]
-	adcs	@acc[5], @acc[5] ,@t[4]
-	adc	@t[5+$j], @t[5+$j], xzr
+	adcs	@acc[5], @acc[5], @t[0]
+	adc	@t[5+$j], @t[1], @t[6]
 ___
 }
 $code.=<<___;
@@ -531,7 +590,7 @@ $code.=<<___;
 	sub	$g0, $g0, @t[6]
 
 	ret
-.size	__smul_383_n_shift_by_62,.-__smul_383_n_shift_by_62
+.size	__smul_384_n_shift_by_62,.-__smul_384_n_shift_by_62
 ___
 
 {

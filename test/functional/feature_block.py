@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2022 The Bitcoin Core developers
+# Copyright (c) 2015-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test block processing."""
@@ -7,6 +7,7 @@ import copy
 import time
 
 from test_framework.blocktools import (
+    add_witness_commitment,
     create_block,
     create_coinbase,
     create_tx_with_script,
@@ -47,6 +48,7 @@ from test_framework.script import (
     sign_input_legacy,
 )
 from test_framework.script_util import (
+    key_to_p2pk_script,
     script_to_p2sh_script,
 )
 from test_framework.test_framework import BitcoinTestFramework
@@ -90,9 +92,11 @@ class FullBlockTest(BitcoinTestFramework):
         self.num_nodes = 1
         self.setup_clean_chain = True
         self.extra_args = [[
-            '-acceptnonstdtxn=1',  # This is a consensus block test, we don't care about tx policy
             '-testactivationheight=bip34@2',
         ]]
+
+    def add_options(self, parser):
+        parser.add_argument("--skipreorg", action='store_true', dest="skip_reorg", help="Skip the large re-org test", default=False)
 
     def run_test(self):
         node = self.nodes[0]  # convenience reference to the node
@@ -1167,31 +1171,24 @@ class FullBlockTest(BitcoinTestFramework):
         #
         #    b78 creates a tx, which is spent in b79. After b82, both should be in mempool
         #
-        #    The tx'es must be unsigned and pass the node's mempool policy.  It is unsigned for the
-        #    rather obscure reason that the Python signature code does not distinguish between
-        #    Low-S and High-S values (whereas the bitcoin code has custom code which does so);
-        #    as a result of which, the odds are 50% that the python code will use the right
-        #    value and the transaction will be accepted into the mempool. Until we modify the
-        #    test framework to support low-S signing, we are out of luck.
-        #
-        #    To get around this issue, we construct transactions which are not signed and which
-        #    spend to OP_TRUE.  If the standard-ness rules change, this test would need to be
-        #    updated.  (Perhaps to spend to a P2SH OP_TRUE script)
+        #    The resurrected transactions must pass the node's mempool policy, so create
+        #    and spend standard outputs (P2PK using the coinbase pubkey to keep it simple).
         self.log.info("Test transaction resurrection during a re-org")
+        standard_output_script = key_to_p2pk_script(self.coinbase_pubkey)
         self.move_tip(76)
         self.next_block(77)
-        tx77 = self.create_and_sign_transaction(out[24], 10 * COIN)
+        tx77 = self.create_and_sign_transaction(out[24], 10 * COIN, standard_output_script)
         b77 = self.update_block(77, [tx77])
         self.send_blocks([b77], True)
         self.save_spendable_output()
 
         self.next_block(78)
-        tx78 = self.create_tx(tx77, 0, 9 * COIN)
+        tx78 = self.create_and_sign_transaction(tx77, 9 * COIN, standard_output_script)
         b78 = self.update_block(78, [tx78])
         self.send_blocks([b78], True)
 
         self.next_block(79)
-        tx79 = self.create_tx(tx78, 0, 8 * COIN)
+        tx79 = self.create_and_sign_transaction(tx78, 8 * COIN, standard_output_script)
         b79 = self.update_block(79, [tx79])
         self.send_blocks([b79], True)
 
@@ -1281,60 +1278,62 @@ class FullBlockTest(BitcoinTestFramework):
         b89a = self.update_block("89a", [tx])
         self.send_blocks([b89a], success=False, reject_reason='bad-txns-inputs-missingorspent', reconnect=True)
 
-        # Don't use v2transport for the large reorg, which is too slow with the unoptimized python ChaCha20 implementation
-        if self.options.v2transport:
-            self.nodes[0].disconnect_p2ps()
-            self.helper_peer = self.nodes[0].add_p2p_connection(P2PDataStore(), supports_v2_p2p=False)
-        self.log.info("Test a re-org of one week's worth of blocks (1088 blocks)")
-
         self.move_tip(88)
-        LARGE_REORG_SIZE = 200
-        blocks = []
-        spend = out[32]
-        for i in range(89, LARGE_REORG_SIZE + 89):
-            b = self.next_block(i, spend)
-            tx = CTransaction()
-            script_length = (MAX_BLOCK_WEIGHT - b.get_weight() - 276) // 4
-            script_output = CScript([b'\x00' * script_length])
-            tx.vout.append(CTxOut(0, script_output))
-            tx.vin.append(CTxIn(COutPoint(b.vtx[1].txid_int, 0)))
-            b = self.update_block(i, [tx])
-            assert_equal(b.get_weight(), MAX_BLOCK_WEIGHT)
-            blocks.append(b)
-            self.save_spendable_output()
-            spend = self.get_spendable_output()
-
-        self.send_blocks(blocks, True, timeout=480)
-        chain1_tip = i
-
-        # now create alt chain of same length
-        self.move_tip(88)
-        blocks2 = []
-        for i in range(89, LARGE_REORG_SIZE + 89):
-            blocks2.append(self.next_block("alt" + str(i)))
-        self.send_blocks(blocks2, False, force_send=True)
-
-        # extend alt chain to trigger re-org
-        block = self.next_block("alt" + str(chain1_tip + 1))
-        self.send_blocks([block], True, timeout=480)
-
-        # ... and re-org back to the first chain
-        self.move_tip(chain1_tip)
-        block = self.next_block(chain1_tip + 1)
-        self.send_blocks([block], False, force_send=True)
-        block = self.next_block(chain1_tip + 2)
-        self.send_blocks([block], True, timeout=480)
-
         self.log.info("Reject a block with an invalid block header version")
         b_v1 = self.next_block('b_v1', version=1)
         self.send_blocks([b_v1], success=False, force_send=True, reject_reason='bad-version(0x00000001)', reconnect=True)
 
-        self.move_tip(chain1_tip + 2)
+        self.move_tip(87)
         b_cb34 = self.next_block('b_cb34')
         b_cb34.vtx[0].vin[0].scriptSig = b_cb34.vtx[0].vin[0].scriptSig[:-1]
         b_cb34.hashMerkleRoot = b_cb34.calc_merkle_root()
         b_cb34.solve()
-        self.send_blocks([b_cb34], success=False, reject_reason='block height mismatch in coinbase', force_send=True, reconnect=True)
+        self.send_blocks([b_cb34], success=False, reject_reason='bad-cb-height', reconnect=True)
+
+        # Don't use v2transport for the large reorg, which is too slow with the unoptimized python ChaCha20 implementation
+        if self.options.v2transport:
+            self.nodes[0].disconnect_p2ps()
+            self.helper_peer = self.nodes[0].add_p2p_connection(P2PDataStore(), supports_v2_p2p=False)
+
+        self.move_tip(88)
+        if not self.options.skip_reorg:
+            self.log.info("Test a re-org of one week's worth of blocks (1088 blocks)")
+            LARGE_REORG_SIZE = 200
+            blocks = []
+            spend = out[32]
+            for i in range(89, LARGE_REORG_SIZE + 89):
+                b = self.next_block(i, spend)
+                tx = CTransaction()
+                script_length = (MAX_BLOCK_WEIGHT - b.get_weight() - 276) // 4
+                script_output = CScript([b'\x00' * script_length])
+                tx.vout.append(CTxOut(0, script_output))
+                tx.vin.append(CTxIn(COutPoint(b.vtx[1].txid_int, 0)))
+                b = self.update_block(i, [tx])
+                assert_equal(b.get_weight(), MAX_BLOCK_WEIGHT)
+                blocks.append(b)
+                self.save_spendable_output()
+                spend = self.get_spendable_output()
+
+            self.send_blocks(blocks, True, timeout=480)
+            chain1_tip = i
+
+            # now create alt chain of same length
+            self.move_tip(88)
+            blocks2 = []
+            for i in range(89, LARGE_REORG_SIZE + 89):
+                blocks2.append(self.next_block("alt" + str(i)))
+            self.send_blocks(blocks2, False, force_send=True)
+
+            # extend alt chain to trigger re-org
+            block = self.next_block("alt" + str(chain1_tip + 1))
+            self.send_blocks([block], True, timeout=480)
+
+            # ... and re-org back to the first chain
+            self.move_tip(chain1_tip)
+            block = self.next_block(chain1_tip + 1)
+            self.send_blocks([block], False, force_send=True)
+            block = self.next_block(chain1_tip + 2)
+            self.send_blocks([block], True, timeout=480)
 
     # Helper methods
     ################
@@ -1418,6 +1417,9 @@ class FullBlockTest(BitcoinTestFramework):
         if nTime is not None:
             block.nTime = nTime
         block.hashMerkleRoot = block.calc_merkle_root()
+        has_witness_tx = any(not tx.wit.is_null() for tx in block.vtx)
+        if has_witness_tx:
+            add_witness_commitment(block)
         block.solve()
         # Update the internal state just like in next_block
         self.tip = block

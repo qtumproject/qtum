@@ -1,3 +1,11 @@
+#if defined(__ARM_FEATURE_PAC_DEFAULT) && __ARM_FEATURE_PAC_DEFAULT==2
+# define PACI_HINT 27
+# define AUTI_HINT 31
+#else
+# define PACI_HINT 25
+# define AUTI_HINT 29
+#endif
+
 .text
 
 .globl	mul_mont_sparse_256
@@ -5,6 +13,7 @@
 .type	mul_mont_sparse_256,%function
 .align	5
 mul_mont_sparse_256:
+	hint	#34
 	stp	c29,c30,[csp,#-8*__SIZEOF_POINTER__]!
 	add	c29,csp,#0
 	stp	c19,c20,[csp,#2*__SIZEOF_POINTER__]
@@ -196,7 +205,7 @@ mul_mont_sparse_256:
 .type	sqr_mont_sparse_256,%function
 .align	5
 sqr_mont_sparse_256:
-	.inst	0xd503233f
+	hint	#PACI_HINT
 	stp	c29,c30,[csp,#-6*__SIZEOF_POINTER__]!
 	add	c29,csp,#0
 	stp	c19,c20,[csp,#2*__SIZEOF_POINTER__]
@@ -297,7 +306,7 @@ sqr_mont_sparse_256:
 	ldp	c19,c20,[c29,#2*__SIZEOF_POINTER__]
 	ldp	c21,c22,[c29,#4*__SIZEOF_POINTER__]
 	ldr	c29,[csp],#6*__SIZEOF_POINTER__
-	.inst	0xd50323bf
+	hint	#AUTI_HINT
 	ret
 .size	sqr_mont_sparse_256,.-sqr_mont_sparse_256
 .globl	from_mont_256
@@ -305,7 +314,7 @@ sqr_mont_sparse_256:
 .type	from_mont_256,%function
 .align	5
 from_mont_256:
-	.inst	0xd503233f
+	hint	#PACI_HINT
 	stp	c29,c30,[csp,#-2*__SIZEOF_POINTER__]!
 	add	c29,csp,#0
 
@@ -330,7 +339,7 @@ from_mont_256:
 	stp	x12,x13,[c0,#16]
 
 	ldr	c29,[csp],#2*__SIZEOF_POINTER__
-	.inst	0xd50323bf
+	hint	#AUTI_HINT
 	ret
 .size	from_mont_256,.-from_mont_256
 
@@ -339,7 +348,7 @@ from_mont_256:
 .type	redc_mont_256,%function
 .align	5
 redc_mont_256:
-	.inst	0xd503233f
+	hint	#PACI_HINT
 	stp	c29,c30,[csp,#-2*__SIZEOF_POINTER__]!
 	add	c29,csp,#0
 
@@ -374,7 +383,7 @@ redc_mont_256:
 	stp	x12,x13,[c0,#16]
 
 	ldr	c29,[csp],#2*__SIZEOF_POINTER__
-	.inst	0xd50323bf
+	hint	#AUTI_HINT
 	ret
 .size	redc_mont_256,.-redc_mont_256
 
@@ -462,3 +471,13 @@ __mul_by_1_mont_256:
 
 	ret
 .size	__mul_by_1_mont_256,.-__mul_by_1_mont_256
+
+#if defined(__ARM_FEATURE_BTI_DEFAULT) || defined(__ARM_FEATURE_PAC_DEFAULT)
+.section	.note.GNU-stack,"",@progbits
+.section	.note.gnu.property,"a",@note
+	.long	4,2f-1f,5
+	.byte	0x47,0x4E,0x55,0
+1:	.long	0xc0000000,4,3
+.align  3
+2:
+#endif

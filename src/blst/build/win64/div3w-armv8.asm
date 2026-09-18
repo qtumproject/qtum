@@ -7,6 +7,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|div_3_limbs|[FUNC]
 	ALIGN	32
 |div_3_limbs| PROC
+	hint	#34
 	ldp	x4,x5,[x0]
 	eor	x0,x0,x0
 	mov	x3,#64
@@ -41,6 +42,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|quot_rem_128|[FUNC]
 	ALIGN	32
 |quot_rem_128| PROC
+	hint	#34
 	ldp	x3,x4,[x1]
 
 	mul	x5,x3,x2
@@ -78,6 +80,7 @@ __SIZEOF_POINTER__ SETA 64/8
 	EXPORT	|quot_rem_64|[FUNC]
 	ALIGN	32
 |quot_rem_64| PROC
+	hint	#34
 	ldr	x3,[x1]
 	ldr	x8,[x0]
 

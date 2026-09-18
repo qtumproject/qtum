@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+set -e
 #
 # The script allows to override 'CC', 'CFLAGS' and 'flavour' at command
 # line, as well as specify additional compiler flags. For example to
@@ -27,22 +28,18 @@ CFLAGS=${CFLAGS:--O2 -fno-builtin -fPIC -Wall -Wextra -Werror}
 PERL=${PERL:-perl}
 unset cflags shared dll
 
-case `uname -s` in
-    Darwin)	flavour=macosx
-                if [ "`sysctl -n hw.optional.adx 2>/dev/null`" = "1" ]; then
-                    cflags="-D__ADX__"
-                fi
-                ;;
-    CYGWIN*)	flavour=mingw64;;
-    MINGW*)	flavour=mingw64;;
-    *)		flavour=elf;;
-esac
-
 while [ "x$1" != "x" ]; do
     case $1 in
         -shared)    shared=1;;
         -dll)       shared=1; dll=".dll";;
         -m*)        CFLAGS="$CFLAGS $1";;
+        -target|-arch)
+                    if expr "$CFLAGS" : ".*-arch " >/dev/null; then
+                        cflags="$cflags $1 $2"
+                    else
+                        CFLAGS="$CFLAGS $1 $2"
+                    fi
+                    shift;;
         -*target*)  CFLAGS="$CFLAGS $1";;
         -*)         cflags="$cflags $1";;
         *=*)        eval "$1";;
@@ -76,19 +73,38 @@ if [ -z "${CROSS_COMPILE}${AR}" ] && echo ${predefs} | grep -q clang; then
        env PATH="$search_dirs:$PATH" which llvm-ar > /dev/null 2>&1; then
         PATH="$search_dirs:$PATH"
         AR=llvm-ar
+        RANLIB=llvm-ranlib
     fi
 fi
 AR=${AR:-${CROSS_COMPILE}ar}
+RANLIB=${RANLIB:-${CROSS_COMPILE}ranlib}
 
-if echo ${predefs} | grep -q x86_64; then
-    if (grep -q -e '^flags.*\badx\b' /proc/cpuinfo) 2>/dev/null; then
-        cflags="-D__ADX__ $cflags"
+if [ -z "${flavour}" ]; then
+    if echo ${predefs} | grep -q __APPLE__; then
+        flavour=macosx
+    elif echo ${predefs} | grep -q _WIN32; then
+        flavour=mingw64
+        if [ $shared ]; then
+            cflags="$cflags -D__BLST_DLL_MAIN__"
+        fi
+    else
+        flavour=elf
     fi
+fi
+if echo ${predefs} | grep -q x86_64; then
+    case `uname -s` in
+        Darwin) if [ "`sysctl -n hw.optional.adx 2>/dev/null`" = "1" ]; then
+                    cflags="-D__ADX__ $cflags"
+                fi;;
+        *)      if (grep -q -e '^flags.*\badx\b' /proc/cpuinfo) 2>/dev/null; then
+                    cflags="-D__ADX__ $cflags"
+                fi;;
+    esac
 fi
 if echo ${predefs} | grep -q __AVX__; then
     cflags="$cflags -mno-avx" # avoid costly transitions
 fi
-if echo ${predefs} | grep -q 'x86_64\|aarch64'; then :; else
+if echo ${predefs} | grep -E -q 'x86_64|aarch64'; then :; else
     cflags="$cflags -D__BLST_NO_ASM__"
 fi
 
@@ -101,17 +117,17 @@ trap '[ $? -ne 0 ] && rm -f libblst.a; rm -f *.o ${TMPDIR}/*.blst.$$' 0
 (set -x; ${CC} ${CFLAGS} -c ${TOP}/src/server.c)
 (set -x; ${CC} ${CFLAGS} -c ${TOP}/build/assembly.S)
 (set -x; ${AR} rc libblst.a *.o)
+which ${RANLIB} > /dev/null 2>&1 && (set -x; ${RANLIB} libblst.a)
 
 if [ $shared ]; then
     case $flavour in
         macosx) (set -x; ${CC} -dynamiclib -o libblst$dll.dylib \
                                -all_load libblst.a ${CFLAGS}); exit 0;;
         mingw*) sharedlib="blst.dll ${TOP}/build/win64/blst.def"
-                CFLAGS="${CFLAGS} --entry=DllMain ${TOP}/build/win64/dll.c"
-                CFLAGS="${CFLAGS} -nostdlib -lgcc";;
-        *)      sharedlib=libblst$dll.so;;
+                CFLAGS="${CFLAGS} -Wl,--entry=DllMain -nostartfiles";;
+        *)      sharedlib=libblst$dll.so
+                CFLAGS="${CFLAGS} -Wl,-Bsymbolic";;
     esac
     (set -x; ${CC} -shared -o $sharedlib \
-                   -Wl,--whole-archive,libblst.a,--no-whole-archive ${CFLAGS} \
-                   -Wl,-Bsymbolic)
+                   -Wl,--whole-archive,libblst.a,--no-whole-archive ${CFLAGS})
 fi

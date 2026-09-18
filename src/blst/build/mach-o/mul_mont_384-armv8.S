@@ -1,10 +1,11 @@
 .text
 
 .globl	_add_mod_384x384
+.private_extern	_add_mod_384x384
 
 .align	5
 _add_mod_384x384:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-8*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -22,7 +23,7 @@ _add_mod_384x384:
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldp	x23,x24,[x29,#6*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#8*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -82,10 +83,11 @@ __add_mod_384x384:
 
 
 .globl	_sub_mod_384x384
+.private_extern	_sub_mod_384x384
 
 .align	5
 _sub_mod_384x384:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-8*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -103,7 +105,7 @@ _sub_mod_384x384:
 	ldp	x21,x22,[x29,#4*__SIZEOF_POINTER__]
 	ldp	x23,x24,[x29,#6*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#8*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -239,7 +241,7 @@ __sub_mod_384:
 
 .align	5
 _mul_mont_384x:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -312,7 +314,7 @@ _mul_mont_384x:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -321,7 +323,7 @@ _mul_mont_384x:
 
 .align	5
 _sqr_mont_384x:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -397,7 +399,7 @@ _sqr_mont_384x:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -406,7 +408,7 @@ _sqr_mont_384x:
 
 .align	5
 _mul_mont_384:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -438,7 +440,7 @@ _mul_mont_384:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -819,7 +821,7 @@ __mul_mont_384:
 
 .align	5
 _sqr_mont_384:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -856,7 +858,7 @@ _sqr_mont_384:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -865,7 +867,7 @@ _sqr_mont_384:
 
 .align	5
 _sqr_n_mul_mont_383:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -921,7 +923,7 @@ Loop_sqr_383:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -1042,7 +1044,7 @@ __sqr_384:
 
 .align	5
 _sqr_384:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -1064,7 +1066,7 @@ _sqr_384:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -1073,7 +1075,7 @@ _sqr_384:
 
 .align	5
 _redc_mont_384:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -1097,7 +1099,7 @@ _redc_mont_384:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -1106,7 +1108,7 @@ _redc_mont_384:
 
 .align	5
 _from_mont_384:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -1147,7 +1149,7 @@ _from_mont_384:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -1365,7 +1367,7 @@ __redc_tail_mont_384:
 
 .align	5
 _mul_384:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -1383,7 +1385,7 @@ _mul_384:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -1569,7 +1571,7 @@ __mul_384:
 
 .align	5
 _mul_382x:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -1651,7 +1653,7 @@ _mul_382x:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -1660,7 +1662,7 @@ _mul_382x:
 
 .align	5
 _sqr_382x:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -1751,7 +1753,7 @@ _sqr_382x:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -1760,7 +1762,7 @@ _sqr_382x:
 
 .align	5
 _sqr_mont_382x:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -1875,7 +1877,7 @@ _sqr_mont_382x:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -2224,7 +2226,7 @@ __mul_mont_383_nonred:
 
 .align	5
 _sgn0_pty_mont_384:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -2269,7 +2271,7 @@ _sgn0_pty_mont_384:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 
 
@@ -2278,7 +2280,7 @@ _sgn0_pty_mont_384:
 
 .align	5
 _sgn0_pty_mont_384x:
-.long	3573752639
+	hint	#25
 	stp	x29,x30,[sp,#-16*__SIZEOF_POINTER__]!
 	add	x29,sp,#0
 	stp	x19,x20,[sp,#2*__SIZEOF_POINTER__]
@@ -2367,6 +2369,6 @@ _sgn0_pty_mont_384x:
 	ldp	x25,x26,[x29,#8*__SIZEOF_POINTER__]
 	ldp	x27,x28,[x29,#10*__SIZEOF_POINTER__]
 	ldr	x29,[sp],#16*__SIZEOF_POINTER__
-.long	3573752767
+	hint	#29
 	ret
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2022 The Bitcoin Core developers
+// Copyright (c) 2021-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -32,7 +32,7 @@ void AddLoggingArgs(ArgsManager& argsman)
         "If <category> is not supplied or if <category> is 1 or \"all\", output all debug logging. If <category> is 0 or \"none\", any other categories are ignored. Other valid values for <category> are: " + LogInstance().LogCategoriesString() + ". This option can be specified multiple times to output multiple categories.",
         ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-debugexclude=<category>", "Exclude debug and trace logging for a category. Can be used in conjunction with -debug=1 to output debug and trace logging for all categories except the specified category. This option can be specified multiple times to exclude multiple categories. This takes priority over \"-debug\"", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
-    argsman.AddArg("-logips", strprintf("Include IP addresses in debug output (default: %u)", DEFAULT_LOGIPS), ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-logips", strprintf("Include IP addresses in log output (default: %u)", DEFAULT_LOGIPS), ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-loglevel=<level>|<category>:<level>", strprintf("Set the global or per-category severity level for logging categories enabled with the -debug configuration option or the logging RPC. Possible values are %s (default=%s). The following levels are always logged: error, warning, info. If <category>:<level> is supplied, the setting will override the global one and may be specified multiple times to set multiple category-specific levels. <category> can be: %s.", LogInstance().LogLevelsString(), LogInstance().LogLevelToStr(BCLog::DEFAULT_LOG_LEVEL), LogInstance().LogCategoriesString()), ArgsManager::DISALLOW_NEGATION | ArgsManager::DISALLOW_ELISION | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-logtimestamps", strprintf("Prepend debug output with timestamp (default: %u)", DEFAULT_LOGTIMESTAMPS), ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-logthreadnames", strprintf("Prepend debug output with name of the originating thread (default: %u)", DEFAULT_LOGTHREADNAMES), ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
@@ -58,7 +58,7 @@ void SetLoggingOptions(const ArgsManager& args)
     LogInstance().m_show_evm_logs = args.GetBoolArg("-showevmlogs", DEFAULT_SHOWEVMLOGS);
     dev::g_logPost = [&](std::string const& s, char const* c){
         std::string vmFunction = c ? c : "";
-        LogInstance().LogPrintStr(s + '\n', std::source_location(), BCLog::ALL, BCLog::Level::Debug, true, true, vmFunction); 
+        LogInstance().LogPrintStr(s + '\n', SourceLocation(vmFunction.c_str()), BCLog::ALL, BCLog::Level::Debug, true, true, vmFunction); 
     };
 
     fLogIPs = args.GetBoolArg("-logips", DEFAULT_LOGIPS);
@@ -85,19 +85,19 @@ util::Result<void> SetLoggingLevel(const ArgsManager& args)
 
 util::Result<void> SetLoggingCategories(const ArgsManager& args)
 {
-        const std::vector<std::string> categories = args.GetArgs("-debug");
+    const std::vector<std::string> categories = args.GetArgs("-debug");
 
-        // Special-case: Disregard any debugging categories appearing before -debug=0/none
-        const auto last_negated = std::find_if(categories.rbegin(), categories.rend(),
-                                               [](const std::string& cat) { return cat == "0" || cat == "none"; });
+    // Special-case: Disregard any debugging categories appearing before -debug=0/none
+    const auto last_negated = std::find_if(categories.rbegin(), categories.rend(),
+                                           [](const std::string& cat) { return cat == "0" || cat == "none"; });
 
-        const auto categories_to_process = (last_negated == categories.rend()) ? categories : std::ranges::subrange(last_negated.base(), categories.end());
+    const auto categories_to_process = (last_negated == categories.rend()) ? categories : std::ranges::subrange(last_negated.base(), categories.end());
 
-        for (const auto& cat : categories_to_process) {
-            if (!LogInstance().EnableCategory(cat)) {
-                return util::Error{strprintf(_("Unsupported logging category %s=%s."), "-debug", cat)};
-            }
+    for (const auto& cat : categories_to_process) {
+        if (!LogInstance().EnableCategory(cat)) {
+            return util::Error{strprintf(_("Unsupported logging category %s=%s."), "-debug", cat)};
         }
+    }
 
     // Now remove the logging categories which were explicitly excluded
     for (const std::string& cat : args.GetArgs("-debugexclude")) {
@@ -105,6 +105,9 @@ util::Result<void> SetLoggingCategories(const ArgsManager& args)
             return util::Error{strprintf(_("Unsupported logging category %s=%s."), "-debugexclude", cat)};
         }
     }
+
+    LogInfo("Log output may contain privacy-sensitive information. Be cautious when sharing logs.");
+
     return {};
 }
 

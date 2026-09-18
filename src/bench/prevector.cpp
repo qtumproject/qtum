@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2022 The Bitcoin Core developers
+// Copyright (c) 2015-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -116,12 +116,12 @@ static void PrevectorFillVectorIndirect(benchmark::Bench& bench)
     {                                                                \
         Prevector##name<nontrivial_t>(bench);                        \
     }                                                                \
-    BENCHMARK(Prevector##name##Nontrivial, benchmark::PriorityLevel::HIGH);         \
+    BENCHMARK(Prevector##name##Nontrivial);                          \
     static void Prevector##name##Trivial(benchmark::Bench& bench)    \
     {                                                                \
         Prevector##name<trivial_t>(bench);                           \
     }                                                                \
-    BENCHMARK(Prevector##name##Trivial, benchmark::PriorityLevel::HIGH);
+    BENCHMARK(Prevector##name##Trivial);
 
 PREVECTOR_TEST(Clear)
 PREVECTOR_TEST(Destructor)
