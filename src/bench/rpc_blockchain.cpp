@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <bench/bench.h>
-#include <bench/data/block413567.raw.h>
+#include <bench/data/blockbench.raw.h>
 #include <chain.h>
 #include <consensus/params.h>
 #include <core_io.h>
@@ -32,7 +32,7 @@ struct TestBlockAndIndex {
 
     TestBlockAndIndex()
     {
-        SpanReader stream{benchmark::data::block413567};
+        SpanReader stream{benchmark::data::blockbench};
         stream >> TX_WITH_WITNESS(block);
 
         blockHash = block.GetHash();
