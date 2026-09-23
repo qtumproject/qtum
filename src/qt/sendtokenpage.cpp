@@ -1,45 +1,43 @@
 #include <qt/sendtokenpage.h>
-#include <qt/forms/ui_sendtokenpage.h>
 
-#include <qt/walletmodel.h>
-#include <qt/clientmodel.h>
-#include <qt/optionsmodel.h>
-#include <validation.h>
-#include <util/moneystr.h>
-#include <util/convert.h>
-#include <qt/token.h>
-#include <qt/bitcoinunits.h>
-#include <wallet/wallet.h>
-#include <validation.h>
-#include <qt/guiutil.h>
-#include <qt/sendcoinsdialog.h>
-#include <qt/bitcoinaddressvalidator.h>
-#include <uint256.h>
-#include <qt/styleSheet.h>
-#include <qt/hardwaresigntx.h>
 #include <interfaces/node.h>
 #include <node/interface_ui.h>
+#include <qt/bitcoinaddressvalidator.h>
+#include <qt/bitcoinunits.h>
+#include <qt/clientmodel.h>
+#include <qt/forms/ui_sendtokenpage.h>
+#include <qt/guiutil.h>
+#include <qt/hardwaresigntx.h>
+#include <qt/optionsmodel.h>
+#include <qt/sendcoinsdialog.h>
+#include <qt/styleSheet.h>
+#include <qt/token.h>
+#include <qt/walletmodel.h>
+#include <uint256.h>
+#include <util/convert.h>
+#include <util/moneystr.h>
+#include <validation.h>
+#include <wallet/wallet.h>
 
-static const CAmount SINGLE_STEP = 0.00000001*COIN;
+static const CAmount SINGLE_STEP = 0.00000001 * COIN;
 
-struct SelectedToken{
+struct SelectedToken {
     std::string address;
     std::string sender;
     std::string symbol;
     int8_t decimals;
     std::string balance;
-    SelectedToken():
-        decimals(0)
-    {}
+    SelectedToken() : decimals(0)
+    {
+    }
 };
 
-SendTokenPage::SendTokenPage(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::SendTokenPage),
-    m_model(0),
-    m_clientModel(0),
-    m_tokenABI(0),
-    m_selectedToken(0)
+SendTokenPage::SendTokenPage(QWidget* parent) : QDialog(parent),
+                                                ui(new Ui::SendTokenPage),
+                                                m_model(0),
+                                                m_clientModel(0),
+                                                m_tokenABI(0),
+                                                m_selectedToken(0)
 {
     // Setup ui components
     ui->setupUi(this);
@@ -62,7 +60,7 @@ SendTokenPage::SendTokenPage(QWidget *parent) :
 
     // Connect signals with slots
     connect(ui->lineEditPayTo, &QValidatedLineEdit::textChanged, this, &SendTokenPage::on_updateConfirmButton);
-    connect(ui->lineEditAmount, &TokenAmountField::valueChanged,this, &SendTokenPage::on_updateConfirmButton);
+    connect(ui->lineEditAmount, &TokenAmountField::valueChanged, this, &SendTokenPage::on_updateConfirmButton);
     connect(ui->confirmButton, &QPushButton::clicked, this, &SendTokenPage::on_confirmClicked);
 
     ui->lineEditPayTo->setCheckValidator(new BitcoinAddressCheckValidator(parent, true));
@@ -72,12 +70,12 @@ SendTokenPage::~SendTokenPage()
 {
     delete ui;
 
-    if(m_tokenABI)
+    if (m_tokenABI)
         delete m_tokenABI;
     m_tokenABI = 0;
 }
 
-void SendTokenPage::setModel(WalletModel *_model)
+void SendTokenPage::setModel(WalletModel* _model)
 {
     m_model = _model;
     m_tokenABI->setModel(m_model);
@@ -96,12 +94,11 @@ void SendTokenPage::setModel(WalletModel *_model)
     }
 }
 
-void SendTokenPage::setClientModel(ClientModel *_clientModel)
+void SendTokenPage::setClientModel(ClientModel* _clientModel)
 {
     m_clientModel = _clientModel;
 
-    if (m_clientModel)
-    {
+    if (m_clientModel) {
         connect(m_clientModel, SIGNAL(gasInfoChanged(quint64, quint64, quint64)), this, SLOT(on_gasInfoChanged(quint64, quint64, quint64)));
     }
 }
@@ -125,12 +122,11 @@ bool SendTokenPage::isDataValid()
 {
     bool dataValid = true;
 
-    if(!isValidAddress())
+    if (!isValidAddress())
         dataValid = false;
-    if(!ui->lineEditAmount->validate())
+    if (!ui->lineEditAmount->validate())
         dataValid = false;
-    if(ui->lineEditAmount->value(0) <= 0)
-    {
+    if (ui->lineEditAmount->value(0) <= 0) {
         ui->lineEditAmount->setValid(false);
         dataValid = false;
     }
@@ -155,8 +151,7 @@ void SendTokenPage::on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice
 void SendTokenPage::on_updateConfirmButton()
 {
     bool enabled = true;
-    if(ui->lineEditPayTo->text().isEmpty() || ui->lineEditAmount->text().isEmpty() || !isDataValid())
-    {
+    if (ui->lineEditPayTo->text().isEmpty() || ui->lineEditAmount->text().isEmpty() || !isDataValid()) {
         enabled = false;
     }
 
@@ -165,17 +160,15 @@ void SendTokenPage::on_updateConfirmButton()
 
 void SendTokenPage::on_confirmClicked()
 {
-    if(!isDataValid())
+    if (!isDataValid())
         return;
 
     WalletModel::UnlockContext ctx(m_model->requestUnlock());
-    if(!ctx.isValid())
-    {
+    if (!ctx.isValid()) {
         return;
     }
 
-    if(m_model)
-    {
+    if (m_model) {
         BitcoinUnit unit = BitcoinUnit::BTC;
         uint64_t gasLimit = ui->lineEditGasLimit->value();
         CAmount gasPrice = ui->lineEditGasPrice->value();
@@ -200,9 +193,10 @@ void SendTokenPage::on_confirmClicked()
             questionString.append(tr("Are you sure you want to send? <br /><br />"));
         }
         questionString.append(tr("<b>%1 %2 </b> to ")
-                              .arg(amountFormated).arg(QString::fromStdString(m_selectedToken->symbol)));
+                                  .arg(amountFormated)
+                                  .arg(QString::fromStdString(m_selectedToken->symbol)));
         questionString.append(tr("<br />%3 <br />")
-                              .arg(QString::fromStdString(toAddress)));
+                                  .arg(QString::fromStdString(toAddress)));
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm send token proposal.") : tr("Confirm send token.");
         const bool enable_send{!bCreateUnsigned};
@@ -210,35 +204,27 @@ void SendTokenPage::on_confirmClicked()
         SendConfirmationDialog confirmationDialog(confirmation, questionString, "", "", SEND_CONFIRM_DELAY, enable_send, always_show_unsigned, this);
         confirmationDialog.exec();
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
-        if(retval == QMessageBox::Yes || retval == QMessageBox::Save)
-        {
+        if (retval == QMessageBox::Yes || retval == QMessageBox::Save) {
             bool success;
-            if(m_tokenABI->transfer(toAddress, amountToSend, success, true))
-            {
-                if(bCreateUnsigned)
-                {
+            if (m_tokenABI->transfer(toAddress, amountToSend, success, true)) {
+                if (bCreateUnsigned) {
                     QString psbt = QString::fromStdString(m_tokenABI->getPsbt());
                     GUIUtil::setClipboard(psbt);
                     Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
-                }
-                else
-                {
+                } else {
                     bool isSent = true;
-                    if(m_model->getSignPsbtWithHwiTool())
-                    {
+                    if (m_model->getSignPsbtWithHwiTool()) {
                         QVariantMap variantMap;
                         QString psbt = QString::fromStdString(m_tokenABI->getPsbt());
-                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                        if (!HardwareSignTx::process(this, m_model, psbt, variantMap))
                             isSent = false;
-                        else
-                        {
+                        else {
                             std::string txid = variantMap["txid"].toString().toStdString();
                             m_tokenABI->setTxId(txid);
                         }
                     }
 
-                    if(isSent)
-                    {
+                    if (isSent) {
                         interfaces::TokenTx tokenTx;
                         tokenTx.contract_address = m_selectedToken->address;
                         tokenTx.sender_address = m_selectedToken->sender;
@@ -250,9 +236,7 @@ void SendTokenPage::on_confirmClicked()
                         m_model->wallet().addTokenTxEntry(tokenTx);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 QMessageBox::warning(this, tr("Send token"), QString::fromStdString(m_tokenABI->getErrorMessage()));
             }
             clearAll();
@@ -263,8 +247,7 @@ void SendTokenPage::on_confirmClicked()
 
 void SendTokenPage::updateDisplayUnit()
 {
-    if(m_model && m_model->getOptionsModel())
-    {
+    if (m_model && m_model->getOptionsModel()) {
         // Update gasPriceAmount with the current unit
         ui->lineEditGasPrice->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
     }
@@ -284,19 +267,15 @@ void SendTokenPage::setTokenData(std::string address, std::string sender, std::s
     // Convert values for different number of decimals
     dev::s256 totalSupply(balance);
     dev::s256 value(ui->lineEditAmount->value());
-    if(value != 0)
-    {
-        for(int i = 0; i < decimalDiff; i++)
-        {
+    if (value != 0) {
+        for (int i = 0; i < decimalDiff; i++) {
             value *= 10;
         }
-        for(int i = decimalDiff; i < 0; i++)
-        {
+        for (int i = decimalDiff; i < 0; i++) {
             value /= 10;
         }
     }
-    if(value > totalSupply)
-    {
+    if (value > totalSupply) {
         value = totalSupply;
     }
 
@@ -304,8 +283,7 @@ void SendTokenPage::setTokenData(std::string address, std::string sender, std::s
     ui->lineEditAmount->clear();
     ui->lineEditAmount->setDecimalUnits(decimals);
     ui->lineEditAmount->setTotalSupply(totalSupply);
-    if(value != 0)
-    {
+    if (value != 0) {
         ui->lineEditAmount->setValue(value);
     }
     ui->labelTokenBalance->setText(BitcoinUnits::formatTokenWithUnit(unit, m_selectedToken->decimals, totalSupply, false, BitcoinUnits::SeparatorStyle::ALWAYS));

@@ -1,22 +1,21 @@
 #include <qt/editcontractinfodialog.h>
-#include <qt/forms/ui_editcontractinfodialog.h>
 
 #include <qt/contracttablemodel.h>
 #include <qt/contractutil.h>
+#include <qt/forms/ui_editcontractinfodialog.h>
 #include <qt/styleSheet.h>
 
 #include <QDataWidgetMapper>
 #include <QMessageBox>
-#include <QRegularExpressionValidator>
 #include <QPushButton>
+#include <QRegularExpressionValidator>
 
-EditContractInfoDialog::EditContractInfoDialog(Mode _mode, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::EditContractInfoDialog),
-    mapper(0),
-    mode(_mode),
-    model(0),
-    m_contractABI(0)
+EditContractInfoDialog::EditContractInfoDialog(Mode _mode, QWidget* parent) : QDialog(parent),
+                                                                              ui(new Ui::EditContractInfoDialog),
+                                                                              mapper(0),
+                                                                              mode(_mode),
+                                                                              model(0),
+                                                                              m_contractABI(0)
 {
     m_contractABI = new ContractABI();
 
@@ -25,8 +24,7 @@ EditContractInfoDialog::EditContractInfoDialog(Mode _mode, QWidget *parent) :
     SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Cancel), StyleSheetNames::ButtonLight);
     SetObjectStyleSheet(ui->buttonBox->button(QDialogButtonBox::Ok), StyleSheetNames::ButtonGray);
 
-    switch(mode)
-    {
+    switch (mode) {
     case NewContractInfo:
         setWindowTitle(tr("New contract info"));
         break;
@@ -43,7 +41,7 @@ EditContractInfoDialog::EditContractInfoDialog(Mode _mode, QWidget *parent) :
     // Set contract address validator
     QRegularExpression regEx;
     regEx.setPattern(paternAddress);
-    QRegularExpressionValidator *addressValidator = new QRegularExpressionValidator(ui->addressEdit);
+    QRegularExpressionValidator* addressValidator = new QRegularExpressionValidator(ui->addressEdit);
     addressValidator->setRegularExpression(regEx);
     ui->addressEdit->setCheckValidator(addressValidator);
     ui->addressEdit->setEmptyIsValid(false);
@@ -71,18 +69,18 @@ bool EditContractInfoDialog::isDataValid()
 {
     bool dataValid = true;
 
-    if(!isValidContractAddress())
+    if (!isValidContractAddress())
         dataValid = false;
-    if(!isValidInterfaceABI())
+    if (!isValidInterfaceABI())
         dataValid = false;
 
     return dataValid;
 }
 
-void EditContractInfoDialog::setModel(ContractTableModel *_model)
+void EditContractInfoDialog::setModel(ContractTableModel* _model)
 {
     this->model = _model;
-    if(!_model)
+    if (!_model)
         return;
 
     mapper->setModel(_model);
@@ -98,23 +96,21 @@ void EditContractInfoDialog::loadRow(int row)
 
 bool EditContractInfoDialog::saveCurrentRow()
 {
-    if(!model)
+    if (!model)
         return false;
 
     model->resetEditStatus();
-    switch(mode)
-    {
+    switch (mode) {
     case NewContractInfo:
         address = model->addRow(
-                ui->labelEdit->text(),
-                ui->addressEdit->text(),
-                ui->ABIEdit->toPlainText());
-        if(!address.isEmpty())
+            ui->labelEdit->text(),
+            ui->addressEdit->text(),
+            ui->ABIEdit->toPlainText());
+        if (!address.isEmpty())
             this->ABI = ui->ABIEdit->toPlainText();
         break;
     case EditContractInfo:
-        if(mapper->submit())
-        {
+        if (mapper->submit()) {
             this->address = ui->addressEdit->text();
             this->ABI = ui->ABIEdit->toPlainText();
         }
@@ -126,15 +122,12 @@ bool EditContractInfoDialog::saveCurrentRow()
 
 void EditContractInfoDialog::accept()
 {
-    if(isDataValid())
-    {
-        if(!model)
+    if (isDataValid()) {
+        if (!model)
             return;
 
-        if(!saveCurrentRow())
-        {
-            switch(model->getEditStatus())
-            {
+        if (!saveCurrentRow()) {
+            switch (model->getEditStatus()) {
             case ContractTableModel::OK:
                 // Failed with unknown reason. Just reject.
                 break;
@@ -146,7 +139,6 @@ void EditContractInfoDialog::accept()
                                      tr("The entered address \"%1\" is already in the contract book.").arg(ui->addressEdit->text()),
                                      QMessageBox::Ok, QMessageBox::Ok);
                 break;
-
             }
             return;
         }
@@ -157,12 +149,9 @@ void EditContractInfoDialog::accept()
 void EditContractInfoDialog::on_newContractABI()
 {
     std::string json_data = ui->ABIEdit->toPlainText().toStdString();
-    if(!m_contractABI->loads(json_data))
-    {
+    if (!m_contractABI->loads(json_data)) {
         ui->ABIEdit->setIsValidManually(false);
-    }
-    else
-    {
+    } else {
         ui->ABIEdit->setIsValidManually(true);
     }
     m_contractABI->clean();
@@ -173,7 +162,7 @@ QString EditContractInfoDialog::getAddress() const
     return address;
 }
 
-void EditContractInfoDialog::setAddress(const QString &_address)
+void EditContractInfoDialog::setAddress(const QString& _address)
 {
     this->address = _address;
     ui->addressEdit->setText(_address);
@@ -184,7 +173,7 @@ QString EditContractInfoDialog::getABI() const
     return ABI;
 }
 
-void EditContractInfoDialog::setABI(const QString &_ABI)
+void EditContractInfoDialog::setABI(const QString& _ABI)
 {
     this->ABI = _ABI;
     ui->ABIEdit->setText(_ABI);

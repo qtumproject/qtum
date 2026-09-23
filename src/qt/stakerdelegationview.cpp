@@ -1,11 +1,10 @@
 #include "stakerdelegationview.h"
-
 #include <qt/bitcoinunits.h>
 #include <qt/delegationfilterproxy.h>
 #include <qt/delegationstakeritemmodel.h>
+#include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
 #include <qt/walletmodel.h>
-#include <qt/guiutil.h>
 
 #include <QComboBox>
 #include <QDateTimeEdit>
@@ -17,18 +16,17 @@
 #include <QSpinBox>
 #include <QTableView>
 
-StakerDelegationView::StakerDelegationView(QWidget *parent) :
-    QWidget(parent),
-    model(0),
-    delegationProxyModel(0),
-    delegationView(0),
-    columnResizingFixer(0)
+StakerDelegationView::StakerDelegationView(QWidget* parent) : QWidget(parent),
+                                                              model(0),
+                                                              delegationProxyModel(0),
+                                                              delegationView(0),
+                                                              columnResizingFixer(0)
 {
     // Build filter row
-    setContentsMargins(0,0,0,0);
+    setContentsMargins(0, 0, 0, 0);
 
-    QHBoxLayout *hlayout = new QHBoxLayout();
-    hlayout->setContentsMargins(0,6,0,6);
+    QHBoxLayout* hlayout = new QHBoxLayout();
+    hlayout->setContentsMargins(0, 6, 0, 6);
     hlayout->setSpacing(10);
 
     dateWidget = new QComboBox(this);
@@ -65,11 +63,11 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
 #endif
     hlayout->addWidget(amountWidget);
 
-    QVBoxLayout *vlayout = new QVBoxLayout(this);
-    vlayout->setContentsMargins(0,0,0,0);
+    QVBoxLayout* vlayout = new QVBoxLayout(this);
+    vlayout->setContentsMargins(0, 0, 0, 0);
     vlayout->setSpacing(0);
 
-    QTableView *view = new QTableView(this);
+    QTableView* view = new QTableView(this);
     vlayout->addLayout(hlayout);
     vlayout->addWidget(createDateRangeWidget());
     vlayout->addWidget(view);
@@ -87,9 +85,9 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     delegationView = view;
 
     // Actions
-    QAction *copyAddressAction = new QAction(tr("Copy address"), this);
-    QAction *copyFeeAction = new QAction(tr("Copy fee"), this);
-    QAction *copyAmount = new QAction(tr("Copy amount"), this);
+    QAction* copyAddressAction = new QAction(tr("Copy address"), this);
+    QAction* copyFeeAction = new QAction(tr("Copy fee"), this);
+    QAction* copyAmount = new QAction(tr("Copy amount"), this);
 
     contextMenu = new QMenu(delegationView);
     contextMenu->addAction(copyAddressAction);
@@ -108,12 +106,11 @@ StakerDelegationView::StakerDelegationView(QWidget *parent) :
     connect(amountWidget, SIGNAL(textChanged(QString)), this, SLOT(changedAmount()));
 }
 
-void StakerDelegationView::setModel(WalletModel *_model)
+void StakerDelegationView::setModel(WalletModel* _model)
 {
     this->model = _model;
 
-    if(_model)
-    {
+    if (_model) {
         delegationProxyModel = new DelegationFilterProxy(this);
         delegationProxyModel->setSourceModel(_model->getDelegationStakerItemModel());
         delegationProxyModel->setDynamicSortFilter(true);
@@ -138,9 +135,9 @@ void StakerDelegationView::setModel(WalletModel *_model)
     }
 }
 
-void StakerDelegationView::setSuperStakerData(const QString &staker, const int &fee)
+void StakerDelegationView::setSuperStakerData(const QString& staker, const int& fee)
 {
-    if(!delegationProxyModel)
+    if (!delegationProxyModel)
         return;
 
     delegationProxyModel->setStaker(staker);
@@ -156,13 +153,13 @@ void StakerDelegationView::setSuperStakerData(const QString &staker, const int &
     changedAmount();
 }
 
-QWidget *StakerDelegationView::createDateRangeWidget()
+QWidget* StakerDelegationView::createDateRangeWidget()
 {
     dateRangeWidget = new QFrame();
     dateRangeWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
-    dateRangeWidget->setContentsMargins(1,1,1,8);
-    QHBoxLayout *layout = new QHBoxLayout(dateRangeWidget);
-    layout->setContentsMargins(0,0,0,0);
+    dateRangeWidget->setContentsMargins(1, 1, 1, 8);
+    QHBoxLayout* layout = new QHBoxLayout(dateRangeWidget);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addSpacing(23);
     layout->addWidget(new QLabel(tr("Range:")));
 
@@ -192,7 +189,7 @@ QWidget *StakerDelegationView::createDateRangeWidget()
     return dateRangeWidget;
 }
 
-void StakerDelegationView::resizeEvent(QResizeEvent *event)
+void StakerDelegationView::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
     columnResizingFixer->stretchColumnWidth(DelegationStakerItemModel::Delegate);
@@ -200,22 +197,21 @@ void StakerDelegationView::resizeEvent(QResizeEvent *event)
 
 void StakerDelegationView::dateRangeChanged()
 {
-    if(!delegationProxyModel)
+    if (!delegationProxyModel)
         return;
     delegationProxyModel->setDateRange(
-                GUIUtil::StartOfDay(dateFrom->date()),
-                GUIUtil::StartOfDay(dateTo->date().addDays(1)));
+        GUIUtil::StartOfDay(dateFrom->date()),
+        GUIUtil::StartOfDay(dateTo->date().addDays(1)));
 }
 
-void StakerDelegationView::contextualMenu(const QPoint &point)
+void StakerDelegationView::contextualMenu(const QPoint& point)
 {
     QModelIndex index = delegationView->indexAt(point);
     QModelIndexList selection = delegationView->selectionModel()->selectedRows(0);
     if (selection.empty())
         return;
 
-    if(index.isValid())
-    {
+    if (index.isValid()) {
         contextMenu->exec(QCursor::pos());
     }
 }
@@ -237,44 +233,43 @@ void StakerDelegationView::copyAmount()
 
 void StakerDelegationView::chooseDate(int idx)
 {
-    if(!delegationProxyModel)
+    if (!delegationProxyModel)
         return;
     QDate current = QDate::currentDate();
     dateRangeWidget->setVisible(false);
-    switch(dateWidget->itemData(idx).toInt())
-    {
+    switch (dateWidget->itemData(idx).toInt()) {
     case All:
         delegationProxyModel->setDateRange(
-                    DelegationFilterProxy::MIN_DATE,
-                    DelegationFilterProxy::MAX_DATE);
+            DelegationFilterProxy::MIN_DATE,
+            DelegationFilterProxy::MAX_DATE);
         break;
     case Today:
         delegationProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(current),
-                    DelegationFilterProxy::MAX_DATE);
+            GUIUtil::StartOfDay(current),
+            DelegationFilterProxy::MAX_DATE);
         break;
     case ThisWeek: {
         // Find last Monday
-        QDate startOfWeek = current.addDays(-(current.dayOfWeek()-1));
+        QDate startOfWeek = current.addDays(-(current.dayOfWeek() - 1));
         delegationProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(startOfWeek),
-                    DelegationFilterProxy::MAX_DATE);
+            GUIUtil::StartOfDay(startOfWeek),
+            DelegationFilterProxy::MAX_DATE);
 
     } break;
     case ThisMonth:
         delegationProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)),
-                    DelegationFilterProxy::MAX_DATE);
+            GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)),
+            DelegationFilterProxy::MAX_DATE);
         break;
     case LastMonth:
         delegationProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1).addMonths(-1)),
-                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)));
+            GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1).addMonths(-1)),
+            GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)));
         break;
     case ThisYear:
         delegationProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(QDate(current.year(), 1, 1)),
-                    DelegationFilterProxy::MAX_DATE);
+            GUIUtil::StartOfDay(QDate(current.year(), 1, 1)),
+            DelegationFilterProxy::MAX_DATE);
         break;
     case Range:
         dateRangeWidget->setVisible(true);
@@ -283,16 +278,16 @@ void StakerDelegationView::chooseDate(int idx)
     }
 }
 
-void StakerDelegationView::changedPrefix(const QString &prefix)
+void StakerDelegationView::changedPrefix(const QString& prefix)
 {
-    if(!delegationProxyModel)
+    if (!delegationProxyModel)
         return;
     delegationProxyModel->setAddrPrefix(prefix);
 }
 
 void StakerDelegationView::changedFee(int fee)
 {
-    if(!delegationProxyModel)
+    if (!delegationProxyModel)
         return;
 
     delegationProxyModel->setMinFee(fee);
@@ -300,14 +295,12 @@ void StakerDelegationView::changedFee(int fee)
 
 void StakerDelegationView::changedAmount()
 {
-    if(!delegationProxyModel)
+    if (!delegationProxyModel)
         return;
     CAmount amount_parsed = 0;
     if (BitcoinUnits::parse(model->getOptionsModel()->getDisplayUnit(), amountWidget->text(), &amount_parsed)) {
         delegationProxyModel->setMinAmount(amount_parsed);
-    }
-    else
-    {
+    } else {
         delegationProxyModel->setMinAmount(0);
     }
 }

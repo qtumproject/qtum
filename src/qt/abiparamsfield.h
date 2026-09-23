@@ -1,11 +1,11 @@
 #ifndef CONTRACTFUNCTIONFIELD_H
 #define CONTRACTFUNCTIONFIELD_H
 
-#include <QWidget>
+#include <qt/contractutil.h>
+
 #include <QList>
 #include <QVBoxLayout>
-
-#include <qt/contractutil.h>
+#include <QWidget>
 
 class PlatformStyle;
 class ABIParam;
@@ -21,13 +21,13 @@ public:
      * @brief ABIParamsField Constructor
      * @param parent Parent windows of the GUI control
      */
-    explicit ABIParamsField(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit ABIParamsField(const PlatformStyle* platformStyle, QWidget* parent = 0);
 
     /**
      * @brief updateParamsField Populate the GUI control with function parameters
      * @param function Contract function interface
      */
-    void updateParamsField(const FunctionABI &function);
+    void updateParamsField(const FunctionABI& function);
 
     /**
      * @brief getParamValue Get the value of a specific parameter
@@ -49,9 +49,9 @@ Q_SIGNALS:
 public Q_SLOTS:
 
 private:
-    QVBoxLayout *m_mainLayout;
+    QVBoxLayout* m_mainLayout;
     QList<ABIParam*> m_listParams;
-    const PlatformStyle *m_platfromStyle;
+    const PlatformStyle* m_platfromStyle;
 };
 
 #endif // CONTRACTFUNCTIONFIELD_H

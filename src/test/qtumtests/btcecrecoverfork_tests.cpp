@@ -1,9 +1,10 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <script/solver.h>
 #include <chainparams.h>
+#include <script/solver.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace BtcEcrecoverTest{
+#include <boost/test/unit_test.hpp>
+
+namespace BtcEcrecoverTest {
 
 const dev::u256 GASLIMIT = dev::u256(500000);
 const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -68,15 +69,15 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("000000000000000000000000575e154116a125cee7053db093d94c6fb522144f")),
 
     // Not valid address result
-    valtype(ParseHex("0000000000000000000000000000000000000000000000000000000000000000"))
-};
+    valtype(ParseHex("0000000000000000000000000000000000000000000000000000000000000000"))};
 
 dev::bytes parseOutput(const dev::bytes& output)
 {
     return dev::bytes(output.begin() + 64, output.end());
 }
 
-void genesisLoading(){
+void genesisLoading()
+{
     const CChainParams& chainparams = Params();
     dev::eth::ChainParams cp(chainparams.EVMGenesisInfo());
     globalState->populateFrom(cp.genesisState);
@@ -84,11 +85,12 @@ void genesisLoading(){
     globalState->db().commit();
 }
 
-void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++){
+        for (size_t i = 0; i < n; i++) {
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
         globalState->setRoot(oldHashStateRoot);
@@ -99,9 +101,10 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(btcecrecoverfork_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork){
+BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork)
+{
     // Initialize
-//    initState();
+    //    initState();
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -133,9 +136,10 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_after_fork){
     BOOST_CHECK(dev::h256(output) == dev::h256(CODE[8]));
 }
 
-BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork){
+BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork)
+{
     // Initialize
-//    initState();
+    //    initState();
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -153,7 +157,7 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork){
     txBtcEcrecover.push_back(createQtumTransaction(CODE[3], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
     txBtcEcrecover.push_back(createQtumTransaction(CODE[4], 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
 
-     // Execute contracts
+    // Execute contracts
     auto result = executeBC(txBtcEcrecover, *m_node.chainman);
 
     // Check results
@@ -169,4 +173,4 @@ BOOST_AUTO_TEST_CASE(checking_btcecrecover_before_fork){
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace BtcEcrecoverTest

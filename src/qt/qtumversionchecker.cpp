@@ -1,24 +1,24 @@
 #include <qt/qtumversionchecker.h>
+
 #include <clientversion.h>
 
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include <QEventLoop>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QRegularExpression>
 #include <QRegularExpressionMatchIterator>
 #include <QTimer>
 
 #define paternVersion "qtum-([0-9]+\\.)?([0-9]+\\.)?([0-9]+)-"
 
-QtumVersionChecker::QtumVersionChecker(QObject *parent) : QObject(parent)
+QtumVersionChecker::QtumVersionChecker(QObject* parent) : QObject(parent)
 {
     currentVersion = Version(CLIENT_VERSION_MAJOR, CLIENT_VERSION_MINOR, 0);
 }
 
 QtumVersionChecker::~QtumVersionChecker()
 {
-
 }
 
 bool QtumVersionChecker::newVersionAvailable()
@@ -30,7 +30,7 @@ bool QtumVersionChecker::newVersionAvailable()
 QList<Version> QtumVersionChecker::getVersions()
 {
     QNetworkAccessManager manager;
-    QNetworkReply *response = manager.get(QNetworkRequest(QUrl(QTUM_RELEASES)));
+    QNetworkReply* response = manager.get(QNetworkRequest(QUrl(QTUM_RELEASES)));
     QTimer timer;
     timer.setSingleShot(true);
     QEventLoop event;
@@ -40,29 +40,24 @@ QList<Version> QtumVersionChecker::getVersions()
     event.exec();
 
     QList<Version> versions;
-    if(timer.isActive())
-    {
+    if (timer.isActive()) {
         timer.stop();
-        if(response->error() == QNetworkReply::NoError)
-        {
+        if (response->error() == QNetworkReply::NoError) {
             QString html = response->readAll();
 
             QRegularExpression regEx(paternVersion);
             QRegularExpressionMatchIterator regExIt = regEx.globalMatch(html);
 
-            while (regExIt.hasNext())
-            {
+            while (regExIt.hasNext()) {
                 QRegularExpressionMatch match = regExIt.next();
                 QString versionString = match.captured().mid(5, match.captured().length() - 6); // get version string in format XX.XX.XX
                 Version version(versionString);
-                if(!versions.contains(version))
-                {
+                if (!versions.contains(version)) {
                     versions.append(version);
                 }
             }
         }
-    } else
-    {
+    } else {
         // timeout
         disconnect(response, &QNetworkReply::finished, &event, &QEventLoop::quit);
         response->abort();
@@ -76,8 +71,7 @@ Version QtumVersionChecker::getMaxReleaseVersion()
     QList<Version> versions = getVersions();
     Version maxVersion;
 
-    if(!versions.isEmpty())
-    {
+    if (!versions.isEmpty()) {
         maxVersion = *std::max_element(versions.begin(), versions.end());
     }
     return maxVersion;

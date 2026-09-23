@@ -14,10 +14,10 @@ class HardwareSignTxDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HardwareSignTxDialog(const QString &tx, QWidget *parent = nullptr);
+    explicit HardwareSignTxDialog(const QString& tx, QWidget* parent = nullptr);
     ~HardwareSignTxDialog();
 
-    void setModel(WalletModel *model);
+    void setModel(WalletModel* model);
 
 private Q_SLOTS:
     void on_cancelButton_clicked();
@@ -31,7 +31,7 @@ private:
     bool importAddressesData(bool& rescan, bool& importPKH, bool& importP2SH, bool& importBech32, QString& pathPKH, QString& pathP2SH, QString& pathBech32);
 
 private:
-    Ui::HardwareSignTxDialog *ui;
+    Ui::HardwareSignTxDialog* ui;
     HardwareSignTx* d;
 };
 

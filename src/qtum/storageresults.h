@@ -1,13 +1,13 @@
-#include <uint256.h>
-#include <primitives/transaction.h>
+#include <common/system.h>
+#include <leveldb/db.h>
 #include <libethereum/State.h>
 #include <libethereum/Transaction.h>
-#include <leveldb/db.h>
-#include <common/system.h>
+#include <primitives/transaction.h>
+#include <uint256.h>
 
 using logEntriesSerialize = std::vector<std::pair<dev::Address, std::pair<dev::h256s, dev::bytes>>>;
 
-struct TransactionReceiptInfo{
+struct TransactionReceiptInfo {
     uint256 blockHash;
     uint32_t blockNumber;
     uint256 transactionHash;
@@ -28,7 +28,7 @@ struct TransactionReceiptInfo{
     std::vector<dev::Address> destructedContracts;
 };
 
-struct TransactionReceiptInfoSerialized{
+struct TransactionReceiptInfoSerialized {
     std::vector<dev::h256> blockHashes;
     std::vector<uint32_t> blockNumbers;
     std::vector<dev::h256> transactionHashes;
@@ -49,36 +49,34 @@ struct TransactionReceiptInfoSerialized{
     std::vector<std::vector<dev::h160>> destructedContracts;
 };
 
-class StorageResults{
-
+class StorageResults
+{
 public:
-
-	StorageResults(std::string const& _path);
+    StorageResults(std::string const& _path);
     ~StorageResults();
 
-	void addResult(dev::h256 hashTx, std::vector<TransactionReceiptInfo>& result);
+    void addResult(dev::h256 hashTx, std::vector<TransactionReceiptInfo>& result);
 
     void deleteResults(std::vector<CTransactionRef> const& txs);
 
     std::vector<TransactionReceiptInfo> getResult(dev::h256 const& hashTx);
 
-	void commitResults();
+    void commitResults();
 
     void clearCacheResult();
 
     void wipeResults();
 
 private:
+    bool readResult(dev::h256 const& _key, std::vector<TransactionReceiptInfo>& _result);
 
-	bool readResult(dev::h256 const& _key, std::vector<TransactionReceiptInfo>& _result);
+    logEntriesSerialize logEntriesSerialization(dev::eth::LogEntries const& _logs);
 
-	logEntriesSerialize logEntriesSerialization(dev::eth::LogEntries const& _logs);
+    dev::eth::LogEntries logEntriesDeserialize(logEntriesSerialize const& _logs);
 
-	dev::eth::LogEntries logEntriesDeserialize(logEntriesSerialize const& _logs);
-
-	std::string path;
+    std::string path;
 
     leveldb::DB* db;
 
-	std::unordered_map<dev::h256, std::vector<TransactionReceiptInfo>> m_cache_result;
+    std::unordered_map<dev::h256, std::vector<TransactionReceiptInfo>> m_cache_result;
 };

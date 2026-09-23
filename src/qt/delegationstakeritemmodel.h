@@ -2,6 +2,7 @@
 #define DELEGATIONSTAKERITEMMODEL_H
 
 #include <qt/bitcoinunits.h>
+
 #include <QAbstractItemModel>
 #include <QStringList>
 #include <QThread>
@@ -27,7 +28,7 @@ public:
         Weight = 3
     };
 
-    enum DataRole{
+    enum DataRole {
         HashRole = Qt::UserRole + 1,
         DelegateRole = Qt::UserRole + 2,
         StakerRole = Qt::UserRole + 3,
@@ -40,22 +41,22 @@ public:
         FormattedFeeRole = Qt::UserRole + 10,
     };
 
-    DelegationStakerItemModel(WalletModel *parent = 0);
+    DelegationStakerItemModel(WalletModel* parent = 0);
     ~DelegationStakerItemModel();
 
     /** @name Methods overridden from QAbstractItemModel
         @{*/
     QModelIndex index(int row, int column,
-                              const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &child) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+                      const QModelIndex& parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex& child) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     /*@}*/
 
 private Q_SLOTS:
-    void updateDelegationStakerData(const QString &hash, int status, bool showDelegationStaker);
+    void updateDelegationStakerData(const QString& hash, int status, bool showDelegationStaker);
 
 public Q_SLOTS:
     /** Updates the column title to "Amount (DisplayUnit)" and emits headerDataChanged() signal for table headers to react. */
@@ -67,11 +68,11 @@ private:
     void emitDataChanged(int index);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    QString formatWeight(const DelegationStakerItemEntry *rec, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
-    QString formatFee(const DelegationStakerItemEntry *rec) const;
+    QString formatWeight(const DelegationStakerItemEntry* rec, BitcoinUnits::SeparatorStyle separators = BitcoinUnits::SeparatorStyle::STANDARD) const;
+    QString formatFee(const DelegationStakerItemEntry* rec) const;
 
     QStringList columns;
-    WalletModel *walletModel;
+    WalletModel* walletModel;
     DelegationStakerItemPriv* priv;
     std::unique_ptr<interfaces::Handler> m_handler_delegationsstaker_changed;
 

@@ -1,20 +1,20 @@
 #ifndef QTUMPUSHBUTTON_H
 #define QTUMPUSHBUTTON_H
+#include <QIcon>
 #include <QPushButton>
 #include <QStyleOptionButton>
-#include <QIcon>
 
 class QtumPushButton : public QPushButton
 {
 public:
-    explicit QtumPushButton(QWidget * parent = Q_NULLPTR);
-    explicit QtumPushButton(const QString &text, QWidget *parent = Q_NULLPTR);
+    explicit QtumPushButton(QWidget* parent = Q_NULLPTR);
+    explicit QtumPushButton(const QString& text, QWidget* parent = Q_NULLPTR);
 
 protected:
-    void paintEvent(QPaintEvent *) Q_DECL_OVERRIDE;
+    void paintEvent(QPaintEvent*) Q_DECL_OVERRIDE;
 
 private:
-    void updateIcon(QStyleOptionButton &pushbutton);
+    void updateIcon(QStyleOptionButton& pushbutton);
 
 private:
     bool m_iconCached;

@@ -2,8 +2,8 @@
 #define HARDWAREKEYSTOREDIALOG_H
 
 #include <QDialog>
-#include <QStringList>
 #include <QString>
+#include <QStringList>
 
 namespace Ui {
 class HardwareKeystoreDialog;
@@ -24,7 +24,7 @@ public:
      * @param devices List of devices
      * @param parent Parent widget
      */
-    explicit HardwareKeystoreDialog(const QStringList& devices, QWidget *parent = 0);
+    explicit HardwareKeystoreDialog(const QStringList& devices, QWidget* parent = 0);
 
     /**
      * @brief ~HardwareKeystoreDialog Destructor
@@ -52,7 +52,7 @@ public:
      * @param parent Parent widget
      * @return true: device selected; false: device not selected
      */
-    static bool SelectDevice(QString& fingerprint, QString& errorMessage, bool& canceled, bool stake, QWidget *parent = 0);
+    static bool SelectDevice(QString& fingerprint, QString& errorMessage, bool& canceled, bool stake, QWidget* parent = 0);
 
     /**
      * @brief AskDevice Ask for hardware keystore device
@@ -62,15 +62,15 @@ public:
      * @param stake Is stake app
      * @return true: device selected; false: device not selected
      */
-    static bool AskDevice(QString& fingerprint, const QString& title, const QString& message, bool stake, QWidget *parent = 0);
+    static bool AskDevice(QString& fingerprint, const QString& title, const QString& message, bool stake, QWidget* parent = 0);
 
 private Q_SLOTS:
     void on_cancelButton_clicked();
     void on_okButton_clicked();
 
 private:
-    Ui::HardwareKeystoreDialog *ui;
-    HardwareKeystoreDialogPriv *d;
+    Ui::HardwareKeystoreDialog* ui;
+    HardwareKeystoreDialogPriv* d;
 };
 
 #endif // HARDWAREKEYSTOREDIALOG_H

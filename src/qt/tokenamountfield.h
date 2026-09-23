@@ -1,14 +1,14 @@
 #ifndef TOKENAMOUNTFIELD_H
 #define TOKENAMOUNTFIELD_H
 
-#include <QWidget>
-
 #include <libdevcore/Common.h>
+
+#include <QWidget>
 
 class TokenAmountSpinBox;
 
 /** Widget for entering token amounts.
-  */
+ */
 class TokenAmountField : public QWidget
 {
     Q_OBJECT
@@ -16,8 +16,8 @@ class TokenAmountField : public QWidget
     Q_PROPERTY(dev::s256 value READ value WRITE setValue NOTIFY valueChanged USER true)
 
 public:
-    explicit TokenAmountField(QWidget *parent = 0);
-    dev::s256 value(bool *value=0) const;
+    explicit TokenAmountField(QWidget* parent = 0);
+    dev::s256 value(bool* value = 0) const;
     void setValue(const dev::s256& value);
 
     /** Set single step **/
@@ -40,7 +40,7 @@ public:
     dev::s256 minimum() const;
     void setMinimum(const dev::s256& min);
 
-    void setTotalSupply(const dev::s256 &value);
+    void setTotalSupply(const dev::s256& value);
     void setDecimalUnits(int value);
 
     QString text() const;
@@ -50,12 +50,12 @@ Q_SIGNALS:
 
 protected:
     /** Intercept focus-in event and ',' key presses */
-    bool eventFilter(QObject *object, QEvent *event) override;
+    bool eventFilter(QObject* object, QEvent* event) override;
 
 public Q_SLOTS:
 
 private:
-    TokenAmountSpinBox *amount;
+    TokenAmountSpinBox* amount;
 };
 
 #endif // TOKENAMOUNTFIELD_H

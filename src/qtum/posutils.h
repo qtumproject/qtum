@@ -1,36 +1,35 @@
 #ifndef POSUTILS_H
 #define POSUTILS_H
 
-#include <uint256.h>
+#include <chain.h>
 #include <consensus/amount.h>
 #include <hash.h>
-#include <chain.h>
+#include <uint256.h>
 
-struct CStakeCache{
-    CStakeCache(uint32_t blockFromTime_, CAmount amount_) : blockFromTime(blockFromTime_), amount(amount_){
+struct CStakeCache {
+    CStakeCache(uint32_t blockFromTime_, CAmount amount_) : blockFromTime(blockFromTime_), amount(amount_)
+    {
     }
     uint32_t blockFromTime;
     CAmount amount;
 };
 
-struct Delegation
-{
-    Delegation():
-        fee(0),
-        blockHeight(0) {}
+struct Delegation {
+    Delegation() : fee(0),
+                   blockHeight(0) {}
 
     bool IsNull() const
     {
         return staker == uint160() &&
-                fee == 0 &&
-                blockHeight == 0 &&
-                PoD == std::vector<unsigned char>();
+               fee == 0 &&
+               blockHeight == 0 &&
+               PoD == std::vector<unsigned char>();
     }
 
     uint160 staker;
     uint8_t fee;
     uint32_t blockHeight;
-    std::vector<unsigned char> PoD; //Proof Of Delegation
+    std::vector<unsigned char> PoD; // Proof Of Delegation
 };
 
 inline bool operator==(const Delegation& lhs, const Delegation& rhs)
@@ -55,7 +54,7 @@ inline bool operator!=(const Delegation& lhs, const Delegation& rhs)
 inline uint256 ComputeStakeModifier(const CBlockIndex* pindexPrev, const uint256& kernel)
 {
     if (!pindexPrev)
-        return uint256();  // genesis block's modifier is 0
+        return uint256(); // genesis block's modifier is 0
 
     HashWriter ss;
     ss << kernel << pindexPrev->nStakeModifier;

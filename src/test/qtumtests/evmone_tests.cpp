@@ -1,9 +1,10 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <script/solver.h>
 #include <chainparams.h>
+#include <script/solver.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace EvmoneTest{
+#include <boost/test/unit_test.hpp>
+
+namespace EvmoneTest {
 
 const dev::u256 GASLIMIT = dev::u256(500000);
 const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -12,10 +13,10 @@ const std::vector<valtype> CODE = {
     // deploy contract that produce create with value exception using OP_CREATE
     valtype(ParseHex("602060006001f0600155")),
     // deploy contract that produce create with value exception using OP_CREATE2
-    valtype(ParseHex("605a604160006001f5600155"))
-};
+    valtype(ParseHex("605a604160006001f5600155"))};
 
-void genesisLoading(){
+void genesisLoading()
+{
     const CChainParams& chainparams = Params();
     int forkHeight = Params().GetConsensus().CoinbaseMaturity(0) + 499;
     dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(forkHeight));
@@ -24,11 +25,12 @@ void genesisLoading(){
     globalState->db().commit();
 }
 
-void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++){
+        for (size_t i = 0; i < n; i++) {
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
         globalState->setRoot(oldHashStateRoot);
@@ -39,7 +41,8 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(Evmone_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_create_with_value){
+BOOST_AUTO_TEST_CASE(checking_create_with_value)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -55,9 +58,8 @@ BOOST_AUTO_TEST_CASE(checking_create_with_value){
     BOOST_CHECK(result.first[0].execRes.gasUsed == GASLIMIT);
     BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::CreateWithValue);
     BOOST_CHECK(result.first[1].execRes.gasUsed == GASLIMIT);
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace EvmoneTest

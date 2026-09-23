@@ -1,12 +1,13 @@
 #ifndef EXECRPCCOMMAND_H
 #define EXECRPCCOMMAND_H
 
+#include <interfaces/node.h>
+#include <qt/walletmodel.h>
+
 #include <QObject>
 #include <QString>
 #include <QStringList>
 #include <QVariant>
-#include <interfaces/node.h>
-#include <qt/walletmodel.h>
 
 /**
  * @brief The ExecRPCCommand class Execution of RPC command line
@@ -24,7 +25,7 @@ public:
      * @param translations Translations of the fields
      * @param parent Parent object
      */
-    explicit ExecRPCCommand(const QString& command, const QStringList& mandatory, const QStringList& optional, const QMap<QString, QString>& translations, QObject *parent = 0);
+    explicit ExecRPCCommand(const QString& command, const QStringList& mandatory, const QStringList& optional, const QMap<QString, QString>& translations, QObject* parent = 0);
 
     /**
      * @brief exec Execute the RPC command
@@ -45,7 +46,7 @@ public:
      * @param paramValue Paramether valuse
      */
     static void appendParam(QMap<QString, QString>& params, const QString& paramName, const QString& paramValue);
-	
+
 private:
     QString m_command;
     QStringList m_mandatoryParams;

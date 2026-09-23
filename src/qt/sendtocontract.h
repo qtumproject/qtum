@@ -21,19 +21,19 @@ class SendToContract : public QWidget
     Q_OBJECT
 
 public:
-    explicit SendToContract(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit SendToContract(const PlatformStyle* platformStyle, QWidget* parent = 0);
     ~SendToContract();
 
-    void setClientModel(ClientModel *clientModel);
-    void setModel(WalletModel *model);
+    void setClientModel(ClientModel* clientModel);
+    void setModel(WalletModel* model);
     bool isValidContractAddress();
     bool isValidInterfaceABI();
     bool isDataValid();
-    void setContractAddress(const QString &address);
+    void setContractAddress(const QString& address);
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user
-    void message(const QString &title, const QString &message, unsigned int style);
+    void message(const QString& title, const QString& message, unsigned int style);
 
 public Q_SLOTS:
     void on_clearAllClicked();
@@ -55,7 +55,7 @@ private:
     bool isFunctionPayable();
 
 private:
-    Ui::SendToContract *ui;
+    Ui::SendToContract* ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
     ContractTableModel* m_contractModel;

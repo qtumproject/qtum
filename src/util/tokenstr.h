@@ -4,8 +4,8 @@
 #ifndef UTIL_TOKENSTR_H
 #define UTIL_TOKENSTR_H
 
-#include <libdevcore/Common.h>
 #include <attributes.h>
+#include <libdevcore/Common.h>
 
 #include <string>
 

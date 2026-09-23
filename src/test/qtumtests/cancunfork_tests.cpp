@@ -1,9 +1,10 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <qtum/qtumutils.h>
 #include <chainparams.h>
+#include <qtum/qtumutils.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace CancunTest{
+#include <boost/test/unit_test.hpp>
+
+namespace CancunTest {
 
 const dev::u256 GASLIMIT = dev::u256(500000);
 const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -110,8 +111,7 @@ const std::vector<valtype> CODE = {
 };
 
 // Codes IDs used to check that london fork is present
-enum class CodeID
-{
+enum class CodeID {
     transientStorageContract = 0,
     setMultiplier_5,
     multiply_7,
@@ -132,7 +132,8 @@ valtype getCode(CodeID id)
     return CODE[(int)id];
 }
 
-void genesisLoading(){
+void genesisLoading()
+{
     const CChainParams& chainparams = Params();
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     int forkHeight = coinbaseMaturity + 499;
@@ -150,11 +151,12 @@ void genesisLoading(){
     globalState->db().commit();
 }
 
-void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++){
+        for (size_t i = 0; i < n; i++) {
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
         globalState->setRoot(oldHashStateRoot);
@@ -165,7 +167,8 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(cancunfork_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_transient_storage_after_fork){
+BOOST_AUTO_TEST_CASE(checking_transient_storage_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -202,7 +205,8 @@ BOOST_AUTO_TEST_CASE(checking_transient_storage_after_fork){
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(0));
 }
 
-BOOST_AUTO_TEST_CASE(checking_transient_storage_before_fork){
+BOOST_AUTO_TEST_CASE(checking_transient_storage_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -223,7 +227,8 @@ BOOST_AUTO_TEST_CASE(checking_transient_storage_before_fork){
     BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::BadInstruction);
 }
 
-BOOST_AUTO_TEST_CASE(checking_blobbasefee_after_fork){
+BOOST_AUTO_TEST_CASE(checking_blobbasefee_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -245,7 +250,8 @@ BOOST_AUTO_TEST_CASE(checking_blobbasefee_after_fork){
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(0));
 }
 
-BOOST_AUTO_TEST_CASE(checking_blobbasefee_before_fork){
+BOOST_AUTO_TEST_CASE(checking_blobbasefee_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -264,7 +270,8 @@ BOOST_AUTO_TEST_CASE(checking_blobbasefee_before_fork){
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
 }
 
-BOOST_AUTO_TEST_CASE(checking_memory_copy_after_fork){
+BOOST_AUTO_TEST_CASE(checking_memory_copy_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -286,7 +293,8 @@ BOOST_AUTO_TEST_CASE(checking_memory_copy_after_fork){
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(80));
 }
 
-BOOST_AUTO_TEST_CASE(checking_memory_copy_before_fork){
+BOOST_AUTO_TEST_CASE(checking_memory_copy_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -305,7 +313,8 @@ BOOST_AUTO_TEST_CASE(checking_memory_copy_before_fork){
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
 }
 
-BOOST_AUTO_TEST_CASE(checking_blob_hash_after_fork){
+BOOST_AUTO_TEST_CASE(checking_blob_hash_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -327,7 +336,8 @@ BOOST_AUTO_TEST_CASE(checking_blob_hash_after_fork){
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(0));
 }
 
-BOOST_AUTO_TEST_CASE(checking_blob_hash_before_fork){
+BOOST_AUTO_TEST_CASE(checking_blob_hash_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -346,7 +356,8 @@ BOOST_AUTO_TEST_CASE(checking_blob_hash_before_fork){
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
 }
 
-BOOST_AUTO_TEST_CASE(checking_point_evaluation_after_fork){
+BOOST_AUTO_TEST_CASE(checking_point_evaluation_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -375,7 +386,8 @@ BOOST_AUTO_TEST_CASE(checking_point_evaluation_after_fork){
     BOOST_CHECK(result.first[1].execRes.gasUsed == 492933);
 }
 
-BOOST_AUTO_TEST_CASE(checking_point_evaluation_before_fork){
+BOOST_AUTO_TEST_CASE(checking_point_evaluation_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -408,4 +420,4 @@ BOOST_AUTO_TEST_CASE(checking_point_evaluation_before_fork){
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace CancunTest

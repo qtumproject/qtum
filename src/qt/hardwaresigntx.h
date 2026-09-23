@@ -1,11 +1,11 @@
 #ifndef HARDWARESIGNTX_H
 #define HARDWARESIGNTX_H
 
-#include <QObject>
-#include <QWidget>
-#include <QString>
 #include <QList>
+#include <QObject>
+#include <QString>
 #include <QVariantMap>
+#include <QWidget>
 class WalletModel;
 class QtumHwiTool;
 
@@ -20,7 +20,7 @@ public:
      * @brief HardwareSignTx Constructor
      * @param widget Parent object
      */
-    explicit HardwareSignTx(QWidget *widget);
+    explicit HardwareSignTx(QWidget* widget);
 
     /**
      * @brief ~HardwareSignTx Destructor
@@ -31,7 +31,7 @@ public:
      * @brief setModel Set wallet model
      * @param model Wallet model
      */
-    void setModel(WalletModel *model);
+    void setModel(WalletModel* model);
 
     /**
      * @brief setPsbt Set psbt transaction
@@ -43,7 +43,7 @@ public:
      * @brief setAddress Set address string
      * @param value Address
      */
-    void setAddress(const QString &value);
+    void setAddress(const QString& value);
 
     /**
      * @brief askDevice Ask for hardware device
@@ -90,7 +90,7 @@ public:
      * @param send Send the transaction
      * @return success of the operation
      */
-    static bool process(QWidget *widget, WalletModel *model, const QString& psbt, QVariantMap& result, bool send = true);
+    static bool process(QWidget* widget, WalletModel* model, const QString& psbt, QVariantMap& result, bool send = true);
 
     /**
      * @brief display Display address on a device
@@ -99,7 +99,7 @@ public:
      * @param address Address string
      * @return success of the operation
      */
-    static bool display(QWidget *widget, WalletModel *model, const QString& address);
+    static bool display(QWidget* widget, WalletModel* model, const QString& address);
 
     /**
      * @brief sign_message Sign message on a device
@@ -110,7 +110,7 @@ public:
      * @param signature Message signature
      * @return success of the operation
      */
-    static bool sign_message(QWidget *widget, WalletModel *model, const QString& message, const QString& path, QString& signature);
+    static bool sign_message(QWidget* widget, WalletModel* model, const QString& message, const QString& path, QString& signature);
 
 Q_SIGNALS:
 
@@ -125,7 +125,7 @@ public:
     bool complete = false;
 
 private:
-    QWidget *widget = 0;
+    QWidget* widget = 0;
 };
 
 #endif // HARDWARESIGNTX_H

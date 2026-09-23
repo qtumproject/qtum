@@ -3,8 +3,8 @@
 
 #include <qt/guiutil.h>
 
-#include <QWidget>
 #include <QKeyEvent>
+#include <QWidget>
 
 class PlatformStyle;
 class TokenFilterProxy;
@@ -22,13 +22,12 @@ class TokenTransactionView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TokenTransactionView(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit TokenTransactionView(const PlatformStyle* platformStyle, QWidget* parent = 0);
 
-    void setModel(WalletModel *model);
+    void setModel(WalletModel* model);
 
     // Date ranges for filter
-    enum DateEnum
-    {
+    enum DateEnum {
         All,
         Today,
         ThisWeek,
@@ -49,31 +48,31 @@ public:
     };
 
 private:
-    WalletModel *model;
-    TokenFilterProxy *tokenProxyModel;
-    QTableView *tokenView;
+    WalletModel* model;
+    TokenFilterProxy* tokenProxyModel;
+    QTableView* tokenView;
 
-    QComboBox *dateWidget;
-    QComboBox *typeWidget;
-    QComboBox *nameWidget;
-    QLineEdit *addressWidget;
-    QLineEdit *amountWidget;
+    QComboBox* dateWidget;
+    QComboBox* typeWidget;
+    QComboBox* nameWidget;
+    QLineEdit* addressWidget;
+    QLineEdit* amountWidget;
 
-    QMenu *contextMenu;
+    QMenu* contextMenu;
 
-    QFrame *dateRangeWidget;
-    QDateTimeEdit *dateFrom;
-    QDateTimeEdit *dateTo;
+    QFrame* dateRangeWidget;
+    QDateTimeEdit* dateFrom;
+    QDateTimeEdit* dateTo;
 
-    QWidget *createDateRangeWidget();
+    QWidget* createDateRangeWidget();
 
-    GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
+    GUIUtil::TableViewLastColumnResizingFixer* columnResizingFixer;
 
     void resizeEvent(QResizeEvent* event) override;
-    bool eventFilter(QObject *obj, QEvent *event) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
 private Q_SLOTS:
-    void contextualMenu(const QPoint &);
+    void contextualMenu(const QPoint&);
     void dateRangeChanged();
     void showDetails();
     void copyAddress();
@@ -87,8 +86,8 @@ public Q_SLOTS:
     void chooseDate(int idx);
     void chooseType(int idx);
     void chooseName(int idx);
-    void changedPrefix(const QString &prefix);
-    void changedAmount(const QString &amount);
+    void changedPrefix(const QString& prefix);
+    void changedAmount(const QString& amount);
     void addToNameWidget(const QModelIndex& parent, int start, int /*end*/);
     void removeFromNameWidget(const QModelIndex& parent, int start, int /*end*/);
     void refreshNameWidget();

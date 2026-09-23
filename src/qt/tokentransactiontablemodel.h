@@ -4,8 +4,8 @@
 #include <qt/bitcoinunits.h>
 
 #include <QAbstractTableModel>
-#include <QStringList>
 #include <QColor>
+#include <QStringList>
 
 #include <memory>
 
@@ -25,7 +25,7 @@ class TokenTransactionTableModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit TokenTransactionTableModel(const PlatformStyle *platformStyle, WalletModel *parent = 0);
+    explicit TokenTransactionTableModel(const PlatformStyle* platformStyle, WalletModel* parent = 0);
     ~TokenTransactionTableModel();
 
     enum ColumnIndex {
@@ -73,21 +73,21 @@ public:
         RawDecorationRole,
     };
 
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
+    int rowCount(const QModelIndex& parent) const override;
+    int columnCount(const QModelIndex& parent) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const override;
+    QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     bool processingQueuedTransactions() { return fProcessingQueuedTransactions; }
 
 private:
-    WalletModel *walletModel;
+    WalletModel* walletModel;
     std::unique_ptr<interfaces::Handler> m_handler_token_transaction_changed;
     std::unique_ptr<interfaces::Handler> m_handler_show_progress;
     QStringList columns;
-    TokenTransactionTablePriv *priv;
+    TokenTransactionTablePriv* priv;
     bool fProcessingQueuedTransactions;
-    const PlatformStyle *platformStyle;
+    const PlatformStyle* platformStyle;
     QColor color_unconfirmed;
     QColor color_negative;
     QColor color_bareaddress;
@@ -96,24 +96,24 @@ private:
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
 
-    QString lookupAddress(const std::string &address, const std::string &label, bool tooltip) const;
-    QVariant addressColor(const TokenTransactionRecord *wtx) const;
-    QString formatTxStatus(const TokenTransactionRecord *wtx) const;
-    QString formatTxDate(const TokenTransactionRecord *wtx) const;
-    QString formatTxType(const TokenTransactionRecord *wtx) const;
-    QString formatTxToAddress(const TokenTransactionRecord *wtx, bool tooltip) const;
-    QString formatTxTokenSymbol(const TokenTransactionRecord *wtx) const;
-    QString formatTxAmount(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
-    QString formatTxAmountWithUnit(const TokenTransactionRecord *wtx, bool showUnconfirmed=true, BitcoinUnits::SeparatorStyle separators=BitcoinUnits::SeparatorStyle::STANDARD) const;
-    QString formatTooltip(const TokenTransactionRecord *rec) const;
-    QVariant txStatusDecoration(const TokenTransactionRecord *wtx) const;
-    QVariant txAddressDecoration(const TokenTransactionRecord *wtx) const;
+    QString lookupAddress(const std::string& address, const std::string& label, bool tooltip) const;
+    QVariant addressColor(const TokenTransactionRecord* wtx) const;
+    QString formatTxStatus(const TokenTransactionRecord* wtx) const;
+    QString formatTxDate(const TokenTransactionRecord* wtx) const;
+    QString formatTxType(const TokenTransactionRecord* wtx) const;
+    QString formatTxToAddress(const TokenTransactionRecord* wtx, bool tooltip) const;
+    QString formatTxTokenSymbol(const TokenTransactionRecord* wtx) const;
+    QString formatTxAmount(const TokenTransactionRecord* wtx, bool showUnconfirmed = true, BitcoinUnits::SeparatorStyle separators = BitcoinUnits::SeparatorStyle::STANDARD) const;
+    QString formatTxAmountWithUnit(const TokenTransactionRecord* wtx, bool showUnconfirmed = true, BitcoinUnits::SeparatorStyle separators = BitcoinUnits::SeparatorStyle::STANDARD) const;
+    QString formatTooltip(const TokenTransactionRecord* rec) const;
+    QVariant txStatusDecoration(const TokenTransactionRecord* wtx) const;
+    QVariant txAddressDecoration(const TokenTransactionRecord* wtx) const;
 
 public Q_SLOTS:
     /* Notify listeners that data changed. */
     void emitDataChanged(int index);
     /* New transaction, or transaction changed status */
-    void updateTransaction(const QString &hash, int status, bool showTransaction);
+    void updateTransaction(const QString& hash, int status, bool showTransaction);
     void updateConfirmations();
     /* Needed to update fProcessingQueuedTransactions through a QueuedConnection */
     void setProcessingQueuedTransactions(bool value) { fProcessingQueuedTransactions = value; }

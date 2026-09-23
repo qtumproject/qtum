@@ -7,8 +7,7 @@
 /**
  * delegationutils Provides utility functions for qtum delegation
  */
-namespace delegationutils
-{
+namespace delegationutils {
 /**
  * @brief IsAddBytecode Quick check for if the bytecode is for addDelegation method
  * @param data Bytecode of contract
@@ -31,6 +30,6 @@ bool GetUnsignedStaker(const std::vector<unsigned char>& data, std::string& hexS
  * @return true/false
  */
 bool SetSignedStaker(std::vector<unsigned char>& data, const std::string& base64PoD);
-}
+} // namespace delegationutils
 
 #endif

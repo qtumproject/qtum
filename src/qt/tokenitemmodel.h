@@ -27,7 +27,7 @@ public:
         Balance = 2,
     };
 
-    enum DataRole{
+    enum DataRole {
         HashRole = Qt::UserRole + 1,
         AddressRole = Qt::UserRole + 2,
         NameRole = Qt::UserRole + 3,
@@ -38,19 +38,19 @@ public:
         RawBalanceRole = Qt::UserRole + 8,
     };
 
-    TokenItemModel(WalletModel *parent = 0);
+    TokenItemModel(WalletModel* parent = 0);
     ~TokenItemModel();
 
     /** @name Methods overridden from QAbstractItemModel
         @{*/
     QModelIndex index(int row, int column,
-                              const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &child) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+                      const QModelIndex& parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex& child) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     /*@}*/
-    
+
     void updateBalance(const TokenItemEntry& entry);
     void join();
 
@@ -59,7 +59,7 @@ public Q_SLOTS:
     void balanceChanged(QString hash, QString balance);
 
 private Q_SLOTS:
-    void updateToken(const QString &hash, int status, bool showToken);
+    void updateToken(const QString& hash, int status, bool showToken);
 
 private:
     /** Notify listeners that data changed. */
@@ -67,9 +67,9 @@ private:
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
 
-    Token *tokenAbi;
+    Token* tokenAbi;
     QStringList columns;
-    WalletModel *walletModel;
+    WalletModel* walletModel;
     TokenItemPriv* priv;
     TokenTxWorker* worker;
     QThread t;

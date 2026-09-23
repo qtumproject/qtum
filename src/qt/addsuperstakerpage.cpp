@@ -1,13 +1,12 @@
 #include "addsuperstakerpage.h"
 #include "qt/forms/ui_addsuperstakerpage.h"
-
 #include <qt/walletmodel.h>
+
 #include <QMessageBox>
 
-AddSuperStakerPage::AddSuperStakerPage(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::AddSuperStakerPage),
-    m_model(nullptr)
+AddSuperStakerPage::AddSuperStakerPage(QWidget* parent) : QDialog(parent),
+                                                          ui(new Ui::AddSuperStakerPage),
+                                                          m_model(nullptr)
 {
     ui->setupUi(this);
 
@@ -22,11 +21,10 @@ AddSuperStakerPage::~AddSuperStakerPage()
     delete ui;
 }
 
-void AddSuperStakerPage::setModel(WalletModel *_model)
+void AddSuperStakerPage::setModel(WalletModel* _model)
 {
     m_model = _model;
-    if(m_model)
-    {
+    if (m_model) {
         ui->lineEditStakerAddress->setWalletModel(m_model);
     }
 }
@@ -65,12 +63,10 @@ void AddSuperStakerPage::on_updateAddStakerButton()
     bool enabled = true;
     QString stakerName = ui->lineEditStakerName->text().trimmed();
     QString stakerAddress = ui->lineEditStakerAddress->currentText();
-    if(stakerName.isEmpty())
-    {
+    if (stakerName.isEmpty()) {
         enabled = false;
     }
-    if(stakerAddress.isEmpty() || !ui->lineEditStakerAddress->isValidAddress())
-    {
+    if (stakerAddress.isEmpty() || !ui->lineEditStakerAddress->isValidAddress()) {
         enabled = false;
     }
 
@@ -79,19 +75,16 @@ void AddSuperStakerPage::on_updateAddStakerButton()
 
 void AddSuperStakerPage::on_addSuperStakerButton_clicked()
 {
-    if(m_model)
-    {
+    if (m_model) {
         bool fSuperStake = m_model->wallet().getEnabledSuperStaking();
-        if(!fSuperStake)
-        {
+        if (!fSuperStake) {
             QMessageBox::information(this, tr("Super staking"), tr("Enable super staking from the option menu in order to start the super staker."));
         }
 
         QString stakerAddress = ui->lineEditStakerAddress->currentText();
 
         // Check if super staker exist in the wallet
-        if(m_model->wallet().existSuperStaker(stakerAddress.toStdString()))
-        {
+        if (m_model->wallet().existSuperStaker(stakerAddress.toStdString())) {
             QMessageBox::warning(this, tr("Super staking"), tr("The super staker address exist in the wallet list."));
             return;
         }

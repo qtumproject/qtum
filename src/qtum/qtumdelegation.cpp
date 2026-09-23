@@ -1,18 +1,19 @@
 #include <qtum/qtumdelegation.h>
+
 #include <chainparams.h>
-#include <util/contractabi.h>
-#include <util/convert.h>
-#include <validation.h>
-#include <util/signstr.h>
-#include <util/strencodings.h>
 #include <libdevcore/Common.h>
 #include <logging.h>
+#include <util/contractabi.h>
+#include <util/convert.h>
+#include <util/signstr.h>
+#include <util/strencodings.h>
+#include <validation.h>
 
 const std::string strDelegationsABI = "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_staker\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_delegate\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint8\",\"name\":\"fee\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"blockHeight\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"PoD\",\"type\":\"bytes\"}],\"name\":\"AddDelegation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_staker\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_delegate\",\"type\":\"address\"}],\"name\":\"RemoveDelegation\",\"type\":\"event\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"_staker\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"_fee\",\"type\":\"uint8\"},{\"internalType\":\"bytes\",\"name\":\"_PoD\",\"type\":\"bytes\"}],\"name\":\"addDelegation\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"delegations\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"staker\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"fee\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"blockHeight\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"PoD\",\"type\":\"bytes\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"removeDelegation\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 const ContractABI contractDelegationABI = strDelegationsABI;
 const size_t nPoDStartPosition = 131;
 
-const ContractABI &DelegationABI()
+const ContractABI& DelegationABI()
 {
     return contractDelegationABI;
 }
@@ -27,30 +28,22 @@ bool AbiOutEvent(FunctionABI* func, const std::vector<std::string>& topics, cons
 class QtumDelegationPriv
 {
 public:
-    QtumDelegationPriv():
-        m_pfDelegations(0),
-        m_pfAddDelegationEvent(0),
-        m_pfRemoveDelegationEvent(0)
+    QtumDelegationPriv() : m_pfDelegations(0),
+                           m_pfAddDelegationEvent(0),
+                           m_pfRemoveDelegationEvent(0)
     {
         // Initialize parameters
         delegationsAddress = uintToh160(Params().GetConsensus().delegationsAddress);
 
         // Get the ABI for the functions
-        for(const FunctionABI& func : contractDelegationABI.functions)
-        {
-            if(func.name == "delegations" && m_pfDelegations == 0)
-            {
+        for (const FunctionABI& func : contractDelegationABI.functions) {
+            if (func.name == "delegations" && m_pfDelegations == 0) {
                 m_pfDelegations = new FunctionABI(func);
-            }
-            else if(func.name == "AddDelegation" && m_pfAddDelegationEvent == 0)
-            {
+            } else if (func.name == "AddDelegation" && m_pfAddDelegationEvent == 0) {
                 m_pfAddDelegationEvent = new FunctionABI(func);
-            }
-            else if(func.name == "RemoveDelegation" && m_pfRemoveDelegationEvent == 0)
-            {
+            } else if (func.name == "RemoveDelegation" && m_pfRemoveDelegationEvent == 0) {
                 m_pfRemoveDelegationEvent = new FunctionABI(func);
             }
-
         }
         assert(m_pfDelegations);
         assert(m_pfAddDelegationEvent);
@@ -59,26 +52,26 @@ public:
 
     virtual ~QtumDelegationPriv()
     {
-        if(m_pfDelegations)
+        if (m_pfDelegations)
             delete m_pfDelegations;
         m_pfDelegations = 0;
 
-        if(m_pfAddDelegationEvent)
+        if (m_pfAddDelegationEvent)
             delete m_pfAddDelegationEvent;
         m_pfAddDelegationEvent = 0;
 
-        if(m_pfRemoveDelegationEvent)
+        if (m_pfRemoveDelegationEvent)
             delete m_pfRemoveDelegationEvent;
         m_pfRemoveDelegationEvent = 0;
     }
 
     bool GetDelegationEvent(const dev::eth::LogEntry& log, DelegationEvent& event) const
     {
-        if(log.address != delegationsAddress)
+        if (log.address != delegationsAddress)
             return false;
 
         std::vector<std::string> topics;
-        for(dev::h256 topic : log.topics)
+        for (dev::h256 topic : log.topics)
             topics.push_back(dev::toHex(topic));
 
         std::string data = dev::toHex(log.data);
@@ -93,59 +86,42 @@ public:
         FunctionABI* func = m_pfRemoveDelegationEvent;
         DelegationType type = DelegationType::DELEGATION_REMOVE;
         bool ret = AbiOutEvent(func, topics, data, values);
-        if(!ret)
-        {
+        if (!ret) {
             func = m_pfAddDelegationEvent;
             type = DelegationType::DELEGATION_ADD;
             ret = AbiOutEvent(func, topics, data, values);
         }
-        if(!ret)
-        {
+        if (!ret) {
             return false;
         }
 
 
         // Parse the values of the input parameters for delegation event
-        try
-        {
-            for(size_t i = 0; i < values.size(); i++)
-            {
+        try {
+            for (size_t i = 0; i < values.size(); i++) {
                 std::vector<std::string> value = values[i];
-                if(value.size() < 1) {
+                if (value.size() < 1) {
                     LogError("Failed to get delegation output value");
                     return false;
                 }
 
                 std::string name = func->inputs[i].name;
-                if(name == "_staker")
-                {
+                if (name == "_staker") {
                     event.item.staker = uint160(ParseHex(value[0]));
-                }
-                else if(name == "_delegate")
-                {
+                } else if (name == "_delegate") {
                     event.item.delegate = uint160(ParseHex(value[0]));
-                }
-                else if(name == "fee")
-                {
+                } else if (name == "fee") {
                     event.item.fee = (uint8_t)atoi64(value[0]);
-                }
-                else if(name == "blockHeight")
-                {
+                } else if (name == "blockHeight") {
                     event.item.blockHeight = (uint32_t)atoi64(value[0]);
-                }
-                else if(name == "PoD")
-                {
+                } else if (name == "PoD") {
                     event.item.PoD = ParseHex(value[0]);
-                }
-                else
-                {
+                } else {
                     LogError("Invalid delegation event input name");
                     return false;
                 }
             }
-        }
-        catch(...)
-        {
+        } catch (...) {
             LogError("Parsing failed for delegation event inputs");
             return false;
         }
@@ -160,29 +136,28 @@ public:
     dev::Address delegationsAddress;
 };
 
-QtumDelegation::QtumDelegation():
-    priv(0)
+QtumDelegation::QtumDelegation() : priv(0)
 {
     priv = new QtumDelegationPriv();
 }
 
 QtumDelegation::~QtumDelegation()
 {
-    if(priv)
+    if (priv)
         delete priv;
     priv = 0;
 }
 
-bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegation, Chainstate& chainstate) const
+bool QtumDelegation::GetDelegation(const uint160& address, Delegation& delegation, Chainstate& chainstate) const
 {
     // Contract exist check
-    if(!ExistDelegationContract()) {
+    if (!ExistDelegationContract()) {
         LogError("Delegation contract address does not exist");
         return false;
     }
 
     // Get delegation ABI check
-    if(!priv->m_pfDelegations) {
+    if (!priv->m_pfDelegations) {
         LogError("Get delegation ABI does not exist");
         return false;
     }
@@ -194,7 +169,7 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
     inputValues.push_back(paramAddress);
     std::vector<ParameterABI::ErrorType> inputErrors;
     std::string inputData;
-    if(!priv->m_pfDelegations->abiIn(inputValues, inputData, inputErrors)) {
+    if (!priv->m_pfDelegations->abiIn(inputValues, inputData, inputErrors)) {
         LogError("Failed to serialize get delegation input parameters");
         return false;
     }
@@ -205,7 +180,7 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
         LOCK(cs_main);
         execResults = CallContract(priv->delegationsAddress, ParseHex(inputData), chainstate);
     }
-    if(execResults.size() < 1) {
+    if (execResults.size() < 1) {
         LogError("Failed to CallContract to get delegation for address");
         return false;
     }
@@ -214,54 +189,41 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
     std::string outputData = HexStr(execResults[0].execRes.output);
     std::vector<std::vector<std::string>> outputValues;
     std::vector<ParameterABI::ErrorType> outputErrors;
-    if(!priv->m_pfDelegations->abiOut(outputData, outputValues, outputErrors)) {
+    if (!priv->m_pfDelegations->abiOut(outputData, outputValues, outputErrors)) {
         LogError("Failed to deserialize get delegation output parameters");
         return false;
     }
 
     // Output parameters size check
-    if(outputValues.size() != priv->m_pfDelegations->outputs.size()) {
+    if (outputValues.size() != priv->m_pfDelegations->outputs.size()) {
         LogError("Failed to deserialize get delegation outputs, size doesn't match");
         return false;
     }
 
     // Parse the values of the output parameters for get delegation
-    try
-    {
-        for(size_t i = 0; i < outputValues.size(); i++)
-        {
+    try {
+        for (size_t i = 0; i < outputValues.size(); i++) {
             std::vector<std::string> value = outputValues[i];
-            if(value.size() < 1) {
+            if (value.size() < 1) {
                 LogError("Failed to get delegation output value");
                 return false;
             }
 
             std::string name = priv->m_pfDelegations->outputs[i].name;
-            if(name == "staker")
-            {
+            if (name == "staker") {
                 delegation.staker = uint160(ParseHex(value[0]));
-            }
-            else if(name == "fee")
-            {
+            } else if (name == "fee") {
                 delegation.fee = (uint8_t)atoi64(value[0]);
-            }
-            else if(name == "blockHeight")
-            {
+            } else if (name == "blockHeight") {
                 delegation.blockHeight = (uint32_t)atoi64(value[0]);
-            }
-            else if(name == "PoD")
-            {
+            } else if (name == "PoD") {
                 delegation.PoD = ParseHex(value[0]);
-            }
-            else
-            {
+            } else {
                 LogError("Invalid get delegation output name");
                 return false;
             }
         }
-    }
-    catch(...)
-    {
+    } catch (...) {
         LogError("Parsing failed for get delegation outputs");
         return false;
     }
@@ -269,36 +231,36 @@ bool QtumDelegation::GetDelegation(const uint160 &address, Delegation &delegatio
     return true;
 }
 
-bool QtumDelegation::VerifyDelegation(const uint160 &address, const Delegation &delegation)
+bool QtumDelegation::VerifyDelegation(const uint160& address, const Delegation& delegation)
 {
-    if(address == uint160() || delegation.IsNull() || delegation.fee > 100)
+    if (address == uint160() || delegation.IsNull() || delegation.fee > 100)
         return false;
 
     return SignStr::VerifyMessage(CKeyID(address), delegation.staker.GetReverseHex(), delegation.PoD);
 }
 
-bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events, const IDelegationFilter &filter, ChainstateManager &chainman, int fromBlock, int toBlock, int minconf) const
+bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent>& events, const IDelegationFilter& filter, ChainstateManager& chainman, int fromBlock, int toBlock, int minconf) const
 {
     // Check if log events are enabled
-    if(!fLogEvents) {
+    if (!fLogEvents) {
         LogError("Events indexing disabled");
         return false;
     }
 
     // Contract exist check
-    if(!ExistDelegationContract()) {
+    if (!ExistDelegationContract()) {
         LogError("Delegation contract address does not exist");
         return false;
     }
 
     // Add delegation event ABI check
-    if(!priv->m_pfAddDelegationEvent) {
+    if (!priv->m_pfAddDelegationEvent) {
         LogError("Add delegation event ABI does not exist");
         return false;
     }
 
     // Remove delegation event ABI check
-    if(!priv->m_pfRemoveDelegationEvent) {
+    if (!priv->m_pfRemoveDelegationEvent) {
         LogError("Remove delegation ABI does not exist");
         return false;
     }
@@ -317,27 +279,22 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
 
     // Search for delegation events
     std::set<uint256> dupes;
-    for(const auto& hashesTx : hashesToBlock)
-    {
-        for(const auto& e : hashesTx)
-        {
-
-            if(dupes.find(e) != dupes.end()) {
+    for (const auto& hashesTx : hashesToBlock) {
+        for (const auto& e : hashesTx) {
+            if (dupes.find(e) != dupes.end()) {
                 continue;
             }
             dupes.insert(e);
 
             std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(uintToh256(e));
-            for(const auto& receipt : receipts) {
-                if(receipt.logs.empty()) {
+            for (const auto& receipt : receipts) {
+                if (receipt.logs.empty()) {
                     continue;
                 }
 
-                for(const dev::eth::LogEntry& log : receipt.logs)
-                {
+                for (const dev::eth::LogEntry& log : receipt.logs) {
                     DelegationEvent event;
-                    if(priv->GetDelegationEvent(log, event) && filter.Match(event))
-                    {
+                    if (priv->GetDelegationEvent(log, event) && filter.Match(event)) {
                         events.push_back(event);
                     }
                 }
@@ -348,28 +305,25 @@ bool QtumDelegation::FilterDelegationEvents(std::vector<DelegationEvent> &events
     return true;
 }
 
-std::map<uint160, Delegation> QtumDelegation::DelegationsFromEvents(const std::vector<DelegationEvent> &events)
+std::map<uint160, Delegation> QtumDelegation::DelegationsFromEvents(const std::vector<DelegationEvent>& events)
 {
     std::map<uint160, Delegation> delegations;
     UpdateDelegationsFromEvents(events, delegations);
     return delegations;
 }
 
-void QtumDelegation::UpdateDelegationsFromEvents(const std::vector<DelegationEvent> &events, std::map<uint160, Delegation> &delegations)
+void QtumDelegation::UpdateDelegationsFromEvents(const std::vector<DelegationEvent>& events, std::map<uint160, Delegation>& delegations)
 {
-    for(const DelegationEvent& event : events)
-    {
+    for (const DelegationEvent& event : events) {
         switch (event.type) {
-        case DELEGATION_ADD:
-        {
+        case DELEGATION_ADD: {
             delegations[event.item.delegate] = event.item;
             break;
         }
-        case DELEGATION_REMOVE:
-        {
+        case DELEGATION_REMOVE: {
             auto it = delegations.find(event.item.delegate);
             if (it != delegations.end())
-              delegations.erase (it);
+                delegations.erase(it);
             break;
         }
         default:
@@ -390,42 +344,33 @@ std::string QtumDelegation::BytecodeRemove()
     return DelegationABI()["removeDelegation"].selector();
 }
 
-bool QtumDelegation::BytecodeAdd(const std::string &hexStaker, const int &fee, const std::vector<unsigned char> &PoD, std::string &datahex, std::string &errorMessage)
+bool QtumDelegation::BytecodeAdd(const std::string& hexStaker, const int& fee, const std::vector<unsigned char>& PoD, std::string& datahex, std::string& errorMessage)
 {
     FunctionABI func = DelegationABI()["addDelegation"];
     std::vector<std::vector<std::string>> values;
     std::vector<ParameterABI::ErrorType> errors;
 
-    for(size_t i = 0; i < func.inputs.size(); i++)
-    {
+    for (size_t i = 0; i < func.inputs.size(); i++) {
         std::string name = func.inputs[i].name;
-        if(name == "_staker")
-        {
+        if (name == "_staker") {
             std::vector<std::string> value;
             value.push_back(hexStaker);
             values.push_back(value);
-        }
-        else if(name == "_fee")
-        {
+        } else if (name == "_fee") {
             std::vector<std::string> value;
             value.push_back(i64tostr(fee));
             values.push_back(value);
-        }
-        else if(name == "_PoD")
-        {
+        } else if (name == "_PoD") {
             std::vector<std::string> value;
             value.push_back(HexStr(PoD));
             values.push_back(value);
-        }
-        else
-        {
+        } else {
             errorMessage = "Invalid add delegation input name";
             return false;
         }
     }
 
-    if(!func.abiIn(values, datahex, errors))
-    {
+    if (!func.abiIn(values, datahex, errors)) {
         errorMessage = "Fail to serialize data for add delegation";
         return false;
     }
@@ -433,20 +378,20 @@ bool QtumDelegation::BytecodeAdd(const std::string &hexStaker, const int &fee, c
     return true;
 }
 
-bool QtumDelegation::IsAddBytecode(const std::vector<unsigned char> &data)
+bool QtumDelegation::IsAddBytecode(const std::vector<unsigned char>& data)
 {
     // Quick check for is set delegate address
     size_t size = data.size();
-    if(size < 228)
+    if (size < 228)
         return false;
-    if(data[0] != 76 || data[1] != 14 || data[2] != 150 || data[3] != 140 || data[nPoDStartPosition] != CPubKey::COMPACT_SIGNATURE_SIZE)
+    if (data[0] != 76 || data[1] != 14 || data[2] != 150 || data[3] != 140 || data[nPoDStartPosition] != CPubKey::COMPACT_SIGNATURE_SIZE)
         return false;
     return true;
 }
 
-bool QtumDelegation::GetUnsignedStaker(const std::vector<unsigned char> &data, std::string &hexStaker)
+bool QtumDelegation::GetUnsignedStaker(const std::vector<unsigned char>& data, std::string& hexStaker)
 {
-    if(!IsAddBytecode(data))
+    if (!IsAddBytecode(data))
         return false;
 
     // Init variables
@@ -461,22 +406,17 @@ bool QtumDelegation::GetUnsignedStaker(const std::vector<unsigned char> &data, s
     strRemain.reserve(remainSize);
 
     // Get unsigned staker address from PoD
-    for(size_t i = from; i < to; i++)
-    {
+    for (size_t i = from; i < to; i++) {
         char c = (char)data[i];
-        if(strStaker.size() < stakerSize)
-        {
+        if (strStaker.size() < stakerSize) {
             strStaker.push_back(c);
-        }
-        else
-        {
+        } else {
             strRemain.push_back(c);
         }
     }
 
     // Check formatting
-    if(IsHex(strStaker) && !IsHex(strRemain))
-    {
+    if (IsHex(strStaker) && !IsHex(strRemain)) {
         hexStaker = strStaker;
         return true;
     }
@@ -484,22 +424,20 @@ bool QtumDelegation::GetUnsignedStaker(const std::vector<unsigned char> &data, s
     return false;
 }
 
-bool QtumDelegation::SetSignedStaker(std::vector<unsigned char> &data, const std::string &base64PoD)
+bool QtumDelegation::SetSignedStaker(std::vector<unsigned char>& data, const std::string& base64PoD)
 {
-    if(!IsAddBytecode(data))
+    if (!IsAddBytecode(data))
         return false;
 
     std::vector<unsigned char> strPoD;
-    if(auto decodePoD = DecodeBase64(base64PoD))
-    {
+    if (auto decodePoD = DecodeBase64(base64PoD)) {
         strPoD = *decodePoD;
     }
-    if(strPoD.size() < CPubKey::COMPACT_SIGNATURE_SIZE)
+    if (strPoD.size() < CPubKey::COMPACT_SIGNATURE_SIZE)
         return false;
 
     size_t offset = nPoDStartPosition + 1;
-    for(size_t i = 0; i < CPubKey::COMPACT_SIGNATURE_SIZE; i++)
-    {
+    for (size_t i = 0; i < CPubKey::COMPACT_SIGNATURE_SIZE; i++) {
         data[offset + i] = strPoD[i];
     }
 

@@ -19,29 +19,29 @@ class ContractBookPage : public QDialog
     Q_OBJECT
 
 public:
-    explicit ContractBookPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit ContractBookPage(const PlatformStyle* platformStyle, QWidget* parent = 0);
     ~ContractBookPage();
 
     enum ColumnWidths {
-            LABEL_COLUMN_WIDTH = 180,
-            ADDRESS_COLUMN_WIDTH = 380,
-        };
+        LABEL_COLUMN_WIDTH = 180,
+        ADDRESS_COLUMN_WIDTH = 380,
+    };
 
-    void setModel(ContractTableModel *model);
-    const QString &getAddressValue() const { return addressValue; }
-    const QString &getABIValue() const { return ABIValue; }
+    void setModel(ContractTableModel* model);
+    const QString& getAddressValue() const { return addressValue; }
+    const QString& getABIValue() const { return ABIValue; }
 
 
 public Q_SLOTS:
     void done(int retval) override;
 
 private:
-    Ui::ContractBookPage *ui;
-    ContractTableModel *model;
+    Ui::ContractBookPage* ui;
+    ContractTableModel* model;
     QString addressValue;
     QString ABIValue;
-    QSortFilterProxyModel *proxyModel;
-    QMenu *contextMenu;
+    QSortFilterProxyModel* proxyModel;
+    QMenu* contextMenu;
     QString newContractInfoToSelect;
 
 private Q_SLOTS:
@@ -63,10 +63,9 @@ private Q_SLOTS:
     /** Set button states based on selection */
     void selectionChanged();
     /** Spawn contextual menu (right mouse menu) for contract info book entry */
-    void contextualMenu(const QPoint &point);
+    void contextualMenu(const QPoint& point);
     /** New entry/entries were added to contract info table */
-    void selectNewContractInfo(const QModelIndex &parent, int begin, int /*end*/);
-
+    void selectNewContractInfo(const QModelIndex& parent, int begin, int /*end*/);
 };
 
 #endif // CONTRACTBOOKPAGE_H

@@ -6,9 +6,9 @@
 #define QTUM_THREAD_PRIORITY_H
 
 #ifndef WIN32
-#include <sys/types.h>
-#include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/time.h>
+#include <sys/types.h>
 #else
 #include <windows.h>
 #endif
@@ -17,18 +17,17 @@
 inline void SetThreadPriority(int nPriority)
 {
     HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, GetCurrentThreadId());
-    if (hThread != NULL)
-    {
+    if (hThread != NULL) {
         ::SetThreadPriority(hThread, nPriority);
         CloseHandle(hThread);
     }
 }
 #else
 
-#define THREAD_PRIORITY_LOWEST          PRIO_MAX
-#define THREAD_PRIORITY_BELOW_NORMAL    2
-#define THREAD_PRIORITY_NORMAL          0
-#define THREAD_PRIORITY_ABOVE_NORMAL    0
+#define THREAD_PRIORITY_LOWEST PRIO_MAX
+#define THREAD_PRIORITY_BELOW_NORMAL 2
+#define THREAD_PRIORITY_NORMAL 0
+#define THREAD_PRIORITY_ABOVE_NORMAL 0
 
 inline void SetThreadPriority(int nPriority)
 {

@@ -1,8 +1,9 @@
 #include <rpc/contract_util.h>
-#include <rpc/util.h>
+
 #include <common/system.h>
 #include <key_io.h>
 #include <rpc/server.h>
+#include <rpc/util.h>
 #include <txdb.h>
 
 UniValue executionResultToJSON(const dev::eth::ExecutionResult& exRes)
@@ -44,11 +45,11 @@ UniValue transactionReceiptToJSON(const QtumTransactionReceipt& txRec)
     result.pushKV("destructedContracts", destructedContracts);
     UniValue logEntries(UniValue::VARR);
     dev::eth::LogEntries logs = txRec.log();
-    for(dev::eth::LogEntry log : logs){
+    for (dev::eth::LogEntry log : logs) {
         UniValue logEntrie(UniValue::VOBJ);
         logEntrie.pushKV("address", log.address.hex());
         UniValue topics(UniValue::VARR);
-        for(dev::h256 l : log.topics){
+        for (dev::h256 l : log.topics) {
             topics.push_back(l.hex());
         }
         logEntrie.pushKV("topics", topics);
@@ -59,7 +60,7 @@ UniValue transactionReceiptToJSON(const QtumTransactionReceipt& txRec)
     return result;
 }
 
-UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
+UniValue CallToContract(const UniValue& params, ChainstateManager& chainman)
 {
     LOCK(cs_main);
 
@@ -67,27 +68,26 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
     std::string strAddr = params[0].get_str();
     std::string data = params[1].get_str();
 
-    if(data.size() % 2 != 0 || !CheckHex(data))
+    if (data.size() % 2 != 0 || !CheckHex(data))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
 
     dev::Address senderAddress;
-    if(!params[2].isNull()){
+    if (!params[2].isNull()) {
         CTxDestination qtumSenderAddress = DecodeDestination(params[2].get_str());
         if (IsValidDestination(qtumSenderAddress)) {
             PKHash keyid = std::get<PKHash>(qtumSenderAddress);
-            senderAddress = dev::Address(HexStr(valtype(keyid.begin(),keyid.end())));
-        }else{
+            senderAddress = dev::Address(HexStr(valtype(keyid.begin(), keyid.end())));
+        } else {
             senderAddress = dev::Address(params[2].get_str());
         }
-
     }
-    uint64_t gasLimit=0;
-    if(!params[3].isNull()){
+    uint64_t gasLimit = 0;
+    if (!params[3].isNull()) {
         gasLimit = params[3].getInt<int64_t>();
     }
 
     CAmount nAmount = 0;
-    if (!params[4].isNull()){
+    if (!params[4].isNull()) {
         nAmount = AmountFromValue(params[4]);
         if (nAmount < 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
@@ -121,7 +121,7 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
 
     std::vector<ResultExecute> execResults = CallContract(addrAccount, ParseHex(data), chainman.ActiveChainstate(), blockNum, senderAddress, gasLimit, nAmount);
 
-    if(fRecordLogOpcodes){
+    if (fRecordLogOpcodes) {
         writeVMlog(execResults, chainman.ActiveChain());
     }
 
@@ -133,7 +133,8 @@ UniValue CallToContract(const UniValue& params, ChainstateManager &chainman)
     return result;
 }
 
-void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
+void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec)
+{
     entry.pushKV("blockHash", resExec.blockHash.GetHex());
     entry.pushKV("blockNumber", uint64_t(resExec.blockNumber));
     entry.pushKV("transactionHash", resExec.transactionHash.GetHex());
@@ -146,7 +147,7 @@ void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
     entry.pushKV("contractAddress", resExec.contractAddress.hex());
     std::stringstream ss;
     ss << resExec.excepted;
-    entry.pushKV("excepted",ss.str());
+    entry.pushKV("excepted", ss.str());
     entry.pushKV("exceptedMessage", resExec.exceptedMessage);
     entry.pushKV("bloom", resExec.bloom.hex());
     entry.pushKV("stateRoot", resExec.stateRoot.hex());
@@ -167,7 +168,8 @@ void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
 }
 
 void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
-        bool includeAddress) {
+                bool includeAddress)
+{
     if (includeAddress) {
         logEntry.pushKV("address", log.address.hex());
     }
@@ -180,12 +182,13 @@ void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
     logEntry.pushKV("data", HexStr(log.data));
 }
 
-void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValue& entry) {
+void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValue& entry)
+{
     assignJSON(entry, resExec);
 
     const auto& logs = resExec.logs;
     UniValue logEntries(UniValue::VARR);
-    for(const auto&log : logs){
+    for (const auto& log : logs) {
         UniValue logEntry(UniValue::VOBJ);
         assignJSON(logEntry, log, true);
         logEntries.push_back(logEntry);
@@ -193,7 +196,8 @@ void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValu
     entry.pushKV("log", logEntries);
 }
 
-size_t parseUInt(const UniValue& val, size_t defaultVal) {
+size_t parseUInt(const UniValue& val, size_t defaultVal)
+{
     if (val.isNull()) {
         return defaultVal;
     } else {
@@ -206,7 +210,8 @@ size_t parseUInt(const UniValue& val, size_t defaultVal) {
     }
 }
 
-int parseBlockHeight(const UniValue& val, int numBlocks) {
+int parseBlockHeight(const UniValue& val, int numBlocks)
+{
     if (val.isStr()) {
         auto blockKey = val.get_str();
 
@@ -230,7 +235,8 @@ int parseBlockHeight(const UniValue& val, int numBlocks) {
     throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
 }
 
-int parseBlockHeight(const UniValue& val, int defaultVal, int numBlocks) {
+int parseBlockHeight(const UniValue& val, int defaultVal, int numBlocks)
+{
     if (val.isNull()) {
         return defaultVal;
     } else {
@@ -238,7 +244,8 @@ int parseBlockHeight(const UniValue& val, int defaultVal, int numBlocks) {
     }
 }
 
-dev::h160 parseParamH160(const UniValue& val) {
+dev::h160 parseParamH160(const UniValue& val)
+{
     if (!val.isStr()) {
         throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160");
     }
@@ -251,7 +258,8 @@ dev::h160 parseParamH160(const UniValue& val) {
     return dev::h160(addrStr);
 }
 
-void parseParam(const UniValue& val, std::vector<dev::h160> &h160s) {
+void parseParam(const UniValue& val, std::vector<dev::h160>& h160s)
+{
     if (val.isNull()) {
         return;
     }
@@ -274,13 +282,15 @@ void parseParam(const UniValue& val, std::vector<dev::h160> &h160s) {
     });
 }
 
-void parseParam(const UniValue& val, std::set<dev::h160> &h160s) {
+void parseParam(const UniValue& val, std::set<dev::h160>& h160s)
+{
     std::vector<dev::h160> v;
     parseParam(val, v);
     h160s.insert(v.begin(), v.end());
 }
 
-void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h256s) {
+void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>>& h256s)
+{
     if (val.isNull()) {
         return;
     }
@@ -311,7 +321,8 @@ void parseParam(const UniValue& val, std::vector<boost::optional<dev::h256>> &h2
     });
 }
 
-class SearchLogsParams {
+class SearchLogsParams
+{
 public:
     size_t fromBlock;
     size_t toBlock;
@@ -321,7 +332,8 @@ public:
     std::set<dev::h160> addresses;
     std::vector<boost::optional<dev::h256>> topics;
 
-    SearchLogsParams(const UniValue& params, int height) {
+    SearchLogsParams(const UniValue& params, int height)
+    {
         numBlocks = height;
 
         setFromBlock(params[0]);
@@ -334,7 +346,8 @@ public:
     }
 
 private:
-    void setFromBlock(const UniValue& val) {
+    void setFromBlock(const UniValue& val)
+    {
         if (!val.isNull()) {
             fromBlock = parseBlockHeight(val, numBlocks);
         } else {
@@ -342,19 +355,19 @@ private:
         }
     }
 
-    void setToBlock(const UniValue& val) {
+    void setToBlock(const UniValue& val)
+    {
         if (!val.isNull()) {
             toBlock = parseBlockHeight(val, numBlocks);
         } else {
             toBlock = numBlocks;
         }
     }
-
 };
 
-UniValue SearchLogs(const UniValue& _params, ChainstateManager &chainman)
+UniValue SearchLogs(const UniValue& _params, ChainstateManager& chainman)
 {
-    if(!fLogEvents)
+    if (!fLogEvents)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
 
     int curheight = 0;
@@ -377,20 +390,17 @@ UniValue SearchLogs(const UniValue& _params, ChainstateManager &chainman)
 
     std::set<uint256> dupes;
 
-    for(const auto& hashesTx : hashesToBlock)
-    {
-        for(const auto& e : hashesTx)
-        {
-
-            if(dupes.find(e) != dupes.end()) {
+    for (const auto& hashesTx : hashesToBlock) {
+        for (const auto& e : hashesTx) {
+            if (dupes.find(e) != dupes.end()) {
                 continue;
             }
             dupes.insert(e);
 
             std::vector<TransactionReceiptInfo> receipts = pstorageresult->getResult(uintToh256(e));
 
-            for(const auto& receipt : receipts) {
-                if(receipt.logs.empty()) {
+            for (const auto& receipt : receipts) {
+                if (receipt.logs.empty()) {
                     continue;
                 }
 
@@ -402,7 +412,7 @@ UniValue SearchLogs(const UniValue& _params, ChainstateManager &chainman)
                             continue;
                         }
 
-                        for (const auto& log: receipt.logs) {
+                        for (const auto& log : receipt.logs) {
                             auto filterTopicContent = tc.get();
 
                             if (i >= log.topics.size()) {
@@ -431,82 +441,76 @@ UniValue SearchLogs(const UniValue& _params, ChainstateManager &chainman)
     return result;
 }
 
-CallToken::CallToken(ChainstateManager &_chainman):
-    chainman(_chainman)
+CallToken::CallToken(ChainstateManager& _chainman) : chainman(_chainman)
 {
     setQtumTokenExec(this);
 }
 
-bool CallToken::execValid(const int &func, const bool &sendTo)
+bool CallToken::execValid(const int& func, const bool& sendTo)
 {
-    if(func == -1 || sendTo)
+    if (func == -1 || sendTo)
         return false;
     return true;
 }
 
-bool CallToken::execEventsValid(const int &func, const int64_t &fromBlock)
+bool CallToken::execEventsValid(const int& func, const int64_t& fromBlock)
 {
-    if(func == -1 || fromBlock < 0)
+    if (func == -1 || fromBlock < 0)
         return false;
     return true;
 }
 
-bool CallToken::exec(const bool &sendTo, const std::map<std::string, std::string> &lstParams, std::string &result, std::string &)
+bool CallToken::exec(const bool& sendTo, const std::map<std::string, std::string>& lstParams, std::string& result, std::string&)
 {
-    if(sendTo)
+    if (sendTo)
         return false;
 
     UniValue params(UniValue::VARR);
 
     // Set address
     auto it = lstParams.find(paramAddress());
-    if(it != lstParams.end())
+    if (it != lstParams.end())
         params.push_back(it->second);
     else
         return false;
 
     // Set data
     it = lstParams.find(paramDatahex());
-    if(it != lstParams.end())
+    if (it != lstParams.end())
         params.push_back(it->second);
     else
         return false;
 
     // Set sender
     it = lstParams.find(paramSender());
-    if(it != lstParams.end())
-    {
-        if(params.size() == 2)
+    if (it != lstParams.end()) {
+        if (params.size() == 2)
             params.push_back(it->second);
         else
             return false;
     }
 
     // Set gas limit
-    if(checkGasForCall)
-    {
+    if (checkGasForCall) {
         it = lstParams.find(paramGasLimit());
-        if(it != lstParams.end())
-        {
-            if(params.size() == 3)
-            {
+        if (it != lstParams.end()) {
+            if (params.size() == 3) {
                 UniValue param(UniValue::VNUM);
                 param.setInt(atoi64(it->second));
                 params.push_back(param);
-            }
-            else
+            } else
                 return false;
         }
     }
 
     // Get execution result
     UniValue response = CallToContract(params, chainman);
-    if(!response.isObject() || !response.exists("executionResult"))
+    if (!response.isObject() || !response.exists("executionResult"))
         return false;
     UniValue executionResult = response["executionResult"];
 
     // Get output
-    if(!executionResult.isObject() || !executionResult.exists("output"))
+    if (!executionResult.isObject() || !executionResult.exists("output"))
         return false;
     UniValue output = executionResult["output"];
     result = output.get_str();
@@ -514,36 +518,32 @@ bool CallToken::exec(const bool &sendTo, const std::map<std::string, std::string
     return true;
 }
 
-bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, const int64_t& minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, std::vector<TokenEvent> &result)
+bool CallToken::execEvents(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, const int& numTopics, std::vector<TokenEvent>& result)
 {
     UniValue resultVar;
-    if(!searchTokenTx(fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, numTopics, resultVar))
+    if (!searchTokenTx(fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, numTopics, resultVar))
         return false;
 
     const UniValue& list = resultVar.get_array();
-    for(size_t i = 0; i < list.size(); i++)
-    {
+    for (size_t i = 0; i < list.size(); i++) {
         // Search the log for events
         const UniValue& eventMap = list[i].get_obj();
         const UniValue& listLog = eventMap["log"].get_array();
-        for(size_t i = 0; i < listLog.size(); i++)
-        {
+        for (size_t i = 0; i < listLog.size(); i++) {
             // Skip the not needed events
             const UniValue& eventLog = listLog[i].get_obj();
             const UniValue& topicsList = eventLog["topics"].get_array();
-            if(topicsList.size() < (size_t)numTopics) continue;
-            if(topicsList[0].get_str() != eventName) continue;
+            if (topicsList.size() < (size_t)numTopics) continue;
+            if (topicsList[0].get_str() != eventName) continue;
 
             // Create new event
             TokenEvent tokenEvent;
             tokenEvent.address = eventMap["contractAddress"].get_str();
-            if(numTopics > 1)
-            {
+            if (numTopics > 1) {
                 tokenEvent.sender = topicsList[1].get_str().substr(24);
                 ToQtumAddress(tokenEvent.sender, tokenEvent.sender);
             }
-            if(numTopics > 2)
-            {
+            if (numTopics > 2) {
                 tokenEvent.receiver = topicsList[2].get_str().substr(24);
                 ToQtumAddress(tokenEvent.receiver, tokenEvent.receiver);
             }
@@ -562,7 +562,7 @@ bool CallToken::execEvents(const int64_t &fromBlock, const int64_t &toBlock, con
     return true;
 }
 
-bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, const int64_t &minconf, const std::string &eventName, const std::string &contractAddress, const std::string &senderAddress, const int &numTopics, UniValue &resultVar)
+bool CallToken::searchTokenTx(const int64_t& fromBlock, const int64_t& toBlock, const int64_t& minconf, const std::string& eventName, const std::string& contractAddress, const std::string& senderAddress, const int& numTopics, UniValue& resultVar)
 {
     UniValue params(UniValue::VARR);
     params.push_back(fromBlock);
@@ -578,13 +578,11 @@ bool CallToken::searchTokenTx(const int64_t &fromBlock, const int64_t &toBlock, 
     // Skip the event type check
     static std::string nullRecord = uint256().ToString();
     topics.push_back(nullRecord);
-    if(numTopics > 1)
-    {
+    if (numTopics > 1) {
         // Match the log with sender address
         topics.push_back(senderAddress);
     }
-    if(numTopics > 2)
-    {
+    if (numTopics > 2) {
         // Match the log with receiver address
         topics.push_back(senderAddress);
     }

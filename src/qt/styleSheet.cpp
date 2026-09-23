@@ -1,18 +1,18 @@
 #include <qt/styleSheet.h>
 
-#include <QFile>
-#include <QWidget>
 #include <QApplication>
-#include <QStyleFactory>
-#include <QProxyStyle>
-#include <QListView>
 #include <QComboBox>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QPainter>
+#include <QFile>
 #include <QLineEdit>
-#include <QtGlobal>
+#include <QListView>
+#include <QMessageBox>
+#include <QPainter>
+#include <QProxyStyle>
+#include <QPushButton>
 #include <QSettings>
+#include <QStyleFactory>
+#include <QWidget>
+#include <QtGlobal>
 
 static const QString STYLE_FORMAT = ":/styles/%1/%2";
 static const QString STYLE_CONFIG_FORMAT = ":/styles/%1/config";
@@ -33,31 +33,26 @@ public:
         button_text_upper = GetIntStyleValue("appstyle/button_text_upper", true);
     }
 
-    void polish(QWidget *widget) override
+    void polish(QWidget* widget) override
     {
-        if(widget && widget->inherits("QComboBox"))
-        {
+        if (widget && widget->inherits("QComboBox")) {
             QComboBox* comboBox = (QComboBox*)widget;
-            if(comboBox->view() && comboBox->view()->inherits("QComboBoxListView"))
-            {
+            if (comboBox->view() && comboBox->view()->inherits("QComboBoxListView")) {
                 comboBox->setView(new QListView());
                 qApp->processEvents();
             }
 
-            if(comboBox->view() && comboBox->view()->parentWidget())
-            {
+            if (comboBox->view() && comboBox->view()->parentWidget()) {
                 QWidget* parent = comboBox->view()->parentWidget();
                 parent->setWindowFlags(Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
                 parent->setAttribute(Qt::WA_TranslucentBackground);
             }
         }
-        if(widget && widget->inherits("QMessageBox"))
-        {
+        if (widget && widget->inherits("QMessageBox")) {
             QMessageBox* messageBox = (QMessageBox*)widget;
             QPixmap iconPixmap;
             QMessageBox::Icon icon = messageBox->icon();
-            switch (icon)
-            {
+            switch (icon) {
             case QMessageBox::Information:
                 iconPixmap = QPixmap(message_info_path);
                 break;
@@ -76,16 +71,13 @@ public:
             }
             messageBox->setIconPixmap(iconPixmap.scaled(message_icon_weight, message_icon_height));
         }
-        if(widget && widget->inherits("QPushButton") && button_text_upper)
-        {
+        if (widget && widget->inherits("QPushButton") && button_text_upper) {
             QPushButton* button = (QPushButton*)widget;
             button->setText(button->text().toUpper());
         }
-        if(widget && widget->inherits("QLineEdit"))
-        {
+        if (widget && widget->inherits("QLineEdit")) {
             QLineEdit* lineEdit = (QLineEdit*)widget;
-            if(lineEdit->isReadOnly())
-            {
+            if (lineEdit->isReadOnly()) {
                 lineEdit->setFocusPolicy(Qt::ClickFocus);
             }
         }
@@ -103,7 +95,7 @@ private:
     bool button_text_upper;
 };
 
-StyleSheet &StyleSheet::instance()
+StyleSheet& StyleSheet::instance()
 {
     static StyleSheet inst;
     return inst;
@@ -114,17 +106,17 @@ StyleSheet::StyleSheet()
     QSettings settings;
     m_theme = settings.value("Theme", getDefaultTheme()).toString();
     QStringList supportedThemes = getSupportedThemes();
-    if(!supportedThemes.contains(m_theme))
+    if (!supportedThemes.contains(m_theme))
         m_theme = getDefaultTheme();
     m_config = new QSettings(STYLE_CONFIG_FORMAT.arg(m_theme), QSettings::IniFormat);
 }
 
-void StyleSheet::setStyleSheet(QWidget *widget, const QString &style_name)
+void StyleSheet::setStyleSheet(QWidget* widget, const QString& style_name)
 {
     setObjectStyleSheet<QWidget>(widget, style_name);
 }
 
-void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
+void StyleSheet::setStyleSheet(QApplication* app, const QString& style_name)
 {
     QStyle* mainStyle = QStyleFactory::create("fusion");
     QtumStyle* qtumStyle = new QtumStyle;
@@ -139,7 +131,7 @@ void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
     QFont font = app->font();
     qreal fontSize = font.pointSizeF();
     qreal multiplier = 1;
-#if defined(Q_OS_WIN) ||  defined(Q_OS_MAC)
+#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     multiplier = 1.1;
 #endif
     font.setPointSizeF(fontSize * multiplier);
@@ -148,20 +140,19 @@ void StyleSheet::setStyleSheet(QApplication *app, const QString& style_name)
     setObjectStyleSheet<QApplication>(app, style_name);
 }
 
-QString StyleSheet::getStyleSheet(const QString &style_name)
+QString StyleSheet::getStyleSheet(const QString& style_name)
 {
     QString style;
     QFile file(STYLE_FORMAT.arg(m_theme, style_name));
-    if(file.open(QIODevice::ReadOnly))
-    {
+    if (file.open(QIODevice::ReadOnly)) {
         style = file.readAll();
         m_cacheStyles[style_name] = style;
     }
     return style;
 }
 
-template<typename T>
-void StyleSheet::setObjectStyleSheet(T *object, const QString &style_name)
+template <typename T>
+void StyleSheet::setObjectStyleSheet(T* object, const QString& style_name)
 {
     QString style_value = m_cacheStyles.contains(style_name) ? m_cacheStyles[style_name] : getStyleSheet(style_name);
     object->setStyleSheet(style_value);
@@ -188,10 +179,9 @@ QString StyleSheet::getDefaultTheme()
     return "theme3";
 }
 
-bool StyleSheet::setTheme(const QString &theme)
+bool StyleSheet::setTheme(const QString& theme)
 {
-    if(getSupportedThemes().contains(theme))
-    {
+    if (getSupportedThemes().contains(theme)) {
         QSettings settings;
         settings.setValue("Theme", theme);
         return true;
@@ -199,10 +189,9 @@ bool StyleSheet::setTheme(const QString &theme)
     return false;
 }
 
-QVariant StyleSheet::getStyleValue(const QString &key, const QVariant &defaultValue)
+QVariant StyleSheet::getStyleValue(const QString& key, const QVariant& defaultValue)
 {
-    if(m_config)
-    {
+    if (m_config) {
         return m_config->value(key, defaultValue);
     }
 

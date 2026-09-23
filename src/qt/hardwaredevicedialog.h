@@ -12,7 +12,7 @@ class HardwareDeviceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HardwareDeviceDialog(const QString& debugMessage, QWidget *parent = nullptr);
+    explicit HardwareDeviceDialog(const QString& debugMessage, QWidget* parent = nullptr);
     ~HardwareDeviceDialog();
 
 private Q_SLOTS:
@@ -20,7 +20,7 @@ private Q_SLOTS:
     void on_nextButton_clicked();
 
 private:
-    Ui::HardwareDeviceDialog *ui;
+    Ui::HardwareDeviceDialog* ui;
 };
 
 #endif // HARDWAREDEVICEDIALOG_H

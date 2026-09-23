@@ -15,17 +15,17 @@ class RemoveDelegationPage : public QDialog
     Q_OBJECT
 
 public:
-    explicit RemoveDelegationPage(QWidget *parent = nullptr);
+    explicit RemoveDelegationPage(QWidget* parent = nullptr);
     ~RemoveDelegationPage();
-    void setModel(WalletModel *_model);
-    void setClientModel(ClientModel *_clientModel);
+    void setModel(WalletModel* _model);
+    void setClientModel(ClientModel* _clientModel);
     void clearAll();
     void setDelegationData(const QString& address, const QString& hash);
     bool isDataValid();
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user
-    void message(const QString &title, const QString &message, unsigned int style);
+    void message(const QString& title, const QString& message, unsigned int style);
 
 public Q_SLOTS:
     void on_gasInfoChanged(quint64 blockGasLimit, quint64 minGasPrice, quint64 nGasPrice);
@@ -40,10 +40,10 @@ private Q_SLOTS:
     void updateDisplayUnit();
 
 private:
-    Ui::RemoveDelegationPage *ui;
+    Ui::RemoveDelegationPage* ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
-    ExecRPCCommand *m_execRPCCommand;
+    ExecRPCCommand* m_execRPCCommand;
     QString address;
     QString hash;
     bool bCreateUnsigned = false;

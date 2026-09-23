@@ -1,11 +1,12 @@
 #ifndef QTUMDELEGATION_H
 #define QTUMDELEGATION_H
-#include <string>
-#include <vector>
-#include <map>
+#include <qtum/posutils.h>
 #include <stdint.h>
 #include <uint256.h>
-#include <qtum/posutils.h>
+
+#include <map>
+#include <string>
+#include <vector>
 
 class QtumDelegationPriv;
 class ContractABI;
@@ -13,37 +14,35 @@ class ChainstateManager;
 class Chainstate;
 
 extern const std::string strDelegationsABI;
-const ContractABI &DelegationABI();
+const ContractABI& DelegationABI();
 
-struct DelegationItem : public Delegation
-{
+struct DelegationItem : public Delegation {
     DelegationItem()
-    {}
+    {
+    }
 
     bool IsNull() const
     {
         return Delegation::IsNull() &&
-                delegate == uint160();
+               delegate == uint160();
     }
 
     uint160 delegate;
 };
 
-enum DelegationType
-{
+enum DelegationType {
     DELEGATION_NONE = 0,
     DELEGATION_ADD = 1,
     DELEGATION_REMOVE = 2,
 };
 
-struct DelegationEvent
-{
+struct DelegationEvent {
     DelegationItem item;
     DelegationType type;
 
-    DelegationEvent():
-        type(DelegationType::DELEGATION_NONE)
-    {}
+    DelegationEvent() : type(DelegationType::DELEGATION_NONE)
+    {
+    }
 };
 
 /**
@@ -58,8 +57,8 @@ public:
 /**
  * @brief The QtumDelegation class Communicate with the qtum delegation contract
  */
-class QtumDelegation {
-    
+class QtumDelegation
+{
 public:
     /**
      * @brief QtumDelegation Constructor
@@ -97,7 +96,7 @@ public:
      * @param minconf Minimum confirmations
      * @return true/false
      */
-    bool FilterDelegationEvents(std::vector<DelegationEvent>& events, const IDelegationFilter& filter, ChainstateManager &chainman, int fromBlock = 0, int toBlock = -1, int minconf = 0) const;
+    bool FilterDelegationEvents(std::vector<DelegationEvent>& events, const IDelegationFilter& filter, ChainstateManager& chainman, int fromBlock = 0, int toBlock = -1, int minconf = 0) const;
 
     /**
      * @brief DelegationsFromEvents Get the delegations from the events

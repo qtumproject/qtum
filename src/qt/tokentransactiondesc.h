@@ -9,16 +9,16 @@ class TokenTransactionRecord;
 namespace interfaces {
 class Wallet;
 struct TokenTx;
-}
+} // namespace interfaces
 
 /** Provide a human-readable extended HTML description of a token transaction.
  */
-class TokenTransactionDesc: public QObject
+class TokenTransactionDesc : public QObject
 {
     Q_OBJECT
 
 public:
-    static QString toHTML(interfaces::Wallet& wallet, interfaces::TokenTx& wtx, TokenTransactionRecord *rec);
+    static QString toHTML(interfaces::Wallet& wallet, interfaces::TokenTx& wtx, TokenTransactionRecord* rec);
 
 private:
     TokenTransactionDesc() {}

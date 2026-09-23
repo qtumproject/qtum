@@ -1,24 +1,24 @@
 #include <qtum/delegationutils.h>
-#include <util/strencodings.h>
-#include <pubkey.h>
 
-namespace delegationutils
-{
+#include <pubkey.h>
+#include <util/strencodings.h>
+
+namespace delegationutils {
 const size_t nPoDStartPosition = 131;
-bool IsAddBytecode(const std::vector<unsigned char> &data)
+bool IsAddBytecode(const std::vector<unsigned char>& data)
 {
     // Quick check for is set delegate address
     size_t size = data.size();
-    if(size < 228)
+    if (size < 228)
         return false;
-    if(data[0] != 76 || data[1] != 14 || data[2] != 150 || data[3] != 140 || data[nPoDStartPosition] != CPubKey::COMPACT_SIGNATURE_SIZE)
+    if (data[0] != 76 || data[1] != 14 || data[2] != 150 || data[3] != 140 || data[nPoDStartPosition] != CPubKey::COMPACT_SIGNATURE_SIZE)
         return false;
     return true;
 }
 
-bool GetUnsignedStaker(const std::vector<unsigned char> &data, std::string &hexStaker)
+bool GetUnsignedStaker(const std::vector<unsigned char>& data, std::string& hexStaker)
 {
-    if(!IsAddBytecode(data))
+    if (!IsAddBytecode(data))
         return false;
 
     // Init variables
@@ -33,22 +33,17 @@ bool GetUnsignedStaker(const std::vector<unsigned char> &data, std::string &hexS
     strRemain.reserve(remainSize);
 
     // Get unsigned staker address from PoD
-    for(size_t i = from; i < to; i++)
-    {
+    for (size_t i = from; i < to; i++) {
         char c = (char)data[i];
-        if(strStaker.size() < stakerSize)
-        {
+        if (strStaker.size() < stakerSize) {
             strStaker.push_back(c);
-        }
-        else
-        {
+        } else {
             strRemain.push_back(c);
         }
     }
 
     // Check formatting
-    if(IsHex(strStaker) && !IsHex(strRemain))
-    {
+    if (IsHex(strStaker) && !IsHex(strRemain)) {
         hexStaker = strStaker;
         return true;
     }
@@ -56,25 +51,23 @@ bool GetUnsignedStaker(const std::vector<unsigned char> &data, std::string &hexS
     return false;
 }
 
-bool SetSignedStaker(std::vector<unsigned char> &data, const std::string &base64PoD)
+bool SetSignedStaker(std::vector<unsigned char>& data, const std::string& base64PoD)
 {
-    if(!IsAddBytecode(data))
+    if (!IsAddBytecode(data))
         return false;
 
     std::vector<unsigned char> strPoD;
-    if(auto decodePoD = DecodeBase64(base64PoD))
-    {
+    if (auto decodePoD = DecodeBase64(base64PoD)) {
         strPoD = *decodePoD;
     }
-    if(strPoD.size() < CPubKey::COMPACT_SIGNATURE_SIZE)
+    if (strPoD.size() < CPubKey::COMPACT_SIGNATURE_SIZE)
         return false;
 
     size_t offset = nPoDStartPosition + 1;
-    for(size_t i = 0; i < CPubKey::COMPACT_SIGNATURE_SIZE; i++)
-    {
+    for (size_t i = 0; i < CPubKey::COMPACT_SIGNATURE_SIZE; i++) {
         data[offset + i] = strPoD[i];
     }
 
     return true;
 }
-}
+} // namespace delegationutils

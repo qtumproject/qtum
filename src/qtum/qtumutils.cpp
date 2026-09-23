@@ -1,17 +1,17 @@
 #include <qtum/qtumutils.h>
+
+#include <chain.h>
+#include <chainparams.h>
 #include <libdevcore/CommonData.h>
 #include <pubkey.h>
 #include <util/convert.h>
-#include <chainparams.h>
-#include <chain.h>
 
 using namespace dev;
 
-bool qtumutils::btc_ecrecover(const dev::h256 &hash, const dev::u256 &v, const dev::h256 &r, const dev::h256 &s, dev::h256 &key)
+bool qtumutils::btc_ecrecover(const dev::h256& hash, const dev::u256& v, const dev::h256& r, const dev::h256& s, dev::h256& key)
 {
     // Check input parameters
-    if(v >= 256)
-    {
+    if (v >= 256) {
         // Does not fit into 1 byte
         return false;
     }
@@ -27,8 +27,7 @@ bool qtumutils::btc_ecrecover(const dev::h256 &hash, const dev::u256 &v, const d
     // Recover public key from compact signature (65 bytes)
     // The public key can be compressed (33 bytes) or uncompressed (65 bytes)
     // Pubkeyhash is RIPEMD160 hash of the public key, handled both types
-    if(pubKey.RecoverCompact(mesage, vchSig))
-    {
+    if (pubKey.RecoverCompact(mesage, vchSig)) {
         // Get the pubkeyhash
         CKeyID id = pubKey.GetID();
         size_t padding = sizeof(key) - sizeof(id);
@@ -40,8 +39,7 @@ bool qtumutils::btc_ecrecover(const dev::h256 &hash, const dev::u256 &v, const d
     return false;
 }
 
-struct EthChainIdCache
-{
+struct EthChainIdCache {
     EthChainIdCache() {}
     uint16_t nDefaultPort = 0;
     int beforeShanghaiChainId = 0;
@@ -65,8 +63,7 @@ int qtumutils::eth_getChainId(int blockHeight)
     int shanghaiHeight = params.GetConsensus().nShanghaiHeight;
     uint16_t nDefaultPort = params.GetDefaultPort();
     static EthChainIdCache idCache;
-    if(idCache.nDefaultPort != nDefaultPort)
-    {
+    if (idCache.nDefaultPort != nDefaultPort) {
         ChainType chain = params.GetChainType();
         idCache.nDefaultPort = nDefaultPort;
         idCache.beforeShanghaiChainId = eth_getChainId(0, shanghaiHeight, chain);
@@ -78,41 +75,39 @@ int qtumutils::eth_getChainId(int blockHeight)
 
 dev::Address qtumutils::eth_getHistoryStorageAddress()
 {
-
     const CChainParams& chainparams = Params();
     dev::Address addr = uintToh160(chainparams.GetConsensus().historyStorageAddress);
     return addr;
 }
 
-qtumutils::HistoricalHashes &qtumutils::HistoricalHashes::instance()
+qtumutils::HistoricalHashes& qtumutils::HistoricalHashes::instance()
 {
     // Get instance
     static qtumutils::HistoricalHashes _instance;
     return _instance;
 }
 
-void qtumutils::HistoricalHashes::set(CBlockIndex *tip)
+void qtumutils::HistoricalHashes::set(CBlockIndex* tip)
 {
-    if (m_tip != tip)
-    {
+    if (m_tip != tip) {
         clear();
     }
     m_tip = tip;
 }
 
-bool qtumutils::HistoricalHashes::get(const dev::u256 &blockHeight, dev::h256 &hash)
+bool qtumutils::HistoricalHashes::get(const dev::u256& blockHeight, dev::h256& hash)
 {
     // Check the tip
     if (!m_tip)
         return false;
-    if (blockHeight > (dev::h256) m_tip->nHeight)
+    if (blockHeight > (dev::h256)m_tip->nHeight)
         return false;
 
     // Update the list of hashes
     update();
 
     // Get the hash from the list
-    int height = (int) blockHeight;
+    int height = (int)blockHeight;
     if (m_hashes.contains(height)) {
         hash = m_hashes[height];
         return true;
@@ -126,7 +121,8 @@ qtumutils::HistoricalHashes::HistoricalHashes()
     clear();
 }
 
-void qtumutils::HistoricalHashes::clear() {
+void qtumutils::HistoricalHashes::clear()
+{
     m_hashes.clear();
 }
 
@@ -141,11 +137,11 @@ void qtumutils::HistoricalHashes::update()
         int pectraHeight = params.GetConsensus().nPectraHeight;
 
         // Add the last 8191 hashes, or until Pectra fork is reached, or not enough blocks
-        const CBlockIndex *tip = m_tip;
-        for(int i = 0; i < m_historyWindow; i++){
-            if(!tip)
+        const CBlockIndex* tip = m_tip;
+        for (int i = 0; i < m_historyWindow; i++) {
+            if (!tip)
                 break;
-            if(tip->nHeight < pectraHeight)
+            if (tip->nHeight < pectraHeight)
                 break;
             m_hashes[tip->nHeight] = uintToh256(*tip->phashBlock);
             tip = tip->pprev;

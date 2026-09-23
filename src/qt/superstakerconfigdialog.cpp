@@ -1,11 +1,11 @@
 #include <qt/superstakerconfigdialog.h>
-#include <qt/forms/ui_superstakerconfigdialog.h>
 
-#include <validation.h>
-#include <qt/walletmodel.h>
-#include <qt/clientmodel.h>
-#include <qt/optionsmodel.h>
 #include <qt/bitcoinaddressvalidator.h>
+#include <qt/clientmodel.h>
+#include <qt/forms/ui_superstakerconfigdialog.h>
+#include <qt/optionsmodel.h>
+#include <qt/walletmodel.h>
+#include <validation.h>
 
 #include <QMessageBox>
 
@@ -13,15 +13,15 @@ class SuperStakerConfigDialogPriv
 {
 public:
     SuperStakerConfigDialogPriv()
-    {}
+    {
+    }
 
     interfaces::SuperStakerInfo recommended;
     interfaces::SuperStakerInfo staker;
 };
 
-SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::SuperStakerConfigDialog)
+SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget* parent) : QDialog(parent),
+                                                                    ui(new Ui::SuperStakerConfigDialog)
 {
     ui->setupUi(this);
     d = new SuperStakerConfigDialogPriv();
@@ -38,7 +38,7 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
 
     ui->buttonOk->setEnabled(false);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6,7,0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
     connect(ui->cbRecommended, &QCheckBox::checkStateChanged, this, &SuperStakerConfigDialog::changeConfigEnabled);
     connect(ui->cbCustom, &QCheckBox::checkStateChanged, this, &SuperStakerConfigDialog::changeConfigEnabled);
 #else
@@ -48,7 +48,7 @@ SuperStakerConfigDialog::SuperStakerConfigDialog(QWidget *parent) :
     connect(ui->cbListType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SuperStakerConfigDialog::chooseAddressType);
 
     connect(ui->sbMinFee, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &SuperStakerConfigDialog::on_enableOkButton);
-    connect(ui->leMinUtxo, &BitcoinAmountField::valueChanged, this,  &SuperStakerConfigDialog::on_enableOkButton);
+    connect(ui->leMinUtxo, &BitcoinAmountField::valueChanged, this, &SuperStakerConfigDialog::on_enableOkButton);
     connect(ui->cbListType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SuperStakerConfigDialog::on_enableOkButton);
     connect(ui->textAddressList, &QValidatedTextEdit::textChanged, this, &SuperStakerConfigDialog::on_enableOkButton);
 
@@ -64,15 +64,14 @@ SuperStakerConfigDialog::~SuperStakerConfigDialog()
     delete d;
 }
 
-void SuperStakerConfigDialog::setModel(WalletModel *_model)
+void SuperStakerConfigDialog::setModel(WalletModel* _model)
 {
     m_model = _model;
 
     if (m_model && m_model->getOptionsModel())
         connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SuperStakerConfigDialog::updateDisplayUnit);
 
-    if(m_model)
-    {
+    if (m_model) {
         d->recommended = m_model->wallet().getSuperStakerRecommendedConfig();
     }
 
@@ -80,17 +79,16 @@ void SuperStakerConfigDialog::setModel(WalletModel *_model)
     updateDisplayUnit();
 }
 
-void SuperStakerConfigDialog::setClientModel(ClientModel *_clientModel)
+void SuperStakerConfigDialog::setClientModel(ClientModel* _clientModel)
 {
     m_clientModel = _clientModel;
 }
 
-void SuperStakerConfigDialog::setSuperStakerData(const QString &hash)
+void SuperStakerConfigDialog::setSuperStakerData(const QString& hash)
 {
-    if(m_model && !hash.isEmpty())
-    {
+    if (m_model && !hash.isEmpty()) {
         uint256 id = uint256::FromHex(hash.toStdString()).value_or(uint256::ZERO);
-        if(id == d->staker.hash) return;
+        if (id == d->staker.hash) return;
         d->staker = m_model->wallet().getSuperStaker(id);
     }
 
@@ -103,8 +101,7 @@ void SuperStakerConfigDialog::setSuperStakerData(const QString &hash)
 
 void SuperStakerConfigDialog::chooseAddressType(int idx)
 {
-    switch(ui->cbListType->itemData(idx).toInt())
-    {
+    switch (ui->cbListType->itemData(idx).toInt()) {
     case All:
         setAddressListVisible(false);
         break;
@@ -133,36 +130,31 @@ void SuperStakerConfigDialog::reject()
 
 void SuperStakerConfigDialog::on_buttonOk_clicked()
 {
-    if(m_model)
-    {
-        if(ui->textAddressList->isVisible() && !ui->textAddressList->isValid())
+    if (m_model) {
+        if (ui->textAddressList->isVisible() && !ui->textAddressList->isValid())
             return;
 
         QString questionString = tr("Are you sure you want to update configuration for staker<br /><br />");
         questionString.append(tr("<b>%1</b>?")
-                              .arg(ui->txtStaker->text()));
+                                  .arg(ui->txtStaker->text()));
 
         QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm configuration change."), questionString,
-            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+                                                                   QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 
-        if(retval == QMessageBox::Yes)
-        {
+        if (retval == QMessageBox::Yes) {
             interfaces::SuperStakerInfo updatedStaker;
             updatedStaker.hash = d->staker.hash;
             updatedStaker.staker_address = d->staker.staker_address;
             updatedStaker.staker_name = d->staker.staker_name;
             updatedStaker.time = d->staker.time;
             updatedStaker.custom_config = ui->cbCustom->isChecked();
-            if(updatedStaker.custom_config)
-            {
+            if (updatedStaker.custom_config) {
                 updatedStaker.min_fee = ui->sbMinFee->value();
                 updatedStaker.min_delegate_utxo = ui->leMinUtxo->value();
                 updatedStaker.delegate_address_type = ui->cbListType->currentIndex();
-                if(updatedStaker.delegate_address_type)
-                {
+                if (updatedStaker.delegate_address_type) {
                     std::vector<std::string> delegateAddressList;
-                    for(QString address : ui->textAddressList->getLines())
-                    {
+                    for (QString address : ui->textAddressList->getLines()) {
                         delegateAddressList.push_back(address.toStdString());
                     }
                     updatedStaker.delegate_address_list = delegateAddressList;
@@ -189,8 +181,7 @@ void SuperStakerConfigDialog::changeConfigEnabled()
 
 void SuperStakerConfigDialog::updateDisplayUnit()
 {
-    if(m_model && m_model->getOptionsModel())
-    {
+    if (m_model && m_model->getOptionsModel()) {
         // Update gasPriceAmount with the current unit
         ui->leMinUtxo->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
     }
@@ -211,27 +202,23 @@ void SuperStakerConfigDialog::updateData()
 {
     ui->txtStaker->setText(QString::fromStdString(d->staker.staker_name));
 
-    if(ui->cbRecommended->isChecked())
-    {
+    if (ui->cbRecommended->isChecked()) {
         ui->sbMinFee->setValue(d->recommended.min_fee);
         ui->leMinUtxo->setValue(d->recommended.min_delegate_utxo);
         ui->cbListType->setCurrentIndex(d->recommended.delegate_address_type);
         QStringList addressList;
-        for(std::string sAddress : d->recommended.delegate_address_list)
-        {
+        for (std::string sAddress : d->recommended.delegate_address_list) {
             addressList.append(QString::fromStdString(sAddress));
         }
         ui->textAddressList->setLines(addressList);
     }
 
-    if(ui->cbCustom->isChecked() && d->staker.custom_config)
-    {
+    if (ui->cbCustom->isChecked() && d->staker.custom_config) {
         ui->sbMinFee->setValue(d->staker.min_fee);
         ui->leMinUtxo->setValue(d->staker.min_delegate_utxo);
         ui->cbListType->setCurrentIndex(d->staker.delegate_address_type);
         QStringList addressList;
-        for(std::string sAddress : d->staker.delegate_address_list)
-        {
+        for (std::string sAddress : d->staker.delegate_address_list) {
             addressList.append(QString::fromStdString(sAddress));
         }
         ui->textAddressList->setLines(addressList);

@@ -1,10 +1,11 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <script/solver.h>
 #include <chainparams.h>
 #include <qtum/qtumdelegation.h>
+#include <script/solver.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace DelegationTest{
+#include <boost/test/unit_test.hpp>
+
+namespace DelegationTest {
 
 const dev::u256 GASLIMIT = dev::u256(2500000);
 const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -17,7 +18,8 @@ const std::string ADD_BYTECODE_HEX = "4c0e968c000000000000000000000000a2330f4221
 const std::string DELEGATE_ADDRESS_HEX = "df329c86d2d31139b2e882df0a83312a8d567d62";
 const std::string POD_HEX = "1f8507f6bc4eded301b61be5dde24923d6eecfe96aae2f3d3cd50e657171e0e13a6c0e114491c3e5699481c6ad45d3c358728fca5821c6aa9487254b1a3725673d";
 
-void genesisLoading(){
+void genesisLoading()
+{
     const CChainParams& chainparams = Params();
     dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(100));
     globalState->populateFrom(cp.genesisState);
@@ -25,11 +27,12 @@ void genesisLoading(){
     globalState->db().commit();
 }
 
-void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++){
+        for (size_t i = 0; i < n; i++) {
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
         globalState->setRoot(oldHashStateRoot);
@@ -40,12 +43,14 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(delegations_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_remove_bytecode_delegation){
+BOOST_AUTO_TEST_CASE(checking_remove_bytecode_delegation)
+{
     // Check remove delegation bytecode
     BOOST_CHECK(QtumDelegation::BytecodeRemove() == REMOVE_BYTECODE_HEX);
 }
 
-BOOST_AUTO_TEST_CASE(checking_add_bytecode_delegation){
+BOOST_AUTO_TEST_CASE(checking_add_bytecode_delegation)
+{
     // Check add delegation bytecode
     std::string datahex, errorMessage;
     bool result = QtumDelegation::BytecodeAdd(STAKER_ADDRESS_HEX, STAKER_FEE, ParseHex(POD_HEX), datahex, errorMessage);
@@ -54,7 +59,8 @@ BOOST_AUTO_TEST_CASE(checking_add_bytecode_delegation){
     BOOST_CHECK(datahex == ADD_BYTECODE_HEX);
 }
 
-BOOST_AUTO_TEST_CASE(checking_verify_delegation){
+BOOST_AUTO_TEST_CASE(checking_verify_delegation)
+{
     // Check verify delegation
     uint160 address(ParseHex(DELEGATE_ADDRESS_HEX));
     Delegation delegation;
@@ -66,7 +72,8 @@ BOOST_AUTO_TEST_CASE(checking_verify_delegation){
     BOOST_CHECK(QtumDelegation::VerifyDelegation(address, delegation) == false);
 }
 
-BOOST_AUTO_TEST_CASE(checking_delegations_from_events){
+BOOST_AUTO_TEST_CASE(checking_delegations_from_events)
+{
     // Initialize event
     DelegationEvent event;
     event.item.delegate = uint160(ParseHex(DELEGATE_ADDRESS_HEX));
@@ -100,9 +107,10 @@ BOOST_AUTO_TEST_CASE(checking_delegations_from_events){
     BOOST_CHECK(delegations.size() == 0);
 }
 
-BOOST_AUTO_TEST_CASE(checking_delegations_contract){
+BOOST_AUTO_TEST_CASE(checking_delegations_contract)
+{
     // Initialize
-//    initState();
+    //    initState();
     genesisLoading();
     createNewBlocks(this, 1000);
     dev::h256 hashTx(HASHTX);
@@ -155,4 +163,4 @@ BOOST_AUTO_TEST_CASE(checking_delegations_contract){
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace DelegationTest

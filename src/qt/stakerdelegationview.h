@@ -22,13 +22,12 @@ class StakerDelegationView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit StakerDelegationView(QWidget *parent = nullptr);
+    explicit StakerDelegationView(QWidget* parent = nullptr);
 
-    void setModel(WalletModel *model);
+    void setModel(WalletModel* model);
 
     // Date ranges for filter
-    enum DateEnum
-    {
+    enum DateEnum {
         All,
         Today,
         ThisWeek,
@@ -49,29 +48,29 @@ public:
     void setSuperStakerData(const QString& staker, const int& fee);
 
 private:
-    WalletModel *model;
-    DelegationFilterProxy *delegationProxyModel;
-    QTableView *delegationView;
+    WalletModel* model;
+    DelegationFilterProxy* delegationProxyModel;
+    QTableView* delegationView;
 
-    QComboBox *dateWidget;
-    QLineEdit *addressWidget;
-    QSpinBox *feeWidget;
-    QLineEdit *amountWidget;
+    QComboBox* dateWidget;
+    QLineEdit* addressWidget;
+    QSpinBox* feeWidget;
+    QLineEdit* amountWidget;
 
-    QMenu *contextMenu;
+    QMenu* contextMenu;
 
-    QFrame *dateRangeWidget;
-    QDateTimeEdit *dateFrom;
-    QDateTimeEdit *dateTo;
+    QFrame* dateRangeWidget;
+    QDateTimeEdit* dateFrom;
+    QDateTimeEdit* dateTo;
 
-    QWidget *createDateRangeWidget();
+    QWidget* createDateRangeWidget();
 
-    GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
+    GUIUtil::TableViewLastColumnResizingFixer* columnResizingFixer;
 
     void resizeEvent(QResizeEvent* event) override;
 
 private Q_SLOTS:
-    void contextualMenu(const QPoint &);
+    void contextualMenu(const QPoint&);
     void dateRangeChanged();
     void copyAddress();
     void copyFee();
@@ -79,7 +78,7 @@ private Q_SLOTS:
 
 public Q_SLOTS:
     void chooseDate(int idx);
-    void changedPrefix(const QString &prefix);
+    void changedPrefix(const QString& prefix);
     void changedFee(int fee);
     void changedAmount();
 };

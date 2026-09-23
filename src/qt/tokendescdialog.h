@@ -17,11 +17,11 @@ class TokenDescDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit TokenDescDialog(const QModelIndex &idx, QWidget *parent = 0);
+    explicit TokenDescDialog(const QModelIndex& idx, QWidget* parent = 0);
     ~TokenDescDialog();
 
 private:
-    Ui::TokenDescDialog *ui;
+    Ui::TokenDescDialog* ui;
 };
 
 #endif // TOKENDESCDIALOG_H

@@ -10,7 +10,7 @@ class QSwitchControl : public QAbstractButton
 {
     Q_OBJECT
 public:
-    QSwitchControl(QWidget *parent = nullptr);
+    QSwitchControl(QWidget* parent = nullptr);
 
 public Q_SLOTS:
     void setChecked(bool);
@@ -20,12 +20,12 @@ Q_SIGNALS:
     void mouseClicked();
 
 protected:
-    void mousePressEvent(QMouseEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void paintEvent(QPaintEvent* event) override;
 
 private:
-    QPushButton *pbSwitch;
-    QPropertyAnimation *animation;
+    QPushButton* pbSwitch;
+    QPropertyAnimation* animation;
 };
 
 #endif // QSWITCHCONTROL_H

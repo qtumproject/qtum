@@ -1,20 +1,21 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <script/solver.h>
 #include <chainparams.h>
-#include <test/qtumtests/precompiled_utils.h>
-#include <test/qtumtests/data/btc_ecrecover.json.h>
-#include <test/qtumtests/data/ecrecover.json.h>
-#include <test/qtumtests/data/sha256.json.h>
-#include <test/qtumtests/data/ripemd160.json.h>
-#include <test/qtumtests/data/identity.json.h>
-#include <test/qtumtests/data/modexp.json.h>
+#include <script/solver.h>
 #include <test/qtumtests/data/alt_bn128_G1_add.json.h>
 #include <test/qtumtests/data/alt_bn128_G1_mul.json.h>
 #include <test/qtumtests/data/alt_bn128_pairing_product.json.h>
 #include <test/qtumtests/data/blake2_compression.json.h>
+#include <test/qtumtests/data/btc_ecrecover.json.h>
+#include <test/qtumtests/data/ecrecover.json.h>
+#include <test/qtumtests/data/identity.json.h>
+#include <test/qtumtests/data/modexp.json.h>
+#include <test/qtumtests/data/ripemd160.json.h>
+#include <test/qtumtests/data/sha256.json.h>
+#include <test/qtumtests/precompiled_utils.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace LondonTest{
+#include <boost/test/unit_test.hpp>
+
+namespace LondonTest {
 
 const dev::u256 GASLIMIT = dev::u256(500000);
 const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -95,12 +96,10 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("dfa2062e")),
 
     // getExtcodesize()
-    valtype(ParseHex("458f6cf8"))
-};
+    valtype(ParseHex("458f6cf8"))};
 
 // Codes IDs used to check that london fork is present
-enum class CodeID
-{
+enum class CodeID {
     contract = 0,
     getBaseFee,
     close,
@@ -122,7 +121,8 @@ valtype getCode(CodeID id)
     return CODE[(int)id];
 }
 
-void genesisLoading(){
+void genesisLoading()
+{
     const CChainParams& chainparams = Params();
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     int forkHeight = coinbaseMaturity + 499;
@@ -137,11 +137,12 @@ void genesisLoading(){
     globalState->db().commit();
 }
 
-void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++){
+        for (size_t i = 0; i < n; i++) {
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
         globalState->setRoot(oldHashStateRoot);
@@ -152,7 +153,8 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(londonfork_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_london_after_fork){
+BOOST_AUTO_TEST_CASE(checking_london_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -215,8 +217,7 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         BOOST_CHECK(result.first[1].execRes.gasUsed == 24365);
     }
 
-    for(size_t a = 1; a < 300; a++)
-    {
+    for (size_t a = 1; a < 300; a++) {
         // Call extcodesize two times (cold and warm)
         valtype addr = dev::toBigEndian(dev::u256(a));
         valtype data = getCode(CodeID::getExtcodesize);
@@ -229,19 +230,15 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
         auto result = executeBC(txIsItLondon, *m_node.chainman);
 
         uint32_t gasUsed = 0;
-        if((a >= 0x1 && a <= 0x9) || a == 0x85)
-        {
+        if ((a >= 0x1 && a <= 0x9) || a == 0x85) {
             gasUsed = 22091;
-        }
-        else
-        {
+        } else {
             gasUsed = 24591;
-            if(a > 0x100) gasUsed += 12;
+            if (a > 0x100) gasUsed += 12;
         }
 
         uint32_t codeSize = 0;
-        if((a >= 0x80 && a <= 0x84) || a == 0x86)
-        {
+        if ((a >= 0x80 && a <= 0x84) || a == 0x86) {
             codeSize = a == 0x86 ? 6064 : 12885;
         }
 
@@ -308,7 +305,8 @@ BOOST_AUTO_TEST_CASE(checking_london_after_fork){
     }
 }
 
-BOOST_AUTO_TEST_CASE(checking_london_before_fork){
+BOOST_AUTO_TEST_CASE(checking_london_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -370,8 +368,7 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         BOOST_CHECK(result.first[1].execRes.gasUsed == 24465);
     }
 
-    for(size_t a = 1; a < 300; a++)
-    {
+    for (size_t a = 1; a < 300; a++) {
         // Call extcodesize two times
         valtype addr = dev::toBigEndian(dev::u256(a));
         valtype data = getCode(CodeID::getExtcodesize);
@@ -384,11 +381,10 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
         auto result = executeBC(txIsItLondon, *m_node.chainman);
 
         uint32_t gasUsed = 23291;
-        if(a > 0x100) gasUsed += 12;
+        if (a > 0x100) gasUsed += 12;
 
         uint32_t codeSize = 0;
-        if((a >= 0x80 && a <= 0x84) || a == 0x86)
-        {
+        if ((a >= 0x80 && a <= 0x84) || a == 0x86) {
             codeSize = a == 0x86 ? 6064 : 12885;
         }
 
@@ -457,4 +453,4 @@ BOOST_AUTO_TEST_CASE(checking_london_before_fork){
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace LondonTest

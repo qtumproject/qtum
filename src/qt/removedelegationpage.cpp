@@ -1,34 +1,31 @@
-#include "removedelegationpage.h"
 #include "qt/forms/ui_removedelegationpage.h"
-
-#include <validation.h>
-#include <util/moneystr.h>
+#include "removedelegationpage.h"
+#include <node/interface_ui.h>
+#include <qt/bitcoinunits.h>
 #include <qt/clientmodel.h>
+#include <qt/execrpccommand.h>
+#include <qt/hardwaresigntx.h>
 #include <qt/optionsmodel.h>
 #include <qt/rpcconsole.h>
-#include <qt/bitcoinunits.h>
-#include <qt/execrpccommand.h>
 #include <qt/sendcoinsdialog.h>
-#include <qt/hardwaresigntx.h>
-#include <node/interface_ui.h>
+#include <util/moneystr.h>
+#include <validation.h>
 
-namespace RemoveDelegation_NS
-{
+namespace RemoveDelegation_NS {
 static const QString PRC_COMMAND = "removedelegationforaddress";
 static const QString PARAM_ADDRESS = "address";
 static const QString PARAM_GASLIMIT = "gaslimit";
 static const QString PARAM_GASPRICE = "gasprice";
 
-static const CAmount SINGLE_STEP = 0.00000001*COIN;
-}
+static const CAmount SINGLE_STEP = 0.00000001 * COIN;
+} // namespace RemoveDelegation_NS
 using namespace RemoveDelegation_NS;
 
-RemoveDelegationPage::RemoveDelegationPage(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::RemoveDelegationPage),
-    m_model(nullptr),
-    m_clientModel(nullptr),
-    m_execRPCCommand(nullptr)
+RemoveDelegationPage::RemoveDelegationPage(QWidget* parent) : QDialog(parent),
+                                                              ui(new Ui::RemoveDelegationPage),
+                                                              m_model(nullptr),
+                                                              m_clientModel(nullptr),
+                                                              m_execRPCCommand(nullptr)
 {
     ui->setupUi(this);
 
@@ -68,7 +65,7 @@ RemoveDelegationPage::~RemoveDelegationPage()
     delete ui;
 }
 
-void RemoveDelegationPage::setModel(WalletModel *_model)
+void RemoveDelegationPage::setModel(WalletModel* _model)
 {
     m_model = _model;
 
@@ -86,12 +83,11 @@ void RemoveDelegationPage::setModel(WalletModel *_model)
     }
 }
 
-void RemoveDelegationPage::setClientModel(ClientModel *_clientModel)
+void RemoveDelegationPage::setClientModel(ClientModel* _clientModel)
 {
     m_clientModel = _clientModel;
 
-    if (m_clientModel)
-    {
+    if (m_clientModel) {
         connect(m_clientModel, SIGNAL(gasInfoChanged(quint64, quint64, quint64)), this, SLOT(on_gasInfoChanged(quint64, quint64, quint64)));
     }
 }
@@ -102,7 +98,7 @@ void RemoveDelegationPage::clearAll()
     ui->lineEditGasPrice->setValue(DEFAULT_GAS_PRICE);
 }
 
-void RemoveDelegationPage::setDelegationData(const QString &_address, const QString &_hash)
+void RemoveDelegationPage::setDelegationData(const QString& _address, const QString& _hash)
 {
     address = _address;
     hash = _hash;
@@ -147,9 +143,8 @@ void RemoveDelegationPage::on_clearButton_clicked()
 
 void RemoveDelegationPage::on_removeDelegationClicked()
 {
-    if(m_model && m_clientModel)
-    {
-        if(!isDataValid())
+    if (m_model && m_clientModel) {
+        if (!isDataValid())
             return;
 
         // Initialize variables
@@ -165,36 +160,32 @@ void RemoveDelegationPage::on_removeDelegationClicked()
 
         // Get delegation details
         interfaces::DelegationDetails details = m_model->wallet().getDelegationDetails(sDelegateAddress);
-        if(!details.c_contract_return)
-        {
+        if (!details.c_contract_return) {
             QMessageBox::warning(this, tr("Remove delegation for address"), tr("Fail to get delegation details for the address."));
             return;
         }
 
         // Don't remove if in creating state
-        if(details.w_create_exist && !details.w_create_abandoned &&
-                (details.w_create_in_mempool || !details.w_create_in_main_chain))
-        {
+        if (details.w_create_exist && !details.w_create_abandoned &&
+            (details.w_create_in_mempool || !details.w_create_in_main_chain)) {
             QString txid = QString::fromStdString(details.w_create_tx_hash.ToString());
             QMessageBox::information(this, tr("Remove delegation for address"), tr("Please wait for the create contract delegation transaction be confirmed or abandon the transaction.\n\nTransaction ID: %1").arg(txid));
             return;
         }
 
         // Don't remove if in deleting state
-        if(details.w_remove_exist && !details.w_remove_abandoned &&
-                (details.w_remove_in_mempool || !details.w_remove_in_main_chain))
-        {
+        if (details.w_remove_exist && !details.w_remove_abandoned &&
+            (details.w_remove_in_mempool || !details.w_remove_in_main_chain)) {
             QString txid = QString::fromStdString(details.w_remove_tx_hash.ToString());
             QMessageBox::information(this, tr("Remove delegation for address"), tr("Please wait for the remove contract delegation transaction be confirmed or abandon the transaction.\n\nTransaction ID: %1").arg(txid));
             return;
         }
 
         // Check entry exist
-        if(!details.c_entry_exist)
-        {
+        if (!details.c_entry_exist) {
             // Don't remove if chain is not synced to the specific block
             int numBlocks = m_clientModel->node().getNumBlocks();
-            if(numBlocks <= 0 || numBlocks <= details.w_block_number)
+            if (numBlocks <= 0 || numBlocks <= details.w_block_number)
                 return;
 
             QMessageBox::information(this, tr("Remove delegation for address"), tr("Delegation already removed. \nThe delegation for the address will be removed from the wallet list."));
@@ -205,8 +196,7 @@ void RemoveDelegationPage::on_removeDelegationClicked()
 
         // Unlock wallet
         WalletModel::UnlockContext ctx(m_model->requestUnlock());
-        if(!ctx.isValid())
-        {
+        if (!ctx.isValid()) {
             return;
         }
 
@@ -224,10 +214,9 @@ void RemoveDelegationPage::on_removeDelegationClicked()
             questionString.append(tr("<br /><br />Remove delegation for address:<br />"));
         } else {
             questionString.append(tr("Are you sure you want to remove the delegation for the address: <br /><br />"));
-
         }
         questionString.append(tr("<b>%1</b>?")
-                              .arg(ui->lineEditAddress->text()));
+                                  .arg(ui->lineEditAddress->text()));
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm remove delegation proposal.") : tr("Confirm remove delegation.");
         const bool enable_send{!bCreateUnsigned};
@@ -236,33 +225,24 @@ void RemoveDelegationPage::on_removeDelegationClicked()
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
-        if(retval == QMessageBox::Yes || retval == QMessageBox::Save)
-        {
+        if (retval == QMessageBox::Yes || retval == QMessageBox::Save) {
             // Execute RPC command line
-            if(!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
-            {
+            if (!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage)) {
                 QMessageBox::warning(this, tr("Remove delegation for address"), errorMessage);
-            }
-            else
-            {
+            } else {
                 QVariantMap variantMap = result.toMap();
-                if(bCreateUnsigned)
-                {
+                if (bCreateUnsigned) {
                     GUIUtil::setClipboard(variantMap.value("psbt").toString());
                     Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
-                }
-                else
-                {
+                } else {
                     bool isSent = true;
-                    if(m_model->getSignPsbtWithHwiTool())
-                    {
+                    if (m_model->getSignPsbtWithHwiTool()) {
                         QString psbt = variantMap.value("psbt").toString();
-                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                        if (!HardwareSignTx::process(this, m_model, psbt, variantMap))
                             isSent = false;
                     }
 
-                    if(isSent)
-                    {
+                    if (isSent) {
                         std::string txid = variantMap.value("txid").toString().toStdString();
                         m_model->wallet().setDelegationRemoved(sHash, txid);
                     }
@@ -277,8 +257,7 @@ void RemoveDelegationPage::on_removeDelegationClicked()
 void RemoveDelegationPage::on_updateRemoveDelegationButton()
 {
     bool enabled = true;
-    if(ui->lineEditAddress->text().isEmpty())
-    {
+    if (ui->lineEditAddress->text().isEmpty()) {
         enabled = false;
     }
 
@@ -287,8 +266,7 @@ void RemoveDelegationPage::on_updateRemoveDelegationButton()
 
 void RemoveDelegationPage::updateDisplayUnit()
 {
-    if(m_model && m_model->getOptionsModel())
-    {
+    if (m_model && m_model->getOptionsModel()) {
         // Update gasPriceAmount with the current unit
         ui->lineEditGasPrice->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
     }

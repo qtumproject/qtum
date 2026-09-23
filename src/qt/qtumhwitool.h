@@ -1,10 +1,10 @@
 #ifndef QTUMHWITOOL_H
 #define QTUMHWITOOL_H
 
+#include <QList>
 #include <QObject>
 #include <QString>
 #include <QStringList>
-#include <QList>
 #include <QVariantMap>
 class QtumHwiToolPriv;
 class InstallDevicePriv;
@@ -62,7 +62,7 @@ public:
      * @brief QtumHwiTool Constructor
      * @param parent Parent object
      */
-    explicit QtumHwiTool(QObject *parent = nullptr);
+    explicit QtumHwiTool(QObject* parent = nullptr);
 
     /**
      * @brief ~QtumHwiTool Destructor
@@ -175,7 +175,7 @@ public:
      * @param stopHeight Stop height
      * @return success of the operation
      */
-    bool rescanBlockchain(int startHeight =0, int stopHeight =-1);
+    bool rescanBlockchain(int startHeight = 0, int stopHeight = -1);
 
     /**
      * @brief importAddresses Import address descriptions
@@ -198,7 +198,7 @@ public:
      * @param complete Is the set of signatures complete
      * @return success of the operation
      */
-    bool finalizePsbt(const QString& psbt, QString& hexTx, bool & complete);
+    bool finalizePsbt(const QString& psbt, QString& hexTx, bool& complete);
 
     /**
      * @brief sendRawTransaction Send raw transaction
@@ -222,7 +222,7 @@ public:
      * @param desc Descriptor
      * @return success of the operation
      */
-    bool getAddressDesc(const QString &address, QString &desc);
+    bool getAddressDesc(const QString& address, QString& desc);
 
     /**
      * @brief errorMessage Get the last error message
@@ -234,7 +234,7 @@ public:
      * @brief setModel Set wallet model
      * @param model Wallet model
      */
-    void setModel(WalletModel *model);
+    void setModel(WalletModel* model);
 
     /**
      * @brief derivationPathPKH Get default derivation path for PKH output

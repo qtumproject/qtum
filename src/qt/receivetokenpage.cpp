@@ -1,15 +1,14 @@
 #include <qt/receivetokenpage.h>
+
 #include <qt/forms/ui_receivetokenpage.h>
-
-#include <qt/guiutil.h>
 #include <qt/guiconstants.h>
-#include <qt/receiverequestdialog.h>
+#include <qt/guiutil.h>
 #include <qt/platformstyle.h>
+#include <qt/receiverequestdialog.h>
 
-ReceiveTokenPage::ReceiveTokenPage(const PlatformStyle *_platformStyle, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ReceiveTokenPage),
-    platformStyle(_platformStyle)
+ReceiveTokenPage::ReceiveTokenPage(const PlatformStyle* _platformStyle, QWidget* parent) : QDialog(parent),
+                                                                                           ui(new Ui::ReceiveTokenPage),
+                                                                                           platformStyle(_platformStyle)
 {
     ui->setupUi(this);
     connect(ui->copyAddressButton, &QToolButton::clicked, this, &ReceiveTokenPage::on_copyAddressClicked);
@@ -37,31 +36,25 @@ void ReceiveTokenPage::setSymbol(QString symbol)
 
 void ReceiveTokenPage::on_copyAddressClicked()
 {
-    if(!m_address.isEmpty())
+    if (!m_address.isEmpty())
         GUIUtil::setClipboard(m_address);
 }
 
 void ReceiveTokenPage::createQRCode()
 {
     SendCoinsRecipient info;
-    if(!m_address.isEmpty())
-    {
+    if (!m_address.isEmpty()) {
         info.address = m_address;
         QString uri = GUIUtil::formatBitcoinURI(info);
-        if(ui->lblQRCode->setQR(uri))
-        {
+        if (ui->lblQRCode->setQR(uri)) {
             ui->widgetQRMargin->setVisible(true);
             ui->lblQRCode->setScaledContents(true);
-        }
-        else
-        {
+        } else {
             ui->widgetQRMargin->setVisible(false);
         }
         ui->labelTokenAddress->setText(m_address);
         ui->copyAddressButton->setVisible(true);
-    }
-    else
-    {
+    } else {
         ui->lblQRCode->clear();
         ui->labelTokenAddress->setText("");
         ui->labelTokenAddressText->setText("");

@@ -1,12 +1,13 @@
-#include <boost/test/unit_test.hpp>
 #include <test/qtumtests/test_utils.h>
+
+#include <boost/test/unit_test.hpp>
 
 const std::vector<valtype> code = {
     /*
         contract Sender1 {
             address sender2;
             address sender3;
-            
+
             function Sender1() {
             }
             function setSenders(address senderx, address sendery) public{
@@ -31,7 +32,7 @@ const std::vector<valtype> code = {
         contract Sender2{
             address sender1;
             address sender3;
-            
+
             function Sender2() {
             }
             function setSenders(address senderx, address sendery) public{
@@ -55,7 +56,7 @@ const std::vector<valtype> code = {
         contract Sender3 {
             address sender1;
             address sender2;
-            
+
             function Sender3() {
             }
             function setSenders(address senderx, address sendery) public{
@@ -92,13 +93,13 @@ const std::vector<valtype> code = {
             address Sender1 = 0x47b725b087f9ef7802b4fef599cfeb08a451e46f;
             address Sender2 = 0x00a64bc3531cd43517a1eee783245effd6770f48;
             address Sender3 = 0xca1d76da7e66c5db9459f098e7e6a09381eef2b5;
-            
+
             function transfer() {
                 Sender1.send(this.balance/3);
                 Sender2.send(this.balance/2);
                 Sender3.send(this.balance);
             }
-            
+
             function() payable { }
         }
     */
@@ -171,21 +172,21 @@ const std::vector<valtype> code = {
                 addr.call.value(this.balance/2)(bytes4(sha3("transfer()")));
             }
             function Test() payable{}
-            
+
             function() payable {}
         }
     */
-    valtype(ParseHex("60606040527347b725b087f9ef7802b4fef599cfeb08a451e46f600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b5b5b61017a8061006b6000396000f3006060604052361561003f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638a4068dd14610048575b6100465b5b565b005b610050610052565b005b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1660023073ffffffffffffffffffffffffffffffffffffffff16318115610000570460405180807f7472616e73666572282900000000000000000000000000000000000000000000815250600a01905060405180910390207c01000000000000000000000000000000000000000000000000000000009004906040518263ffffffff167c010000000000000000000000000000000000000000000000000000000002815260040180905060006040518083038185886185025a03f19350505050505b5600a165627a7a72305820709abc77d99f7e829396b41fcf78a6d4444b9f9734ea765177bd11cbd7357e960029"))
-};
+    valtype(ParseHex("60606040527347b725b087f9ef7802b4fef599cfeb08a451e46f600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505b5b5b61017a8061006b6000396000f3006060604052361561003f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638a4068dd14610048575b6100465b5b565b005b610050610052565b005b600060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1660023073ffffffffffffffffffffffffffffffffffffffff16318115610000570460405180807f7472616e73666572282900000000000000000000000000000000000000000000815250600a01905060405180910390207c01000000000000000000000000000000000000000000000000000000009004906040518263ffffffff167c010000000000000000000000000000000000000000000000000000000002815260040180905060006040518083038185886185025a03f19350505050505b5600a165627a7a72305820709abc77d99f7e829396b41fcf78a6d4444b9f9734ea765177bd11cbd7357e960029"))};
 
 const dev::h256 hash = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
 
-void checkRes(ByteCodeExecResult& res, std::vector<dev::Address>& addresses, std::vector<dev::u256>& balances, size_t sizeTxs){
+void checkRes(ByteCodeExecResult& res, std::vector<dev::Address>& addresses, std::vector<dev::u256>& balances, size_t sizeTxs)
+{
     std::unordered_map<dev::Address, Vin> vins = globalState->vins();
     BOOST_CHECK(res.valueTransfers.size() == sizeTxs);
-    for(size_t i = 0; i < addresses.size(); i++){
+    for (size_t i = 0; i < addresses.size(); i++) {
         BOOST_CHECK(globalState->balance(addresses[i]) == balances[i]);
-        if(balances[i] > 0){
+        if (balances[i] > 0) {
             BOOST_CHECK(vins.count(addresses[i]));
             BOOST_CHECK(vins[addresses[i]].value = balances[i]);
         } else {
@@ -194,52 +195,54 @@ void checkRes(ByteCodeExecResult& res, std::vector<dev::Address>& addresses, std
     }
 }
 
-void checkTx(CTransaction& tx, size_t sizeVin, size_t sizeVout, std::vector<CAmount> values){
+void checkTx(CTransaction& tx, size_t sizeVin, size_t sizeVout, std::vector<CAmount> values)
+{
     BOOST_CHECK(tx.vin.size() == sizeVin);
     BOOST_CHECK(tx.vout.size() == sizeVout);
 
-    for(size_t i = 0; i < tx.vout.size(); i++){
+    for (size_t i = 0; i < tx.vout.size(); i++) {
         BOOST_CHECK(tx.vout[i].nValue == values[i]);
     }
 }
 
 BOOST_FIXTURE_TEST_SUITE(condensingtransaction_tests, TestingSetup)
 
-BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
+BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests)
+{
     initState();
     dev::h256 hashTemp(hash);
 
     std::vector<QtumTransaction> txs;
     std::vector<dev::Address> addresses;
-    for(size_t i = 0; i < 3; i++){
+    for (size_t i = 0; i < 3; i++) {
         txs.push_back(createQtumTransaction(code[i], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address(), i));
         addresses.push_back(createQtumAddress(hashTemp, i));
         ++hashTemp;
     }
     auto result = executeBC(txs, *m_node.chainman);
-    std::vector<dev::u256> balances = {0,0,0};
+    std::vector<dev::u256> balances = {0, 0, 0};
     checkRes(result.second, addresses, balances, 0);
 
     txs.clear();
-    for(size_t i = 0; i < 3; i++){
+    for (size_t i = 0; i < 3; i++) {
         txs.push_back(createQtumTransaction(code[i + 3], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[i]));
     }
     result = executeBC(txs, *m_node.chainman);
-    balances = {0,0,0};
+    balances = {0, 0, 0};
     checkRes(result.second, addresses, balances, 0);
 
     txs.clear();
     txs.push_back(createQtumTransaction(code[6], 8000, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
     result = executeBC(txs, *m_node.chainman);
-    balances = {5000,2500,500};
+    balances = {5000, 2500, 500};
     checkRes(result.second, addresses, balances, 1);
-    checkTx(result.second.valueTransfers[0], 1, 3, {2500,5000,500});
+    checkTx(result.second.valueTransfers[0], 1, 3, {2500, 5000, 500});
 
     txs.clear();
     txs.push_back(createQtumTransaction(code[7], 2000, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
     txs.push_back(createQtumTransaction(code[8], 2000, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
     result = executeBC(txs, *m_node.chainman);
-    balances = {0,11500,500};
+    balances = {0, 11500, 500};
     checkRes(result.second, addresses, balances, 2);
     checkTx(result.second.valueTransfers[0], 2, 1, {7000});
     checkTx(result.second.valueTransfers[1], 3, 1, {11500});
@@ -248,18 +251,19 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbehavior_tests){
     txs.push_back(createQtumTransaction(code[6], 2000, dev::u256(30000), dev::u256(1), hashTemp, addresses[1]));
     txs.push_back(createQtumTransaction(code[9], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[1]));
     result = executeBC(txs, *m_node.chainman);
-    balances = {0,0,0};
+    balances = {0, 0, 0};
     checkRes(result.second, addresses, balances, 2);
     checkTx(result.second.valueTransfers[0], 1, 1, {2000});
     checkTx(result.second.valueTransfers[1], 2, 1, {12000});
 }
 
-BOOST_AUTO_TEST_CASE(condensingtransactionbreadthways_tests){
+BOOST_AUTO_TEST_CASE(condensingtransactionbreadthways_tests)
+{
     initState();
     dev::h256 hashTemp(hash);
     std::vector<dev::Address> addresses;
     std::vector<QtumTransaction> txs;
-    for(size_t i = 0; i < 3; i++){
+    for (size_t i = 0; i < 3; i++) {
         txs.push_back(createQtumTransaction(code[i], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address(), i));
         addresses.push_back(createQtumAddress(hashTemp, i));
         ++hashTemp;
@@ -273,18 +277,19 @@ BOOST_AUTO_TEST_CASE(condensingtransactionbreadthways_tests){
     txs.push_back(createQtumTransaction(code[11], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[3]));
 
     result = executeBC(txs, *m_node.chainman);
-    std::vector<dev::u256> balances = {5000,5000,5000,0};
+    std::vector<dev::u256> balances = {5000, 5000, 5000, 0};
     checkRes(result.second, addresses, balances, 2);
     checkTx(result.second.valueTransfers[0], 1, 1, {15000});
-    checkTx(result.second.valueTransfers[1], 1, 3, {5000,5000,5000});
+    checkTx(result.second.valueTransfers[1], 1, 3, {5000, 5000, 5000});
 }
 
-BOOST_AUTO_TEST_CASE(condensingtransactiondeep_tests){
+BOOST_AUTO_TEST_CASE(condensingtransactiondeep_tests)
+{
     initState();
     dev::h256 hashTemp(hash);
     std::vector<dev::Address> addresses;
     std::vector<QtumTransaction> txs;
-    for(size_t i = 12; i < 17; i++){
+    for (size_t i = 12; i < 17; i++) {
         txs.push_back(createQtumTransaction(code[i], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address(), i));
         addresses.push_back(createQtumAddress(hashTemp, i));
         ++hashTemp;
@@ -293,19 +298,20 @@ BOOST_AUTO_TEST_CASE(condensingtransactiondeep_tests){
     txs.clear();
     txs.push_back(createQtumTransaction(code[11], 20000, dev::u256(500000), dev::u256(1), hashTemp, addresses[4]));
     result = executeBC(txs, *m_node.chainman);
-    std::vector<dev::u256> balances = {1250,1250,2500,5000,10000};
+    std::vector<dev::u256> balances = {1250, 1250, 2500, 5000, 10000};
     checkRes(result.second, addresses, balances, 1);
-    checkTx(result.second.valueTransfers[0], 1, 5, {10000,2500,1250,1250,5000});
+    checkTx(result.second.valueTransfers[0], 1, 5, {10000, 2500, 1250, 1250, 5000});
 }
 
-BOOST_AUTO_TEST_CASE(condensingtransactionsuicide_tests){
+BOOST_AUTO_TEST_CASE(condensingtransactionsuicide_tests)
+{
     initState();
     dev::h256 hashTemp(hash);
     std::vector<dev::Address> addresses;
     std::vector<QtumTransaction> txs;
     txs.push_back(createQtumTransaction(code[12], 0, dev::u256(500000), dev::u256(1), hashTemp, dev::Address(), 0));
     addresses.push_back(createQtumAddress(hashTemp, 0));
-    
+
     txs.push_back(createQtumTransaction(code[17], 0, dev::u256(500000), dev::u256(1), ++hashTemp, dev::Address(), 1));
     txs.push_back(createQtumTransaction(valtype(), 13000, dev::u256(500000), dev::u256(1), hashTemp, createQtumAddress(hashTemp, 1), 1));
 
@@ -315,12 +321,13 @@ BOOST_AUTO_TEST_CASE(condensingtransactionsuicide_tests){
     txs.clear();
     txs.push_back(createQtumTransaction(code[18], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[1]));
     result = executeBC(txs, *m_node.chainman);
-    std::vector<dev::u256> balances = {13000,0};
+    std::vector<dev::u256> balances = {13000, 0};
     checkRes(result.second, addresses, balances, 1);
     checkTx(result.second.valueTransfers[0], 1, 1, {13000});
 }
 
-BOOST_AUTO_TEST_CASE(condensingtransactionpaytopubkeyhash_tests){
+BOOST_AUTO_TEST_CASE(condensingtransactionpaytopubkeyhash_tests)
+{
     initState();
     dev::h256 hashTemp(hash);
     std::vector<dev::Address> addresses;
@@ -335,9 +342,9 @@ BOOST_AUTO_TEST_CASE(condensingtransactionpaytopubkeyhash_tests){
     txs.clear();
     txs.push_back(createQtumTransaction(code[11], 0, dev::u256(500000), dev::u256(1), hashTemp, addresses[0]));
     result = executeBC(txs, *m_node.chainman);
-    std::vector<dev::u256> balances = {6500,6500};
+    std::vector<dev::u256> balances = {6500, 6500};
     checkRes(result.second, addresses, balances, 1);
-    checkTx(result.second.valueTransfers[0], 1, 2, {6500,6500});
+    checkTx(result.second.valueTransfers[0], 1, 2, {6500, 6500});
     BOOST_CHECK(result.second.valueTransfers[0].vout[0].scriptPubKey.IsPayToPubkeyHash());
     BOOST_CHECK(result.second.valueTransfers[0].vout[1].scriptPubKey.HasOpCall());
 }

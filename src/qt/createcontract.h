@@ -20,18 +20,18 @@ class CreateContract : public QWidget
     Q_OBJECT
 
 public:
-    explicit CreateContract(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit CreateContract(const PlatformStyle* platformStyle, QWidget* parent = 0);
     ~CreateContract();
 
-    void setClientModel(ClientModel *clientModel);
-    void setModel(WalletModel *model);
+    void setClientModel(ClientModel* clientModel);
+    void setModel(WalletModel* model);
     bool isValidBytecode();
     bool isValidInterfaceABI();
     bool isDataValid();
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user
-    void message(const QString &title, const QString &message, unsigned int style);
+    void message(const QString& title, const QString& message, unsigned int style);
 
 public Q_SLOTS:
     void on_clearAllClicked();
@@ -47,8 +47,7 @@ private:
     QString toDataHex(int func, QString& errorMessage);
 
 private:
-
-    Ui::CreateContract *ui;
+    Ui::CreateContract* ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
     ExecRPCCommand* m_execRPCCommand;

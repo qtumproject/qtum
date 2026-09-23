@@ -4,13 +4,13 @@
 #ifndef UTIL_SIGNSTR_H
 #define UTIL_SIGNSTR_H
 
-#include <string>
-#include <key.h>
 #include <hash.h>
+#include <key.h>
+
+#include <string>
 
 
-namespace SignStr
-{
+namespace SignStr {
 const std::string strMessageMagic = "Qtum Signed Message:\n";
 
 inline bool SignMessage(const CKey& key, const std::string& strMessage, std::vector<unsigned char>& vchSig)
@@ -48,6 +48,6 @@ inline bool GetKeyIdMessage(const std::string& strMessage, const std::vector<uns
     keyID = pubkey.GetID();
     return true;
 }
-}
+} // namespace SignStr
 
 #endif // UTIL_SIGNSTR_H

@@ -1,21 +1,21 @@
 #include <qt/abiparam.h>
-#include <qt/contractutil.h>
+
 #include <qt/abiparamitem.h>
+#include <qt/contractutil.h>
 #include <qt/platformstyle.h>
 
 #include <QHBoxLayout>
 #include <QRegularExpressionValidator>
 
-ABIParam::ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterABI &param, QWidget *parent) :
-    QWidget(parent),
-    m_ParamID(ID),
-    m_paramName(0),
-    m_mainLayout(0),
-    m_paramItemsLayout(0),
-    m_param(param),
-    m_platformStyle(platformStyle),
-    m_vSpacer(0),
-    m_hSpacer(0)
+ABIParam::ABIParam(const PlatformStyle* platformStyle, int ID, const ParameterABI& param, QWidget* parent) : QWidget(parent),
+                                                                                                             m_ParamID(ID),
+                                                                                                             m_paramName(0),
+                                                                                                             m_mainLayout(0),
+                                                                                                             m_paramItemsLayout(0),
+                                                                                                             m_param(param),
+                                                                                                             m_platformStyle(platformStyle),
+                                                                                                             m_vSpacer(0),
+                                                                                                             m_hSpacer(0)
 {
     m_paramName = new QLabel(this);
     m_mainLayout = new QHBoxLayout(this);
@@ -24,10 +24,10 @@ ABIParam::ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterAB
     m_hSpacer = new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     m_mainLayout->setSpacing(10);
-    m_mainLayout->setContentsMargins(0,0,0,0);
+    m_mainLayout->setContentsMargins(0, 0, 0, 0);
 
     m_paramItemsLayout->setSpacing(3);
-    m_paramItemsLayout->setContentsMargins(0,0,0,0);
+    m_paramItemsLayout->setContentsMargins(0, 0, 0, 0);
 
     m_paramName->setToolTip(tr("%1 %2").arg(QString::fromStdString(param.type)).arg(QString::fromStdString(param.name)));
     m_paramName->setFixedWidth(160);
@@ -39,35 +39,27 @@ ABIParam::ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterAB
     QString clippedText = metrix.elidedText(text, Qt::ElideRight, width);
     m_paramName->setText(clippedText);
 
-    QVBoxLayout *vLayout = new QVBoxLayout();
+    QVBoxLayout* vLayout = new QVBoxLayout();
     vLayout->addWidget(m_paramName);
     vLayout->addSpacerItem(m_vSpacer);
     m_mainLayout->addLayout(vLayout);
 
-    if(param.decodeType().isList())
-    {
-        if(param.decodeType().isDynamic())
-        {
+    if (param.decodeType().isList()) {
+        if (param.decodeType().isDynamic()) {
             addNewParamItem(0);
-        }
-        else
-        {
-            for(size_t i = 0; i < param.decodeType().length(); i++)
-            {
-                ABIParamItem *m_paramValue = new ABIParamItem(m_platformStyle, m_param, this);
+        } else {
+            for (size_t i = 0; i < param.decodeType().length(); i++) {
+                ABIParamItem* m_paramValue = new ABIParamItem(m_platformStyle, m_param, this);
                 m_paramValue->setFixed(true);
                 m_paramItemsLayout->addWidget(m_paramValue);
                 m_listParamItems.append(m_paramValue);
             }
-            if(param.decodeType().length() > 1)
-            {
+            if (param.decodeType().length() > 1) {
                 m_vSpacer->changeSize(20, 40, QSizePolicy::Fixed, QSizePolicy::Expanding);
             }
         }
-    }
-    else
-    {
-        ABIParamItem *m_paramValue = new ABIParamItem(m_platformStyle, m_param, this);
+    } else {
+        ABIParamItem* m_paramValue = new ABIParamItem(m_platformStyle, m_param, this);
         m_paramValue->setFixed(true);
         m_paramItemsLayout->addWidget(m_paramValue);
         m_listParamItems.append(m_paramValue);
@@ -80,10 +72,9 @@ ABIParam::ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterAB
 QStringList ABIParam::getValue()
 {
     QStringList valuesList;
-    for(int i = 0; i < m_listParamItems.count(); i++)
-    {
-        if(!m_listParamItems[i]->getIsDeleted())
-        valuesList.append(m_listParamItems[i]->getValue());
+    for (int i = 0; i < m_listParamItems.count(); i++) {
+        if (!m_listParamItems[i]->getIsDeleted())
+            valuesList.append(m_listParamItems[i]->getValue());
     }
     return valuesList;
 }
@@ -91,9 +82,8 @@ QStringList ABIParam::getValue()
 bool ABIParam::isValid()
 {
     bool isValid = true;
-    for(int i = 0; i < m_listParamItems.count(); i++)
-    {
-        if(!m_listParamItems[i]->getIsDeleted() && !m_listParamItems[i]->isValid())
+    for (int i = 0; i < m_listParamItems.count(); i++) {
+        if (!m_listParamItems[i]->getIsDeleted() && !m_listParamItems[i]->isValid())
             isValid = false;
     }
     return isValid;
@@ -101,27 +91,22 @@ bool ABIParam::isValid()
 
 void ABIParam::updateParamItemsPosition()
 {
-    for(int i = 0; i < m_paramItemsLayout->count(); i++)
-    {
+    for (int i = 0; i < m_paramItemsLayout->count(); i++) {
         m_listParamItems[i]->setPosition(i);
     }
 }
 
 void ABIParam::addNewParamItem(int position)
 {
-    if(m_listParamItems.count() == 1 && m_listParamItems[0]->getIsDeleted())
-    {
+    if (m_listParamItems.count() == 1 && m_listParamItems[0]->getIsDeleted()) {
         m_hSpacer->changeSize(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
         m_listParamItems[0]->setIsDeleted(false);
-    }
-    else
-    {
-        ABIParamItem *item = new ABIParamItem(m_platformStyle, m_param, this);
+    } else {
+        ABIParamItem* item = new ABIParamItem(m_platformStyle, m_param, this);
         m_listParamItems.insert(position, item);
         m_paramItemsLayout->insertWidget(position, item);
 
-        if(m_paramItemsLayout->count() > 1)
-        {
+        if (m_paramItemsLayout->count() > 1) {
             m_vSpacer->changeSize(20, 40, QSizePolicy::Fixed, QSizePolicy::Expanding);
         }
 
@@ -134,17 +119,13 @@ void ABIParam::addNewParamItem(int position)
 
 void ABIParam::removeParamItem(int position)
 {
-    if(m_listParamItems.count() == 1)
-    {
+    if (m_listParamItems.count() == 1) {
         m_listParamItems[0]->setIsDeleted(true);
         m_hSpacer->changeSize(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed);
-    }
-    else
-    {
-        QLayoutItem *item = m_paramItemsLayout->takeAt(position);
-        QWidget * widget = item->widget();
-        if(widget != NULL)
-        {
+    } else {
+        QLayoutItem* item = m_paramItemsLayout->takeAt(position);
+        QWidget* widget = item->widget();
+        if (widget != NULL) {
             m_paramItemsLayout->removeWidget(widget);
             disconnect(widget, 0, 0, 0);
             widget->setParent(NULL);
@@ -152,8 +133,7 @@ void ABIParam::removeParamItem(int position)
             m_listParamItems.removeAt(position);
         }
 
-        if(m_paramItemsLayout->count() < 2)
-        {
+        if (m_paramItemsLayout->count() < 2) {
             m_vSpacer->changeSize(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
         }
 

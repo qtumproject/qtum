@@ -1,16 +1,17 @@
 #include <qt/navigationbar.h>
-#include <QActionGroup>
-#include <QToolButton>
-#include <QLayout>
-#include <QStylePainter>
-#include <QStyleOptionToolButton>
-#include <QStyle>
-#include <QLabel>
-#include <qt/styleSheet.h>
-#include <qt/platformstyle.h>
 
-namespace NavigationBar_NS
-{
+#include <qt/platformstyle.h>
+#include <qt/styleSheet.h>
+
+#include <QActionGroup>
+#include <QLabel>
+#include <QLayout>
+#include <QStyle>
+#include <QStyleOptionToolButton>
+#include <QStylePainter>
+#include <QToolButton>
+
+namespace NavigationBar_NS {
 static const int ToolButtonWidth = 190;
 static const int ToolButtonIconSize = 28;
 static const int MarginLeft = 0;
@@ -21,16 +22,15 @@ static const int ButtonSpacing = 2;
 static const int SubNavPaddingRight = 40;
 static const int LogoHeight = 60;
 static const int LogoWidth = 90;
-}
+} // namespace NavigationBar_NS
 using namespace NavigationBar_NS;
 
 class NavToolButton : public QToolButton
 {
 public:
-    explicit NavToolButton(QWidget * parent, bool subBar):
-        QToolButton(parent),
-        m_subBar(subBar),
-        m_iconCached(false)
+    explicit NavToolButton(QWidget* parent, bool subBar) : QToolButton(parent),
+                                                           m_subBar(subBar),
+                                                           m_iconCached(false)
     {
         m_colorEnabled = GetStringStyleValue("navtoolbutton/color-enabled", "#1a96ce");
         m_colorPressed = GetStringStyleValue("navtoolbutton/color-pressed", "#e5f3f9");
@@ -45,56 +45,44 @@ public:
     }
 
 protected:
-    void paintEvent(QPaintEvent *) Q_DECL_OVERRIDE
+    void paintEvent(QPaintEvent*) Q_DECL_OVERRIDE
     {
-        QStylePainter sp( this );
+        QStylePainter sp(this);
         QStyleOptionToolButton opt;
-        initStyleOption( &opt );
+        initStyleOption(&opt);
 
-        if(m_subBar)
-        {
+        if (m_subBar) {
             const QString strText = opt.text;
 
-            //draw background
+            // draw background
             opt.text.clear();
             opt.icon = QIcon();
-            sp.drawComplexControl( QStyle::CC_ToolButton, opt );
+            sp.drawComplexControl(QStyle::CC_ToolButton, opt);
             opt.text = strText;
 
-            //draw label
+            // draw label
             drawLabel(&opt, &sp);
-        }
-        else
-        {
-            //update icon
+        } else {
+            // update icon
             updateIcon(opt);
 
-            //draw control
-            sp.drawComplexControl( QStyle::CC_ToolButton, opt );
+            // draw control
+            sp.drawComplexControl(QStyle::CC_ToolButton, opt);
         }
     }
 
-    void drawLabel(const QStyleOption *opt, QPainter *p)
+    void drawLabel(const QStyleOption* opt, QPainter* p)
     {
-        if (const QStyleOptionToolButton *toolbutton
-                = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
-
+        if (const QStyleOptionToolButton* toolbutton = qstyleoption_cast<const QStyleOptionToolButton*>(opt)) {
             // Choose color
             QColor color;
-            if(!(toolbutton->state & QStyle::State_Enabled))
-            {
+            if (!(toolbutton->state & QStyle::State_Enabled)) {
                 color = m_colorEnabled;
-            }
-            else if(toolbutton->state & (QStyle::State_Sunken | QStyle::State_On))
-            {
+            } else if (toolbutton->state & (QStyle::State_Sunken | QStyle::State_On)) {
                 color = m_colorPressed;
-            }
-            else if(toolbutton->state & QStyle::State_MouseOver)
-            {
+            } else if (toolbutton->state & QStyle::State_MouseOver) {
                 color = m_colorHover;
-            }
-            else
-            {
+            } else {
                 color = m_colorDisabled;
             }
 
@@ -112,11 +100,10 @@ protected:
             }
 
             // Draw icon
-            if(!m_subIcon.isNull())
-            {
+            if (!m_subIcon.isNull()) {
                 QImage image = m_subIcon;
                 PlatformStyle::SingleColorImage(image, color);
-                QRect rectImage(rect.left() -m_subIconHeight -2, rect.top() + (rect.height() - m_subIconHeight)/2, m_subIconWidth, m_subIconHeight);
+                QRect rectImage(rect.left() - m_subIconHeight - 2, rect.top() + (rect.height() - m_subIconHeight) / 2, m_subIconWidth, m_subIconHeight);
                 p->drawImage(rectImage, image);
             }
 
@@ -131,15 +118,13 @@ protected:
         }
     }
 
-    void updateIcon(QStyleOptionToolButton &toolbutton)
+    void updateIcon(QStyleOptionToolButton& toolbutton)
     {
         // Update mouse over icon
-        if((toolbutton.state & QStyle::State_Enabled) &&
-                !(toolbutton.state & QStyle::State_On) &&
-                (toolbutton.state & QStyle::State_MouseOver))
-        {
-            if(!m_iconCached)
-            {
+        if ((toolbutton.state & QStyle::State_Enabled) &&
+            !(toolbutton.state & QStyle::State_On) &&
+            (toolbutton.state & QStyle::State_MouseOver)) {
+            if (!m_iconCached) {
                 QIcon icon = toolbutton.icon;
                 QPixmap pixmap = icon.pixmap(toolbutton.iconSize, QIcon::Selected, QIcon::On);
                 m_hoverIcon = QIcon(pixmap);
@@ -165,23 +150,22 @@ private:
     int m_subIconWidth;
 };
 
-NavigationBar::NavigationBar(QWidget *parent) :
-    QWidget(parent),
-    m_toolStyle(Qt::ToolButtonTextBesideIcon),
-    m_subBar(false),
-    m_built(false),
-    m_logoSpace(0)
+NavigationBar::NavigationBar(QWidget* parent) : QWidget(parent),
+                                                m_toolStyle(Qt::ToolButtonTextBesideIcon),
+                                                m_subBar(false),
+                                                m_built(false),
+                                                m_logoSpace(0)
 {
     m_logoSpace = GetIntStyleValue("navigationbar/logo-space", 0);
 }
 
-void NavigationBar::addAction(QAction *action)
+void NavigationBar::addAction(QAction* action)
 {
     // Add action to the list
     m_actions.append(action);
 }
 
-QAction *NavigationBar::addGroup(QList<QAction *> list, const QIcon &icon, const QString &text)
+QAction* NavigationBar::addGroup(QList<QAction*> list, const QIcon& icon, const QString& text)
 {
     // Add new group
     QAction* action = new QAction(icon, text, this);
@@ -189,7 +173,7 @@ QAction *NavigationBar::addGroup(QList<QAction *> list, const QIcon &icon, const
     return action;
 }
 
-QAction *NavigationBar::addGroup(QList<QAction *> list, const QString &text)
+QAction* NavigationBar::addGroup(QList<QAction*> list, const QString& text)
 {
     // Add new group
     QAction* action = new QAction(text, this);
@@ -200,8 +184,7 @@ QAction *NavigationBar::addGroup(QList<QAction *> list, const QString &text)
 void NavigationBar::buildUi()
 {
     // Build the layout of the complex GUI component
-    if(!m_built)
-    {
+    if (!m_built) {
         // Set it visible if main component
         setVisible(!m_subBar);
 
@@ -216,19 +199,17 @@ void NavigationBar::buildUi()
                                        m_subBar ? 0 : MarginBottom);
         vboxLayout->setSpacing(m_subBar ? 0 : ButtonSpacing);
 
-        if(!m_subBar)
-        {
-            QHBoxLayout *hLayout = new QHBoxLayout();
-            hLayout->setContentsMargins(0,0,0,10);
-            QLabel *labelLogo = new QLabel(this);
+        if (!m_subBar) {
+            QHBoxLayout* hLayout = new QHBoxLayout();
+            hLayout->setContentsMargins(0, 0, 0, 10);
+            QLabel* labelLogo = new QLabel(this);
             labelLogo->setFixedSize(LogoHeight, LogoWidth);
             labelLogo->setObjectName("labelLogo");
             hLayout->addWidget(labelLogo);
             vboxLayout->addLayout(hLayout);
 
-            if(m_logoSpace)
-            {
-                QFrame *line = new QFrame(this);
+            if (m_logoSpace) {
+                QFrame* line = new QFrame(this);
                 line->setObjectName("hLineLogo");
                 line->setFrameShape(QFrame::HLine);
                 vboxLayout->addWidget(line);
@@ -236,8 +217,7 @@ void NavigationBar::buildUi()
             }
         }
         // List all actions
-        for(int i = 0; i < m_actions.count(); i++)
-        {
+        for (int i = 0; i < m_actions.count(); i++) {
             // Add an action to the layout
             QAction* action = m_actions[i];
             action->setActionGroup(actionGroup);
@@ -247,24 +227,19 @@ void NavigationBar::buildUi()
             toolButton->setToolButtonStyle(m_toolStyle);
             toolButton->setDefaultAction(action);
             toolButton->setIconSize(QSize(ToolButtonIconSize, ToolButtonIconSize));
-            if(m_subBar)
-            {
+            if (m_subBar) {
                 SetObjectStyleSheet(toolButton, StyleSheetNames::NavSubGroupButton);
-            }
-            else
-            {
+            } else {
                 SetObjectStyleSheet(toolButton, StyleSheetNames::NavButton);
             }
 
-            if(m_groups.contains(action))
-            {
+            if (m_groups.contains(action)) {
                 // Add the tool button
                 QVBoxLayout* vboxLayout2 = new QVBoxLayout();
                 vboxLayout->addLayout(vboxLayout2);
                 vboxLayout2->addWidget(toolButton);
                 vboxLayout2->setSpacing(0);
-                if(!m_subBar)
-                {
+                if (!m_subBar) {
                     SetObjectStyleSheet(toolButton, StyleSheetNames::NavGroupButton);
                 }
 
@@ -272,30 +247,24 @@ void NavigationBar::buildUi()
                 QList<QAction*> group = m_groups[action];
                 NavigationBar* subNavBar = new NavigationBar(this);
                 subNavBar->setSubBar(true);
-                for(int j = 0; j < group.count(); j++)
-                {
+                for (int j = 0; j < group.count(); j++) {
                     subNavBar->addAction(group[j]);
                 }
                 vboxLayout2->addWidget(subNavBar);
                 subNavBar->buildUi();
                 connect(action, &QAction::toggled, subNavBar, &NavigationBar::onSubBarClick);
-            }
-            else
-            {
-
+            } else {
                 vboxLayout->addWidget(toolButton);
             }
         }
 
-        if(!m_subBar)
-        {
+        if (!m_subBar) {
             // Set specific parameters for for the main component
-            if(m_actions.count())
-            {
+            if (m_actions.count()) {
                 m_actions[0]->setChecked(true);
             }
             setMinimumWidth(defButtonWidth + MarginLeft + MarginRight);
-            QFrame *lineStatus = new QFrame(this);
+            QFrame* lineStatus = new QFrame(this);
             lineStatus->setObjectName("hLineStatus");
             lineStatus->setFrameShape(QFrame::HLine);
             vboxLayout->addStretch(1);
@@ -313,22 +282,18 @@ void NavigationBar::onSubBarClick(bool clicked)
     setVisible(clicked);
 
 
-    if(clicked && m_actions.count() > 0)
-    {
+    if (clicked && m_actions.count() > 0) {
         // Activate the checked action
         bool haveChecked = false;
-        for(int i = 0; i < m_actions.count(); i++)
-        {
+        for (int i = 0; i < m_actions.count(); i++) {
             QAction* action = m_actions[i];
-            if(action->isChecked())
-            {
+            if (action->isChecked()) {
                 action->trigger();
                 haveChecked = true;
                 break;
             }
         }
-        if(!haveChecked)
-        {
+        if (!haveChecked) {
             m_actions[0]->trigger();
         }
     }
@@ -340,13 +305,13 @@ void NavigationBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
     m_toolStyle = toolButtonStyle;
 }
 
-void NavigationBar::resizeEvent(QResizeEvent *evt)
+void NavigationBar::resizeEvent(QResizeEvent* evt)
 {
     QWidget::resizeEvent(evt);
     Q_EMIT resized(size());
 }
 
-void NavigationBar::mapGroup(QAction *action, QList<QAction *> list)
+void NavigationBar::mapGroup(QAction* action, QList<QAction*> list)
 {
     // Map the group with the actions
     addAction(action);
@@ -358,4 +323,3 @@ void NavigationBar::setSubBar(bool subBar)
     // Set the component be sub-navigation bar
     m_subBar = subBar;
 }
-

@@ -30,7 +30,7 @@ public:
         Time = 5
     };
 
-    enum DataRole{
+    enum DataRole {
         HashRole = Qt::UserRole + 1,
         AddressRole = Qt::UserRole + 2,
         StakerNameRole = Qt::UserRole + 3,
@@ -47,8 +47,7 @@ public:
         TxStatusRole = Qt::UserRole + 14,
     };
 
-    enum TxStatus
-    {
+    enum TxStatus {
         NoTx = 0,
         CreateTxConfirmed = 1,
         CreateTxNotConfirmed = 2,
@@ -57,19 +56,19 @@ public:
         RemoveTxError = 5,
     };
 
-    DelegationItemModel(WalletModel *parent = 0);
+    DelegationItemModel(WalletModel* parent = 0);
     ~DelegationItemModel();
 
     /** @name Methods overridden from QAbstractItemModel
         @{*/
     QModelIndex index(int row, int column,
-                              const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &child) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+                      const QModelIndex& parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex& child) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     /*@}*/
-    
+
     void updateDelegationData(const DelegationItemEntry& entry);
     void join();
 
@@ -78,17 +77,17 @@ public Q_SLOTS:
     void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, qint32 status);
 
 private Q_SLOTS:
-    void updateDelegationData(const QString &hash, int status, bool showDelegation);
+    void updateDelegationData(const QString& hash, int status, bool showDelegation);
 
 private:
     /** Notify listeners that data changed. */
     void emitDataChanged(int index);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    QString formatFee(const DelegationItemEntry *rec) const;
+    QString formatFee(const DelegationItemEntry* rec) const;
 
     QStringList columns;
-    WalletModel *walletModel;
+    WalletModel* walletModel;
     DelegationItemPriv* priv;
     DelegationWorker* worker;
     QThread t;

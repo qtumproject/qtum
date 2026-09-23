@@ -14,19 +14,18 @@ class TokenItemWidget : public QWidget
     Q_OBJECT
 
 public:
-    enum ItemType
-    {
+    enum ItemType {
         Record = 0,
         New = 1
     };
 
-    enum Buttons{
+    enum Buttons {
         Add = 0,
         Send = 1,
         Receive = 2
     };
 
-    explicit TokenItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
+    explicit TokenItemWidget(const PlatformStyle* platformStyle, QWidget* parent = 0, ItemType type = Record);
     ~TokenItemWidget();
 
     void setData(const QString& tokenName, const QString& tokenBalance, const QString& senderAddress, const QString& filename);
@@ -49,8 +48,8 @@ private:
     void updateLogo();
 
 private:
-    Ui::TokenItemWidget *ui;
-    const PlatformStyle *m_platfromStyle;
+    Ui::TokenItemWidget* ui;
+    const PlatformStyle* m_platfromStyle;
     ItemType m_type;
     int m_position;
     QString m_filename;

@@ -21,15 +21,15 @@ class CallContract : public QWidget
     Q_OBJECT
 
 public:
-    explicit CallContract(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit CallContract(const PlatformStyle* platformStyle, QWidget* parent = 0);
     ~CallContract();
 
-    void setClientModel(ClientModel *clientModel);
-    void setModel(WalletModel *model);
+    void setClientModel(ClientModel* clientModel);
+    void setModel(WalletModel* model);
     bool isValidContractAddress();
     bool isValidInterfaceABI();
     bool isDataValid();
-    void setContractAddress(const QString &address);
+    void setContractAddress(const QString& address);
 
 Q_SIGNALS:
 
@@ -47,7 +47,7 @@ private:
     QString toDataHex(int func, QString& errorMessage);
 
 private:
-    Ui::CallContract *ui;
+    Ui::CallContract* ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
     ContractTableModel* m_contractModel;

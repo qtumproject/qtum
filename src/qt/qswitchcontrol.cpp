@@ -1,20 +1,19 @@
 #include "qswitchcontrol.h"
 
-#include <QPushButton>
-#include <QPropertyAnimation>
-#include <QStyleOption>
 #include <QPainter>
+#include <QPropertyAnimation>
+#include <QPushButton>
+#include <QStyleOption>
 
 static const QSize FrameSize = QSize(68, 30);
-static const QSize SwitchSize = QSize (26, 26);
+static const QSize SwitchSize = QSize(26, 26);
 static const int SwitchOffset = (FrameSize.height() - SwitchSize.height()) / 2;
 
 static const QString CustomFrameOnStlye = QString("QAbstractButton { border: none; border-radius: %1; background-color: #4697D9;}").arg(FrameSize.height() / 2);
 static const QString CustomFrameOffStlye = QString("QAbstractButton { border: none; border-radius: %1; background-color: #6f80ab;}").arg(FrameSize.height() / 2);
 static const QString CustomButtonStlye = QString("QPushButton { min-width: 0em; border-radius: %1; background-color: white;}").arg(SwitchSize.height() / 2);
 
-QSwitchControl::QSwitchControl(QWidget *parent):
-    QAbstractButton(parent)
+QSwitchControl::QSwitchControl(QWidget* parent) : QAbstractButton(parent)
 {
     this->setFixedSize(FrameSize);
 
@@ -33,13 +32,10 @@ QSwitchControl::QSwitchControl(QWidget *parent):
 
 void QSwitchControl::setChecked(bool checked)
 {
-    if(checked)
-    {
+    if (checked) {
         pbSwitch->move(this->width() - pbSwitch->width() - SwitchOffset, this->y() + SwitchOffset);
         this->setStyleSheet(CustomFrameOnStlye);
-    }
-    else
-    {
+    } else {
         pbSwitch->move(this->x() + SwitchOffset, this->y() + SwitchOffset);
         this->setStyleSheet(CustomFrameOffStlye);
     }
@@ -53,18 +49,15 @@ void QSwitchControl::onStatusChanged()
 
     QRect currentGeometry(pbSwitch->x(), pbSwitch->y(), pbSwitch->width(), pbSwitch->height());
 
-    if(animation->state() == QAbstractAnimation::Running)
+    if (animation->state() == QAbstractAnimation::Running)
         animation->stop();
 
-    if(checked)
-    {
+    if (checked) {
         this->setStyleSheet(CustomFrameOnStlye);
 
         animation->setStartValue(currentGeometry);
         animation->setEndValue(QRect(this->width() - pbSwitch->width() - SwitchOffset, pbSwitch->y(), pbSwitch->width(), pbSwitch->height()));
-    }
-    else
-    {
+    } else {
         this->setStyleSheet(CustomFrameOffStlye);
 
         animation->setStartValue(currentGeometry);
@@ -76,12 +69,12 @@ void QSwitchControl::onStatusChanged()
     Q_EMIT clicked(checked);
 }
 
-void QSwitchControl::mousePressEvent(QMouseEvent *)
+void QSwitchControl::mousePressEvent(QMouseEvent*)
 {
     Q_EMIT mouseClicked();
 }
 
-void QSwitchControl::paintEvent(QPaintEvent *)
+void QSwitchControl::paintEvent(QPaintEvent*)
 {
     QStyleOption opt;
     opt.initFrom(this);

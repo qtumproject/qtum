@@ -2,11 +2,11 @@
 #define QTUM_QT_STAKEPAGE_H
 
 #include <interfaces/wallet.h>
+#include <qt/clientmodel.h>
 
 #include <QWidget>
-#include <memory>
 
-#include <qt/clientmodel.h>
+#include <memory>
 
 class TransactionFilterProxy;
 class PlatformStyle;
@@ -14,7 +14,7 @@ class WalletModel;
 class TransactionView;
 
 namespace Ui {
-    class StakePage;
+class StakePage;
 }
 
 QT_BEGIN_NAMESPACE
@@ -27,11 +27,11 @@ class StakePage : public QWidget
     Q_OBJECT
 
 public:
-    explicit StakePage(const PlatformStyle *platformStyle, QWidget *parent = nullptr);
+    explicit StakePage(const PlatformStyle* platformStyle, QWidget* parent = nullptr);
     ~StakePage();
 
-    void setClientModel(ClientModel *clientModel);
-    void setWalletModel(WalletModel *walletModel);
+    void setClientModel(ClientModel* clientModel);
+    void setWalletModel(WalletModel* walletModel);
 
 public Q_SLOTS:
     void setBalance(const interfaces::WalletBalances& balances);
@@ -44,9 +44,9 @@ Q_SIGNALS:
 
 
 private:
-    Ui::StakePage *ui;
-    ClientModel *clientModel;
-    WalletModel *walletModel;
+    Ui::StakePage* ui;
+    ClientModel* clientModel;
+    WalletModel* walletModel;
     const PlatformStyle* const platformStyle;
     TransactionView* transactionView;
     interfaces::WalletBalances m_balances;

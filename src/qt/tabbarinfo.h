@@ -1,10 +1,10 @@
 #ifndef TABBARINFO_H
 #define TABBARINFO_H
 
-#include <QStackedWidget>
-#include <QMap>
-#include <QTabBar>
 #include <QIcon>
+#include <QMap>
+#include <QStackedWidget>
+#include <QTabBar>
 
 /**
  * @brief The TabBarInfo class Class for informations about tabs.
@@ -18,7 +18,7 @@ public:
      * @brief TabBarInfo Constructor
      * @param parent Parent stack
      */
-    explicit TabBarInfo(QStackedWidget *parent);
+    explicit TabBarInfo(QStackedWidget* parent);
 
     /**
      * @brief addTab Add new tab

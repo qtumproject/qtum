@@ -1,10 +1,11 @@
 #include <qt/hardwaredevicedialog.h>
+
 #include <qt/forms/ui_hardwaredevicedialog.h>
+
 #include <QtGlobal>
 
-HardwareDeviceDialog::HardwareDeviceDialog(const QString& debugMessage, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::HardwareDeviceDialog)
+HardwareDeviceDialog::HardwareDeviceDialog(const QString& debugMessage, QWidget* parent) : QDialog(parent),
+                                                                                           ui(new Ui::HardwareDeviceDialog)
 {
     ui->setupUi(this);
     ui->textEditDebugMessage->setText(debugMessage);

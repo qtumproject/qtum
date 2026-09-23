@@ -1,42 +1,42 @@
 ﻿#include <qtum/qtumtoken.h>
-#include <validation.h>
-#include <util/moneystr.h>
-#include <util/contractabi.h>
+
 #include <key_io.h>
-#include <util/strencodings.h>
-#include <util/convert.h>
 #include <libethcore/ABI.h>
+#include <util/contractabi.h>
+#include <util/convert.h>
+#include <util/moneystr.h>
+#include <util/strencodings.h>
+#include <validation.h>
 
-namespace QtumToken_NS
-{
-const char *TOKEN_ABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burnFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"},{\"name\":\"_extraData\",\"type\":\"bytes\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"initialSupply\",\"type\":\"uint256\"},{\"name\":\"tokenName\",\"type\":\"string\"},{\"name\":\"decimalUnits\",\"type\":\"uint8\"},{\"name\":\"tokenSymbol\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"}]";
-const char *PARAM_ADDRESS = "address";
-const char *PARAM_DATAHEX = "datahex";
-const char *PARAM_AMOUNT = "amount";
-const char *PARAM_GASLIMIT = "gaslimit";
-const char *PARAM_GASPRICE = "gasprice";
-const char *PARAM_SENDER = "sender";
-const char *PARAM_BROADCAST = "broadcast";
-const char *PARAM_CHANGE_TO_SENDER = "changeToSender";
-const char *PARAM_PSBT = "psbt";
-}
+namespace QtumToken_NS {
+const char* TOKEN_ABI = "[{\"constant\":true,\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_from\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"burnFrom\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"name\":\"\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_to\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_spender\",\"type\":\"address\"},{\"name\":\"_value\",\"type\":\"uint256\"},{\"name\":\"_extraData\",\"type\":\"bytes\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"initialSupply\",\"type\":\"uint256\"},{\"name\":\"tokenName\",\"type\":\"string\"},{\"name\":\"decimalUnits\",\"type\":\"uint8\"},{\"name\":\"tokenSymbol\",\"type\":\"string\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"from\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Burn\",\"type\":\"event\"}]";
+const char* PARAM_ADDRESS = "address";
+const char* PARAM_DATAHEX = "datahex";
+const char* PARAM_AMOUNT = "amount";
+const char* PARAM_GASLIMIT = "gaslimit";
+const char* PARAM_GASPRICE = "gasprice";
+const char* PARAM_SENDER = "sender";
+const char* PARAM_BROADCAST = "broadcast";
+const char* PARAM_CHANGE_TO_SENDER = "changeToSender";
+const char* PARAM_PSBT = "psbt";
+} // namespace QtumToken_NS
 
-bool QtumTokenExec::execValid(const int &, const bool &)
-{
-    return false;
-}
-
-bool QtumTokenExec::execEventsValid(const int &, const int64_t &)
-{
-    return false;
-}
-
-bool QtumTokenExec::exec(const bool &, const std::map<std::string, std::string> &, std::string &, std::string &)
+bool QtumTokenExec::execValid(const int&, const bool&)
 {
     return false;
 }
 
-bool QtumTokenExec::execEvents(const int64_t &, const int64_t &, const int64_t&, const std::string &, const std::string &, const std::string &, const int &, std::vector<TokenEvent> &)
+bool QtumTokenExec::execEventsValid(const int&, const int64_t&)
+{
+    return false;
+}
+
+bool QtumTokenExec::exec(const bool&, const std::map<std::string, std::string>&, std::string&, std::string&)
+{
+    return false;
+}
+
+bool QtumTokenExec::execEvents(const int64_t&, const int64_t&, const int64_t&, const std::string&, const std::string&, const std::string&, const int&, std::vector<TokenEvent>&)
 {
     return false;
 }
@@ -47,10 +47,10 @@ bool QtumTokenExec::privateKeysDisabled()
 }
 
 QtumTokenExec::~QtumTokenExec()
-{}
-
-struct QtumTokenData
 {
+}
+
+struct QtumTokenData {
     std::map<std::string, std::string> lstParams;
     std::string address;
     QtumTokenExec* tokenExec;
@@ -74,35 +74,35 @@ struct QtumTokenData
     std::string psbt;
     std::string errorMessage;
 
-    QtumTokenData():
-        tokenExec(0),
-        ABI(0),
-        funcName(-1),
-        funcApprove(-1),
-        funcTotalSupply(-1),
-        funcTransferFrom(-1),
-        funcDecimals(-1),
-        funcBurn(-1),
-        funcBalanceOf(-1),
-        funcBurnFrom(-1),
-        funcSymbol(-1),
-        funcTransfer(-1),
-        funcApproveAndCall(-1),
-        funcAllowance(-1),
-        evtTransfer(-1),
-        evtBurn(-1)
-    {}
+    QtumTokenData() : tokenExec(0),
+                      ABI(0),
+                      funcName(-1),
+                      funcApprove(-1),
+                      funcTotalSupply(-1),
+                      funcTransferFrom(-1),
+                      funcDecimals(-1),
+                      funcBurn(-1),
+                      funcBalanceOf(-1),
+                      funcBurnFrom(-1),
+                      funcSymbol(-1),
+                      funcTransfer(-1),
+                      funcApproveAndCall(-1),
+                      funcAllowance(-1),
+                      evtTransfer(-1),
+                      evtBurn(-1)
+    {
+    }
 };
 
 bool QtumToken::ToHash160(const std::string& strQtumAddress, std::string& strHash160)
 {
     CTxDestination qtumAddress = DecodeDestination(strQtumAddress);
-    if(!IsValidDestination(qtumAddress))
+    if (!IsValidDestination(qtumAddress))
         return false;
-    if(std::holds_alternative<PKHash>(qtumAddress)){
+    if (std::holds_alternative<PKHash>(qtumAddress)) {
         PKHash keyid = std::get<PKHash>(qtumAddress);
-        strHash160 = HexStr(valtype(keyid.begin(),keyid.end()));
-    }else{
+        strHash160 = HexStr(valtype(keyid.begin(), keyid.end()));
+    } else {
         return false;
     }
     return true;
@@ -113,14 +113,14 @@ bool QtumToken::ToQtumAddress(const std::string& strHash160, std::string& strQtu
     uint160 key(ParseHex(strHash160.c_str()));
     PKHash keyid(key);
     CTxDestination qtumAddress = keyid;
-    if(IsValidDestination(qtumAddress)){
+    if (IsValidDestination(qtumAddress)) {
         strQtumAddress = EncodeDestination(qtumAddress);
         return true;
     }
     return false;
 }
 
-uint256 QtumToken::ToUint256(const std::string &data)
+uint256 QtumToken::ToUint256(const std::string& data)
 {
     dev::bytes rawData = dev::fromHex(data);
     dev::bytesConstRef o(&rawData);
@@ -128,73 +128,43 @@ uint256 QtumToken::ToUint256(const std::string &data)
     return u256Touint(outData);
 }
 
-QtumToken::QtumToken():
-    d(0)
+QtumToken::QtumToken() : d(0)
 {
     d = new QtumTokenData();
     clear();
 
     // Compute functions indexes
     d->ABI = new ContractABI();
-    if(d->ABI->loads(QtumToken_NS::TOKEN_ABI))
-    {
-        for(size_t i = 0; i < d->ABI->functions.size(); i++)
-        {
+    if (d->ABI->loads(QtumToken_NS::TOKEN_ABI)) {
+        for (size_t i = 0; i < d->ABI->functions.size(); i++) {
             FunctionABI func = d->ABI->functions[i];
-            if(func.name == "name")
-            {
+            if (func.name == "name") {
                 d->funcName = i;
-            }
-            else if(func.name == "approve")
-            {
+            } else if (func.name == "approve") {
                 d->funcApprove = i;
-            }
-            else if(func.name == "totalSupply")
-            {
+            } else if (func.name == "totalSupply") {
                 d->funcTotalSupply = i;
-            }
-            else if(func.name == "transferFrom")
-            {
+            } else if (func.name == "transferFrom") {
                 d->funcTransferFrom = i;
-            }
-            else if(func.name == "decimals")
-            {
+            } else if (func.name == "decimals") {
                 d->funcDecimals = i;
-            }
-            else if(func.name == "burn")
-            {
+            } else if (func.name == "burn") {
                 d->funcBurn = i;
-            }
-            else if(func.name == "balanceOf")
-            {
+            } else if (func.name == "balanceOf") {
                 d->funcBalanceOf = i;
-            }
-            else if(func.name == "burnFrom")
-            {
+            } else if (func.name == "burnFrom") {
                 d->funcBurnFrom = i;
-            }
-            else if(func.name == "symbol")
-            {
+            } else if (func.name == "symbol") {
                 d->funcSymbol = i;
-            }
-            else if(func.name == "transfer")
-            {
+            } else if (func.name == "transfer") {
                 d->funcTransfer = i;
-            }
-            else if(func.name == "approveAndCall")
-            {
+            } else if (func.name == "approveAndCall") {
                 d->funcApproveAndCall = i;
-            }
-            else if(func.name == "allowance")
-            {
+            } else if (func.name == "allowance") {
                 d->funcAllowance = i;
-            }
-            else if(func.name == "Transfer")
-            {
+            } else if (func.name == "Transfer") {
                 d->evtTransfer = i;
-            }
-            else if(func.name == "Burn")
-            {
+            } else if (func.name == "Burn") {
                 d->evtBurn = i;
             }
         }
@@ -205,37 +175,37 @@ QtumToken::~QtumToken()
 {
     d->tokenExec = 0;
 
-    if(d)
+    if (d)
         delete d;
     d = 0;
 }
 
-void QtumToken::setAddress(const std::string &address)
+void QtumToken::setAddress(const std::string& address)
 {
     d->lstParams[QtumToken_NS::PARAM_ADDRESS] = address;
 }
 
-void QtumToken::setDataHex(const std::string &datahex)
+void QtumToken::setDataHex(const std::string& datahex)
 {
     d->lstParams[QtumToken_NS::PARAM_DATAHEX] = datahex;
 }
 
-void QtumToken::setAmount(const std::string &amount)
+void QtumToken::setAmount(const std::string& amount)
 {
     d->lstParams[QtumToken_NS::PARAM_AMOUNT] = amount;
 }
 
-void QtumToken::setGasLimit(const std::string &gaslimit)
+void QtumToken::setGasLimit(const std::string& gaslimit)
 {
     d->lstParams[QtumToken_NS::PARAM_GASLIMIT] = gaslimit;
 }
 
-void QtumToken::setGasPrice(const std::string &gasPrice)
+void QtumToken::setGasPrice(const std::string& gasPrice)
 {
     d->lstParams[QtumToken_NS::PARAM_GASPRICE] = gasPrice;
 }
 
-void QtumToken::setSender(const std::string &sender)
+void QtumToken::setSender(const std::string& sender)
 {
     d->lstParams[QtumToken_NS::PARAM_SENDER] = sender;
 }
@@ -267,16 +237,15 @@ void QtumToken::setTxId(const std::string& txid)
     d->txid = txid;
 }
 
-bool QtumToken::name(std::string &result, bool sendTo)
+bool QtumToken::name(std::string& result, bool sendTo)
 {
     std::vector<std::string> input;
     std::vector<std::string> output;
-    if(!exec(input, d->funcName, output, sendTo))
+    if (!exec(input, d->funcName, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             result = output[0];
@@ -285,11 +254,10 @@ bool QtumToken::name(std::string &result, bool sendTo)
     return true;
 }
 
-bool QtumToken::approve(const std::string &_spender, const std::string &_value, bool &success, bool sendTo)
+bool QtumToken::approve(const std::string& _spender, const std::string& _value, bool& success, bool sendTo)
 {
     std::string spender = _spender;
-    if(!ToHash160(spender, spender))
-    {
+    if (!ToHash160(spender, spender)) {
         return false;
     }
 
@@ -298,12 +266,11 @@ bool QtumToken::approve(const std::string &_spender, const std::string &_value, 
     input.push_back(_value);
     std::vector<std::string> output;
 
-    if(!exec(input, d->funcApprove, output, sendTo))
+    if (!exec(input, d->funcApprove, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             success = output[0] == "true";
@@ -312,16 +279,15 @@ bool QtumToken::approve(const std::string &_spender, const std::string &_value, 
     return true;
 }
 
-bool QtumToken::totalSupply(std::string &result, bool sendTo)
+bool QtumToken::totalSupply(std::string& result, bool sendTo)
 {
     std::vector<std::string> input;
     std::vector<std::string> output;
-    if(!exec(input, d->funcTotalSupply, output, sendTo))
+    if (!exec(input, d->funcTotalSupply, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             result = output[0];
@@ -330,16 +296,14 @@ bool QtumToken::totalSupply(std::string &result, bool sendTo)
     return true;
 }
 
-bool QtumToken::transferFrom(const std::string &_from, const std::string &_to, const std::string &_value, bool &success, bool sendTo)
+bool QtumToken::transferFrom(const std::string& _from, const std::string& _to, const std::string& _value, bool& success, bool sendTo)
 {
     std::string from = _from;
-    if(!ToHash160(from, from))
-    {
+    if (!ToHash160(from, from)) {
         return false;
     }
     std::string to = _to;
-    if(!ToHash160(to, to))
-    {
+    if (!ToHash160(to, to)) {
         return false;
     }
 
@@ -349,12 +313,11 @@ bool QtumToken::transferFrom(const std::string &_from, const std::string &_to, c
     input.push_back(_value);
     std::vector<std::string> output;
 
-    if(!exec(input, d->funcTransferFrom, output, sendTo))
+    if (!exec(input, d->funcTransferFrom, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             success = output[0] == "true";
@@ -363,16 +326,15 @@ bool QtumToken::transferFrom(const std::string &_from, const std::string &_to, c
     return true;
 }
 
-bool QtumToken::decimals(std::string &result, bool sendTo)
+bool QtumToken::decimals(std::string& result, bool sendTo)
 {
     std::vector<std::string> input;
     std::vector<std::string> output;
-    if(!exec(input, d->funcDecimals, output, sendTo))
+    if (!exec(input, d->funcDecimals, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             result = output[0];
@@ -381,35 +343,33 @@ bool QtumToken::decimals(std::string &result, bool sendTo)
     return true;
 }
 
-bool QtumToken::decimals(uint32_t &result)
+bool QtumToken::decimals(uint32_t& result)
 {
     std::string str;
     bool ret = decimals(str);
     if (ret) {
-       const auto numDecimals{ToIntegral<uint32_t>(str)};
-       if (numDecimals) {
-           result = *numDecimals;
-       }
-       else {
-           ret = false;
-       }
+        const auto numDecimals{ToIntegral<uint32_t>(str)};
+        if (numDecimals) {
+            result = *numDecimals;
+        } else {
+            ret = false;
+        }
     }
     if (ret) ret &= result <= 77;
     return ret;
 }
 
-bool QtumToken::burn(const std::string &_value, bool &success, bool sendTo)
+bool QtumToken::burn(const std::string& _value, bool& success, bool sendTo)
 {
     std::vector<std::string> input;
     input.push_back(_value);
     std::vector<std::string> output;
 
-    if(!exec(input, d->funcBurn, output, sendTo))
+    if (!exec(input, d->funcBurn, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             success = output[0] == "true";
@@ -418,17 +378,16 @@ bool QtumToken::burn(const std::string &_value, bool &success, bool sendTo)
     return true;
 }
 
-bool QtumToken::balanceOf(std::string &result, bool sendTo)
+bool QtumToken::balanceOf(std::string& result, bool sendTo)
 {
     std::string spender = d->lstParams[QtumToken_NS::PARAM_SENDER];
     return balanceOf(spender, result, sendTo);
 }
 
-bool QtumToken::balanceOf(const std::string &_spender, std::string &result, bool sendTo)
+bool QtumToken::balanceOf(const std::string& _spender, std::string& result, bool sendTo)
 {
     std::string spender = _spender;
-    if(!ToHash160(spender, spender))
-    {
+    if (!ToHash160(spender, spender)) {
         return false;
     }
 
@@ -436,12 +395,11 @@ bool QtumToken::balanceOf(const std::string &_spender, std::string &result, bool
     input.push_back(spender);
     std::vector<std::string> output;
 
-    if(!exec(input, d->funcBalanceOf, output, sendTo))
+    if (!exec(input, d->funcBalanceOf, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             result = output[0];
@@ -450,11 +408,10 @@ bool QtumToken::balanceOf(const std::string &_spender, std::string &result, bool
     return true;
 }
 
-bool QtumToken::burnFrom(const std::string &_from, const std::string &_value, bool &success, bool sendTo)
+bool QtumToken::burnFrom(const std::string& _from, const std::string& _value, bool& success, bool sendTo)
 {
     std::string from = _from;
-    if(!ToHash160(from, from))
-    {
+    if (!ToHash160(from, from)) {
         return false;
     }
 
@@ -463,12 +420,11 @@ bool QtumToken::burnFrom(const std::string &_from, const std::string &_value, bo
     input.push_back(_value);
     std::vector<std::string> output;
 
-    if(!exec(input, d->funcBurnFrom, output, sendTo))
+    if (!exec(input, d->funcBurnFrom, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             success = output[0] == "true";
@@ -477,16 +433,15 @@ bool QtumToken::burnFrom(const std::string &_from, const std::string &_value, bo
     return true;
 }
 
-bool QtumToken::symbol(std::string &result, bool sendTo)
+bool QtumToken::symbol(std::string& result, bool sendTo)
 {
     std::vector<std::string> input;
     std::vector<std::string> output;
-    if(!exec(input, d->funcSymbol, output, sendTo))
+    if (!exec(input, d->funcSymbol, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             result = output[0];
@@ -495,11 +450,10 @@ bool QtumToken::symbol(std::string &result, bool sendTo)
     return true;
 }
 
-bool QtumToken::transfer(const std::string &_to, const std::string &_value, bool& success, bool sendTo)
+bool QtumToken::transfer(const std::string& _to, const std::string& _value, bool& success, bool sendTo)
 {
     std::string to = _to;
-    if(!ToHash160(to, to))
-    {
+    if (!ToHash160(to, to)) {
         return false;
     }
 
@@ -508,12 +462,11 @@ bool QtumToken::transfer(const std::string &_to, const std::string &_value, bool
     input.push_back(_value);
     std::vector<std::string> output;
 
-    if(!exec(input, d->funcTransfer, output, sendTo))
+    if (!exec(input, d->funcTransfer, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             success = output[0] == "true";
@@ -522,11 +475,10 @@ bool QtumToken::transfer(const std::string &_to, const std::string &_value, bool
     return true;
 }
 
-bool QtumToken::approveAndCall(const std::string &_spender, const std::string &_value, const std::string &_extraData, bool &success, bool sendTo)
+bool QtumToken::approveAndCall(const std::string& _spender, const std::string& _value, const std::string& _extraData, bool& success, bool sendTo)
 {
     std::string spender = _spender;
-    if(!ToHash160(spender, spender))
-    {
+    if (!ToHash160(spender, spender)) {
         return false;
     }
 
@@ -536,12 +488,11 @@ bool QtumToken::approveAndCall(const std::string &_spender, const std::string &_
     input.push_back(_extraData);
     std::vector<std::string> output;
 
-    if(!exec(input, d->funcApproveAndCall, output, sendTo))
+    if (!exec(input, d->funcApproveAndCall, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             success = output[0] == "true";
@@ -550,16 +501,14 @@ bool QtumToken::approveAndCall(const std::string &_spender, const std::string &_
     return true;
 }
 
-bool QtumToken::allowance(const std::string &_from, const std::string &_to, std::string &result, bool sendTo)
+bool QtumToken::allowance(const std::string& _from, const std::string& _to, std::string& result, bool sendTo)
 {
     std::string from = _from;
-    if(!ToHash160(from, from))
-    {
+    if (!ToHash160(from, from)) {
         return false;
     }
     std::string to = _to;
-    if(!ToHash160(to, to))
-    {
+    if (!ToHash160(to, to)) {
         return false;
     }
 
@@ -568,12 +517,11 @@ bool QtumToken::allowance(const std::string &_from, const std::string &_to, std:
     input.push_back(to);
     std::vector<std::string> output;
 
-    if(!exec(input, d->funcAllowance, output, sendTo))
+    if (!exec(input, d->funcAllowance, output, sendTo))
         return false;
 
-    if(!sendTo)
-    {
-        if(output.size() == 0)
+    if (!sendTo) {
+        if (output.size() == 0)
             return false;
         else
             result = output[0];
@@ -582,65 +530,57 @@ bool QtumToken::allowance(const std::string &_from, const std::string &_to, std:
     return true;
 }
 
-bool QtumToken::transferEvents(std::vector<TokenEvent> &tokenEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
+bool QtumToken::transferEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
 {
     return execEvents(fromBlock, toBlock, minconf, d->evtTransfer, tokenEvents);
 }
 
-bool QtumToken::burnEvents(std::vector<TokenEvent> &tokenEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
+bool QtumToken::burnEvents(std::vector<TokenEvent>& tokenEvents, int64_t fromBlock, int64_t toBlock, int64_t minconf)
 {
     return execEvents(fromBlock, toBlock, minconf, d->evtBurn, tokenEvents);
 }
 
-bool QtumToken::exec(const std::vector<std::string> &input, int func, std::vector<std::string> &output, bool sendTo)
+bool QtumToken::exec(const std::vector<std::string>& input, int func, std::vector<std::string>& output, bool sendTo)
 {
     // Convert the input data into hex encoded binary data
     d->txid = "";
     d->psbt = "";
-    if(d->tokenExec == 0 || !(d->tokenExec->execValid(func, sendTo)))
+    if (d->tokenExec == 0 || !(d->tokenExec->execValid(func, sendTo)))
         return false;
     std::string strData;
     FunctionABI function = d->ABI->functions[func];
     std::vector<std::vector<std::string>> values;
-    for(size_t i = 0; i < input.size(); i++)
-    {
+    for (size_t i = 0; i < input.size(); i++) {
         std::vector<std::string> param;
         param.push_back(input[i]);
         values.push_back(param);
     }
     std::vector<ParameterABI::ErrorType> errors;
-    if(!function.abiIn(values, strData, errors))
+    if (!function.abiIn(values, strData, errors))
         return false;
     setDataHex(strData);
 
     // Execute the command and get the result
     std::string result;
-    d->errorMessage.clear();    
-    if(!(d->tokenExec->exec(sendTo, d->lstParams, result, d->errorMessage)))
+    d->errorMessage.clear();
+    if (!(d->tokenExec->exec(sendTo, d->lstParams, result, d->errorMessage)))
         return false;
 
     // Get the result from calling function
-    if(!sendTo)
-    {
+    if (!sendTo) {
         std::string rawData = result;
         std::vector<std::vector<std::string>> values;
         std::vector<ParameterABI::ErrorType> errors;
-        if(!function.abiOut(rawData, values, errors))
+        if (!function.abiOut(rawData, values, errors))
             return false;
-        for(size_t i = 0; i < values.size(); i++)
-        {
+        for (size_t i = 0; i < values.size(); i++) {
             std::vector<std::string> param = values[i];
             output.push_back(param.size() ? param[0] : "");
         }
-    }
-    else
-    {
-        if(d->tokenExec->privateKeysDisabled())
-        {
+    } else {
+        if (d->tokenExec->privateKeysDisabled()) {
             d->psbt = result;
-        }
-        else
-        {
+        } else {
             d->txid = result;
         }
     }
@@ -648,20 +588,19 @@ bool QtumToken::exec(const std::vector<std::string> &input, int func, std::vecto
     return true;
 }
 
-void QtumToken::addTokenEvent(std::vector<TokenEvent> &tokenEvents, TokenEvent tokenEvent)
+void QtumToken::addTokenEvent(std::vector<TokenEvent>& tokenEvents, TokenEvent tokenEvent)
 {
     // Check if the event is from an existing token transaction and update the value
     bool found = false;
-    for(size_t i = 0; i < tokenEvents.size(); i++)
-    {
+    for (size_t i = 0; i < tokenEvents.size(); i++) {
         // Compare the event data
         TokenEvent tokenTx = tokenEvents[i];
-        if(tokenTx.address != tokenEvent.address) continue;
-        if(tokenTx.sender != tokenEvent.sender) continue;
-        if(tokenTx.receiver != tokenEvent.receiver) continue;
-        if(tokenTx.blockHash != tokenEvent.blockHash) continue;
-        if(tokenTx.blockNumber != tokenEvent.blockNumber) continue;
-        if(tokenTx.transactionHash != tokenEvent.transactionHash) continue;
+        if (tokenTx.address != tokenEvent.address) continue;
+        if (tokenTx.sender != tokenEvent.sender) continue;
+        if (tokenTx.receiver != tokenEvent.receiver) continue;
+        if (tokenTx.blockHash != tokenEvent.blockHash) continue;
+        if (tokenTx.blockNumber != tokenEvent.blockNumber) continue;
+        if (tokenTx.transactionHash != tokenEvent.transactionHash) continue;
 
         // Update the value
         dev::u256 tokenValue = uintTou256(tokenTx.value) + uintTou256(tokenEvent.value);
@@ -672,14 +611,14 @@ void QtumToken::addTokenEvent(std::vector<TokenEvent> &tokenEvents, TokenEvent t
     }
 
     // Add new event
-    if(!found)
+    if (!found)
         tokenEvents.push_back(tokenEvent);
 }
 
-bool QtumToken::execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, int func, std::vector<TokenEvent> &tokenEvents)
+bool QtumToken::execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, int func, std::vector<TokenEvent>& tokenEvents)
 {
     // Check parameters
-    if(d->tokenExec == 0 || !(d->tokenExec->execEventsValid(func, fromBlock)))
+    if (d->tokenExec == 0 || !(d->tokenExec->execEventsValid(func, fromBlock)))
         return false;
 
     //  Get function
@@ -691,14 +630,13 @@ bool QtumToken::execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, 
     std::string contractAddress = d->lstParams[QtumToken_NS::PARAM_ADDRESS];
     std::string senderAddress = d->lstParams[QtumToken_NS::PARAM_SENDER];
     ToHash160(senderAddress, senderAddress);
-    senderAddress  = "000000000000000000000000" + senderAddress;
+    senderAddress = "000000000000000000000000" + senderAddress;
     int numTopics = function.numIndexed() + 1;
-    if(!(d->tokenExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, numTopics, result)))
+    if (!(d->tokenExec->execEvents(fromBlock, toBlock, minconf, eventName, contractAddress, senderAddress, numTopics, result)))
         return false;
 
     // Parse the result events
-    for(const TokenEvent& tokenEvent : result)
-    {
+    for (const TokenEvent& tokenEvent : result) {
         addTokenEvent(tokenEvents, tokenEvent);
     }
 
@@ -710,7 +648,7 @@ std::string QtumToken::getErrorMessage()
     return d->errorMessage;
 }
 
-void QtumToken::setQtumTokenExec(QtumTokenExec *tokenExec)
+void QtumToken::setQtumTokenExec(QtumTokenExec* tokenExec)
 {
     d->tokenExec = tokenExec;
 }

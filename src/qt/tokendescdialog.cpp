@@ -1,14 +1,13 @@
 #include <qt/tokendescdialog.h>
-#include <qt/forms/ui_tokendescdialog.h>
 
-#include <qt/tokenfilterproxy.h>
+#include <qt/forms/ui_tokendescdialog.h>
 #include <qt/styleSheet.h>
+#include <qt/tokenfilterproxy.h>
 
 #include <QModelIndex>
 
-TokenDescDialog::TokenDescDialog(const QModelIndex &idx, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::TokenDescDialog)
+TokenDescDialog::TokenDescDialog(const QModelIndex& idx, QWidget* parent) : QDialog(parent),
+                                                                            ui(new Ui::TokenDescDialog)
 {
     ui->setupUi(this);
 

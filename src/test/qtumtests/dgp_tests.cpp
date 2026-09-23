@@ -1,9 +1,10 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <script/solver.h>
 #include <chainparams.h>
+#include <script/solver.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace dgpTest{
+#include <boost/test/unit_test.hpp>
+
+namespace dgpTest {
 
 const std::vector<valtype> code = {
     /*setInitialAdmin()*/
@@ -226,14 +227,13 @@ const std::vector<valtype> code = {
             }
         }
     */
-    valtype(ParseHex("6060604052602060405190810160405280607b60ff168152506000906001610028929190610036565b50341561003157fe5b610109565b8260016007016008900481019282156100c55791602002820160005b8382111561009357835183826101000a81548163ffffffff021916908360ff1602179055509260200192600401602081600301049283019260010302610052565b80156100c35782816101000a81549063ffffffff0219169055600401602081600301049283019260010302610093565b505b5090506100d291906100d6565b5090565b61010691905b8082111561010257600081816101000a81549063ffffffff0219169055506001016100dc565b5090565b90565b610169806101186000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633fb588191461003b575bfe5b341561004357fe5b61004b610097565b6040518082600160200280838360008314610085575b80518252602083111561008557602082019150602081019050602083039250610061565b50505090500191505060405180910390f35b61009f61010f565b6000600180602002604051908101604052809291908260018015610104576020028201916000905b82829054906101000a900463ffffffff1663ffffffff16815260200190600401906020826003010492830192600103820291508084116100c75790505b505050505090505b90565b6020604051908101604052806001905b600063ffffffff1681526020019060019003908161011f57905050905600a165627a7a72305820bfd8ad217275ac01e0ff45cf88c44acf60c31d36f6cf200711eb17d6831a54cc0029"))
-};
+    valtype(ParseHex("6060604052602060405190810160405280607b60ff168152506000906001610028929190610036565b50341561003157fe5b610109565b8260016007016008900481019282156100c55791602002820160005b8382111561009357835183826101000a81548163ffffffff021916908360ff1602179055509260200192600401602081600301049283019260010302610052565b80156100c35782816101000a81549063ffffffff0219169055600401602081600301049283019260010302610093565b505b5090506100d291906100d6565b5090565b61010691905b8082111561010257600081816101000a81549063ffffffff0219169055506001016100dc565b5090565b90565b610169806101186000396000f30060606040526000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680633fb588191461003b575bfe5b341561004357fe5b61004b610097565b6040518082600160200280838360008314610085575b80518252602083111561008557602082019150602081019050602083039250610061565b50505090500191505060405180910390f35b61009f61010f565b6000600180602002604051908101604052809291908260018015610104576020028201916000905b82829054906101000a900463ffffffff1663ffffffff16815260200190600401906020826003010492830192600103820291508084116100c75790505b505050505090505b90565b6020604051908101604052806001905b600063ffffffff1681526020019060019003908161011f57905050905600a165627a7a72305820bfd8ad217275ac01e0ff45cf88c44acf60c31d36f6cf200711eb17d6831a54cc0029"))};
 
-struct EVMScheduleCustom : public dev::eth::EVMSchedule{
-    EVMScheduleCustom(bool v1,bool v2,bool v3,bool v4,std::array<unsigned, 8> v5,unsigned v6,unsigned v7,unsigned v8,unsigned v9,unsigned v10,unsigned v11,
-                      unsigned v12,unsigned v13,unsigned v14,unsigned v15,unsigned v16,unsigned v17,unsigned v18,unsigned v19,unsigned v20,unsigned v21,
-                      unsigned v22,unsigned v23,unsigned v24,unsigned v25,unsigned v26,unsigned v27,unsigned v28,unsigned v29,unsigned v30,unsigned v31,
-                      unsigned v32,unsigned v33,unsigned v34,unsigned v35,unsigned v36)
+struct EVMScheduleCustom : public dev::eth::EVMSchedule {
+    EVMScheduleCustom(bool v1, bool v2, bool v3, bool v4, std::array<unsigned, 8> v5, unsigned v6, unsigned v7, unsigned v8, unsigned v9, unsigned v10, unsigned v11,
+                      unsigned v12, unsigned v13, unsigned v14, unsigned v15, unsigned v16, unsigned v17, unsigned v18, unsigned v19, unsigned v20, unsigned v21,
+                      unsigned v22, unsigned v23, unsigned v24, unsigned v25, unsigned v26, unsigned v27, unsigned v28, unsigned v29, unsigned v30, unsigned v31,
+                      unsigned v32, unsigned v33, unsigned v34, unsigned v35, unsigned v36)
     {
         exceptionalFailedCodeDeposit = v1;
         haveDelegateCall = v2;
@@ -274,16 +274,17 @@ struct EVMScheduleCustom : public dev::eth::EVMSchedule{
     }
 };
 
-const EVMScheduleCustom EVMScheduleContractGasSchedule(true,true,true,true,{{10,10,10,10,10,10,10,10}},10,50,30,6,200,20000,5000,15000,
-    1,375,8,375,32000,700,2300,9000,25000,24000,3,512,200,21000,53000,4,68,3,700,700,400,5000,24576);
-const EVMScheduleCustom EVMScheduleContractGasSchedule2(true,true,true,true,{{13,10,10,10,10,10,10,10}},10,50,30,6,200,20000,5000,15000,
-    1,375,8,375,32000,700,2300,9000,25000,24000,3,512,200,21000,53000,4,68,3,700,700,400,5000,300);
-const EVMScheduleCustom EVMScheduleContractGasSchedule3(true,true,true,true,{{13,13,10,10,10,10,10,10}},10,50,30,6,200,20000,5000,15000,
-    1,375,8,375,32000,700,2300,9000,25000,24000,3,512,200,21000,53000,4,68,3,700,700,400,600,300);
+const EVMScheduleCustom EVMScheduleContractGasSchedule(true, true, true, true, {{10, 10, 10, 10, 10, 10, 10, 10}}, 10, 50, 30, 6, 200, 20000, 5000, 15000,
+                                                       1, 375, 8, 375, 32000, 700, 2300, 9000, 25000, 24000, 3, 512, 200, 21000, 53000, 4, 68, 3, 700, 700, 400, 5000, 24576);
+const EVMScheduleCustom EVMScheduleContractGasSchedule2(true, true, true, true, {{13, 10, 10, 10, 10, 10, 10, 10}}, 10, 50, 30, 6, 200, 20000, 5000, 15000,
+                                                        1, 375, 8, 375, 32000, 700, 2300, 9000, 25000, 24000, 3, 512, 200, 21000, 53000, 4, 68, 3, 700, 700, 400, 5000, 300);
+const EVMScheduleCustom EVMScheduleContractGasSchedule3(true, true, true, true, {{13, 13, 10, 10, 10, 10, 10, 10}}, 10, 50, 30, 6, 200, 20000, 5000, 15000,
+                                                        1, 375, 8, 375, 32000, 700, 2300, 9000, 25000, 24000, 3, 512, 200, 21000, 53000, 4, 68, 3, 700, 700, 400, 600, 300);
 
 const dev::h256 hash = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
 
-void contractLoading(){
+void contractLoading()
+{
     const CChainParams& chainparams = Params();
     int coinbaseMaturity = chainparams.GetConsensus().CoinbaseMaturity(0);
     dev::eth::ChainParams cp(chainparams.EVMGenesisInfo(coinbaseMaturity + 900));
@@ -292,37 +293,40 @@ void contractLoading(){
     globalState->db().commit();
 }
 
-bool compareEVMSchedule(const dev::eth::EVMSchedule& a, const dev::eth::EVMSchedule& b){
-    if(a.tierStepGas == b.tierStepGas && a.expGas == b.expGas && a.expByteGas == b.expByteGas &&
-    a.sha3Gas == b.sha3Gas && a.sha3WordGas == b.sha3WordGas && a.sloadGas == b.sloadGas &&
-    a.sstoreSetGas == b.sstoreSetGas && a.sstoreResetGas == b.sstoreResetGas && a.sstoreRefundGas == b.sstoreRefundGas &&
-    a.jumpdestGas == b.jumpdestGas && a.logGas == b.logGas && a.logDataGas == b.logDataGas &&
-    a.logTopicGas == b.logTopicGas && a.createGas == b.createGas && a.callGas == b.callGas &&
-    a.callStipend == b.callStipend && a.callValueTransferGas == b.callValueTransferGas &&
-    a.callNewAccountGas == b.callNewAccountGas && a.selfdestructRefundGas == b.selfdestructRefundGas &&
-    a.memoryGas == b.memoryGas && a.quadCoeffDiv == b.quadCoeffDiv && a.createDataGas == b.createDataGas &&
-    a.txGas == b.txGas && a.txCreateGas == b.txCreateGas && a.txDataZeroGas == b.txDataZeroGas &&
-    a.txDataNonZeroGas == b.txDataNonZeroGas && a.copyGas == b.copyGas && a.extcodesizeGas == b.extcodesizeGas &&
-    a.extcodecopyGas == b.extcodecopyGas && a.balanceGas == b.balanceGas && a.selfdestructGas == b.selfdestructGas &&
-    a.maxCodeSize == b.maxCodeSize && a.exceptionalFailedCodeDeposit == b.exceptionalFailedCodeDeposit &&
-    a.haveDelegateCall == b.haveDelegateCall && a.eip150Mode == b.eip150Mode && a.eip158Mode == b.eip158Mode&&
-    a.haveRevert == b.haveRevert && a.haveStaticCall == b.haveStaticCall && a.haveReturnData == b.haveReturnData &&
-    a.blockRewardOverwrite == b.blockRewardOverwrite)
+bool compareEVMSchedule(const dev::eth::EVMSchedule& a, const dev::eth::EVMSchedule& b)
+{
+    if (a.tierStepGas == b.tierStepGas && a.expGas == b.expGas && a.expByteGas == b.expByteGas &&
+        a.sha3Gas == b.sha3Gas && a.sha3WordGas == b.sha3WordGas && a.sloadGas == b.sloadGas &&
+        a.sstoreSetGas == b.sstoreSetGas && a.sstoreResetGas == b.sstoreResetGas && a.sstoreRefundGas == b.sstoreRefundGas &&
+        a.jumpdestGas == b.jumpdestGas && a.logGas == b.logGas && a.logDataGas == b.logDataGas &&
+        a.logTopicGas == b.logTopicGas && a.createGas == b.createGas && a.callGas == b.callGas &&
+        a.callStipend == b.callStipend && a.callValueTransferGas == b.callValueTransferGas &&
+        a.callNewAccountGas == b.callNewAccountGas && a.selfdestructRefundGas == b.selfdestructRefundGas &&
+        a.memoryGas == b.memoryGas && a.quadCoeffDiv == b.quadCoeffDiv && a.createDataGas == b.createDataGas &&
+        a.txGas == b.txGas && a.txCreateGas == b.txCreateGas && a.txDataZeroGas == b.txDataZeroGas &&
+        a.txDataNonZeroGas == b.txDataNonZeroGas && a.copyGas == b.copyGas && a.extcodesizeGas == b.extcodesizeGas &&
+        a.extcodecopyGas == b.extcodecopyGas && a.balanceGas == b.balanceGas && a.selfdestructGas == b.selfdestructGas &&
+        a.maxCodeSize == b.maxCodeSize && a.exceptionalFailedCodeDeposit == b.exceptionalFailedCodeDeposit &&
+        a.haveDelegateCall == b.haveDelegateCall && a.eip150Mode == b.eip150Mode && a.eip158Mode == b.eip158Mode &&
+        a.haveRevert == b.haveRevert && a.haveStaticCall == b.haveStaticCall && a.haveReturnData == b.haveReturnData &&
+        a.blockRewardOverwrite == b.blockRewardOverwrite)
         return true;
     return false;
 }
 
-bool compareUint64(const uint64_t& value1, const uint64_t& value2){
-    if(value1 == value2)
+bool compareUint64(const uint64_t& value1, const uint64_t& value2)
+{
+    if (value1 == value2)
         return true;
     return false;
 }
 
-void createTestContractsAndBlocks(TestChain100Setup* testChain100Setup, const valtype& code1, const valtype& code2, const valtype& code3, dev::Address addr, ChainstateManager& chainman){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createTestContractsAndBlocks(TestChain100Setup* testChain100Setup, const valtype& code1, const valtype& code2, const valtype& code3, dev::Address addr, ChainstateManager& chainman)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         globalState->setRoot(oldHashStateRoot);
         globalState->setRootUTXO(oldHashUTXORoot);
@@ -349,21 +353,23 @@ void createTestContractsAndBlocks(TestChain100Setup* testChain100Setup, const va
 }
 
 template <typename T>
-void checkValue(T value, T value1, T value2, T value3, T value4, size_t i, std::function<bool(T&,T&)> func){
+void checkValue(T value, T value1, T value2, T value3, T value4, size_t i, std::function<bool(T&, T&)> func)
+{
     size_t coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
-    if(i > (coinbaseMaturity + 99))
+    if (i > (coinbaseMaturity + 99))
         BOOST_CHECK(func(value, value4));
-    if((coinbaseMaturity + 99) > i && i > (coinbaseMaturity + 50))
+    if ((coinbaseMaturity + 99) > i && i > (coinbaseMaturity + 50))
         BOOST_CHECK(func(value, value3));
-    if((coinbaseMaturity + 50) > i && i > (coinbaseMaturity + 1))
+    if ((coinbaseMaturity + 50) > i && i > (coinbaseMaturity + 1))
         BOOST_CHECK(func(value, value2));
-    if((coinbaseMaturity + 1) > i && i > 0) // After initializing the tests, the height of the chain 502
+    if ((coinbaseMaturity + 1) > i && i > 0) // After initializing the tests, the height of the chain 502
         BOOST_CHECK(func(value, value1));
 }
 
 BOOST_FIXTURE_TEST_SUITE(dgp_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test1){
+BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test1)
+{
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
@@ -371,7 +377,8 @@ BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test1){
     BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::EIP158Schedule));
 }
 
-BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test2){
+BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test2)
+{
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
@@ -379,7 +386,8 @@ BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test2){
     BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::EIP158Schedule));
 }
 
-BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test3){
+BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test3)
+{
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
@@ -388,7 +396,8 @@ BOOST_AUTO_TEST_CASE(gas_schedule_default_state_test3){
     BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::LondonSchedule));
 }
 
-BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test1){
+BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test1)
+{
     initState();
     contractLoading();
 
@@ -404,7 +413,8 @@ BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test1)
     BOOST_CHECK(compareEVMSchedule(schedule, dev::eth::EIP158Schedule));
 }
 
-BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test2){
+BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test2)
+{
     initState();
     contractLoading();
 
@@ -421,36 +431,39 @@ BOOST_AUTO_TEST_CASE(gas_schedule_one_paramsInstance_introductory_block_1_test2)
     BOOST_CHECK(compareEVMSchedule(schedule, EVMScheduleContractGasSchedule));
 }
 
-BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_0_to_130_three_paramsInstance_test){
-//    initState();
-    contractLoading();    
-    createTestContractsAndBlocks(this, code[1], code[3], code[5], GasScheduleDGP, *m_node.chainman);
-    QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
-    size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
-    for(size_t i = 0; i < sizeList; i++){
-        dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(i);
-        std::function<bool(const dev::eth::EVMSchedule&, const dev::eth::EVMSchedule&)> func = compareEVMSchedule;
-        checkValue<dev::eth::EVMSchedule>(schedule, dev::eth::EIP158Schedule, EVMScheduleContractGasSchedule,
-            EVMScheduleContractGasSchedule2, EVMScheduleContractGasSchedule3, i, func);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_130_to_0_three_paramsInstance_test){
-//    initState();
+BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_0_to_130_three_paramsInstance_test)
+{
+    //    initState();
     contractLoading();
-    
     createTestContractsAndBlocks(this, code[1], code[3], code[5], GasScheduleDGP, *m_node.chainman);
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
     size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
-    for(size_t i = sizeList; i > 0; i--){
+    for (size_t i = 0; i < sizeList; i++) {
         dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(i);
         std::function<bool(const dev::eth::EVMSchedule&, const dev::eth::EVMSchedule&)> func = compareEVMSchedule;
         checkValue<dev::eth::EVMSchedule>(schedule, dev::eth::EIP158Schedule, EVMScheduleContractGasSchedule,
-            EVMScheduleContractGasSchedule2, EVMScheduleContractGasSchedule3, i, func);
+                                          EVMScheduleContractGasSchedule2, EVMScheduleContractGasSchedule3, i, func);
     }
 }
 
-BOOST_AUTO_TEST_CASE(block_size_default_state_test1){
+BOOST_AUTO_TEST_CASE(gas_schedule_passage_from_130_to_0_three_paramsInstance_test)
+{
+    //    initState();
+    contractLoading();
+
+    createTestContractsAndBlocks(this, code[1], code[3], code[5], GasScheduleDGP, *m_node.chainman);
+    QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
+    size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
+    for (size_t i = sizeList; i > 0; i--) {
+        dev::eth::EVMSchedule schedule = qtumDGP.getGasSchedule(i);
+        std::function<bool(const dev::eth::EVMSchedule&, const dev::eth::EVMSchedule&)> func = compareEVMSchedule;
+        checkValue<dev::eth::EVMSchedule>(schedule, dev::eth::EIP158Schedule, EVMScheduleContractGasSchedule,
+                                          EVMScheduleContractGasSchedule2, EVMScheduleContractGasSchedule3, i, func);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(block_size_default_state_test1)
+{
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
@@ -460,7 +473,8 @@ BOOST_AUTO_TEST_CASE(block_size_default_state_test1){
     BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor);
 }
 
-BOOST_AUTO_TEST_CASE(block_size_default_state_test2){
+BOOST_AUTO_TEST_CASE(block_size_default_state_test2)
+{
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
@@ -470,7 +484,8 @@ BOOST_AUTO_TEST_CASE(block_size_default_state_test2){
     BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor);
 }
 
-BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test1){
+BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test1)
+{
     initState();
     contractLoading();
 
@@ -488,7 +503,8 @@ BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test1){
     BOOST_CHECK(blockSize == DEFAULT_BLOCK_SIZE_DGP / blocktimeDownscaleFactor);
 }
 
-BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test2){
+BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test2)
+{
     initState();
     contractLoading();
 
@@ -505,14 +521,15 @@ BOOST_AUTO_TEST_CASE(block_size_one_paramsInstance_introductory_block_1_test2){
     BOOST_CHECK(blockSize == 1000000);
 }
 
-BOOST_AUTO_TEST_CASE(block_size_passage_from_0_to_130_three_paramsInstance_test){
-//    initState();
+BOOST_AUTO_TEST_CASE(block_size_passage_from_0_to_130_three_paramsInstance_test)
+{
+    //    initState();
     contractLoading();
-    
+
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP, *m_node.chainman);
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
     size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
-    for(size_t i = 0; i < sizeList; i++){
+    for (size_t i = 0; i < sizeList; i++) {
         uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(i);
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
@@ -520,14 +537,15 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_0_to_130_three_paramsInstance_test)
     }
 }
 
-BOOST_AUTO_TEST_CASE(block_size_passage_from_130_to_0_three_paramsInstance_test){
-//    initState();
+BOOST_AUTO_TEST_CASE(block_size_passage_from_130_to_0_three_paramsInstance_test)
+{
+    //    initState();
     contractLoading();
-    
+
     createTestContractsAndBlocks(this, code[7], code[8], code[9], BlockSizeDGP, *m_node.chainman);
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
     size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
-    for(size_t i = sizeList; i > 0; i--){
+    for (size_t i = sizeList; i > 0; i--) {
         uint32_t blocktimeDownscaleFactor = Params().GetConsensus().BlocktimeDownscaleFactor(i);
         uint32_t blockSize = qtumDGP.getBlockSize(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
@@ -535,7 +553,8 @@ BOOST_AUTO_TEST_CASE(block_size_passage_from_130_to_0_three_paramsInstance_test)
     }
 }
 
-BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test1){
+BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test1)
+{
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
@@ -543,7 +562,8 @@ BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test1){
     BOOST_CHECK(minGasPrice == DEFAULT_MIN_GAS_PRICE_DGP);
 }
 
-BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test2){
+BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test2)
+{
     initState();
     contractLoading();
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
@@ -551,7 +571,8 @@ BOOST_AUTO_TEST_CASE(min_gas_price_default_state_test2){
     BOOST_CHECK(minGasPrice == DEFAULT_MIN_GAS_PRICE_DGP);
 }
 
-BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test1){
+BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test1)
+{
     initState();
     contractLoading();
 
@@ -567,7 +588,8 @@ BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test1
     BOOST_CHECK(minGasPrice == DEFAULT_MIN_GAS_PRICE_DGP);
 }
 
-BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test2){
+BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test2)
+{
     initState();
     contractLoading();
 
@@ -584,28 +606,30 @@ BOOST_AUTO_TEST_CASE(min_gas_price_one_paramsInstance_introductory_block_1_test2
     BOOST_CHECK(minGasPrice == 13);
 }
 
-BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_0_to_130_three_paramsInstance_test){
-//    initState();
+BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_0_to_130_three_paramsInstance_test)
+{
+    //    initState();
     contractLoading();
-    
+
     createTestContractsAndBlocks(this, code[10], code[11], code[12], GasPriceDGP, *m_node.chainman);
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
     size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
-    for(size_t i = 0; i < sizeList; i++){
+    for (size_t i = 0; i < sizeList; i++) {
         uint64_t minGasPrice = qtumDGP.getMinGasPrice(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
         checkValue<uint64_t>(minGasPrice, DEFAULT_MIN_GAS_PRICE_DGP, 13, 9850, 123, i, func);
     }
 }
 
-BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_130_to_0_three_paramsInstance_test){
-//    initState();
+BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_130_to_0_three_paramsInstance_test)
+{
+    //    initState();
     contractLoading();
-    
+
     createTestContractsAndBlocks(this, code[10], code[11], code[12], GasPriceDGP, *m_node.chainman);
     QtumDGP qtumDGP(globalState.get(), m_node.chainman->ActiveChainstate());
     size_t sizeList = Params().GetConsensus().CoinbaseMaturity(0) + 800;
-    for(size_t i = sizeList; i > 0; i--){
+    for (size_t i = sizeList; i > 0; i--) {
         uint64_t minGasPrice = qtumDGP.getMinGasPrice(i);
         std::function<bool(const uint64_t&, const uint64_t&)> func = compareUint64;
         checkValue<uint64_t>(minGasPrice, DEFAULT_MIN_GAS_PRICE_DGP, 13, 9850, 123, i, func);
@@ -614,4 +638,4 @@ BOOST_AUTO_TEST_CASE(min_gas_price_passage_from_130_to_0_three_paramsInstance_te
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace dgpTest

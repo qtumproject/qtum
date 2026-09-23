@@ -1,8 +1,8 @@
 #include <qt/tokenfilterproxy.h>
 
-#include <cstdlib>
-
 #include <QDateTime>
+
+#include <cstdlib>
 
 // Earliest date that can be represented (far in the past)
 const QDateTime TokenFilterProxy::MIN_DATE = QDateTime::fromSecsSinceEpoch(0);
@@ -14,27 +14,25 @@ dev::s256 abs_int256(const dev::s256& value)
     return value > 0 ? value : -value;
 }
 
-TokenFilterProxy::TokenFilterProxy(QObject *parent) :
-    QSortFilterProxyModel(parent),
-    dateFrom(MIN_DATE),
-    dateTo(MAX_DATE),
-    addrPrefix(),
-    name(),
-    typeFilter(ALL_TYPES),
-    minAmount(0),
-    limitRows(-1)
+TokenFilterProxy::TokenFilterProxy(QObject* parent) : QSortFilterProxyModel(parent),
+                                                      dateFrom(MIN_DATE),
+                                                      dateTo(MAX_DATE),
+                                                      addrPrefix(),
+                                                      name(),
+                                                      typeFilter(ALL_TYPES),
+                                                      minAmount(0),
+                                                      limitRows(-1)
 {
-
 }
 
-void TokenFilterProxy::setDateRange(const QDateTime &from, const QDateTime &to)
+void TokenFilterProxy::setDateRange(const QDateTime& from, const QDateTime& to)
 {
     this->dateFrom = from;
     this->dateTo = to;
     invalidateFilter();
 }
 
-void TokenFilterProxy::setAddressPrefix(const QString &_addrPrefix)
+void TokenFilterProxy::setAddressPrefix(const QString& _addrPrefix)
 {
     this->addrPrefix = _addrPrefix;
     invalidateFilter();
@@ -46,7 +44,7 @@ void TokenFilterProxy::setTypeFilter(quint32 modes)
     invalidateFilter();
 }
 
-void TokenFilterProxy::setMinAmount(const dev::s256 &minimum)
+void TokenFilterProxy::setMinAmount(const dev::s256& minimum)
 {
     this->minAmount = minimum;
     invalidateFilter();
@@ -63,19 +61,16 @@ void TokenFilterProxy::setLimit(int limit)
     this->limitRows = limit;
 }
 
-int TokenFilterProxy::rowCount(const QModelIndex &parent) const
+int TokenFilterProxy::rowCount(const QModelIndex& parent) const
 {
-    if(limitRows != -1)
-    {
+    if (limitRows != -1) {
         return std::min(QSortFilterProxyModel::rowCount(parent), limitRows);
-    }
-    else
-    {
+    } else {
         return QSortFilterProxyModel::rowCount(parent);
     }
 }
 
-bool TokenFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool TokenFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
 {
     QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
 
@@ -86,25 +81,24 @@ bool TokenFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex &source
     amount = abs_int256(amount);
     QString tokenName = index.data(TokenTransactionTableModel::NameRole).toString();
 
-    if(!(TYPE(type) & typeFilter))
+    if (!(TYPE(type) & typeFilter))
         return false;
-    if(datetime < dateFrom || datetime > dateTo)
+    if (datetime < dateFrom || datetime > dateTo)
         return false;
     if (!address.contains(addrPrefix, Qt::CaseInsensitive))
         return false;
-    if(amount < minAmount)
+    if (amount < minAmount)
         return false;
-    if(!name.isEmpty() && name != tokenName)
+    if (!name.isEmpty() && name != tokenName)
         return false;
 
     return true;
 }
 
-bool TokenFilterProxy::lessThan(const QModelIndex &left, const QModelIndex &right) const
+bool TokenFilterProxy::lessThan(const QModelIndex& left, const QModelIndex& right) const
 {
-    if(left.column() == TokenTransactionTableModel::Amount &&
-            right.column() == TokenTransactionTableModel::Amount)
-    {
+    if (left.column() == TokenTransactionTableModel::Amount &&
+        right.column() == TokenTransactionTableModel::Amount) {
         dev::s256 amountLeft(left.data(TokenTransactionTableModel::AmountRole).toString().toStdString());
         amountLeft = abs_int256(amountLeft);
 

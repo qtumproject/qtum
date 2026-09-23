@@ -1,26 +1,26 @@
 #include <qt/addtokenpage.h>
+
+#include <qt/addresstablemodel.h>
+#include <qt/clientmodel.h>
+#include <qt/contractutil.h>
 #include <qt/forms/ui_addtokenpage.h>
 #include <qt/guiconstants.h>
-#include <wallet/wallet.h>
-#include <qt/clientmodel.h>
-#include <qt/walletmodel.h>
-#include <qt/token.h>
-#include <qt/qvalidatedlineedit.h>
-#include <qt/contractutil.h>
-#include <validation.h>
-#include <qt/addresstablemodel.h>
 #include <qt/optionsmodel.h>
+#include <qt/qvalidatedlineedit.h>
 #include <qt/styleSheet.h>
+#include <qt/token.h>
+#include <qt/walletmodel.h>
+#include <validation.h>
+#include <wallet/wallet.h>
 
-#include <QRegularExpressionValidator>
 #include <QMessageBox>
+#include <QRegularExpressionValidator>
 
-AddTokenPage::AddTokenPage(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::AddTokenPage),
-    m_tokenABI(0),
-    m_model(0),
-    m_clientModel(0)
+AddTokenPage::AddTokenPage(QWidget* parent) : QDialog(parent),
+                                              ui(new Ui::AddTokenPage),
+                                              m_tokenABI(0),
+                                              m_model(0),
+                                              m_clientModel(0)
 {
     ui->setupUi(this);
 
@@ -43,7 +43,7 @@ AddTokenPage::AddTokenPage(QWidget *parent) :
     ui->lineEditSenderAddress->setAddressColumn(AddressTableModel::Address);
     ui->lineEditSenderAddress->setTypeRole(AddressTableModel::TypeRole);
     ui->lineEditSenderAddress->setSenderAddress(true);
-    if(ui->lineEditSenderAddress->isEditable())
+    if (ui->lineEditSenderAddress->isEditable())
         ((QValidatedLineEdit*)ui->lineEditSenderAddress->lineEdit())->setEmptyIsValid(false);
     m_validTokenAddress = false;
 }
@@ -52,12 +52,12 @@ AddTokenPage::~AddTokenPage()
 {
     delete ui;
 
-    if(m_tokenABI)
+    if (m_tokenABI)
         delete m_tokenABI;
     m_tokenABI = 0;
 }
 
-void AddTokenPage::setClientModel(ClientModel *clientModel)
+void AddTokenPage::setClientModel(ClientModel* clientModel)
 {
     m_clientModel = clientModel;
 }
@@ -71,7 +71,7 @@ void AddTokenPage::clearAll()
     ui->lineEditSenderAddress->setCurrentIndex(-1);
 }
 
-void AddTokenPage::setModel(WalletModel *_model)
+void AddTokenPage::setModel(WalletModel* _model)
 {
     m_model = _model;
     on_zeroBalanceAddressToken(m_model->getOptionsModel()->getZeroBalanceAddressToken());
@@ -89,8 +89,7 @@ void AddTokenPage::on_clearButton_clicked()
 
 void AddTokenPage::on_confirmButton_clicked()
 {
-    if(ui->lineEditSenderAddress->isValidAddress())
-    {
+    if (ui->lineEditSenderAddress->isValidAddress()) {
         interfaces::TokenInfo tokenInfo;
         tokenInfo.contract_address = ui->lineEditContractAddress->text().toStdString();
         tokenInfo.token_name = ui->lineEditTokenName->text().toStdString();
@@ -98,25 +97,18 @@ void AddTokenPage::on_confirmButton_clicked()
         tokenInfo.decimals = ui->lineEditDecimals->text().toInt();
         tokenInfo.sender_address = ui->lineEditSenderAddress->currentText().toStdString();
 
-        if(m_model)
-        {
-            if(!m_model->wallet().isMineAddress(tokenInfo.sender_address))
-            {
+        if (m_model) {
+            if (!m_model->wallet().isMineAddress(tokenInfo.sender_address)) {
                 QString symbol = QString::fromStdString(tokenInfo.token_symbol);
                 QString address = QString::fromStdString(tokenInfo.sender_address);
                 QString message = tr("The %1 address \"%2\" is not yours, please change it to new one.\n").arg(symbol, address);
                 QMessageBox::warning(this, tr("Invalid token address"), message);
-            }
-            else if(m_model->wallet().existTokenEntry(tokenInfo))
-            {
+            } else if (m_model->wallet().existTokenEntry(tokenInfo)) {
                 QMessageBox::information(this, tr("Token exist"), tr("The token already exist with the specified contract and sender addresses."));
-            }
-            else
-            {
+            } else {
                 m_model->wallet().addTokenEntry(tokenInfo);
 
-                if(!fLogEvents)
-                {
+                if (!fLogEvents) {
                     QMessageBox::information(this, tr("Log events"), tr("Enable log events from the option menu in order to receive token transactions."));
                 }
 
@@ -130,8 +122,7 @@ void AddTokenPage::on_confirmButton_clicked()
 void AddTokenPage::on_addressChanged()
 {
     QString tokenAddress = ui->lineEditContractAddress->text();
-    if(m_tokenABI)
-    {
+    if (m_tokenABI) {
         m_tokenABI->setAddress(tokenAddress.toStdString());
         std::string name, symbol, decimals;
         bool ret = m_tokenABI->name(name);
@@ -148,16 +139,13 @@ void AddTokenPage::on_addressChanged()
 void AddTokenPage::on_updateConfirmButton()
 {
     bool enabled = true;
-    if(ui->lineEditTokenName->text().isEmpty())
-    {
+    if (ui->lineEditTokenName->text().isEmpty()) {
         enabled = false;
     }
-    if(ui->lineEditTokenSymbol->text().isEmpty())
-    {
+    if (ui->lineEditTokenSymbol->text().isEmpty()) {
         enabled = false;
     }
-    if(!ui->lineEditSenderAddress->isValidAddress())
-    {
+    if (!ui->lineEditSenderAddress->isValidAddress()) {
         enabled = false;
     }
     enabled &= m_validTokenAddress;

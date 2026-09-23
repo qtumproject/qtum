@@ -28,7 +28,7 @@ public:
         Time = 4
     };
 
-    enum DataRole{
+    enum DataRole {
         HashRole = Qt::UserRole + 1,
         StakerNameRole = Qt::UserRole + 2,
         StakerAddressRole = Qt::UserRole + 3,
@@ -43,19 +43,19 @@ public:
         FormattedDelegationsWeightRole = Qt::UserRole + 12,
     };
 
-    SuperStakerItemModel(WalletModel *parent = 0);
+    SuperStakerItemModel(WalletModel* parent = 0);
     ~SuperStakerItemModel();
 
     /** @name Methods overridden from QAbstractItemModel
         @{*/
     QModelIndex index(int row, int column,
-                              const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &child) const override;
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+                      const QModelIndex& parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex& child) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     /*@}*/
-    
+
     void updateSuperStakerData(const SuperStakerItemEntry& entry);
     void join();
 
@@ -64,17 +64,17 @@ public Q_SLOTS:
     void itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, qint64 delegationsWeight, bool staking);
 
 private Q_SLOTS:
-    void updateSuperStakerData(const QString &hash, int status, bool showSuperStaker);
+    void updateSuperStakerData(const QString& hash, int status, bool showSuperStaker);
 
 private:
     /** Notify listeners that data changed. */
     void emitDataChanged(int index);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
-    QString formatMinFee(const SuperStakerItemEntry *rec) const;
+    QString formatMinFee(const SuperStakerItemEntry* rec) const;
 
     QStringList columns;
-    WalletModel *walletModel;
+    WalletModel* walletModel;
     SuperStakerItemPriv* priv;
     SuperStakerWorker* worker;
     QThread t;

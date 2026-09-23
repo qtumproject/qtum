@@ -1,16 +1,16 @@
 #ifndef QTUMLEDGER_H
 #define QTUMLEDGER_H
 
+#include <sync.h>
+
 #include <string>
 #include <vector>
-#include <sync.h>
 
 extern RecursiveMutex cs_ledger;
 
 class QtumLedgerPriv;
 
-struct LedgerDevice
-{
+struct LedgerDevice {
     /// Device data
     std::string fingerprint;
     std::string serial_number;
@@ -25,8 +25,8 @@ struct LedgerDevice
 /**
  * @brief The QtumLedger class Communicate with the qtum ledger
  */
-class QtumLedger {
-    
+class QtumLedger
+{
 public:
     /**
      * @brief QtumLedger Constructor
@@ -146,7 +146,7 @@ public:
      * @brief instance Get the ledger instance
      * @return Ledger instance
      */
-    static QtumLedger &instance();
+    static QtumLedger& instance();
 
 private:
     bool isStarted();
@@ -161,11 +161,11 @@ private:
     bool beginEnumerate(std::vector<LedgerDevice>& devices);
     bool endEnumerate(std::vector<LedgerDevice>& devices, bool stake);
 
-    bool beginSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string &signature);
-    bool endSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string &signature);
+    bool beginSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string& signature);
+    bool endSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string& signature);
 
     bool beginGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string& desc);
-    bool endGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal,  int from, int to, std::string& desc);
+    bool endGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string& desc);
 
     bool beginDisplayAddress(const std::string& fingerprint, const std::string& desc);
     bool beginDisplayAddress(const std::string& fingerprint, int type, const std::string& path);

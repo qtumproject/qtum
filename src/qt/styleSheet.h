@@ -2,10 +2,10 @@
 #define STYLESHEET_H
 
 #include <QMap>
+#include <QPointer>
+#include <QSettings>
 #include <QString>
 #include <QStringList>
-#include <QSettings>
-#include <QPointer>
 
 class QWidget;
 class QApplication;
@@ -20,23 +20,22 @@ class QApplication;
 
 /** Names of the styles that will be used for the GUI components appearance
  */
-namespace StyleSheetNames 
-{
-    static const QString App                         = "app";
-    static const QString Invalid                     = "invalid";
-    static const QString TableViewLight              = "tableviewlight";
-    static const QString ButtonDark                  = "buttondark";
-    static const QString ButtonLight                 = "buttonlight";
-    static const QString ButtonGray                  = "buttongray";
-    static const QString ButtonTransparent           = "buttontransparent";
-    static const QString ButtonTransparentBordered   = "buttontransparentbordered";
-    static const QString NavButton                   = "navbutton";
-    static const QString NavGroupButton              = "navgroupbutton";
-    static const QString NavSubGroupButton           = "navsubgroupbutton";
-    static const QString TreeView                    = "treeview";
-    static const QString ScrollBarLight              = "scrollbarlight";
-    static const QString ScrollBarDark               = "scrollbardark";
-}
+namespace StyleSheetNames {
+static const QString App = "app";
+static const QString Invalid = "invalid";
+static const QString TableViewLight = "tableviewlight";
+static const QString ButtonDark = "buttondark";
+static const QString ButtonLight = "buttonlight";
+static const QString ButtonGray = "buttongray";
+static const QString ButtonTransparent = "buttontransparent";
+static const QString ButtonTransparentBordered = "buttontransparentbordered";
+static const QString NavButton = "navbutton";
+static const QString NavGroupButton = "navgroupbutton";
+static const QString NavSubGroupButton = "navsubgroupbutton";
+static const QString TreeView = "treeview";
+static const QString ScrollBarLight = "scrollbarlight";
+static const QString ScrollBarDark = "scrollbardark";
+} // namespace StyleSheetNames
 
 /** Singleton class that manage the styles
  */
@@ -46,7 +45,7 @@ public:
     static StyleSheet& instance();
     void setStyleSheet(QWidget* widget, const QString& style_name);
     void setStyleSheet(QApplication* app, const QString& style_name);
-    QVariant getStyleValue(const QString& key, const QVariant &defaultValue);
+    QVariant getStyleValue(const QString& key, const QVariant& defaultValue);
 
     QString getCurrentTheme();
     static QStringList getSupportedThemes();
@@ -57,7 +56,7 @@ public:
 private:
     QString getStyleSheet(const QString& style_name);
 
-    template<typename T>
+    template <typename T>
     void setObjectStyleSheet(T* object, const QString& style_name);
 
     explicit StyleSheet();

@@ -1,39 +1,37 @@
 #include <qt/stakepage.h>
-#include <qt/forms/ui_stakepage.h>
 
+#include <consensus/amount.h>
+#include <interfaces/node.h>
+#include <interfaces/wallet.h>
+#include <node/miner.h>
 #include <qt/bitcoinunits.h>
+#include <qt/forms/ui_stakepage.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
+#include <qt/hardwaresigntx.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
+#include <qt/styleSheet.h>
+#include <qt/transactiondescdialog.h>
 #include <qt/transactionfilterproxy.h>
 #include <qt/transactiontablemodel.h>
-#include <qt/walletmodel.h>
-#include <interfaces/wallet.h>
-#include <interfaces/node.h>
-#include <qt/transactiondescdialog.h>
-#include <qt/styleSheet.h>
 #include <qt/transactionview.h>
-#include <qt/hardwaresigntx.h>
-#include <consensus/amount.h>
-
-#include <node/miner.h>
+#include <qt/walletmodel.h>
 
 #include <QSortFilterProxyModel>
 #include <QTimer>
 
 Q_DECLARE_METATYPE(interfaces::WalletBalances)
 
-StakePage::StakePage(const PlatformStyle *_platformStyle, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::StakePage),
-    clientModel(nullptr),
-    walletModel(nullptr),
-    platformStyle(_platformStyle),
-    transactionView(0),
-    m_subsidy(0),
-    m_networkWeight(0),
-    m_expectedAnnualROI(0)
+StakePage::StakePage(const PlatformStyle* _platformStyle, QWidget* parent) : QWidget(parent),
+                                                                             ui(new Ui::StakePage),
+                                                                             clientModel(nullptr),
+                                                                             walletModel(nullptr),
+                                                                             platformStyle(_platformStyle),
+                                                                             transactionView(0),
+                                                                             m_subsidy(0),
+                                                                             m_networkWeight(0),
+                                                                             m_expectedAnnualROI(0)
 {
     ui->setupUi(this);
     ui->checkStake->setEnabled(node::CanStake());
@@ -46,7 +44,7 @@ StakePage::~StakePage()
     delete ui;
 }
 
-void StakePage::setClientModel(ClientModel *_clientModel)
+void StakePage::setClientModel(ClientModel* _clientModel)
 {
     this->clientModel = _clientModel;
 
@@ -62,17 +60,16 @@ void StakePage::setClientModel(ClientModel *_clientModel)
     }
 }
 
-void StakePage::setWalletModel(WalletModel *model)
+void StakePage::setWalletModel(WalletModel* model)
 {
     this->walletModel = model;
-    if(model && model->getOptionsModel())
-    {
+    if (model && model->getOptionsModel()) {
         transactionView->setModel(model);
         transactionView->chooseType(TransactionTableModel::ColumnIndex::Amount);
-        if(model->wallet().privateKeysDisabled()) {
+        if (model->wallet().privateKeysDisabled()) {
             ui->checkStake->setEnabled(node::ENABLE_HARDWARE_STAKE);
         }
-        if(ui->checkStake->isEnabled()) {
+        if (ui->checkStake->isEnabled()) {
             ui->checkStake->setChecked(model->wallet().getEnabledStaking());
         }
 
@@ -101,24 +98,20 @@ void StakePage::setBalance(const interfaces::WalletBalances& balances)
 
 void StakePage::on_checkStake_clicked(bool checked)
 {
-    if(!walletModel)
+    if (!walletModel)
         return;
 
     bool privateKeysDisabled = walletModel->wallet().privateKeysDisabled();
-    if(!privateKeysDisabled)
+    if (!privateKeysDisabled)
         walletModel->wallet().setEnabledStaking(checked);
 
-    if(checked && WalletModel::Locked == walletModel->getEncryptionStatus())
+    if (checked && WalletModel::Locked == walletModel->getEncryptionStatus())
         Q_EMIT requireUnlock(true);
 
-    if(privateKeysDisabled)
-    {
-        if(checked)
-        {
+    if (privateKeysDisabled) {
+        if (checked) {
             QTimer::singleShot(500, this, &StakePage::askDeviceForStake);
-        }
-        else
-        {
+        } else {
             walletModel->wallet().setEnabledStaking(false);
         }
     }
@@ -126,8 +119,7 @@ void StakePage::on_checkStake_clicked(bool checked)
 
 void StakePage::updateDisplayUnit()
 {
-    if(walletModel && walletModel->getOptionsModel())
-    {
+    if (walletModel && walletModel->getOptionsModel()) {
         if (m_balances.balance != -1) {
             setBalance(m_balances);
         }
@@ -137,8 +129,7 @@ void StakePage::updateDisplayUnit()
 
 void StakePage::numBlocksChanged(int count, const QDateTime& blockDate, double nVerificationProgress, SyncType header, SynchronizationState sync_state)
 {
-    if(header==SyncType::BLOCK_SYNC && clientModel && walletModel)
-    {
+    if (header == SyncType::BLOCK_SYNC && clientModel && walletModel) {
         ui->labelHeight->setText(BitcoinUnits::formatInt(count));
         m_subsidy = clientModel->node().getBlockSubsidy(count);
         m_networkWeight = clientModel->node().getNetworkStakeWeight();
@@ -168,24 +159,21 @@ void StakePage::updateAnnualROI()
 
 void StakePage::updateEncryptionStatus()
 {
-    if(!walletModel)
+    if (!walletModel)
         return;
 
     int status = walletModel->getEncryptionStatus();
-    switch(status)
-    {
+    switch (status) {
     case WalletModel::Unlocked:
-        if(walletModel->wallet().getEnabledStaking())
-        {
+        if (walletModel->wallet().getEnabledStaking()) {
             bool checked = ui->checkStake->isChecked();
-            if(!checked) ui->checkStake->onStatusChanged();
+            if (!checked) ui->checkStake->onStatusChanged();
         }
         break;
     case WalletModel::Locked:
-        if(!walletModel->getWalletUnlockStakingOnly())
-        {
+        if (!walletModel->getWalletUnlockStakingOnly()) {
             bool checked = ui->checkStake->isChecked();
-            if(checked) ui->checkStake->onStatusChanged();
+            if (checked) ui->checkStake->onStatusChanged();
         }
         break;
     }
@@ -201,5 +189,5 @@ void StakePage::askDeviceForStake()
 
     // Update stake button
     bool checked = ui->checkStake->isChecked();
-    if(checked != staking) ui->checkStake->onStatusChanged();
+    if (checked != staking) ui->checkStake->onStatusChanged();
 }

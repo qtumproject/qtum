@@ -1,18 +1,18 @@
 #include <bitcoin-build-config.h> // IWYU pragma: keep
 
 #include <qt/tokenitemwidget.h>
-#include <qt/platformstyle.h>
+
 #include <qt/forms/ui_tokenitemwidget.h>
+#include <qt/platformstyle.h>
 
 #include <QFile>
 
 #define TOKEN_ITEM_ICONSIZE 24
-TokenItemWidget::TokenItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
-    QWidget(parent),
-    ui(new Ui::TokenItemWidget),
-    m_platfromStyle(platformStyle),
-    m_type(type),
-    m_position(-1)
+TokenItemWidget::TokenItemWidget(const PlatformStyle* platformStyle, QWidget* parent, ItemType type) : QWidget(parent),
+                                                                                                       ui(new Ui::TokenItemWidget),
+                                                                                                       m_platfromStyle(platformStyle),
+                                                                                                       m_type(type),
+                                                                                                       m_position(-1)
 
 {
     ui->setupUi(this);
@@ -28,16 +28,15 @@ TokenItemWidget::~TokenItemWidget()
     delete ui;
 }
 
-void TokenItemWidget::setData(const QString &tokenName, const QString &tokenBalance, const QString &senderAddress, const QString &filename)
+void TokenItemWidget::setData(const QString& tokenName, const QString& tokenBalance, const QString& senderAddress, const QString& filename)
 {
-    if(tokenName != ui->tokenName->text())
+    if (tokenName != ui->tokenName->text())
         ui->tokenName->setText(tokenName);
-    if(tokenBalance != ui->tokenBalance->text())
+    if (tokenBalance != ui->tokenBalance->text())
         ui->tokenBalance->setText(tokenBalance);
-    if(senderAddress != ui->senderAddress->text())
+    if (senderAddress != ui->senderAddress->text())
         ui->senderAddress->setText(senderAddress);
-    if(m_filename != filename)
-    {
+    if (m_filename != filename) {
         m_filename = filename;
         updateLogo();
     }
@@ -71,13 +70,10 @@ int TokenItemWidget::position() const
 void TokenItemWidget::updateLogo()
 {
     QPixmap pixmap;
-    if(QFile::exists(m_filename))
-    {
+    if (QFile::exists(m_filename)) {
         QIcon icon(m_filename);
         pixmap = icon.pixmap(ui->tokenLogo->width(), ui->tokenLogo->height());
-    }
-    else
-    {
+    } else {
         pixmap = m_platfromStyle->MultiStatesIcon(":/icons/token").pixmap(TOKEN_ITEM_ICONSIZE, TOKEN_ITEM_ICONSIZE);
     }
     ui->tokenLogo->setPixmap(pixmap);

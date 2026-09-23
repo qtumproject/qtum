@@ -9,9 +9,9 @@ class QValidatedTextEdit : public QTextEdit
     Q_OBJECT
 
 public:
-    explicit QValidatedTextEdit(QWidget *parent);
+    explicit QValidatedTextEdit(QWidget* parent);
     void clear();
-    void setCheckValidator(const QValidator *v, bool lineByLine = false, bool removeDuplicates = false);
+    void setCheckValidator(const QValidator* v, bool lineByLine = false, bool removeDuplicates = false);
     bool isValid();
 
     bool getEmptyIsValid() const;
@@ -24,12 +24,12 @@ public:
     void setLines(const QStringList& lines);
 
 protected:
-    void focusInEvent(QFocusEvent *event) override;
-    void focusOutEvent(QFocusEvent *event) override;
+    void focusInEvent(QFocusEvent* event) override;
+    void focusOutEvent(QFocusEvent* event) override;
 
 private:
     bool valid;
-    const QValidator *checkValidator;
+    const QValidator* checkValidator;
     bool emptyIsValid;
     bool isValidManually;
     bool lineByLine;

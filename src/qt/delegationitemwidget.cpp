@@ -1,16 +1,17 @@
 #include <bitcoin-build-config.h> // IWYU pragma: keep
 
 #include <qt/delegationitemwidget.h>
-#include <qt/platformstyle.h>
-#include <qt/forms/ui_delegationitemwidget.h>
+
+#include <chainparams.h>
+#include <interfaces/node.h>
 #include <qt/bitcoinunits.h>
-#include <qt/optionsmodel.h>
-#include <qt/walletmodel.h>
 #include <qt/clientmodel.h>
 #include <qt/delegationitemmodel.h>
-#include <interfaces/node.h>
-#include <chainparams.h>
+#include <qt/forms/ui_delegationitemwidget.h>
 #include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
 
 #include <QFile>
 
@@ -33,14 +34,13 @@ public:
 #define LIGHT_ICONSIZE 14
 const QString LIGHT_STYLE = "QLabel{background-color: %1; border-radius: 7px; border: 2px solid transparent;}";
 #define DELEGATION_STAKER_SIZE 210
-DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
-    QWidget(parent),
-    ui(new Ui::DelegationItemWidget),
-    m_platfromStyle(platformStyle),
-    m_type(type),
-    m_position(-1),
-    m_model(0),
-    m_clientModel(0)
+DelegationItemWidget::DelegationItemWidget(const PlatformStyle* platformStyle, QWidget* parent, ItemType type) : QWidget(parent),
+                                                                                                                 ui(new Ui::DelegationItemWidget),
+                                                                                                                 m_platfromStyle(platformStyle),
+                                                                                                                 m_type(type),
+                                                                                                                 m_position(-1),
+                                                                                                                 m_model(0),
+                                                                                                                 m_clientModel(0)
 
 {
     ui->setupUi(this);
@@ -58,14 +58,13 @@ DelegationItemWidget::DelegationItemWidget(const PlatformStyle *platformStyle, Q
 
     d = new DelegationItemWidgetPriv();
 
-    if(m_type == Record)
-    {
+    if (m_type == Record) {
         d->light = new QLabel();
         d->light->setFixedSize(LIGHT_ICONSIZE, LIGHT_ICONSIZE);
         d->light->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        QVBoxLayout *layout = new QVBoxLayout;
+        QVBoxLayout* layout = new QVBoxLayout;
         layout->setContentsMargins(0, 0, 0, 0);
-        layout->addWidget(d->light, 0, Qt::AlignRight|Qt::AlignBottom);
+        layout->addWidget(d->light, 0, Qt::AlignRight | Qt::AlignBottom);
         ui->delegationLogo->setLayout(layout);
         setLight(Transparent);
     }
@@ -77,7 +76,7 @@ DelegationItemWidget::~DelegationItemWidget()
     delete d;
 }
 
-void DelegationItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const int32_t &blockHight, const int64_t &balance, const int64_t &stake, const int64_t &weight, const int32_t &status)
+void DelegationItemWidget::setData(const QString& fee, const QString& staker, const QString& address, const int32_t& blockHight, const int64_t& balance, const int64_t& stake, const int64_t& weight, const int32_t& status)
 {
     // Set data
     d->fee = fee;
@@ -90,11 +89,11 @@ void DelegationItemWidget::setData(const QString &fee, const QString &staker, co
     d->status = status;
 
     // Update GUI
-    if(d->fee != ui->labelFee->text())
+    if (d->fee != ui->labelFee->text())
         ui->labelFee->setText(d->fee);
-    if(d->staker != ui->labelStaker->toolTip())
+    if (d->staker != ui->labelStaker->toolTip())
         updateLabelStaker();
-    if(d->address != ui->labelAddress->text())
+    if (d->address != ui->labelAddress->text())
         ui->labelAddress->setText(d->address);
     d->staking = (d->blockHight > 0 && d->weight > 0);
     updateLogo();
@@ -133,23 +132,21 @@ int DelegationItemWidget::position() const
 
 void DelegationItemWidget::updateLogo()
 {
-    if(!m_model || !m_clientModel)
+    if (!m_model || !m_clientModel)
         return;
 
-    if(m_model->node().shutdownRequested())
+    if (m_model->node().shutdownRequested())
         return;
 
     QString filename = d->staking ? ":/icons/staking_on" : ":/icons/staking_off";
-    if(m_filename != filename)
-    {
+    if (m_filename != filename) {
         m_filename = filename;
         QPixmap pixmap = m_platfromStyle->MultiStatesIcon(m_filename).pixmap(DELEGATION_ITEM_ICONSIZE, DELEGATION_ITEM_ICONSIZE);
         ui->delegationLogo->setPixmap(pixmap);
     }
 
     uint64_t nWeight = d->weight;
-    if (d->staking)
-    {
+    if (d->staking) {
         uint64_t nNetworkWeight = m_model->node().getPoSKernelPS();
         int headersTipHeight = m_clientModel->getHeaderTipHeight();
         int64_t nTargetSpacing = Params().GetConsensus().TargetSpacing(headersTipHeight);
@@ -157,31 +154,22 @@ void DelegationItemWidget::updateLogo()
         unsigned nEstimateTime = nTargetSpacing * nNetworkWeight / nWeight;
 
         QString text;
-        if (nEstimateTime < 60)
-        {
+        if (nEstimateTime < 60) {
             text = tr("%n second(s)", "", nEstimateTime);
-        }
-        else if (nEstimateTime < 60*60)
-        {
-            text = tr("%n minute(s)", "", nEstimateTime/60);
-        }
-        else if (nEstimateTime < 24*60*60)
-        {
-            text = tr("%n hour(s)", "", nEstimateTime/(60*60));
-        }
-        else
-        {
-            text = tr("%n day(s)", "", nEstimateTime/(60*60*24));
+        } else if (nEstimateTime < 60 * 60) {
+            text = tr("%n minute(s)", "", nEstimateTime / 60);
+        } else if (nEstimateTime < 24 * 60 * 60) {
+            text = tr("%n hour(s)", "", nEstimateTime / (60 * 60));
+        } else {
+            text = tr("%n day(s)", "", nEstimateTime / (60 * 60 * 24));
         }
 
         nWeight /= COIN;
         nNetworkWeight /= COIN;
 
         ui->delegationLogo->setToolTip(tr("Confirmed delegation<br>Your weight is %1<br>Network weight is %2<br>Expected time to earn reward is %3").arg(nWeight).arg(nNetworkWeight).arg(text));
-    }
-    else
-    {
-        if(d->blockHight < 0)
+    } else {
+        if (d->blockHight < 0)
             ui->delegationLogo->setToolTip(tr("Not staking because the delegation is not confirmed"));
         else if (!nWeight)
             ui->delegationLogo->setToolTip(tr("Not staking because you don't have mature coins"));
@@ -189,8 +177,7 @@ void DelegationItemWidget::updateLogo()
             ui->delegationLogo->setToolTip(tr("Not staking"));
     }
 
-    switch (d->status)
-    {
+    switch (d->status) {
     case DelegationItemModel::CreateTxConfirmed:
         setLight(Green);
         d->light->setToolTip(tr("Create transaction confirmed"));
@@ -217,17 +204,16 @@ void DelegationItemWidget::updateLogo()
     }
 }
 
-void DelegationItemWidget::setModel(WalletModel *_model)
+void DelegationItemWidget::setModel(WalletModel* _model)
 {
     m_model = _model;
-    if(m_model && m_model->getOptionsModel())
-    {
+    if (m_model && m_model->getOptionsModel()) {
         connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &DelegationItemWidget::updateDisplayUnit);
     }
     updateDisplayUnit();
 }
 
-void DelegationItemWidget::setClientModel(ClientModel *_clientModel)
+void DelegationItemWidget::setClientModel(ClientModel* _clientModel)
 {
     m_clientModel = _clientModel;
 }
@@ -240,7 +226,7 @@ void DelegationItemWidget::updateDisplayUnit()
 void DelegationItemWidget::updateBalance()
 {
     BitcoinUnit unit = BitcoinUnit::BTC;
-    if(m_model && m_model->getOptionsModel())
+    if (m_model && m_model->getOptionsModel())
         unit = m_model->getOptionsModel()->getDisplayUnit();
     ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, d->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS));
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, d->stake, false, BitcoinUnits::SeparatorStyle::ALWAYS));
@@ -263,15 +249,11 @@ void DelegationItemWidget::setLight(DelegationItemWidget::LightType type)
         break;
     }
 
-    if(d && d->light)
-    {
-        if(lightColor != "")
-        {
+    if (d && d->light) {
+        if (lightColor != "") {
             d->light->setStyleSheet(LIGHT_STYLE.arg(lightColor));
             d->light->setVisible(true);
-        }
-        else
-        {
+        } else {
             d->light->setVisible(false);
         }
     }
@@ -281,10 +263,9 @@ void DelegationItemWidget::updateLabelStaker()
 {
     QString text = d->staker;
     QFontMetrics fm = ui->labelStaker->fontMetrics();
-    for(int i = d->staker.length(); i>3; i--)
-    {
+    for (int i = d->staker.length(); i > 3; i--) {
         text = GUIUtil::cutString(d->staker, i);
-        if(GUIUtil::TextWidth(fm, text) < DELEGATION_STAKER_SIZE)
+        if (GUIUtil::TextWidth(fm, text) < DELEGATION_STAKER_SIZE)
             break;
     }
     ui->labelStaker->setText(text);

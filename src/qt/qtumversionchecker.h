@@ -5,18 +5,20 @@
 
 #define QTUM_RELEASES "https://github.com/qtumproject/qtum/releases"
 
-class Version {
-
+class Version
+{
 public:
     int _major;
     int _minor;
     int _revision;
 
-    Version(){
+    Version()
+    {
         SetNull();
     }
 
-    Version(int maj, int min, int rev){
+    Version(int maj, int min, int rev)
+    {
         SetNull();
 
         _major = maj;
@@ -24,41 +26,44 @@ public:
         _revision = rev;
     }
 
-    Version(QString str){
+    Version(QString str)
+    {
         SetNull();
 
         QStringList parts = str.split(".");
 
-        if(!parts.isEmpty())
+        if (!parts.isEmpty())
             _major = parts[0].toInt();
-        if(parts.length() > 1)
+        if (parts.length() > 1)
             _minor = parts[1].toInt();
-        if(parts.length() > 2)
+        if (parts.length() > 2)
             _revision = parts[2].toInt();
     }
 
-    Version(const Version &v){
+    Version(const Version& v)
+    {
         _major = v._major;
         _minor = v._minor;
         _revision = v._revision;
     }
 
-    bool operator >(const Version& other) const
+    bool operator>(const Version& other) const
     {
         return compareAll(other) > 0;
     }
 
-    bool operator <(const Version& other) const
+    bool operator<(const Version& other) const
     {
         return compareAll(other) < 0;
     }
 
-    bool operator ==(const Version& other) const
+    bool operator==(const Version& other) const
     {
         return compareAll(other) == 0;
     }
 
-    Version& operator=(const Version& v) {
+    Version& operator=(const Version& v)
+    {
         if (this != &v) {
             _major = v._major;
             _minor = v._minor;
@@ -78,7 +83,8 @@ private:
     int compare(int first, int second) const
     {
         int diff = first - second;
-        return diff > 0 ? 1 : diff < 0 ? -1 : 0;
+        return diff > 0 ? 1 : diff < 0 ? -1 :
+                                         0;
     }
     int compareAll(const Version& other) const
     {
@@ -92,7 +98,7 @@ class QtumVersionChecker : public QObject
 {
     Q_OBJECT
 public:
-    explicit QtumVersionChecker(QObject *parent = 0);
+    explicit QtumVersionChecker(QObject* parent = 0);
     ~QtumVersionChecker();
 
     bool newVersionAvailable();

@@ -1,12 +1,13 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <qtum/qtumutils.h>
 #include <chainparams.h>
-#include <test/qtumtests/precompiled_utils.h>
-#include <test/qtumtests/data/modexp_eip7883.json.h>
 #include <libethcore/ABI.h>
+#include <qtum/qtumutils.h>
+#include <test/qtumtests/data/modexp_eip7883.json.h>
+#include <test/qtumtests/precompiled_utils.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace OsakaTest{
+#include <boost/test/unit_test.hpp>
+
+namespace OsakaTest {
 
 const dev::u256 GASLIMIT = dev::u256(500000);
 const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -39,7 +40,7 @@ const std::vector<valtype> CODE = {
         }
     }
     */
-  valtype(ParseHex("6080604052348015600e575f5ffd5b506101108061001c5f395ff3fe6080604052348015600e575f5ffd5b50600436106026575f3560e01c80638d9d94e214602a575b5f5ffd5b60406004803603810190603c91906090565b6054565b604051604b919060c3565b60405180910390f35b5f811e9050919050565b5f5ffd5b5f819050919050565b6072816062565b8114607b575f5ffd5b50565b5f81359050608a81606b565b92915050565b5f6020828403121560a25760a1605e565b5b5f60ad84828501607e565b91505092915050565b60bd816062565b82525050565b5f60208201905060d45f83018460b6565b9291505056fea2646970667358221220eafa86cd369b48c6442f80518f19aa92aaee659d17626949285e0eaa637cfed264736f6c63430008220033")),
+    valtype(ParseHex("6080604052348015600e575f5ffd5b506101108061001c5f395ff3fe6080604052348015600e575f5ffd5b50600436106026575f3560e01c80638d9d94e214602a575b5f5ffd5b60406004803603810190603c91906090565b6054565b604051604b919060c3565b60405180910390f35b5f811e9050919050565b5f5ffd5b5f819050919050565b6072816062565b8114607b575f5ffd5b50565b5f81359050608a81606b565b92915050565b5f6020828403121560a25760a1605e565b5b5f60ad84828501607e565b91505092915050565b60bd816062565b82525050565b5f60208201905060d45f83018460b6565b9291505056fea2646970667358221220eafa86cd369b48c6442f80518f19aa92aaee659d17626949285e0eaa637cfed264736f6c63430008220033")),
     // leadingZeros()
     valtype(ParseHex("8d9d94e2")),
     // EIP-7951
@@ -102,8 +103,7 @@ const std::vector<valtype> CODE = {
 };
 
 // Codes IDs used to check that osaka fork is present
-enum class CodeID
-{
+enum class CodeID {
     leadingZerosContract = 0,
     getCountLeadingZeros,
     secpVerifyContract,
@@ -133,28 +133,25 @@ bool checkLastByteIsOne(const dev::bytes& rawData)
 {
     bool ret = false;
 
-    try
-    {
+    try {
         // Deserialize the byte array and check that the last byte is 1 and all other are 0
         dev::bytesConstRef o(&rawData);
         std::string output = dev::eth::ABIDeserialiser<std::string>::deserialise(o);
         size_t lastIndex = output.size() ? output.size() - 1 : 0;
         ret = output.size() > 0;
-        for (size_t i = 0; i < output.size(); i++)
-        {
+        for (size_t i = 0; i < output.size(); i++) {
             bool isLast = i == lastIndex;
             ret &= isLast ? output[i] == 1 : output[i] == 0;
         }
-    }
-    catch (...)
-    {
+    } catch (...) {
         ret = false;
     }
 
     return ret;
 }
 
-void genesisLoading(){
+void genesisLoading()
+{
     const CChainParams& chainparams = Params();
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     int forkHeight = coinbaseMaturity + 499;
@@ -174,11 +171,12 @@ void genesisLoading(){
     globalState->db().commit();
 }
 
-void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++){
+        for (size_t i = 0; i < n; i++) {
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
         globalState->setRoot(oldHashStateRoot);
@@ -189,7 +187,8 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(osakafork_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_modexp_after_fork){
+BOOST_AUTO_TEST_CASE(checking_modexp_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 500);
 
@@ -204,7 +203,8 @@ BOOST_AUTO_TEST_CASE(checking_modexp_after_fork){
     RunNewPrecompiledTests(modexp, modexp_eip7883, params, blockNumber);
 }
 
-BOOST_AUTO_TEST_CASE(checking_modexp_before_fork){
+BOOST_AUTO_TEST_CASE(checking_modexp_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
 
@@ -219,7 +219,8 @@ BOOST_AUTO_TEST_CASE(checking_modexp_before_fork){
     RunOldPrecompiledTests(modexp, modexp_eip7883, params, blockNumber);
 }
 
-BOOST_AUTO_TEST_CASE(checking_clz_after_fork){
+BOOST_AUTO_TEST_CASE(checking_clz_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -233,17 +234,15 @@ BOOST_AUTO_TEST_CASE(checking_clz_after_fork){
     // Create clz opcode transactions
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
     std::vector<QtumTransaction> txOsaka;
-    for (uint32_t i = 0; i <= 256; i++)
-    {
-        dev::u256 nNumber = i < 3 ? i : (dev::u256) 1 << (i - 1);
-        dev::h256 nWord = (dev::h256) nNumber;
+    for (uint32_t i = 0; i <= 256; i++) {
+        dev::u256 nNumber = i < 3 ? i : (dev::u256)1 << (i - 1);
+        dev::h256 nWord = (dev::h256)nNumber;
         txOsaka.push_back(createQtumTransaction(getCode(CodeID::getCountLeadingZeros, nWord), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
     }
     result = executeBC(txOsaka, *m_node.chainman);
 
     // Check clz opcode result
-    for (uint32_t i = 0; i <= 256; i++)
-    {
+    for (uint32_t i = 0; i <= 256; i++) {
         BOOST_CHECK(result.first[i].execRes.excepted == dev::eth::TransactionException::None);
         uint32_t gasUsed = i == 0 ? 21768 : 21780;
         BOOST_CHECK(result.first[i].execRes.gasUsed == gasUsed);
@@ -252,7 +251,8 @@ BOOST_AUTO_TEST_CASE(checking_clz_after_fork){
     }
 }
 
-BOOST_AUTO_TEST_CASE(checking_clz_before_fork){
+BOOST_AUTO_TEST_CASE(checking_clz_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -266,24 +266,23 @@ BOOST_AUTO_TEST_CASE(checking_clz_before_fork){
     // Create clz opcode transactions
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
     std::vector<QtumTransaction> txOsaka;
-    for (uint32_t i = 0; i <= 256; i++)
-    {
-        dev::u256 nNumber = i < 3 ? i : (dev::u256) 1 << (i - 1);
-        dev::h256 nWord = (dev::h256) nNumber;
+    for (uint32_t i = 0; i <= 256; i++) {
+        dev::u256 nNumber = i < 3 ? i : (dev::u256)1 << (i - 1);
+        dev::h256 nWord = (dev::h256)nNumber;
         txOsaka.push_back(createQtumTransaction(getCode(CodeID::getCountLeadingZeros, nWord), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
     }
     result = executeBC(txOsaka, *m_node.chainman);
 
     // Check clz opcode result
-    for (uint32_t i = 0; i <= 256; i++)
-    {
+    for (uint32_t i = 0; i <= 256; i++) {
         BOOST_CHECK(result.first[i].execRes.excepted == dev::eth::TransactionException::BadInstruction);
         BOOST_CHECK(result.first[i].execRes.gasUsed == GASLIMIT);
         BOOST_CHECK(result.first[i].execRes.output.size() == 0);
     }
 }
 
-BOOST_AUTO_TEST_CASE(checking_p256verify_precompile_after_fork){
+BOOST_AUTO_TEST_CASE(checking_p256verify_precompile_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -314,7 +313,8 @@ BOOST_AUTO_TEST_CASE(checking_p256verify_precompile_after_fork){
     BOOST_CHECK(dev::h256(result.first[1].execRes.output) == dev::h256(0));
 }
 
-BOOST_AUTO_TEST_CASE(checking_p256verify_precompile_before_fork){
+BOOST_AUTO_TEST_CASE(checking_p256verify_precompile_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -345,7 +345,8 @@ BOOST_AUTO_TEST_CASE(checking_p256verify_precompile_before_fork){
     BOOST_CHECK(dev::h256(result.first[1].execRes.output) == dev::h256(0));
 }
 
-BOOST_AUTO_TEST_CASE(checking_modexp_precompile_inputs_limit_after_fork){
+BOOST_AUTO_TEST_CASE(checking_modexp_precompile_inputs_limit_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -377,7 +378,8 @@ BOOST_AUTO_TEST_CASE(checking_modexp_precompile_inputs_limit_after_fork){
     BOOST_CHECK(result.first[2].execRes.gasUsed == 492961);
 }
 
-BOOST_AUTO_TEST_CASE(checking_modexp_precompile_inputs_limit_before_fork){
+BOOST_AUTO_TEST_CASE(checking_modexp_precompile_inputs_limit_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -417,4 +419,4 @@ BOOST_AUTO_TEST_CASE(checking_modexp_precompile_inputs_limit_before_fork){
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace OsakaTest

@@ -1,9 +1,10 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <qtum/qtumutils.h>
 #include <chainparams.h>
+#include <qtum/qtumutils.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace ShanghaiTest{
+#include <boost/test/unit_test.hpp>
+
+namespace ShanghaiTest {
 
 const dev::u256 GASLIMIT = dev::u256(500000);
 const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -39,8 +40,7 @@ const std::vector<valtype> CODE = {
 };
 
 // Codes IDs used to check that london fork is present
-enum class CodeID
-{
+enum class CodeID {
     chainIdcontract = 0,
     getChainId,
     push0_1,
@@ -58,7 +58,8 @@ valtype getCode(CodeID id)
     return CODE[(int)id];
 }
 
-void genesisLoading(){
+void genesisLoading()
+{
     const CChainParams& chainparams = Params();
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     int forkHeight = coinbaseMaturity + 499;
@@ -75,11 +76,12 @@ void genesisLoading(){
     globalState->db().commit();
 }
 
-void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++){
+        for (size_t i = 0; i < n; i++) {
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
         globalState->setRoot(oldHashStateRoot);
@@ -124,7 +126,8 @@ void checkOpCode(dev::h256& hashTx, ChainstateManager& chainman, const CodeID& c
     BOOST_CHECK(result.first[0].execRes.gasUsed == gasUsed);
 }
 
-BOOST_AUTO_TEST_CASE(checking_shanghai_after_fork){
+BOOST_AUTO_TEST_CASE(checking_shanghai_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -146,7 +149,8 @@ BOOST_AUTO_TEST_CASE(checking_shanghai_after_fork){
     checkOpCode(hashTx, *m_node.chainman, CodeID::create2_3, dev::eth::TransactionException::OutOfGas, GASLIMIT);
 }
 
-BOOST_AUTO_TEST_CASE(checking_shanghai_before_fork){
+BOOST_AUTO_TEST_CASE(checking_shanghai_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -168,4 +172,4 @@ BOOST_AUTO_TEST_CASE(checking_shanghai_before_fork){
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace ShanghaiTest

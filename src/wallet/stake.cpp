@@ -1,10 +1,11 @@
 #include <wallet/stake.h>
-#include <wallet/receive.h>
-#include <node/miner.h>
-#include <qtum/qtumledger.h>
-#include <pos.h>
-#include <key_io.h>
+
 #include <common/args.h>
+#include <key_io.h>
+#include <node/miner.h>
+#include <pos.h>
+#include <qtum/qtumledger.h>
+#include <wallet/receive.h>
 
 namespace wallet {
 
@@ -15,12 +16,9 @@ void StakeQtums(CWallet& wallet, bool fStake)
 
 void StartStake(CWallet& wallet)
 {
-    if(wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS))
-    {
+    if (wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS)) {
         wallet.m_enabled_staking = node::ENABLE_HARDWARE_STAKE && !wallet.m_ledger_id.empty() && QtumLedger::instance().toolExists();
-    }
-    else
-    {
+    } else {
         wallet.m_enabled_staking = true;
     }
 
@@ -30,16 +28,13 @@ void StartStake(CWallet& wallet)
 
 void StopStake(CWallet& wallet)
 {
-    if(wallet.m_is_staking_thread_stopped)
+    if (wallet.m_is_staking_thread_stopped)
         return;
 
-    if(!wallet.stakeThread)
-    {
-        if(wallet.m_enabled_staking)
+    if (!wallet.stakeThread) {
+        if (wallet.m_enabled_staking)
             wallet.m_enabled_staking = false;
-    }
-    else
-    {
+    } else {
         wallet.m_stop_staking_thread = true;
         wallet.m_enabled_staking = false;
         StakeQtums(wallet, false);
@@ -50,7 +45,7 @@ void StopStake(CWallet& wallet)
     wallet.m_is_staking_thread_stopped = true;
 }
 
-bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, bool sign, COutPoint& headerPrevout)
+bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*, unsigned int>>& setCoins, std::vector<COutPoint>& setSelectedCoins, bool selectedOnly, bool sign, COutPoint& headerPrevout)
 {
     CBlockIndex* pindexPrev = wallet.chain().getTip();
     arith_uint256 bnTargetPerCoinDay;
@@ -72,23 +67,21 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
     if (nBalance <= wallet.m_reserve_balance)
         return false;
 
-    std::vector<std::pair<const CWalletTx*,unsigned int>> vwtxPrev;
+    std::vector<std::pair<const CWalletTx*, unsigned int>> vwtxPrev;
 
     if (setCoins.empty())
         return false;
 
-    if(wallet.stakeCache.size() > setCoins.size() + 100){
-        //Determining if the cache is still valid is harder than just clearing it when it gets too big, so instead just clear it
-        //when it has more than 100 entries more than the actual setCoins.
+    if (wallet.stakeCache.size() > setCoins.size() + 100) {
+        // Determining if the cache is still valid is harder than just clearing it when it gets too big, so instead just clear it
+        // when it has more than 100 entries more than the actual setCoins.
         wallet.stakeCache.clear();
     }
-    if(!wallet.fHasMinerStakeCache && gArgs.GetBoolArg("-stakecache", node::DEFAULT_STAKE_CACHE)) {
-
-        for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setCoins)
-        {
+    if (!wallet.fHasMinerStakeCache && gArgs.GetBoolArg("-stakecache", node::DEFAULT_STAKE_CACHE)) {
+        for (const std::pair<const CWalletTx*, unsigned int>& pcoin : setCoins) {
             boost::this_thread::interruption_point();
             COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-            CacheKernel(wallet.stakeCache, prevoutStake, pindexPrev, wallet.chain().getCoinsTip()); //this will do a 2 disk loads per op
+            CacheKernel(wallet.stakeCache, prevoutStake, pindexPrev, wallet.chain().getCoinsTip()); // this will do a 2 disk loads per op
         }
     }
     std::map<COutPoint, CStakeCache>& cache = wallet.fHasMinerStakeCache ? wallet.minerStakeCache : wallet.stakeCache;
@@ -97,11 +90,9 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
     CScript aggregateScriptPubKeyHashKernel;
 
     // Populate the list with the selected coins
-    std::set<std::pair<const CWalletTx*,unsigned int> > setSelected;
-    if(selectedOnly)
-    {
-        for(const COutPoint& prevoutStake : setSelectedCoins)
-        {
+    std::set<std::pair<const CWalletTx*, unsigned int>> setSelected;
+    if (selectedOnly) {
+        for (const COutPoint& prevoutStake : setSelectedCoins) {
             auto it = wallet.mapWallet.find(prevoutStake.hash);
             if (it != wallet.mapWallet.end()) {
                 setSelected.insert(std::make_pair(&it->second, prevoutStake.n));
@@ -109,32 +100,28 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
         }
     }
 
-    std::set<std::pair<const CWalletTx*,unsigned int> >& setPrevouts = selectedOnly ? setSelected : setCoins;
-    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setPrevouts)
-    {
+    std::set<std::pair<const CWalletTx*, unsigned int>>& setPrevouts = selectedOnly ? setSelected : setCoins;
+    for (const std::pair<const CWalletTx*, unsigned int>& pcoin : setPrevouts) {
         bool fKernelFound = false;
         boost::this_thread::interruption_point();
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
         COutPoint prevoutStake = COutPoint(pcoin.first->GetHash(), pcoin.second);
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChainstate()))
-        {
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChainstate())) {
             // Found a kernel
             LogDebug(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
             std::vector<valtype> vSolutions;
             CScript scriptPubKeyOut;
             scriptPubKeyKernel = pcoin.first->tx->vout[pcoin.second].scriptPubKey;
             TxoutType whichType = Solver(scriptPubKeyKernel, vSolutions);
-            if (whichType == TxoutType::NONSTANDARD)
-            {
+            if (whichType == TxoutType::NONSTANDARD) {
                 LogDebug(BCLog::COINSTAKE, "CreateCoinStake : failed to parse kernel\n");
                 break;
             }
             LogDebug(BCLog::COINSTAKE, "CreateCoinStake : parsed kernel type=%d\n", (int)whichType);
-            if (whichType != TxoutType::PUBKEY && whichType != TxoutType::PUBKEYHASH)
-            {
+            if (whichType != TxoutType::PUBKEY && whichType != TxoutType::PUBKEYHASH) {
                 LogDebug(BCLog::COINSTAKE, "CreateCoinStake : no support for kernel type=%d\n", (int)whichType);
-                break;  // only support pay to public key and pay to address
+                break; // only support pay to public key and pay to address
             }
             if (whichType == TxoutType::PUBKEYHASH) // pay to address type
             {
@@ -142,29 +129,25 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
                 uint160 hash160(vSolutions[0]);
                 pkhash = PKHash(hash160);
                 CPubKey pubKeyStake;
-                if (!wallet.HasPrivateKey(pkhash) || !wallet.GetPubKey(pkhash, pubKeyStake))
-                {
+                if (!wallet.HasPrivateKey(pkhash) || !wallet.GetPubKey(pkhash, pubKeyStake)) {
                     LogDebug(BCLog::COINSTAKE, "CreateCoinStake : failed to get key for kernel type=%d\n", (int)whichType);
-                    break;  // unable to find corresponding public key
+                    break; // unable to find corresponding public key
                 }
                 scriptPubKeyOut << pubKeyStake.getvch() << OP_CHECKSIG;
                 aggregateScriptPubKeyHashKernel = scriptPubKeyKernel;
             }
-            if (whichType == TxoutType::PUBKEY)
-            {
+            if (whichType == TxoutType::PUBKEY) {
                 valtype& vchPubKey = vSolutions[0];
                 CPubKey pubKey(vchPubKey);
                 uint160 hash160(Hash160(vchPubKey));
                 pkhash = PKHash(hash160);
                 CPubKey pubKeyStake;
-                if (!wallet.HasPrivateKey(pkhash) || !wallet.GetPubKey(pkhash, pubKeyStake))
-                {
+                if (!wallet.HasPrivateKey(pkhash) || !wallet.GetPubKey(pkhash, pubKeyStake)) {
                     LogDebug(BCLog::COINSTAKE, "CreateCoinStake : failed to get key for kernel type=%d\n", (int)whichType);
-                    break;  // unable to find corresponding public key
+                    break; // unable to find corresponding public key
                 }
 
-                if (pubKeyStake != pubKey)
-                {
+                if (pubKeyStake != pubKey) {
                     LogDebug(BCLog::COINSTAKE, "CreateCoinStake : invalid key for kernel type=%d\n", (int)whichType);
                     break; // keys mismatch
                 }
@@ -182,8 +165,7 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
             fKernelFound = true;
         }
 
-        if (fKernelFound)
-        {
+        if (fKernelFound) {
             headerPrevout = prevoutStake;
             break; // if kernel is found stop searching
         }
@@ -192,13 +174,10 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
     if (nCredit == 0 || nCredit > nBalance - wallet.m_reserve_balance)
         return false;
 
-    for(const std::pair<const CWalletTx*,unsigned int> &pcoin : setCoins)
-    {
+    for (const std::pair<const CWalletTx*, unsigned int>& pcoin : setCoins) {
         // Attempt to add more inputs
         // Only add coins of the same key/address as kernel
-        if (txNew.vout.size() == 2 && ((pcoin.first->tx->vout[pcoin.second].scriptPubKey == scriptPubKeyKernel || pcoin.first->tx->vout[pcoin.second].scriptPubKey == aggregateScriptPubKeyHashKernel))
-                && pcoin.first->GetHash() != txNew.vin[0].prevout.hash)
-        {
+        if (txNew.vout.size() == 2 && ((pcoin.first->tx->vout[pcoin.second].scriptPubKey == scriptPubKeyKernel || pcoin.first->tx->vout[pcoin.second].scriptPubKey == aggregateScriptPubKeyHashKernel)) && pcoin.first->GetHash() != txNew.vin[0].prevout.hash) {
             // Stop adding more inputs if already too many inputs
             if (txNew.vin.size() >= GetStakeMaxCombineInputs())
                 break;
@@ -223,52 +202,44 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
         if (nReward < 0)
             return false;
 
-        if(pindexPrev->nHeight < consensusParams.nFirstMPoSBlock || pindexPrev->nHeight >= consensusParams.nLastMPoSBlock)
-        {
+        if (pindexPrev->nHeight < consensusParams.nFirstMPoSBlock || pindexPrev->nHeight >= consensusParams.nLastMPoSBlock) {
             // Keep whole reward
             nCredit += nReward;
-        }
-        else
-        {
+        } else {
             // Split the reward when mpos is used
             nRewardPiece = nReward / consensusParams.nMPoSRewardRecipients;
             nCredit += nRewardPiece + nReward % consensusParams.nMPoSRewardRecipients;
         }
-   }
+    }
 
-    if (nCredit >= GetStakeSplitThreshold())
-    {
-        for(unsigned int i = 0; i < GetStakeSplitOutputs() - 1; i++)
-            txNew.vout.push_back(CTxOut(0, txNew.vout[1].scriptPubKey)); //split stake
+    if (nCredit >= GetStakeSplitThreshold()) {
+        for (unsigned int i = 0; i < GetStakeSplitOutputs() - 1; i++)
+            txNew.vout.push_back(CTxOut(0, txNew.vout[1].scriptPubKey)); // split stake
     }
 
     // Set output amount
-    if (txNew.vout.size() == GetStakeSplitOutputs() + 1)
-    {
+    if (txNew.vout.size() == GetStakeSplitOutputs() + 1) {
         CAmount nValue = (nCredit / GetStakeSplitOutputs() / CENT) * CENT;
-        for(unsigned int i = 1; i < GetStakeSplitOutputs(); i++)
+        for (unsigned int i = 1; i < GetStakeSplitOutputs(); i++)
             txNew.vout[i].nValue = nValue;
         txNew.vout[GetStakeSplitOutputs()].nValue = nCredit - nValue * (GetStakeSplitOutputs() - 1);
-    }
-    else
+    } else
         txNew.vout[1].nValue = nCredit;
 
-    if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
-    {
-        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(),  wallet.chain().chainman().m_blockman)) {
+    if (pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock) {
+        if (!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(), wallet.chain().chainman().m_blockman)) {
             LogError("CreateCoinStake : failed to create MPoS reward outputs");
             return false;
         }
     }
 
     // Append the Refunds To Sender to the transaction outputs
-    for(unsigned int i = 2; i < tx.vout.size(); i++)
-    {
+    for (unsigned int i = 2; i < tx.vout.size(); i++) {
         txNew.vout.push_back(tx.vout[i]);
     }
 
     // Sign the input coins
-    if(sign && !wallet.SignTransactionStake(txNew, vwtxPrev)) {
+    if (sign && !wallet.SignTransactionStake(txNew, vwtxPrev)) {
         LogError("CreateCoinStake : failed to sign coinstake");
         return false;
     }
@@ -278,7 +249,7 @@ bool CreateCoinStakeFromMine(CWallet& wallet, unsigned int nBits, const CAmount&
     return true;
 }
 
-bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setDelegateCoins, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*, unsigned int>>& setCoins, std::vector<COutPoint>& setDelegateCoins, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
 {
     CBlockIndex* pindexPrev = wallet.chain().getTip();
     arith_uint256 bnTargetPerCoinDay;
@@ -293,21 +264,19 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
     scriptEmpty.clear();
     txNew.vout.push_back(CTxOut(0, scriptEmpty));
 
-    std::vector<std::pair<const CWalletTx*,unsigned int>> vwtxPrev;
+    std::vector<std::pair<const CWalletTx*, unsigned int>> vwtxPrev;
     if (setDelegateCoins.empty())
         return false;
 
-    if(wallet.stakeDelegateCache.size() > setDelegateCoins.size() + 100){
-        //Determining if the cache is still valid is harder than just clearing it when it gets too big, so instead just clear it
-        //when it has more than 100 entries more than the actual setCoins.
+    if (wallet.stakeDelegateCache.size() > setDelegateCoins.size() + 100) {
+        // Determining if the cache is still valid is harder than just clearing it when it gets too big, so instead just clear it
+        // when it has more than 100 entries more than the actual setCoins.
         wallet.stakeDelegateCache.clear();
     }
-    if(!wallet.fHasMinerStakeCache && gArgs.GetBoolArg("-stakecache", node::DEFAULT_STAKE_CACHE)) {
-
-        for(const COutPoint &prevoutStake : setDelegateCoins)
-        {
+    if (!wallet.fHasMinerStakeCache && gArgs.GetBoolArg("-stakecache", node::DEFAULT_STAKE_CACHE)) {
+        for (const COutPoint& prevoutStake : setDelegateCoins) {
             boost::this_thread::interruption_point();
-            CacheKernel(wallet.stakeDelegateCache, prevoutStake, pindexPrev, wallet.chain().getCoinsTip()); //this will do a 2 disk loads per op
+            CacheKernel(wallet.stakeDelegateCache, prevoutStake, pindexPrev, wallet.chain().getCoinsTip()); // this will do a 2 disk loads per op
         }
     }
     std::map<COutPoint, CStakeCache>& cache = wallet.fHasMinerStakeCache ? wallet.minerStakeCache : wallet.stakeDelegateCache;
@@ -317,21 +286,19 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
     Delegation delegation;
     bool delegateOutputExist = false;
 
-    for(const COutPoint &prevoutStake : setDelegateCoins)
-    {
+    for (const COutPoint& prevoutStake : setDelegateCoins) {
         bool fKernelFound = false;
         boost::this_thread::interruption_point();
         // Search backward in time from the given txNew timestamp
         // Search nSearchInterval seconds back up to nMaxStakeSearchInterval
-        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChainstate()))
-        {
+        if (CheckKernel(pindexPrev, nBits, nTimeBlock, prevoutStake, wallet.chain().getCoinsTip(), cache, wallet.chain().chainman().ActiveChainstate())) {
             // Found a kernel
             LogDebug(BCLog::COINSTAKE, "CreateCoinStake : kernel found\n");
             std::vector<valtype> vSolutions;
 
             Coin coinPrev;
-            if(!wallet.chain().getUnspentOutput(prevoutStake, coinPrev)){
-                if(!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev, wallet.chain().chainman().ActiveChainstate())) {
+            if (!wallet.chain().getUnspentOutput(prevoutStake, coinPrev)) {
+                if (!GetSpentCoinFromMainChain(pindexPrev, prevoutStake, &coinPrev, wallet.chain().chainman().ActiveChainstate())) {
                     LogError("CreateCoinStake: Could not find coin and it was not at the tip");
                     return false;
                 }
@@ -339,52 +306,48 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
 
             scriptPubKeyKernel = coinPrev.out.scriptPubKey;
             TxoutType whichType = Solver(scriptPubKeyKernel, vSolutions);
-            if (whichType == TxoutType::NONSTANDARD)
-            {
+            if (whichType == TxoutType::NONSTANDARD) {
                 LogDebug(BCLog::COINSTAKE, "CreateCoinStake : failed to parse kernel\n");
                 break;
             }
             LogDebug(BCLog::COINSTAKE, "CreateCoinStake : parsed kernel type=%d\n", (int)whichType);
-            if (whichType != TxoutType::PUBKEY && whichType != TxoutType::PUBKEYHASH)
-            {
+            if (whichType != TxoutType::PUBKEY && whichType != TxoutType::PUBKEYHASH) {
                 LogDebug(BCLog::COINSTAKE, "CreateCoinStake : no support for kernel type=%d\n", (int)whichType);
-                break;  // only support pay to public key and pay to address
+                break; // only support pay to public key and pay to address
             }
             if (whichType == TxoutType::PUBKEYHASH) // pay to address type
             {
                 // convert to pay to public key type
                 uint160 hash160(vSolutions[0]);
 
-                if(!wallet.GetDelegationStaker(hash160, delegation)) {
+                if (!wallet.GetDelegationStaker(hash160, delegation)) {
                     LogError("CreateCoinStake: Failed to find delegation");
                     return false;
                 }
 
                 pkhash = PKHash(delegation.staker);
                 CPubKey pubKeyStake;
-                if (!wallet.HasPrivateKey(pkhash) || !wallet.GetPubKey(pkhash, pubKeyStake))
-                {
+                if (!wallet.HasPrivateKey(pkhash) || !wallet.GetPubKey(pkhash, pubKeyStake)) {
                     LogDebug(BCLog::COINSTAKE, "CreateCoinStake : failed to get staker key for kernel type=%d\n", (int)whichType);
-                    break;  // unable to find corresponding public key
+                    break; // unable to find corresponding public key
                 }
                 scriptPubKeyStaker << pubKeyStake.getvch() << OP_CHECKSIG;
             }
-            if (whichType == TxoutType::PUBKEY)
-            {
+            if (whichType == TxoutType::PUBKEY) {
                 valtype& vchPubKey = vSolutions[0];
-                uint160 hash160(Hash160(vchPubKey));;
+                uint160 hash160(Hash160(vchPubKey));
+                ;
 
-                if(!wallet.GetDelegationStaker(hash160, delegation)) {
+                if (!wallet.GetDelegationStaker(hash160, delegation)) {
                     LogError("CreateCoinStake: Failed to find delegation");
                     return false;
                 }
 
                 pkhash = PKHash(delegation.staker);
                 CPubKey pubKeyStake;
-                if (!wallet.HasPrivateKey(pkhash) || !wallet.GetPubKey(pkhash, pubKeyStake))
-                {
+                if (!wallet.HasPrivateKey(pkhash) || !wallet.GetPubKey(pkhash, pubKeyStake)) {
                     LogDebug(BCLog::COINSTAKE, "CreateCoinStake : failed to get staker key for kernel type=%d\n", (int)whichType);
-                    break;  // unable to find corresponding public key
+                    break; // unable to find corresponding public key
                 }
 
                 scriptPubKeyStaker << pubKeyStake.getvch() << OP_CHECKSIG;
@@ -395,18 +358,16 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
             COutPoint prevoutSuperStaker;
             CAmount nValueSuperStaker = 0;
             const CWalletTx* pcoinSuperStaker = wallet.GetCoinSuperStaker(setCoins, superStakerAddress, prevoutSuperStaker, nValueSuperStaker);
-            if(!pcoinSuperStaker)
-            {
+            if (!pcoinSuperStaker) {
                 LogDebug(BCLog::COINSTAKE, "CreateCoinStake : failed to get utxo for super staker %s\n", EncodeDestination(superStakerAddress));
-                break;  // unable to find utxo from the super staker
+                break; // unable to find utxo from the super staker
             }
 
             txNew.vin.push_back(CTxIn(prevoutSuperStaker));
             nCredit += nValueSuperStaker;
             vwtxPrev.push_back(std::make_pair(pcoinSuperStaker, prevoutSuperStaker.n));
             txNew.vout.push_back(CTxOut(0, scriptPubKeyStaker));
-            if(delegateOutputExist)
-            {
+            if (delegateOutputExist) {
                 txNew.vout.push_back(CTxOut(0, scriptPubKeyKernel));
             }
 
@@ -414,8 +375,7 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
             fKernelFound = true;
         }
 
-        if (fKernelFound)
-        {
+        if (fKernelFound) {
             headerPrevout = prevoutStake;
             break; // if kernel is found stop searching
         }
@@ -433,23 +393,20 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
         if (nTotalReward < 0)
             return false;
 
-        if(pindexPrev->nHeight < consensusParams.nFirstMPoSBlock || pindexPrev->nHeight >= consensusParams.nLastMPoSBlock)
-        {
+        if (pindexPrev->nHeight < consensusParams.nFirstMPoSBlock || pindexPrev->nHeight >= consensusParams.nLastMPoSBlock) {
             // Keep whole reward
             int64_t nRewardStaker = 0;
-            if(!SplitOfflineStakeReward(nTotalReward, delegation.fee, nRewardOffline, nRewardStaker)) {
+            if (!SplitOfflineStakeReward(nTotalReward, delegation.fee, nRewardOffline, nRewardStaker)) {
                 LogError("CreateCoinStake: Failed to split reward");
                 return false;
             }
             nCredit += nRewardStaker;
-        }
-        else
-        {
+        } else {
             // Split the reward when mpos is used
             nRewardPiece = nTotalReward / consensusParams.nMPoSRewardRecipients;
             int64_t nRewardStaker = 0;
             int64_t nReward = nRewardPiece + nTotalReward % consensusParams.nMPoSRewardRecipients;
-            if(!SplitOfflineStakeReward(nReward, delegation.fee, nRewardOffline, nRewardStaker)) {
+            if (!SplitOfflineStakeReward(nReward, delegation.fee, nRewardOffline, nRewardStaker)) {
                 LogError("CreateCoinStake: Failed to split reward");
                 return false;
             }
@@ -459,27 +416,24 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
 
     // Set output amount
     txNew.vout[1].nValue = nCredit;
-    if(delegateOutputExist)
-    {
+    if (delegateOutputExist) {
         txNew.vout[2].nValue = nRewardOffline;
     }
 
-    if(pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock)
-    {
-        if(!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(),  wallet.chain().chainman().m_blockman)) {
+    if (pindexPrev->nHeight >= consensusParams.nFirstMPoSBlock && pindexPrev->nHeight < consensusParams.nLastMPoSBlock) {
+        if (!CreateMPoSOutputs(txNew, nRewardPiece, pindexPrev->nHeight, consensusParams, wallet.chain().chainman().ActiveChain(), wallet.chain().chainman().m_blockman)) {
             LogError("CreateCoinStake : failed to create MPoS reward outputs");
             return false;
         }
     }
 
     // Append the Refunds To Sender to the transaction outputs
-    for(unsigned int i = 2; i < tx.vout.size(); i++)
-    {
+    for (unsigned int i = 2; i < tx.vout.size(); i++) {
         txNew.vout.push_back(tx.vout[i]);
     }
 
     // Sign the input coins
-    if(sign && !wallet.SignTransactionStake(txNew, vwtxPrev)) {
+    if (sign && !wallet.SignTransactionStake(txNew, vwtxPrev)) {
         LogError("CreateCoinStake : failed to sign coinstake");
         return false;
     }
@@ -493,29 +447,28 @@ bool CreateCoinStakeFromDelegate(CWallet& wallet, unsigned int nBits, const CAmo
     return true;
 }
 
-bool CreateCoinStake(CWallet& wallet, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
+bool CreateCoinStake(CWallet& wallet, unsigned int nBits, const CAmount& nTotalFees, uint32_t nTimeBlock, CMutableTransaction& tx, PKHash& pkhash, std::set<std::pair<const CWalletTx*, unsigned int>>& setCoins, std::vector<COutPoint>& setSelectedCoins, std::vector<COutPoint>& setDelegateCoins, bool selectedOnly, bool sign, std::vector<unsigned char>& vchPoD, COutPoint& headerPrevout)
 {
     // Can super stake
     bool canSuperStake = wallet.CanSuperStake(setCoins, setDelegateCoins);
 
     // Create coinstake from coins that are delegated to me
-    if(canSuperStake && CreateCoinStakeFromDelegate(wallet, nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setDelegateCoins, sign, vchPoD, headerPrevout))
+    if (canSuperStake && CreateCoinStakeFromDelegate(wallet, nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setDelegateCoins, sign, vchPoD, headerPrevout))
         return true;
 
     // Create coinstake from coins that are mine
-    if(setCoins.size() > 0 && CreateCoinStakeFromMine(wallet, nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setSelectedCoins, selectedOnly, sign, headerPrevout))
+    if (setCoins.size() > 0 && CreateCoinStakeFromMine(wallet, nBits, nTotalFees, nTimeBlock, tx, pkhash, setCoins, setSelectedCoins, selectedOnly, sign, headerPrevout))
         return true;
 
     // Fail to create coinstake
     return false;
 }
 
-void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<Txid>& maturedTx, size_t from, size_t to, const std::map<COutPoint, uint32_t>& immatureStakes, std::vector<std::pair<const CWalletTx *, unsigned int> >& vCoins, std::map<COutPoint, CScriptCache>* insertScriptCache, bool isDescriptorWallet, std::map<uint160, bool>* insertAddressStake)
+void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<Txid>& maturedTx, size_t from, size_t to, const std::map<COutPoint, uint32_t>& immatureStakes, std::vector<std::pair<const CWalletTx*, unsigned int>>& vCoins, std::map<COutPoint, CScriptCache>* insertScriptCache, bool isDescriptorWallet, std::map<uint160, bool>* insertAddressStake)
 {
-    for(size_t i = from; i < to; i++)
-    {
+    for (size_t i = from; i < to; i++) {
         auto it = wallet.mapWallet.find(maturedTx[i]);
-        if(it == wallet.mapWallet.end()) continue;
+        if (it == wallet.mapWallet.end()) continue;
         const Txid& wtxid = it->first;
         const CWalletTx* pcoin = &(*it).second;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
@@ -524,29 +477,27 @@ void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<Txid>& ma
             if (!(wallet.IsSpent(prevout)) && mine &&
                 !wallet.IsLockedCoin(prevout) && (pcoin->tx->vout[i].nValue > 0) &&
                 // Check if the staking coin is dust
-                pcoin->tx->vout[i].nValue >= wallet.m_staker_min_utxo_size)
-            {
+                pcoin->tx->vout[i].nValue >= wallet.m_staker_min_utxo_size) {
                 // Get the script data for the coin
                 const CScriptCache& scriptCache = wallet.GetScriptCache(prevout, pcoin->tx->vout[i].scriptPubKey, insertScriptCache);
 
                 // Check that the script is not a contract script
-                if(scriptCache.contract || !scriptCache.keyIdOk)
+                if (scriptCache.contract || !scriptCache.keyIdOk)
                     continue;
 
                 // Check that the address is not delegated to other staker
-                if(wallet.m_my_delegations.find(scriptCache.keyId) != wallet.m_my_delegations.end())
+                if (wallet.m_my_delegations.find(scriptCache.keyId) != wallet.m_my_delegations.end())
                     continue;
 
                 // Check that both pkh and pk descriptors are present
-                if(isDescriptorWallet && !wallet.HasAddressStakeScripts(scriptCache.keyId, insertAddressStake))
+                if (isDescriptorWallet && !wallet.HasAddressStakeScripts(scriptCache.keyId, insertAddressStake))
                     continue;
 
                 // Check prevout maturity
-                if(immatureStakes.find(prevout) == immatureStakes.end())
-                {
+                if (immatureStakes.find(prevout) == immatureStakes.end()) {
                     // Check if script is spendable
                     bool spendable = mine && scriptCache.solvable;
-                    if(spendable)
+                    if (spendable)
                         vCoins.push_back(std::make_pair(pcoin, i));
                 }
             }
@@ -554,12 +505,11 @@ void AvailableCoinsForStaking(const CWallet& wallet, const std::vector<Txid>& ma
     }
 }
 
-bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<uint160>& delegations, size_t from, size_t to, int32_t height, const std::map<COutPoint, uint32_t>& immatureStakes,  const std::map<uint256, CSuperStakerInfo>& mapStakers, std::vector<std::pair<COutPoint,CAmount>>& vUnsortedDelegateCoins, std::map<uint160, CAmount> &mDelegateWeight)
+bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<uint160>& delegations, size_t from, size_t to, int32_t height, const std::map<COutPoint, uint32_t>& immatureStakes, const std::map<uint256, CSuperStakerInfo>& mapStakers, std::vector<std::pair<COutPoint, CAmount>>& vUnsortedDelegateCoins, std::map<uint160, CAmount>& mDelegateWeight)
 {
-    for(size_t i = from; i < to; i++)
-    {
+    for (size_t i = from; i < to; i++) {
         std::map<uint160, Delegation>::const_iterator it = wallet.m_delegations_staker.find(delegations[i]);
-        if(it == wallet.m_delegations_staker.end()) continue;
+        if (it == wallet.m_delegations_staker.end()) continue;
 
         const PKHash& keyid = PKHash(it->first);
         const Delegation* delegation = &(*it).second;
@@ -571,13 +521,10 @@ bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<u
         // Get super staker custom configuration
         CAmount staking_min_utxo_value = wallet.m_staking_min_utxo_value;
         uint8_t staking_min_fee = wallet.m_staking_min_fee;
-        for (std::map<uint256, CSuperStakerInfo>::const_iterator it=mapStakers.begin(); it!=mapStakers.end(); it++)
-        {
-            if(it->second.stakerAddress == delegation->staker)
-            {
+        for (std::map<uint256, CSuperStakerInfo>::const_iterator it = mapStakers.begin(); it != mapStakers.end(); it++) {
+            if (it->second.stakerAddress == delegation->staker) {
                 CSuperStakerInfo info = it->second;
-                if(info.fCustomConfig)
-                {
+                if (info.fCustomConfig) {
                     staking_min_utxo_value = info.nMinDelegateUtxo;
                     staking_min_fee = info.nMinFee;
                 }
@@ -585,7 +532,7 @@ bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<u
         }
 
         // Check for min staking fee
-        if(delegation->fee < staking_min_fee)
+        if (delegation->fee < staking_min_fee)
             continue;
 
         // Decode address
@@ -597,7 +544,7 @@ bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<u
         }
 
         // Get address utxos
-        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
+        std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue>> unspentOutputs;
         if (!GetAddressUnspent(hashBytes, type, unspentOutputs, wallet.chain().chainman().m_blockman)) {
             LogError("No information available for address");
             return false;
@@ -605,20 +552,18 @@ bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<u
 
         // Add the utxos to the list if they are mature and at least the minimum value
         int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(height + 1);
-        for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator i=unspentOutputs.begin(); i!=unspentOutputs.end(); i++) {
-
+        for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue>>::const_iterator i = unspentOutputs.begin(); i != unspentOutputs.end(); i++) {
             int nDepth = height - i->second.blockHeight + 1;
             if (nDepth < coinbaseMaturity)
                 continue;
 
-            if(i->second.satoshis < staking_min_utxo_value)
+            if (i->second.satoshis < staking_min_utxo_value)
                 continue;
 
             COutPoint prevout = COutPoint(Txid::FromUint256(i->first.txhash), i->first.index);
-            if(immatureStakes.find(prevout) == immatureStakes.end())
-            {
+            if (immatureStakes.find(prevout) == immatureStakes.end()) {
                 vUnsortedDelegateCoins.push_back(std::make_pair(prevout, i->second.satoshis));
-                weight+= i->second.satoshis;
+                weight += i->second.satoshis;
             }
         }
 
@@ -629,12 +574,11 @@ bool AvailableDelegateCoinsForStaking(const CWallet& wallet, const std::vector<u
     return true;
 }
 
-void AvailableAddress(const CWallet& wallet, const std::vector<Txid> &maturedTx, size_t from, size_t to, std::map<uint160, bool> &mapAddress, std::map<COutPoint, CScriptCache> *insertScriptCache)
+void AvailableAddress(const CWallet& wallet, const std::vector<Txid>& maturedTx, size_t from, size_t to, std::map<uint160, bool>& mapAddress, std::map<COutPoint, CScriptCache>* insertScriptCache)
 {
-    for(size_t i = from; i < to; i++)
-    {
+    for (size_t i = from; i < to; i++) {
         auto it = wallet.mapWallet.find(maturedTx[i]);
-        if(it == wallet.mapWallet.end()) continue;
+        if (it == wallet.mapWallet.end()) continue;
         const Txid& wtxid = it->first;
         const CWalletTx* pcoin = &(*it).second;
         for (unsigned int i = 0; i < pcoin->tx->vout.size(); i++) {
@@ -643,20 +587,17 @@ void AvailableAddress(const CWallet& wallet, const std::vector<Txid> &maturedTx,
             if (!(wallet.IsSpent(prevout)) && mine &&
                 !wallet.IsLockedCoin(prevout) && (pcoin->tx->vout[i].nValue > 0) &&
                 // Check if the staking coin is dust
-                pcoin->tx->vout[i].nValue >= wallet.m_staker_min_utxo_size)
-            {
+                pcoin->tx->vout[i].nValue >= wallet.m_staker_min_utxo_size) {
                 // Get the script data for the coin
                 const CScriptCache& scriptCache = wallet.GetScriptCache(prevout, pcoin->tx->vout[i].scriptPubKey, insertScriptCache);
 
                 // Check that the script is not a contract script
-                if(scriptCache.contract || !scriptCache.keyIdOk)
+                if (scriptCache.contract || !scriptCache.keyIdOk)
                     continue;
 
                 bool spendable = mine && scriptCache.solvable;
-                if(spendable)
-                {
-                    if(mapAddress.find(scriptCache.keyId) == mapAddress.end())
-                    {
+                if (spendable) {
+                    if (mapAddress.find(scriptCache.keyId) == mapAddress.end()) {
                         mapAddress[scriptCache.keyId] = true;
                     }
                 }
@@ -665,9 +606,9 @@ void AvailableAddress(const CWallet& wallet, const std::vector<Txid> &maturedTx,
     }
 }
 
-bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::set<std::pair<const CWalletTx *, unsigned int> > &setCoinsRet, CAmount &nValueRet)
+bool SelectCoinsForStaking(const CWallet& wallet, CAmount& nTargetValue, std::set<std::pair<const CWalletTx*, unsigned int>>& setCoinsRet, CAmount& nValueRet)
 {
-    std::vector<std::pair<const CWalletTx *, unsigned int> > vCoins;
+    std::vector<std::pair<const CWalletTx*, unsigned int>> vCoins;
     vCoins.clear();
 
     bool isDescriptorWallet = wallet.IsWalletFlagSet(WALLET_FLAG_DESCRIPTORS);
@@ -675,12 +616,11 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     std::map<COutPoint, uint32_t> immatureStakes = wallet.chain().getImmatureStakes();
     std::vector<Txid> maturedTx;
-    for (auto it = wallet.mapWallet.begin(); it != wallet.mapWallet.end(); ++it)
-    {
+    for (auto it = wallet.mapWallet.begin(); it != wallet.mapWallet.end(); ++it) {
         // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
         const CAmount tx_credit_mine{CachedTxGetCredit(wallet, *pcoin, /*avoid_reuse=*/false)};
-        if(tx_credit_mine == 0)
+        if (tx_credit_mine == 0)
             continue;
 
         const Txid& wtxid = it->first;
@@ -700,38 +640,30 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
 
     size_t listSize = maturedTx.size();
     int numThreads = std::min(wallet.m_num_threads, (int)listSize);
-    if(numThreads < 2)
-    {
+    if (numThreads < 2) {
         AvailableCoinsForStaking(wallet, maturedTx, 0, listSize, immatureStakes, vCoins, nullptr, isDescriptorWallet, nullptr);
-    }
-    else
-    {
+    } else {
         size_t chunk = listSize / numThreads;
-        for(int i = 0; i < numThreads; i++)
-        {
+        for (int i = 0; i < numThreads; i++) {
             size_t from = i * chunk;
-            size_t to = i == (numThreads -1) ? listSize : from + chunk;
-            wallet.threads.create_thread([&wallet, from, to, &maturedTx, &immatureStakes, &vCoins, isDescriptorWallet]{
-                std::vector<std::pair<const CWalletTx *, unsigned int> > tmpCoins;
+            size_t to = i == (numThreads - 1) ? listSize : from + chunk;
+            wallet.threads.create_thread([&wallet, from, to, &maturedTx, &immatureStakes, &vCoins, isDescriptorWallet] {
+                std::vector<std::pair<const CWalletTx*, unsigned int>> tmpCoins;
                 std::map<COutPoint, CScriptCache> tmpInsertScriptCache;
                 std::map<uint160, bool> tmpInsertAddressStake;
                 AvailableCoinsForStaking(wallet, maturedTx, from, to, immatureStakes, tmpCoins, &tmpInsertScriptCache, isDescriptorWallet, &tmpInsertAddressStake);
 
                 LOCK(wallet.cs_worker);
                 vCoins.insert(vCoins.end(), tmpCoins.begin(), tmpCoins.end());
-                if((int32_t)wallet.prevoutScriptCache.size() > wallet.m_staker_max_utxo_script_cache)
-                {
+                if ((int32_t)wallet.prevoutScriptCache.size() > wallet.m_staker_max_utxo_script_cache) {
                     wallet.prevoutScriptCache.clear();
                 }
                 wallet.prevoutScriptCache.insert(tmpInsertScriptCache.begin(), tmpInsertScriptCache.end());
 
                 // Insert the stake address cache and print warnings
-                for(std::map<uint160, bool>::iterator it = tmpInsertAddressStake.begin(); it != tmpInsertAddressStake.end(); ++it)
-                {
-                    if(wallet.addressStakeCache.find(it->first) == wallet.addressStakeCache.end())
-                    {
-                        if(!it->second)
-                        {
+                for (std::map<uint160, bool>::iterator it = tmpInsertAddressStake.begin(); it != tmpInsertAddressStake.end(); ++it) {
+                    if (wallet.addressStakeCache.find(it->first) == wallet.addressStakeCache.end()) {
+                        if (!it->second) {
                             // Log warning that descriptor is missing
                             std::string strAddress = EncodeDestination(PKHash(it->first));
                             wallet.WalletLogPrintf("Both pkh and pk descriptors are needed for %s address to do staking\n", strAddress);
@@ -747,9 +679,8 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
     setCoinsRet.clear();
     nValueRet = 0;
 
-    for(const std::pair<const CWalletTx*,unsigned int> &output : vCoins)
-    {
-        const CWalletTx *pcoin = output.first;
+    for (const std::pair<const CWalletTx*, unsigned int>& output : vCoins) {
+        const CWalletTx* pcoin = output.first;
         int i = output.second;
 
         // Stop if we've chosen enough inputs
@@ -758,18 +689,15 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
 
         int64_t n = pcoin->tx->vout[i].nValue;
 
-        std::pair<int64_t,std::pair<const CWalletTx*,unsigned int> > coin = std::make_pair(n,std::make_pair(pcoin, i));
+        std::pair<int64_t, std::pair<const CWalletTx*, unsigned int>> coin = std::make_pair(n, std::make_pair(pcoin, i));
 
-        if (n >= nTargetValue)
-        {
+        if (n >= nTargetValue) {
             // If input value is greater or equal to target then simply insert
             // it into the current subset and exit
             setCoinsRet.insert(coin.second);
             nValueRet += coin.first;
             break;
-        }
-        else if (n < nTargetValue + CENT)
-        {
+        } else if (n < nTargetValue + CENT) {
             setCoinsRet.insert(coin.second);
             nValueRet += coin.first;
         }
@@ -778,18 +706,19 @@ bool SelectCoinsForStaking(const CWallet& wallet, CAmount &nTargetValue, std::se
     return true;
 }
 
-bool valueUtxoSort(const std::pair<COutPoint,CAmount>& a,
-                const std::pair<COutPoint,CAmount>& b) {
+bool valueUtxoSort(const std::pair<COutPoint, CAmount>& a,
+                   const std::pair<COutPoint, CAmount>& b)
+{
     return a.second > b.second;
 }
 
-bool SelectDelegateCoinsForStaking(const CWallet& wallet, std::vector<COutPoint> &setDelegateCoinsRet, std::map<uint160, CAmount> &mDelegateWeight)
+bool SelectDelegateCoinsForStaking(const CWallet& wallet, std::vector<COutPoint>& setDelegateCoinsRet, std::map<uint160, CAmount>& mDelegateWeight)
 {
     AssertLockHeld(wallet.cs_wallet);
 
     setDelegateCoinsRet.clear();
 
-    std::vector<std::pair<COutPoint,CAmount>> vUnsortedDelegateCoins;
+    std::vector<std::pair<COutPoint, CAmount>> vUnsortedDelegateCoins;
 
     int32_t const height = wallet.chain().getHeight().value_or(-1);
     if (height == -1) {
@@ -801,26 +730,21 @@ bool SelectDelegateCoinsForStaking(const CWallet& wallet, std::vector<COutPoint>
     std::map<uint256, CSuperStakerInfo> mapStakers = wallet.mapSuperStaker;
 
     std::vector<uint160> delegations;
-    for (std::map<uint160, Delegation>::const_iterator it = wallet.m_delegations_staker.begin(); it != wallet.m_delegations_staker.end(); ++it)
-    {
+    for (std::map<uint160, Delegation>::const_iterator it = wallet.m_delegations_staker.begin(); it != wallet.m_delegations_staker.end(); ++it) {
         delegations.push_back(it->first);
     }
     size_t listSize = delegations.size();
     int numThreads = std::min(wallet.m_num_threads, (int)listSize);
     bool ret = true;
-    if(numThreads < 2)
-    {
+    if (numThreads < 2) {
         ret = AvailableDelegateCoinsForStaking(wallet, delegations, 0, listSize, height, immatureStakes, mapStakers, vUnsortedDelegateCoins, mDelegateWeight);
-    }
-    else
-    {
+    } else {
         size_t chunk = listSize / numThreads;
-        for(int i = 0; i < numThreads; i++)
-        {
+        for (int i = 0; i < numThreads; i++) {
             size_t from = i * chunk;
-            size_t to = i == (numThreads -1) ? listSize : from + chunk;
-            wallet.threads.create_thread([&wallet, from, to, height, &delegations, &immatureStakes, &mapStakers, &ret, &vUnsortedDelegateCoins, &mDelegateWeight]{
-                std::vector<std::pair<COutPoint,CAmount>> tmpUnsortedDelegateCoins;
+            size_t to = i == (numThreads - 1) ? listSize : from + chunk;
+            wallet.threads.create_thread([&wallet, from, to, height, &delegations, &immatureStakes, &mapStakers, &ret, &vUnsortedDelegateCoins, &mDelegateWeight] {
+                std::vector<std::pair<COutPoint, CAmount>> tmpUnsortedDelegateCoins;
                 std::map<uint160, CAmount> tmpDelegateWeight;
                 bool tmpRet = AvailableDelegateCoinsForStaking(wallet, delegations, from, to, height, immatureStakes, mapStakers, tmpUnsortedDelegateCoins, tmpDelegateWeight);
 
@@ -835,7 +759,7 @@ bool SelectDelegateCoinsForStaking(const CWallet& wallet, std::vector<COutPoint>
 
     std::sort(vUnsortedDelegateCoins.begin(), vUnsortedDelegateCoins.end(), valueUtxoSort);
 
-    for(auto utxo : vUnsortedDelegateCoins){
+    for (auto utxo : vUnsortedDelegateCoins) {
         setDelegateCoinsRet.push_back(utxo.first);
     }
 
@@ -844,15 +768,14 @@ bool SelectDelegateCoinsForStaking(const CWallet& wallet, std::vector<COutPoint>
     return ret;
 }
 
-void SelectAddress(const CWallet& wallet, std::map<uint160, bool> &mapAddress)
+void SelectAddress(const CWallet& wallet, std::map<uint160, bool>& mapAddress)
 {
     std::vector<Txid> maturedTx;
-    for (auto it = wallet.mapWallet.begin(); it != wallet.mapWallet.end(); ++it)
-    {
+    for (auto it = wallet.mapWallet.begin(); it != wallet.mapWallet.end(); ++it) {
         // Check the cached data for available coins for the tx
         const CWalletTx* pcoin = &(*it).second;
         const CAmount tx_credit_mine{CachedTxGetCredit(wallet, *pcoin, /*avoid_reuse=*/false)};
-        if(tx_credit_mine == 0)
+        if (tx_credit_mine == 0)
             continue;
 
         const Txid& wtxid = it->first;
@@ -869,26 +792,21 @@ void SelectAddress(const CWallet& wallet, std::map<uint160, bool> &mapAddress)
 
     size_t listSize = maturedTx.size();
     int numThreads = std::min(wallet.m_num_threads, (int)listSize);
-    if(numThreads < 2)
-    {
+    if (numThreads < 2) {
         AvailableAddress(wallet, maturedTx, 0, listSize, mapAddress, nullptr);
-    }
-    else
-    {
+    } else {
         size_t chunk = listSize / numThreads;
-        for(int i = 0; i < numThreads; i++)
-        {
+        for (int i = 0; i < numThreads; i++) {
             size_t from = i * chunk;
-            size_t to = i == (numThreads -1) ? listSize : from + chunk;
-            wallet.threads.create_thread([&wallet, from, to, &maturedTx, &mapAddress]{
+            size_t to = i == (numThreads - 1) ? listSize : from + chunk;
+            wallet.threads.create_thread([&wallet, from, to, &maturedTx, &mapAddress] {
                 std::map<uint160, bool> tmpAddresses;
                 std::map<COutPoint, CScriptCache> tmpInsertScriptCache;
                 AvailableAddress(wallet, maturedTx, from, to, tmpAddresses, &tmpInsertScriptCache);
 
                 LOCK(wallet.cs_worker);
                 mapAddress.insert(tmpAddresses.begin(), tmpAddresses.end());
-                if((int32_t)wallet.prevoutScriptCache.size() > wallet.m_staker_max_utxo_script_cache)
-                {
+                if ((int32_t)wallet.prevoutScriptCache.size() > wallet.m_staker_max_utxo_script_cache) {
                     wallet.prevoutScriptCache.clear();
                 }
                 wallet.prevoutScriptCache.insert(tmpInsertScriptCache.begin(), tmpInsertScriptCache.end());
@@ -898,20 +816,18 @@ void SelectAddress(const CWallet& wallet, std::map<uint160, bool> &mapAddress)
     }
 }
 
-void UpdateMinerStakeCache(CWallet& wallet, bool fStakeCache, const std::vector<COutPoint> &prevouts, CBlockIndex *pindexPrev )
+void UpdateMinerStakeCache(CWallet& wallet, bool fStakeCache, const std::vector<COutPoint>& prevouts, CBlockIndex* pindexPrev)
 {
-    if(wallet.minerStakeCache.size() > prevouts.size() + 100){
+    if (wallet.minerStakeCache.size() > prevouts.size() + 100) {
         wallet.minerStakeCache.clear();
     }
 
-    if(fStakeCache)
-    {
-        for(const COutPoint &prevoutStake : prevouts)
-        {
+    if (fStakeCache) {
+        for (const COutPoint& prevoutStake : prevouts) {
             boost::this_thread::interruption_point();
             CacheKernel(wallet.minerStakeCache, prevoutStake, pindexPrev, wallet.chain().getCoinsTip());
         }
-        if(!wallet.fHasMinerStakeCache) wallet.fHasMinerStakeCache = true;
+        if (!wallet.fHasMinerStakeCache) wallet.fHasMinerStakeCache = true;
     }
 }
 
@@ -920,8 +836,8 @@ uint64_t GetStakeWeight(const CWallet& wallet, uint64_t* pStakerWeight, uint64_t
     uint64_t nWeight = 0;
     uint64_t nStakerWeight = 0;
     uint64_t nDelegateWeight = 0;
-    if(pStakerWeight) *pStakerWeight = nStakerWeight;
-    if(pDelegateWeight) *pDelegateWeight = nDelegateWeight;
+    if (pStakerWeight) *pStakerWeight = nStakerWeight;
+    if (pDelegateWeight) *pDelegateWeight = nDelegateWeight;
 
     // Choose coins to use
     const auto bal = GetBalance(wallet);
@@ -929,7 +845,7 @@ uint64_t GetStakeWeight(const CWallet& wallet, uint64_t* pStakerWeight, uint64_t
     if (nBalance <= wallet.m_reserve_balance)
         return nWeight;
 
-    std::set<std::pair<const CWalletTx*,unsigned int> > setCoins;
+    std::set<std::pair<const CWalletTx*, unsigned int>> setCoins;
     CAmount nValueIn = 0;
 
     CAmount nTargetValue = nBalance - wallet.m_reserve_balance;
@@ -942,30 +858,26 @@ uint64_t GetStakeWeight(const CWallet& wallet, uint64_t* pStakerWeight, uint64_t
     int nHeight = wallet.GetLastBlockHeight() + 1;
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(nHeight);
     bool canSuperStake = false;
-    for(std::pair<const CWalletTx*,unsigned int> pcoin : setCoins)
-    {
-        if (wallet.GetTxDepthInMainChain(*pcoin.first) >= coinbaseMaturity)
-        {
+    for (std::pair<const CWalletTx*, unsigned int> pcoin : setCoins) {
+        if (wallet.GetTxDepthInMainChain(*pcoin.first) >= coinbaseMaturity) {
             // Compute staker weight
             CAmount nValue = pcoin.first->tx->vout[pcoin.second].nValue;
             nStakerWeight += nValue;
 
             // Check if the staker can super stake
-            if(!canSuperStake && nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
+            if (!canSuperStake && nValue >= DEFAULT_STAKING_MIN_UTXO_VALUE)
                 canSuperStake = true;
         }
     }
 
-    if(canSuperStake)
-    {
+    if (canSuperStake) {
         // Get the weight of the delegated coins
         std::vector<COutPoint> vDelegateCoins;
         std::map<uint160, CAmount> mDelegateWeight;
         SelectDelegateCoinsForStaking(wallet, vDelegateCoins, mDelegateWeight);
-        for(const COutPoint &prevout : vDelegateCoins)
-        {
+        for (const COutPoint& prevout : vDelegateCoins) {
             Coin coinPrev;
-            if(!wallet.chain().getUnspentOutput(prevout, coinPrev)){
+            if (!wallet.chain().getUnspentOutput(prevout, coinPrev)) {
                 continue;
             }
 
@@ -974,8 +886,8 @@ uint64_t GetStakeWeight(const CWallet& wallet, uint64_t* pStakerWeight, uint64_t
     }
 
     nWeight = nStakerWeight + nDelegateWeight;
-    if(pStakerWeight) *pStakerWeight = nStakerWeight;
-    if(pDelegateWeight) *pDelegateWeight = nDelegateWeight;
+    if (pStakerWeight) *pStakerWeight = nStakerWeight;
+    if (pDelegateWeight) *pDelegateWeight = nDelegateWeight;
 
     return nWeight;
 }

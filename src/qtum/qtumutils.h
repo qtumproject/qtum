@@ -1,9 +1,9 @@
 #ifndef QTUMUTILS_H
 #define QTUMUTILS_H
 
+#include <libdevcore/Address.h>
 #include <libdevcore/Common.h>
 #include <libdevcore/FixedHash.h>
-#include <libdevcore/Address.h>
 #include <util/chaintype.h>
 
 class CBlockIndex;
@@ -11,19 +11,17 @@ class CBlockIndex;
 /**
  * qtumutils Provides utility functions to EVM for functionalities that already exist in qtum
  */
-namespace qtumutils
-{
+namespace qtumutils {
 /**
  * @brief btc_ecrecover Wrapper to CPubKey::RecoverCompact
  */
-bool btc_ecrecover(dev::h256 const& hash, dev::u256 const& v, dev::h256 const& r, dev::h256 const& s, dev::h256 & key);
+bool btc_ecrecover(dev::h256 const& hash, dev::u256 const& v, dev::h256 const& r, dev::h256 const& s, dev::h256& key);
 
 
 /**
  * @brief The ChainIdType enum Chain Id values for the networks
  */
-enum ChainIdType
-{
+enum ChainIdType {
     MAIN = 81,
     TESTNET = 8889,
     REGTEST = 8890,
@@ -106,6 +104,6 @@ private:
     CBlockIndex* m_tip = 0;
 };
 
-}
+} // namespace qtumutils
 
 #endif

@@ -1,13 +1,14 @@
 #ifndef CONTRACTUTIL_H
 #define CONTRACTUTIL_H
 #include <util/contractabi.h>
-#include <QRegularExpression>
-#include <QStringList>
-#include <QString>
-#include <QMap>
 
-#include <string>
+#include <QMap>
+#include <QRegularExpression>
+#include <QString>
+#include <QStringList>
+
 #include <map>
+#include <string>
 
 #define paternUint "^[0-9]{1,77}$"
 #define paternInt "^\\-{0,1}[0-9]{1,76}$"
@@ -20,7 +21,7 @@
 class ContractUtil
 {
 public:
-    static bool getRegularExpession(const ParameterType &paramType, QRegularExpression &regEx);
+    static bool getRegularExpession(const ParameterType& paramType, QRegularExpression& regEx);
     static QString errorMessage(const FunctionABI& function, const std::vector<ParameterABI::ErrorType>& errors, bool in);
     static QMap<QString, QString> fromStdMap(const std::map<std::string, std::string>& fromMap);
 };

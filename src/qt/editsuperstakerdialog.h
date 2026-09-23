@@ -12,7 +12,7 @@ class EditSuperStakerDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditSuperStakerDialog(QWidget *parent = nullptr);
+    explicit EditSuperStakerDialog(QWidget* parent = nullptr);
     ~EditSuperStakerDialog();
     void setData(const QString& superStakerName, const QString& superStakerAddress);
     QString getSuperStakerName();
@@ -27,7 +27,7 @@ private Q_SLOTS:
     void on_updateEditStakerButton();
 
 private:
-    Ui::EditSuperStakerDialog *ui;
+    Ui::EditSuperStakerDialog* ui;
 };
 
 #endif // EDITSUPERSTAKERDIALOG_H

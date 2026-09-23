@@ -4,30 +4,30 @@
 #ifndef QUANTUM_POS_H
 #define QUANTUM_POS_H
 
+#include <arith_uint256.h>
 #include <chain.h>
-#include <primitives/transaction.h>
+#include <chainparams.h>
+#include <consensus/consensus.h>
 #include <consensus/validation.h>
+#include <hash.h>
+#include <primitives/transaction.h>
+#include <qtum/posutils.h>
+#include <script/sign.h>
 #include <txdb.h>
 #include <validation.h>
-#include <arith_uint256.h>
-#include <hash.h>
-#include <chainparams.h>
-#include <script/sign.h>
-#include <consensus/consensus.h>
-#include <qtum/posutils.h>
 
 void CacheKernel(std::map<COutPoint, CStakeCache>& cache, const COutPoint& prevout, CBlockIndex* pindexPrev, CCoinsViewCache& view);
 
 // Check whether stake kernel meets hash target
 // Sets hashProofOfStake on success return
-bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t blockFromTime, CAmount prevoutAmount, const COutPoint& prevout, unsigned int nTimeTx, uint256& hashProofOfStake, uint256& targetProofOfStake, bool fPrintProofOfStake=false);
+bool CheckStakeKernelHash(CBlockIndex* pindexPrev, unsigned int nBits, uint32_t blockFromTime, CAmount prevoutAmount, const COutPoint& prevout, unsigned int nTimeTx, uint256& hashProofOfStake, uint256& targetProofOfStake, bool fPrintProofOfStake = false);
 
 // Check kernel hash target and coinstake signature
 // Sets hashProofOfStake on success return
 bool CheckProofOfStake(CBlockIndex* pindexPrev, BlockValidationState& state, const CTransaction& tx, unsigned int nBits, uint32_t nTimeBlock, const std::vector<unsigned char>& vchPoD, const COutPoint& headerPrevout, uint256& hashProofOfStake, uint256& targetProofOfStake, CCoinsViewCache& view, Chainstate& chainstate);
 
 // Check whether the coinstake timestamp meets protocol
-inline bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params &consensusParams)
+inline bool CheckCoinStakeTimestamp(uint32_t nTimeBlock, int nHeight, const Consensus::Params& consensusParams)
 {
     return (nTimeBlock & consensusParams.StakeTimestampMask(nHeight)) == 0;
 }

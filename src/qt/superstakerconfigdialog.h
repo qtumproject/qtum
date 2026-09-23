@@ -16,19 +16,18 @@ class SuperStakerConfigDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SuperStakerConfigDialog(QWidget *parent = 0);
+    explicit SuperStakerConfigDialog(QWidget* parent = 0);
     ~SuperStakerConfigDialog();
 
     // Addresses for filter
-    enum AddressEnum
-    {
+    enum AddressEnum {
         All,
         AllowList,
         ExcludeList
     };
 
-    void setModel(WalletModel *_model);
-    void setClientModel(ClientModel *clientModel);
+    void setModel(WalletModel* _model);
+    void setClientModel(ClientModel* clientModel);
     void setSuperStakerData(const QString& hash);
     void clearAll();
 
@@ -49,7 +48,7 @@ private:
     void updateData();
 
 private:
-    Ui::SuperStakerConfigDialog *ui;
+    Ui::SuperStakerConfigDialog* ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
     SuperStakerConfigDialogPriv* d;

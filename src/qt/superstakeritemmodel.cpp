@@ -1,30 +1,32 @@
 #include <qt/superstakeritemmodel.h>
-#include <qt/walletmodel.h>
-#include <interfaces/wallet.h>
-#include <validation.h>
-#include <qt/bitcoinunits.h>
-#include <interfaces/node.h>
+
 #include <interfaces/handler.h>
+#include <interfaces/node.h>
+#include <interfaces/wallet.h>
+#include <qt/bitcoinunits.h>
+#include <qt/walletmodel.h>
+#include <validation.h>
 #include <wallet/wallet.h>
-#include <algorithm>
 
 #include <QDateTime>
-#include <QFont>
 #include <QDebug>
+#include <QFont>
 #include <QThread>
+
+#include <algorithm>
 
 class SuperStakerItemEntry
 {
 public:
-    SuperStakerItemEntry():
-        staking(false),
-        balance(0),
-        stake(0),
-        weight(0),
-        delegationsWeight(0)
-    {}
+    SuperStakerItemEntry() : staking(false),
+                             balance(0),
+                             stake(0),
+                             weight(0),
+                             delegationsWeight(0)
+    {
+    }
 
-    SuperStakerItemEntry(const interfaces::SuperStakerInfo &superStakerInfo)
+    SuperStakerItemEntry(const interfaces::SuperStakerInfo& superStakerInfo)
     {
         hash = superStakerInfo.hash;
         stakerName = QString::fromStdString(superStakerInfo.staker_name);
@@ -38,7 +40,7 @@ public:
         createTime.setSecsSinceEpoch(superStakerInfo.time);
     }
 
-    SuperStakerItemEntry( const SuperStakerItemEntry &obj)
+    SuperStakerItemEntry(const SuperStakerItemEntry& obj)
     {
         hash = obj.hash;
         stakerName = obj.stakerName;
@@ -53,7 +55,8 @@ public:
     }
 
     ~SuperStakerItemEntry()
-    {}
+    {
+    }
 
     uint256 hash;
     QString stakerName;
@@ -71,15 +74,14 @@ class SuperStakerWorker : public QObject
 {
     Q_OBJECT
 public:
-    WalletModel *walletModel;
+    WalletModel* walletModel;
     bool first;
-    SuperStakerWorker(WalletModel *_walletModel):
-        walletModel(_walletModel), first(true) {}
+    SuperStakerWorker(WalletModel* _walletModel) : walletModel(_walletModel), first(true) {}
 
 private Q_SLOTS:
     void updateSuperStakerData(QString hash, QString stakerAddress)
     {
-        if(walletModel && walletModel->node().shutdownRequested())
+        if (walletModel && walletModel->node().shutdownRequested())
             return;
 
         // Get address balance
@@ -102,17 +104,16 @@ Q_SIGNALS:
 
 #include <qt/superstakeritemmodel.moc>
 
-struct SuperStakerItemEntryLessThan
-{
-    bool operator()(const SuperStakerItemEntry &a, const SuperStakerItemEntry &b) const
+struct SuperStakerItemEntryLessThan {
+    bool operator()(const SuperStakerItemEntry& a, const SuperStakerItemEntry& b) const
     {
         return a.hash < b.hash;
     }
-    bool operator()(const SuperStakerItemEntry &a, const uint256 &b) const
+    bool operator()(const SuperStakerItemEntry& a, const uint256& b) const
     {
         return a.hash < b;
     }
-    bool operator()(const uint256 &a, const SuperStakerItemEntry &b) const
+    bool operator()(const uint256& a, const SuperStakerItemEntry& b) const
     {
         return a < b.hash;
     }
@@ -122,20 +123,17 @@ class SuperStakerItemPriv
 {
 public:
     QList<SuperStakerItemEntry> cachedSuperStakerItem;
-    SuperStakerItemModel *parent;
+    SuperStakerItemModel* parent;
 
-    SuperStakerItemPriv(SuperStakerItemModel *_parent):
-        parent(_parent) {}
+    SuperStakerItemPriv(SuperStakerItemModel* _parent) : parent(_parent) {}
 
     void refreshSuperStakerItem(interfaces::Wallet& wallet)
     {
         cachedSuperStakerItem.clear();
         {
-            for(interfaces::SuperStakerInfo superStaker : wallet.getSuperStakers())
-            {
+            for (interfaces::SuperStakerInfo superStaker : wallet.getSuperStakers()) {
                 SuperStakerItemEntry superStakerItem(superStaker);
-                if(parent)
-                {
+                if (parent) {
                     parent->updateSuperStakerData(superStakerItem);
                 }
                 cachedSuperStakerItem.append(superStakerItem);
@@ -144,7 +142,7 @@ public:
         std::sort(cachedSuperStakerItem.begin(), cachedSuperStakerItem.end(), SuperStakerItemEntryLessThan());
     }
 
-    void updateEntry(const SuperStakerItemEntry &item, int status)
+    void updateEntry(const SuperStakerItemEntry& item, int status)
     {
         // Find super staker in model
         QList<SuperStakerItemEntry>::iterator lower = std::lower_bound(
@@ -156,11 +154,9 @@ public:
         bool inModel = (lower != upper);
         SuperStakerItemEntry _item = item;
 
-        switch(status)
-        {
+        switch (status) {
         case CT_NEW:
-            if(inModel)
-            {
+            if (inModel) {
                 qWarning() << "SuperStakerItemPriv::updateEntry: Warning: Got CT_NEW, but entry is already in model";
                 break;
             }
@@ -169,8 +165,7 @@ public:
             parent->endInsertRows();
             break;
         case CT_UPDATED:
-            if(!inModel)
-            {
+            if (!inModel) {
                 qWarning() << "SuperStakerItemPriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
                 break;
             }
@@ -183,12 +178,11 @@ public:
             parent->emitDataChanged(lowerIndex);
             break;
         case CT_DELETED:
-            if(!inModel)
-            {
+            if (!inModel) {
                 qWarning() << "SuperStakerItemPriv::updateEntry: Warning: Got CT_DELETED, but entry is not in model";
                 break;
             }
-            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex-1);
+            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex - 1);
             cachedSuperStakerItem.erase(lower, upper);
             parent->endRemoveRows();
             break;
@@ -200,24 +194,20 @@ public:
         return cachedSuperStakerItem.size();
     }
 
-    SuperStakerItemEntry *index(int idx)
+    SuperStakerItemEntry* index(int idx)
     {
-        if(idx >= 0 && idx < cachedSuperStakerItem.size())
-        {
+        if (idx >= 0 && idx < cachedSuperStakerItem.size()) {
             return &cachedSuperStakerItem[idx];
-        }
-        else
-        {
+        } else {
             return 0;
         }
     }
 };
 
-SuperStakerItemModel::SuperStakerItemModel(WalletModel *parent):
-    QAbstractItemModel(parent),
-    walletModel(parent),
-    priv(0),
-    worker(0)
+SuperStakerItemModel::SuperStakerItemModel(WalletModel* parent) : QAbstractItemModel(parent),
+                                                                  walletModel(parent),
+                                                                  priv(0),
+                                                                  worker(0)
 {
     columns << tr("Staker Name") << tr("Staker Address") << tr("Minimum Fee") << tr("Staking");
 
@@ -239,53 +229,50 @@ SuperStakerItemModel::~SuperStakerItemModel()
 
     join();
 
-    if(priv)
-    {
+    if (priv) {
         delete priv;
         priv = 0;
     }
 }
 
-QModelIndex SuperStakerItemModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex SuperStakerItemModel::index(int row, int column, const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    SuperStakerItemEntry *data = priv->index(row);
-    if(data)
-    {
+    SuperStakerItemEntry* data = priv->index(row);
+    if (data) {
         return createIndex(row, column, priv->index(row));
     }
     return QModelIndex();
 }
 
-QModelIndex SuperStakerItemModel::parent(const QModelIndex &child) const
+QModelIndex SuperStakerItemModel::parent(const QModelIndex& child) const
 {
     Q_UNUSED(child);
     return QModelIndex();
 }
 
-int SuperStakerItemModel::rowCount(const QModelIndex &parent) const
+int SuperStakerItemModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return priv->size();
 }
 
-int SuperStakerItemModel::columnCount(const QModelIndex &parent) const
+int SuperStakerItemModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return columns.length();
 }
 
-QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
+QVariant SuperStakerItemModel::data(const QModelIndex& index, int role) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QVariant();
 
-    SuperStakerItemEntry *rec = static_cast<SuperStakerItemEntry*>(index.internalPointer());
+    SuperStakerItemEntry* rec = static_cast<SuperStakerItemEntry*>(index.internalPointer());
 
     switch (role) {
     case Qt::DisplayRole:
-        switch(index.column())
-        {
+        switch (index.column()) {
         case StakerName:
             return rec->stakerName;
         case StakerAddress:
@@ -343,21 +330,18 @@ QVariant SuperStakerItemModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void SuperStakerItemModel::updateSuperStakerData(const QString &hash, int status, bool showSuperStaker)
+void SuperStakerItemModel::updateSuperStakerData(const QString& hash, int status, bool showSuperStaker)
 {
     // Find superStaker in wallet
     uint256 updated = uint256::FromHex(hash.toStdString()).value_or(uint256::ZERO);
-    interfaces::SuperStakerInfo superStaker =walletModel->wallet().getSuperStaker(updated);
+    interfaces::SuperStakerInfo superStaker = walletModel->wallet().getSuperStaker(updated);
     showSuperStaker &= superStaker.hash == updated;
 
     SuperStakerItemEntry superStakerEntry;
-    if(showSuperStaker)
-    {
+    if (showSuperStaker) {
         superStakerEntry = SuperStakerItemEntry(superStaker);
         updateSuperStakerData(superStakerEntry);
-    }
-    else
-    {
+    } else {
         superStakerEntry.hash = updated;
     }
     priv->updateEntry(superStakerEntry, status);
@@ -365,12 +349,11 @@ void SuperStakerItemModel::updateSuperStakerData(const QString &hash, int status
 
 void SuperStakerItemModel::checkSuperStakerChanged()
 {
-    if(!priv)
+    if (!priv)
         return;
 
     // Update superStaker from contract
-    for(int i = 0; i < priv->cachedSuperStakerItem.size(); i++)
-    {
+    for (int i = 0; i < priv->cachedSuperStakerItem.size(); i++) {
         SuperStakerItemEntry superStakerEntry = priv->cachedSuperStakerItem[i];
         updateSuperStakerData(superStakerEntry);
     }
@@ -378,17 +361,15 @@ void SuperStakerItemModel::checkSuperStakerChanged()
 
 void SuperStakerItemModel::emitDataChanged(int idx)
 {
-    Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length()-1, QModelIndex()));
+    Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length() - 1, QModelIndex()));
 }
 
-struct SuperStakerNotification
-{
+struct SuperStakerNotification {
 public:
     SuperStakerNotification() {}
-    SuperStakerNotification(uint256 _hash, ChangeType _status, bool _showSuperStaker):
-        hash(_hash), status(_status), showSuperStaker(_showSuperStaker) {}
+    SuperStakerNotification(uint256 _hash, ChangeType _status, bool _showSuperStaker) : hash(_hash), status(_status), showSuperStaker(_showSuperStaker) {}
 
-    void invoke(QObject *tim)
+    void invoke(QObject* tim)
     {
         QString strHash = QString::fromStdString(hash.GetHex());
         qDebug() << "NotifySuperStakerChanged: " + strHash + " status= " + QString::number(status);
@@ -398,13 +379,14 @@ public:
                                   Q_ARG(int, status),
                                   Q_ARG(bool, showSuperStaker));
     }
+
 private:
     uint256 hash;
     ChangeType status;
     bool showSuperStaker;
 };
 
-static void NotifySuperStakerChanged(SuperStakerItemModel *tim, const uint256 &hash, ChangeType status)
+static void NotifySuperStakerChanged(SuperStakerItemModel* tim, const uint256& hash, ChangeType status)
 {
     SuperStakerNotification notification(hash, status, true);
     notification.invoke(tim);
@@ -422,7 +404,7 @@ void SuperStakerItemModel::unsubscribeFromCoreSignals()
     m_handler_superstaker_changed->disconnect();
 }
 
-void SuperStakerItemModel::updateSuperStakerData(const SuperStakerItemEntry &entry)
+void SuperStakerItemModel::updateSuperStakerData(const SuperStakerItemEntry& entry)
 {
     QString hash = QString::fromStdString(entry.hash.ToString());
     QMetaObject::invokeMethod(worker, "updateSuperStakerData", Qt::QueuedConnection,
@@ -430,24 +412,22 @@ void SuperStakerItemModel::updateSuperStakerData(const SuperStakerItemEntry &ent
                               Q_ARG(QString, entry.stakerAddress));
 }
 
-QString SuperStakerItemModel::formatMinFee(const SuperStakerItemEntry *rec) const
+QString SuperStakerItemModel::formatMinFee(const SuperStakerItemEntry* rec) const
 {
     return QString("%1%").arg(rec->minFee);
 }
 
 void SuperStakerItemModel::itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, qint64 delegationsWeight, bool staking)
 {
-    if(!priv)
+    if (!priv)
         return;
 
     uint256 updated = uint256::FromHex(hash.toStdString()).value_or(uint256::ZERO);
 
     // Update delegation
-    for(int i = 0; i < priv->cachedSuperStakerItem.size(); i++)
-    {
+    for (int i = 0; i < priv->cachedSuperStakerItem.size(); i++) {
         SuperStakerItemEntry superStakerEntry = priv->cachedSuperStakerItem[i];
-        if(superStakerEntry.hash == updated)
-        {
+        if (superStakerEntry.hash == updated) {
             superStakerEntry.balance = balance;
             superStakerEntry.stake = stake;
             superStakerEntry.weight = weight;
@@ -461,9 +441,8 @@ void SuperStakerItemModel::itemChanged(QString hash, qint64 balance, qint64 stak
 
 void SuperStakerItemModel::join()
 {
-    if(t.isRunning())
-    {
-        if(worker)
+    if (t.isRunning()) {
+        if (worker)
             worker->disconnect(this);
         t.quit();
         t.wait();

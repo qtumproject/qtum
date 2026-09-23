@@ -1,15 +1,15 @@
 #include <qt/tokentransactionview.h>
 
-#include <qt/walletmodel.h>
-#include <qt/platformstyle.h>
-#include <qt/tokentransactiontablemodel.h>
-#include <qt/tokentransactionrecord.h>
-#include <qt/tokenfilterproxy.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
-#include <qt/tokenitemmodel.h>
-#include <qt/tokendescdialog.h>
+#include <qt/platformstyle.h>
 #include <qt/styleSheet.h>
+#include <qt/tokendescdialog.h>
+#include <qt/tokenfilterproxy.h>
+#include <qt/tokenitemmodel.h>
+#include <qt/tokentransactionrecord.h>
+#include <qt/tokentransactiontablemodel.h>
+#include <qt/walletmodel.h>
 
 #include <QComboBox>
 #include <QDateTimeEdit>
@@ -20,30 +20,29 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QPoint>
+#include <QRegularExpressionValidator>
 #include <QScrollBar>
 #include <QTableView>
 #include <QVBoxLayout>
-#include <QRegularExpressionValidator>
 
 #define paternTokenAmount "^[0-9]{1,59}\\.{1,1}[0-9]{0,18}"
 
-TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, QWidget *parent) :
-    QWidget(parent),
-    model(0),
-    tokenProxyModel(0),
-    tokenView(0),
-    columnResizingFixer(0)
+TokenTransactionView::TokenTransactionView(const PlatformStyle* platformStyle, QWidget* parent) : QWidget(parent),
+                                                                                                  model(0),
+                                                                                                  tokenProxyModel(0),
+                                                                                                  tokenView(0),
+                                                                                                  columnResizingFixer(0)
 {
     // Build filter row
-    setContentsMargins(0,0,0,0);
+    setContentsMargins(0, 0, 0, 0);
 
-    QHBoxLayout *hlayout = new QHBoxLayout();
-    hlayout->setContentsMargins(6,6,6,6);
+    QHBoxLayout* hlayout = new QHBoxLayout();
+    hlayout->setContentsMargins(6, 6, 6, 6);
     hlayout->setSpacing(10);
     hlayout->addSpacing(STATUS_COLUMN_WIDTH);
 
     dateWidget = new QComboBox(this);
-    dateWidget->setFixedWidth(DATE_COLUMN_WIDTH -10);
+    dateWidget->setFixedWidth(DATE_COLUMN_WIDTH - 10);
 
     dateWidget->addItem(tr("All"), All);
     dateWidget->addItem(tr("Today"), Today);
@@ -55,7 +54,7 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
     hlayout->addWidget(dateWidget);
 
     typeWidget = new QComboBox(this);
-    typeWidget->setFixedWidth(TYPE_COLUMN_WIDTH -10);
+    typeWidget->setFixedWidth(TYPE_COLUMN_WIDTH - 10);
 
     typeWidget->addItem(tr("All"), TokenFilterProxy::ALL_TYPES);
     typeWidget->addItem(tr("Received with"), TokenFilterProxy::TYPE(TokenTransactionRecord::RecvWithAddress));
@@ -70,7 +69,7 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
     hlayout->addWidget(addressWidget);
 
     nameWidget = new QComboBox(this);
-    nameWidget->setFixedWidth(NAME_COLUMN_WIDTH -10);
+    nameWidget->setFixedWidth(NAME_COLUMN_WIDTH - 10);
     nameWidget->addItem(tr("All"), "");
 
     hlayout->addWidget(nameWidget);
@@ -83,16 +82,16 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
 
     QRegularExpression regEx;
     regEx.setPattern(paternTokenAmount);
-    QRegularExpressionValidator *validator = new QRegularExpressionValidator(amountWidget);
+    QRegularExpressionValidator* validator = new QRegularExpressionValidator(amountWidget);
     validator->setRegularExpression(regEx);
     amountWidget->setValidator(validator);
     hlayout->addWidget(amountWidget);
 
-    QVBoxLayout *vlayout = new QVBoxLayout(this);
-    vlayout->setContentsMargins(0,0,0,0);
+    QVBoxLayout* vlayout = new QVBoxLayout(this);
+    vlayout->setContentsMargins(0, 0, 0, 0);
     vlayout->setSpacing(0);
 
-    QTableView *view = new QTableView(this);
+    QTableView* view = new QTableView(this);
     vlayout->addLayout(hlayout);
     vlayout->addWidget(createDateRangeWidget());
     vlayout->addWidget(view);
@@ -100,7 +99,7 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
     int width = view->verticalScrollBar()->sizeHint().width();
     // Cover scroll bar width with spacing
     if (platformStyle->getUseExtraSpacing()) {
-        hlayout->addSpacing(width+2);
+        hlayout->addSpacing(width + 2);
     } else {
         hlayout->addSpacing(width);
     }
@@ -113,11 +112,11 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
     tokenView = view;
 
     // Actions
-    QAction *copyAddressAction = new QAction(tr("Copy address"), this);
-    QAction *copyAmountAction = new QAction(tr("Copy amount"), this);
-    QAction *copyTxIDAction = new QAction(tr("Copy transaction ID"), this);
-    QAction *copyTxPlainText = new QAction(tr("Copy full transaction details"), this);
-    QAction *showDetailsAction = new QAction(tr("Show transaction details"), this);
+    QAction* copyAddressAction = new QAction(tr("Copy address"), this);
+    QAction* copyAmountAction = new QAction(tr("Copy amount"), this);
+    QAction* copyTxIDAction = new QAction(tr("Copy transaction ID"), this);
+    QAction* copyTxPlainText = new QAction(tr("Copy full transaction details"), this);
+    QAction* showDetailsAction = new QAction(tr("Show transaction details"), this);
 
     contextMenu = new QMenu(tokenView);
     contextMenu->addAction(copyAddressAction);
@@ -142,14 +141,13 @@ TokenTransactionView::TokenTransactionView(const PlatformStyle *platformStyle, Q
     connect(tokenView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(showDetails()));
 }
 
-void TokenTransactionView::setModel(WalletModel *_model)
+void TokenTransactionView::setModel(WalletModel* _model)
 {
     this->model = _model;
-    if(_model)
-    {
+    if (_model) {
         refreshNameWidget();
-        connect(model->getTokenItemModel(), SIGNAL(rowsInserted(QModelIndex,int,int)),this, SLOT(addToNameWidget(QModelIndex,int,int)));
-        connect(model->getTokenItemModel(), SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),this, SLOT(removeFromNameWidget(QModelIndex,int,int)));
+        connect(model->getTokenItemModel(), SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(addToNameWidget(QModelIndex, int, int)));
+        connect(model->getTokenItemModel(), SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(removeFromNameWidget(QModelIndex, int, int)));
 
         tokenProxyModel = new TokenFilterProxy(this);
         tokenProxyModel->setSourceModel(_model->getTokenTransactionTableModel());
@@ -178,13 +176,13 @@ void TokenTransactionView::setModel(WalletModel *_model)
     }
 }
 
-QWidget *TokenTransactionView::createDateRangeWidget()
+QWidget* TokenTransactionView::createDateRangeWidget()
 {
     dateRangeWidget = new QFrame();
     dateRangeWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
-    dateRangeWidget->setContentsMargins(1,1,1,8);
-    QHBoxLayout *layout = new QHBoxLayout(dateRangeWidget);
-    layout->setContentsMargins(0,0,0,0);
+    dateRangeWidget->setContentsMargins(1, 1, 1, 8);
+    QHBoxLayout* layout = new QHBoxLayout(dateRangeWidget);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addSpacing(23);
     layout->addWidget(new QLabel(tr("Range:")));
 
@@ -216,65 +214,57 @@ QWidget *TokenTransactionView::createDateRangeWidget()
 
 void TokenTransactionView::refreshNameWidget()
 {
-    if(model)
-    {
-        TokenItemModel *tim = model->getTokenItemModel();
-        for(int i = 0; i < tim->rowCount(); i++)
-        {
+    if (model) {
+        TokenItemModel* tim = model->getTokenItemModel();
+        for (int i = 0; i < tim->rowCount(); i++) {
             QString name = tim->data(tim->index(i, 0), TokenItemModel::SymbolRole).toString();
-            if(nameWidget->findText(name) == -1)
+            if (nameWidget->findText(name) == -1)
                 nameWidget->addItem(name, name);
         }
     }
 }
 
-void TokenTransactionView::addToNameWidget(const QModelIndex &parent, int start, int /*end*/)
+void TokenTransactionView::addToNameWidget(const QModelIndex& parent, int start, int /*end*/)
 {
-    if(model)
-    {
-        TokenItemModel *tim = model->getTokenItemModel();
+    if (model) {
+        TokenItemModel* tim = model->getTokenItemModel();
         QString name = tim->index(start, TokenItemModel::Symbol, parent).data().toString();
-        if(nameWidget->findText(name) == -1)
+        if (nameWidget->findText(name) == -1)
             nameWidget->addItem(name, name);
     }
 }
 
-void TokenTransactionView::removeFromNameWidget(const QModelIndex &parent, int start, int /*end*/)
+void TokenTransactionView::removeFromNameWidget(const QModelIndex& parent, int start, int /*end*/)
 {
-    if(model)
-    {
-        TokenItemModel *tim = model->getTokenItemModel();
+    if (model) {
+        TokenItemModel* tim = model->getTokenItemModel();
         QString name = tim->index(start, TokenItemModel::Symbol, parent).data().toString();
         int nameCount = 0;
 
-        for(int i = 0; i < tim->rowCount(); i++)
-        {
+        for (int i = 0; i < tim->rowCount(); i++) {
             QString checkName = tim->index(i, TokenItemModel::Symbol, parent).data().toString();
-            if(name == checkName)
-            {
+            if (name == checkName) {
                 nameCount++;
             }
         }
 
         int nameIndex = nameWidget->findText(name);
-        if(nameCount == 1 && nameIndex != -1)
+        if (nameCount == 1 && nameIndex != -1)
             nameWidget->removeItem(nameIndex);
     }
 }
 
-void TokenTransactionView::resizeEvent(QResizeEvent *event)
+void TokenTransactionView::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
     columnResizingFixer->stretchColumnWidth(TokenTransactionTableModel::ToAddress);
 }
 
-bool TokenTransactionView::eventFilter(QObject *obj, QEvent *event)
+bool TokenTransactionView::eventFilter(QObject* obj, QEvent* event)
 {
-    if (event->type() == QEvent::KeyPress)
-    {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-        if (ke->key() == Qt::Key_C && ke->modifiers().testFlag(Qt::ControlModifier))
-        {
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent* ke = static_cast<QKeyEvent*>(event);
+        if (ke->key() == Qt::Key_C && ke->modifiers().testFlag(Qt::ControlModifier)) {
             GUIUtil::copyEntryData(tokenView, 0, TokenTransactionTableModel::TxPlainTextRole);
             return true;
         }
@@ -282,36 +272,34 @@ bool TokenTransactionView::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-void TokenTransactionView::contextualMenu(const QPoint &point)
+void TokenTransactionView::contextualMenu(const QPoint& point)
 {
     QModelIndex index = tokenView->indexAt(point);
     QModelIndexList selection = tokenView->selectionModel()->selectedRows(0);
     if (selection.empty())
         return;
 
-    if(index.isValid())
-    {
+    if (index.isValid()) {
         contextMenu->exec(QCursor::pos());
     }
 }
 
 void TokenTransactionView::dateRangeChanged()
 {
-    if(!tokenProxyModel)
+    if (!tokenProxyModel)
         return;
     tokenProxyModel->setDateRange(
-                GUIUtil::StartOfDay(dateFrom->date()),
-                GUIUtil::StartOfDay(dateTo->date().addDays(1)));
+        GUIUtil::StartOfDay(dateFrom->date()),
+        GUIUtil::StartOfDay(dateTo->date().addDays(1)));
 }
 
 void TokenTransactionView::showDetails()
 {
-    if(!tokenView->selectionModel())
+    if (!tokenView->selectionModel())
         return;
     QModelIndexList selection = tokenView->selectionModel()->selectedRows();
-    if(!selection.isEmpty())
-    {
-        TokenDescDialog *dlg = new TokenDescDialog(selection.at(0));
+    if (!selection.isEmpty()) {
+        TokenDescDialog* dlg = new TokenDescDialog(selection.at(0));
         dlg->setAttribute(Qt::WA_DeleteOnClose);
         dlg->show();
     }
@@ -339,44 +327,43 @@ void TokenTransactionView::copyTxPlainText()
 
 void TokenTransactionView::chooseDate(int idx)
 {
-    if(!tokenProxyModel)
+    if (!tokenProxyModel)
         return;
     QDate current = QDate::currentDate();
     dateRangeWidget->setVisible(false);
-    switch(dateWidget->itemData(idx).toInt())
-    {
+    switch (dateWidget->itemData(idx).toInt()) {
     case All:
         tokenProxyModel->setDateRange(
-                    TokenFilterProxy::MIN_DATE,
-                    TokenFilterProxy::MAX_DATE);
+            TokenFilterProxy::MIN_DATE,
+            TokenFilterProxy::MAX_DATE);
         break;
     case Today:
         tokenProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(current),
-                    TokenFilterProxy::MAX_DATE);
+            GUIUtil::StartOfDay(current),
+            TokenFilterProxy::MAX_DATE);
         break;
     case ThisWeek: {
         // Find last Monday
-        QDate startOfWeek = current.addDays(-(current.dayOfWeek()-1));
+        QDate startOfWeek = current.addDays(-(current.dayOfWeek() - 1));
         tokenProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(startOfWeek),
-                    TokenFilterProxy::MAX_DATE);
+            GUIUtil::StartOfDay(startOfWeek),
+            TokenFilterProxy::MAX_DATE);
 
     } break;
     case ThisMonth:
         tokenProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)),
-                    TokenFilterProxy::MAX_DATE);
+            GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)),
+            TokenFilterProxy::MAX_DATE);
         break;
     case LastMonth:
         tokenProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1).addMonths(-1)),
-                    GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)));
+            GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1).addMonths(-1)),
+            GUIUtil::StartOfDay(QDate(current.year(), current.month(), 1)));
         break;
     case ThisYear:
         tokenProxyModel->setDateRange(
-                    GUIUtil::StartOfDay(QDate(current.year(), 1, 1)),
-                    TokenFilterProxy::MAX_DATE);
+            GUIUtil::StartOfDay(QDate(current.year(), 1, 1)),
+            TokenFilterProxy::MAX_DATE);
         break;
     case Range:
         dateRangeWidget->setVisible(true);
@@ -387,38 +374,35 @@ void TokenTransactionView::chooseDate(int idx)
 
 void TokenTransactionView::chooseType(int idx)
 {
-    if(!tokenProxyModel)
+    if (!tokenProxyModel)
         return;
     tokenProxyModel->setTypeFilter(
-                typeWidget->itemData(idx).toInt());
+        typeWidget->itemData(idx).toInt());
 }
 
 void TokenTransactionView::chooseName(int idx)
 {
-    if(!tokenProxyModel)
+    if (!tokenProxyModel)
         return;
     tokenProxyModel->setName(
-                nameWidget->itemData(idx).toString());
+        nameWidget->itemData(idx).toString());
 }
 
-void TokenTransactionView::changedPrefix(const QString &prefix)
+void TokenTransactionView::changedPrefix(const QString& prefix)
 {
-    if(!tokenProxyModel)
+    if (!tokenProxyModel)
         return;
     tokenProxyModel->setAddressPrefix(prefix);
 }
 
-void TokenTransactionView::changedAmount(const QString &amount)
+void TokenTransactionView::changedAmount(const QString& amount)
 {
-    if(!tokenProxyModel)
+    if (!tokenProxyModel)
         return;
     dev::s256 amount_parsed = 0;
-    if(BitcoinUnits::parseToken(18, amount, &amount_parsed))
-    {
+    if (BitcoinUnits::parseToken(18, amount, &amount_parsed)) {
         tokenProxyModel->setMinAmount(amount_parsed);
-    }
-    else
-    {
+    } else {
         tokenProxyModel->setMinAmount(0);
     }
 }

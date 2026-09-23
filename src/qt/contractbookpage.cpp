@@ -1,9 +1,9 @@
 #include <qt/contractbookpage.h>
-#include <qt/forms/ui_contractbookpage.h>
 
 #include <qt/contracttablemodel.h>
 #include <qt/csvmodelwriter.h>
 #include <qt/editcontractinfodialog.h>
+#include <qt/forms/ui_contractbookpage.h>
 #include <qt/guiutil.h>
 #include <qt/platformstyle.h>
 #include <qt/styleSheet.h>
@@ -12,10 +12,9 @@
 #include <QMenu>
 #include <QSortFilterProxyModel>
 
-ContractBookPage::ContractBookPage(const PlatformStyle *platformStyle, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ContractBookPage),
-    model(0)
+ContractBookPage::ContractBookPage(const PlatformStyle* platformStyle, QWidget* parent) : QDialog(parent),
+                                                                                          ui(new Ui::ContractBookPage),
+                                                                                          model(0)
 {
     ui->setupUi(this);
 
@@ -43,11 +42,11 @@ ContractBookPage::ContractBookPage(const PlatformStyle *platformStyle, QWidget *
     ui->labelExplanation->setText(tr("These are your saved contracts. Always check the contract address and the ABI before sending/calling."));
 
     // Context menu actions
-    QAction *copyAddressAction = new QAction(tr("Copy &Address"), this);
-    QAction *copyNameAction = new QAction(tr("Copy &Name"), this);
-    QAction *copyABIAction = new QAction(tr("Copy &Interface"), this);
-    QAction *editAction = new QAction(tr("&Edit"), this);
-    QAction *deleteAction = new QAction(tr("&Delete"), this);
+    QAction* copyAddressAction = new QAction(tr("Copy &Address"), this);
+    QAction* copyNameAction = new QAction(tr("Copy &Name"), this);
+    QAction* copyABIAction = new QAction(tr("Copy &Interface"), this);
+    QAction* editAction = new QAction(tr("&Edit"), this);
+    QAction* deleteAction = new QAction(tr("&Delete"), this);
 
     // Build context menu
     contextMenu = new QMenu(this);
@@ -76,10 +75,10 @@ ContractBookPage::~ContractBookPage()
     delete ui;
 }
 
-void ContractBookPage::setModel(ContractTableModel *_model)
+void ContractBookPage::setModel(ContractTableModel* _model)
 {
     this->model = _model;
-    if(!_model)
+    if (!_model)
         return;
 
     proxyModel = new QSortFilterProxyModel(this);
@@ -128,13 +127,13 @@ void ContractBookPage::on_copyAddress_clicked()
 
 void ContractBookPage::onEditAction()
 {
-    if(!model)
+    if (!model)
         return;
 
-    if(!ui->tableView->selectionModel())
+    if (!ui->tableView->selectionModel())
         return;
     QModelIndexList indexes = ui->tableView->selectionModel()->selectedRows();
-    if(indexes.isEmpty())
+    if (indexes.isEmpty())
         return;
 
     EditContractInfoDialog dlg(EditContractInfoDialog::EditContractInfo, this);
@@ -146,33 +145,30 @@ void ContractBookPage::onEditAction()
 
 void ContractBookPage::on_newContractInfo_clicked()
 {
-    if(!model)
+    if (!model)
         return;
 
     EditContractInfoDialog dlg(EditContractInfoDialog::NewContractInfo, this);
     dlg.setModel(model);
-    if(dlg.exec())
-    {
+    if (dlg.exec()) {
         newContractInfoToSelect = dlg.getAddress();
     }
 }
 
 void ContractBookPage::on_deleteContractInfo_clicked()
 {
-    QTableView *table = ui->tableView;
-    if(!table->selectionModel())
+    QTableView* table = ui->tableView;
+    if (!table->selectionModel())
         return;
 
     QModelIndexList indexes = table->selectionModel()->selectedRows();
-    if(!indexes.isEmpty())
-    {
+    if (!indexes.isEmpty()) {
         int row = indexes.at(0).row();
         QModelIndex index = table->model()->index(row, ContractTableModel::Address);
         QString contractAddress = table->model()->data(index).toString();
         QString message = tr("Are you sure you want to delete the address \"%1\" from your contract address list?");
-        if(QMessageBox::Yes == QMessageBox::question(this, tr("Delete contact address"), message.arg(contractAddress),
-                                                     QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel))
-        {
+        if (QMessageBox::Yes == QMessageBox::question(this, tr("Delete contact address"), message.arg(contractAddress),
+                                                      QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel)) {
             table->model()->removeRow(row);
         }
     }
@@ -181,17 +177,14 @@ void ContractBookPage::on_deleteContractInfo_clicked()
 void ContractBookPage::selectionChanged()
 {
     // Set button states based on selection
-    QTableView *table = ui->tableView;
-    if(!table->selectionModel())
+    QTableView* table = ui->tableView;
+    if (!table->selectionModel())
         return;
 
-    if(table->selectionModel()->hasSelection())
-    {
+    if (table->selectionModel()->hasSelection()) {
         ui->deleteContractInfo->setEnabled(true);
         ui->copyAddress->setEnabled(true);
-    }
-    else
-    {
+    } else {
         ui->deleteContractInfo->setEnabled(false);
         ui->copyAddress->setEnabled(false);
     }
@@ -199,8 +192,8 @@ void ContractBookPage::selectionChanged()
 
 void ContractBookPage::done(int retval)
 {
-    QTableView *table = ui->tableView;
-    if(!table->selectionModel() || !table->model())
+    QTableView* table = ui->tableView;
+    if (!table->selectionModel() || !table->model())
         return;
 
     // Figure out which contract info was selected, and return it
@@ -213,8 +206,7 @@ void ContractBookPage::done(int retval)
         ABIValue = ABI.toString();
     }
 
-    if(addressValue.isEmpty())
-    {
+    if (addressValue.isEmpty()) {
         // If no contract info entry selected, return rejected
         retval = Rejected;
     }
@@ -226,8 +218,8 @@ void ContractBookPage::on_exportButton_clicked()
 {
     // CSV is currently the only supported format
     QString filename = GUIUtil::getSaveFileName(this,
-        tr("Export Contract List"), QString(),
-        tr("Comma separated file (*.csv)"), NULL);
+                                                tr("Export Contract List"), QString(),
+                                                tr("Comma separated file (*.csv)"), NULL);
 
     if (filename.isNull())
         return;
@@ -240,26 +232,24 @@ void ContractBookPage::on_exportButton_clicked()
     writer.addColumn("Address", ContractTableModel::Address, Qt::EditRole);
     writer.addColumn("ABI", ContractTableModel::ABI, Qt::EditRole);
 
-    if(!writer.write()) {
+    if (!writer.write()) {
         QMessageBox::critical(this, tr("Exporting Failed"),
-            tr("There was an error trying to save the address list to %1. Please try again.").arg(filename));
+                              tr("There was an error trying to save the address list to %1. Please try again.").arg(filename));
     }
 }
 
-void ContractBookPage::contextualMenu(const QPoint &point)
+void ContractBookPage::contextualMenu(const QPoint& point)
 {
     QModelIndex index = ui->tableView->indexAt(point);
-    if(index.isValid())
-    {
+    if (index.isValid()) {
         contextMenu->exec(QCursor::pos());
     }
 }
 
-void ContractBookPage::selectNewContractInfo(const QModelIndex &parent, int begin, int)
+void ContractBookPage::selectNewContractInfo(const QModelIndex& parent, int begin, int)
 {
     QModelIndex idx = proxyModel->mapFromSource(model->index(begin, ContractTableModel::Address, parent));
-    if(idx.isValid() && (idx.data(Qt::EditRole).toString() == newContractInfoToSelect))
-    {
+    if (idx.isValid() && (idx.data(Qt::EditRole).toString() == newContractInfoToSelect)) {
         // Select row of newly created address, once
         ui->tableView->setFocus();
         ui->tableView->selectRow(idx.row());

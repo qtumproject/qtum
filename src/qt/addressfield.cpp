@@ -3,27 +3,28 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qt/addressfield.h>
+
+#include <addresstype.h>
+#include <key_io.h>
+#include <qt/bitcoinaddressvalidator.h>
+#include <qt/qvalidatedlineedit.h>
 #include <qt/walletmodel.h>
 #include <validation.h>
-#include <key_io.h>
-#include <qt/qvalidatedlineedit.h>
-#include <qt/bitcoinaddressvalidator.h>
-#include <addresstype.h>
-#include <QLineEdit>
+
 #include <QCompleter>
+#include <QLineEdit>
 
 using namespace std;
 
-AddressField::AddressField(QWidget *parent) :
-    QComboBox(parent),
-    m_addressType(AddressField::UTXO),
-    m_addressTableModel(0),
-    m_walletModel(0),
-    m_addressColumn(0),
-    m_typeRole(Qt::UserRole),
-    m_senderAddress(false),
-    m_includeZeroValue(false),
-    m_isSetIncludeZeroValue(false)
+AddressField::AddressField(QWidget* parent) : QComboBox(parent),
+                                              m_addressType(AddressField::UTXO),
+                                              m_addressTableModel(0),
+                                              m_walletModel(0),
+                                              m_addressColumn(0),
+                                              m_typeRole(Qt::UserRole),
+                                              m_senderAddress(false),
+                                              m_includeZeroValue(false),
+                                              m_isSetIncludeZeroValue(false)
 
 {
     // Set editable state
@@ -35,14 +36,12 @@ AddressField::AddressField(QWidget *parent) :
 
 QString AddressField::currentText() const
 {
-    if(isEditable())
-    {
+    if (isEditable()) {
         return lineEdit()->text();
     }
 
     int index = currentIndex();
-    if(index == -1)
-    {
+    if (index == -1) {
         return QString();
     }
 
@@ -51,9 +50,8 @@ QString AddressField::currentText() const
 
 bool AddressField::isValidAddress()
 {
-    if(!isEditable())
-    {
-        if(currentIndex() != -1)
+    if (!isEditable()) {
+        if (currentIndex() != -1)
             return true;
         else
             return false;
@@ -65,12 +63,11 @@ bool AddressField::isValidAddress()
 
 void AddressField::setComboBoxEditable(bool editable)
 {
-    QValidatedLineEdit *validatedLineEdit = new QValidatedLineEdit(this);
+    QValidatedLineEdit* validatedLineEdit = new QValidatedLineEdit(this);
     setLineEdit(validatedLineEdit);
     setEditable(editable);
-    if(editable)
-    {
-        QValidatedLineEdit *validatedLineEdit = (QValidatedLineEdit*)lineEdit();
+    if (editable) {
+        QValidatedLineEdit* validatedLineEdit = (QValidatedLineEdit*)lineEdit();
         validatedLineEdit->setCheckValidator(new BitcoinAddressCheckValidator(parent(), m_senderAddress));
         completer()->setCompletionMode(QCompleter::InlineCompletion);
         connect(validatedLineEdit, &QValidatedLineEdit::editingFinished, this, &AddressField::on_editingFinished);
@@ -82,26 +79,21 @@ void AddressField::on_refresh()
     // Initialize variables
     QString currentAddress = currentText();
     m_stringList.clear();
-    if(m_walletModel)
-    {
+    if (m_walletModel) {
         // Fill the list with address
-        if(m_addressType == AddressField::UTXO)
-        {
+        if (m_addressType == AddressField::UTXO) {
             QStringList addresses;
 
             // Add all available addresses
-            if(m_includeZeroValue)
-            {
+            if (m_includeZeroValue) {
                 // Include zero or unconfirmed coins too
                 addresses = m_allAddresses;
-            }
-            else
-            {
+            } else {
                 // List only the spendable coins
                 addresses = m_spendableAddresses;
             }
 
-            for(QString address : addresses) {
+            for (QString address : addresses) {
                 appendAddress(address);
             }
         }
@@ -125,12 +117,11 @@ void AddressField::on_editingFinished()
     Q_EMIT editTextChanged(QComboBox::currentText());
 }
 
-void AddressField::appendAddress(const QString &strAddress)
+void AddressField::appendAddress(const QString& strAddress)
 {
-    if(m_walletModel)
-    {
+    if (m_walletModel) {
         CTxDestination address = DecodeDestination(strAddress.toStdString());
-        if(m_senderAddress && !IsValidContractSenderAddress(address))
+        if (m_senderAddress && !IsValidContractSenderAddress(address))
             return;
 
         m_stringList.append(strAddress);
@@ -152,7 +143,7 @@ void AddressField::setSenderAddress(bool senderAddress)
     m_senderAddress = senderAddress;
 }
 
-void AddressField::setWalletModel(WalletModel *walletModel)
+void AddressField::setWalletModel(WalletModel* walletModel)
 {
     m_walletModel = walletModel;
 
@@ -166,8 +157,7 @@ void AddressField::on_availableAddressesChanged(QStringList spendableAddresses, 
     m_allAddresses = allAddresses;
 
     // Use the slot value as default in case the Include Zero Value is not set in the component
-    if(!m_isSetIncludeZeroValue)
-    {
+    if (!m_isSetIncludeZeroValue) {
         m_includeZeroValue = includeZeroValue;
     }
 

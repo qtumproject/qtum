@@ -1,38 +1,37 @@
 #include <qt/tokenamountfield.h>
 
 #include <qt/bitcoinunits.h>
-#include <qt/styleSheet.h>
 #include <qt/qvaluecombobox.h>
+#include <qt/styleSheet.h>
 
-#include <QApplication>
 #include <QAbstractSpinBox>
+#include <QApplication>
+#include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLineEdit>
-#include <QHBoxLayout>
 
 /** QSpinBox that uses fixed-point numbers internally and uses our own
  * formatting/parsing functions.
  */
-class TokenAmountSpinBox: public QAbstractSpinBox
+class TokenAmountSpinBox : public QAbstractSpinBox
 {
     Q_OBJECT
 
 public:
-    explicit TokenAmountSpinBox(QWidget *parent):
-        QAbstractSpinBox(parent),
-        decimalUnits(0),
-        totalSupply(0),
-        singleStep(0),
-        minAmount(0)
+    explicit TokenAmountSpinBox(QWidget* parent) : QAbstractSpinBox(parent),
+                                                   decimalUnits(0),
+                                                   totalSupply(0),
+                                                   singleStep(0),
+                                                   minAmount(0)
     {
         setAlignment(Qt::AlignRight);
 
         connect(lineEdit(), &QLineEdit::textEdited, this, &TokenAmountSpinBox::valueChanged);
     }
 
-    QValidator::State validate(QString &text, int &pos) const override
+    QValidator::State validate(QString& text, int& pos) const override
     {
-        if(text.isEmpty())
+        if (text.isEmpty())
             return QValidator::Intermediate;
         bool valid = false;
         parse(text, &valid);
@@ -40,19 +39,18 @@ public:
         return valid ? QValidator::Intermediate : QValidator::Invalid;
     }
 
-    void fixup(QString &input) const override
+    void fixup(QString& input) const override
     {
         bool valid = false;
         dev::s256 val = parse(input, &valid);
         val = getMax(val, minAmount);
-        if(valid)
-        {
+        if (valid) {
             input = BitcoinUnits::formatToken(decimalUnits, val, false, BitcoinUnits::SeparatorStyle::ALWAYS);
             lineEdit()->setText(input);
         }
     }
 
-    dev::s256 value(bool *valid_out=0) const
+    dev::s256 value(bool* valid_out = 0) const
     {
         return parse(text(), valid_out);
     }
@@ -84,7 +82,7 @@ public:
         Q_EMIT valueChanged();
     }
 
-    void setTotalSupply(const dev::s256 &value)
+    void setTotalSupply(const dev::s256& value)
     {
         totalSupply = value;
     }
@@ -96,7 +94,7 @@ public:
     }
 
 private:
-    int decimalUnits; // Token decimal units
+    int decimalUnits;      // Token decimal units
     dev::s256 totalSupply; // Token total supply
     dev::s256 singleStep;
     dev::s256 minAmount;
@@ -106,16 +104,15 @@ private:
      * return validity.
      * @note Must return 0 if !valid.
      */
-    dev::s256 parse(const QString &text, bool *valid_out=0) const
+    dev::s256 parse(const QString& text, bool* valid_out = 0) const
     {
         dev::s256 val = 0;
         bool valid = BitcoinUnits::parseToken(decimalUnits, text, &val);
-        if(valid)
-        {
-            if(val < 0 || val > totalSupply)
+        if (valid) {
+            if (val < 0 || val > totalSupply)
                 valid = false;
         }
-        if(valid_out)
+        if (valid_out)
             *valid_out = valid;
         return valid ? val : 0;
     }
@@ -123,29 +120,28 @@ private:
     void setSingleStep()
     {
         dev::s256 step = 1;
-        for(int i = 1; i < decimalUnits; i++)
-        {
+        for (int i = 1; i < decimalUnits; i++) {
             step *= 10;
         }
         singleStep = step;
     }
 
-    dev::s256 getMax(dev::s256 a, dev::s256 b) const{
+    dev::s256 getMax(dev::s256 a, dev::s256 b) const
+    {
         return a > b ? a : b;
     }
 
-    dev::s256 getMin(dev::s256 a, dev::s256 b) const{
+    dev::s256 getMin(dev::s256 a, dev::s256 b) const
+    {
         return a > b ? b : a;
     }
 
 protected:
-    bool event(QEvent *event) override
+    bool event(QEvent* event) override
     {
-        if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
-        {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            if (keyEvent->key() == Qt::Key_Comma)
-            {
+        if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Comma) {
                 // Translate a comma into a period
                 QKeyEvent periodKeyEvent(event->type(), Qt::Key_Period, keyEvent->modifiers(), ".", keyEvent->isAutoRepeat(), keyEvent->count());
                 return QAbstractSpinBox::event(&periodKeyEvent);
@@ -164,11 +160,10 @@ protected:
         StepEnabled rv = QAbstractSpinBox::StepNone;
         bool valid = false;
         dev::s256 val = value(&valid);
-        if(valid)
-        {
-            if(val > minAmount)
+        if (valid) {
+            if (val > minAmount)
                 rv |= StepDownEnabled;
-            if(val < totalSupply)
+            if (val < totalSupply)
                 rv |= StepUpEnabled;
         }
         return rv;
@@ -180,18 +175,17 @@ Q_SIGNALS:
 
 #include <qt/tokenamountfield.moc>
 
-TokenAmountField::TokenAmountField(QWidget *parent) :
-    QWidget(parent),
-    amount(0)
+TokenAmountField::TokenAmountField(QWidget* parent) : QWidget(parent),
+                                                      amount(0)
 {
     amount = new TokenAmountSpinBox(this);
     amount->setLocale(QLocale::c());
     amount->installEventFilter(this);
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    QHBoxLayout* layout = new QHBoxLayout(this);
     layout->addWidget(amount);
 
-    layout->setContentsMargins(0,0,0,0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     setLayout(layout);
     connect(amount, &TokenAmountSpinBox::valueChanged, this, &TokenAmountField::valueChanged);
@@ -223,17 +217,16 @@ void TokenAmountField::setValid(bool valid)
         SetObjectStyleSheet(amount, StyleSheetNames::Invalid);
 }
 
-bool TokenAmountField::eventFilter(QObject *object, QEvent *event)
+bool TokenAmountField::eventFilter(QObject* object, QEvent* event)
 {
-    if (event->type() == QEvent::FocusIn)
-    {
+    if (event->type() == QEvent::FocusIn) {
         // Clear invalid flag on focus
         setValid(true);
     }
     return QWidget::eventFilter(object, event);
 }
 
-dev::s256 TokenAmountField::value(bool *valid_out) const
+dev::s256 TokenAmountField::value(bool* valid_out) const
 {
     return amount->value(valid_out);
 }
@@ -258,7 +251,7 @@ void TokenAmountField::setMinimum(const dev::s256& min)
     amount->setMinimum(min);
 }
 
-void TokenAmountField::setTotalSupply(const dev::s256 &value)
+void TokenAmountField::setTotalSupply(const dev::s256& value)
 {
     amount->setTotalSupply(value);
 }

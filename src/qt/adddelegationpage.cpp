@@ -1,21 +1,19 @@
 #include "adddelegationpage.h"
 #include "qt/forms/ui_adddelegationpage.h"
-
-#include <qt/guiutil.h>
-#include <validation.h>
-#include <util/moneystr.h>
-#include <wallet/wallet.h>
-#include <qt/clientmodel.h>
-#include <qt/optionsmodel.h>
-#include <qt/bitcoinunits.h>
-#include <qt/rpcconsole.h>
-#include <qt/execrpccommand.h>
-#include <qt/sendcoinsdialog.h>
-#include <qt/hardwaresigntx.h>
 #include <node/interface_ui.h>
+#include <qt/bitcoinunits.h>
+#include <qt/clientmodel.h>
+#include <qt/execrpccommand.h>
+#include <qt/guiutil.h>
+#include <qt/hardwaresigntx.h>
+#include <qt/optionsmodel.h>
+#include <qt/rpcconsole.h>
+#include <qt/sendcoinsdialog.h>
+#include <util/moneystr.h>
+#include <validation.h>
+#include <wallet/wallet.h>
 
-namespace AddDelegation_NS
-{
+namespace AddDelegation_NS {
 static const QString PRC_COMMAND = "setdelegateforaddress";
 static const QString PARAM_STAKER = "staker";
 static const QString PARAM_FEE = "fee";
@@ -23,16 +21,15 @@ static const QString PARAM_ADDRESS = "address";
 static const QString PARAM_GASLIMIT = "gaslimit";
 static const QString PARAM_GASPRICE = "gasprice";
 
-static const CAmount SINGLE_STEP = 0.00000001*COIN;
-}
+static const CAmount SINGLE_STEP = 0.00000001 * COIN;
+} // namespace AddDelegation_NS
 using namespace AddDelegation_NS;
 
-AddDelegationPage::AddDelegationPage(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::AddDelegationPage),
-    m_model(nullptr),
-    m_clientModel(nullptr),
-    m_execRPCCommand(nullptr)
+AddDelegationPage::AddDelegationPage(QWidget* parent) : QDialog(parent),
+                                                        ui(new Ui::AddDelegationPage),
+                                                        m_model(nullptr),
+                                                        m_clientModel(nullptr),
+                                                        m_execRPCCommand(nullptr)
 {
     ui->setupUi(this);
 
@@ -91,7 +88,7 @@ AddDelegationPage::~AddDelegationPage()
     delete ui;
 }
 
-void AddDelegationPage::setModel(WalletModel *_model)
+void AddDelegationPage::setModel(WalletModel* _model)
 {
     m_model = _model;
     ui->lineEditAddress->setWalletModel(m_model);
@@ -110,12 +107,11 @@ void AddDelegationPage::setModel(WalletModel *_model)
     }
 }
 
-void AddDelegationPage::setClientModel(ClientModel *_clientModel)
+void AddDelegationPage::setClientModel(ClientModel* _clientModel)
 {
     m_clientModel = _clientModel;
 
-    if (m_clientModel)
-    {
+    if (m_clientModel) {
         connect(m_clientModel, SIGNAL(gasInfoChanged(quint64, quint64, quint64)), this, SLOT(on_gasInfoChanged(quint64, quint64, quint64)));
     }
 }
@@ -134,8 +130,7 @@ void AddDelegationPage::clearAll()
 bool AddDelegationPage::isValidStakerAddress()
 {
     bool retval = true;
-    if (!m_model->validateAddress(ui->lineEditStakerAddress->text()))
-    {
+    if (!m_model->validateAddress(ui->lineEditStakerAddress->text())) {
         ui->lineEditStakerAddress->setValid(false);
         retval = false;
     }
@@ -146,9 +141,9 @@ bool AddDelegationPage::isDataValid()
 {
     bool dataValid = true;
 
-    if(!isValidStakerAddress())
+    if (!isValidStakerAddress())
         dataValid = false;
-    if(!ui->lineEditAddress->isValidAddress())
+    if (!ui->lineEditAddress->isValidAddress())
         dataValid = false;
 
     return dataValid;
@@ -188,9 +183,8 @@ void AddDelegationPage::on_clearButton_clicked()
 
 void AddDelegationPage::on_addDelegationClicked()
 {
-    if(m_model)
-    {
-        if(!isDataValid())
+    if (m_model) {
+        if (!isDataValid())
             return;
 
         // Initialize variables
@@ -210,26 +204,21 @@ void AddDelegationPage::on_addDelegationClicked()
         std::string sDelegateAddress = delegateAddress.toStdString();
         std::string sStakerAddress = stakerAddress.toStdString();
         interfaces::DelegationDetails details = m_model->wallet().getDelegationDetails(sDelegateAddress);
-        if(!details.c_contract_return)
+        if (!details.c_contract_return)
             return;
 
         // Check if delegation exist in the wallet
-        if(details.w_entry_exist)
-        {
+        if (details.w_entry_exist) {
             QMessageBox::warning(this, tr("Set delegation for address"), tr("This address is already delegated."));
             return;
         }
 
         // Check if delegation exist in the contract
-        if(details.c_entry_exist)
-        {
-            if(details.c_staker_address != sStakerAddress)
-            {
+        if (details.c_entry_exist) {
+            if (details.c_staker_address != sStakerAddress) {
                 QMessageBox::warning(this, tr("Set delegation for address"), tr("The address is delegated to the staker:\n") + QString::fromStdString(details.c_staker_address));
                 return;
-            }
-            else
-            {
+            } else {
                 // Add the delegation to the wallet
                 QMessageBox::information(this, tr("Set delegation for address"), tr("Delegation already present. \nThe delegation for the address will be added in the wallet list."));
                 interfaces::DelegationInfo info = details.toInfo(false);
@@ -241,8 +230,7 @@ void AddDelegationPage::on_addDelegationClicked()
 
         // Unlock wallet
         WalletModel::UnlockContext ctx(m_model->requestUnlock());
-        if(!ctx.isValid())
-        {
+        if (!ctx.isValid()) {
             return;
         }
 
@@ -261,11 +249,11 @@ void AddDelegationPage::on_addDelegationClicked()
             questionString.append("</span>");
             questionString.append(tr("<br /><br />Delegate the address to the staker<br />"));
             questionString.append(tr("<b>%1</b>?")
-                                  .arg(ui->lineEditStakerAddress->text()));
+                                      .arg(ui->lineEditStakerAddress->text()));
         } else {
             questionString.append(tr("Are you sure you want to delegate the address to the staker<br /><br />"));
             questionString.append(tr("<b>%1</b>?")
-                                  .arg(ui->lineEditStakerAddress->text()));
+                                      .arg(ui->lineEditStakerAddress->text()));
         }
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm address delegation proposal.") : tr("Confirm address delegation to staker.");
@@ -276,33 +264,24 @@ void AddDelegationPage::on_addDelegationClicked()
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
-        if(retval == QMessageBox::Yes || retval == QMessageBox::Save)
-        {
+        if (retval == QMessageBox::Yes || retval == QMessageBox::Save) {
             // Execute RPC command line
-            if(!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
-            {
+            if (!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage)) {
                 QMessageBox::warning(this, tr("Set delegation for address"), errorMessage);
-            }
-            else
-            {
+            } else {
                 QVariantMap variantMap = result.toMap();
-                if(bCreateUnsigned)
-                {
+                if (bCreateUnsigned) {
                     GUIUtil::setClipboard(variantMap.value("psbt").toString());
                     Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
-                }
-                else
-                {
+                } else {
                     bool isSent = true;
-                    if(m_model->getSignPsbtWithHwiTool())
-                    {
+                    if (m_model->getSignPsbtWithHwiTool()) {
                         QString psbt = variantMap.value("psbt").toString();
-                        if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                        if (!HardwareSignTx::process(this, m_model, psbt, variantMap))
                             isSent = false;
                     }
 
-                    if(isSent)
-                    {
+                    if (isSent) {
                         std::string txid = variantMap.value("txid").toString().toStdString();
                         interfaces::DelegationInfo delegation;
                         delegation.delegate_address = delegateAddress.toStdString();
@@ -327,12 +306,9 @@ void AddDelegationPage::on_updateAddDelegationButton()
     QString stakerAddress = ui->lineEditStakerAddress->text();
     QString delegate = ui->lineEditAddress->currentText();
 
-    if(stakerAddress.isEmpty() || delegate.isEmpty() || stakerAddress == delegate || stakerName.isEmpty())
-    {
+    if (stakerAddress.isEmpty() || delegate.isEmpty() || stakerAddress == delegate || stakerName.isEmpty()) {
         enabled = false;
-    }
-    else
-    {
+    } else {
         enabled = isDataValid();
     }
 
@@ -341,8 +317,7 @@ void AddDelegationPage::on_updateAddDelegationButton()
 
 void AddDelegationPage::updateDisplayUnit()
 {
-    if(m_model && m_model->getOptionsModel())
-    {
+    if (m_model && m_model->getOptionsModel()) {
         // Update gasPriceAmount with the current unit
         ui->lineEditGasPrice->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
     }

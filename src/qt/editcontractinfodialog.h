@@ -26,20 +26,20 @@ public:
         EditContractInfo
     };
 
-    explicit EditContractInfoDialog(Mode mode, QWidget *parent = 0);
+    explicit EditContractInfoDialog(Mode mode, QWidget* parent = 0);
     ~EditContractInfoDialog();
 
     bool isValidContractAddress();
     bool isValidInterfaceABI();
     bool isDataValid();
 
-    void setModel(ContractTableModel *model);
+    void setModel(ContractTableModel* model);
     void loadRow(int row);
 
     QString getAddress() const;
-    void setAddress(const QString &address);
+    void setAddress(const QString& address);
     QString getABI() const;
-    void setABI(const QString &ABI);
+    void setABI(const QString& ABI);
 
 public Q_SLOTS:
     void accept() override;
@@ -48,10 +48,10 @@ public Q_SLOTS:
 private:
     bool saveCurrentRow();
 
-    Ui::EditContractInfoDialog *ui;
-    QDataWidgetMapper *mapper;
+    Ui::EditContractInfoDialog* ui;
+    QDataWidgetMapper* mapper;
     Mode mode;
-    ContractTableModel *model;
+    ContractTableModel* model;
     ContractABI* m_contractABI;
 
     QString address;

@@ -1,13 +1,14 @@
 #ifndef QTUMTOKEN_H
 #define QTUMTOKEN_H
+#include <uint256.h>
+
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include <uint256.h>
 
 struct QtumTokenData;
 
-struct TokenEvent{
+struct TokenEvent {
     std::string address;
     std::string sender;
     std::string receiver;
@@ -50,12 +51,12 @@ public:
     void setQtumTokenExec(QtumTokenExec* tokenExec);
 
     // Set command data
-    void setAddress(const std::string &address);
-    void setDataHex(const std::string &datahex);
-    void setAmount(const std::string &amount);
-    void setGasLimit(const std::string &gaslimit);
-    void setGasPrice(const std::string &gasPrice);
-    void setSender(const std::string &sender);
+    void setAddress(const std::string& address);
+    void setDataHex(const std::string& datahex);
+    void setAmount(const std::string& amount);
+    void setGasLimit(const std::string& gaslimit);
+    void setGasPrice(const std::string& gasPrice);
+    void setSender(const std::string& sender);
     void clear();
 
     // Get transaction data
@@ -90,7 +91,7 @@ public:
     static bool ToHash160(const std::string& strQtumAddress, std::string& strHash160);
     static bool ToQtumAddress(const std::string& strHash160, std::string& strQtumAddress);
     static uint256 ToUint256(const std::string& data);
-    static void addTokenEvent(std::vector<TokenEvent> &tokenEvents, TokenEvent tokenEvent);
+    static void addTokenEvent(std::vector<TokenEvent>& tokenEvents, TokenEvent tokenEvent);
 
     // Get param functions
     static const char* paramAddress();
@@ -105,7 +106,7 @@ public:
 
 private:
     bool exec(const std::vector<std::string>& input, int func, std::vector<std::string>& output, bool sendTo);
-    bool execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, int func, std::vector<TokenEvent> &tokenEvents);
+    bool execEvents(int64_t fromBlock, int64_t toBlock, int64_t minconf, int func, std::vector<TokenEvent>& tokenEvents);
 
     QtumToken(QtumToken const&);
     QtumToken& operator=(QtumToken const&);

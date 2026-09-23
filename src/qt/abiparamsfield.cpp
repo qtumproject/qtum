@@ -1,27 +1,26 @@
 #include <qt/abiparamsfield.h>
+
 #include <qt/abiparam.h>
 #include <qt/platformstyle.h>
 
 #include <QStringList>
 
-ABIParamsField::ABIParamsField(const PlatformStyle *platformStyle, QWidget *parent) :
-    QWidget(parent),
-    m_mainLayout(new QVBoxLayout(this))
+ABIParamsField::ABIParamsField(const PlatformStyle* platformStyle, QWidget* parent) : QWidget(parent),
+                                                                                      m_mainLayout(new QVBoxLayout(this))
 {
     m_platfromStyle = platformStyle;
     m_mainLayout->setSpacing(10);
-    m_mainLayout->setContentsMargins(0,0,0,0);
+    m_mainLayout->setContentsMargins(0, 0, 0, 0);
     this->setLayout(m_mainLayout);
 }
 
-void ABIParamsField::updateParamsField(const FunctionABI &function)
+void ABIParamsField::updateParamsField(const FunctionABI& function)
 {
     // Add function parameters
     m_listParams.clear();
     int paramId = 0;
-    for(std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param)
-    {
-        ABIParam *paramFiled = new ABIParam(m_platfromStyle, paramId, *param);
+    for (std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param) {
+        ABIParam* paramFiled = new ABIParam(m_platfromStyle, paramId, *param);
         m_listParams.append(paramFiled);
         m_mainLayout->addWidget(paramFiled);
 
@@ -40,7 +39,7 @@ QList<QStringList> ABIParamsField::getParamsValues()
 {
     // Get parameters values
     QList<QStringList> resultList;
-    for(int i = 0; i < m_listParams.count(); ++i){
+    for (int i = 0; i < m_listParams.count(); ++i) {
         resultList.append(m_listParams[i]->getValue());
     }
     return resultList;
@@ -49,8 +48,8 @@ QList<QStringList> ABIParamsField::getParamsValues()
 bool ABIParamsField::isValid()
 {
     bool isValid = true;
-    for(int i = 0; i < m_listParams.count(); ++i){
-        if(!m_listParams[i]->isValid())
+    for (int i = 0; i < m_listParams.count(); ++i) {
+        if (!m_listParams[i]->isValid())
             isValid = false;
     }
     return isValid;

@@ -1,17 +1,17 @@
 #include <qt/qvalidatedtextedit.h>
-#include <qt/styleSheet.h>
+
 #include <qt/guiutil.h>
+#include <qt/styleSheet.h>
 
 #include <QValidator>
 
-QValidatedTextEdit::QValidatedTextEdit(QWidget *parent) :
-    QTextEdit(parent),
-    valid(true),
-    checkValidator(0),
-    emptyIsValid(true),
-    isValidManually(false),
-    lineByLine(false),
-    removeDuplicates(false)
+QValidatedTextEdit::QValidatedTextEdit(QWidget* parent) : QTextEdit(parent),
+                                                          valid(true),
+                                                          checkValidator(0),
+                                                          emptyIsValid(true),
+                                                          isValidManually(false),
+                                                          lineByLine(false),
+                                                          removeDuplicates(false)
 {
     connect(this, &QValidatedTextEdit::textChanged, this, &QValidatedTextEdit::markValid);
     setStyleSheet("");
@@ -23,7 +23,7 @@ void QValidatedTextEdit::clear()
     QTextEdit::clear();
 }
 
-void QValidatedTextEdit::setCheckValidator(const QValidator *v, bool _lineByLine, bool _removeDuplicates)
+void QValidatedTextEdit::setCheckValidator(const QValidator* v, bool _lineByLine, bool _removeDuplicates)
 {
     checkValidator = v;
     lineByLine = _lineByLine;
@@ -33,10 +33,8 @@ void QValidatedTextEdit::setCheckValidator(const QValidator *v, bool _lineByLine
 bool QValidatedTextEdit::isValid()
 {
     // use checkValidator in case the QValidatedTextEdit is disabled
-    if (checkValidator)
-    {
-        if(lineByLine)
-        {
+    if (checkValidator) {
+        if (lineByLine) {
             QStringList lines = getLines();
 
             for (QString line : lines) {
@@ -44,9 +42,7 @@ bool QValidatedTextEdit::isValid()
                 if (checkValidator->validate(line, pos) == QValidator::Invalid)
                     return false;
             }
-        }
-        else
-        {
+        } else {
             QString line = toPlainText();
             int pos = 0;
             if (checkValidator->validate(line, pos) == QValidator::Acceptable)
@@ -59,17 +55,13 @@ bool QValidatedTextEdit::isValid()
 
 void QValidatedTextEdit::setValid(bool _valid)
 {
-    if(_valid == this->valid)
-    {
+    if (_valid == this->valid) {
         return;
     }
 
-    if(_valid)
-    {
+    if (_valid) {
         setStyleSheet("");
-    }
-    else
-    {
+    } else {
         SetObjectStyleSheet(this, StyleSheetNames::Invalid);
     }
     this->valid = _valid;
@@ -77,13 +69,10 @@ void QValidatedTextEdit::setValid(bool _valid)
 
 void QValidatedTextEdit::setEnabled(bool enabled)
 {
-    if (!enabled)
-    {
+    if (!enabled) {
         // A disabled QValidatedLineEdit should be marked valid
         setValid(true);
-    }
-    else
-    {
+    } else {
         // Recheck validity when QValidatedLineEdit gets enabled
         checkValidity();
     }
@@ -93,18 +82,12 @@ void QValidatedTextEdit::setEnabled(bool enabled)
 
 void QValidatedTextEdit::checkValidity()
 {
-    if (emptyIsValid && toPlainText().isEmpty())
-    {
+    if (emptyIsValid && toPlainText().isEmpty()) {
         setValid(true);
-    }
-    else if(isValidManually)
-    {
+    } else if (isValidManually) {
         setValid(true);
-    }
-    else if (checkValidator)
-    {
-        if(lineByLine)
-        {
+    } else if (checkValidator) {
+        if (lineByLine) {
             QStringList lines = getLines();
 
             for (QString line : lines) {
@@ -114,9 +97,7 @@ void QValidatedTextEdit::checkValidity()
                 else
                     setValid(false);
             }
-        }
-        else
-        {
+        } else {
             QString line = toPlainText();
             int pos = 0;
             if (checkValidator->validate(line, pos) == QValidator::Acceptable)
@@ -124,8 +105,7 @@ void QValidatedTextEdit::checkValidity()
             else
                 setValid(false);
         }
-    }
-    else
+    } else
         setValid(false);
 }
 
@@ -135,16 +115,15 @@ void QValidatedTextEdit::markValid()
     setValid(true);
 }
 
-void QValidatedTextEdit::focusInEvent(QFocusEvent *event)
+void QValidatedTextEdit::focusInEvent(QFocusEvent* event)
 {
     setValid(true);
     QTextEdit::focusInEvent(event);
 }
 
-void QValidatedTextEdit::focusOutEvent(QFocusEvent *event)
+void QValidatedTextEdit::focusOutEvent(QFocusEvent* event)
 {
-    if(lineByLine && removeDuplicates)
-    {
+    if (lineByLine && removeDuplicates) {
         QStringList lines = getLines();
         lines.removeDuplicates();
         setLines(lines);
@@ -178,7 +157,7 @@ QStringList QValidatedTextEdit::getLines() const
     return toPlainText().split("\n", Qt::SkipEmptyParts);
 }
 
-void QValidatedTextEdit::setLines(const QStringList &lines)
+void QValidatedTextEdit::setLines(const QStringList& lines)
 {
     setPlainText(lines.join('\n'));
 }

@@ -1,9 +1,10 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <script/solver.h>
 #include <chainparams.h>
+#include <script/solver.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace ConstantinopleTest{
+#include <boost/test/unit_test.hpp>
+
+namespace ConstantinopleTest {
 
 const dev::u256 GASLIMIT = dev::u256(500000);
 const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -98,10 +99,10 @@ const std::vector<valtype> CODE = {
     valtype(ParseHex("608060405234801561001057600080fd5b506101d5806100206000396000f30060806040526004361061004b5763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416634ac429f28114610050578063f8af251414610077575b600080fd5b34801561005c57600080fd5b506100656100a0565b60408051918252519081900360200190f35b34801561008357600080fd5b5061008c6100a7565b604080519115158252519081900360200190f35b6001421b90565b60408051600481526024810182526020810180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff167f4ac429f2000000000000000000000000000000000000000000000000000000001781529151815160009384933093909290918291808383895b8381101561012b578181015183820152602001610113565b50505050905090810190601f1680156101585780820380516001836020036101000a031916815260200191505b509150506000604051808303816000865af160408051821515815290519194507f27cb433ab98fc487efab30ed965c7b21cb0c65b05a72ae5bf5a9815af956fe1693508190036020019150a19190505600a165627a7a7230582069c72d05c3b31b65dc0b5de1dc97b02549a66fe816407fc4e98bcee6792074c40029")),
 
     // IsItConstantinople()
-    valtype(ParseHex("f8af2514"))
-};
+    valtype(ParseHex("f8af2514"))};
 
-void genesisLoading(){
+void genesisLoading()
+{
     const CChainParams& chainparams = Params();
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     int forkHeight = coinbaseMaturity + 499;
@@ -114,11 +115,12 @@ void genesisLoading(){
     globalState->db().commit();
 }
 
-void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++){
+        for (size_t i = 0; i < n; i++) {
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
         globalState->setRoot(oldHashStateRoot);
@@ -129,9 +131,10 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(constantinoplefork_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_returndata_opcode_after_fork){
+BOOST_AUTO_TEST_CASE(checking_returndata_opcode_after_fork)
+{
     // Initialize
-//    initState();
+    //    initState();
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -161,9 +164,10 @@ BOOST_AUTO_TEST_CASE(checking_returndata_opcode_after_fork){
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(0x0000000000000000000000000000000000000000000000000000000000000020));
 }
 
-BOOST_AUTO_TEST_CASE(checking_returndata_opcode_before_fork){
+BOOST_AUTO_TEST_CASE(checking_returndata_opcode_before_fork)
+{
     // Initialize
-//    initState();
+    //    initState();
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -187,9 +191,10 @@ BOOST_AUTO_TEST_CASE(checking_returndata_opcode_before_fork){
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::BadInstruction);
 }
 
-BOOST_AUTO_TEST_CASE(checking_constantinople_after_fork){
+BOOST_AUTO_TEST_CASE(checking_constantinople_after_fork)
+{
     // Initialize
-//    initState();
+    //    initState();
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -207,9 +212,10 @@ BOOST_AUTO_TEST_CASE(checking_constantinople_after_fork){
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(0x0000000000000000000000000000000000000000000000000000000000000001));
 }
 
-BOOST_AUTO_TEST_CASE(checking_constantinople_before_fork){
+BOOST_AUTO_TEST_CASE(checking_constantinople_before_fork)
+{
     // Initialize
-//    initState();
+    //    initState();
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -229,4 +235,4 @@ BOOST_AUTO_TEST_CASE(checking_constantinople_before_fork){
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace ConstantinopleTest

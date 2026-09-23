@@ -1,14 +1,14 @@
 #ifndef SUPERSTAKERPAGE_H
 #define SUPERSTAKERPAGE_H
 
-#include <qt/superstakerconfigdialog.h>
 #include <qt/addsuperstakerpage.h>
 #include <qt/delegationsstakerdialog.h>
 #include <qt/splitutxopage.h>
+#include <qt/superstakerconfigdialog.h>
 
-#include <QWidget>
-#include <QModelIndex>
 #include <QAbstractItemModel>
+#include <QModelIndex>
+#include <QWidget>
 
 class WalletModel;
 class ClientModel;
@@ -25,15 +25,15 @@ class SuperStakerPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit SuperStakerPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit SuperStakerPage(const PlatformStyle* platformStyle, QWidget* parent = 0);
     ~SuperStakerPage();
 
-    void setModel(WalletModel *_model);
-    void setClientModel(ClientModel *clientModel);
+    void setModel(WalletModel* _model);
+    void setClientModel(ClientModel* clientModel);
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user
-    void message(const QString &title, const QString &message, unsigned int style);
+    void message(const QString& title, const QString& message, unsigned int style);
 
 public Q_SLOTS:
     void on_goToSplitCoinsPage();
@@ -41,10 +41,10 @@ public Q_SLOTS:
     void on_goToAddSuperStakerPage();
     void on_goToDelegationsSuperStakerPage();
     void on_currentSuperStakerChanged(QModelIndex index);
-    void on_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
+    void on_dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles = QVector<int>());
     void on_currentChanged(QModelIndex current, QModelIndex previous);
     void on_rowsInserted(QModelIndex index, int first, int last);
-    void contextualMenu(const QPoint &);
+    void contextualMenu(const QPoint&);
     void copyStekerMinFee();
     void copyStakerName();
     void copyStakerAddress();
@@ -56,12 +56,12 @@ public Q_SLOTS:
     void on_configSuperStaker(const QModelIndex& index);
     void on_addSuperStaker();
     void on_removeSuperStaker(const QModelIndex& index);
-    void on_delegationsSuperStaker(const QModelIndex &index);
-    void on_splitCoins(const QModelIndex &index);
+    void on_delegationsSuperStaker(const QModelIndex& index);
+    void on_splitCoins(const QModelIndex& index);
     void on_restoreSuperStakers();
 
 private:
-    Ui::SuperStakerPage *ui;
+    Ui::SuperStakerPage* ui;
     SuperStakerConfigDialog* m_configSuperStakerPage;
     AddSuperStakerPage* m_addSuperStakerPage;
     DelegationsStakerDialog* m_delegationsSuperStakerPage;
@@ -69,8 +69,8 @@ private:
     WalletModel* m_model;
     ClientModel* m_clientModel;
     QString m_selectedSuperStakerHash;
-    const PlatformStyle *m_platformStyle;
-    QMenu *contextMenu;
+    const PlatformStyle* m_platformStyle;
+    QMenu* contextMenu;
     QModelIndex indexMenu;
     SuperStakerListWidget* m_superStakerList;
 };

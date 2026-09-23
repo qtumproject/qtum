@@ -14,17 +14,17 @@ class ContractResult : public QStackedWidget
     Q_OBJECT
 
 public:
-    enum ContractTxType{
+    enum ContractTxType {
         CreateResult,
         SendToResult,
         CallResult
     };
-    explicit ContractResult(QWidget *parent = 0);
+    explicit ContractResult(QWidget* parent = 0);
     ~ContractResult();
     void setResultData(QVariant result, FunctionABI function, QList<QStringList> paramValues, ContractTxType type);
 
 private:
-    Ui::ContractResult *ui;
+    Ui::ContractResult* ui;
     void setParamsData(FunctionABI function, QList<QStringList> paramValues);
     void updateCreateResult(QVariant result);
     void updateSendToResult(QVariant result);

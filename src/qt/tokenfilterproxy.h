@@ -1,18 +1,18 @@
 #ifndef TOKENFILTERPROXY_H
 #define TOKENFILTERPROXY_H
 
+#include <libdevcore/Common.h>
 #include <qt/tokentransactiontablemodel.h>
+
 #include <QDateTime>
 #include <QSortFilterProxyModel>
-
-#include <libdevcore/Common.h>
 
 class TokenFilterProxy : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    explicit TokenFilterProxy(QObject *parent = 0);
+    explicit TokenFilterProxy(QObject* parent = 0);
 
     /** Earliest date that can be represented (far in the past) */
     static const QDateTime MIN_DATE;
@@ -21,10 +21,10 @@ public:
     /** Type filter bit field (all types) */
     static const quint32 ALL_TYPES = 0xFFFFFFFF;
 
-    static quint32 TYPE(int type) { return 1<<type; }
+    static quint32 TYPE(int type) { return 1 << type; }
 
-    void setDateRange(const QDateTime &from, const QDateTime &to);
-    void setAddressPrefix(const QString &addrPrefix);
+    void setDateRange(const QDateTime& from, const QDateTime& to);
+    void setAddressPrefix(const QString& addrPrefix);
     /**
       @note Type filter takes a bit field created with TYPE() or ALL_TYPES
      */
@@ -35,11 +35,11 @@ public:
     /** Set maximum number of rows returned, -1 if unlimited. */
     void setLimit(int limit);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 
 protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const override;
-    bool lessThan(const QModelIndex & left, const QModelIndex & right) const override;
+    bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
+    bool lessThan(const QModelIndex& left, const QModelIndex& right) const override;
 
 private:
     QDateTime dateFrom;

@@ -12,8 +12,8 @@
 class WalletModel;
 
 /** Drop down list of addresses
-  */
-class AddressField: public QComboBox
+ */
+class AddressField : public QComboBox
 {
     Q_OBJECT
     Q_PROPERTY(AddressType addressType READ addressType WRITE setAddressType NOTIFY addressTypeChanged)
@@ -41,15 +41,15 @@ public:
      * @return Address type
      */
     AddressType addressType() const
-    { 
-        return m_addressType; 
+    {
+        return m_addressType;
     }
 
     /**
      * @brief AddressField Constructor
      * @param parent Parent widget
      */
-    explicit AddressField(QWidget *parent = 0);
+    explicit AddressField(QWidget* parent = 0);
 
     /**
      * @brief currentText Get the current text

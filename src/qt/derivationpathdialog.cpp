@@ -1,24 +1,25 @@
 #include <qt/derivationpathdialog.h>
+
+#include <outputtype.h>
 #include <qt/forms/ui_derivationpathdialog.h>
 #include <qt/qtumhwitool.h>
-#include <outputtype.h>
+
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 
 #define paternDerivationPath "^m/[0-9]{1,9}'/[0-9]{1,9}'/[0-9]{1,9}'$"
 QString toHWIPath(const QString& path)
 {
-    if(path.isEmpty())
+    if (path.isEmpty())
         return "";
     QString hwiPath = path;
     hwiPath.replace("'", "h");
     return hwiPath;
 }
 
-DerivationPathDialog::DerivationPathDialog(QWidget *parent, WalletModel* model, bool _create) :
-    QDialog(parent),
-    create(_create),
-    ui(new Ui::DerivationPathDialog)
+DerivationPathDialog::DerivationPathDialog(QWidget* parent, WalletModel* model, bool _create) : QDialog(parent),
+                                                                                                create(_create),
+                                                                                                ui(new Ui::DerivationPathDialog)
 {
     ui->setupUi(this);
 
@@ -35,26 +36,25 @@ DerivationPathDialog::DerivationPathDialog(QWidget *parent, WalletModel* model, 
     QRegularExpression regEx;
     regEx.setPattern(paternDerivationPath);
 
-    QRegularExpressionValidator *legacyValidator = new QRegularExpressionValidator(ui->txtLegacy);
+    QRegularExpressionValidator* legacyValidator = new QRegularExpressionValidator(ui->txtLegacy);
     legacyValidator->setRegularExpression(regEx);
     ui->txtLegacy->setCheckValidator(legacyValidator);
     ui->txtLegacy->setText(QtumHwiTool::derivationPathPKH());
     ui->txtLegacy->setPlaceholderText(QtumHwiTool::derivationPathPKH());
 
-    QRegularExpressionValidator *P2SHValidator = new QRegularExpressionValidator(ui->txtP2SH);
+    QRegularExpressionValidator* P2SHValidator = new QRegularExpressionValidator(ui->txtP2SH);
     P2SHValidator->setRegularExpression(regEx);
     ui->txtP2SH->setCheckValidator(P2SHValidator);
     ui->txtP2SH->setText(QtumHwiTool::derivationPathP2SH());
     ui->txtP2SH->setPlaceholderText(QtumHwiTool::derivationPathP2SH());
 
-    QRegularExpressionValidator *segWitValidator = new QRegularExpressionValidator(ui->txtSegWit);
+    QRegularExpressionValidator* segWitValidator = new QRegularExpressionValidator(ui->txtSegWit);
     segWitValidator->setRegularExpression(regEx);
     ui->txtSegWit->setCheckValidator(segWitValidator);
     ui->txtSegWit->setText(QtumHwiTool::derivationPathBech32());
     ui->txtSegWit->setPlaceholderText(QtumHwiTool::derivationPathBech32());
 
-    if(model && create)
-    {
+    if (model && create) {
         ui->cbRescan->setChecked(true);
         ui->cbRescan->setEnabled(false);
 
@@ -95,7 +95,7 @@ void DerivationPathDialog::on_okButton_clicked()
     QDialog::accept();
 }
 
-bool DerivationPathDialog::importAddressesData(bool &rescan, bool &importPKH, bool &importP2SH, bool &importBech32, QString& pathPKH, QString& pathP2SH, QString& pathBech32)
+bool DerivationPathDialog::importAddressesData(bool& rescan, bool& importPKH, bool& importP2SH, bool& importBech32, QString& pathPKH, QString& pathP2SH, QString& pathBech32)
 {
     rescan = ui->cbRescan->isChecked();
     importPKH = ui->cbLegacy->isChecked();
@@ -121,10 +121,9 @@ void DerivationPathDialog::updateWidgets()
     widgetEnabled(ui->txtSegWit, segWit);
 }
 
-void DerivationPathDialog::widgetEnabled(QWidget *widget, bool enabled)
+void DerivationPathDialog::widgetEnabled(QWidget* widget, bool enabled)
 {
-    if(widget && widget->isEnabled() != enabled)
-    {
+    if (widget && widget->isEnabled() != enabled) {
         widget->setEnabled(enabled);
     }
 }
@@ -140,6 +139,6 @@ bool DerivationPathDialog::isDataValid()
 bool DerivationPathDialog::isDataSelected(bool rescan, bool importPKH, bool importP2SH, bool importBech32)
 {
     bool hasDerivation = importPKH || importP2SH || importBech32;
-    if(create) return hasDerivation;
+    if (create) return hasDerivation;
     return rescan || hasDerivation;
 }

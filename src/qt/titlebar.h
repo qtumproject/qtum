@@ -3,13 +3,13 @@
 
 #include <bitcoin-build-config.h> // IWYU pragma: keep
 
-#include <QWidget>
-#include <QSize>
-#include <QTabBar>
+#include <QComboBox>
 #include <QIcon>
 #include <QLabel>
-#include <QComboBox>
 #include <QPointer>
+#include <QSize>
+#include <QTabBar>
+#include <QWidget>
 #ifdef ENABLE_WALLET
 #include <qt/walletmodel.h>
 #endif
@@ -32,8 +32,8 @@ public:
      * @brief TitleBar Constructor
      * @param parent Parent widget
      */
-    explicit TitleBar(const PlatformStyle *platformStyle, QWidget *parent = 0);
-    
+    explicit TitleBar(const PlatformStyle* platformStyle, QWidget* parent = 0);
+
     /**
      * @brief TitleBar Destrustor
      */
@@ -44,19 +44,19 @@ public:
      * @brief setModel Set wallet model
      * @param _model Wallet model
      */
-    void setModel(WalletModel *_model);
+    void setModel(WalletModel* _model);
 
     /**
      * @brief addWallet Add wallet model
      * @param _model Wallet model
      */
-    void addWallet(WalletModel *_model);
+    void addWallet(WalletModel* _model);
 
     /**
      * @brief removeWallet Remove wallet model
      * @param _model Wallet model
      */
-    void removeWallet(WalletModel *_model);
+    void removeWallet(WalletModel* _model);
 #endif
 
     /**
@@ -70,7 +70,7 @@ public:
      * @param walletSelectorLabel Wallet selector label
      * @param walletSelector Wallet selector
      */
-    void setWalletSelector(QLabel *walletSelectorLabel, QComboBox* walletSelector);
+    void setWalletSelector(QLabel* walletSelectorLabel, QComboBox* walletSelector);
 
 
 Q_SIGNALS:
@@ -102,7 +102,7 @@ private:
 #endif
 
 private:
-    Ui::TitleBar *ui;
+    Ui::TitleBar* ui;
 #ifdef ENABLE_WALLET
     QPointer<WalletModel> m_model;
 #endif

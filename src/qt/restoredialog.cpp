@@ -1,17 +1,18 @@
 #include <qt/restoredialog.h>
+
 #include <qt/forms/ui_restoredialog.h>
 #include <qt/guiutil.h>
-#include <qt/walletmodel.h>
-#include <QMessageBox>
-#include <QFile>
 #include <qt/styleSheet.h>
-#include <wallet/walletutil.h>
+#include <qt/walletmodel.h>
 #include <util/fs.h>
+#include <wallet/walletutil.h>
 
-RestoreDialog::RestoreDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::RestoreDialog),
-    model(0)
+#include <QFile>
+#include <QMessageBox>
+
+RestoreDialog::RestoreDialog(QWidget* parent) : QDialog(parent),
+                                                ui(new Ui::RestoreDialog),
+                                                model(0)
 {
     ui->setupUi(this);
     SetObjectStyleSheet(ui->btnReset, StyleSheetNames::ButtonLight);
@@ -26,16 +27,11 @@ QString RestoreDialog::getParam()
 {
     QString param;
 
-    if(ui->rbReindex->isChecked())
-    {
+    if (ui->rbReindex->isChecked()) {
         param = "-reindex";
-    }
-    else if(ui->rbLocalDeleteData->isChecked())
-    {
+    } else if (ui->rbLocalDeleteData->isChecked()) {
         param = "-deleteblockchaindata";
-    }
-    else if(ui->rbInitialBlocksDownload->isChecked())
-    {
+    } else if (ui->rbInitialBlocksDownload->isChecked()) {
         param = "-forceinitialblocksdownloadmode";
     }
 
@@ -47,7 +43,7 @@ QString RestoreDialog::getFileName()
     return ui->txtWalletPath->text();
 }
 
-void RestoreDialog::setModel(WalletModel *model)
+void RestoreDialog::setModel(WalletModel* model)
 {
     this->model = model;
 }
@@ -61,19 +57,14 @@ void RestoreDialog::on_btnReset_clicked()
 void RestoreDialog::on_btnBoxRestore_accepted()
 {
     QString filename = getFileName();
-    if(filename.isEmpty())
-    {
-        if(ui->rbRestoreFile->isChecked())
-        {
+    if (filename.isEmpty()) {
+        if (ui->rbRestoreFile->isChecked()) {
             QMessageBox::information(this, tr("File not selected"), tr("Please select a file to restore your wallet."), QMessageBox::Ok);
             return;
-        }
-        else
-        {
+        } else {
             fs::path path = wallet::GetWalletDir();
             QString restoreName = model ? model->getWalletName() : "";
-            if(!restoreName.isEmpty())
-            {
+            if (!restoreName.isEmpty()) {
                 path /= fs::PathFromString(restoreName.toStdString());
             }
             path /= "wallet.dat";
@@ -81,22 +72,18 @@ void RestoreDialog::on_btnBoxRestore_accepted()
         }
     }
     QString param = getParam();
-    if(model && QFile::exists(filename))
-    {
+    if (model && QFile::exists(filename)) {
         QMessageBox::StandardButton retval = QMessageBox::warning(this, tr("Confirm wallet restoration"),
-                 tr("Warning: The wallet will be restored from location <b>%1</b> and restarted with parameter <b>%2</b>.").arg(filename, param)
-                 + tr("<br><br>Are you sure you wish to restore your wallet?"),
-                 QMessageBox::Yes|QMessageBox::Cancel,
-                 QMessageBox::Cancel);
-        if(retval == QMessageBox::Yes)
-        {
-            if(model->restoreWallet(filename, param))
-            {
+                                                                  tr("Warning: The wallet will be restored from location <b>%1</b> and restarted with parameter <b>%2</b>.").arg(filename, param) + tr("<br><br>Are you sure you wish to restore your wallet?"),
+                                                                  QMessageBox::Yes | QMessageBox::Cancel,
+                                                                  QMessageBox::Cancel);
+        if (retval == QMessageBox::Yes) {
+            if (model->restoreWallet(filename, param)) {
                 qApp->setQuitOnLastWindowClosed(true);
                 qApp->closeAllWindows();
             }
-        }
-        else return;
+        } else
+            return;
     }
     accept();
 }
@@ -109,8 +96,8 @@ void RestoreDialog::on_btnBoxRestore_rejected()
 void RestoreDialog::on_toolWalletPath_clicked()
 {
     QString filename = GUIUtil::getOpenFileName(this,
-        tr("Restore Wallet"), QString(),
-        tr("Wallet Data (*.dat)"), NULL);
+                                                tr("Restore Wallet"), QString(),
+                                                tr("Wallet Data (*.dat)"), NULL);
 
     if (filename.isEmpty())
         return;

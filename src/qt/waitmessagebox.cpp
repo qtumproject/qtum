@@ -1,18 +1,17 @@
 #include <qt/waitmessagebox.h>
 
-#include <QVBoxLayout>
 #include <QLabel>
 #include <QTimer>
+#include <QVBoxLayout>
 
-WaitMessageBox::WaitMessageBox(const QString &title, const QString &content, std::function<void()> _run, QWidget *parent) :
-    QDialog(parent)
+WaitMessageBox::WaitMessageBox(const QString& title, const QString& content, std::function<void()> _run, QWidget* parent) : QDialog(parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
     setWindowTitle(title);
 
-    QVBoxLayout *mainLay = new QVBoxLayout(this);
-    QLabel *lbl = new QLabel(content, this);
+    QVBoxLayout* mainLay = new QVBoxLayout(this);
+    QLabel* lbl = new QLabel(content, this);
 
     mainLay->addWidget(lbl);
     run = _run;
@@ -22,6 +21,6 @@ WaitMessageBox::WaitMessageBox(const QString &title, const QString &content, std
 
 void WaitMessageBox::timeout()
 {
-    if(run) run();
+    if (run) run();
     accept();
 }

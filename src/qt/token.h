@@ -1,10 +1,11 @@
 #ifndef TOKEN_H
 #define TOKEN_H
+#include <qtum/qtumtoken.h>
+#include <uint256.h>
+
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include <uint256.h>
-#include <qtum/qtumtoken.h>
 
 struct TokenData;
 class WalletModel;
@@ -15,7 +16,7 @@ public:
     Token();
     ~Token();
 
-    void setModel(WalletModel *model);
+    void setModel(WalletModel* model);
 
     bool execValid(const int& func, const bool& sendTo) override;
     bool execEventsValid(const int& func, const int64_t& fromBlock) override;

@@ -1,28 +1,30 @@
 #include <qt/delegationitemmodel.h>
-#include <qt/walletmodel.h>
-#include <interfaces/wallet.h>
-#include <validation.h>
-#include <qt/bitcoinunits.h>
-#include <interfaces/node.h>
+
 #include <interfaces/handler.h>
-#include <algorithm>
+#include <interfaces/node.h>
+#include <interfaces/wallet.h>
+#include <qt/bitcoinunits.h>
+#include <qt/walletmodel.h>
+#include <validation.h>
 
 #include <QDateTime>
-#include <QFont>
 #include <QDebug>
+#include <QFont>
 #include <QThread>
+
+#include <algorithm>
 
 class DelegationItemEntry
 {
 public:
-    DelegationItemEntry():
-        balance(0),
-        stake(0),
-        weight(0),
-        status(0)
-    {}
+    DelegationItemEntry() : balance(0),
+                            stake(0),
+                            weight(0),
+                            status(0)
+    {
+    }
 
-    DelegationItemEntry(const interfaces::DelegationInfo &delegationInfo)
+    DelegationItemEntry(const interfaces::DelegationInfo& delegationInfo)
     {
         hash = delegationInfo.hash;
         createTime.setSecsSinceEpoch(delegationInfo.time);
@@ -39,7 +41,7 @@ public:
         status = 0;
     }
 
-    DelegationItemEntry( const DelegationItemEntry &obj)
+    DelegationItemEntry(const DelegationItemEntry& obj)
     {
         hash = obj.hash;
         createTime = obj.createTime;
@@ -57,7 +59,8 @@ public:
     }
 
     ~DelegationItemEntry()
-    {}
+    {
+    }
 
     uint256 hash;
     QDateTime createTime;
@@ -78,15 +81,14 @@ class DelegationWorker : public QObject
 {
     Q_OBJECT
 public:
-    WalletModel *walletModel;
+    WalletModel* walletModel;
     bool first;
-    DelegationWorker(WalletModel *_walletModel):
-        walletModel(_walletModel), first(true) {}
+    DelegationWorker(WalletModel* _walletModel) : walletModel(_walletModel), first(true) {}
 
 private Q_SLOTS:
     void updateDelegationData(QString hash, QString delegateAddress, QString stakerAddress, quint8 fee, qint32 blockNumber)
     {
-        if(walletModel && walletModel->node().shutdownRequested())
+        if (walletModel && walletModel->node().shutdownRequested())
             return;
 
         // Find delegation details
@@ -99,53 +101,39 @@ private Q_SLOTS:
         interfaces::DelegationInfo info = details.toInfo();
 
         // No delegation contract, no update
-        if(!details.c_contract_return)
+        if (!details.c_contract_return)
             return;
 
-        if(details.w_hash.ToString() == sHash)
-        {
-            if(details.c_entry_exist)
-            {
+        if (details.w_hash.ToString() == sHash) {
+            if (details.c_entry_exist) {
                 // Update the entry when the delegation exist
-                if(details.c_delegate_address == sDelegateAddress && details.c_staker_address == sStakerAddress)
-                {
-                    if(details.c_fee != fee || details.c_block_number != blockNumber)
-                    {
+                if (details.c_delegate_address == sDelegateAddress && details.c_staker_address == sStakerAddress) {
+                    if (details.c_fee != fee || details.c_block_number != blockNumber) {
                         info.fee = details.c_fee;
                         info.block_number = details.c_block_number;
                         walletModel->wallet().addDelegationEntry(info);
                     }
                 }
                 // Update the entry when staker changed
-                else if(details.c_delegate_address == sDelegateAddress && details.c_staker_address != sStakerAddress)
-                {
+                else if (details.c_delegate_address == sDelegateAddress && details.c_staker_address != sStakerAddress) {
                     walletModel->wallet().removeDelegationEntry(sHash);
                     info = details.toInfo(false);
                     walletModel->wallet().addDelegationEntry(info);
-                }
-                else
-                {
+                } else {
                     info.block_number = -1;
                     walletModel->wallet().addDelegationEntry(info);
                 }
-            }
-            else
-            {
+            } else {
                 // Update the entry when the delegation not exist
-                if(details.w_remove_exist)
-                {
+                if (details.w_remove_exist) {
                     // Remove the entry when marked for deletion
-                    if(details.w_remove_in_main_chain)
-                    {
+                    if (details.w_remove_in_main_chain) {
                         // The entry is deleted
                         walletModel->wallet().removeDelegationEntry(sHash);
                     }
-                }
-                else
-                {
+                } else {
                     // Update the entry when not marked for deletion
-                    if(info.block_number != -1)
-                    {
+                    if (info.block_number != -1) {
                         info.block_number = -1;
                         walletModel->wallet().addDelegationEntry(info);
                     }
@@ -160,29 +148,18 @@ private Q_SLOTS:
 
         // Get status for the create and remove transactions
         qint32 status = DelegationItemModel::NoTx;
-        if(details.c_block_number > 0 && !details.w_remove_exist)
-        {
+        if (details.c_block_number > 0 && !details.w_remove_exist) {
             status = DelegationItemModel::CreateTxConfirmed;
-        }
-        else if(details.c_block_number <= 0 && details.w_create_exist)
-        {
-            if(details.w_create_in_mempool)
-            {
+        } else if (details.c_block_number <= 0 && details.w_create_exist) {
+            if (details.w_create_in_mempool) {
                 status = DelegationItemModel::CreateTxNotConfirmed;
-            }
-            else
-            {
+            } else {
                 status = DelegationItemModel::CreateTxError;
             }
-        }
-        else if(details.w_remove_exist)
-        {
-            if(details.w_remove_in_mempool)
-            {
+        } else if (details.w_remove_exist) {
+            if (details.w_remove_in_mempool) {
                 status = DelegationItemModel::RemoveTxNotConfirmed;
-            }
-            else
-            {
+            } else {
                 status = DelegationItemModel::RemoveTxError;
             }
         }
@@ -199,17 +176,16 @@ Q_SIGNALS:
 
 #include <qt/delegationitemmodel.moc>
 
-struct DelegationItemEntryLessThan
-{
-    bool operator()(const DelegationItemEntry &a, const DelegationItemEntry &b) const
+struct DelegationItemEntryLessThan {
+    bool operator()(const DelegationItemEntry& a, const DelegationItemEntry& b) const
     {
         return a.hash < b.hash;
     }
-    bool operator()(const DelegationItemEntry &a, const uint256 &b) const
+    bool operator()(const DelegationItemEntry& a, const uint256& b) const
     {
         return a.hash < b;
     }
-    bool operator()(const uint256 &a, const DelegationItemEntry &b) const
+    bool operator()(const uint256& a, const DelegationItemEntry& b) const
     {
         return a < b.hash;
     }
@@ -219,20 +195,17 @@ class DelegationItemPriv
 {
 public:
     QList<DelegationItemEntry> cachedDelegationItem;
-    DelegationItemModel *parent;
+    DelegationItemModel* parent;
 
-    DelegationItemPriv(DelegationItemModel *_parent):
-        parent(_parent) {}
+    DelegationItemPriv(DelegationItemModel* _parent) : parent(_parent) {}
 
     void refreshDelegationItem(interfaces::Wallet& wallet)
     {
         cachedDelegationItem.clear();
         {
-            for(interfaces::DelegationInfo delegation : wallet.getDelegations())
-            {
+            for (interfaces::DelegationInfo delegation : wallet.getDelegations()) {
                 DelegationItemEntry delegationItem(delegation);
-                if(parent)
-                {
+                if (parent) {
                     parent->updateDelegationData(delegationItem);
                 }
                 cachedDelegationItem.append(delegationItem);
@@ -241,7 +214,7 @@ public:
         std::sort(cachedDelegationItem.begin(), cachedDelegationItem.end(), DelegationItemEntryLessThan());
     }
 
-    void updateEntry(const DelegationItemEntry &item, int status)
+    void updateEntry(const DelegationItemEntry& item, int status)
     {
         // Find delegation in model
         QList<DelegationItemEntry>::iterator lower = std::lower_bound(
@@ -253,11 +226,9 @@ public:
         bool inModel = (lower != upper);
         DelegationItemEntry _item = item;
 
-        switch(status)
-        {
+        switch (status) {
         case CT_NEW:
-            if(inModel)
-            {
+            if (inModel) {
                 qWarning() << "DelegationItemPriv::updateEntry: Warning: Got CT_NEW, but entry is already in model";
                 break;
             }
@@ -266,8 +237,7 @@ public:
             parent->endInsertRows();
             break;
         case CT_UPDATED:
-            if(!inModel)
-            {
+            if (!inModel) {
                 qWarning() << "DelegationItemPriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
                 break;
             }
@@ -279,12 +249,11 @@ public:
             parent->emitDataChanged(lowerIndex);
             break;
         case CT_DELETED:
-            if(!inModel)
-            {
+            if (!inModel) {
                 qWarning() << "DelegationItemPriv::updateEntry: Warning: Got CT_DELETED, but entry is not in model";
                 break;
             }
-            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex-1);
+            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex - 1);
             cachedDelegationItem.erase(lower, upper);
             parent->endRemoveRows();
             break;
@@ -296,24 +265,20 @@ public:
         return cachedDelegationItem.size();
     }
 
-    DelegationItemEntry *index(int idx)
+    DelegationItemEntry* index(int idx)
     {
-        if(idx >= 0 && idx < cachedDelegationItem.size())
-        {
+        if (idx >= 0 && idx < cachedDelegationItem.size()) {
             return &cachedDelegationItem[idx];
-        }
-        else
-        {
+        } else {
             return 0;
         }
     }
 };
 
-DelegationItemModel::DelegationItemModel(WalletModel *parent):
-    QAbstractItemModel(parent),
-    walletModel(parent),
-    priv(0),
-    worker(0)
+DelegationItemModel::DelegationItemModel(WalletModel* parent) : QAbstractItemModel(parent),
+                                                                walletModel(parent),
+                                                                priv(0),
+                                                                worker(0)
 {
     columns << tr("Delegate") << tr("Staker Name") << tr("Staker Address") << tr("Fee") << tr("Height") << tr("Time");
 
@@ -335,53 +300,50 @@ DelegationItemModel::~DelegationItemModel()
 
     join();
 
-    if(priv)
-    {
+    if (priv) {
         delete priv;
         priv = 0;
     }
 }
 
-QModelIndex DelegationItemModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex DelegationItemModel::index(int row, int column, const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    DelegationItemEntry *data = priv->index(row);
-    if(data)
-    {
+    DelegationItemEntry* data = priv->index(row);
+    if (data) {
         return createIndex(row, column, priv->index(row));
     }
     return QModelIndex();
 }
 
-QModelIndex DelegationItemModel::parent(const QModelIndex &child) const
+QModelIndex DelegationItemModel::parent(const QModelIndex& child) const
 {
     Q_UNUSED(child);
     return QModelIndex();
 }
 
-int DelegationItemModel::rowCount(const QModelIndex &parent) const
+int DelegationItemModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return priv->size();
 }
 
-int DelegationItemModel::columnCount(const QModelIndex &parent) const
+int DelegationItemModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return columns.length();
 }
 
-QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
+QVariant DelegationItemModel::data(const QModelIndex& index, int role) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QVariant();
 
-    DelegationItemEntry *rec = static_cast<DelegationItemEntry*>(index.internalPointer());
+    DelegationItemEntry* rec = static_cast<DelegationItemEntry*>(index.internalPointer());
 
     switch (role) {
     case Qt::DisplayRole:
-        switch(index.column())
-        {
+        switch (index.column()) {
         case Address:
             return rec->delegateAddress;
         case StakerName:
@@ -447,21 +409,18 @@ QVariant DelegationItemModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void DelegationItemModel::updateDelegationData(const QString &hash, int status, bool showDelegation)
+void DelegationItemModel::updateDelegationData(const QString& hash, int status, bool showDelegation)
 {
     // Find delegation in wallet
     uint256 updated = uint256::FromHex(hash.toStdString()).value_or(uint256::ZERO);
-    interfaces::DelegationInfo delegation =walletModel->wallet().getDelegation(updated);
+    interfaces::DelegationInfo delegation = walletModel->wallet().getDelegation(updated);
     showDelegation &= delegation.hash == updated;
 
     DelegationItemEntry delegationEntry;
-    if(showDelegation)
-    {
+    if (showDelegation) {
         delegationEntry = DelegationItemEntry(delegation);
         updateDelegationData(delegationEntry);
-    }
-    else
-    {
+    } else {
         delegationEntry.hash = updated;
     }
     priv->updateEntry(delegationEntry, status);
@@ -469,12 +428,11 @@ void DelegationItemModel::updateDelegationData(const QString &hash, int status, 
 
 void DelegationItemModel::checkDelegationChanged()
 {
-    if(!priv)
+    if (!priv)
         return;
 
     // Update delegation from contract
-    for(int i = 0; i < priv->cachedDelegationItem.size(); i++)
-    {
+    for (int i = 0; i < priv->cachedDelegationItem.size(); i++) {
         DelegationItemEntry delegationEntry = priv->cachedDelegationItem[i];
         updateDelegationData(delegationEntry);
     }
@@ -482,17 +440,15 @@ void DelegationItemModel::checkDelegationChanged()
 
 void DelegationItemModel::emitDataChanged(int idx)
 {
-    Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length()-1, QModelIndex()));
+    Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length() - 1, QModelIndex()));
 }
 
-struct DelegationNotification
-{
+struct DelegationNotification {
 public:
     DelegationNotification() {}
-    DelegationNotification(uint256 _hash, ChangeType _status, bool _showDelegation):
-        hash(_hash), status(_status), showDelegation(_showDelegation) {}
+    DelegationNotification(uint256 _hash, ChangeType _status, bool _showDelegation) : hash(_hash), status(_status), showDelegation(_showDelegation) {}
 
-    void invoke(QObject *tim)
+    void invoke(QObject* tim)
     {
         QString strHash = QString::fromStdString(hash.GetHex());
         qDebug() << "NotifyDelegationChanged: " + strHash + " status= " + QString::number(status);
@@ -502,13 +458,14 @@ public:
                                   Q_ARG(int, status),
                                   Q_ARG(bool, showDelegation));
     }
+
 private:
     uint256 hash;
     ChangeType status;
     bool showDelegation;
 };
 
-static void NotifyDelegationChanged(DelegationItemModel *tim, const uint256 &hash, ChangeType status)
+static void NotifyDelegationChanged(DelegationItemModel* tim, const uint256& hash, ChangeType status)
 {
     DelegationNotification notification(hash, status, true);
     notification.invoke(tim);
@@ -526,7 +483,7 @@ void DelegationItemModel::unsubscribeFromCoreSignals()
     m_handler_delegation_changed->disconnect();
 }
 
-void DelegationItemModel::updateDelegationData(const DelegationItemEntry &entry)
+void DelegationItemModel::updateDelegationData(const DelegationItemEntry& entry)
 {
     QString hash = QString::fromStdString(entry.hash.ToString());
     QMetaObject::invokeMethod(worker, "updateDelegationData", Qt::QueuedConnection,
@@ -537,24 +494,22 @@ void DelegationItemModel::updateDelegationData(const DelegationItemEntry &entry)
                               Q_ARG(qint32, entry.blockNumber));
 }
 
-QString DelegationItemModel::formatFee(const DelegationItemEntry *rec) const
+QString DelegationItemModel::formatFee(const DelegationItemEntry* rec) const
 {
     return QString("%1%").arg(rec->fee);
 }
 
 void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake, qint64 weight, qint32 status)
 {
-    if(!priv)
+    if (!priv)
         return;
 
     uint256 updated = uint256::FromHex(hash.toStdString()).value_or(uint256::ZERO);
 
     // Update delegation
-    for(int i = 0; i < priv->cachedDelegationItem.size(); i++)
-    {
+    for (int i = 0; i < priv->cachedDelegationItem.size(); i++) {
         DelegationItemEntry delegationEntry = priv->cachedDelegationItem[i];
-        if(delegationEntry.hash == updated)
-        {
+        if (delegationEntry.hash == updated) {
             delegationEntry.balance = balance;
             delegationEntry.stake = stake;
             delegationEntry.weight = weight;
@@ -567,9 +522,8 @@ void DelegationItemModel::itemChanged(QString hash, qint64 balance, qint64 stake
 
 void DelegationItemModel::join()
 {
-    if(t.isRunning())
-    {
-        if(worker)
+    if (t.isRunning()) {
+        if (worker)
             worker->disconnect(this);
         t.quit();
         t.wait();

@@ -1,9 +1,8 @@
 #include "editsuperstakerdialog.h"
 #include "qt/forms/ui_editsuperstakerdialog.h"
 
-EditSuperStakerDialog::EditSuperStakerDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::EditSuperStakerDialog)
+EditSuperStakerDialog::EditSuperStakerDialog(QWidget* parent) : QDialog(parent),
+                                                                ui(new Ui::EditSuperStakerDialog)
 {
     ui->setupUi(this);
 
@@ -19,7 +18,7 @@ EditSuperStakerDialog::~EditSuperStakerDialog()
     delete ui;
 }
 
-void EditSuperStakerDialog::setData(const QString &superStakerName, const QString &superStakerAddress)
+void EditSuperStakerDialog::setData(const QString& superStakerName, const QString& superStakerAddress)
 {
     ui->lineEditStakerName->setText(superStakerName);
     ui->lineEditStakerAddress->setText(superStakerAddress);
@@ -54,8 +53,7 @@ void EditSuperStakerDialog::on_updateEditStakerButton()
 {
     QString stakerName = ui->lineEditStakerName->text().trimmed();
     bool enabled = true;
-    if(stakerName.isEmpty())
-    {
+    if (stakerName.isEmpty()) {
         enabled = false;
     }
 

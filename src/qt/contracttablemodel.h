@@ -15,7 +15,7 @@ class ContractTableModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit ContractTableModel(WalletModel *parent = 0);
+    explicit ContractTableModel(WalletModel* parent = 0);
     ~ContractTableModel();
 
     enum ColumnIndex {
@@ -26,47 +26,47 @@ public:
 
     /** Return status of edit/insert operation */
     enum EditStatus {
-        OK = 0,                     /**< Everything ok */
-        NO_CHANGES,             /**< No changes were made during edit operation */
-        DUPLICATE_ADDRESS,      /**< Address already in contract book */
+        OK = 0,            /**< Everything ok */
+        NO_CHANGES,        /**< No changes were made during edit operation */
+        DUPLICATE_ADDRESS, /**< Address already in contract book */
     };
 
     /** @name Methods overridden from QAbstractTableModel
         @{*/
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    int rowCount(const QModelIndex& parent) const override;
+    int columnCount(const QModelIndex& parent) const override;
+    QVariant data(const QModelIndex& index, int role) const override;
+    bool setData(const QModelIndex& index, const QVariant& value, int role) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
-    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+    QModelIndex index(int row, int column, const QModelIndex& parent) const override;
+    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
     /*@}*/
 
     /* Add an address to the model.
        Returns the added address on success, and an empty string otherwise.
      */
-    QString addRow(const QString &label, const QString &address, const QString &abi);
+    QString addRow(const QString& label, const QString& address, const QString& abi);
 
     /* Label for address in contract book, if not found return empty string.
      */
-    QString labelForAddress(const QString &address) const;
+    QString labelForAddress(const QString& address) const;
 
     /* ABI for address in contract book, if not found return empty string.
      */
-    QString abiForAddress(const QString &address) const;
+    QString abiForAddress(const QString& address) const;
 
     /* Look up row index of an address in the model.
        Return -1 if not found.
      */
-    int lookupAddress(const QString &address) const;
+    int lookupAddress(const QString& address) const;
 
     EditStatus getEditStatus() const { return editStatus; }
 
     void resetEditStatus();
 
 private:
-    WalletModel *walletModel;
-    ContractTablePriv *priv;
+    WalletModel* walletModel;
+    ContractTablePriv* priv;
     QStringList columns;
     EditStatus editStatus;
 
@@ -78,7 +78,7 @@ private:
 public Q_SLOTS:
     /* Update address list from core.
      */
-    void updateEntry(const QString &address, const QString &label, const QString &abi, int status);
+    void updateEntry(const QString& address, const QString& label, const QString& abi, int status);
 
     friend class ContractTablePriv;
 };

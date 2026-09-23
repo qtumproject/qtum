@@ -1,11 +1,11 @@
 #ifndef NAVIGATIONBAR_H
 #define NAVIGATIONBAR_H
 
-#include <QWidget>
 #include <QAction>
 #include <QList>
 #include <QMap>
 #include <QSize>
+#include <QWidget>
 
 /**
  * @brief The NavigationBar class Custom control for navigation bar
@@ -18,13 +18,13 @@ public:
      * @brief NavigationBar Constructor
      * @param parent Parent widget
      */
-    explicit NavigationBar(QWidget *parent = 0);
+    explicit NavigationBar(QWidget* parent = 0);
 
     /**
      * @brief addAction Add action to the navigation bar
      * @param action Action to add
      */
-    void addAction(QAction *action);
+    void addAction(QAction* action);
 
     /**
      * @brief addGroup Add group of actions
@@ -33,7 +33,7 @@ public:
      * @param text Text for the group of actions
      * @return New action associated with the group
      */
-    QAction *addGroup(QList<QAction*> list, const QIcon &icon, const QString &text);
+    QAction* addGroup(QList<QAction*> list, const QIcon& icon, const QString& text);
 
     /**
      * @brief addGroup Add group of actions
@@ -41,7 +41,7 @@ public:
      * @param text Text for the group of actions
      * @return New action associated with the group
      */
-    QAction *addGroup(QList<QAction*> list, const QString &text);
+    QAction* addGroup(QList<QAction*> list, const QString& text);
 
     /**
      * @brief mapGroup Map the action with group
@@ -74,10 +74,9 @@ public Q_SLOTS:
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 
 protected:
-    void resizeEvent(QResizeEvent * evt) override;
+    void resizeEvent(QResizeEvent* evt) override;
 
 private:
-
     /**
      * @brief setSubBar Set the component be sub-navigation bar
      * @param subBar Is the component sub-navigation bar
@@ -93,4 +92,3 @@ private:
 };
 
 #endif // NAVIGATIONBAR_H
-

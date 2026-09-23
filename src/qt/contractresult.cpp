@@ -1,14 +1,14 @@
 #include <qt/contractresult.h>
+
+#include <qt/contractutil.h>
 #include <qt/forms/ui_contractresult.h>
 #include <qt/guiconstants.h>
-#include <qt/contractutil.h>
 #include <qt/styleSheet.h>
 
 #include <QMessageBox>
 
-ContractResult::ContractResult(QWidget *parent) :
-    QStackedWidget(parent),
-    ui(new Ui::ContractResult)
+ContractResult::ContractResult(QWidget* parent) : QStackedWidget(parent),
+                                                  ui(new Ui::ContractResult)
 {
     ui->setupUi(this);
 }
@@ -44,39 +44,37 @@ void ContractResult::setResultData(QVariant result, FunctionABI function, QList<
 void ContractResult::setParamsData(FunctionABI function, QList<QStringList> paramValues)
 {
     // Remove previous widget from scroll area
-    QWidget *scrollWidget = ui->scrollAreaParams->widget();
-    if(scrollWidget)
+    QWidget* scrollWidget = ui->scrollAreaParams->widget();
+    if (scrollWidget)
         scrollWidget->deleteLater();
 
     // Don't show empty list
-    if(function.inputs.size() == 0)
-    {
+    if (function.inputs.size() == 0) {
         ui->scrollAreaParams->setVisible(false);
         return;
     }
 
-    QWidget *widgetParams = new QWidget(this);
+    QWidget* widgetParams = new QWidget(this);
     widgetParams->setObjectName("scrollAreaWidgetContents");
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(widgetParams);
+    QVBoxLayout* mainLayout = new QVBoxLayout(widgetParams);
     mainLayout->setSpacing(6);
-    mainLayout->setContentsMargins(0,0,30,0);
+    mainLayout->setContentsMargins(0, 0, 30, 0);
 
     // Add rows with params and values sent
     int i = 0;
-    for(std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param)
-    {
-        QHBoxLayout *hLayout = new QHBoxLayout();
+    for (std::vector<ParameterABI>::const_iterator param = function.inputs.begin(); param != function.inputs.end(); ++param) {
+        QHBoxLayout* hLayout = new QHBoxLayout();
         hLayout->setSpacing(10);
-        hLayout->setContentsMargins(0,0,0,0);
-        QVBoxLayout *vNameLayout = new QVBoxLayout();
+        hLayout->setContentsMargins(0, 0, 0, 0);
+        QVBoxLayout* vNameLayout = new QVBoxLayout();
         vNameLayout->setSpacing(3);
-        vNameLayout->setContentsMargins(0,0,0,0);
-        QVBoxLayout *paramValuesLayout = new QVBoxLayout();
+        vNameLayout->setContentsMargins(0, 0, 0, 0);
+        QVBoxLayout* paramValuesLayout = new QVBoxLayout();
         paramValuesLayout->setSpacing(3);
-        paramValuesLayout->setContentsMargins(0,0,0,0);
+        paramValuesLayout->setContentsMargins(0, 0, 0, 0);
 
-        QLabel *paramName = new QLabel(this);
+        QLabel* paramName = new QLabel(this);
         paramName->setFixedWidth(160);
         paramName->setFixedHeight(19);
         QFontMetrics metrix(paramName->font());
@@ -89,25 +87,21 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
         vNameLayout->addWidget(paramName);
         hLayout->addLayout(vNameLayout);
         QStringList listValues = paramValues[i];
-        if(listValues.size() > 0)
-        {
+        if (listValues.size() > 0) {
             int spacerSize = 0;
-            for(int j = 0; j < listValues.count(); j++)
-            {
-                QLineEdit *paramValue = new QLineEdit(this);
+            for (int j = 0; j < listValues.count(); j++) {
+                QLineEdit* paramValue = new QLineEdit(this);
                 paramValue->setReadOnly(true);
                 paramValue->setText(listValues[j]);
                 paramValuesLayout->addWidget(paramValue);
-                if(j > 0)
+                if (j > 0)
                     spacerSize += 30; // Line edit height + spacing
             }
-            if(spacerSize > 0)
+            if (spacerSize > 0)
                 vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
 
-        hLayout->addLayout(paramValuesLayout);
-        }
-        else
-        {
+            hLayout->addLayout(paramValuesLayout);
+        } else {
             hLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
         }
 
@@ -116,7 +110,7 @@ void ContractResult::setParamsData(FunctionABI function, QList<QStringList> para
     }
     widgetParams->setLayout(mainLayout);
     widgetParams->adjustSize();
-    if(widgetParams->sizeHint().height() < 70)
+    if (widgetParams->sizeHint().height() < 70)
         ui->scrollAreaParams->setMaximumHeight(widgetParams->sizeHint().height() + 2);
     else
         ui->scrollAreaParams->setMaximumHeight(140);
@@ -163,36 +157,33 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
     std::string rawData = executionResultMap.value("output").toString().toStdString();
     std::vector<std::vector<std::string>> values;
     std::vector<ParameterABI::ErrorType> errors;
-    if(function.abiOut(rawData, values, errors))
-    {
+    if (function.abiOut(rawData, values, errors)) {
         // Remove previous widget from scroll area
-        QWidget *scrollWidget = ui->scrollAreaResult->widget();
-        if(scrollWidget)
+        QWidget* scrollWidget = ui->scrollAreaResult->widget();
+        if (scrollWidget)
             scrollWidget->deleteLater();
 
-        if(values.size() > 0)
-        {
-            QWidget *widgetResults = new QWidget(this);
+        if (values.size() > 0) {
+            QWidget* widgetResults = new QWidget(this);
             widgetResults->setObjectName("scrollAreaWidgetContents");
 
-            QVBoxLayout *mainLayout = new QVBoxLayout(widgetResults);
+            QVBoxLayout* mainLayout = new QVBoxLayout(widgetResults);
             mainLayout->setSpacing(6);
-            mainLayout->setContentsMargins(0,6,0,6);
+            mainLayout->setContentsMargins(0, 6, 0, 6);
             widgetResults->setLayout(mainLayout);
 
-            for(size_t i = 0; i < values.size(); i++)
-            {
-                QHBoxLayout *hLayout = new QHBoxLayout();
+            for (size_t i = 0; i < values.size(); i++) {
+                QHBoxLayout* hLayout = new QHBoxLayout();
                 hLayout->setSpacing(10);
-                hLayout->setContentsMargins(0,0,0,0);
-                QVBoxLayout *vNameLayout = new QVBoxLayout();
+                hLayout->setContentsMargins(0, 0, 0, 0);
+                QVBoxLayout* vNameLayout = new QVBoxLayout();
                 vNameLayout->setSpacing(3);
-                vNameLayout->setContentsMargins(0,0,0,0);
-                QVBoxLayout *paramValuesLayout = new QVBoxLayout();
+                vNameLayout->setContentsMargins(0, 0, 0, 0);
+                QVBoxLayout* paramValuesLayout = new QVBoxLayout();
                 paramValuesLayout->setSpacing(3);
-                paramValuesLayout->setContentsMargins(0,0,0,0);
+                paramValuesLayout->setContentsMargins(0, 0, 0, 0);
 
-                QLabel *resultName = new QLabel(this);
+                QLabel* resultName = new QLabel(this);
                 resultName->setFixedWidth(160);
                 resultName->setFixedHeight(19);
                 QFontMetrics metrix(resultName->font());
@@ -205,47 +196,36 @@ void ContractResult::updateCallResult(QVariant result, FunctionABI function, QLi
                 vNameLayout->addWidget(resultName);
                 std::vector<std::string> listValues = values[i];
                 hLayout->addLayout(vNameLayout);
-                if(listValues.size() > 0)
-                {
+                if (listValues.size() > 0) {
                     int spacerSize = 0;
-                    for(size_t j = 0; j < listValues.size(); j++)
-                    {
-                        QLineEdit *resultValue = new QLineEdit(this);
+                    for (size_t j = 0; j < listValues.size(); j++) {
+                        QLineEdit* resultValue = new QLineEdit(this);
                         resultValue->setReadOnly(true);
                         resultValue->setText(QString::fromStdString(listValues[j]));
                         paramValuesLayout->addWidget(resultValue);
-                        if(j > 0)
+                        if (j > 0)
                             spacerSize += 30; // Line edit height + spacing
                     }
-                    if(spacerSize > 0)
+                    if (spacerSize > 0)
                         vNameLayout->addSpacerItem(new QSpacerItem(20, spacerSize, QSizePolicy::Fixed, QSizePolicy::Fixed));
                     hLayout->addLayout(paramValuesLayout);
-                }
-                else
-                {
+                } else {
                     hLayout->addSpacerItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Fixed));
                 }
                 mainLayout->addLayout(hLayout);
             }
             widgetResults->adjustSize();
-            if(widgetResults->sizeHint().height() < 70)
-            {
+            if (widgetResults->sizeHint().height() < 70) {
                 ui->scrollAreaResult->setMaximumHeight(widgetResults->sizeHint().height() + 2);
-            }
-            else
-            {
+            } else {
                 ui->scrollAreaResult->setMaximumHeight(140);
             }
             ui->scrollAreaResult->setWidget(widgetResults);
             ui->groupBoxResult->setVisible(true);
-        }
-        else
-        {
+        } else {
             ui->groupBoxResult->setVisible(false);
         }
-    }
-    else
-    {
+    } else {
         QString errorMessage;
         errorMessage = ContractUtil::errorMessage(function, errors, false);
         QMessageBox::warning(this, tr("Create contract"), errorMessage);

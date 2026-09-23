@@ -17,12 +17,11 @@ class RestoreDialog : public QDialog
     Q_OBJECT
 
 public:
-
     /**
      * @brief RestoreDialog Constructor
      * @param parent Parent windows
      */
-    explicit RestoreDialog(QWidget *parent = 0);
+    explicit RestoreDialog(QWidget* parent = 0);
 
     /**
      * @brief ~RestoreDialog Destructor
@@ -45,7 +44,7 @@ public:
      * @brief setModel Set wallet model
      * @param model Wallet model
      */
-    void setModel(WalletModel *model);
+    void setModel(WalletModel* model);
 
 private Q_SLOTS:
     /**
@@ -69,9 +68,8 @@ private Q_SLOTS:
     void on_toolWalletPath_clicked();
 
 private:
-    Ui::RestoreDialog *ui;
-    WalletModel *model;
-
+    Ui::RestoreDialog* ui;
+    WalletModel* model;
 };
 
 #endif // RESTOREDIALOG_H

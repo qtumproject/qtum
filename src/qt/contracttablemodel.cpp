@@ -1,36 +1,33 @@
 #include <qt/contracttablemodel.h>
 
+#include <interfaces/wallet.h>
 #include <qt/guiutil.h>
 #include <qt/walletmodel.h>
 
-#include <interfaces/wallet.h>
-
-#include <QFont>
 #include <QDebug>
+#include <QFont>
+
 #include <utility>
 
-struct ContractTableEntry
-{
+struct ContractTableEntry {
     QString label;
     QString address;
     QString abi;
 
     ContractTableEntry() {}
-    ContractTableEntry(const QString &_label, const QString &_address, const QString &_abi):
-        label(_label), address(_address), abi(_abi) {}
+    ContractTableEntry(const QString& _label, const QString& _address, const QString& _abi) : label(_label), address(_address), abi(_abi) {}
 };
 
-struct ContractTableEntryLessThan
-{
-    bool operator()(const ContractTableEntry &a, const ContractTableEntry &b) const
+struct ContractTableEntryLessThan {
+    bool operator()(const ContractTableEntry& a, const ContractTableEntry& b) const
     {
         return a.address < b.address;
     }
-    bool operator()(const ContractTableEntry &a, const QString &b) const
+    bool operator()(const ContractTableEntry& a, const QString& b) const
     {
         return a.address < b;
     }
-    bool operator()(const QString &a, const ContractTableEntry &b) const
+    bool operator()(const QString& a, const ContractTableEntry& b) const
     {
         return a < b.address;
     }
@@ -41,27 +38,25 @@ class ContractTablePriv
 {
 public:
     QList<ContractTableEntry> cachedContractTable;
-    ContractTableModel *parent;
+    ContractTableModel* parent;
 
-    ContractTablePriv(ContractTableModel *_parent):
-        parent(_parent) {}
+    ContractTablePriv(ContractTableModel* _parent) : parent(_parent) {}
 
     void refreshContractTable(interfaces::Wallet& wallet)
     {
         cachedContractTable.clear();
-        for(interfaces::ContractBookData item : wallet.getContractBooks())
-        {
+        for (interfaces::ContractBookData item : wallet.getContractBooks()) {
             cachedContractTable.append(ContractTableEntry(
-                              QString::fromStdString(item.name),
-                              QString::fromStdString(item.address),
-                              QString::fromStdString(item.abi)));
+                QString::fromStdString(item.name),
+                QString::fromStdString(item.address),
+                QString::fromStdString(item.abi)));
         }
 
         // std::lower_bound() and std::upper_bound() require our cachedContractTable list to be sorted in asc order
         std::sort(cachedContractTable.begin(), cachedContractTable.end(), ContractTableEntryLessThan());
     }
 
-    void updateEntry(const QString &address, const QString &label, const QString &abi, int status)
+    void updateEntry(const QString& address, const QString& label, const QString& abi, int status)
     {
         // Find address / label in model
         QList<ContractTableEntry>::iterator lower = std::lower_bound(
@@ -72,11 +67,9 @@ public:
         int upperIndex = (upper - cachedContractTable.begin());
         bool inModel = (lower != upper);
 
-        switch(status)
-        {
+        switch (status) {
         case CT_NEW:
-            if(inModel)
-            {
+            if (inModel) {
                 qWarning() << "ContractTablePriv::updateEntry: Warning: Got CT_NEW, but entry is already in model";
                 break;
             }
@@ -85,8 +78,7 @@ public:
             parent->endInsertRows();
             break;
         case CT_UPDATED:
-            if(!inModel)
-            {
+            if (!inModel) {
                 qWarning() << "ContractTablePriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
                 break;
             }
@@ -95,12 +87,11 @@ public:
             parent->emitDataChanged(lowerIndex);
             break;
         case CT_DELETED:
-            if(!inModel)
-            {
+            if (!inModel) {
                 qWarning() << "ContractTablePriv::updateEntry: Warning: Got CT_DELETED, but entry is not in model";
                 break;
             }
-            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex-1);
+            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex - 1);
             cachedContractTable.erase(lower, upper);
             parent->endRemoveRows();
             break;
@@ -112,21 +103,17 @@ public:
         return cachedContractTable.size();
     }
 
-    ContractTableEntry *index(int idx)
+    ContractTableEntry* index(int idx)
     {
-        if(idx >= 0 && idx < cachedContractTable.size())
-        {
+        if (idx >= 0 && idx < cachedContractTable.size()) {
             return &cachedContractTable[idx];
-        }
-        else
-        {
+        } else {
             return 0;
         }
     }
 };
 
-ContractTableModel::ContractTableModel(WalletModel *parent) :
-    QAbstractTableModel(parent),walletModel(parent),priv(0)
+ContractTableModel::ContractTableModel(WalletModel* parent) : QAbstractTableModel(parent), walletModel(parent), priv(0)
 {
     columns << tr("Label") << tr("Contract Address") << tr("Interface (ABI)");
     priv = new ContractTablePriv(this);
@@ -138,36 +125,31 @@ ContractTableModel::~ContractTableModel()
     delete priv;
 }
 
-int ContractTableModel::rowCount(const QModelIndex &parent) const
+int ContractTableModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return priv->size();
 }
 
-int ContractTableModel::columnCount(const QModelIndex &parent) const
+int ContractTableModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return columns.length();
 }
 
-QVariant ContractTableModel::data(const QModelIndex &index, int role) const
+QVariant ContractTableModel::data(const QModelIndex& index, int role) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QVariant();
 
-    ContractTableEntry *rec = static_cast<ContractTableEntry*>(index.internalPointer());
+    ContractTableEntry* rec = static_cast<ContractTableEntry*>(index.internalPointer());
 
-    if(role == Qt::DisplayRole || role == Qt::EditRole)
-    {
-        switch(index.column())
-        {
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        switch (index.column()) {
         case Label:
-            if(rec->label.isEmpty() && role == Qt::DisplayRole)
-            {
+            if (rec->label.isEmpty() && role == Qt::DisplayRole) {
                 return tr("(no label)");
-            }
-            else
-            {
+            } else {
                 return rec->label;
             }
         case Address:
@@ -175,12 +157,9 @@ QVariant ContractTableModel::data(const QModelIndex &index, int role) const
         case ABI:
             return rec->abi;
         }
-    }
-    else if (role == Qt::FontRole)
-    {
+    } else if (role == Qt::FontRole) {
         QFont font;
-        if(index.column() == Address)
-        {
+        if (index.column() == Address) {
             font = GUIUtil::fixedPitchFont();
         }
         return font;
@@ -189,54 +168,45 @@ QVariant ContractTableModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool ContractTableModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return false;
-    ContractTableEntry *rec = static_cast<ContractTableEntry*>(index.internalPointer());
+    ContractTableEntry* rec = static_cast<ContractTableEntry*>(index.internalPointer());
 
-    if(role == Qt::EditRole)
-    {
+    if (role == Qt::EditRole) {
         std::string curAddress = rec->address.toStdString();
         std::string curLabel = rec->label.toStdString();
         std::string curAbi = rec->abi.toStdString();
-        if(index.column() == Label)
-        {
+        if (index.column() == Label) {
             // Do nothing, if old label == new label
-            if(rec->label == value.toString())
-            {
+            if (rec->label == value.toString()) {
                 updateEditStatus(NO_CHANGES);
                 return false;
             }
             walletModel->wallet().setContractBook(curAddress, value.toString().toStdString(), curAbi);
-        } else if(index.column() == Address) {
+        } else if (index.column() == Address) {
             std::string newAddress = value.toString().toStdString();
 
             // Do nothing, if old address == new address
-            if(newAddress == curAddress)
-            {
+            if (newAddress == curAddress) {
                 updateEditStatus(NO_CHANGES);
                 return false;
             }
             // Check for duplicate addresses to prevent accidental deletion of addresses, if you try
             // to paste an existing address over another address (with a different label)
-            else if(walletModel->wallet().existContractBook(newAddress))
-            {
+            else if (walletModel->wallet().existContractBook(newAddress)) {
                 updateEditStatus(DUPLICATE_ADDRESS);
                 return false;
-            }
-            else
-            {
+            } else {
                 // Remove old entry
                 walletModel->wallet().delContractBook(curAddress);
                 // Add new entry with new address
                 walletModel->wallet().setContractBook(newAddress, curLabel, curAbi);
             }
-        }
-        else if(index.column() == ABI) {
+        } else if (index.column() == ABI) {
             // Do nothing, if old abi == new abi
-            if(rec->abi == value.toString())
-            {
+            if (rec->abi == value.toString()) {
                 updateEditStatus(NO_CHANGES);
                 return false;
             }
@@ -249,42 +219,36 @@ bool ContractTableModel::setData(const QModelIndex &index, const QVariant &value
 
 QVariant ContractTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(orientation == Qt::Horizontal)
-    {
-        if(role == Qt::DisplayRole && section < columns.size())
-        {
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole && section < columns.size()) {
             return columns[section];
         }
     }
     return QVariant();
 }
 
-QModelIndex ContractTableModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex ContractTableModel::index(int row, int column, const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    ContractTableEntry *data = priv->index(row);
-    if(data)
-    {
+    ContractTableEntry* data = priv->index(row);
+    if (data) {
         return createIndex(row, column, priv->index(row));
-    }
-    else
-    {
+    } else {
         return QModelIndex();
     }
 }
 
-void ContractTableModel::updateEntry(const QString &address,
-        const QString &label, const QString &abi, int status)
+void ContractTableModel::updateEntry(const QString& address,
+                                     const QString& label, const QString& abi, int status)
 {
     // Update contract book model from Qtum core
     priv->updateEntry(address, label, abi, status);
 }
 
-QString ContractTableModel::addRow(const QString &label, const QString &address, const QString &abi)
+QString ContractTableModel::addRow(const QString& label, const QString& address, const QString& abi)
 {
     // Check for duplicate entry
-    if(lookupAddress(address) != -1)
-    {
+    if (lookupAddress(address) != -1) {
         editStatus = DUPLICATE_ADDRESS;
         return "";
     }
@@ -298,12 +262,11 @@ QString ContractTableModel::addRow(const QString &label, const QString &address,
     return address;
 }
 
-bool ContractTableModel::removeRows(int row, int count, const QModelIndex &parent)
+bool ContractTableModel::removeRows(int row, int count, const QModelIndex& parent)
 {
     Q_UNUSED(parent);
-    ContractTableEntry *rec = priv->index(row);
-    if(count != 1 || !rec )
-    {
+    ContractTableEntry* rec = priv->index(row);
+    if (count != 1 || !rec) {
         // Can only remove one row at a time, and cannot remove rows not in model.
         return false;
     }
@@ -313,7 +276,7 @@ bool ContractTableModel::removeRows(int row, int count, const QModelIndex &paren
 
 /* Label for address in contract book, if not found return empty string.
  */
-QString ContractTableModel::labelForAddress(const QString &address) const
+QString ContractTableModel::labelForAddress(const QString& address) const
 {
     interfaces::ContractBookData item = walletModel->wallet().getContractBook(address.toStdString());
     return QString::fromStdString(item.name);
@@ -321,22 +284,19 @@ QString ContractTableModel::labelForAddress(const QString &address) const
 
 /* ABI for address in contract book, if not found return empty string.
  */
-QString ContractTableModel::abiForAddress(const QString &address) const
+QString ContractTableModel::abiForAddress(const QString& address) const
 {
     interfaces::ContractBookData item = walletModel->wallet().getContractBook(address.toStdString());
     return QString::fromStdString(item.abi);
 }
 
-int ContractTableModel::lookupAddress(const QString &address) const
+int ContractTableModel::lookupAddress(const QString& address) const
 {
     QModelIndexList lst = match(index(0, Address, QModelIndex()),
                                 Qt::EditRole, address, 1, Qt::MatchExactly);
-    if(lst.isEmpty())
-    {
+    if (lst.isEmpty()) {
         return -1;
-    }
-    else
-    {
+    } else {
         return lst.at(0).row();
     }
 }
@@ -348,13 +308,12 @@ void ContractTableModel::resetEditStatus()
 
 void ContractTableModel::emitDataChanged(int idx)
 {
-    Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length()-1, QModelIndex()));
+    Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length() - 1, QModelIndex()));
 }
 
 void ContractTableModel::updateEditStatus(ContractTableModel::EditStatus status)
 {
-    if(status > editStatus)
-    {
+    if (status > editStatus) {
         editStatus = status;
     }
 }

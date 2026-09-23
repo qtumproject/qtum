@@ -1,9 +1,10 @@
-#include <boost/test/unit_test.hpp>
-#include <test/qtumtests/test_utils.h>
-#include <script/solver.h>
 #include <chainparams.h>
+#include <script/solver.h>
+#include <test/qtumtests/test_utils.h>
 
-namespace IstanbulTest{
+#include <boost/test/unit_test.hpp>
+
+namespace IstanbulTest {
 
 const dev::u256 GASLIMIT = dev::u256(500000);
 const dev::h256 HASHTX = dev::h256(ParseHex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
@@ -21,13 +22,14 @@ const std::vector<valtype> CODE = {
             }
         }
     }
-    */    valtype(ParseHex("6080604052348015600f57600080fd5b5060868061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063564b81ef14602d575b600080fd5b60336049565b6040518082815260200191505060405180910390f35b60004690509056fea265627a7a72315820a0b6703e30e0f059af077092e6e0a97a0ae52192355468108d9a24b0ebbe9a7464736f6c634300050d0032")),
+    */
+    valtype(ParseHex("6080604052348015600f57600080fd5b5060868061001e6000396000f3fe6080604052348015600f57600080fd5b506004361060285760003560e01c8063564b81ef14602d575b600080fd5b60336049565b6040518082815260200191505060405180910390f35b60004690509056fea265627a7a72315820a0b6703e30e0f059af077092e6e0a97a0ae52192355468108d9a24b0ebbe9a7464736f6c634300050d0032")),
 
     // getChainID()
-    valtype(ParseHex("564b81ef"))
-};
+    valtype(ParseHex("564b81ef"))};
 
-void genesisLoading(){
+void genesisLoading()
+{
     const CChainParams& chainparams = Params();
     int coinbaseMaturity = Params().GetConsensus().CoinbaseMaturity(0);
     int forkHeight = coinbaseMaturity + 499;
@@ -41,11 +43,12 @@ void genesisLoading(){
     globalState->db().commit();
 }
 
-void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
-    std::function<void(size_t n)> generateBlocks = [&](size_t n){
+void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n)
+{
+    std::function<void(size_t n)> generateBlocks = [&](size_t n) {
         dev::h256 oldHashStateRoot = globalState->rootHash();
         dev::h256 oldHashUTXORoot = globalState->rootHashUTXO();
-        for(size_t i = 0; i < n; i++){
+        for (size_t i = 0; i < n; i++) {
             testChain100Setup->CreateAndProcessBlock({}, GetScriptForRawPubKey(testChain100Setup->coinbaseKey.GetPubKey()));
         }
         globalState->setRoot(oldHashStateRoot);
@@ -56,7 +59,8 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
 }
 BOOST_FIXTURE_TEST_SUITE(istanbulfork_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_istanbul_after_fork){
+BOOST_AUTO_TEST_CASE(checking_istanbul_after_fork)
+{
     genesisLoading();
     createNewBlocks(this, 499);
     dev::h256 hashTx(HASHTX);
@@ -74,7 +78,8 @@ BOOST_AUTO_TEST_CASE(checking_istanbul_after_fork){
     BOOST_CHECK(dev::h256(result.first[0].execRes.output) == dev::h256(globalSealEngine->chainParams().chainID));
 }
 
-BOOST_AUTO_TEST_CASE(checking_istanbul_before_fork){
+BOOST_AUTO_TEST_CASE(checking_istanbul_before_fork)
+{
     genesisLoading();
     createNewBlocks(this, 498);
     dev::h256 hashTx(HASHTX);
@@ -94,4 +99,4 @@ BOOST_AUTO_TEST_CASE(checking_istanbul_before_fork){
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace IstanbulTest

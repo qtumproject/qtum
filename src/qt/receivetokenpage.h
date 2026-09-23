@@ -13,7 +13,7 @@ class ReceiveTokenPage : public QDialog
     Q_OBJECT
 
 public:
-    explicit ReceiveTokenPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit ReceiveTokenPage(const PlatformStyle* platformStyle, QWidget* parent = 0);
     ~ReceiveTokenPage();
 
     void setAddress(QString address);
@@ -23,12 +23,12 @@ private Q_SLOTS:
     void on_copyAddressClicked();
 
 private:
-    Ui::ReceiveTokenPage *ui;
+    Ui::ReceiveTokenPage* ui;
     QString m_address;
 
     void createQRCode();
 
-    const PlatformStyle *platformStyle;
+    const PlatformStyle* platformStyle;
 };
 
 #endif // RECEIVETOKENPAGE_H

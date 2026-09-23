@@ -14,9 +14,9 @@ class AddSuperStakerPage : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddSuperStakerPage(QWidget *parent = nullptr);
+    explicit AddSuperStakerPage(QWidget* parent = nullptr);
     ~AddSuperStakerPage();
-    void setModel(WalletModel *_model);
+    void setModel(WalletModel* _model);
     void clearAll();
 
 public Q_SLOTS:
@@ -30,7 +30,7 @@ private Q_SLOTS:
     void on_updateAddStakerButton();
 
 private:
-    Ui::AddSuperStakerPage *ui;
+    Ui::AddSuperStakerPage* ui;
     WalletModel* m_model;
 };
 

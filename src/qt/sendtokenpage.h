@@ -17,11 +17,11 @@ class SendTokenPage : public QDialog
     Q_OBJECT
 
 public:
-    explicit SendTokenPage(QWidget *parent = 0);
+    explicit SendTokenPage(QWidget* parent = 0);
     ~SendTokenPage();
 
-    void setModel(WalletModel *_model);
-    void setClientModel(ClientModel *clientModel);
+    void setModel(WalletModel* _model);
+    void setClientModel(ClientModel* clientModel);
     void clearAll();
     bool isValidAddress();
     bool isDataValid();
@@ -30,7 +30,7 @@ public:
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user
-    void message(const QString &title, const QString &message, unsigned int style);
+    void message(const QString& title, const QString& message, unsigned int style);
 
 private Q_SLOTS:
     void on_clearButton_clicked();
@@ -40,11 +40,11 @@ private Q_SLOTS:
     void updateDisplayUnit();
 
 private:
-    Ui::SendTokenPage *ui;
+    Ui::SendTokenPage* ui;
     WalletModel* m_model;
     ClientModel* m_clientModel;
-    Token *m_tokenABI;
-    SelectedToken *m_selectedToken;
+    Token* m_tokenABI;
+    SelectedToken* m_selectedToken;
     bool bCreateUnsigned = false;
 };
 

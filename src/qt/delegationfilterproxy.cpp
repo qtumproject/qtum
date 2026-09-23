@@ -5,49 +5,47 @@ const QDateTime DelegationFilterProxy::MIN_DATE = QDateTime::fromSecsSinceEpoch(
 // Last date that can be represented (far in the future)
 const QDateTime DelegationFilterProxy::MAX_DATE = QDateTime::fromSecsSinceEpoch(0xFFFFFFFF);
 
-DelegationFilterProxy::DelegationFilterProxy(QObject *parent) :
-    QSortFilterProxyModel(parent),
-    dateFrom(MIN_DATE),
-    dateTo(MAX_DATE),
-    addrPrefix(),
-    minFee(0),
-    minAmount(0)
+DelegationFilterProxy::DelegationFilterProxy(QObject* parent) : QSortFilterProxyModel(parent),
+                                                                dateFrom(MIN_DATE),
+                                                                dateTo(MAX_DATE),
+                                                                addrPrefix(),
+                                                                minFee(0),
+                                                                minAmount(0)
 {
-
 }
 
-void DelegationFilterProxy::setStaker(const QString &_addrStaker)
+void DelegationFilterProxy::setStaker(const QString& _addrStaker)
 {
     this->addrStaker = _addrStaker;
     invalidateFilter();
 }
 
-void DelegationFilterProxy::setDateRange(const QDateTime &from, const QDateTime &to)
+void DelegationFilterProxy::setDateRange(const QDateTime& from, const QDateTime& to)
 {
     this->dateFrom = from;
     this->dateTo = to;
     invalidateFilter();
 }
 
-void DelegationFilterProxy::setAddrPrefix(const QString &_addrPrefix)
+void DelegationFilterProxy::setAddrPrefix(const QString& _addrPrefix)
 {
     this->addrPrefix = _addrPrefix;
     invalidateFilter();
 }
 
-void DelegationFilterProxy::setMinFee(const int &_minimum)
+void DelegationFilterProxy::setMinFee(const int& _minimum)
 {
     this->minFee = _minimum;
     invalidateFilter();
 }
 
-void DelegationFilterProxy::setMinAmount(const CAmount &minimum)
+void DelegationFilterProxy::setMinAmount(const CAmount& minimum)
 {
     this->minAmount = minimum;
     invalidateFilter();
 }
 
-bool DelegationFilterProxy::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+bool DelegationFilterProxy::filterAcceptsRow(int source_row, const QModelIndex& source_parent) const
 {
     QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
 
@@ -59,11 +57,11 @@ bool DelegationFilterProxy::filterAcceptsRow(int source_row, const QModelIndex &
 
     if (staker != addrStaker)
         return false;
-    if(datetime < dateFrom || datetime > dateTo)
+    if (datetime < dateFrom || datetime > dateTo)
         return false;
     if (!address.contains(addrPrefix, Qt::CaseInsensitive))
         return false;
-    if(fee < minFee)
+    if (fee < minFee)
         return false;
     if (amount < minAmount)
         return false;

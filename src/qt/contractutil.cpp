@@ -1,19 +1,18 @@
 #include <qt/contractutil.h>
 
-QString ContractUtil::errorMessage(const FunctionABI& function, const std::vector<ParameterABI::ErrorType> &errors, bool in)
+QString ContractUtil::errorMessage(const FunctionABI& function, const std::vector<ParameterABI::ErrorType>& errors, bool in)
 {
-    if(in && errors.size() != function.inputs.size())
+    if (in && errors.size() != function.inputs.size())
         return "";
-    if(!in && errors.size() != function.outputs.size())
+    if (!in && errors.size() != function.outputs.size())
         return "";
     const std::vector<ParameterABI>& params = in ? function.inputs : function.outputs;
 
     QStringList messages;
     messages.append(QObject::tr("ABI parsing error:"));
-    for(size_t i = 0; i < errors.size(); i++)
-    {
+    for (size_t i = 0; i < errors.size(); i++) {
         ParameterABI::ErrorType err = errors[i];
-        if(err == ParameterABI::Ok) continue;
+        if (err == ParameterABI::Ok) continue;
         const ParameterABI& param = params[i];
         QString _type = QString::fromStdString(param.type);
         QString _name = QString::fromStdString(param.name);
@@ -35,50 +34,41 @@ QString ContractUtil::errorMessage(const FunctionABI& function, const std::vecto
     return messages.join('\n');
 }
 
-bool ContractUtil::getRegularExpession(const ParameterType &paramType, QRegularExpression &regEx)
+bool ContractUtil::getRegularExpession(const ParameterType& paramType, QRegularExpression& regEx)
 {
     bool ret = false;
     switch (paramType.type()) {
-    case ParameterType::abi_bytes:
-    {
-        if(paramType.isDynamic())
-        {
+    case ParameterType::abi_bytes: {
+        if (paramType.isDynamic()) {
             regEx.setPattern(paternBytes);
-        }
-        else
-        {
+        } else {
             // Expression to check the number of bytes encoded in hex (1-32)
-            regEx.setPattern(QString(paternBytes32).arg(paramType.totalBytes()*2));
+            regEx.setPattern(QString(paternBytes32).arg(paramType.totalBytes() * 2));
         }
         ret = true;
         break;
     }
-    case ParameterType::abi_uint:
-    {
+    case ParameterType::abi_uint: {
         regEx.setPattern(paternUint);
         ret = true;
         break;
     }
-    case ParameterType::abi_int:
-    {
+    case ParameterType::abi_int: {
         regEx.setPattern(paternInt);
         ret = true;
         break;
     }
-    case ParameterType::abi_address:
-    {
+    case ParameterType::abi_address: {
         regEx.setPattern(paternAddress);
         ret = true;
         break;
     }
-    case ParameterType::abi_bool:
-    {
+    case ParameterType::abi_bool: {
         regEx.setPattern(paternBool);
         ret = true;
         break;
     }
-    default:
-    {
+    default: {
         ret = false;
         break;
     }
@@ -86,11 +76,10 @@ bool ContractUtil::getRegularExpession(const ParameterType &paramType, QRegularE
     return ret;
 }
 
-QMap<QString, QString> ContractUtil::fromStdMap(const std::map<std::string, std::string> &fromMap)
+QMap<QString, QString> ContractUtil::fromStdMap(const std::map<std::string, std::string>& fromMap)
 {
     QMap<QString, QString> toMap;
-    for (auto it = fromMap.begin(); it != fromMap.end(); it++)
-    {
+    for (auto it = fromMap.begin(); it != fromMap.end(); it++) {
         QString key = QString::fromStdString(it->first);
         QString value = QString::fromStdString(it->second);
         toMap[key] = value;

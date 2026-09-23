@@ -1,27 +1,27 @@
 #include <qt/superstakerpage.h>
+
+#include <qt/editsuperstakerdialog.h>
 #include <qt/forms/ui_superstakerpage.h>
-#include <qt/superstakeritemmodel.h>
-#include <qt/walletmodel.h>
+#include <qt/guiutil.h>
 #include <qt/platformstyle.h>
 #include <qt/styleSheet.h>
+#include <qt/superstakeritemmodel.h>
 #include <qt/superstakerlistwidget.h>
-#include <qt/guiutil.h>
-#include <qt/editsuperstakerdialog.h>
+#include <qt/walletmodel.h>
 
-#include <QPainter>
 #include <QAbstractItemDelegate>
-#include <QStandardItem>
-#include <QStandardItemModel>
-#include <QSortFilterProxyModel>
-#include <QSizePolicy>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPainter>
+#include <QSizePolicy>
+#include <QSortFilterProxyModel>
+#include <QStandardItem>
+#include <QStandardItemModel>
 
-SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::SuperStakerPage),
-    m_model(0),
-    m_clientModel(0)
+SuperStakerPage::SuperStakerPage(const PlatformStyle* platformStyle, QWidget* parent) : QWidget(parent),
+                                                                                        ui(new Ui::SuperStakerPage),
+                                                                                        m_model(0),
+                                                                                        m_clientModel(0)
 {
     ui->setupUi(this);
 
@@ -36,14 +36,14 @@ SuperStakerPage::SuperStakerPage(const PlatformStyle *platformStyle, QWidget *pa
     m_delegationsSuperStakerPage->setEnabled(false);
     m_splitUtxoPage->setEnabled(false);
 
-    QAction *copyStakerNameAction = new QAction(tr("Copy staker name"), this);
-    QAction *copyStakerAddressAction = new QAction(tr("Copy staker address"), this);
-    QAction *copyStekerMinFeeAction = new QAction(tr("Copy staker minimum fee"), this);
-    QAction *copyStekerWeightAction = new QAction(tr("Copy staker weight"), this);
-    QAction *copyDelegationsWeightAction = new QAction(tr("Copy delegations weight"), this);
-    QAction *configSuperStakerAction = new QAction(tr("Configure super staker"), this);
-    QAction *editStakerNameAction = new QAction(tr("Edit staker name"), this);
-    QAction *removeSuperStakerAction = new QAction(tr("Remove super staker"), this);
+    QAction* copyStakerNameAction = new QAction(tr("Copy staker name"), this);
+    QAction* copyStakerAddressAction = new QAction(tr("Copy staker address"), this);
+    QAction* copyStekerMinFeeAction = new QAction(tr("Copy staker minimum fee"), this);
+    QAction* copyStekerWeightAction = new QAction(tr("Copy staker weight"), this);
+    QAction* copyDelegationsWeightAction = new QAction(tr("Copy delegations weight"), this);
+    QAction* configSuperStakerAction = new QAction(tr("Configure super staker"), this);
+    QAction* editStakerNameAction = new QAction(tr("Edit staker name"), this);
+    QAction* removeSuperStakerAction = new QAction(tr("Remove super staker"), this);
 
     m_superStakerList = new SuperStakerListWidget(platformStyle, this);
     m_superStakerList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -86,7 +86,7 @@ SuperStakerPage::~SuperStakerPage()
     delete ui;
 }
 
-void SuperStakerPage::setModel(WalletModel *_model)
+void SuperStakerPage::setModel(WalletModel* _model)
 {
     m_model = _model;
     m_addSuperStakerPage->setModel(m_model);
@@ -94,20 +94,18 @@ void SuperStakerPage::setModel(WalletModel *_model)
     m_delegationsSuperStakerPage->setModel(m_model);
     m_superStakerList->setModel(m_model);
     m_splitUtxoPage->setModel(m_model);
-    if(m_model && m_model->getSuperStakerItemModel())
-    {
+    if (m_model && m_model->getSuperStakerItemModel()) {
         // Set current super staker
         connect(m_superStakerList->superStakerModel(), &QAbstractItemModel::dataChanged, this, &SuperStakerPage::on_dataChanged);
         connect(m_superStakerList->superStakerModel(), &QAbstractItemModel::rowsInserted, this, &SuperStakerPage::on_rowsInserted);
-        if(m_superStakerList->superStakerModel()->rowCount() > 0)
-        {
+        if (m_superStakerList->superStakerModel()->rowCount() > 0) {
             QModelIndex currentSuperStaker(m_superStakerList->superStakerModel()->index(0, 0));
             on_currentSuperStakerChanged(currentSuperStaker);
         }
     }
 }
 
-void SuperStakerPage::setClientModel(ClientModel *_clientModel)
+void SuperStakerPage::setClientModel(ClientModel* _clientModel)
 {
     m_clientModel = _clientModel;
     m_configSuperStakerPage->setClientModel(_clientModel);
@@ -126,10 +124,8 @@ void SuperStakerPage::on_goToAddSuperStakerPage()
 
 void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
 {
-    if(m_superStakerList->superStakerModel())
-    {
-        if(index.isValid())
-        {
+    if (m_superStakerList->superStakerModel()) {
+        if (index.isValid()) {
             QString hash = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::HashRole).toString();
             m_selectedSuperStakerHash = hash;
             QString address = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::StakerAddressRole).toString();
@@ -139,15 +135,13 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
             m_delegationsSuperStakerPage->setSuperStakerData(name, address, minFee, hash);
             m_splitUtxoPage->setAddress(address);
 
-            if(!m_configSuperStakerPage->isEnabled())
+            if (!m_configSuperStakerPage->isEnabled())
                 m_configSuperStakerPage->setEnabled(true);
-            if(!m_delegationsSuperStakerPage->isEnabled())
+            if (!m_delegationsSuperStakerPage->isEnabled())
                 m_delegationsSuperStakerPage->setEnabled(true);
-            if(!m_splitUtxoPage->isEnabled())
+            if (!m_splitUtxoPage->isEnabled())
                 m_splitUtxoPage->setEnabled(true);
-        }
-        else
-        {
+        } else {
             m_configSuperStakerPage->setEnabled(false);
             m_configSuperStakerPage->setSuperStakerData("");
             m_delegationsSuperStakerPage->setEnabled(false);
@@ -159,17 +153,15 @@ void SuperStakerPage::on_currentSuperStakerChanged(QModelIndex index)
     }
 }
 
-void SuperStakerPage::on_dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+void SuperStakerPage::on_dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles)
 {
     Q_UNUSED(bottomRight);
     Q_UNUSED(roles);
 
-    if(m_superStakerList->superStakerModel())
-    {
+    if (m_superStakerList->superStakerModel()) {
         QString superStakerHash = m_superStakerList->superStakerModel()->data(topLeft, SuperStakerItemModel::HashRole).toString();
-        if(m_selectedSuperStakerHash.isEmpty() ||
-                superStakerHash == m_selectedSuperStakerHash)
-        {
+        if (m_selectedSuperStakerHash.isEmpty() ||
+            superStakerHash == m_selectedSuperStakerHash) {
             on_currentSuperStakerChanged(topLeft);
         }
     }
@@ -188,18 +180,16 @@ void SuperStakerPage::on_rowsInserted(QModelIndex index, int first, int last)
     Q_UNUSED(first);
     Q_UNUSED(last);
 
-    if(m_superStakerList->superStakerModel()->rowCount() == 1)
-    {
+    if (m_superStakerList->superStakerModel()->rowCount() == 1) {
         QModelIndex currentSuperStaker(m_superStakerList->superStakerModel()->index(0, 0));
         on_currentSuperStakerChanged(currentSuperStaker);
     }
 }
 
-void SuperStakerPage::contextualMenu(const QPoint &point)
+void SuperStakerPage::contextualMenu(const QPoint& point)
 {
     QModelIndex index = m_superStakerList->indexAt(point);
-    if(index.isValid())
-    {
+    if (index.isValid()) {
         indexMenu = index;
         contextMenu->exec(QCursor::pos());
     }
@@ -207,8 +197,7 @@ void SuperStakerPage::contextualMenu(const QPoint &point)
 
 void SuperStakerPage::copyStekerMinFee()
 {
-    if(indexMenu.isValid())
-    {
+    if (indexMenu.isValid()) {
         GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedMinFeeRole).toString());
         indexMenu = QModelIndex();
     }
@@ -216,8 +205,7 @@ void SuperStakerPage::copyStekerMinFee()
 
 void SuperStakerPage::copyStakerName()
 {
-    if(indexMenu.isValid())
-    {
+    if (indexMenu.isValid()) {
         GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::StakerNameRole).toString());
         indexMenu = QModelIndex();
     }
@@ -225,8 +213,7 @@ void SuperStakerPage::copyStakerName()
 
 void SuperStakerPage::copyStakerAddress()
 {
-    if(indexMenu.isValid())
-    {
+    if (indexMenu.isValid()) {
         GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::StakerAddressRole).toString());
         indexMenu = QModelIndex();
     }
@@ -234,8 +221,7 @@ void SuperStakerPage::copyStakerAddress()
 
 void SuperStakerPage::copyStakerWeight()
 {
-    if(indexMenu.isValid())
-    {
+    if (indexMenu.isValid()) {
         GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedWeightRole).toString());
         indexMenu = QModelIndex();
     }
@@ -243,8 +229,7 @@ void SuperStakerPage::copyStakerWeight()
 
 void SuperStakerPage::copyDelegationsWeight()
 {
-    if(indexMenu.isValid())
-    {
+    if (indexMenu.isValid()) {
         GUIUtil::setClipboard(indexMenu.data(SuperStakerItemModel::FormattedDelegationsWeightRole).toString());
         indexMenu = QModelIndex();
     }
@@ -252,8 +237,7 @@ void SuperStakerPage::copyDelegationsWeight()
 
 void SuperStakerPage::configSuperStaker()
 {
-    if(indexMenu.isValid())
-    {
+    if (indexMenu.isValid()) {
         on_configSuperStaker(indexMenu);
         indexMenu = QModelIndex();
     }
@@ -261,8 +245,7 @@ void SuperStakerPage::configSuperStaker()
 
 void SuperStakerPage::editStakerName()
 {
-    if(indexMenu.isValid())
-    {
+    if (indexMenu.isValid()) {
         QString stakerName = indexMenu.data(SuperStakerItemModel::StakerNameRole).toString();
         QString stakerAddress = indexMenu.data(SuperStakerItemModel::StakerAddressRole).toString();
         QString sHash = indexMenu.data(SuperStakerItemModel::HashRole).toString();
@@ -271,11 +254,9 @@ void SuperStakerPage::editStakerName()
         EditSuperStakerDialog dlg;
         dlg.setData(stakerName, stakerAddress);
 
-        if(dlg.exec())
-        {
+        if (dlg.exec()) {
             interfaces::SuperStakerInfo staker = m_model->wallet().getSuperStaker(hash);
-            if(staker.hash == hash)
-            {
+            if (staker.hash == hash) {
                 staker.staker_name = dlg.getSuperStakerName().toStdString();
                 m_model->wallet().removeSuperStakerEntry(sHash.toStdString());
                 m_model->wallet().addSuperStakerEntry(staker);
@@ -284,7 +265,7 @@ void SuperStakerPage::editStakerName()
     }
 }
 
-void SuperStakerPage::on_configSuperStaker(const QModelIndex &index)
+void SuperStakerPage::on_configSuperStaker(const QModelIndex& index)
 {
     m_configSuperStakerPage->clearAll();
     on_currentSuperStakerChanged(index);
@@ -298,29 +279,26 @@ void SuperStakerPage::on_addSuperStaker()
 
 void SuperStakerPage::removeSuperStaker()
 {
-    if(indexMenu.isValid())
-    {
+    if (indexMenu.isValid()) {
         on_removeSuperStaker(indexMenu);
         indexMenu = QModelIndex();
     }
 }
 
-void SuperStakerPage::on_removeSuperStaker(const QModelIndex &index)
+void SuperStakerPage::on_removeSuperStaker(const QModelIndex& index)
 {
-    if(index.isValid() && m_model)
-    {
+    if (index.isValid() && m_model) {
         QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm super staker removal"), tr("The selected super staker will be removed from the list. Are you sure?"),
-            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+                                                                      QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 
-        if(btnRetVal == QMessageBox::Yes)
-        {
+        if (btnRetVal == QMessageBox::Yes) {
             QString hash = m_superStakerList->superStakerModel()->data(index, SuperStakerItemModel::HashRole).toString();
             m_model->wallet().removeSuperStakerEntry(hash.toStdString());
         }
     }
 }
 
-void SuperStakerPage::on_delegationsSuperStaker(const QModelIndex &index)
+void SuperStakerPage::on_delegationsSuperStaker(const QModelIndex& index)
 {
     on_currentSuperStakerChanged(index);
     on_goToDelegationsSuperStakerPage();
@@ -328,22 +306,16 @@ void SuperStakerPage::on_delegationsSuperStaker(const QModelIndex &index)
 
 void SuperStakerPage::on_restoreSuperStakers()
 {
-    if(m_model)
-    {
+    if (m_model) {
         bool fSuperStake = m_model->wallet().getEnabledSuperStaking();
-        if(!fSuperStake)
-        {
+        if (!fSuperStake) {
             QMessageBox::information(this, tr("Super staking"), tr("Enable super staking from the option menu in order to start the restoration."));
-        }
-        else
-        {
+        } else {
             QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm super stakers restoration"), tr("Are you sure you wish to restore your super stakers?"),
-                QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+                                                                          QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 
-            if(btnRetVal == QMessageBox::Yes)
-            {
-                if(m_model->wallet().restoreSuperStakers() == 0)
-                {
+            if (btnRetVal == QMessageBox::Yes) {
+                if (m_model->wallet().restoreSuperStakers() == 0) {
                     QMessageBox::information(this, tr("Super stakers not found"), tr("No super stakers found to restore."), QMessageBox::Ok);
                 }
             }
@@ -356,7 +328,7 @@ void SuperStakerPage::on_goToDelegationsSuperStakerPage()
     m_delegationsSuperStakerPage->show();
 }
 
-void SuperStakerPage::on_splitCoins(const QModelIndex &index)
+void SuperStakerPage::on_splitCoins(const QModelIndex& index)
 {
     on_currentSuperStakerChanged(index);
     on_goToSplitCoinsPage();

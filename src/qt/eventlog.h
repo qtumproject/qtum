@@ -1,11 +1,13 @@
 #ifndef EVENTLOG_H
 #define EVENTLOG_H
-#include <string>
-#include <vector>
-#include <QMap>
-#include <QVariant>
 #include <interfaces/node.h>
 #include <qt/walletmodel.h>
+
+#include <QMap>
+#include <QVariant>
+
+#include <string>
+#include <vector>
 
 class ExecRPCCommand;
 
@@ -50,7 +52,7 @@ public:
      * @param result Result of the performed call
      * @return success of the operation
      */
-    bool search(interfaces::Node& node,  const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant& result);
+    bool search(interfaces::Node& node, const WalletModel* wallet_model, int64_t fromBlock, int64_t toBlock, int64_t minconf, const std::vector<std::string> addresses, const std::vector<std::string> topics, QVariant& result);
 
 private:
     // Set command data

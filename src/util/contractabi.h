@@ -1,8 +1,8 @@
 #ifndef CONTRACTABI_H
 #define CONTRACTABI_H
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 
 /**
@@ -15,8 +15,7 @@ public:
     /**
      * @brief The Type enum ABI data types
      */
-    enum Type
-    {
+    enum Type {
         abi_none,
         abi_bytes,
         abi_string,
@@ -114,8 +113,7 @@ private:
 class ParameterABI
 {
 public:
-    enum ErrorType
-    {
+    enum ErrorType {
         Ok = 0,
         UnsupportedABI,
         EncodingError,
@@ -124,21 +122,21 @@ public:
 
     ParameterABI(const std::string& _name = "", const std::string& _type = "", bool _indexed = false);
     ~ParameterABI();
-    bool abiIn(const std::vector<std::string> &value, std::string &data, std::map<int, std::string>& mapDynamic) const;
-    bool abiOut(const std::string &data, size_t& pos, std::vector<std::string> &value) const;
-    const ParameterType &decodeType() const;
+    bool abiIn(const std::vector<std::string>& value, std::string& data, std::map<int, std::string>& mapDynamic) const;
+    bool abiOut(const std::string& data, size_t& pos, std::vector<std::string>& value) const;
+    const ParameterType& decodeType() const;
 
     std::string name; // The name of the parameter;
     std::string type; // The canonical type of the parameter.
-    bool indexed; // True if the field is part of the log's topics, false if it one of the log's data segment.
+    bool indexed;     // True if the field is part of the log's topics, false if it one of the log's data segment.
     // Indexed is only used with event function
 
     ErrorType lastError() const;
 
 private:
-    bool abiInBasic(ParameterType::Type abiType, std::string value, std::string &data) const;
-    bool abiOutBasic(ParameterType::Type abiType, const std::string &data, size_t &pos, std::string &value) const;
-    void addDynamic(const std::string& paramData, std::string &data, std::map<int, std::string>& mapDynamic) const;
+    bool abiInBasic(ParameterType::Type abiType, std::string value, std::string& data) const;
+    bool abiOutBasic(ParameterType::Type abiType, const std::string& data, size_t& pos, std::string& value) const;
+    void addDynamic(const std::string& paramData, std::string& data, std::map<int, std::string>& mapDynamic) const;
 
 
     mutable ParameterType m_decodeType;
@@ -168,14 +166,14 @@ public:
 
     static std::string defaultSelector();
 
-    std::string name; // The name of the function;
-    std::string type; // Function types: "function", "constructor", "fallback" or "event"
-    std::vector<ParameterABI> inputs; // Array of input parameters
+    std::string name;                  // The name of the function;
+    std::string type;                  // Function types: "function", "constructor", "fallback" or "event"
+    std::vector<ParameterABI> inputs;  // Array of input parameters
     std::vector<ParameterABI> outputs; // Array of output parameters, can be omitted if function doesn't return
-    bool payable; // True if function accepts ether, defaults to false.
-    bool constant; // True if function is specified to not modify blockchain state.
-    bool anonymous; // True if the event was declared as anonymous.
-    std::string stateMutability; // Function state mutability: "pure", "view", "nonpayable" or "payable"
+    bool payable;                      // True if function accepts ether, defaults to false.
+    bool constant;                     // True if function is specified to not modify blockchain state.
+    bool anonymous;                    // True if the event was declared as anonymous.
+    std::string stateMutability;       // Function state mutability: "pure", "view", "nonpayable" or "payable"
 
     // Constructor and fallback function never have name or outputs.
     // Fallback function doesn't have inputs either.

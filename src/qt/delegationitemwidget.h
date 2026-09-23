@@ -17,27 +17,26 @@ class DelegationItemWidget : public QWidget
     Q_OBJECT
 
 public:
-    enum ItemType
-    {
+    enum ItemType {
         Record = 0,
         New = 1
     };
 
-    enum Buttons{
+    enum Buttons {
         Add = 0,
         Remove = 1,
         Split = 2,
         Restore = 3
     };
 
-    enum LightType{
+    enum LightType {
         Transparent = 0,
         Red = 1,
         Orange = 2,
         Green = 3
     };
 
-    explicit DelegationItemWidget(const PlatformStyle *platformStyle, QWidget *parent = 0, ItemType type = Record);
+    explicit DelegationItemWidget(const PlatformStyle* platformStyle, QWidget* parent = 0, ItemType type = Record);
     ~DelegationItemWidget();
 
     void setData(const QString& fee, const QString& staker, const QString& address, const int32_t& blockHight, const int64_t& balance, const int64_t& stake, const int64_t& weight, const int32_t& status);
@@ -46,9 +45,9 @@ public:
 
     int position() const;
 
-    void setModel(WalletModel *_model);
+    void setModel(WalletModel* _model);
 
-    void setClientModel(ClientModel *clientModel);
+    void setClientModel(ClientModel* clientModel);
 
     void setLight(LightType type);
 
@@ -72,8 +71,8 @@ private:
     void updateLabelStaker();
 
 private:
-    Ui::DelegationItemWidget *ui;
-    const PlatformStyle *m_platfromStyle;
+    Ui::DelegationItemWidget* ui;
+    const PlatformStyle* m_platfromStyle;
     ItemType m_type;
     int m_position;
     QString m_filename;

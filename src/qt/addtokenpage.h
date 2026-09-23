@@ -15,11 +15,11 @@ class AddTokenPage : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddTokenPage(QWidget *parent = 0);
+    explicit AddTokenPage(QWidget* parent = 0);
     ~AddTokenPage();
     void clearAll();
-    void setModel(WalletModel *_model);
-    void setClientModel(ClientModel *clientModel);
+    void setModel(WalletModel* _model);
+    void setClientModel(ClientModel* clientModel);
 
 private Q_SLOTS:
     void on_clearButton_clicked();
@@ -31,8 +31,8 @@ private Q_SLOTS:
 Q_SIGNALS:
 
 private:
-    Ui::AddTokenPage *ui;
-    Token *m_tokenABI;
+    Ui::AddTokenPage* ui;
+    Token* m_tokenABI;
     WalletModel* m_model;
     ClientModel* m_clientModel;
     bool m_validTokenAddress;

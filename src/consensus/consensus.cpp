@@ -1,6 +1,7 @@
 #include <consensus/consensus.h>
-#include <primitives/transaction.h>
+
 #include <policy/policy.h>
+#include <primitives/transaction.h>
 
 /** The maximum allowed size for a serialized block, in bytes (only for buffer size limits) */
 unsigned int dgpMaxBlockSerSize = 8000000;
@@ -16,11 +17,12 @@ unsigned int dgpMaxProtoMsgLength = 8000000;
 
 unsigned int dgpMaxTxSigOps = 16000;
 
-void updateBlockSizeParams(unsigned int newBlockSize){
-    unsigned int newSizeForParams=WITNESS_SCALE_FACTOR*newBlockSize;
-    dgpMaxBlockSerSize=newSizeForParams;
-    dgpMaxBlockWeight=newSizeForParams;
-    dgpMaxBlockSigOps=(int64_t)(newSizeForParams/100);
-    dgpMaxTxSigOps = (unsigned int)(dgpMaxBlockSigOps/5);
-    dgpMaxProtoMsgLength=newSizeForParams;
+void updateBlockSizeParams(unsigned int newBlockSize)
+{
+    unsigned int newSizeForParams = WITNESS_SCALE_FACTOR * newBlockSize;
+    dgpMaxBlockSerSize = newSizeForParams;
+    dgpMaxBlockWeight = newSizeForParams;
+    dgpMaxBlockSigOps = (int64_t)(newSizeForParams / 100);
+    dgpMaxTxSigOps = (unsigned int)(dgpMaxBlockSigOps / 5);
+    dgpMaxProtoMsgLength = newSizeForParams;
 }

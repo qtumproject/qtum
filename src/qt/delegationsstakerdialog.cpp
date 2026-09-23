@@ -1,6 +1,7 @@
 #include <bitcoin-build-config.h> // IWYU pragma: keep
 
 #include <qt/delegationsstakerdialog.h>
+
 #include <qt/forms/ui_delegationsstakerdialog.h>
 #include <qt/stakerdelegationview.h>
 
@@ -8,9 +9,9 @@
 class DelegationsStakerDialogPriv
 {
 public:
-    DelegationsStakerDialogPriv():
-        fee()
-    {}
+    DelegationsStakerDialogPriv() : fee()
+    {
+    }
 
     QString address;
     QString name;
@@ -18,11 +19,10 @@ public:
     QString hash;
 };
 
-DelegationsStakerDialog::DelegationsStakerDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::DelegationsStakerDialog),
-    model(0),
-    m_stakerDelegationView(0)
+DelegationsStakerDialog::DelegationsStakerDialog(QWidget* parent) : QDialog(parent),
+                                                                    ui(new Ui::DelegationsStakerDialog),
+                                                                    model(0),
+                                                                    m_stakerDelegationView(0)
 {
     ui->setupUi(this);
     d = new DelegationsStakerDialogPriv();
@@ -41,18 +41,18 @@ DelegationsStakerDialog::~DelegationsStakerDialog()
     delete d;
 }
 
-void DelegationsStakerDialog::setModel(WalletModel *_model)
+void DelegationsStakerDialog::setModel(WalletModel* _model)
 {
     this->model = _model;
 
-    if(_model) {
-         m_stakerDelegationView->setModel(_model);
+    if (_model) {
+        m_stakerDelegationView->setModel(_model);
     }
 }
 
-void DelegationsStakerDialog::setSuperStakerData(const QString& _name, const QString &_address, const int &_fee, const QString &_hash)
+void DelegationsStakerDialog::setSuperStakerData(const QString& _name, const QString& _address, const int& _fee, const QString& _hash)
 {
-    if(d->hash == _hash)
+    if (d->hash == _hash)
         return;
 
     d->name = _name;

@@ -1,23 +1,24 @@
 #include <bitcoin-build-config.h> // IWYU pragma: keep
 
 #include <qt/qtumhwitool.h>
-#include <qt/guiutil.h>
-#include <qt/execrpccommand.h>
-#include <qt/walletmodel.h>
-#include <util/strencodings.h>
-#include <common/system.h>
-#include <qtum/qtumledger.h>
-#include <chainparams.h>
-#include <outputtype.h>
 
-#include <QProcess>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QVariantMap>
-#include <QVariantList>
+#include <chainparams.h>
+#include <common/system.h>
+#include <outputtype.h>
+#include <qt/execrpccommand.h>
+#include <qt/guiutil.h>
+#include <qt/walletmodel.h>
+#include <qtum/qtumledger.h>
+#include <util/strencodings.h>
+
 #include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QProcess>
 #include <QStringList>
+#include <QVariantList>
+#include <QVariantMap>
 
 #include <atomic>
 
@@ -39,20 +40,20 @@ static const int ADDRESS_TO = 1000;
 class QtumHwiToolPriv
 {
 public:
-    QtumHwiToolPriv(QObject *parent)
+    QtumHwiToolPriv(QObject* parent)
     {
         QStringList optionalRescan = QStringList() << PARAM_START_HEIGHT << PARAM_STOP_HEIGHT;
-        cmdRescan = new ExecRPCCommand("rescanblockchain", QStringList(), optionalRescan,  QMap<QString, QString>(), parent);
+        cmdRescan = new ExecRPCCommand("rescanblockchain", QStringList(), optionalRescan, QMap<QString, QString>(), parent);
         QStringList mandatoryImport = QStringList() << PARAM_REQUESTS;
-        cmdImportDesc = new ExecRPCCommand("importdescriptors", mandatoryImport, QStringList(),  QMap<QString, QString>(), parent);
+        cmdImportDesc = new ExecRPCCommand("importdescriptors", mandatoryImport, QStringList(), QMap<QString, QString>(), parent);
         QStringList mandatoryFinalize = QStringList() << PARAM_PSBT;
-        cmdFinalize = new ExecRPCCommand("finalizepsbt", mandatoryFinalize, QStringList(),  QMap<QString, QString>(), parent);
+        cmdFinalize = new ExecRPCCommand("finalizepsbt", mandatoryFinalize, QStringList(), QMap<QString, QString>(), parent);
         QStringList mandatorySend = QStringList() << PARAM_HEXTX << PARAM_MAXFEERATE << PARAM_MAXBURNAMOUNT << PARAM_SHOWCONTRACTDATA;
-        cmdSend = new ExecRPCCommand("sendrawtransaction", mandatorySend, QStringList(),  QMap<QString, QString>(), parent);
+        cmdSend = new ExecRPCCommand("sendrawtransaction", mandatorySend, QStringList(), QMap<QString, QString>(), parent);
         QStringList mandatoryDecode = QStringList() << PARAM_PSBT;
-        cmdDecode = new ExecRPCCommand("decodepsbt", mandatoryDecode, QStringList(),  QMap<QString, QString>(), parent);
+        cmdDecode = new ExecRPCCommand("decodepsbt", mandatoryDecode, QStringList(), QMap<QString, QString>(), parent);
         QStringList mandatoryAddressInfo = QStringList() << PARAM_ADDRESS;
-        cmdAddressInfo = new ExecRPCCommand("getaddressinfo", mandatoryAddressInfo, QStringList(),  QMap<QString, QString>(), parent);
+        cmdAddressInfo = new ExecRPCCommand("getaddressinfo", mandatoryAddressInfo, QStringList(), QMap<QString, QString>(), parent);
     }
 
     std::atomic<bool> fStarted{false};
@@ -73,7 +74,8 @@ public:
 };
 
 HWDevice::HWDevice()
-{}
+{
+}
 
 QString HWDevice::toString() const
 {
@@ -104,7 +106,7 @@ HWDevice toHWDevice(const LedgerDevice& device)
     return hwDevice;
 }
 
-QtumHwiTool::QtumHwiTool(QObject *parent) : QObject(parent)
+QtumHwiTool::QtumHwiTool(QObject* parent) : QObject(parent)
 {
     d = new QtumHwiToolPriv(this);
 }
@@ -114,109 +116,100 @@ QtumHwiTool::~QtumHwiTool()
     delete d;
 }
 
-bool QtumHwiTool::enumerate(QList<HWDevice> &devices, bool stake)
+bool QtumHwiTool::enumerate(QList<HWDevice>& devices, bool stake)
 {
     LOCK(cs_ledger);
     devices.clear();
     std::vector<LedgerDevice> vecDevices;
-    if(QtumLedger::instance().enumerate(vecDevices, stake))
-    {
-        for(LedgerDevice device : vecDevices)
-        {
+    if (QtumLedger::instance().enumerate(vecDevices, stake)) {
+        for (LedgerDevice device : vecDevices) {
             // Get device info
             HWDevice hwDevice = toHWDevice(device);
             devices.push_back(hwDevice);
 
             // Set error message
-            if(!hwDevice.isValid())
+            if (!hwDevice.isValid())
                 addError(hwDevice.errorMessage());
         }
-    }
-    else
-    {
+    } else {
         d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     }
 
     return devices.size() > 0;
 }
 
-bool QtumHwiTool::isConnected(const QString &fingerprint, bool stake)
+bool QtumHwiTool::isConnected(const QString& fingerprint, bool stake)
 {
     LOCK(cs_ledger);
     std::string strFingerprint = fingerprint.toStdString();
     bool ret = QtumLedger::instance().isConnected(strFingerprint, stake);
-    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    if (!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     return ret;
 }
 
-bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, const QString& path, bool internal, QString &desc)
+bool QtumHwiTool::getKeyPool(const QString& fingerprint, int type, const QString& path, bool internal, QString& desc)
 {
     LOCK(cs_ledger);
     std::string strFingerprint = fingerprint.toStdString();
     std::string strDesc = desc.toStdString();
     std::string strPath = path.toStdString();
-    if(!strPath.empty())
-    {
+    if (!strPath.empty()) {
         strPath += internal ? "/1/*" : "/0/*";
     }
     bool ret = QtumLedger::instance().getKeyPool(strFingerprint, type, strPath, internal, d->from, d->to, strDesc);
     desc = QString::fromStdString(strDesc);
-    if(ret)
-    {
+    if (ret) {
         desc = "\"" + desc.replace("\"", "\\\"") + "\"";
-    }
-    else
-    {
+    } else {
         d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     }
     return ret;
 }
 
-bool QtumHwiTool::getKeyPool(const QString &fingerprint, int type, const QString &path, QStringList &descs)
+bool QtumHwiTool::getKeyPool(const QString& fingerprint, int type, const QString& path, QStringList& descs)
 {
     LOCK(cs_ledger);
     bool ret = true;
     QString desc;
     ret &= getKeyPool(fingerprint, type, path, false, desc);
-    if(ret) descs.push_back(desc);
+    if (ret) descs.push_back(desc);
 
-    if(!path.isEmpty())
-    {
+    if (!path.isEmpty()) {
         desc.clear();
         ret &= getKeyPool(fingerprint, type, path, true, desc);
-        if(ret) descs.push_back(desc);
+        if (ret) descs.push_back(desc);
     }
 
     return ret;
 }
 
-bool QtumHwiTool::getKeyPoolPKH(const QString &fingerprint, const QString& path, QStringList &descs)
+bool QtumHwiTool::getKeyPoolPKH(const QString& fingerprint, const QString& path, QStringList& descs)
 {
     return getKeyPool(fingerprint, (int)OutputType::LEGACY, path, descs);
 }
 
-bool QtumHwiTool::getKeyPoolP2SH(const QString &fingerprint, const QString& path, QStringList &descs)
+bool QtumHwiTool::getKeyPoolP2SH(const QString& fingerprint, const QString& path, QStringList& descs)
 {
     return getKeyPool(fingerprint, (int)OutputType::P2SH_SEGWIT, path, descs);
 }
 
-bool QtumHwiTool::getKeyPoolBech32(const QString &fingerprint, const QString& path, QStringList &descs)
+bool QtumHwiTool::getKeyPoolBech32(const QString& fingerprint, const QString& path, QStringList& descs)
 {
     return getKeyPool(fingerprint, (int)OutputType::BECH32, path, descs);
 }
 
-bool QtumHwiTool::signTx(const QString &fingerprint, QString &psbt)
+bool QtumHwiTool::signTx(const QString& fingerprint, QString& psbt)
 {
     LOCK(cs_ledger);
     std::string strFingerprint = fingerprint.toStdString();
     std::string strPsbt = psbt.toStdString();
     bool ret = QtumLedger::instance().signTx(strFingerprint, strPsbt);
     psbt = QString::fromStdString(strPsbt);
-    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    if (!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     return ret;
 }
 
-bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message, const QString &path, QString &signature)
+bool QtumHwiTool::signMessage(const QString& fingerprint, const QString& message, const QString& path, QString& signature)
 {
     LOCK(cs_ledger);
     std::string strFingerprint = fingerprint.toStdString();
@@ -225,45 +218,38 @@ bool QtumHwiTool::signMessage(const QString &fingerprint, const QString &message
     std::string strSignature = signature.toStdString();
     bool ret = QtumLedger::instance().signMessage(strFingerprint, strMessage, strPath, strSignature);
     signature = QString::fromStdString(strSignature);
-    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    if (!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     return ret;
 }
 
-bool QtumHwiTool::signDelegate(const QString &fingerprint, QString &psbt)
+bool QtumHwiTool::signDelegate(const QString& fingerprint, QString& psbt)
 {
-    if(!d->model) return false;
+    if (!d->model) return false;
 
     // Get the delegation data to sign
     std::string strPsbt = psbt.toStdString();
     std::map<int, interfaces::SignDelegation> signData;
     std::string strError;
-    if(d->model->wallet().getAddDelegationData(strPsbt, signData, strError) == false)
-    {
+    if (d->model->wallet().getAddDelegationData(strPsbt, signData, strError) == false) {
         d->strError = QString::fromStdString(strError);
         return false;
     }
 
     // Sign the delegation data
-    for (std::map<int, interfaces::SignDelegation>::iterator it = signData.begin(); it != signData.end(); it++)
-    {
+    for (std::map<int, interfaces::SignDelegation>::iterator it = signData.begin(); it != signData.end(); it++) {
         QString message = QString::fromStdString(it->second.staker);
         QString path = QString::fromStdString(it->second.delegate);
         QString signature;
-        if(signMessage(fingerprint, message, path, signature))
-        {
+        if (signMessage(fingerprint, message, path, signature)) {
             it->second.PoD = signature.toStdString();
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
     // Update the transaction
-    if(signData.size() > 0)
-    {
-        if(d->model->wallet().setAddDelegationData(strPsbt, signData, strError) == false)
-        {
+    if (signData.size() > 0) {
+        if (d->model->wallet().setAddDelegationData(strPsbt, signData, strError) == false) {
             d->strError = QString::fromStdString(strError);
             return false;
         }
@@ -273,7 +259,7 @@ bool QtumHwiTool::signDelegate(const QString &fingerprint, QString &psbt)
     return true;
 }
 
-bool QtumHwiTool::displayAddress(const QString &fingerprint, const QString &desc, QString &address)
+bool QtumHwiTool::displayAddress(const QString& fingerprint, const QString& desc, QString& address)
 {
     LOCK(cs_ledger);
     std::string strFingerprint = fingerprint.toStdString();
@@ -281,14 +267,14 @@ bool QtumHwiTool::displayAddress(const QString &fingerprint, const QString &desc
     std::string strAddress;
     bool ret = QtumLedger::instance().displayAddress(strFingerprint, strDesc, strAddress);
     address = QString::fromStdString(strAddress);
-    if(!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
+    if (!ret) d->strError = QString::fromStdString(QtumLedger::instance().errorMessage());
     return ret;
 }
 
 QString QtumHwiTool::errorMessage()
 {
     // Get the last error message
-    if(d->fStarted)
+    if (d->fStarted)
         return tr("Started");
 
     return d->strError;
@@ -301,19 +287,16 @@ bool QtumHwiTool::isStarted()
 
 void QtumHwiTool::wait()
 {
-    if(d->fStarted)
-    {
+    if (d->fStarted) {
         bool wasStarted = false;
-        if(d->process.waitForStarted())
-        {
+        if (d->process.waitForStarted()) {
             wasStarted = true;
             d->process.waitForFinished(-1);
         }
         d->strStdout = d->process.readAllStandardOutput();
         d->strError = d->process.readAllStandardError();
         d->fStarted = false;
-        if(!wasStarted && d->strError.isEmpty())
-        {
+        if (!wasStarted && d->strError.isEmpty()) {
             d->strError = tr("Application %1 fail to start.").arg(d->process.program());
         }
     }
@@ -321,20 +304,19 @@ void QtumHwiTool::wait()
 
 bool QtumHwiTool::rescanBlockchain(int startHeight, int stopHeight)
 {
-    if(!d->model) return false;
+    if (!d->model) return false;
 
     // Add params for RPC
     QMap<QString, QString> lstParams;
     QVariant result;
     QString resultJson;
     ExecRPCCommand::appendParam(lstParams, PARAM_START_HEIGHT, QString::number(startHeight));
-    if(stopHeight > -1)
-    {
+    if (stopHeight > -1) {
         ExecRPCCommand::appendParam(lstParams, PARAM_STOP_HEIGHT, QString::number(stopHeight));
     }
 
     // Exec RPC
-    if(!execRPC(d->cmdRescan, lstParams, result, resultJson))
+    if (!execRPC(d->cmdRescan, lstParams, result, resultJson))
         return false;
 
     // Parse results
@@ -345,9 +327,9 @@ bool QtumHwiTool::rescanBlockchain(int startHeight, int stopHeight)
     return resStartHeight < resStopHeight;
 }
 
-bool QtumHwiTool::importAddresses(const QString &desc)
+bool QtumHwiTool::importAddresses(const QString& desc)
 {
-    if(!d->model) return false;
+    if (!d->model) return false;
 
     // Add params for RPC
     QMap<QString, QString> lstParams;
@@ -357,37 +339,35 @@ bool QtumHwiTool::importAddresses(const QString &desc)
 
     // Exec RPC
     ExecRPCCommand* cmd = d->cmdImportDesc;
-    if(!execRPC(cmd, lstParams, result, resultJson))
+    if (!execRPC(cmd, lstParams, result, resultJson))
         return false;
 
     // Parse results
     int countSuccess = 0;
     QVariantList variantList = result.toList();
-    for(const QVariant& item : variantList)
-    {
+    for (const QVariant& item : variantList) {
         QVariantMap variantMap = item.toMap();
-        if(variantMap.value("success").toBool())
+        if (variantMap.value("success").toBool())
             countSuccess++;
     }
 
     return countSuccess > 0;
 }
 
-bool QtumHwiTool::importMulti(const QStringList &descs)
+bool QtumHwiTool::importMulti(const QStringList& descs)
 {
     bool ret = true;
-    for(QString desc : descs)
-    {
+    for (QString desc : descs) {
         ret &= importAddresses(desc);
-        if(!ret) break;
+        if (!ret) break;
     }
 
     return ret;
 }
 
-bool QtumHwiTool::finalizePsbt(const QString &psbt, QString &hexTx, bool &complete)
+bool QtumHwiTool::finalizePsbt(const QString& psbt, QString& hexTx, bool& complete)
 {
-    if(!d->model) return false;
+    if (!d->model) return false;
 
     // Add params for RPC
     QMap<QString, QString> lstParams;
@@ -396,7 +376,7 @@ bool QtumHwiTool::finalizePsbt(const QString &psbt, QString &hexTx, bool &comple
     ExecRPCCommand::appendParam(lstParams, PARAM_PSBT, psbt);
 
     // Exec RPC
-    if(!execRPC(d->cmdFinalize, lstParams, result, resultJson))
+    if (!execRPC(d->cmdFinalize, lstParams, result, resultJson))
         return false;
 
     // Parse results
@@ -407,9 +387,9 @@ bool QtumHwiTool::finalizePsbt(const QString &psbt, QString &hexTx, bool &comple
     return true;
 }
 
-bool QtumHwiTool::sendRawTransaction(const QString &hexTx, QVariantMap& variantMap)
+bool QtumHwiTool::sendRawTransaction(const QString& hexTx, QVariantMap& variantMap)
 {
-    if(!d->model) return false;
+    if (!d->model) return false;
 
     // Add params for RPC
     QMap<QString, QString> lstParams;
@@ -421,26 +401,23 @@ bool QtumHwiTool::sendRawTransaction(const QString &hexTx, QVariantMap& variantM
     ExecRPCCommand::appendParam(lstParams, PARAM_SHOWCONTRACTDATA, "true");
 
     // Exec RPC
-    if(!execRPC(d->cmdSend, lstParams, result, resultStr))
+    if (!execRPC(d->cmdSend, lstParams, result, resultStr))
         return false;
 
     // Parse results
     std::string strHash = resultStr.toStdString();
-    if(strHash.length() == 64 && IsHex(strHash))
-    {
+    if (strHash.length() == 64 && IsHex(strHash)) {
         variantMap["txid"] = resultStr;
-    }
-    else
-    {
+    } else {
         variantMap = result.toMap();
     }
 
     return variantMap.contains("txid");
 }
 
-bool QtumHwiTool::decodePsbt(const QString &psbt, QString &decoded)
+bool QtumHwiTool::decodePsbt(const QString& psbt, QString& decoded)
 {
-    if(!d->model) return false;
+    if (!d->model) return false;
 
     // Add params for RPC
     QMap<QString, QString> lstParams;
@@ -449,7 +426,7 @@ bool QtumHwiTool::decodePsbt(const QString &psbt, QString &decoded)
     ExecRPCCommand::appendParam(lstParams, PARAM_PSBT, psbt);
 
     // Exec RPC
-    if(!execRPC(d->cmdDecode, lstParams, result, resultStr))
+    if (!execRPC(d->cmdDecode, lstParams, result, resultStr))
         return false;
 
     // Parse results
@@ -458,9 +435,9 @@ bool QtumHwiTool::decodePsbt(const QString &psbt, QString &decoded)
     return true;
 }
 
-bool QtumHwiTool::getAddressDesc(const QString &address, QString &desc)
+bool QtumHwiTool::getAddressDesc(const QString& address, QString& desc)
 {
-    if(!d->model) return false;
+    if (!d->model) return false;
 
     // Add params for RPC
     QMap<QString, QString> lstParams;
@@ -469,7 +446,7 @@ bool QtumHwiTool::getAddressDesc(const QString &address, QString &desc)
     ExecRPCCommand::appendParam(lstParams, PARAM_ADDRESS, address);
 
     // Exec RPC
-    if(!execRPC(d->cmdAddressInfo, lstParams, result, resultJson))
+    if (!execRPC(d->cmdAddressInfo, lstParams, result, resultJson))
         return false;
 
     // Parse results
@@ -479,23 +456,23 @@ bool QtumHwiTool::getAddressDesc(const QString &address, QString &desc)
     return !desc.isEmpty();
 }
 
-void QtumHwiTool::setModel(WalletModel *model)
+void QtumHwiTool::setModel(WalletModel* model)
 {
     d->model = model;
 }
 
-bool QtumHwiTool::execRPC(ExecRPCCommand *cmd, const QMap<QString, QString> &lstParams, QVariant &result, QString &resultJson)
+bool QtumHwiTool::execRPC(ExecRPCCommand* cmd, const QMap<QString, QString>& lstParams, QVariant& result, QString& resultJson)
 {
     d->strError.clear();
-    if(!cmd->exec(d->model->node(), d->model, lstParams, result, resultJson, d->strError))
+    if (!cmd->exec(d->model->node(), d->model, lstParams, result, resultJson, d->strError))
         return false;
 
     return true;
 }
 
-void QtumHwiTool::addError(const QString &error)
+void QtumHwiTool::addError(const QString& error)
 {
-    if(d->strError != "")
+    if (d->strError != "")
         d->strError += "\n";
     d->strError += error;
 }

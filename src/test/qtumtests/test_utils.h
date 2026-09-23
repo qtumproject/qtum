@@ -2,19 +2,20 @@
 #define QTUMTESTS_TEST_UTILS_H
 
 #include <common/system.h>
-#include <validation.h>
-#include <util/strencodings.h>
-#include <util/convert.h>
-#include <test/util/setup_common.h>
-#include <boost/filesystem/operations.hpp>
-#include <util/fs.h>
-
 #include <random.h>
+#include <test/util/setup_common.h>
+#include <util/convert.h>
+#include <util/fs.h>
+#include <util/strencodings.h>
+#include <validation.h>
+
+#include <boost/filesystem/operations.hpp>
 
 extern std::unique_ptr<QtumState> globalState;
 
-inline void initState(){
-    boost::filesystem::path pathTemp;		
+inline void initState()
+{
+    boost::filesystem::path pathTemp;
     pathTemp = fs::temp_directory_path() / strprintf("test_bitcoin_%lu_%i", (unsigned long)GetTime(), (int)(FastRandomContext().randrange<unsigned>(100000)));
     boost::filesystem::create_directories(pathTemp);
     const std::string dirQtum = pathTemp.string();
@@ -24,7 +25,8 @@ inline void initState(){
     globalState->setRootUTXO(dev::sha3(dev::rlp(""))); // temp
 }
 
-inline CBlock generateBlock(){
+inline CBlock generateBlock()
+{
     CBlock block;
     CMutableTransaction tx;
     std::vector<unsigned char> address(ParseHex("abababababababababababababababababababab"));
@@ -33,13 +35,14 @@ inline CBlock generateBlock(){
     return block;
 }
 
-inline dev::Address createQtumAddress(dev::h256 hashTx, uint32_t voutNumber){
+inline dev::Address createQtumAddress(dev::h256 hashTx, uint32_t voutNumber)
+{
     uint256 hashTXid(h256Touint(hashTx));
     std::vector<unsigned char> txIdAndVout(hashTXid.begin(), hashTXid.end());
     std::vector<unsigned char> voutNumberChrs;
-    if (voutNumberChrs.size() < sizeof(voutNumber))voutNumberChrs.resize(sizeof(voutNumber));
+    if (voutNumberChrs.size() < sizeof(voutNumber)) voutNumberChrs.resize(sizeof(voutNumber));
     std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
-    txIdAndVout.insert(txIdAndVout.end(),voutNumberChrs.begin(),voutNumberChrs.end());
+    txIdAndVout.insert(txIdAndVout.end(), voutNumberChrs.begin(), voutNumberChrs.end());
 
     std::vector<unsigned char> SHA256TxVout(32);
     CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
@@ -51,9 +54,10 @@ inline dev::Address createQtumAddress(dev::h256 hashTx, uint32_t voutNumber){
 }
 
 
-inline QtumTransaction createQtumTransaction(valtype data, dev::u256 value, dev::u256 gasLimit, dev::u256 gasPrice, dev::h256 hashTransaction, dev::Address recipient, int32_t nvout = 0){
+inline QtumTransaction createQtumTransaction(valtype data, dev::u256 value, dev::u256 gasLimit, dev::u256 gasPrice, dev::h256 hashTransaction, dev::Address recipient, int32_t nvout = 0)
+{
     QtumTransaction txEth;
-    if(recipient == dev::Address()){
+    if (recipient == dev::Address()) {
         txEth = QtumTransaction(value, gasPrice, gasLimit, data, dev::u256(0));
     } else {
         txEth = QtumTransaction(value, gasPrice, gasLimit, recipient, data, dev::u256(0));
@@ -65,7 +69,8 @@ inline QtumTransaction createQtumTransaction(valtype data, dev::u256 value, dev:
     return txEth;
 }
 
-inline std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::vector<QtumTransaction> txs, ChainstateManager& chainman){
+inline std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::vector<QtumTransaction> txs, ChainstateManager& chainman)
+{
     CBlock block(generateBlock());
     LOCK(::cs_main);
     QtumDGP qtumDGP(globalState.get(), chainman.ActiveChainstate(), fGettingValuesDGP);
@@ -74,7 +79,7 @@ inline std::pair<std::vector<ResultExecute>, ByteCodeExecResult> executeBC(std::
     exec.performByteCode();
     std::vector<ResultExecute> res = exec.getResult();
     ByteCodeExecResult bceExecRes;
-    exec.processingResults(bceExecRes); //error handling?
+    exec.processingResults(bceExecRes); // error handling?
     globalState->db().commit();
     globalState->dbUtxo().commit();
     return std::make_pair(res, bceExecRes);

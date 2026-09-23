@@ -1,15 +1,16 @@
 #include <bitcoin-build-config.h> // IWYU pragma: keep
 
 #include <qt/superstakeritemwidget.h>
-#include <qt/platformstyle.h>
-#include <qt/forms/ui_superstakeritemwidget.h>
-#include <qt/bitcoinunits.h>
-#include <qt/optionsmodel.h>
-#include <qt/walletmodel.h>
-#include <qt/clientmodel.h>
-#include <interfaces/node.h>
+
 #include <chainparams.h>
+#include <interfaces/node.h>
+#include <qt/bitcoinunits.h>
+#include <qt/clientmodel.h>
+#include <qt/forms/ui_superstakeritemwidget.h>
 #include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
 
 #include <QFile>
 
@@ -28,14 +29,13 @@ public:
 
 #define SUPERSTAKER_ITEM_ICONSIZE 24
 #define SUPERSTAKER_STAKER_SIZE 210
-SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle *platformStyle, QWidget *parent, ItemType type) :
-    QWidget(parent),
-    ui(new Ui::SuperStakerItemWidget),
-    m_platfromStyle(platformStyle),
-    m_type(type),
-    m_position(-1),
-    m_model(0),
-    m_clientModel(0)
+SuperStakerItemWidget::SuperStakerItemWidget(const PlatformStyle* platformStyle, QWidget* parent, ItemType type) : QWidget(parent),
+                                                                                                                   ui(new Ui::SuperStakerItemWidget),
+                                                                                                                   m_platfromStyle(platformStyle),
+                                                                                                                   m_type(type),
+                                                                                                                   m_position(-1),
+                                                                                                                   m_model(0),
+                                                                                                                   m_clientModel(0)
 
 {
     ui->setupUi(this);
@@ -62,7 +62,7 @@ SuperStakerItemWidget::~SuperStakerItemWidget()
     delete ui;
 }
 
-void SuperStakerItemWidget::setData(const QString &fee, const QString &staker, const QString &address, const bool &staking_on, const int64_t &balance, const int64_t &stake, const int64_t &weight, const int64_t &delegationsWeight)
+void SuperStakerItemWidget::setData(const QString& fee, const QString& staker, const QString& address, const bool& staking_on, const int64_t& balance, const int64_t& stake, const int64_t& weight, const int64_t& delegationsWeight)
 {
     // Set data
     d->fee = fee;
@@ -75,11 +75,11 @@ void SuperStakerItemWidget::setData(const QString &fee, const QString &staker, c
     d->delegationsWeight = delegationsWeight;
 
     // Update GUI
-    if(d->fee != ui->labelFee->text())
+    if (d->fee != ui->labelFee->text())
         ui->labelFee->setText(d->fee);
-    if(d->staker != ui->labelStaker->toolTip())
+    if (d->staker != ui->labelStaker->toolTip())
         updateLabelStaker();
-    if(d->address != ui->labelAddress->text())
+    if (d->address != ui->labelAddress->text())
         ui->labelAddress->setText(d->address);
     updateLogo();
     updateBalance();
@@ -127,15 +127,14 @@ int SuperStakerItemWidget::position() const
 
 void SuperStakerItemWidget::updateLogo()
 {
-    if(!m_model || !m_clientModel)
+    if (!m_model || !m_clientModel)
         return;
 
-    if(m_model->node().shutdownRequested())
+    if (m_model->node().shutdownRequested())
         return;
 
     QString filename = d->staking_on ? ":/icons/staking_on" : ":/icons/staking_off";
-    if(m_filename != filename)
-    {
+    if (m_filename != filename) {
         m_filename = filename;
         QPixmap pixmap = m_platfromStyle->MultiStatesIcon(m_filename).pixmap(SUPERSTAKER_ITEM_ICONSIZE, SUPERSTAKER_ITEM_ICONSIZE);
         ui->superStakerLogo->setPixmap(pixmap);
@@ -143,8 +142,7 @@ void SuperStakerItemWidget::updateLogo()
 
     uint64_t nWeight = d->weight;
     uint64_t nDelegationsWeight = d->delegationsWeight;
-    if (d->staking_on && nWeight && nDelegationsWeight)
-    {
+    if (d->staking_on && nWeight && nDelegationsWeight) {
         uint64_t nNetworkWeight = m_model->node().getPoSKernelPS();
         int headersTipHeight = m_clientModel->getHeaderTipHeight();
         int64_t nTargetSpacing = Params().GetConsensus().TargetSpacing(headersTipHeight);
@@ -152,21 +150,14 @@ void SuperStakerItemWidget::updateLogo()
         unsigned nEstimateTime = nTargetSpacing * nNetworkWeight / nDelegationsWeight;
 
         QString text;
-        if (nEstimateTime < 60)
-        {
+        if (nEstimateTime < 60) {
             text = tr("%n second(s)", "", nEstimateTime);
-        }
-        else if (nEstimateTime < 60*60)
-        {
-            text = tr("%n minute(s)", "", nEstimateTime/60);
-        }
-        else if (nEstimateTime < 24*60*60)
-        {
-            text = tr("%n hour(s)", "", nEstimateTime/(60*60));
-        }
-        else
-        {
-            text = tr("%n day(s)", "", nEstimateTime/(60*60*24));
+        } else if (nEstimateTime < 60 * 60) {
+            text = tr("%n minute(s)", "", nEstimateTime / 60);
+        } else if (nEstimateTime < 24 * 60 * 60) {
+            text = tr("%n hour(s)", "", nEstimateTime / (60 * 60));
+        } else {
+            text = tr("%n day(s)", "", nEstimateTime / (60 * 60 * 24));
         }
 
         nWeight /= COIN;
@@ -174,9 +165,7 @@ void SuperStakerItemWidget::updateLogo()
         nDelegationsWeight /= COIN;
 
         ui->superStakerLogo->setToolTip(tr("Super staking.<br>Your weight is %1<br>Delegations weight is %2<br>Network weight is %3<br>Expected time to earn reward is %4").arg(nWeight).arg(nDelegationsWeight).arg(nNetworkWeight).arg(text));
-    }
-    else
-    {
+    } else {
         if (m_model->node().getNodeCount(ConnectionDirection::Both) == 0)
             ui->superStakerLogo->setToolTip(tr("Not staking because wallet is offline"));
         else if (m_model->node().isInitialBlockDownload())
@@ -189,24 +178,23 @@ void SuperStakerItemWidget::updateLogo()
             ui->superStakerLogo->setToolTip(tr("Not staking because you don't have mature delegated coins"));
         else if (m_model->wallet().isLocked())
             ui->superStakerLogo->setToolTip(tr("Not staking because wallet is locked"));
-        else if(m_model->hasLedgerProblem())
+        else if (m_model->hasLedgerProblem())
             ui->superStakerLogo->setToolTip(tr("Not staking because the ledger device failed to connect"));
         else
             ui->superStakerLogo->setToolTip(tr("Not staking"));
     }
 }
 
-void SuperStakerItemWidget::setModel(WalletModel *_model)
+void SuperStakerItemWidget::setModel(WalletModel* _model)
 {
     m_model = _model;
-    if(m_model && m_model->getOptionsModel())
-    {
+    if (m_model && m_model->getOptionsModel()) {
         connect(m_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SuperStakerItemWidget::updateDisplayUnit);
     }
     updateDisplayUnit();
 }
 
-void SuperStakerItemWidget::setClientModel(ClientModel *_clientModel)
+void SuperStakerItemWidget::setClientModel(ClientModel* _clientModel)
 {
     m_clientModel = _clientModel;
 }
@@ -219,7 +207,7 @@ void SuperStakerItemWidget::updateDisplayUnit()
 void SuperStakerItemWidget::updateBalance()
 {
     BitcoinUnit unit = BitcoinUnit::BTC;
-    if(m_model && m_model->getOptionsModel())
+    if (m_model && m_model->getOptionsModel())
         unit = m_model->getOptionsModel()->getDisplayUnit();
     ui->labelAssets->setText(BitcoinUnits::formatWithUnit(unit, d->balance, false, BitcoinUnits::SeparatorStyle::ALWAYS));
     ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, d->stake, false, BitcoinUnits::SeparatorStyle::ALWAYS));
@@ -229,10 +217,9 @@ void SuperStakerItemWidget::updateLabelStaker()
 {
     QString text = d->staker;
     QFontMetrics fm = ui->labelStaker->fontMetrics();
-    for(int i = d->staker.length(); i>3; i--)
-    {
+    for (int i = d->staker.length(); i > 3; i--) {
         text = GUIUtil::cutString(d->staker, i);
-        if(GUIUtil::TextWidth(fm, text) < SUPERSTAKER_STAKER_SIZE)
+        if (GUIUtil::TextWidth(fm, text) < SUPERSTAKER_STAKER_SIZE)
             break;
     }
     ui->labelStaker->setText(text);

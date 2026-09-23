@@ -1,12 +1,13 @@
 #ifndef ABIFUNCTIONFIELD_H
 #define ABIFUNCTIONFIELD_H
 
-#include <QWidget>
-#include <QStackedWidget>
+#include <qt/contractutil.h>
+
 #include <QComboBox>
 #include <QLabel>
+#include <QStackedWidget>
 #include <QVector>
-#include <qt/contractutil.h>
+#include <QWidget>
 
 class PlatformStyle;
 class ABIParamsField;
@@ -22,8 +23,7 @@ public:
     /**
      * @brief The FunctionType enum Function type to display
      */
-    enum FunctionType
-    {
+    enum FunctionType {
         Create,
         SendTo,
         Call
@@ -34,13 +34,13 @@ public:
      * @param type Function type to display
      * @param parent Parent windows for the GUI control
      */
-    ABIFunctionField(const PlatformStyle *platformStyle, FunctionType type, QWidget *parent = 0);
+    ABIFunctionField(const PlatformStyle* platformStyle, FunctionType type, QWidget* parent = 0);
 
     /**
      * @brief setContractABI Set the contract ABI (list of functions from the contract)
      * @param contractABI Contract ABI
      */
-    void setContractABI(ContractABI *contractABI);
+    void setContractABI(ContractABI* contractABI);
 
     /**
      * @brief getParamValue Get the value of the parameter with the id from the currently selected function
@@ -89,18 +89,18 @@ private:
     void clear();
 
 private:
-    ContractABI *m_contractABI;
-    QWidget *m_func;
-    QComboBox *m_comboBoxFunc;
+    ContractABI* m_contractABI;
+    QWidget* m_func;
+    QComboBox* m_comboBoxFunc;
     QLabel* m_labelFunction;
-    QStackedWidget *m_paramsField;
+    QStackedWidget* m_paramsField;
     QVector<int> m_abiFunctionList;
     FunctionType m_functionType;
-    const PlatformStyle *m_platformStyle;
+    const PlatformStyle* m_platformStyle;
 
     // QWidget interface
 protected:
-    void paintEvent(QPaintEvent *) override;
+    void paintEvent(QPaintEvent*) override;
 };
 
 #endif // ABIFUNCTIONFIELD_H

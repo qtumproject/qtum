@@ -2,16 +2,15 @@
 
 #include <base58.h>
 #include <consensus/consensus.h>
+#include <interfaces/wallet.h>
+#include <stdint.h>
 #include <validation.h>
 #include <wallet/wallet.h>
-#include <interfaces/wallet.h>
-
-#include <stdint.h>
 
 /*
  * Decompose CWallet transaction to model transaction records.
  */
-QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(interfaces::Wallet &wallet, const interfaces::TokenTx &wtx)
+QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(interfaces::Wallet& wallet, const interfaces::TokenTx& wtx)
 {
     // Initialize variables
     QList<TokenTransactionRecord> parts;
@@ -19,8 +18,7 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(inter
     uint256 debit;
     std::string tokenSymbol;
     uint8_t decimals = 18;
-    if(!wtx.value.IsNull() && wallet.getTokenTxDetails(wtx, credit, debit, tokenSymbol, decimals))
-    {
+    if (!wtx.value.IsNull() && wallet.getTokenTxDetails(wtx, credit, debit, tokenSymbol, decimals)) {
         // Get token transaction data
         TokenTransactionRecord rec;
         rec.time = wtx.time;
@@ -34,21 +32,15 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(inter
         dev::s256 net = rec.credit + rec.debit;
 
         // Determine type
-        if(net == 0)
-        {
+        if (net == 0) {
             rec.type = SendToSelf;
-        }
-        else if(net > 0)
-        {
-           rec.type = RecvWithAddress;
-        }
-        else
-        {
+        } else if (net > 0) {
+            rec.type = RecvWithAddress;
+        } else {
             rec.type = SendToAddress;
         }
 
-        if(net)
-        {
+        if (net) {
             rec.status.countsForBalance = true;
         }
 
@@ -66,7 +58,7 @@ QList<TokenTransactionRecord> TokenTransactionRecord::decomposeTransaction(inter
         }
 
         // Append record
-        if(rec.type != Other)
+        if (rec.type != Other)
             parts.append(rec);
     }
 
@@ -77,25 +69,17 @@ void TokenTransactionRecord::updateStatus(int block_number, int num_blocks)
 {
     // Determine transaction status
     status.cur_num_blocks = num_blocks;
-    if(block_number == -1)
-    {
+    if (block_number == -1) {
         status.depth = 0;
-    }
-    else
-    {
+    } else {
         status.depth = status.cur_num_blocks - block_number + 1;
     }
 
-    if (status.depth == 0)
-    {
+    if (status.depth == 0) {
         status.status = TokenTransactionStatus::Unconfirmed;
-    }
-    else if (status.depth < RecommendedNumConfirmations)
-    {
+    } else if (status.depth < RecommendedNumConfirmations) {
         status.status = TokenTransactionStatus::Confirming;
-    }
-    else
-    {
+    } else {
         status.status = TokenTransactionStatus::Confirmed;
     }
 }

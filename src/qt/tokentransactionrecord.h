@@ -11,22 +11,21 @@
 namespace interfaces {
 class Wallet;
 struct TokenTx;
-}
+} // namespace interfaces
 /** UI model for token transaction status. The token transaction status is the part of a token transaction that will change over time.
  */
 class TokenTransactionStatus
 {
 public:
-    TokenTransactionStatus():
-        countsForBalance(false), sortKey(""),
-        status(Unconfirmed), depth(0), cur_num_blocks(-1)
-    { }
+    TokenTransactionStatus() : countsForBalance(false), sortKey(""), status(Unconfirmed), depth(0), cur_num_blocks(-1)
+    {
+    }
 
     enum Status {
-        Confirmed,          /**< Have 6 or more confirmations (normal tx) or fully mature (mined tx) **/
+        Confirmed, /**< Have 6 or more confirmations (normal tx) or fully mature (mined tx) **/
         /// Normal (sent/received) token transactions
-        Unconfirmed,        /**< Not yet mined into a block **/
-        Confirming         /**< Confirmed, but waiting for the recommended number of confirmations **/
+        Unconfirmed, /**< Not yet mined into a block **/
+        Confirming   /**< Confirmed, but waiting for the recommended number of confirmations **/
     };
 
     /// Token transaction counts towards available balance
@@ -51,8 +50,7 @@ public:
 class TokenTransactionRecord
 {
 public:
-    enum Type
-    {
+    enum Type {
         Other,
         SendToAddress,
         SendToOther,
@@ -64,14 +62,13 @@ public:
     /** Number of confirmation recommended for accepting a token transaction */
     static const int RecommendedNumConfirmations = 10;
 
-    TokenTransactionRecord():
-            hash(), txid(), time(0), type(Other), address(""), debit(0), credit(0), label("")
+    TokenTransactionRecord() : hash(), txid(), time(0), type(Other), address(""), debit(0), credit(0), label("")
     {
     }
 
     /** Decompose Token transaction into a record.
      */
-    static QList<TokenTransactionRecord> decomposeTransaction(interfaces::Wallet &wallet, const interfaces::TokenTx &wtx);
+    static QList<TokenTransactionRecord> decomposeTransaction(interfaces::Wallet& wallet, const interfaces::TokenTx& wtx);
 
     /** @name Immutable token transaction attributes
       @{*/

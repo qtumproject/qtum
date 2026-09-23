@@ -1,8 +1,4 @@
-#include <boost/test/unit_test.hpp>
-#include <test/util/setup_common.h>
-#include <validation.h>
 #include <chainparams.h>
-#include <test/qtumtests/precompiled_utils.h>
 #include <test/qtumtests/data/secp256r1_k_and_s.json.h>
 #include <test/qtumtests/data/secp256r1_modified_r_s.json.h>
 #include <test/qtumtests/data/secp256r1_public_key.json.h>
@@ -13,15 +9,21 @@
 #include <test/qtumtests/data/secp256r1_special_case_r_s.json.h>
 #include <test/qtumtests/data/secp256r1_special_points.json.h>
 #include <test/qtumtests/data/secp256r1_u1_u2.json.h>
+#include <test/qtumtests/precompiled_utils.h>
+#include <test/util/setup_common.h>
+#include <validation.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <span>
 
 // Tests for EIP-7951
-namespace Secp256r1Test{
+namespace Secp256r1Test {
 
 BOOST_FIXTURE_TEST_SUITE(secp256r1_tests, TestChain100Setup)
 
-BOOST_AUTO_TEST_CASE(checking_p256verify){
+BOOST_AUTO_TEST_CASE(checking_p256verify)
+{
     // Call p256verify 0x100
     dev::eth::ChainOperationParams const& params = globalSealEngine->chainParams();
     dev::u256 blockNumber = 0;
@@ -43,4 +45,4 @@ BOOST_AUTO_TEST_CASE(checking_p256verify){
 
 BOOST_AUTO_TEST_SUITE_END()
 
-}
+} // namespace Secp256r1Test

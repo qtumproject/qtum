@@ -1,9 +1,10 @@
 #ifndef QTUMTESTS_PRECOMPILED_UTILS_H
 #define QTUMTESTS_PRECOMPILED_UTILS_H
 
-#include <boost/test/unit_test.hpp>
-#include <univalue.h>
 #include <libethcore/Precompiled.h>
+#include <univalue.h>
+
+#include <boost/test/unit_test.hpp>
 
 /**
  * @brief The PrecompiledTester class Tester for precompiled ETH contracts
@@ -20,10 +21,9 @@ public:
     PrecompiledTester(const std::string& _name,
                       const dev::eth::ChainOperationParams& _chainParams,
                       const dev::u256& _blockNumber,
-                      const std::string& gasSuffix = std::string()):
-        chainParams(_chainParams),
-        blockNumber(_blockNumber),
-        callName(_name)
+                      const std::string& gasSuffix = std::string()) : chainParams(_chainParams),
+                                                                      blockNumber(_blockNumber),
+                                                                      callName(_name)
     {
         // Get the executor and gas pricer for the precompiled contract
         exec = dev::eth::PrecompiledRegistrar::executor(_name);
@@ -44,11 +44,9 @@ public:
         BOOST_CHECK_MESSAGE(exec, strprintf("Executor not found for precompiled contract %s", callName));
         BOOST_CHECK_MESSAGE(cost, strprintf("Pricer not found for precompiled contract %s", callName));
 
-        if(exec && cost)
-        {
+        if (exec && cost) {
             // Perform the tests
-            for (unsigned int idx = 0; idx < json_tests.size(); idx++)
-            {
+            for (unsigned int idx = 0; idx < json_tests.size(); idx++) {
                 // Get the test data
                 const UniValue& tv = json_tests[idx];
                 std::string strInput = tv["Input"].get_str();
@@ -56,7 +54,7 @@ public:
                 std::string strName = tv["Name"].get_str();
                 int gas = tv[gasName].getInt<int>();
                 bool result = true;
-                if(tv.exists("Result"))
+                if (tv.exists("Result"))
                     result = tv["Result"].get_bool();
 
                 dev::bytes in = dev::fromHex(strInput);
@@ -89,8 +87,7 @@ private:
     {
         UniValue v;
 
-        if (!v.read(jsondata) || !v.isArray())
-        {
+        if (!v.read(jsondata) || !v.isArray()) {
             BOOST_ERROR("Parse error.");
             return UniValue(UniValue::VARR);
         }
@@ -105,12 +102,12 @@ private:
     std::string gasName;
 };
 
-#define RunPrecompiledTestsBase(contract, data, params, blockNumber, gasSuffix)\
-    do {\
-        std::string name = #contract;\
-        PrecompiledTester tester(name, params, blockNumber, gasSuffix);\
-        tester.performTests(json_tests::data);\
-    } while(false)
+#define RunPrecompiledTestsBase(contract, data, params, blockNumber, gasSuffix) \
+    do {                                                                        \
+        std::string name = #contract;                                           \
+        PrecompiledTester tester(name, params, blockNumber, gasSuffix);         \
+        tester.performTests(json_tests::data);                                  \
+    } while (false)
 
 #define RunPrecompiledTests(contract, data, params, blockNumber) RunPrecompiledTestsBase(contract, data, params, blockNumber, "")
 

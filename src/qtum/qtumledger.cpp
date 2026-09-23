@@ -1,11 +1,12 @@
 #include <qtum/qtumledger.h>
-#include <common/system.h>
+
 #include <chainparams.h>
-#include <univalue.h>
-#include <util/strencodings.h>
-#include <pubkey.h>
+#include <common/system.h>
 #include <logging.h>
 #include <outputtype.h>
+#include <pubkey.h>
+#include <univalue.h>
+#include <util/strencodings.h>
 #if defined(WIN32) && !defined(__kernel_entry)
 // A workaround for boost 1.71 incompatibility with mingw-w64 compiler.
 // For details see https://github.com/bitcoin/bitcoin/pull/22348.
@@ -14,19 +15,21 @@
 #include <boost/process/v2/process.hpp>
 #include <boost/process/v2/stdio.hpp>
 #ifdef WIN32
-#include <boost/process/v2/windows/creation_flags.hpp>
 #include <windows.h>
+
+#include <boost/process/v2/windows/creation_flags.hpp>
 #endif
-#include <boost/asio.hpp>
-#include <boost/system/error_code.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
-#include <univalue.h>
 #include <common/args.h>
+#include <univalue.h>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/asio.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/system/error_code.hpp>
 
 #include <cstdlib>
-#include <string>
 #include <filesystem>
+#include <string>
 
 RecursiveMutex cs_ledger;
 
@@ -43,7 +46,7 @@ UniValue json_read_doc(const std::string& jsondata)
 UniValue json_get_object(const UniValue& jsondata)
 {
     UniValue v(UniValue::VOBJ);
-    if(jsondata.isObject())
+    if (jsondata.isObject())
         v = jsondata.get_obj();
     return v;
 }
@@ -52,7 +55,7 @@ UniValue json_get_object(const UniValue& jsondata)
 UniValue json_get_array(const UniValue& jsondata)
 {
     UniValue v(UniValue::VARR);
-    if(jsondata.isArray())
+    if (jsondata.isArray())
         v = jsondata.get_array();
     return v;
 }
@@ -61,10 +64,9 @@ UniValue json_get_array(const UniValue& jsondata)
 std::string json_get_key_string(const UniValue& jsondata, std::string key)
 {
     UniValue v(UniValue::VSTR);
-    if(jsondata.exists(key))
-    {
+    if (jsondata.exists(key)) {
         UniValue data = jsondata[key];
-        if(data.isStr())
+        if (data.isStr())
             v = data;
     }
 
@@ -75,10 +77,9 @@ std::string json_get_key_string(const UniValue& jsondata, std::string key)
 int json_get_key_int(const UniValue& jsondata, std::string key)
 {
     UniValue v(0);
-    if(jsondata.exists(key))
-    {
+    if (jsondata.exists(key)) {
         UniValue data = jsondata[key];
-        if(data.isNum())
+        if (data.isNum())
             v = data;
     }
 
@@ -119,14 +120,14 @@ std::vector<std::string>& operator<<(std::vector<std::string>& os, const std::st
 // Check suffix
 bool endsWith(const std::string& str, const std::string& suffix)
 {
-    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
+    return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
 }
 
 // Check if the path is to python executable
 bool isPyPath(const std::string& str)
 {
     std::size_t found = str.find("python");
-    return found!=std::string::npos;
+    return found != std::string::npos;
 }
 
 // Start process from qtumd
@@ -139,7 +140,7 @@ public:
     }
 
     // Set process params
-    void start(const std::string& prog, const std::vector<std::string> &arg)
+    void start(const std::string& prog, const std::vector<std::string>& arg)
     {
         clean();
         m_program = prog;
@@ -149,8 +150,7 @@ public:
     // Start and wait for it to finish
     void waitForFinished()
     {
-        try
-        {
+        try {
             boost::asio::io_context svc;
 
             // streambufs to hold captured output
@@ -163,9 +163,10 @@ public:
             namespace bp = boost::process::v2;
 
             bp::process child(
-                svc, m_program, m_arguments, bp::process_stdio{ nullptr, out_pipe, err_pipe }
+                svc, m_program, m_arguments, bp::process_stdio{nullptr, out_pipe, err_pipe}
 #ifdef WIN32
-                , bp::windows::process_creation_flags<CREATE_NO_WINDOW>{}
+                ,
+                bp::windows::process_creation_flags<CREATE_NO_WINDOW>{}
 #endif
             );
 
@@ -180,9 +181,7 @@ public:
             // Convert streambuf -> std::string
             m_std_out = toString(out);
             m_std_err = toString(err);
-        }
-        catch (...)
-        {
+        } catch (...) {
             m_std_err = std::string("Fail to create process for: ") + m_program;
         }
     }
@@ -223,7 +222,7 @@ private:
     std::string m_std_out;
     std::string m_std_err;
 };
-}
+} // namespace QtumLedger_NS
 using namespace QtumLedger_NS;
 
 class QtumLedgerPriv
@@ -235,20 +234,19 @@ public:
         toolExists = boost::filesystem::exists(toolPath);
         initToolPath();
 
-        if(gArgs.GetChainType() != ChainType::MAIN)
-        {
+        if (gArgs.GetChainType() != ChainType::MAIN) {
             ledgerMainPath = false;
         }
 
         arguments << "--chain" << gArgs.GetChainTypeString();
 
-        if(!toolExists)
-        {
+        if (!toolExists) {
             LogInfo("QtumLedger(): HWI tool not found %s\n", toolPath);
         }
     }
 
-    std::string search_path(const std::string& exe) {
+    std::string search_path(const std::string& exe)
+    {
         const char* path_env = std::getenv("PATH");
         if (!path_env) return {};
 
@@ -284,8 +282,7 @@ public:
     {
         toolPath = search_path(pythonProgram);
         toolExists &= isPyPath(toolPath);
-        if(!toolExists)
-        {
+        if (!toolExists) {
             std::string prog = search_path("cmd");
             std::vector<std::string> arg;
             arg << "/c" << pythonProgram << "-c" << "import sys; print(sys.executable)";
@@ -306,15 +303,13 @@ public:
 #ifdef WIN32
         needInit = true;
 #endif
-        if (needInit)
-        {
-            if(endsWith(toolPath, ".py") ||
-                    endsWith(toolPath, ".PY") ||
-                    endsWith(toolPath, ".Py") ||
-                    endsWith(toolPath, ".pY"))
-            {
+        if (needInit) {
+            if (endsWith(toolPath, ".py") ||
+                endsWith(toolPath, ".PY") ||
+                endsWith(toolPath, ".Py") ||
+                endsWith(toolPath, ".pY")) {
                 arguments << toolPath;
-                if(!getToolPath("python3"))
+                if (!getToolPath("python3"))
                     getToolPath("python");
             }
         }
@@ -330,37 +325,36 @@ public:
     bool ledgerMainPath = true;
 };
 
-QtumLedger::QtumLedger():
-    d(0)
+QtumLedger::QtumLedger() : d(0)
 {
     d = new QtumLedgerPriv();
 }
 
 QtumLedger::~QtumLedger()
 {
-    if(d)
+    if (d)
         delete d;
     d = 0;
 }
 
-QtumLedger &QtumLedger::instance()
+QtumLedger& QtumLedger::instance()
 {
     static QtumLedger device;
     return device;
 }
 
-bool QtumLedger::signCoinStake(const std::string &fingerprint, std::string &psbt)
+bool QtumLedger::signCoinStake(const std::string& fingerprint, std::string& psbt)
 {
     LOCK(cs_ledger);
     // Check if tool exists
-    if(!toolExists())
+    if (!toolExists())
         return false;
 
     // Sign PSBT transaction
-    if(isStarted())
+    if (isStarted())
         return false;
 
-    if(!beginSignTx(fingerprint, psbt))
+    if (!beginSignTx(fingerprint, psbt))
         return false;
 
     wait();
@@ -368,18 +362,18 @@ bool QtumLedger::signCoinStake(const std::string &fingerprint, std::string &psbt
     return endSignTx(fingerprint, psbt);
 }
 
-bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::string &header, const std::string &path, std::vector<unsigned char> &vchSig)
+bool QtumLedger::signBlockHeader(const std::string& fingerprint, const std::string& header, const std::string& path, std::vector<unsigned char>& vchSig)
 {
     LOCK(cs_ledger);
     // Check if tool exists
-    if(!toolExists())
+    if (!toolExists())
         return false;
 
     // Sign block header
-    if(isStarted())
+    if (isStarted())
         return false;
 
-    if(!beginSignBlockHeader(fingerprint, header, path, vchSig))
+    if (!beginSignBlockHeader(fingerprint, header, path, vchSig))
         return false;
 
     wait();
@@ -387,15 +381,13 @@ bool QtumLedger::signBlockHeader(const std::string &fingerprint, const std::stri
     return endSignBlockHeader(fingerprint, header, path, vchSig);
 }
 
-bool QtumLedger::isConnected(const std::string &fingerprint, bool stake)
+bool QtumLedger::isConnected(const std::string& fingerprint, bool stake)
 {
     // Check if a device is connected
     std::vector<LedgerDevice> devices;
-    if(enumerate(devices, stake))
-    {
-        for(LedgerDevice device: devices)
-        {
-            if(device.fingerprint == fingerprint)
+    if (enumerate(devices, stake)) {
+        for (LedgerDevice device : devices) {
+            if (device.fingerprint == fingerprint)
                 return true;
         }
     }
@@ -403,18 +395,18 @@ bool QtumLedger::isConnected(const std::string &fingerprint, bool stake)
     return false;
 }
 
-bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices, bool stake)
+bool QtumLedger::enumerate(std::vector<LedgerDevice>& devices, bool stake)
 {
     LOCK(cs_ledger);
     // Check if tool exists
-    if(!toolExists())
+    if (!toolExists())
         return false;
 
     // Enumerate hardware wallet devices
-    if(isStarted())
+    if (isStarted())
         return false;
 
-    if(!beginEnumerate(devices))
+    if (!beginEnumerate(devices))
         return false;
 
     wait();
@@ -422,18 +414,18 @@ bool QtumLedger::enumerate(std::vector<LedgerDevice> &devices, bool stake)
     return endEnumerate(devices, stake);
 }
 
-bool QtumLedger::signTx(const std::string &fingerprint, std::string &psbt)
+bool QtumLedger::signTx(const std::string& fingerprint, std::string& psbt)
 {
     LOCK(cs_ledger);
     // Check if tool exists
-    if(!toolExists())
+    if (!toolExists())
         return false;
 
     // Sign PSBT transaction
-    if(isStarted())
+    if (isStarted())
         return false;
 
-    if(!beginSignTx(fingerprint, psbt))
+    if (!beginSignTx(fingerprint, psbt))
         return false;
 
     wait();
@@ -441,18 +433,18 @@ bool QtumLedger::signTx(const std::string &fingerprint, std::string &psbt)
     return endSignTx(fingerprint, psbt);
 }
 
-bool QtumLedger::signMessage(const std::string &fingerprint, const std::string &message, const std::string &path, std::string &signature)
+bool QtumLedger::signMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string& signature)
 {
     LOCK(cs_ledger);
     // Check if tool exists
-    if(!toolExists())
+    if (!toolExists())
         return false;
 
     // Sign message
-    if(isStarted())
+    if (isStarted())
         return false;
 
-    if(!beginSignMessage(fingerprint, message, path, signature))
+    if (!beginSignMessage(fingerprint, message, path, signature))
         return false;
 
     wait();
@@ -460,18 +452,18 @@ bool QtumLedger::signMessage(const std::string &fingerprint, const std::string &
     return endSignMessage(fingerprint, message, path, signature);
 }
 
-bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string &desc)
+bool QtumLedger::getKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string& desc)
 {
     LOCK(cs_ledger);
     // Check if tool exists
-    if(!toolExists())
+    if (!toolExists())
         return false;
 
     // Get the key pool for a device
-    if(isStarted())
+    if (isStarted())
         return false;
 
-    if(!beginGetKeyPool(fingerprint, type, path, internal, from, to, desc))
+    if (!beginGetKeyPool(fingerprint, type, path, internal, from, to, desc))
         return false;
 
     wait();
@@ -479,18 +471,18 @@ bool QtumLedger::getKeyPool(const std::string &fingerprint, int type, const std:
     return endGetKeyPool(fingerprint, type, path, internal, from, to, desc);
 }
 
-bool QtumLedger::displayAddress(const std::string &fingerprint, const std::string &desc, std::string &address)
+bool QtumLedger::displayAddress(const std::string& fingerprint, const std::string& desc, std::string& address)
 {
     LOCK(cs_ledger);
     // Check if tool exists
-    if(!toolExists())
+    if (!toolExists())
         return false;
 
     // Display address on device
-    if(isStarted())
+    if (isStarted())
         return false;
 
-    if(!beginDisplayAddress(fingerprint, desc))
+    if (!beginDisplayAddress(fingerprint, desc))
         return false;
 
     wait();
@@ -498,18 +490,18 @@ bool QtumLedger::displayAddress(const std::string &fingerprint, const std::strin
     return endDisplayAddress(address);
 }
 
-bool QtumLedger::displayAddress(const std::string &fingerprint, int type, const std::string &path, std::string &address)
+bool QtumLedger::displayAddress(const std::string& fingerprint, int type, const std::string& path, std::string& address)
 {
     LOCK(cs_ledger);
     // Check if tool exists
-    if(!toolExists())
+    if (!toolExists())
         return false;
 
     // Display address on device
-    if(isStarted())
+    if (isStarted())
         return false;
 
-    if(!beginDisplayAddress(fingerprint, type, path))
+    if (!beginDisplayAddress(fingerprint, type, path))
         return false;
 
     wait();
@@ -520,21 +512,18 @@ bool QtumLedger::displayAddress(const std::string &fingerprint, int type, const 
 std::string QtumLedger::errorMessage()
 {
     LOCK(cs_ledger);
-    if(d->strError.empty() == false)
+    if (d->strError.empty() == false)
         return d->strError;
-    if(d->strStdout.empty() == false)
-    {
-        try
-        {
+    if (d->strStdout.empty() == false) {
+        try {
             UniValue jsonDocument = json_read_doc(d->strStdout);
             UniValue data = json_get_object(jsonDocument);
             std::string error = json_get_key_string(data, "error");
             int code = json_get_key_int(data, "code");
-            if(data.exists("error") || data.exists("code"))
+            if (data.exists("error") || data.exists("code"))
                 return strprintf("Error: %s, Code: %d", error, code);
+        } catch (...) {
         }
-        catch(...)
-        {}
     }
     return "unknown error";
 }
@@ -551,8 +540,7 @@ bool QtumLedger::isStarted()
 
 void QtumLedger::wait()
 {
-    if(d->fStarted)
-    {
+    if (d->fStarted) {
         d->process.waitForFinished();
         d->strStdout = d->process.readAllStandardOutput();
         d->strError = d->process.readAllStandardError();
@@ -560,7 +548,7 @@ void QtumLedger::wait()
     }
 }
 
-bool QtumLedger::beginSignTx(const std::string &fingerprint, std::string &psbt)
+bool QtumLedger::beginSignTx(const std::string& fingerprint, std::string& psbt)
 {
     // Execute command line
     std::vector<std::string> arguments = d->arguments;
@@ -571,14 +559,13 @@ bool QtumLedger::beginSignTx(const std::string &fingerprint, std::string &psbt)
     return d->fStarted;
 }
 
-bool QtumLedger::endSignTx(const std::string &, std::string &psbt)
+bool QtumLedger::endSignTx(const std::string&, std::string& psbt)
 {
     // Decode command line results
     UniValue jsonDocument = json_read_doc(d->strStdout);
     UniValue data = json_get_object(jsonDocument);
     std::string psbtSigned = json_get_key_string(data, "psbt");
-    if(!psbtSigned.empty())
-    {
+    if (!psbtSigned.empty()) {
         psbt = psbtSigned;
         return true;
     }
@@ -586,7 +573,7 @@ bool QtumLedger::endSignTx(const std::string &, std::string &psbt)
     return false;
 }
 
-bool QtumLedger::beginSignBlockHeader(const std::string &fingerprint, const std::string &header, const std::string &path, std::vector<unsigned char> &)
+bool QtumLedger::beginSignBlockHeader(const std::string& fingerprint, const std::string& header, const std::string& path, std::vector<unsigned char>&)
 {
     // Execute command line
     std::vector<std::string> arguments = d->arguments;
@@ -597,24 +584,23 @@ bool QtumLedger::beginSignBlockHeader(const std::string &fingerprint, const std:
     return d->fStarted;
 }
 
-bool QtumLedger::endSignBlockHeader(const std::string &, const std::string &, const std::string &, std::vector<unsigned char> &vchSig)
+bool QtumLedger::endSignBlockHeader(const std::string&, const std::string&, const std::string&, std::vector<unsigned char>& vchSig)
 {
     // Decode command line results
     UniValue jsonDocument = json_read_doc(d->strStdout);
     UniValue data = json_get_object(jsonDocument);
     std::string headerSigned = json_get_key_string(data, "signature");
     vchSig.clear();
-    if(!headerSigned.empty())
-    {
+    if (!headerSigned.empty()) {
         auto sig = DecodeBase64(headerSigned.c_str());
-        if(sig) vchSig = *sig;
+        if (sig) vchSig = *sig;
         return vchSig.size() == CPubKey::COMPACT_SIGNATURE_SIZE;
     }
 
     return false;
 }
 
-bool QtumLedger::beginEnumerate(std::vector<LedgerDevice> &)
+bool QtumLedger::beginEnumerate(std::vector<LedgerDevice>&)
 {
     // Execute command line
     std::vector<std::string> arguments = d->arguments;
@@ -625,15 +611,14 @@ bool QtumLedger::beginEnumerate(std::vector<LedgerDevice> &)
     return d->fStarted;
 }
 
-bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices, bool stake)
+bool QtumLedger::endEnumerate(std::vector<LedgerDevice>& devices, bool stake)
 {
     // Decode command line results
     UniValue jsonDocument = json_read_doc(d->strStdout);
     UniValue jsonDevices = json_get_array(jsonDocument);
-    for(size_t i = 0; i < jsonDevices.size(); i++)
-    {
+    for (size_t i = 0; i < jsonDevices.size(); i++) {
         const UniValue& jsonDevice = jsonDevices[i];
-        if(!jsonDevice.isObject())
+        if (!jsonDevice.isObject())
             return false;
 
         // Get device info
@@ -648,8 +633,7 @@ bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices, bool stake)
         device.code = json_get_key_string(data, "code");
         device.app_name = json_get_key_string(data, "app_name");
         bool isStakeApp = device.app_name == "Qtum Stake" || device.app_name == "Qtum Stake Test";
-        if(isStakeApp == stake)
-        {
+        if (isStakeApp == stake) {
             devices.push_back(device);
         }
     }
@@ -657,7 +641,7 @@ bool QtumLedger::endEnumerate(std::vector<LedgerDevice> &devices, bool stake)
     return devices.size() > 0;
 }
 
-bool QtumLedger::beginSignMessage(const std::string &fingerprint, const std::string &message, const std::string &path, std::string &)
+bool QtumLedger::beginSignMessage(const std::string& fingerprint, const std::string& message, const std::string& path, std::string&)
 {
     // Execute command line
     std::vector<std::string> arguments = d->arguments;
@@ -668,14 +652,13 @@ bool QtumLedger::beginSignMessage(const std::string &fingerprint, const std::str
     return d->fStarted;
 }
 
-bool QtumLedger::endSignMessage(const std::string &, const std::string &, const std::string &, std::string &signature)
+bool QtumLedger::endSignMessage(const std::string&, const std::string&, const std::string&, std::string& signature)
 {
     // Decode command line results
     UniValue jsonDocument = json_read_doc(d->strStdout);
     UniValue data = json_get_object(jsonDocument);
     std::string msgSigned = json_get_key_string(data, "signature");
-    if(!msgSigned.empty())
-    {
+    if (!msgSigned.empty()) {
         signature = msgSigned;
         return true;
     }
@@ -683,7 +666,7 @@ bool QtumLedger::endSignMessage(const std::string &, const std::string &, const 
     return false;
 }
 
-bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string &)
+bool QtumLedger::beginGetKeyPool(const std::string& fingerprint, int type, const std::string& path, bool internal, int from, int to, std::string&)
 {
     // Get the output type
     std::string descType = get_address_type(type);
@@ -691,13 +674,11 @@ bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const
     // Execute command line
     std::vector<std::string> arguments = d->arguments;
     arguments << "-f" << fingerprint << "getkeypool";
-    if(descType != "")
+    if (descType != "")
         arguments << "--addr-type" << descType;
-    if(path != "")
-    {
+    if (path != "") {
         arguments << "--path" << path;
-        if(internal)
-        {
+        if (internal) {
             arguments << "--internal";
         }
     }
@@ -708,20 +689,20 @@ bool QtumLedger::beginGetKeyPool(const std::string &fingerprint, int type, const
     return d->fStarted;
 }
 
-bool QtumLedger::endGetKeyPool(const std::string &, int type, const std::string& , bool, int, int, std::string &desc)
+bool QtumLedger::endGetKeyPool(const std::string&, int type, const std::string&, bool, int, int, std::string& desc)
 {
     // Decode command line results
-    bool ret = d->strStdout.find("desc")!=std::string::npos;
+    bool ret = d->strStdout.find("desc") != std::string::npos;
     desc = d->strStdout;
 
     // Import both PK and PKH descriptors for legacy address in descriptor wallet
-    if(type == (int)OutputType::P2PK || type == (int)OutputType::LEGACY) {
+    if (type == (int)OutputType::P2PK || type == (int)OutputType::LEGACY) {
         UniValue items;
-        if(items.read(desc)) {
-            if(items.isArray()) {
-                for(size_t i = 0; i < items.size(); i++) {
-                    UniValue& item = (UniValue&) items[i];
-                    if(item.isObject()) item.pushKV("importforstaking", true);
+        if (items.read(desc)) {
+            if (items.isArray()) {
+                for (size_t i = 0; i < items.size(); i++) {
+                    UniValue& item = (UniValue&)items[i];
+                    if (item.isObject()) item.pushKV("importforstaking", true);
                 }
                 desc = items.write();
             }
@@ -731,7 +712,7 @@ bool QtumLedger::endGetKeyPool(const std::string &, int type, const std::string&
     return ret;
 }
 
-bool QtumLedger::beginDisplayAddress(const std::string &fingerprint, int type, const std::string& path)
+bool QtumLedger::beginDisplayAddress(const std::string& fingerprint, int type, const std::string& path)
 {
     // Get the output type
     std::string descType = get_address_type(type);
@@ -745,7 +726,7 @@ bool QtumLedger::beginDisplayAddress(const std::string &fingerprint, int type, c
     return d->fStarted;
 }
 
-bool QtumLedger::beginDisplayAddress(const std::string &fingerprint, const std::string &desc)
+bool QtumLedger::beginDisplayAddress(const std::string& fingerprint, const std::string& desc)
 {
     // Execute command line
     std::vector<std::string> arguments = d->arguments;
@@ -756,14 +737,13 @@ bool QtumLedger::beginDisplayAddress(const std::string &fingerprint, const std::
     return d->fStarted;
 }
 
-bool QtumLedger::endDisplayAddress(std::string &address)
+bool QtumLedger::endDisplayAddress(std::string& address)
 {
     // Decode command line results
     UniValue jsonDocument = json_read_doc(d->strStdout);
     UniValue data = json_get_object(jsonDocument);
     std::string strAddress = json_get_key_string(data, "address");
-    if(!strAddress.empty())
-    {
+    if (!strAddress.empty()) {
         address = strAddress;
         return true;
     }
@@ -774,8 +754,7 @@ bool QtumLedger::endDisplayAddress(std::string &address)
 std::string QtumLedger::derivationPath(int type)
 {
     std::string derivPath;
-    if(d->ledgerMainPath)
-    {
+    if (d->ledgerMainPath) {
         switch (type) {
         case (int)OutputType::P2SH_SEGWIT:
             derivPath = "m/49'/88'/0'";
@@ -793,9 +772,7 @@ std::string QtumLedger::derivationPath(int type)
         default:
             break;
         }
-    }
-    else
-    {
+    } else {
         switch (type) {
         case (int)OutputType::P2SH_SEGWIT:
             derivPath = "m/49'/1'/0'";

@@ -1,12 +1,13 @@
 #ifndef CONTRACTPARAMFIELD_H
 #define CONTRACTPARAMFIELD_H
 
-#include <QWidget>
+#include <qt/abiparamitem.h>
+#include <qt/contractutil.h>
+#include <qt/qvalidatedlineedit.h>
+
 #include <QLabel>
 #include <QVBoxLayout>
-#include <qt/qvalidatedlineedit.h>
-#include <qt/contractutil.h>
-#include <qt/abiparamitem.h>
+#include <QWidget>
 
 class PlatformStyle;
 class ParameterABI;
@@ -24,7 +25,7 @@ public:
      * @param param Value of the parameter
      * @param parent Parent windows for the GUI control
      */
-    explicit ABIParam(const PlatformStyle *platformStyle, int ID, const ParameterABI &param, QWidget *parent = 0);
+    explicit ABIParam(const PlatformStyle* platformStyle, int ID, const ParameterABI& param, QWidget* parent = 0);
 
     /**
      * @brief getValue Get the value of the parameter
@@ -43,14 +44,14 @@ public Q_SLOTS:
 
 private:
     int m_ParamID;
-    QLabel *m_paramName;
-    QHBoxLayout *m_mainLayout;
-    QVBoxLayout *m_paramItemsLayout;
+    QLabel* m_paramName;
+    QHBoxLayout* m_mainLayout;
+    QVBoxLayout* m_paramItemsLayout;
     ParameterABI m_param;
     QList<ABIParamItem*> m_listParamItems;
-    const PlatformStyle *m_platformStyle;
-    QSpacerItem *m_vSpacer;
-    QSpacerItem *m_hSpacer;
+    const PlatformStyle* m_platformStyle;
+    QSpacerItem* m_vSpacer;
+    QSpacerItem* m_hSpacer;
 };
 
 #endif // CONTRACTPARAMFIELD_H

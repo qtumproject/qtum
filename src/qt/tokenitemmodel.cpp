@@ -1,27 +1,30 @@
 #include <qt/tokenitemmodel.h>
+
+#include <chainparams.h>
+#include <consensus/consensus.h>
+#include <interfaces/handler.h>
+#include <interfaces/node.h>
+#include <interfaces/wallet.h>
+#include <qt/bitcoinunits.h>
 #include <qt/token.h>
 #include <qt/walletmodel.h>
-#include <interfaces/wallet.h>
 #include <validation.h>
-#include <qt/bitcoinunits.h>
-#include <interfaces/node.h>
-#include <interfaces/handler.h>
-#include <algorithm>
-#include <consensus/consensus.h>
-#include <chainparams.h>
 
 #include <QDateTime>
-#include <QFont>
 #include <QDebug>
+#include <QFont>
 #include <QThread>
+
+#include <algorithm>
 
 class TokenItemEntry
 {
 public:
     TokenItemEntry()
-    {}
+    {
+    }
 
-    TokenItemEntry(const interfaces::TokenInfo &tokenInfo)
+    TokenItemEntry(const interfaces::TokenInfo& tokenInfo)
     {
         hash = tokenInfo.hash;
         createTime.setSecsSinceEpoch(tokenInfo.time);
@@ -32,7 +35,7 @@ public:
         senderAddress = QString::fromStdString(tokenInfo.sender_address);
     }
 
-    TokenItemEntry( const TokenItemEntry &obj)
+    TokenItemEntry(const TokenItemEntry& obj)
     {
         hash = obj.hash;
         createTime = obj.createTime;
@@ -45,7 +48,8 @@ public:
     }
 
     ~TokenItemEntry()
-    {}
+    {
+    }
 
     uint256 hash;
     QDateTime createTime;
@@ -61,16 +65,15 @@ class TokenTxWorker : public QObject
 {
     Q_OBJECT
 public:
-    WalletModel *walletModel;
+    WalletModel* walletModel;
     bool first;
     Token tokenAbi;
-    TokenTxWorker(WalletModel *_walletModel):
-        walletModel(_walletModel), first(true) {}
+    TokenTxWorker(WalletModel* _walletModel) : walletModel(_walletModel), first(true) {}
 
 private Q_SLOTS:
-    void updateTokenTx(const QString &hash)
+    void updateTokenTx(const QString& hash)
     {
-        if(walletModel && walletModel->node().shutdownRequested())
+        if (walletModel && walletModel->node().shutdownRequested())
             return;
 
         // Initialize variables
@@ -88,30 +91,22 @@ private Q_SLOTS:
         toBlock = walletModel->node().getNumBlocks();
         blockHash = walletModel->node().getBlockHash(toBlock);
 
-        if(toBlock > -1)
-        {
+        if (toBlock > -1) {
             // Find the token tx in the wallet
             tokenInfo = walletModel->wallet().getToken(tokenHash);
             found = tokenInfo.hash == tokenHash;
-            if(found)
-            {
+            if (found) {
                 // Get the start location for search the event log
-                if(tokenInfo.block_number < toBlock)
-                {
-                    if(walletModel->node().getBlockHash(tokenInfo.block_number) == tokenInfo.block_hash)
-                    {
+                if (tokenInfo.block_number < toBlock) {
+                    if (walletModel->node().getBlockHash(tokenInfo.block_number) == tokenInfo.block_hash) {
                         fromBlock = tokenInfo.block_number;
-                    }
-                    else
-                    {
+                    } else {
                         fromBlock = tokenInfo.block_number - backInPast;
                     }
-                }
-                else
-                {
+                } else {
                     fromBlock = toBlock - backInPast;
                 }
-                if(fromBlock < 0)
+                if (fromBlock < 0)
                     fromBlock = 0;
 
                 tokenInfo.block_hash = blockHash;
@@ -119,16 +114,14 @@ private Q_SLOTS:
             }
         }
 
-        if(found)
-        {
+        if (found) {
             // List the events and update the token tx
             std::vector<TokenEvent> tokenEvents;
             tokenAbi.setAddress(tokenInfo.contract_address);
             tokenAbi.setSender(tokenInfo.sender_address);
             tokenAbi.transferEvents(tokenEvents, fromBlock, toBlock);
             tokenAbi.burnEvents(tokenEvents, fromBlock, toBlock);
-            for(size_t i = 0; i < tokenEvents.size(); i++)
-            {
+            for (size_t i = 0; i < tokenEvents.size(); i++) {
                 TokenEvent event = tokenEvents[i];
                 interfaces::TokenTx tokenTx;
                 tokenTx.contract_address = event.address;
@@ -147,22 +140,21 @@ private Q_SLOTS:
 
     void cleanTokenTxEntries()
     {
-        if(walletModel && walletModel->node().shutdownRequested())
+        if (walletModel && walletModel->node().shutdownRequested())
             return;
 
-        if(walletModel) walletModel->wallet().cleanTokenTxEntries();
+        if (walletModel) walletModel->wallet().cleanTokenTxEntries();
     }
 
     void updateBalance(QString hash, QString contractAddress, QString senderAddress)
     {
-        if(walletModel && walletModel->node().shutdownRequested())
+        if (walletModel && walletModel->node().shutdownRequested())
             return;
 
         tokenAbi.setAddress(contractAddress.toStdString());
         tokenAbi.setSender(senderAddress.toStdString());
         std::string strBalance;
-        if(tokenAbi.balanceOf(strBalance))
-        {
+        if (tokenAbi.balanceOf(strBalance)) {
             QString balance = QString::fromStdString(strBalance);
             Q_EMIT balanceChanged(hash, balance);
         }
@@ -175,17 +167,16 @@ Q_SIGNALS:
 
 #include <qt/tokenitemmodel.moc>
 
-struct TokenItemEntryLessThan
-{
-    bool operator()(const TokenItemEntry &a, const TokenItemEntry &b) const
+struct TokenItemEntryLessThan {
+    bool operator()(const TokenItemEntry& a, const TokenItemEntry& b) const
     {
         return a.hash < b.hash;
     }
-    bool operator()(const TokenItemEntry &a, const uint256 &b) const
+    bool operator()(const TokenItemEntry& a, const uint256& b) const
     {
         return a.hash < b;
     }
-    bool operator()(const uint256 &a, const TokenItemEntry &b) const
+    bool operator()(const uint256& a, const TokenItemEntry& b) const
     {
         return a < b.hash;
     }
@@ -195,20 +186,17 @@ class TokenItemPriv
 {
 public:
     QList<TokenItemEntry> cachedTokenItem;
-    TokenItemModel *parent;
+    TokenItemModel* parent;
 
-    TokenItemPriv(TokenItemModel *_parent):
-        parent(_parent) {}
+    TokenItemPriv(TokenItemModel* _parent) : parent(_parent) {}
 
     void refreshTokenItem(interfaces::Wallet& wallet)
     {
         cachedTokenItem.clear();
         {
-            for(interfaces::TokenInfo token : wallet.getTokens())
-            {
+            for (interfaces::TokenInfo token : wallet.getTokens()) {
                 TokenItemEntry tokenItem(token);
-                if(parent)
-                {
+                if (parent) {
                     parent->updateBalance(tokenItem);
                 }
                 cachedTokenItem.append(tokenItem);
@@ -217,7 +205,7 @@ public:
         std::sort(cachedTokenItem.begin(), cachedTokenItem.end(), TokenItemEntryLessThan());
     }
 
-    void updateEntry(const TokenItemEntry &_item, int status)
+    void updateEntry(const TokenItemEntry& _item, int status)
     {
         // Find address / label in model
         TokenItemEntry item;
@@ -229,16 +217,13 @@ public:
         int upperIndex = (upper - cachedTokenItem.begin());
         bool inModel = (lower != upper);
         item = _item;
-        if(inModel)
-        {
+        if (inModel) {
             item.balance = cachedTokenItem[lowerIndex].balance;
         }
 
-        switch(status)
-        {
+        switch (status) {
         case CT_NEW:
-            if(inModel)
-            {
+            if (inModel) {
                 qWarning() << "TokenItemPriv::updateEntry: Warning: Got CT_NEW, but entry is already in model";
                 break;
             }
@@ -247,8 +232,7 @@ public:
             parent->endInsertRows();
             break;
         case CT_UPDATED:
-            if(!inModel)
-            {
+            if (!inModel) {
                 qWarning() << "TokenItemPriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
                 break;
             }
@@ -256,12 +240,11 @@ public:
             parent->emitDataChanged(lowerIndex);
             break;
         case CT_DELETED:
-            if(!inModel)
-            {
+            if (!inModel) {
                 qWarning() << "TokenItemPriv::updateEntry: Warning: Got CT_DELETED, but entry is not in model";
                 break;
             }
-            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex-1);
+            parent->beginRemoveRows(QModelIndex(), lowerIndex, upperIndex - 1);
             cachedTokenItem.erase(lower, upper);
             parent->endRemoveRows();
             break;
@@ -273,11 +256,9 @@ public:
         uint256 updated = uint256::FromHex(hash.toStdString()).value_or(uint256::ZERO);
         dev::s256 val(balance.toStdString());
 
-        for(int i = 0; i < cachedTokenItem.size(); i++)
-        {
+        for (int i = 0; i < cachedTokenItem.size(); i++) {
             TokenItemEntry item = cachedTokenItem[i];
-            if(item.hash == updated && item.balance != val)
-            {
+            if (item.hash == updated && item.balance != val) {
                 item.balance = val;
                 cachedTokenItem[i] = item;
                 return i;
@@ -292,25 +273,21 @@ public:
         return cachedTokenItem.size();
     }
 
-    TokenItemEntry *index(int idx)
+    TokenItemEntry* index(int idx)
     {
-        if(idx >= 0 && idx < cachedTokenItem.size())
-        {
+        if (idx >= 0 && idx < cachedTokenItem.size()) {
             return &cachedTokenItem[idx];
-        }
-        else
-        {
+        } else {
             return 0;
         }
     }
 };
 
-TokenItemModel::TokenItemModel(WalletModel *parent):
-    QAbstractItemModel(parent),
-    walletModel(parent),
-    priv(0),
-    worker(0),
-    tokenTxCleaned(false)
+TokenItemModel::TokenItemModel(WalletModel* parent) : QAbstractItemModel(parent),
+                                                      walletModel(parent),
+                                                      priv(0),
+                                                      worker(0),
+                                                      tokenTxCleaned(false)
 {
     columns << tr("Token Name") << tr("Token Symbol") << tr("Balance");
 
@@ -333,53 +310,50 @@ TokenItemModel::~TokenItemModel()
 
     join();
 
-    if(priv)
-    {
+    if (priv) {
         delete priv;
         priv = 0;
     }
 }
 
-QModelIndex TokenItemModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex TokenItemModel::index(int row, int column, const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    TokenItemEntry *data = priv->index(row);
-    if(data)
-    {
+    TokenItemEntry* data = priv->index(row);
+    if (data) {
         return createIndex(row, column, priv->index(row));
     }
     return QModelIndex();
 }
 
-QModelIndex TokenItemModel::parent(const QModelIndex &child) const
+QModelIndex TokenItemModel::parent(const QModelIndex& child) const
 {
     Q_UNUSED(child);
     return QModelIndex();
 }
 
-int TokenItemModel::rowCount(const QModelIndex &parent) const
+int TokenItemModel::rowCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return priv->size();
 }
 
-int TokenItemModel::columnCount(const QModelIndex &parent) const
+int TokenItemModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     return columns.length();
 }
 
-QVariant TokenItemModel::data(const QModelIndex &index, int role) const
+QVariant TokenItemModel::data(const QModelIndex& index, int role) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QVariant();
 
-    TokenItemEntry *rec = static_cast<TokenItemEntry*>(index.internalPointer());
+    TokenItemEntry* rec = static_cast<TokenItemEntry*>(index.internalPointer());
 
     switch (role) {
     case Qt::DisplayRole:
-        switch(index.column())
-        {
+        switch (index.column()) {
         case Name:
             return rec->tokenName;
         case Symbol:
@@ -421,21 +395,18 @@ QVariant TokenItemModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void TokenItemModel::updateToken(const QString &hash, int status, bool showToken)
+void TokenItemModel::updateToken(const QString& hash, int status, bool showToken)
 {
     // Find token in wallet
     uint256 updated = uint256::FromHex(hash.toStdString()).value_or(uint256::ZERO);
-    interfaces::TokenInfo token =walletModel->wallet().getToken(updated);
+    interfaces::TokenInfo token = walletModel->wallet().getToken(updated);
     showToken &= token.hash == updated;
 
     TokenItemEntry tokenEntry;
-    if(showToken)
-    {
+    if (showToken) {
         tokenEntry = TokenItemEntry(token);
         updateBalance(tokenEntry);
-    }
-    else
-    {
+    } else {
         tokenEntry.hash = updated;
     }
     priv->updateEntry(tokenEntry, status);
@@ -443,22 +414,19 @@ void TokenItemModel::updateToken(const QString &hash, int status, bool showToken
 
 void TokenItemModel::checkTokenBalanceChanged()
 {
-    if(!priv)
+    if (!priv)
         return;
 
     // Update token balance
-    for(int i = 0; i < priv->cachedTokenItem.size(); i++)
-    {
+    for (int i = 0; i < priv->cachedTokenItem.size(); i++) {
         TokenItemEntry tokenEntry = priv->cachedTokenItem[i];
         updateBalance(tokenEntry);
     }
 
     // Update token transactions
-    if(fLogEvents)
-    {
+    if (fLogEvents) {
         // Search for token transactions
-        for(int i = 0; i < priv->cachedTokenItem.size(); i++)
-        {
+        for (int i = 0; i < priv->cachedTokenItem.size(); i++) {
             TokenItemEntry tokenEntry = priv->cachedTokenItem[i];
             QString hash = QString::fromStdString(tokenEntry.hash.ToString());
             QMetaObject::invokeMethod(worker, "updateTokenTx", Qt::QueuedConnection,
@@ -466,8 +434,7 @@ void TokenItemModel::checkTokenBalanceChanged()
         }
 
         // Clean token transactions
-        if(!tokenTxCleaned)
-        {
+        if (!tokenTxCleaned) {
             tokenTxCleaned = true;
             QMetaObject::invokeMethod(worker, "cleanTokenTxEntries", Qt::QueuedConnection);
         }
@@ -476,17 +443,15 @@ void TokenItemModel::checkTokenBalanceChanged()
 
 void TokenItemModel::emitDataChanged(int idx)
 {
-    Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length()-1, QModelIndex()));
+    Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length() - 1, QModelIndex()));
 }
 
-struct TokenNotification
-{
+struct TokenNotification {
 public:
     TokenNotification() {}
-    TokenNotification(uint256 _hash, ChangeType _status, bool _showToken):
-        hash(_hash), status(_status), showToken(_showToken) {}
+    TokenNotification(uint256 _hash, ChangeType _status, bool _showToken) : hash(_hash), status(_status), showToken(_showToken) {}
 
-    void invoke(QObject *tim)
+    void invoke(QObject* tim)
     {
         QString strHash = QString::fromStdString(hash.GetHex());
         qDebug() << "NotifyTokenChanged: " + strHash + " status= " + QString::number(status);
@@ -496,13 +461,14 @@ public:
                                   Q_ARG(int, status),
                                   Q_ARG(bool, showToken));
     }
+
 private:
     uint256 hash;
     ChangeType status;
     bool showToken;
 };
 
-static void NotifyTokenChanged(TokenItemModel *tim, const uint256 &hash, ChangeType status)
+static void NotifyTokenChanged(TokenItemModel* tim, const uint256& hash, ChangeType status)
 {
     TokenNotification notification(hash, status, true);
     notification.invoke(tim);
@@ -523,13 +489,12 @@ void TokenItemModel::unsubscribeFromCoreSignals()
 void TokenItemModel::balanceChanged(QString hash, QString balance)
 {
     int index = priv->updateBalance(hash, balance);
-    if(index > -1)
-    {
+    if (index > -1) {
         emitDataChanged(index);
     }
 }
 
-void TokenItemModel::updateBalance(const TokenItemEntry &entry)
+void TokenItemModel::updateBalance(const TokenItemEntry& entry)
 {
     QString hash = QString::fromStdString(entry.hash.ToString());
     QMetaObject::invokeMethod(worker, "updateBalance", Qt::QueuedConnection,
@@ -538,9 +503,8 @@ void TokenItemModel::updateBalance(const TokenItemEntry &entry)
 
 void TokenItemModel::join()
 {
-    if(t.isRunning())
-    {
-        if(worker)
+    if (t.isRunning()) {
+        if (worker)
             worker->disconnect(this);
         t.quit();
         t.wait();

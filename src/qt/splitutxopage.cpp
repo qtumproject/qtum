@@ -1,31 +1,29 @@
 #include <qt/splitutxopage.h>
-#include <qt/forms/ui_splitutxopage.h>
 
+#include <node/interface_ui.h>
 #include <qt/bitcoinunits.h>
 #include <qt/execrpccommand.h>
+#include <qt/forms/ui_splitutxopage.h>
 #include <qt/guiutil.h>
+#include <qt/hardwaresigntx.h>
 #include <qt/optionsmodel.h>
 #include <qt/sendcoinsdialog.h>
 #include <qt/walletmodel.h>
-#include <qt/hardwaresigntx.h>
 #include <validation.h>
-#include <node/interface_ui.h>
 
-namespace SplitUTXO_NS
-{
+namespace SplitUTXO_NS {
 static const QString PRC_COMMAND = "splitutxosforaddress";
 static const QString PARAM_ADDRESS = "address";
 static const QString PARAM_MIN_VALUE = "minValue";
 static const QString PARAM_MAX_VALUE = "maxValue";
 static const QString PARAM_MAX_OUTPUTS = "maxOutputs";
-}
+} // namespace SplitUTXO_NS
 using namespace SplitUTXO_NS;
 
-SplitUTXOPage::SplitUTXOPage(QWidget *parent, Mode mode) :
-    QDialog(parent),
-    ui(new Ui::SplitUTXOPage),
-    m_model(nullptr),
-    m_mode(mode)
+SplitUTXOPage::SplitUTXOPage(QWidget* parent, Mode mode) : QDialog(parent),
+                                                           ui(new Ui::SplitUTXOPage),
+                                                           m_model(nullptr),
+                                                           m_mode(mode)
 {
     ui->setupUi(this);
 
@@ -44,8 +42,7 @@ SplitUTXOPage::SplitUTXOPage(QWidget *parent, Mode mode) :
     case SuperStaker:
         setWindowTitle(tr("Split coins for super staker"));
         ui->labelAddress->setText(tr("Staker address"));
-        ui->labelDescription->setText(tr("Split coins for super staker. The UTXO value need to be minimum <b> %1 </b>.").
-                                      arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnit::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
+        ui->labelDescription->setText(tr("Split coins for super staker. The UTXO value need to be minimum <b> %1 </b>.").arg(BitcoinUnits::formatHtmlWithUnit(BitcoinUnit::BTC, DEFAULT_STAKING_MIN_UTXO_VALUE)));
         ui->lineEditMinValue->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
         ui->lineEditMaxValue->SetMinValue(DEFAULT_STAKING_MIN_UTXO_VALUE);
         break;
@@ -100,7 +97,7 @@ SplitUTXOPage::~SplitUTXOPage()
     delete ui;
 }
 
-void SplitUTXOPage::setModel(WalletModel *_model)
+void SplitUTXOPage::setModel(WalletModel* _model)
 {
     m_model = _model;
     ui->lineEditAddress->setWalletModel(m_model);
@@ -121,13 +118,13 @@ void SplitUTXOPage::setModel(WalletModel *_model)
     setDefaultMaxOutputsValue();
 }
 
-void SplitUTXOPage::setAddress(const QString &address)
+void SplitUTXOPage::setAddress(const QString& address)
 {
     ui->lineEditAddress->setVisible(false);
     ui->txtAddress->setVisible(true);
     ui->txtAddress->setText(address);
 
-    if(m_mode == Normal)
+    if (m_mode == Normal)
         setWindowTitle(tr("Split coins for address %1").arg(address));
 
     ui->splitCoinsButton->setEnabled(true);
@@ -142,20 +139,17 @@ bool SplitUTXOPage::isDataValid()
     CAmount minValue = ui->lineEditMinValue->value();
     CAmount maxValue = ui->lineEditMaxValue->value();
 
-    if(ui->lineEditAddress->isVisible() && !ui->lineEditAddress->isValidAddress())
+    if (ui->lineEditAddress->isVisible() && !ui->lineEditAddress->isValidAddress())
         dataValid = false;
-    if(minValue < COIN/10)
-    {
+    if (minValue < COIN / 10) {
         ui->lineEditMinValue->setValid(false);
         dataValid = false;
     }
-    if(maxValue < COIN/10)
-    {
+    if (maxValue < COIN / 10) {
         ui->lineEditMaxValue->setValid(false);
         dataValid = false;
     }
-    if(minValue > COIN/10 && maxValue > COIN/10 && minValue > maxValue)
-    {
+    if (minValue > COIN / 10 && maxValue > COIN / 10 && minValue > maxValue) {
         ui->lineEditMinValue->setValid(false);
         ui->lineEditMaxValue->setValid(false);
         dataValid = false;
@@ -166,8 +160,7 @@ bool SplitUTXOPage::isDataValid()
 
 void SplitUTXOPage::clearAll()
 {
-    if(ui->lineEditAddress->isVisible())
-    {
+    if (ui->lineEditAddress->isVisible()) {
         ui->lineEditAddress->setCurrentIndex(-1);
         ui->splitCoinsButton->setEnabled(false);
     }
@@ -190,8 +183,7 @@ void SplitUTXOPage::reject()
 
 void SplitUTXOPage::updateDisplayUnit()
 {
-    if(m_model && m_model->getOptionsModel())
-    {
+    if (m_model && m_model->getOptionsModel()) {
         // Update min and max value with the current unit
         ui->lineEditMinValue->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
         ui->lineEditMaxValue->setDisplayUnit(m_model->getOptionsModel()->getDisplayUnit());
@@ -200,9 +192,8 @@ void SplitUTXOPage::updateDisplayUnit()
 
 void SplitUTXOPage::on_splitCoinsClicked()
 {
-    if(m_model && m_model->getOptionsModel())
-    {
-        if(!isDataValid())
+    if (m_model && m_model->getOptionsModel()) {
+        if (!isDataValid())
             return;
 
         // Initialize variables
@@ -233,7 +224,7 @@ void SplitUTXOPage::on_splitCoinsClicked()
             questionString.append(tr("Are you sure you want to split coins for address<br/><br/>"));
         }
         questionString.append(QString("<b>%1</b>?")
-                              .arg(address));
+                                  .arg(address));
 
         const QString confirmation = bCreateUnsigned ? tr("Confirm splitting coins for address proposal.") : tr("Confirm splitting coins for address.");
         const bool enable_send{!bCreateUnsigned};
@@ -243,54 +234,44 @@ void SplitUTXOPage::on_splitCoinsClicked()
         confirmationDialog.exec();
 
         QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
-        if(retval == QMessageBox::Yes || retval == QMessageBox::Save)
-        {
-            if(!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage))
-            {
+        if (retval == QMessageBox::Yes || retval == QMessageBox::Save) {
+            if (!m_execRPCCommand->exec(m_model->node(), m_model, lstParams, result, resultJson, errorMessage)) {
                 QMessageBox::warning(this, tr("Split coins for address"), errorMessage);
-            }
-            else
-            {
-                 QVariantMap variantMap = result.toMap();
+            } else {
+                QVariantMap variantMap = result.toMap();
 
-                 if(bCreateUnsigned)
-                 {
-                     GUIUtil::setClipboard(variantMap.value("psbt").toString());
-                     Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
-                 }
+                if (bCreateUnsigned) {
+                    GUIUtil::setClipboard(variantMap.value("psbt").toString());
+                    Q_EMIT message(tr("PSBT copied"), "Copied to clipboard", CClientUIInterface::MSG_INFORMATION);
+                }
 
-                 bool isOk = true;
-                 if(m_model->getSignPsbtWithHwiTool())
-                 {
-                     QString psbt = variantMap.value("psbt").toString();
-                     if(!HardwareSignTx::process(this, m_model, psbt, variantMap))
-                         isOk = false;
-                 }
+                bool isOk = true;
+                if (m_model->getSignPsbtWithHwiTool()) {
+                    QString psbt = variantMap.value("psbt").toString();
+                    if (!HardwareSignTx::process(this, m_model, psbt, variantMap))
+                        isOk = false;
+                }
 
-                 if(isOk)
-                 {
-                     QString selectedString = variantMap.value("selected").toString();
-                     CAmount selected;
-                     BitcoinUnits::parse(unit, selectedString, &selected);
+                if (isOk) {
+                    QString selectedString = variantMap.value("selected").toString();
+                    CAmount selected;
+                    BitcoinUnits::parse(unit, selectedString, &selected);
 
-                     QString splitedString = variantMap.value("splited").toString();
-                     CAmount splited;
-                     BitcoinUnits::parse(unit, splitedString, &splited);
+                    QString splitedString = variantMap.value("splited").toString();
+                    CAmount splited;
+                    BitcoinUnits::parse(unit, splitedString, &splited);
 
-                     BitcoinUnit displayUnit = m_model->getOptionsModel()->getDisplayUnit();
+                    BitcoinUnit displayUnit = m_model->getOptionsModel()->getDisplayUnit();
 
-                     QString infoString = tr("Selected: %1 less than %2 and above of %3.").
-                             arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, selected)).
-                             arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, minValue)).
-                             arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, maxValue));
-                     infoString.append("<br/><br/>");
-                     infoString.append(tr("Splitted: %1.").arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, splited)));
+                    QString infoString = tr("Selected: %1 less than %2 and above of %3.").arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, selected)).arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, minValue)).arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, maxValue));
+                    infoString.append("<br/><br/>");
+                    infoString.append(tr("Splitted: %1.").arg(BitcoinUnits::formatHtmlWithUnit(displayUnit, splited)));
 
-                     QMessageBox::information(this, tr("Split coins for address"), infoString);
+                    QMessageBox::information(this, tr("Split coins for address"), infoString);
 
-                     if(splited == selected || splited == 0 || bCreateUnsigned)
-                         accept();
-                 }
+                    if (splited == selected || splited == 0 || bCreateUnsigned)
+                        accept();
+                }
             }
         }
     }
@@ -306,8 +287,7 @@ void SplitUTXOPage::on_updateSplitCoinsButton()
     bool enabled = true;
     bool validAddress = !ui->lineEditAddress->isVisible() || (ui->lineEditAddress->isVisible() && !ui->lineEditAddress->currentText().isEmpty());
 
-    if(!validAddress)
-    {
+    if (!validAddress) {
         enabled = false;
     }
 

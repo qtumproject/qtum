@@ -15,23 +15,22 @@ class SplitUTXOPage : public QDialog
     Q_OBJECT
 
 public:
-    enum Mode
-    {
+    enum Mode {
         Normal,
         Delegation,
         SuperStaker
     };
 
-    explicit SplitUTXOPage(QWidget *parent = nullptr, Mode mode = Normal);
+    explicit SplitUTXOPage(QWidget* parent = nullptr, Mode mode = Normal);
     ~SplitUTXOPage();
-    void setModel(WalletModel *_model);
+    void setModel(WalletModel* _model);
     void setAddress(const QString& address);
     bool isDataValid();
     void clearAll();
 
 Q_SIGNALS:
     // Fired when a message should be reported to the user
-    void message(const QString &title, const QString &message, unsigned int style);
+    void message(const QString& title, const QString& message, unsigned int style);
 
 public Q_SLOTS:
     void accept() override;
@@ -47,9 +46,9 @@ private:
     void setDefaultMaxOutputsValue();
 
 private:
-    Ui::SplitUTXOPage *ui;
+    Ui::SplitUTXOPage* ui;
     WalletModel* m_model;
-    ExecRPCCommand *m_execRPCCommand;
+    ExecRPCCommand* m_execRPCCommand;
     Mode m_mode;
     bool bCreateUnsigned = false;
 };
