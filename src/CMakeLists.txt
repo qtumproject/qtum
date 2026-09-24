@@ -126,6 +126,7 @@ add_library(evmone STATIC EXCLUDE_FROM_ALL
   evmone/lib/evmone/baseline_analysis.cpp
   evmone/lib/evmone/baseline_execution.cpp
   evmone/lib/evmone/baseline_instruction_table.cpp
+  evmone/lib/evmone/create_address.cpp
   evmone/lib/evmone/delegation.cpp
   evmone/lib/evmone/instructions_calls.cpp
   evmone/lib/evmone/instructions_storage.cpp
@@ -145,7 +146,7 @@ add_library(evmone STATIC EXCLUDE_FROM_ALL
   evmone/lib/evmone_precompiles/pairing/bn254/pairing.cpp
 )
 target_link_libraries(evmone PRIVATE blst ethash)
-target_compile_definitions(evmone PRIVATE PROJECT_VERSION="\\\"0.22.0\\\"")
+target_compile_definitions(evmone PRIVATE PROJECT_VERSION="\\\"0.24.0\\\"")
 
 # Home for common functionality shared by different executables and libraries.
 # Similar to `bitcoin_util` library, but higher-level.

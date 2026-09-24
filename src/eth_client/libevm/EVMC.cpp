@@ -31,7 +31,7 @@ evmc_revision toRevision(EVMSchedule const& _schedule) noexcept
     if (_schedule.haveCreate2 && !_schedule.eip1283Mode)
         return EVMC_PETERSBURG;
     if (_schedule.haveCreate2 && _schedule.eip1283Mode)
-        return EVMC_CONSTANTINOPLE;
+        return EVMC_PETERSBURG;
     if (_schedule.haveRevert)
         return EVMC_BYZANTIUM;
     if (_schedule.eip158Mode)
