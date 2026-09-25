@@ -314,12 +314,12 @@ evmc::Result EvmCHost::create(evmc_message const& _msg) noexcept
         evmcResult.output_size = result.output.size();
 
         // Place a new vector of bytes containing output in result's reserved memory.
-        auto* data = evmc_get_optional_storage(&evmcResult);
+        auto* data = &evmcResult.optional_data;
         static_assert(sizeof(bytes) <= sizeof(*data), "Vector is too big");
         new (data) bytes(result.output.takeBytes());
         // Set the destructor to delete the vector.
         evmcResult.release = [](evmc_result const* _result) {
-            auto* data = evmc_get_const_optional_storage(_result);
+            auto* data = &_result->optional_data;
             auto& output = reinterpret_cast<bytes const&>(*data);
             // Explicitly call vector's destructor to release its data.
             // This is normal pattern when placement new operator is used.
@@ -365,12 +365,12 @@ evmc::Result EvmCHost::call(evmc_message const& _msg) noexcept
     evmcResult.output_size = result.output.size();
 
     // Place a new vector of bytes containing output in result's reserved memory.
-    auto* data = evmc_get_optional_storage(&evmcResult);
+    auto* data = &evmcResult.optional_data;
     static_assert(sizeof(bytes) <= sizeof(*data), "Vector is too big");
     new (data) bytes(result.output.takeBytes());
     // Set the destructor to delete the vector.
     evmcResult.release = [](evmc_result const* _result) {
-        auto* data = evmc_get_const_optional_storage(_result);
+        auto* data = &_result->optional_data;
         auto& output = reinterpret_cast<bytes const&>(*data);
         // Explicitly call vector's destructor to release its data.
         // This is normal pattern when placement new operator is used.
