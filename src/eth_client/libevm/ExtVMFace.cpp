@@ -170,6 +170,12 @@ evmc::uint256be EvmCHost::get_balance(evmc::address const& _addr) const noexcept
     return toEvmC(m_extVM.balance(fromEvmC(_addr)));
 }
 
+uint64_t EvmCHost::get_nonce(evmc::address const& _addr) const noexcept
+{
+    record_account_access(_addr);
+    return m_extVM.nonce(fromEvmC(_addr));
+}
+
 size_t EvmCHost::get_code_size(evmc::address const& _addr) const noexcept
 {
     record_account_access(_addr);

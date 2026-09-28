@@ -78,6 +78,9 @@ public:
     /// Read address's balance.
     u256 balance(Address _a) final { return m_s.balance(_a); }
 
+    /// Read address's nonce.
+    uint64_t nonce(Address _a) final { return (uint64_t) m_s.getNonce(_a); }
+
     /// Does the account exist?
     bool exists(Address _a) final
     {

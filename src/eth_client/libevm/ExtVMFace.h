@@ -222,6 +222,9 @@ public:
     /// Read address's balance.
     virtual u256 balance(Address) { return 0; }
 
+    /// Read address's nonce.
+    virtual uint64_t nonce(Address) { return 0; }
+
     /// Read address's code.
     virtual bytes const& codeAt(Address) { return NullBytes; }
 
@@ -332,6 +335,8 @@ public:
         const evmc::bytes32& _value) noexcept override;
 
     evmc::uint256be get_balance(const evmc::address& _addr) const noexcept override;
+
+    uint64_t get_nonce(const evmc::address& _addr) const noexcept override;
 
     size_t get_code_size(const evmc::address& _addr) const noexcept override;
 
