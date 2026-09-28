@@ -211,9 +211,9 @@ bool Executive::createWithAddressFromNonceAndSender(Address const& _sender, u256
     return executeCreate(_sender, _endowment, _gasPrice, _gas, _init, _origin, _version);
 }
 
-bool Executive::create2Opcode(Address const& _sender, u256 const& _endowment, u256 const& _gasPrice, u256 const& _gas, bytesConstRef _init, Address const& _origin, u256 const& _salt)
+bool Executive::create2Opcode(Address const& _sender, u256 const& _endowment, u256 const& _gasPrice, u256 const& _gas, bytesConstRef _init, Address const& _origin, Address const& _recipient)
 {
-    m_newAddress = right160(sha3(bytes{0xff} +_sender.asBytes() + toBigEndian(_salt) + sha3(_init)));
+    m_newAddress = _recipient;
     // Contract will be created with the version equal to parent's version
     return executeCreate(
         _sender, _endowment, _gasPrice, _gas, _init, _origin, m_s.version(_sender));

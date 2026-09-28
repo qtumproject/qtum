@@ -70,7 +70,7 @@ public:
     h256 codeHashAt(Address _a) final;
 
     /// Create a new contract.
-    CreateResult create(u256 _endowment, u256& io_gas, bytesConstRef _code, Instruction _op, u256 _salt, OnOpFunc const& _onOp = {}) final;
+    CreateResult create(u256 _endowment, u256& io_gas, bytesConstRef _code, Instruction _op, Address _recipient, OnOpFunc const& _onOp = {}) final;
 
     /// Create a new message call.
     CallResult call(CallParameters& _params) final;

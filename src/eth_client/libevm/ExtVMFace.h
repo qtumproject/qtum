@@ -249,7 +249,7 @@ public:
     }
 
     /// Create a new (contract) account.
-    virtual CreateResult create(u256, u256&, bytesConstRef, Instruction, u256, OnOpFunc const&) = 0;
+    virtual CreateResult create(u256, u256&, bytesConstRef, Instruction, Address, OnOpFunc const&) = 0;
 
     /// Make a new message call.
     virtual CallResult call(CallParameters&) = 0;
@@ -286,7 +286,6 @@ public:
     bytes code;               ///< Current code that is executing.
     h256 codeHash;            ///< SHA3 hash of the executing code
     u256 version;             ///< Version of the VM to execute code
-    u256 salt;                ///< Values used in new address construction by CREATE2
     SubState sub;             ///< Sub-band VM state (selfdestructs, refund counter, logs).
     unsigned depth = 0;       ///< Depth of the present call.
     bool isCreate = false;    ///< Is this a CREATE call?

@@ -126,6 +126,7 @@ add_library(evmone STATIC EXCLUDE_FROM_ALL
   evmone/lib/evmone/baseline_analysis.cpp
   evmone/lib/evmone/baseline_execution.cpp
   evmone/lib/evmone/baseline_instruction_table.cpp
+  evmone/lib/evmone/create_address.cpp
   evmone/lib/evmone/delegation.cpp
   evmone/lib/evmone/instructions_calls.cpp
   evmone/lib/evmone/instructions_storage.cpp

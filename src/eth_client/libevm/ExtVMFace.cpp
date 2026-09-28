@@ -296,20 +296,21 @@ evmc::Result EvmCHost::create(evmc_message const& _msg) noexcept
     u256 gas = _msg.gas;
     u256 value = fromEvmC(_msg.value);
     bytesConstRef init = {_msg.input_data, _msg.input_size};
-    u256 salt = fromEvmC(_msg.create2_salt);
     Instruction opcode = _msg.kind == EVMC_CREATE ? OP_CREATE : OP_CREATE2;
 
     // ExtVM::create takes the sender address from .myAddress.
     assert(fromEvmC(_msg.sender) == m_extVM.myAddress);
 
-    CreateResult result = m_extVM.create(value, gas, init, opcode, salt, {});
+    // Must be computed already.
+    assert(_msg.recipient != evmc::address{});
+    Address recipient = fromEvmC(_msg.recipient);
+
+    CreateResult result = m_extVM.create(value, gas, init, opcode, recipient, {});
     evmc_result evmcResult = {};
     evmcResult.status_code = result.status;
     evmcResult.gas_left = static_cast<int64_t>(gas);
 
-    if (result.status == EVMC_SUCCESS)
-        evmcResult.create_address = toEvmC(result.address);
-    else
+    if (result.status != EVMC_SUCCESS)
     {
         // Pass the output to the EVM without a copy. The EVM will delete it
         // when finished with it.
