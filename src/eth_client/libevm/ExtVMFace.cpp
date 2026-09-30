@@ -341,7 +341,8 @@ evmc::Result EvmCHost::call(evmc_message const& _msg) noexcept
     assert(_msg.gas >= 0 && "Invalid gas value");
     assert(_msg.depth == static_cast<int>(m_extVM.depth) + 1);
 
-    record_account_access(_msg.recipient);
+    if (!(_msg.kind == EVMC_CREATE || _msg.kind == EVMC_CREATE2))
+        record_account_access(_msg.recipient);
 
     // Handle CREATE separately.
     if (_msg.kind == EVMC_CREATE || _msg.kind == EVMC_CREATE2)
