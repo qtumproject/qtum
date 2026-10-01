@@ -93,7 +93,7 @@ owning_bytes_ref EVMC::exec(u256& io_gas, ExtVMFace& _ext, const OnOpFunc& _onOp
     int64_t state_gas = 0;
     // EVMC_AMSTERDAM needs implementation for state_gas with non 0 value
     // Evmone commit e2290c6b72c991ff5636e87c11bc5d81efbce267
-    assert(mode <= EVMC_CANCUN); // Remove the assert when EVMC_AMSTERDAM or higher fork arrives
+    assert(mode <= EVMC_OSAKA); // Remove the assert when EVMC_AMSTERDAM or higher fork arrives
     evmc_message msg = {kind, flags, static_cast<int32_t>(_ext.depth), gas, state_gas, toEvmC(_ext.myAddress),
         toEvmC(_ext.caller), _ext.data.data(), _ext.data.size(), toEvmC(_ext.value),
         toEvmC(_ext.myAddress), 0, 0};
