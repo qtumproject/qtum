@@ -27,7 +27,7 @@ pair<bool, bytes> dev::crypto::p256verify(dev::bytesConstRef input)
     intx::uint256 qx = intx::be::unsafe::load<intx::uint256>(reinterpret_cast<const uint8_t*>(&input[96]));
     intx::uint256 qy = intx::be::unsafe::load<intx::uint256>(reinterpret_cast<const uint8_t*>(&input[128]));
 
-    if (!evmmax::secp256r1::verify(h, r, s, qx, qy))
+    if (!evmone::crypto::secp256r1::verify(h, r, s, qx, qy))
         return {true, bytes{}};
 
     output[31] = 1;
