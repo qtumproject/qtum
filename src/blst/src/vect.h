@@ -144,7 +144,6 @@ bool_t ct_is_square_mod_384(const vec384 inp, const vec384 mod);
 #if defined(__ADX__) /* e.g. -march=broadwell */ && !defined(__BLST_PORTABLE__)
 # define mul_mont_384x mulx_mont_384x
 # define sqr_mont_384x sqrx_mont_384x
-# define sqr_mont_382x sqrx_mont_382x
 # define mul_382x mulx_382x
 # define sqr_382x sqrx_382x
 #endif
@@ -152,7 +151,6 @@ bool_t ct_is_square_mod_384(const vec384 inp, const vec384 mod);
 void mul_mont_384x(vec384x ret, const vec384x a, const vec384x b,
                    const vec384 p, limb_t n0);
 void sqr_mont_384x(vec384x ret, const vec384x a, const vec384 p, limb_t n0);
-void sqr_mont_382x(vec384x ret, const vec384x a, const vec384 p, limb_t n0);
 void mul_382x(vec768 ret[2], const vec384x a, const vec384x b, const vec384 p);
 void sqr_382x(vec768 ret[2], const vec384x a, const vec384 p);
 

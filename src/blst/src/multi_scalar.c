@@ -83,10 +83,10 @@ POINTS_TO_AFFINE_IMPL(blst_p2, POINTonE2, 384x, fp2)
 /* The intermediate infinity points are encoded as [0, 0, 1]. */
 
 #define PRECOMPUTE_WBITS_IMPL(prefix, ptype, bits, field, one) \
-static void ptype##_precompute_row_wbits(ptype row[], size_t wbits, \
-                                         const ptype##_affine *point) \
+static void ptype##_precompute_row(ptype row[], size_t n, \
+                                   const ptype##_affine *point) \
 { \
-    size_t i, j, n = (size_t)1 << (wbits-1); \
+    size_t i, j; \
     bool_t inf = vec_is_zero(point, sizeof(*point)); \
                                           /* row[-1] is implicit infinity */\
     vec_copy(&row[0], point, sizeof(*point));           /* row[0]=p*1     */\
@@ -153,16 +153,44 @@ static void ptype##s_precompute_wbits(ptype##_affine table[], size_t wbits, \
         rows = row = (ptype *)(&table[top]); \
         for (i = 0; i < stride; i++, row += nwin) \
             point = *points ? *points++ : point+1, \
-            ptype##_precompute_row_wbits(row, wbits, point); \
+            ptype##_precompute_row(row, nwin, point); \
         ptype##s_to_affine_row_wbits(&table[top], rows, wbits, stride); \
         top += stride << (wbits-1); \
         npoints -= stride; \
     } \
-    rows = row = alloca(2*sizeof(ptype##_affine) * npoints * nwin); \
-    for (i = 0; i < npoints; i++, row += nwin) \
-        point = *points ? *points++ : point+1, \
-        ptype##_precompute_row_wbits(row, wbits, point); \
-    ptype##s_to_affine_row_wbits(&table[top], rows, wbits, npoints); \
+    if ((i = 2*sizeof(ptype##_affine)*npoints*nwin) <= SCRATCH_LIMIT) { \
+        rows = row = alloca(i); \
+        for (i = 0; i < npoints; i++, row += nwin) \
+            point = *points ? *points++ : point+1, \
+            ptype##_precompute_row(row, nwin, point); \
+        ptype##s_to_affine_row_wbits(&table[top], rows, wbits, npoints); \
+    } else { \
+        const ptype *pp[2]; \
+\
+        stride = SCRATCH_LIMIT / sizeof(ptype); \
+        stride -= stride % 2; \
+        if (stride > nwin) stride = nwin; \
+\
+        pp[0] = row = alloca(stride * sizeof(ptype)); \
+        pp[1] = NULL; \
+        for (i = 0; i < npoints; i++, top += nwin) { \
+            size_t j, k, n; \
+\
+            point = *points ? *points++ : point+1; \
+            ptype##_precompute_row(row, stride, point); \
+            ptype##s_to_affine(&table[top], pp, stride); \
+            for (j = stride; j < nwin; j += stride) { \
+                n = (j+stride) <= nwin ? stride : nwin-j; \
+                for (k = 0; k < n-1; k++) \
+                    ptype##_add_affine(&row[k], &row[stride-1], &table[top+k]); \
+                if (j == stride) \
+                    ptype##_double(&row[k], &row[stride-1]); \
+                else \
+                    ptype##_add_affine(&row[k], &row[stride-1], &table[top+k]); \
+                ptype##s_to_affine(&table[top+j], pp, n); \
+            } \
+        } \
+    } \
 } \
 \
 size_t prefix##s_mult_wbits_precompute_sizeof(size_t wbits, size_t npoints) \

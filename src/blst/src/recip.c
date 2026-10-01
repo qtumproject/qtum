@@ -119,7 +119,7 @@ static void reciprocal_fr(vec256 out, const vec256 inp)
 
     ct_inverse_mod_256(temp, inp, BLS12_381_r, rx2);
     redc_mont_256(out, temp, BLS12_381_r, r0);
-    mul_mont_sparse_256(out, out, BLS12_381_rRR, BLS12_381_r, r0);
+    mul_mont_sparse_256(out, BLS12_381_rRR, out, BLS12_381_r, r0);
 }
 
 void blst_fr_inverse(vec256 out, const vec256 inp)

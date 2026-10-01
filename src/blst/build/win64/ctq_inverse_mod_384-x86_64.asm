@@ -1,5 +1,7 @@
 OPTION	DOTNAME
+ifdef	__BLST_PORTABLE__
 EXTERN	ct_inverse_mod_384$1:NEAR
+endif
 _DATA	SEGMENT
 COMM	__blst_platform_cap:DWORD:1
 _DATA	ENDS

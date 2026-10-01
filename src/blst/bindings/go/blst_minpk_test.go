@@ -30,7 +30,7 @@ func init() {
 
 func TestInfinityMinPk(t *testing.T) {
     t.Parallel()
-    var infComp [48]byte
+    var infComp [BLST_P1_COMPRESS_BYTES]byte
     infComp[0] |= 0xc0
     new(PublicKeyMinPk).Uncompress(infComp[:])
 }

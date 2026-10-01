@@ -9,17 +9,9 @@
 # just not-all-ones. Or in other words not larger than 2^256-2^192-1.
 # In general Montgomery multiplication algorithm can handle one of the
 # inputs being non-reduced and capped by 1<<radix_width, 1<<256 in this
-# case, rather than the modulus. Whether or not mul_mont_sparse_256, a
-# *taylored* implementation of the algorithm, can handle such input can
-# be circumstantial. For example, in most general case it depends on
-# similar "bit sparsity" of individual limbs of the second, fully reduced
-# multiplicand. If you can't make such assumption about the limbs, then
-# non-reduced value shouldn't be larger than "same old" 2^256-2^192-1.
-# This requirement can be met by conditionally subtracting "bitwise
-# left-aligned" modulus. For example, if modulus is 200 bits wide, you
-# would need to conditionally subtract the value of modulus<<56. Common
-# source of non-reduced values is redc_mont_256 treating 512-bit inputs.
-# Well, more specifically ones with upper half not smaller than modulus.
+# case, rather than the modulus. mul_mont_sparse_256, being a *tailored*
+# implementation of the algorithm, can handle such input only as second
+# input, the third function argument.
 # Just in case, why limitation at all and not general-purpose 256-bit
 # subroutines? Unlike the 384-bit case, accounting for additional carry
 # has disproportionate impact on performance, especially in adcx/adox
@@ -40,10 +32,12 @@ open STDOUT,"| \"$^X\" \"$xlate\" $flavour \"$output\""
     or die "can't call $xlate: $!";
 
 $code.=<<___ if ($flavour =~ /masm/);
+#ifdef	__BLST_PORTABLE__
 .globl	mul_mont_sparse_256\$1
 .globl	sqr_mont_sparse_256\$1
 .globl	from_mont_256\$1
 .globl	redc_mont_256\$1
+#endif
 ___
 
 # common argument layout
@@ -198,7 +192,7 @@ $code.=<<___;
 	 imulq	$n0, %rax
 
 	################################# Multiply by b[$i]
-	xor	$a5, $a5		# [@acc[5]=0,] cf=0, of=0
+	xor	@acc[5], @acc[5]	# @acc[5]=0, cf=0, of=0
 	mulx	8*0+128($a_ptr), $lo, $hi
 	adox	$lo, @acc[1]
 	adcx	$hi, @acc[2]
@@ -233,12 +227,9 @@ $code.=<<___;
 	mulx	8*3+128($n_ptr), $lo, $hi
 	 mov	$b_next, %rdx
 	adcx	$lo, @acc[3]
-	adox	$hi, @acc[4]
-	adcx	@acc[0], @acc[4]
-	adox	@acc[0], @acc[5]
+	adox	@acc[0], $hi		# of=0
+	adcx	$hi, @acc[4]
 	adcx	@acc[0], @acc[5]
-	adox	@acc[0], @acc[0]	# acc[5] in next iteration
-	adc	\$0, @acc[0]		# cf=0, of=0
 ___
     push(@acc,shift(@acc));
 }
@@ -246,7 +237,7 @@ $code.=<<___;
 	imulq	$n0, %rdx
 
 	################################# last reduction
-	xor	$lo, $lo		# cf=0, of=0
+	xor	@acc[5], @acc[5]	# cf=0, of=0
 	mulx	8*0+128($n_ptr), @acc[0], $hi
 	adcx	%rax, @acc[0]		# guaranteed to be zero
 	adox	$hi, @acc[1]
@@ -263,11 +254,10 @@ $code.=<<___;
 	 mov	@acc[1], %rdx
 	 lea	128($n_ptr), $n_ptr
 	adcx	$lo, @acc[3]
-	adox	$hi, @acc[4]
+	adox	@acc[0], $hi		# of=0
 	 mov	@acc[2], %rax
-	adcx	@acc[0], @acc[4]
-	adox	@acc[0], @acc[5]
-	adc	\$0, @acc[5]
+	adcx	$hi, @acc[4]
+	adcx	@acc[0], @acc[5]
 
 	#################################
 	# Branch-less conditional acc[1:5] - modulus

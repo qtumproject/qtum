@@ -298,15 +298,18 @@ func breakdown(nbits, window, ncpus int) (nx int, ny int, wnd int) {
                 wnd = window;
             }
         }
-    } else {
+    } else if window > 3 {
         nx = 2
         wnd = window-2
-        for (nbits/wnd+1)*nx < ncpus {
+        for wnd > 1 && (nbits/wnd+1)*nx < ncpus {
             nx += 1
             wnd = window - bits.Len(3*uint(nx)/2)
         }
         nx -= 1
         wnd = window - bits.Len(3*uint(nx)/2)
+    } else {
+        nx = 1
+        wnd = window
     }
     ny = nbits/wnd + 1
     wnd = nbits/ny + 1

@@ -22,6 +22,7 @@ ct_inverse_mod_256:
 #ifdef	__CHERI_PURE_CAPABILITY__
 	add	x1,sp,#16+511
 	alignd	c1,c1,#9
+	scbnds	c1,c1,#512
 #else
 	add	x1, sp, #16+511	// find closest 512-byte-aligned spot
 	and	x1, x1, #-512	// in the frame...
@@ -41,7 +42,7 @@ ct_inverse_mod_256:
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	str	x12,[x0,#8*8]		// initialize |u| with |f0|
@@ -55,13 +56,13 @@ ct_inverse_mod_256:
 	////////////////////////////////////////// second iteration
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -87,13 +88,13 @@ ct_inverse_mod_256:
 	stp	x5, x5, [x0,#8*12]
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -112,13 +113,13 @@ ct_inverse_mod_256:
 	bl	__smul_256x63
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -137,13 +138,13 @@ ct_inverse_mod_256:
 	bl	__smul_256x63
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -162,13 +163,13 @@ ct_inverse_mod_256:
 	bl	__smul_256x63
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -187,13 +188,13 @@ ct_inverse_mod_256:
 	bl	__smul_256x63
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -212,13 +213,13 @@ ct_inverse_mod_256:
 	bl	__smul_256x63
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -242,13 +243,13 @@ ct_inverse_mod_256:
 	stp	x24, x24, [x0,#8*6]
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -270,13 +271,13 @@ ct_inverse_mod_256:
 	bl	__smul_512x63_tail
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -298,13 +299,13 @@ ct_inverse_mod_256:
 	bl	__smul_512x63_tail
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -326,13 +327,13 @@ ct_inverse_mod_256:
 	bl	__smul_512x63_tail
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -354,13 +355,13 @@ ct_inverse_mod_256:
 	bl	__smul_512x63_tail
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -382,13 +383,13 @@ ct_inverse_mod_256:
 	bl	__smul_512x63_tail
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -410,13 +411,13 @@ ct_inverse_mod_256:
 	bl	__smul_512x63_tail
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	bl	__ab_approximation_31_256
 
 	eor	x0, x1, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c0,csp,x0
+	scvalue	c0,c1,x0
 #endif
 	bl	__smul_256_n_shift_by_31
 	mov	x16, x12			// corrected |f0|
@@ -439,7 +440,7 @@ ct_inverse_mod_256:
 	////////////////////////////////////////// two[!] last iterations
 	eor	x1, x1, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue	c1,csp,x1
+	scvalue	c1,c0,x1
 #endif
 	mov	x2, #47			// 31 + 512 % 31
 	//bl	__ab_approximation_62_256	// |a| and |b| are exact,

@@ -37,7 +37,7 @@ func (tree *rbTree) insert(data *[]byte) bool {
     var dirs  [64]byte      /* taken directions */
     var k uint              /* walked distance  */
 
-    for p := tree.root; p != nil; k++ {
+    for p := tree.root; p != nil && k < 64; k++ {
         cmp := bytes.Compare(*data, *p.data)
 
         if cmp == 0 {
@@ -52,6 +52,10 @@ func (tree *rbTree) insert(data *[]byte) bool {
             dirs[k] = 0
         }
         p = p.leafs[dirs[k]]
+    }
+
+    if k == 64 {
+        return false
     }
 
     /* allocate new node */

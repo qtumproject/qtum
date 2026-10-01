@@ -14,6 +14,7 @@ use alloc::boxed::Box;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::any::Any;
+use core::marker::PhantomData;
 use core::mem::{transmute, MaybeUninit};
 use core::ptr;
 use zeroize::Zeroize;
@@ -278,21 +279,23 @@ impl blst_scalar {
 }
 
 #[derive(Debug)]
-pub struct Pairing {
+pub struct Pairing<'p> {
     v: Box<[u64]>,
+    p: PhantomData<&'p [u8]>,
 }
 
-impl Pairing {
-    pub fn new(hash_or_encode: bool, dst: &[u8]) -> Self {
+impl<'p> Pairing<'p> {
+    pub fn new(hash_or_encode: bool, dst: &'p [u8]) -> Self {
         let v: Vec<u64> = vec![0; unsafe { blst_pairing_sizeof() } / 8];
         let mut obj = Self {
             v: v.into_boxed_slice(),
+            p: PhantomData,
         };
         obj.init(hash_or_encode, dst);
         obj
     }
 
-    pub fn init(&mut self, hash_or_encode: bool, dst: &[u8]) {
+    pub fn init(&mut self, hash_or_encode: bool, dst: &'p [u8]) {
         unsafe {
             blst_pairing_init(
                 self.ctx(),
@@ -375,6 +378,10 @@ impl Pairing {
         msg: &[u8],
         aug: &[u8],
     ) -> BLST_ERROR {
+        if scalar.len() < (nbits + 7) / 8 {
+            panic!("scalar length mismatch");
+        }
+
         if pk.is::<blst_p1_affine>() {
             unsafe {
                 blst_pairing_chk_n_mul_n_aggr_pk_in_g1(
@@ -1758,7 +1765,7 @@ macro_rules! sig_variant_impl {
         #[cfg(test)]
         mod tests {
             use super::*;
-            use rand::{RngCore, SeedableRng};
+            use rand_core::{RngCore, SeedableRng};
             use rand_chacha::ChaCha20Rng;
 
             // Testing only - do not use for production
@@ -2302,7 +2309,7 @@ include!("pippenger-no_std.rs");
 #[cfg(test)]
 mod fp12_test {
     use super::*;
-    use rand::{RngCore, SeedableRng};
+    use rand_core::{RngCore, SeedableRng};
     use rand_chacha::ChaCha20Rng;
 
     #[test]
@@ -2355,7 +2362,7 @@ mod fp12_test {
 #[cfg(test)]
 mod sk_test {
     use super::*;
-    use rand::{RngCore, SeedableRng};
+    use rand_core::{RngCore, SeedableRng};
     use rand_chacha::ChaCha20Rng;
 
     #[test]

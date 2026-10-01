@@ -279,6 +279,15 @@ my $scvalue = sub {
     "\tscvalue\t".join(',',@regs);
 };
 
+my $scbnds = sub {
+    my ($args,$comment) = split(m|\s*//|,shift);
+    $args =~ s/\b(?:x([0-9]+)|(sp))\b/c$1$2/g;
+    my @regs = split(m|,\s*|,$args);
+    @regs[2] =~ s/\bc([0-9])\b/x$1/;
+
+    "\tscbnds\t".join(',',@regs);
+};
+
 my $cadd = sub {
     my ($args,$comment) = split(m|\s*//|,shift);
     if ($flavour =~ /cheri/) {

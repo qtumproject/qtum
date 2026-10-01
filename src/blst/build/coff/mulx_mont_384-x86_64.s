@@ -2064,8 +2064,8 @@ __mulx_mont_384:
 	mulxq	40+128(%rsi),%rdi,%rbp
 	movq	%r8,%rdx
 	adoxq	%rdi,%r14
-	adcxq	%rbp,%r15
-	adoxq	%rax,%r15
+	adcxq	%rax,%rbp
+	adoxq	%rbp,%r15
 	adoxq	%rax,%rax
 
 
@@ -2093,11 +2093,9 @@ __mulx_mont_384:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	16(%rbx),%rdx
 	adcxq	%rdi,%r13
-	adoxq	%rbp,%r14
-	adcxq	%r8,%r14
-	adoxq	%r8,%r15
+	adoxq	%r8,%rbp
+	adcxq	%rbp,%r14
 	adcxq	%r8,%r15
-	adoxq	%r8,%rax
 	adcxq	%r8,%rax
 	movq	%r9,16(%rsp)
 	imulq	8(%rsp),%r9
@@ -2127,8 +2125,8 @@ __mulx_mont_384:
 	mulxq	40+128(%rsi),%rdi,%rbp
 	movq	%r9,%rdx
 	adoxq	%rdi,%r15
-	adcxq	%rbp,%rax
-	adoxq	%r8,%rax
+	adcxq	%r8,%rbp
+	adoxq	%rbp,%rax
 	adoxq	%r8,%r8
 
 
@@ -2156,11 +2154,9 @@ __mulx_mont_384:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	24(%rbx),%rdx
 	adcxq	%rdi,%r14
-	adoxq	%rbp,%r15
-	adcxq	%r9,%r15
-	adoxq	%r9,%rax
+	adoxq	%r9,%rbp
+	adcxq	%rbp,%r15
 	adcxq	%r9,%rax
-	adoxq	%r9,%r8
 	adcxq	%r9,%r8
 	movq	%r10,16(%rsp)
 	imulq	8(%rsp),%r10
@@ -2190,8 +2186,8 @@ __mulx_mont_384:
 	mulxq	40+128(%rsi),%rdi,%rbp
 	movq	%r10,%rdx
 	adoxq	%rdi,%rax
-	adcxq	%rbp,%r8
-	adoxq	%r9,%r8
+	adcxq	%r9,%rbp
+	adoxq	%rbp,%r8
 	adoxq	%r9,%r9
 
 
@@ -2219,11 +2215,9 @@ __mulx_mont_384:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	32(%rbx),%rdx
 	adcxq	%rdi,%r15
-	adoxq	%rbp,%rax
-	adcxq	%r10,%rax
-	adoxq	%r10,%r8
+	adoxq	%r10,%rbp
+	adcxq	%rbp,%rax
 	adcxq	%r10,%r8
-	adoxq	%r10,%r9
 	adcxq	%r10,%r9
 	movq	%r11,16(%rsp)
 	imulq	8(%rsp),%r11
@@ -2253,8 +2247,8 @@ __mulx_mont_384:
 	mulxq	40+128(%rsi),%rdi,%rbp
 	movq	%r11,%rdx
 	adoxq	%rdi,%r8
-	adcxq	%rbp,%r9
-	adoxq	%r10,%r9
+	adcxq	%r10,%rbp
+	adoxq	%rbp,%r9
 	adoxq	%r10,%r10
 
 
@@ -2282,11 +2276,9 @@ __mulx_mont_384:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	40(%rbx),%rdx
 	adcxq	%rdi,%rax
-	adoxq	%rbp,%r8
-	adcxq	%r11,%r8
-	adoxq	%r11,%r9
+	adoxq	%r11,%rbp
+	adcxq	%rbp,%r8
 	adcxq	%r11,%r9
-	adoxq	%r11,%r10
 	adcxq	%r11,%r10
 	movq	%r12,16(%rsp)
 	imulq	8(%rsp),%r12
@@ -2316,8 +2308,8 @@ __mulx_mont_384:
 	mulxq	40+128(%rsi),%rdi,%rbp
 	movq	%r12,%rdx
 	adoxq	%rdi,%r9
-	adcxq	%rbp,%r10
-	adoxq	%r11,%r10
+	adcxq	%r11,%rbp
+	adoxq	%rbp,%r10
 	adoxq	%r11,%r11
 
 
@@ -2345,11 +2337,9 @@ __mulx_mont_384:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	%r13,%rdx
 	adcxq	%rdi,%r8
-	adoxq	%rbp,%r9
-	adcxq	%r12,%r9
-	adoxq	%r12,%r10
+	adoxq	%r12,%rbp
+	adcxq	%rbp,%r9
 	adcxq	%r12,%r10
-	adoxq	%r12,%r11
 	adcxq	%r12,%r11
 	imulq	8(%rsp),%rdx
 	movq	24(%rsp),%rbx
@@ -2380,10 +2370,9 @@ __mulx_mont_384:
 
 	mulxq	40+128(%rcx),%rdi,%rbp
 	adcxq	%rdi,%r9
-	adoxq	%rbp,%r10
+	adoxq	%r12,%rbp
 	movq	%r14,%rdx
-	adcxq	%r12,%r10
-	adoxq	%r12,%r11
+	adcxq	%rbp,%r10
 	leaq	128(%rcx),%rcx
 	movq	%r8,%r12
 	adcq	$0,%r11
@@ -2789,9 +2778,8 @@ __mulx_mont_383_nonred:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	16(%rbx),%rdx
 	adcxq	%rdi,%r13
-	adoxq	%rbp,%r14
-	adcxq	%rax,%r14
-	adoxq	%rax,%r15
+	adoxq	%rax,%rbp
+	adcxq	%rbp,%r14
 	adcxq	%rax,%r15
 	movq	%r9,%r8
 	imulq	8(%rsp),%r9
@@ -2849,9 +2837,8 @@ __mulx_mont_383_nonred:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	24(%rbx),%rdx
 	adcxq	%rdi,%r14
-	adoxq	%rbp,%r15
-	adcxq	%r8,%r15
-	adoxq	%r8,%rax
+	adoxq	%r8,%rbp
+	adcxq	%rbp,%r15
 	adcxq	%r8,%rax
 	movq	%r10,%r9
 	imulq	8(%rsp),%r10
@@ -2909,9 +2896,8 @@ __mulx_mont_383_nonred:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	32(%rbx),%rdx
 	adcxq	%rdi,%r15
-	adoxq	%rbp,%rax
-	adcxq	%r9,%rax
-	adoxq	%r9,%r8
+	adoxq	%r9,%rbp
+	adcxq	%rbp,%rax
 	adcxq	%r9,%r8
 	movq	%r11,%r10
 	imulq	8(%rsp),%r11
@@ -2969,9 +2955,8 @@ __mulx_mont_383_nonred:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	40(%rbx),%rdx
 	adcxq	%rdi,%rax
-	adoxq	%rbp,%r8
-	adcxq	%r10,%r8
-	adoxq	%r10,%r9
+	adoxq	%r10,%rbp
+	adcxq	%rbp,%r8
 	adcxq	%r10,%r9
 	movq	%r12,%r11
 	imulq	8(%rsp),%r12
@@ -3029,9 +3014,8 @@ __mulx_mont_383_nonred:
 	mulxq	40+128(%rcx),%rdi,%rbp
 	movq	%r13,%rdx
 	adcxq	%rdi,%r8
-	adoxq	%rbp,%r9
-	adcxq	%r11,%r9
-	adoxq	%r11,%r10
+	adoxq	%r11,%rbp
+	adcxq	%rbp,%r9
 	adcxq	%r11,%r10
 	imulq	8(%rsp),%rdx
 	movq	24(%rsp),%rbx
@@ -3085,214 +3069,6 @@ __mulx_mont_383_nonred:
 #endif
 
 
-.globl	sqrx_mont_382x
-
-.def	sqrx_mont_382x;	.scl 2;	.type 32;	.endef
-.p2align	5
-sqrx_mont_382x:
-	.byte	0xf3,0x0f,0x1e,0xfa
-	movq	%rdi,8(%rsp)
-	movq	%rsi,16(%rsp)
-	movq	%rsp,%r11
-.LSEH_begin_sqrx_mont_382x:
-
-
-	movq	%rcx,%rdi
-	movq	%rdx,%rsi
-	movq	%r8,%rdx
-	movq	%r9,%rcx
-sqr_mont_382x$1:
-	pushq	%rbp
-
-	pushq	%rbx
-
-	pushq	%r12
-
-	pushq	%r13
-
-	pushq	%r14
-
-	pushq	%r15
-
-	subq	$136,%rsp
-
-.LSEH_body_sqrx_mont_382x:
-
-
-	movq	%rcx,0(%rsp)
-	movq	%rdx,%rcx
-	movq	%rdi,16(%rsp)
-	movq	%rsi,24(%rsp)
-
-
-#ifdef	__SGX_LVI_HARDENING__
-	lfence
-#endif
-	movq	0(%rsi),%r8
-	movq	8(%rsi),%r9
-	movq	16(%rsi),%r10
-	movq	24(%rsi),%r11
-	movq	32(%rsi),%r12
-	movq	40(%rsi),%r13
-
-	movq	%r8,%r14
-	addq	48(%rsi),%r8
-	movq	%r9,%r15
-	adcq	56(%rsi),%r9
-	movq	%r10,%rax
-	adcq	64(%rsi),%r10
-	movq	%r11,%rdx
-	adcq	72(%rsi),%r11
-	movq	%r12,%rbx
-	adcq	80(%rsi),%r12
-	movq	%r13,%rbp
-	adcq	88(%rsi),%r13
-
-	subq	48(%rsi),%r14
-	sbbq	56(%rsi),%r15
-	sbbq	64(%rsi),%rax
-	sbbq	72(%rsi),%rdx
-	sbbq	80(%rsi),%rbx
-	sbbq	88(%rsi),%rbp
-	sbbq	%rdi,%rdi
-
-	movq	%r8,32+0(%rsp)
-	movq	%r9,32+8(%rsp)
-	movq	%r10,32+16(%rsp)
-	movq	%r11,32+24(%rsp)
-	movq	%r12,32+32(%rsp)
-	movq	%r13,32+40(%rsp)
-
-	movq	%r14,32+48(%rsp)
-	movq	%r15,32+56(%rsp)
-	movq	%rax,32+64(%rsp)
-	movq	%rdx,32+72(%rsp)
-	movq	%rbx,32+80(%rsp)
-	movq	%rbp,32+88(%rsp)
-	movq	%rdi,32+96(%rsp)
-
-
-
-	leaq	48(%rsi),%rbx
-
-	movq	48(%rsi),%rdx
-	movq	0(%rsi),%r14
-	movq	8(%rsi),%r15
-	movq	16(%rsi),%rax
-	movq	24(%rsi),%r12
-	movq	32(%rsi),%rdi
-	movq	40(%rsi),%rbp
-	leaq	-128(%rsi),%rsi
-	leaq	-128(%rcx),%rcx
-
-	mulxq	%r14,%r8,%r9
-	call	__mulx_mont_383_nonred
-	addq	%rdx,%rdx
-	adcq	%r15,%r15
-	adcq	%rax,%rax
-	adcq	%r12,%r12
-	adcq	%rdi,%rdi
-	adcq	%rbp,%rbp
-
-	movq	%rdx,48(%rbx)
-	movq	%r15,56(%rbx)
-	movq	%rax,64(%rbx)
-	movq	%r12,72(%rbx)
-	movq	%rdi,80(%rbx)
-	movq	%rbp,88(%rbx)
-
-	leaq	32-128(%rsp),%rsi
-	leaq	32+48(%rsp),%rbx
-
-	movq	32+48(%rsp),%rdx
-	movq	32+0(%rsp),%r14
-	movq	32+8(%rsp),%r15
-	movq	32+16(%rsp),%rax
-	movq	32+24(%rsp),%r12
-	movq	32+32(%rsp),%rdi
-	movq	32+40(%rsp),%rbp
-
-
-
-	mulxq	%r14,%r8,%r9
-	call	__mulx_mont_383_nonred
-	movq	32+96(%rsp),%r14
-	leaq	128(%rcx),%rcx
-	movq	32+0(%rsp),%r8
-	andq	%r14,%r8
-	movq	32+8(%rsp),%r9
-	andq	%r14,%r9
-	movq	32+16(%rsp),%r10
-	andq	%r14,%r10
-	movq	32+24(%rsp),%r11
-	andq	%r14,%r11
-	movq	32+32(%rsp),%r13
-	andq	%r14,%r13
-	andq	32+40(%rsp),%r14
-
-	subq	%r8,%rdx
-	movq	0(%rcx),%r8
-	sbbq	%r9,%r15
-	movq	8(%rcx),%r9
-	sbbq	%r10,%rax
-	movq	16(%rcx),%r10
-	sbbq	%r11,%r12
-	movq	24(%rcx),%r11
-	sbbq	%r13,%rdi
-	movq	32(%rcx),%r13
-	sbbq	%r14,%rbp
-	sbbq	%r14,%r14
-
-	andq	%r14,%r8
-	andq	%r14,%r9
-	andq	%r14,%r10
-	andq	%r14,%r11
-	andq	%r14,%r13
-	andq	40(%rcx),%r14
-
-	addq	%r8,%rdx
-	adcq	%r9,%r15
-	adcq	%r10,%rax
-	adcq	%r11,%r12
-	adcq	%r13,%rdi
-	adcq	%r14,%rbp
-
-	movq	%rdx,0(%rbx)
-	movq	%r15,8(%rbx)
-	movq	%rax,16(%rbx)
-	movq	%r12,24(%rbx)
-	movq	%rdi,32(%rbx)
-	movq	%rbp,40(%rbx)
-	leaq	136(%rsp),%r8
-	movq	0(%r8),%r15
-
-	movq	8(%r8),%r14
-
-	movq	16(%r8),%r13
-
-	movq	24(%r8),%r12
-
-	movq	32(%r8),%rbx
-
-	movq	40(%r8),%rbp
-
-	leaq	48(%r8),%rsp
-
-.LSEH_epilogue_sqrx_mont_382x:
-	mov	8(%rsp),%rdi
-	mov	16(%rsp),%rsi
-
-	
-#ifdef	__SGX_LVI_HARDENING__
-	popq	%rdx
-	lfence
-	jmpq	*%rdx
-	ud2
-#else
-	.byte	0xf3,0xc3
-#endif
-
-.LSEH_end_sqrx_mont_382x:
 .section	.pdata
 .p2align	2
 .rva	.LSEH_begin_mulx_mont_384x
@@ -3462,18 +3238,6 @@ sqr_mont_382x$1:
 .rva	.LSEH_epilogue_sqrx_n_mul_mont_383
 .rva	.LSEH_end_sqrx_n_mul_mont_383
 .rva	.LSEH_info_sqrx_n_mul_mont_383_epilogue
-
-.rva	.LSEH_begin_sqrx_mont_382x
-.rva	.LSEH_body_sqrx_mont_382x
-.rva	.LSEH_info_sqrx_mont_382x_prologue
-
-.rva	.LSEH_body_sqrx_mont_382x
-.rva	.LSEH_epilogue_sqrx_mont_382x
-.rva	.LSEH_info_sqrx_mont_382x_body
-
-.rva	.LSEH_epilogue_sqrx_mont_382x
-.rva	.LSEH_end_sqrx_mont_382x
-.rva	.LSEH_info_sqrx_mont_382x_epilogue
 
 .section	.xdata
 .p2align	3
@@ -3836,32 +3600,6 @@ sqr_mont_382x$1:
 .byte	0x00,0x00,0x00,0x00,0x00,0x00
 .byte	0x00,0x00,0x00,0x00
 .LSEH_info_sqrx_n_mul_mont_383_epilogue:
-.byte	1,0,4,0
-.byte	0x00,0x74,0x01,0x00
-.byte	0x00,0x64,0x02,0x00
-.byte	0x00,0x00,0x00,0x00
-
-.LSEH_info_sqrx_mont_382x_prologue:
-.byte	1,0,5,0x0b
-.byte	0,0x74,1,0
-.byte	0,0x64,2,0
-.byte	0,0xb3
-.byte	0,0
-.long	0,0
-.LSEH_info_sqrx_mont_382x_body:
-.byte	1,0,18,0
-.byte	0x00,0xf4,0x11,0x00
-.byte	0x00,0xe4,0x12,0x00
-.byte	0x00,0xd4,0x13,0x00
-.byte	0x00,0xc4,0x14,0x00
-.byte	0x00,0x34,0x15,0x00
-.byte	0x00,0x54,0x16,0x00
-.byte	0x00,0x74,0x18,0x00
-.byte	0x00,0x64,0x19,0x00
-.byte	0x00,0x01,0x17,0x00
-.byte	0x00,0x00,0x00,0x00
-.byte	0x00,0x00,0x00,0x00
-.LSEH_info_sqrx_mont_382x_epilogue:
 .byte	1,0,4,0
 .byte	0x00,0x74,0x01,0x00
 .byte	0x00,0x64,0x02,0x00

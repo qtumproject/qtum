@@ -34,7 +34,7 @@ An initial audit of this library was conducted by NCC Group in January 2021 and 
 Formal verification of this library by Galois is on-going and can be found [here](https://github.com/GaloisInc/BLST-Verification).
 
 This library is compliant with the following IETF draft specifications:
-- [IETF BLS Signature V5](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature)
+- [IETF BLS Signature V6](https://tools.ietf.org/html/draft-irtf-cfrg-bls-signature)
 - [IETF RFC 9380 Hashing to Elliptic Curves](https://www.rfc-editor.org/rfc/rfc9380.html)
 
 The serialization formatting is implemented according to [the ZCash definition](#serialization-format).
@@ -58,6 +58,7 @@ Unless deemed appropriate to implement, bindings for other languages will be pro
 - [Node.js](bindings/node.js)
 - [Emscripten](bindings/emscripten)
 - [C#](bindings/c%23)
+- [Zig](bindings/zig)
 
 ## API
 

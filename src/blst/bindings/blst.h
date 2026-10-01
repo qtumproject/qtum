@@ -26,12 +26,12 @@ extern "C" {
 #elif !defined(__STDC_VERSION__) || __STDC_VERSION__<202311
 # if defined(__BLST_CGO__)
 typedef _Bool bool; /* it's assumed that cgo calls modern enough compiler */
+# elif defined(__BLST_RUST_BINDGEN__) || defined(__BLST_ZIG__)
+#  define bool _Bool
+# elif defined(__STDC_VERSION__) && __STDC_VERSION__>=199901
+#  include <stdbool.h>
 # elif !defined(bool)
-#  if defined(__STDC_VERSION__) && __STDC_VERSION__>=199901
-#   define bool _Bool
-#  else
-#   define bool int
-#  endif
+#  define bool int
 #  define __blst_h_bool__
 # endif
 #endif

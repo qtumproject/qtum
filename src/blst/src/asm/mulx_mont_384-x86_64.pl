@@ -19,6 +19,7 @@ open STDOUT,"| \"$^X\" \"$xlate\" $flavour \"$output\""
     or die "can't call $xlate: $!";
 
 $code.=<<___ if ($flavour =~ /masm/);
+#ifdef	__BLST_PORTABLE__
 .globl	mul_mont_384x\$1
 .globl	sqr_mont_384x\$1
 .globl	mul_382x\$1
@@ -33,7 +34,7 @@ $code.=<<___ if ($flavour =~ /masm/);
 .globl	sqr_mont_384\$1
 .globl	sqr_n_mul_mont_384\$1
 .globl	sqr_n_mul_mont_383\$1
-.globl	sqr_mont_382x\$1
+#endif
 ___
 
 # common argument layout
@@ -1807,8 +1808,8 @@ $code.=<<___;
 	mulx	8*5+128($a_ptr), $lo, $hi
 	 mov	@acc[0], %rdx
 	adox	$lo, @acc[6]
-	adcx	$hi, @acc[7]		# cf=0
-	adox	@acc[8], @acc[7]
+	adcx	@acc[8], $hi		# cf=0
+	adox	$hi, @acc[7]
 	adox	@acc[8], @acc[8]
 
 	################################# reduction
@@ -1836,11 +1837,9 @@ $code.=<<___;
 	mulx	8*5+128($n_ptr), $lo, $hi
 	 mov	$b_next, %rdx
 	adcx	$lo, @acc[5]
-	adox	$hi, @acc[6]
-	adcx	@acc[0], @acc[6]
-	adox	@acc[0], @acc[7]
+	adox	@acc[0], $hi		# of=0
+	adcx	$hi, @acc[6]
 	adcx	@acc[0], @acc[7]
-	adox	@acc[0], @acc[8]
 	adcx	@acc[0], @acc[8]
 ___
     push(@acc,shift(@acc));
@@ -1875,10 +1874,9 @@ $code.=<<___;
 
 	mulx	8*5+128($n_ptr), $lo, $hi
 	adcx	$lo, @acc[5]
-	adox	$hi, @acc[6]
+	adox	@acc[8], $hi		# of=0
 	 mov	@acc[1], %rdx
-	adcx	@acc[8], @acc[6]
-	adox	@acc[8], @acc[7]
+	adcx	$hi, @acc[6]
 	 lea	128($n_ptr), $n_ptr
 	 mov	@acc[4], @acc[8]
 	adc	\$0, @acc[7]
@@ -2216,9 +2214,8 @@ $code.=<<___;
 	mulx	8*5+128($n_ptr), $lo, $hi
 	 mov	$b_next, %rdx
 	adcx	$lo, @acc[5]
-	adox	$hi, @acc[6]
-	adcx	@acc[8], @acc[6]
-	adox	@acc[8], @acc[7]
+	adox	@acc[8], $hi		# of=0
+	adcx	$hi, @acc[6]
 	adcx	@acc[8], @acc[7]
 ___
     push(@acc,shift(@acc));
@@ -2270,217 +2267,6 @@ $code.=<<___;
 .size	__mulx_mont_383_nonred,.-__mulx_mont_383_nonred
 ___
 } } }
-{ my $frame = 4*8 +	# place for argument off-load +
-	      2*384/8 +	# place for 2 384-bit temporary vectors
-	      8;	# align
-my @acc = (@acc,"%rax","%rdx","%rbx","%rbp");
-
-# omitting 3 reductions gives ~10% better performance in add-chains
-$code.=<<___;
-.globl	sqrx_mont_382x
-.hidden	sqrx_mont_382x
-.type	sqrx_mont_382x,\@function,4,"unwind"
-.align	32
-sqrx_mont_382x:
-.cfi_startproc
-sqr_mont_382x\$1:
-	push	%rbp
-.cfi_push	%rbp
-	push	%rbx
-.cfi_push	%rbx
-	push	%r12
-.cfi_push	%r12
-	push	%r13
-.cfi_push	%r13
-	push	%r14
-.cfi_push	%r14
-	push	%r15
-.cfi_push	%r15
-	sub	\$$frame, %rsp
-.cfi_adjust_cfa_offset	$frame
-.cfi_end_prologue
-
-	mov	$n_ptr, 8*0(%rsp)	# n0
-	mov	$b_org, $n_ptr		# n_ptr
-	mov	$r_ptr, 8*2(%rsp)
-	mov	$a_ptr, 8*3(%rsp)
-
-	#################################
-#ifdef	__SGX_LVI_HARDENING__
-	lfence
-#endif
-	mov	8*0($a_ptr), @acc[0]	# a->re
-	mov	8*1($a_ptr), @acc[1]
-	mov	8*2($a_ptr), @acc[2]
-	mov	8*3($a_ptr), @acc[3]
-	mov	8*4($a_ptr), @acc[4]
-	mov	8*5($a_ptr), @acc[5]
-
-	mov	@acc[0], @acc[6]
-	add	8*6($a_ptr), @acc[0]	# a->re + a->im
-	mov	@acc[1], @acc[7]
-	adc	8*7($a_ptr), @acc[1]
-	mov	@acc[2], @acc[8]
-	adc	8*8($a_ptr), @acc[2]
-	mov	@acc[3], @acc[9]
-	adc	8*9($a_ptr), @acc[3]
-	mov	@acc[4], @acc[10]
-	adc	8*10($a_ptr), @acc[4]
-	mov	@acc[5], @acc[11]
-	adc	8*11($a_ptr), @acc[5]
-
-	sub	8*6($a_ptr), @acc[6]	# a->re - a->im
-	sbb	8*7($a_ptr), @acc[7]
-	sbb	8*8($a_ptr), @acc[8]
-	sbb	8*9($a_ptr), @acc[9]
-	sbb	8*10($a_ptr), @acc[10]
-	sbb	8*11($a_ptr), @acc[11]
-	sbb	$r_ptr, $r_ptr		# borrow flag as mask
-
-	mov	@acc[0], 32+8*0(%rsp)	# t0
-	mov	@acc[1], 32+8*1(%rsp)
-	mov	@acc[2], 32+8*2(%rsp)
-	mov	@acc[3], 32+8*3(%rsp)
-	mov	@acc[4], 32+8*4(%rsp)
-	mov	@acc[5], 32+8*5(%rsp)
-
-	mov	@acc[6], 32+8*6(%rsp)	# t1
-	mov	@acc[7], 32+8*7(%rsp)
-	mov	@acc[8], 32+8*8(%rsp)
-	mov	@acc[9], 32+8*9(%rsp)
-	mov	@acc[10], 32+8*10(%rsp)
-	mov	@acc[11], 32+8*11(%rsp)
-	mov	$r_ptr,   32+8*12(%rsp)
-
-	################################# mul_mont_384(ret->im, a->re, a->im, mod, n0);
-	#mov	8*3(%rsp), $a_ptr	# a->re
-	lea	48($a_ptr), $b_ptr	# a->im
-
-	mov	48($a_ptr), %rdx
-	mov	8*0($a_ptr), %r14	# @acc[6]
-	mov	8*1($a_ptr), %r15	# @acc[7]
-	mov	8*2($a_ptr), %rax	# @acc[8]
-	mov	8*3($a_ptr), %r12	# @acc[4]
-	mov	8*4($a_ptr), %rdi	# $lo
-	mov	8*5($a_ptr), %rbp	# $hi
-	lea	-128($a_ptr), $a_ptr	# control u-op density
-	lea	-128($n_ptr), $n_ptr	# control u-op density
-
-	mulx	%r14, %r8, %r9
-	call	__mulx_mont_383_nonred
-___
-{
-my @acc = map("%r$_","dx",15,"ax",12,"di","bp",	# output from __mulx_mont_384
-                      8..11,13,14);
-$code.=<<___;
-	add	@acc[0], @acc[0]	# add with itself
-	adc	@acc[1], @acc[1]
-	adc	@acc[2], @acc[2]
-	adc	@acc[3], @acc[3]
-	adc	@acc[4], @acc[4]
-	adc	@acc[5], @acc[5]
-
-	mov	@acc[0],  8*6($b_ptr)	# ret->im
-	mov	@acc[1],  8*7($b_ptr)
-	mov	@acc[2],  8*8($b_ptr)
-	mov	@acc[3],  8*9($b_ptr)
-	mov	@acc[4],  8*10($b_ptr)
-	mov	@acc[5],  8*11($b_ptr)
-___
-}
-$code.=<<___;
-	################################# mul_mont_384(ret->re, t0, t1, mod, n0);
-	lea	32-128(%rsp), $a_ptr	# t0 [+u-op density]
-	lea	32+8*6(%rsp), $b_ptr	# t1
-
-	mov	32+8*6(%rsp), %rdx	# t1[0]
-	mov	32+8*0(%rsp), %r14	# @acc[6]
-	mov	32+8*1(%rsp), %r15	# @acc[7]
-	mov	32+8*2(%rsp), %rax	# @acc[8]
-	mov	32+8*3(%rsp), %r12	# @acc[4]
-	mov	32+8*4(%rsp), %rdi	# $lo
-	mov	32+8*5(%rsp), %rbp	# $hi
-	#lea	-128($a_ptr), $a_ptr	# control u-op density
-	#lea	-128($n_ptr), $n_ptr	# control u-op density
-
-	mulx	%r14, %r8, %r9
-	call	__mulx_mont_383_nonred
-___
-{
-my @acc = map("%r$_","dx",15,"ax",12,"di","bp",	# output from __mulx_mont_384
-                      8..11,13,14);
-$code.=<<___;
-	mov	32+8*12(%rsp), @acc[11]	# account for sign from a->re - a->im
-	lea	128($n_ptr), $n_ptr
-	mov	32+8*0(%rsp), @acc[6]
-	and	@acc[11], @acc[6]
-	mov	32+8*1(%rsp), @acc[7]
-	and	@acc[11], @acc[7]
-	mov	32+8*2(%rsp), @acc[8]
-	and	@acc[11], @acc[8]
-	mov	32+8*3(%rsp), @acc[9]
-	and	@acc[11], @acc[9]
-	mov	32+8*4(%rsp), @acc[10]
-	and	@acc[11], @acc[10]
-	and	32+8*5(%rsp), @acc[11]
-
-	sub	@acc[6], @acc[0]
-	mov	8*0($n_ptr), @acc[6]
-	sbb	@acc[7], @acc[1]
-	mov	8*1($n_ptr), @acc[7]
-	sbb	@acc[8], @acc[2]
-	mov	8*2($n_ptr), @acc[8]
-	sbb	@acc[9], @acc[3]
-	mov	8*3($n_ptr), @acc[9]
-	sbb	@acc[10], @acc[4]
-	mov	8*4($n_ptr), @acc[10]
-	sbb	@acc[11], @acc[5]
-	sbb	@acc[11], @acc[11]
-
-	and	@acc[11], @acc[6]
-	and	@acc[11], @acc[7]
-	and	@acc[11], @acc[8]
-	and	@acc[11], @acc[9]
-	and	@acc[11], @acc[10]
-	and	8*5($n_ptr), @acc[11]
-
-	add	@acc[6], @acc[0]
-	adc	@acc[7], @acc[1]
-	adc	@acc[8], @acc[2]
-	adc	@acc[9], @acc[3]
-	adc	@acc[10], @acc[4]
-	adc	@acc[11], @acc[5]
-
-	mov	@acc[0],  8*0($b_ptr)	# ret->re
-	mov	@acc[1],  8*1($b_ptr)
-	mov	@acc[2],  8*2($b_ptr)
-	mov	@acc[3],  8*3($b_ptr)
-	mov	@acc[4],  8*4($b_ptr)
-	mov	@acc[5],  8*5($b_ptr)
-___
-}
-$code.=<<___;
-	lea	$frame(%rsp), %r8	# size optimization
-	mov	8*0(%r8),%r15
-.cfi_restore	%r15
-	mov	8*1(%r8),%r14
-.cfi_restore	%r14
-	mov	8*2(%r8),%r13
-.cfi_restore	%r13
-	mov	8*3(%r8),%r12
-.cfi_restore	%r12
-	mov	8*4(%r8),%rbx
-.cfi_restore	%rbx
-	mov	8*5(%r8),%rbp
-.cfi_restore	%rbp
-	lea	8*6(%r8),%rsp
-.cfi_adjust_cfa_offset	-$frame-8*6
-.cfi_epilogue
-	ret
-.cfi_endproc
-.size	sqrx_mont_382x,.-sqrx_mont_382x
-___
-}
 
 print $code;
 close STDOUT;

@@ -217,5 +217,7 @@ EXPORTS
 	blst_p2_sizeof
 	blst_p2_affine_sizeof
 	blst_fp12_sizeof
+	blst_fp_from_le_bytes
+	blst_fp_from_be_bytes
 	blst_sha256
 

@@ -1,4 +1,5 @@
 OPTION	DOTNAME
+ifdef	__BLST_PORTABLE__
 PUBLIC	mul_mont_384x$1
 PUBLIC	sqr_mont_384x$1
 PUBLIC	mul_382x$1
@@ -13,7 +14,7 @@ PUBLIC	mul_mont_384$1
 PUBLIC	sqr_mont_384$1
 PUBLIC	sqr_n_mul_mont_384$1
 PUBLIC	sqr_n_mul_mont_383$1
-PUBLIC	sqr_mont_382x$1
+endif
 .text$	SEGMENT ALIGN(256) 'CODE'
 
 
@@ -2091,8 +2092,8 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rsi]
 	mov	rdx,r8
 	adox	r14,rdi
-	adcx	r15,rbp
-	adox	r15,rax
+	adcx	rbp,rax
+	adox	r15,rbp
 	adox	rax,rax
 
 
@@ -2120,11 +2121,9 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,QWORD PTR[16+rbx]
 	adcx	r13,rdi
-	adox	r14,rbp
-	adcx	r14,r8
-	adox	r15,r8
+	adox	rbp,r8
+	adcx	r14,rbp
 	adcx	r15,r8
-	adox	rax,r8
 	adcx	rax,r8
 	mov	QWORD PTR[16+rsp],r9
 	imul	r9,QWORD PTR[8+rsp]
@@ -2154,8 +2153,8 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rsi]
 	mov	rdx,r9
 	adox	r15,rdi
-	adcx	rax,rbp
-	adox	rax,r8
+	adcx	rbp,r8
+	adox	rax,rbp
 	adox	r8,r8
 
 
@@ -2183,11 +2182,9 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,QWORD PTR[24+rbx]
 	adcx	r14,rdi
-	adox	r15,rbp
-	adcx	r15,r9
-	adox	rax,r9
+	adox	rbp,r9
+	adcx	r15,rbp
 	adcx	rax,r9
-	adox	r8,r9
 	adcx	r8,r9
 	mov	QWORD PTR[16+rsp],r10
 	imul	r10,QWORD PTR[8+rsp]
@@ -2217,8 +2214,8 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rsi]
 	mov	rdx,r10
 	adox	rax,rdi
-	adcx	r8,rbp
-	adox	r8,r9
+	adcx	rbp,r9
+	adox	r8,rbp
 	adox	r9,r9
 
 
@@ -2246,11 +2243,9 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,QWORD PTR[32+rbx]
 	adcx	r15,rdi
-	adox	rax,rbp
-	adcx	rax,r10
-	adox	r8,r10
+	adox	rbp,r10
+	adcx	rax,rbp
 	adcx	r8,r10
-	adox	r9,r10
 	adcx	r9,r10
 	mov	QWORD PTR[16+rsp],r11
 	imul	r11,QWORD PTR[8+rsp]
@@ -2280,8 +2275,8 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rsi]
 	mov	rdx,r11
 	adox	r8,rdi
-	adcx	r9,rbp
-	adox	r9,r10
+	adcx	rbp,r10
+	adox	r9,rbp
 	adox	r10,r10
 
 
@@ -2309,11 +2304,9 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,QWORD PTR[40+rbx]
 	adcx	rax,rdi
-	adox	r8,rbp
-	adcx	r8,r11
-	adox	r9,r11
+	adox	rbp,r11
+	adcx	r8,rbp
 	adcx	r9,r11
-	adox	r10,r11
 	adcx	r10,r11
 	mov	QWORD PTR[16+rsp],r12
 	imul	r12,QWORD PTR[8+rsp]
@@ -2343,8 +2336,8 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rsi]
 	mov	rdx,r12
 	adox	r9,rdi
-	adcx	r10,rbp
-	adox	r10,r11
+	adcx	rbp,r11
+	adox	r10,rbp
 	adox	r11,r11
 
 
@@ -2372,11 +2365,9 @@ __mulx_mont_384	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,r13
 	adcx	r8,rdi
-	adox	r9,rbp
-	adcx	r9,r12
-	adox	r10,r12
+	adox	rbp,r12
+	adcx	r9,rbp
 	adcx	r10,r12
-	adox	r11,r12
 	adcx	r11,r12
 	imul	rdx,QWORD PTR[8+rsp]
 	mov	rbx,QWORD PTR[24+rsp]
@@ -2407,10 +2398,9 @@ __mulx_mont_384	PROC PRIVATE
 
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	adcx	r9,rdi
-	adox	r10,rbp
+	adox	rbp,r12
 	mov	rdx,r14
-	adcx	r10,r12
-	adox	r11,r12
+	adcx	r10,rbp
 	lea	rcx,QWORD PTR[128+rcx]
 	mov	r12,r8
 	adc	r11,0
@@ -2819,9 +2809,8 @@ __mulx_mont_383_nonred	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,QWORD PTR[16+rbx]
 	adcx	r13,rdi
-	adox	r14,rbp
-	adcx	r14,rax
-	adox	r15,rax
+	adox	rbp,rax
+	adcx	r14,rbp
 	adcx	r15,rax
 	mov	r8,r9
 	imul	r9,QWORD PTR[8+rsp]
@@ -2879,9 +2868,8 @@ __mulx_mont_383_nonred	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,QWORD PTR[24+rbx]
 	adcx	r14,rdi
-	adox	r15,rbp
-	adcx	r15,r8
-	adox	rax,r8
+	adox	rbp,r8
+	adcx	r15,rbp
 	adcx	rax,r8
 	mov	r9,r10
 	imul	r10,QWORD PTR[8+rsp]
@@ -2939,9 +2927,8 @@ __mulx_mont_383_nonred	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,QWORD PTR[32+rbx]
 	adcx	r15,rdi
-	adox	rax,rbp
-	adcx	rax,r9
-	adox	r8,r9
+	adox	rbp,r9
+	adcx	rax,rbp
 	adcx	r8,r9
 	mov	r10,r11
 	imul	r11,QWORD PTR[8+rsp]
@@ -2999,9 +2986,8 @@ __mulx_mont_383_nonred	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,QWORD PTR[40+rbx]
 	adcx	rax,rdi
-	adox	r8,rbp
-	adcx	r8,r10
-	adox	r9,r10
+	adox	rbp,r10
+	adcx	r8,rbp
 	adcx	r9,r10
 	mov	r11,r12
 	imul	r12,QWORD PTR[8+rsp]
@@ -3059,9 +3045,8 @@ __mulx_mont_383_nonred	PROC PRIVATE
 	mulx	rbp,rdi,QWORD PTR[((40+128))+rcx]
 	mov	rdx,r13
 	adcx	r8,rdi
-	adox	r9,rbp
-	adcx	r9,r11
-	adox	r10,r11
+	adox	rbp,r11
+	adcx	r9,rbp
 	adcx	r10,r11
 	imul	rdx,QWORD PTR[8+rsp]
 	mov	rbx,QWORD PTR[24+rsp]
@@ -3115,215 +3100,6 @@ else
 endif
 
 __mulx_mont_383_nonred	ENDP
-PUBLIC	sqrx_mont_382x
-
-
-ALIGN	32
-sqrx_mont_382x	PROC PUBLIC
-	DB	243,15,30,250
-	mov	QWORD PTR[8+rsp],rdi	;WIN64 prologue
-	mov	QWORD PTR[16+rsp],rsi
-	mov	r11,rsp
-$L$SEH_begin_sqrx_mont_382x::
-
-
-	mov	rdi,rcx
-	mov	rsi,rdx
-	mov	rdx,r8
-	mov	rcx,r9
-sqr_mont_382x$1::
-	push	rbp
-
-	push	rbx
-
-	push	r12
-
-	push	r13
-
-	push	r14
-
-	push	r15
-
-	sub	rsp,136
-
-$L$SEH_body_sqrx_mont_382x::
-
-
-	mov	QWORD PTR[rsp],rcx
-	mov	rcx,rdx
-	mov	QWORD PTR[16+rsp],rdi
-	mov	QWORD PTR[24+rsp],rsi
-
-
-ifdef	__SGX_LVI_HARDENING__
-	lfence
-endif
-	mov	r8,QWORD PTR[rsi]
-	mov	r9,QWORD PTR[8+rsi]
-	mov	r10,QWORD PTR[16+rsi]
-	mov	r11,QWORD PTR[24+rsi]
-	mov	r12,QWORD PTR[32+rsi]
-	mov	r13,QWORD PTR[40+rsi]
-
-	mov	r14,r8
-	add	r8,QWORD PTR[48+rsi]
-	mov	r15,r9
-	adc	r9,QWORD PTR[56+rsi]
-	mov	rax,r10
-	adc	r10,QWORD PTR[64+rsi]
-	mov	rdx,r11
-	adc	r11,QWORD PTR[72+rsi]
-	mov	rbx,r12
-	adc	r12,QWORD PTR[80+rsi]
-	mov	rbp,r13
-	adc	r13,QWORD PTR[88+rsi]
-
-	sub	r14,QWORD PTR[48+rsi]
-	sbb	r15,QWORD PTR[56+rsi]
-	sbb	rax,QWORD PTR[64+rsi]
-	sbb	rdx,QWORD PTR[72+rsi]
-	sbb	rbx,QWORD PTR[80+rsi]
-	sbb	rbp,QWORD PTR[88+rsi]
-	sbb	rdi,rdi
-
-	mov	QWORD PTR[((32+0))+rsp],r8
-	mov	QWORD PTR[((32+8))+rsp],r9
-	mov	QWORD PTR[((32+16))+rsp],r10
-	mov	QWORD PTR[((32+24))+rsp],r11
-	mov	QWORD PTR[((32+32))+rsp],r12
-	mov	QWORD PTR[((32+40))+rsp],r13
-
-	mov	QWORD PTR[((32+48))+rsp],r14
-	mov	QWORD PTR[((32+56))+rsp],r15
-	mov	QWORD PTR[((32+64))+rsp],rax
-	mov	QWORD PTR[((32+72))+rsp],rdx
-	mov	QWORD PTR[((32+80))+rsp],rbx
-	mov	QWORD PTR[((32+88))+rsp],rbp
-	mov	QWORD PTR[((32+96))+rsp],rdi
-
-
-
-	lea	rbx,QWORD PTR[48+rsi]
-
-	mov	rdx,QWORD PTR[48+rsi]
-	mov	r14,QWORD PTR[rsi]
-	mov	r15,QWORD PTR[8+rsi]
-	mov	rax,QWORD PTR[16+rsi]
-	mov	r12,QWORD PTR[24+rsi]
-	mov	rdi,QWORD PTR[32+rsi]
-	mov	rbp,QWORD PTR[40+rsi]
-	lea	rsi,QWORD PTR[((-128))+rsi]
-	lea	rcx,QWORD PTR[((-128))+rcx]
-
-	mulx	r9,r8,r14
-	call	__mulx_mont_383_nonred
-	add	rdx,rdx
-	adc	r15,r15
-	adc	rax,rax
-	adc	r12,r12
-	adc	rdi,rdi
-	adc	rbp,rbp
-
-	mov	QWORD PTR[48+rbx],rdx
-	mov	QWORD PTR[56+rbx],r15
-	mov	QWORD PTR[64+rbx],rax
-	mov	QWORD PTR[72+rbx],r12
-	mov	QWORD PTR[80+rbx],rdi
-	mov	QWORD PTR[88+rbx],rbp
-
-	lea	rsi,QWORD PTR[((32-128))+rsp]
-	lea	rbx,QWORD PTR[((32+48))+rsp]
-
-	mov	rdx,QWORD PTR[((32+48))+rsp]
-	mov	r14,QWORD PTR[((32+0))+rsp]
-	mov	r15,QWORD PTR[((32+8))+rsp]
-	mov	rax,QWORD PTR[((32+16))+rsp]
-	mov	r12,QWORD PTR[((32+24))+rsp]
-	mov	rdi,QWORD PTR[((32+32))+rsp]
-	mov	rbp,QWORD PTR[((32+40))+rsp]
-
-
-
-	mulx	r9,r8,r14
-	call	__mulx_mont_383_nonred
-	mov	r14,QWORD PTR[((32+96))+rsp]
-	lea	rcx,QWORD PTR[128+rcx]
-	mov	r8,QWORD PTR[((32+0))+rsp]
-	and	r8,r14
-	mov	r9,QWORD PTR[((32+8))+rsp]
-	and	r9,r14
-	mov	r10,QWORD PTR[((32+16))+rsp]
-	and	r10,r14
-	mov	r11,QWORD PTR[((32+24))+rsp]
-	and	r11,r14
-	mov	r13,QWORD PTR[((32+32))+rsp]
-	and	r13,r14
-	and	r14,QWORD PTR[((32+40))+rsp]
-
-	sub	rdx,r8
-	mov	r8,QWORD PTR[rcx]
-	sbb	r15,r9
-	mov	r9,QWORD PTR[8+rcx]
-	sbb	rax,r10
-	mov	r10,QWORD PTR[16+rcx]
-	sbb	r12,r11
-	mov	r11,QWORD PTR[24+rcx]
-	sbb	rdi,r13
-	mov	r13,QWORD PTR[32+rcx]
-	sbb	rbp,r14
-	sbb	r14,r14
-
-	and	r8,r14
-	and	r9,r14
-	and	r10,r14
-	and	r11,r14
-	and	r13,r14
-	and	r14,QWORD PTR[40+rcx]
-
-	add	rdx,r8
-	adc	r15,r9
-	adc	rax,r10
-	adc	r12,r11
-	adc	rdi,r13
-	adc	rbp,r14
-
-	mov	QWORD PTR[rbx],rdx
-	mov	QWORD PTR[8+rbx],r15
-	mov	QWORD PTR[16+rbx],rax
-	mov	QWORD PTR[24+rbx],r12
-	mov	QWORD PTR[32+rbx],rdi
-	mov	QWORD PTR[40+rbx],rbp
-	lea	r8,QWORD PTR[136+rsp]
-	mov	r15,QWORD PTR[r8]
-
-	mov	r14,QWORD PTR[8+r8]
-
-	mov	r13,QWORD PTR[16+r8]
-
-	mov	r12,QWORD PTR[24+r8]
-
-	mov	rbx,QWORD PTR[32+r8]
-
-	mov	rbp,QWORD PTR[40+r8]
-
-	lea	rsp,QWORD PTR[48+r8]
-
-$L$SEH_epilogue_sqrx_mont_382x::
-	mov	rdi,QWORD PTR[8+rsp]	;WIN64 epilogue
-	mov	rsi,QWORD PTR[16+rsp]
-
-	
-ifdef	__SGX_LVI_HARDENING__
-	pop	rdx
-	lfence
-	jmp	rdx
-	ud2
-else
-	DB	0F3h,0C3h
-endif
-
-$L$SEH_end_sqrx_mont_382x::
-sqrx_mont_382x	ENDP
 .text$	ENDS
 .pdata	SEGMENT READONLY ALIGN(4)
 ALIGN	4
@@ -3494,18 +3270,6 @@ ALIGN	4
 	DD	imagerel $L$SEH_epilogue_sqrx_n_mul_mont_383
 	DD	imagerel $L$SEH_end_sqrx_n_mul_mont_383
 	DD	imagerel $L$SEH_info_sqrx_n_mul_mont_383_epilogue
-
-	DD	imagerel $L$SEH_begin_sqrx_mont_382x
-	DD	imagerel $L$SEH_body_sqrx_mont_382x
-	DD	imagerel $L$SEH_info_sqrx_mont_382x_prologue
-
-	DD	imagerel $L$SEH_body_sqrx_mont_382x
-	DD	imagerel $L$SEH_epilogue_sqrx_mont_382x
-	DD	imagerel $L$SEH_info_sqrx_mont_382x_body
-
-	DD	imagerel $L$SEH_epilogue_sqrx_mont_382x
-	DD	imagerel $L$SEH_end_sqrx_mont_382x
-	DD	imagerel $L$SEH_info_sqrx_mont_382x_epilogue
 
 .pdata	ENDS
 .xdata	SEGMENT READONLY ALIGN(8)
@@ -3869,32 +3633,6 @@ DB	000h,0a2h
 DB	000h,000h,000h,000h,000h,000h
 DB	000h,000h,000h,000h
 $L$SEH_info_sqrx_n_mul_mont_383_epilogue::
-DB	1,0,4,0
-DB	000h,074h,001h,000h
-DB	000h,064h,002h,000h
-DB	000h,000h,000h,000h
-
-$L$SEH_info_sqrx_mont_382x_prologue::
-DB	1,0,5,00bh
-DB	0,074h,1,0
-DB	0,064h,2,0
-DB	0,0b3h
-DB	0,0
-	DD	0,0
-$L$SEH_info_sqrx_mont_382x_body::
-DB	1,0,18,0
-DB	000h,0f4h,011h,000h
-DB	000h,0e4h,012h,000h
-DB	000h,0d4h,013h,000h
-DB	000h,0c4h,014h,000h
-DB	000h,034h,015h,000h
-DB	000h,054h,016h,000h
-DB	000h,074h,018h,000h
-DB	000h,064h,019h,000h
-DB	000h,001h,017h,000h
-DB	000h,000h,000h,000h
-DB	000h,000h,000h,000h
-$L$SEH_info_sqrx_mont_382x_epilogue::
 DB	1,0,4,0
 DB	000h,074h,001h,000h
 DB	000h,064h,002h,000h
