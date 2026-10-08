@@ -114,7 +114,7 @@ const std::vector<valtype> CODE = {
     contract AccessAccount {
         event Created(address child, uint256 value);
 
-        function warmCreate(uint256 _value) external returns (address childAddr) {
+        function warmCreate(uint256 _value) public returns (address childAddr) {
             // Create the contract
             Child child = new Child();
 
@@ -125,11 +125,23 @@ const std::vector<valtype> CODE = {
 
             return address(child);
         }
+
+        function warmEmpty(uint256 _value) public returns (address childAddr) {
+            childAddr = warmCreate(_value);
+
+            // Arbitrary hardcoded calldata
+            bytes memory data = hex"abcdef";
+
+            // Static call to address(0)
+            address(0).staticcall(data);
+        }
     }
     */
-    valtype(ParseHex("6080604052348015600e575f5ffd5b506103bd8061001c5f395ff3fe608060405234801561000f575f5ffd5b5060043610610029575f3560e01c80634a4a98c21461002d575b5f5ffd5b61004760048036038101906100429190610173565b61005d565b60405161005491906101dd565b60405180910390f35b5f5f60405161006b9061012f565b604051809103905ff080158015610084573d5f5f3e3d5ffd5b5090508073ffffffffffffffffffffffffffffffffffffffff166355241077846040518263ffffffff1660e01b81526004016100c09190610205565b5f604051808303815f87803b1580156100d7575f5ffd5b505af11580156100e9573d5f5f3e3d5ffd5b505050507f0ce3610e89a4bb9ec9359763f99110ed52a4abaea0b62028a1637e242ca2768b818460405161011e92919061021e565b60405180910390a180915050919050565b6101428061024683390190565b5f5ffd5b5f819050919050565b61015281610140565b811461015c575f5ffd5b50565b5f8135905061016d81610149565b92915050565b5f602082840312156101885761018761013c565b5b5f6101958482850161015f565b91505092915050565b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6101c78261019e565b9050919050565b6101d7816101bd565b82525050565b5f6020820190506101f05f8301846101ce565b92915050565b6101ff81610140565b82525050565b5f6020820190506102185f8301846101f6565b92915050565b5f6040820190506102315f8301856101ce565b61023e60208301846101f6565b939250505056fe6080604052348015600e575f5ffd5b506101268061001c5f395ff3fe6080604052348015600e575f5ffd5b50600436106030575f3560e01c80633fa4f2451460345780635524107714604e575b5f5ffd5b603a6066565b60405160459190608a565b60405180910390f35b606460048036038101906060919060ca565b606b565b005b5f5481565b805f8190555050565b5f819050919050565b6084816074565b82525050565b5f602082019050609b5f830184607d565b92915050565b5f5ffd5b60ac816074565b811460b5575f5ffd5b50565b5f8135905060c48160a5565b92915050565b5f6020828403121560dc5760db60a1565b5b5f60e78482850160b8565b9150509291505056fea2646970667358221220f2cf6a9e54c37d7ab0bc5767deebad7f45438c4cfaf6a995fd846c310590356e64736f6c63430008220033a2646970667358221220cef3be653aeaa6e6f14fe89df9e447c818a2e78e9d8b579094a913c70b2741ed64736f6c63430008220033")),
+    valtype(ParseHex("6080604052348015600e575f5ffd5b506105108061001c5f395ff3fe608060405234801561000f575f5ffd5b5060043610610034575f3560e01c80634a4a98c214610038578063b2ad3c9014610068575b5f5ffd5b610052600480360381019061004d919061025e565b610098565b60405161005f91906102c8565b60405180910390f35b610082600480360381019061007d919061025e565b61016a565b60405161008f91906102c8565b60405180910390f35b5f5f6040516100a69061021a565b604051809103905ff0801580156100bf573d5f5f3e3d5ffd5b5090508073ffffffffffffffffffffffffffffffffffffffff166355241077846040518263ffffffff1660e01b81526004016100fb91906102f0565b5f604051808303815f87803b158015610112575f5ffd5b505af1158015610124573d5f5f3e3d5ffd5b505050507f0ce3610e89a4bb9ec9359763f99110ed52a4abaea0b62028a1637e242ca2768b8184604051610159929190610309565b60405180910390a180915050919050565b5f61017482610098565b90505f6040518060400160405280600481526020017fdeadbeef0000000000000000000000000000000000000000000000000000000081525090505f73ffffffffffffffffffffffffffffffffffffffff16816040516101d49190610382565b5f60405180830381855afa9150503d805f811461020c576040519150601f19603f3d011682016040523d82523d5f602084013e610211565b606091505b50505050919050565b6101428061039983390190565b5f5ffd5b5f819050919050565b61023d8161022b565b8114610247575f5ffd5b50565b5f8135905061025881610234565b92915050565b5f6020828403121561027357610272610227565b5b5f6102808482850161024a565b91505092915050565b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6102b282610289565b9050919050565b6102c2816102a8565b82525050565b5f6020820190506102db5f8301846102b9565b92915050565b6102ea8161022b565b82525050565b5f6020820190506103035f8301846102e1565b92915050565b5f60408201905061031c5f8301856102b9565b61032960208301846102e1565b9392505050565b5f81519050919050565b5f81905092915050565b8281835e5f83830152505050565b5f61035c82610330565b610366818561033a565b9350610376818560208601610344565b80840191505092915050565b5f61038d8284610352565b91508190509291505056fe6080604052348015600e575f5ffd5b506101268061001c5f395ff3fe6080604052348015600e575f5ffd5b50600436106030575f3560e01c80633fa4f2451460345780635524107714604e575b5f5ffd5b603a6066565b60405160459190608a565b60405180910390f35b606460048036038101906060919060ca565b606b565b005b5f5481565b805f8190555050565b5f819050919050565b6084816074565b82525050565b5f602082019050609b5f830184607d565b92915050565b5f5ffd5b60ac816074565b811460b5575f5ffd5b50565b5f8135905060c48160a5565b92915050565b5f6020828403121560dc5760db60a1565b5b5f60e78482850160b8565b9150509291505056fea2646970667358221220b142db29cef5bba8beb515621aa952de1ff7e5c4b42b9e800f7b22cf036d833a64736f6c63430008220033a264697066735822122046dc80b855dab5ed0d51dbb69350f28f3053f7e1c62eec8ad6fa1f06f836669a64736f6c63430008220033")),
     // run warmCreate
     valtype(ParseHex("4a4a98c20000000000000000000000000000000000000000000000000000000000000001")),
+    // run warmEmpty
+    valtype(ParseHex("b2ad3c900000000000000000000000000000000000000000000000000000000000000001")),
 };
 
 // Codes IDs used to check that osaka fork is present
@@ -145,7 +157,8 @@ enum class CodeID
     modExpRunExponent1025,
     modExpRunModulus1025,
     accessAccountContract,
-    warmCreateAddress
+    warmCreateAddress,
+    warmEmptyAddress,
 };
 
 // Get the code identified by the ID
@@ -459,16 +472,22 @@ BOOST_AUTO_TEST_CASE(checking_access_account_create_address_after_fork){
     auto result = executeBC(txs, *m_node.chainman);
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
 
-    // Create contract address in access account
+    // Add contract addresses in access account
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
     std::vector<QtumTransaction> txOsaka;
     txOsaka.push_back(createQtumTransaction(getCode(CodeID::warmCreateAddress), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    txOsaka.push_back(createQtumTransaction(getCode(CodeID::warmEmptyAddress), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
     result = executeBC(txOsaka, *m_node.chainman);
 
-    // Check contract address in access account is warm, 2500 gas less
+    // Check new contract address in access account is warm
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
     BOOST_CHECK(result.first[0].execRes.gasUsed == 137507);
     BOOST_CHECK(result.first[0].execRes.output.size() == 32);
+
+    // Check empty address in access account is cold, 2600 gas more plus other code
+    BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::None);
+    BOOST_CHECK(result.first[1].execRes.gasUsed == 140611);
+    BOOST_CHECK(result.first[1].execRes.output.size() == 32);
 }
 
 BOOST_AUTO_TEST_CASE(checking_access_account_create_address_before_fork){
@@ -482,16 +501,22 @@ BOOST_AUTO_TEST_CASE(checking_access_account_create_address_before_fork){
     auto result = executeBC(txs, *m_node.chainman);
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
 
-    // Create contract address in access account
+    // Add contract addresses in access account
     dev::Address proxy = createQtumAddress(txs[0].getHashWith(), txs[0].getNVout());
     std::vector<QtumTransaction> txOsaka;
     txOsaka.push_back(createQtumTransaction(getCode(CodeID::warmCreateAddress), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
+    txOsaka.push_back(createQtumTransaction(getCode(CodeID::warmEmptyAddress), 0, GASLIMIT, dev::u256(1), ++hashTx, proxy));
     result = executeBC(txOsaka, *m_node.chainman);
 
-    // Check contract address in access account is cold
+    // Check new contract address in access account is cold
     BOOST_CHECK(result.first[0].execRes.excepted == dev::eth::TransactionException::None);
     BOOST_CHECK(result.first[0].execRes.gasUsed == 140007);
     BOOST_CHECK(result.first[0].execRes.output.size() == 32);
+
+    // Check empty address in access account is warm, 100 gas more plus other code
+    BOOST_CHECK(result.first[1].execRes.excepted == dev::eth::TransactionException::None);
+    BOOST_CHECK(result.first[1].execRes.gasUsed == 140611);
+    BOOST_CHECK(result.first[1].execRes.output.size() == 32);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

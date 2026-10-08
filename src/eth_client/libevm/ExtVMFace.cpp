@@ -342,7 +342,13 @@ evmc::Result EvmCHost::call(evmc_message const& _msg) noexcept
     assert(_msg.depth == static_cast<int>(m_extVM.depth) + 1);
 
     if (_msg.kind == EVMC_CREATE || _msg.kind == EVMC_CREATE2)
-        record_account_access(evmc::address{});
+    {
+        // Warm the 0 address for EVM version below Osaka when create address performed
+        EVMSchedule const& schedule = m_extVM.evmSchedule();
+        if (!schedule.eip7607Mode) {
+            record_account_access(evmc::address{});
+        }
+    }
     else
         record_account_access(_msg.recipient);
 
