@@ -145,7 +145,7 @@ CreateResult ExtVM::create(u256 _endowment, u256& io_gas, bytesConstRef _code, I
     Executive e{m_s, envInfo(), m_sealEngine, depth + 1};
     bool result = false;
     if (_op == OP_CREATE)
-        result = e.createOpcode(myAddress, _endowment, gasPrice, io_gas, _code, origin);
+        result = e.createOpcode(myAddress, _endowment, gasPrice, io_gas, _code, origin, _recipient);
     else
     {
         assert(_op == OP_CREATE2);

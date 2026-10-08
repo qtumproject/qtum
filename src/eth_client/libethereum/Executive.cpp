@@ -195,10 +195,11 @@ bool Executive::create(Address const& _txSender, u256 const& _endowment, u256 co
         _txSender, _endowment, _gasPrice, _gas, _init, _origin, latestVersion);
 }
 
-bool Executive::createOpcode(Address const& _sender, u256 const& _endowment, u256 const& _gasPrice, u256 const& _gas, bytesConstRef _init, Address const& _origin)
+bool Executive::createOpcode(Address const& _sender, u256 const& _endowment, u256 const& _gasPrice, u256 const& _gas, bytesConstRef _init, Address const& _origin, Address const& _recipient)
 {
+    m_newAddress = _recipient;
     // Contract will be created with the version equal to parent's version
-    return createWithAddressFromNonceAndSender(
+    return executeCreate(
         _sender, _endowment, _gasPrice, _gas, _init, _origin, m_s.version(_sender));
 }
 
