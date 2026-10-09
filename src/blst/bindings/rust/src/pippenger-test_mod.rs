@@ -13,7 +13,7 @@ macro_rules! pippenger_test_mod {
     ) => {
         mod $test_mod {
             use super::*;
-            use rand::{RngCore, SeedableRng};
+            use rand_core::{RngCore, SeedableRng};
             use rand_chacha::ChaCha20Rng;
 
             #[test]

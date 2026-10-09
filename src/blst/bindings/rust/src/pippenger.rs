@@ -162,22 +162,31 @@ macro_rules! pippenger_mult_impl {
                     }
                 }
 
-                if npoints < 32 {
-                    let counter = Arc::new(AtomicUsize::new(0));
+                if npoints < 32 || npoints < ncpus {
                     let n_workers = core::cmp::min(ncpus, npoints);
-                    let (tx, rx) = sync_channel(n_workers);
-                    for _ in 0..n_workers {
-                        let tx = tx.clone();
-                        let counter = counter.clone();
+
+                    let mut acc: Vec<Cell<$point>> =
+                        Vec::with_capacity(n_workers);
+                    #[allow(clippy::uninit_vec)]
+                    unsafe { acc.set_len(acc.capacity()) };
+                    let acc = &acc[..];
+
+                    let wg = Arc::new((
+                        Barrier::new(2),
+                        AtomicUsize::new(n_workers),
+                        AtomicUsize::new(0),
+                    ));
+
+                    for i in 0..n_workers {
+                        let wg = wg.clone();
 
                         pool.joined_execute(move || {
-                            let mut acc = <$point>::default();
+                            let acc = acc[i].as_ptr();
                             let mut tmp = <$point>::default();
                             let mut first = true;
 
                             loop {
-                                let work =
-                                    counter.fetch_add(1, Ordering::Relaxed);
+                                let work = wg.2.fetch_add(1, Ordering::Relaxed);
                                 if work >= npoints {
                                     break;
                                 }
@@ -186,23 +195,32 @@ macro_rules! pippenger_mult_impl {
                                     $from_affine(&mut tmp, &self[work]);
                                     let scalar = &scalars[nbytes * work];
                                     if first {
-                                        $mult(&mut acc, &tmp, scalar, nbits);
+                                        $mult(acc, &tmp, scalar, nbits);
                                         first = false;
                                     } else {
                                         $mult(&mut tmp, &tmp, scalar, nbits);
-                                        $add_or_double(&mut acc, &acc, &tmp);
+                                        $add_or_double(acc, acc, &tmp);
                                     }
                                 }
                             }
 
-                            tx.send(acc).expect("disaster");
+                            if first {
+                                unsafe { *acc = <$point>::default() };
+                            }
+
+                            if wg.1.fetch_sub(1, Ordering::AcqRel) == 1 {
+                                wg.0.wait();
+                            }
                         });
                     }
 
-                    let mut ret = rx.recv().expect("disaster");
-                    for _ in 1..n_workers {
-                        let p = rx.recv().expect("disaster");
-                        unsafe { $add_or_double(&mut ret, &ret, &p) };
+                    wg.0.wait();
+
+                    let mut ret = acc[0].value;
+                    for i in 1..n_workers {
+                        unsafe {
+                            $add_or_double(&mut ret, &ret, acc[i].as_ptr())
+                        };
                     }
 
                     return ret;
@@ -399,7 +417,7 @@ macro_rules! pippenger_mult_impl {
                     for i in 0..npoints {
                         check(&self[i])?
                     }
-                    return Ok(())
+                    return Ok(());
                 }
 
                 let counter = Arc::new(AtomicUsize::new(0));
@@ -503,8 +521,8 @@ fn breakdown(
     window: usize,
     ncpus: usize,
 ) -> (usize, usize, usize) {
-    let mut nx: usize;
-    let mut wnd: usize;
+    let mut nx = 1usize;
+    let mut wnd = window;
 
     if nbits > window * ncpus {
         nx = 1;
@@ -519,10 +537,10 @@ fn breakdown(
                 wnd = window;
             }
         }
-    } else {
+    } else if window > 3 {
         nx = 2;
         wnd = window - 2;
-        while (nbits / wnd + 1) * nx < ncpus {
+        while wnd > 1 && (nbits / wnd + 1) * nx < ncpus {
             nx += 1;
             wnd = window - num_bits(3 * nx / 2);
         }

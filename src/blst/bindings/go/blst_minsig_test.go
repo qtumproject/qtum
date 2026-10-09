@@ -34,7 +34,7 @@ func init() {
 
 func TestInfinityMinSig(t *testing.T) {
     t.Parallel()
-    var infComp [48]byte
+    var infComp [BLST_P2_COMPRESS_BYTES]byte
     infComp[0] |= 0xc0
     new(PublicKeyMinSig).Uncompress(infComp[:])
 }

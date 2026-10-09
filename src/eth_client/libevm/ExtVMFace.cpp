@@ -170,6 +170,12 @@ evmc::uint256be EvmCHost::get_balance(evmc::address const& _addr) const noexcept
     return toEvmC(m_extVM.balance(fromEvmC(_addr)));
 }
 
+uint64_t EvmCHost::get_nonce(evmc::address const& _addr) const noexcept
+{
+    record_account_access(_addr);
+    return m_extVM.nonce(fromEvmC(_addr));
+}
+
 size_t EvmCHost::get_code_size(evmc::address const& _addr) const noexcept
 {
     record_account_access(_addr);
@@ -290,20 +296,21 @@ evmc::Result EvmCHost::create(evmc_message const& _msg) noexcept
     u256 gas = _msg.gas;
     u256 value = fromEvmC(_msg.value);
     bytesConstRef init = {_msg.input_data, _msg.input_size};
-    u256 salt = fromEvmC(_msg.create2_salt);
     Instruction opcode = _msg.kind == EVMC_CREATE ? OP_CREATE : OP_CREATE2;
 
     // ExtVM::create takes the sender address from .myAddress.
     assert(fromEvmC(_msg.sender) == m_extVM.myAddress);
 
-    CreateResult result = m_extVM.create(value, gas, init, opcode, salt, {});
+    // Must be computed already.
+    assert(_msg.recipient != evmc::address{});
+    Address recipient = fromEvmC(_msg.recipient);
+
+    CreateResult result = m_extVM.create(value, gas, init, opcode, recipient, {});
     evmc_result evmcResult = {};
     evmcResult.status_code = result.status;
     evmcResult.gas_left = static_cast<int64_t>(gas);
 
-    if (result.status == EVMC_SUCCESS)
-        evmcResult.create_address = toEvmC(result.address);
-    else
+    if (result.status != EVMC_SUCCESS)
     {
         // Pass the output to the EVM without a copy. The EVM will delete it
         // when finished with it.
@@ -314,12 +321,12 @@ evmc::Result EvmCHost::create(evmc_message const& _msg) noexcept
         evmcResult.output_size = result.output.size();
 
         // Place a new vector of bytes containing output in result's reserved memory.
-        auto* data = evmc_get_optional_storage(&evmcResult);
+        auto* data = &evmcResult.optional_data;
         static_assert(sizeof(bytes) <= sizeof(*data), "Vector is too big");
         new (data) bytes(result.output.takeBytes());
         // Set the destructor to delete the vector.
         evmcResult.release = [](evmc_result const* _result) {
-            auto* data = evmc_get_const_optional_storage(_result);
+            auto* data = &_result->optional_data;
             auto& output = reinterpret_cast<bytes const&>(*data);
             // Explicitly call vector's destructor to release its data.
             // This is normal pattern when placement new operator is used.
@@ -334,7 +341,16 @@ evmc::Result EvmCHost::call(evmc_message const& _msg) noexcept
     assert(_msg.gas >= 0 && "Invalid gas value");
     assert(_msg.depth == static_cast<int>(m_extVM.depth) + 1);
 
-    record_account_access(_msg.recipient);
+    if (_msg.kind == EVMC_CREATE || _msg.kind == EVMC_CREATE2)
+    {
+        // Warm the 0 address for EVM version below Osaka when create address performed
+        EVMSchedule const& schedule = m_extVM.evmSchedule();
+        if (!schedule.eip7607Mode) {
+            record_account_access(evmc::address{});
+        }
+    }
+    else
+        record_account_access(_msg.recipient);
 
     // Handle CREATE separately.
     if (_msg.kind == EVMC_CREATE || _msg.kind == EVMC_CREATE2)
@@ -365,12 +381,12 @@ evmc::Result EvmCHost::call(evmc_message const& _msg) noexcept
     evmcResult.output_size = result.output.size();
 
     // Place a new vector of bytes containing output in result's reserved memory.
-    auto* data = evmc_get_optional_storage(&evmcResult);
+    auto* data = &evmcResult.optional_data;
     static_assert(sizeof(bytes) <= sizeof(*data), "Vector is too big");
     new (data) bytes(result.output.takeBytes());
     // Set the destructor to delete the vector.
     evmcResult.release = [](evmc_result const* _result) {
-        auto* data = evmc_get_const_optional_storage(_result);
+        auto* data = &_result->optional_data;
         auto& output = reinterpret_cast<bytes const&>(*data);
         // Explicitly call vector's destructor to release its data.
         // This is normal pattern when placement new operator is used.

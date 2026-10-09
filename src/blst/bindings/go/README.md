@@ -101,8 +101,8 @@ See the tests for further examples of usage.
 - `Compress() []byte` - Serialize signature to compressed format
 - `Uncompress(data []byte) *Signature` - Decompress signature from bytes
 - `BatchUncompress(compressedSigs [][]byte) []*Signature` - Efficiently uncompress multiple signatures
-- `Serialize() []byte` - Serialize public key to uncompressed format
-- `Deserialize(data []byte) *Signature` - Deserialize public key from bytes
+- `Serialize() []byte` - Serialize signature to uncompressed format
+- `Deserialize(data []byte) *Signature` - Deserialize signature from bytes
 - `Verify(sigCheck bool, pk *PublicKey, pkCheck bool, msg []byte, dst []byte, ...interface{}) bool` - Verify a signature
 - `VerifyCompressed(sig []byte, sigCheck bool, pk []byte, msgCheck bool, msg []byte, dst []byte, ...interface{}) bool` - Verify a serialized signature in compressed format
 - `AggregateVerify(sigCheck bool, pks []*PublicKey, msgCheck bool, msgs [][]byte, dst []byte) bool` - Verify an aggregated signature for multiple messages
@@ -113,9 +113,9 @@ See the tests for further examples of usage.
 ### Aggregate Methods
 - `AggregatePublicKey.Aggregate(pks []*PublicKey, check bool)` - Aggregate multiple public keys
 - `AggregateSignature.Aggregate(sigs []*Signature, check bool)` - Aggregate multiple signatures
-- `AggregateSignature.AggregateCompressed(compressedSigs [][]byte, check bool)` - Aggregate muliple serialized signatures in compressed format
+- `AggregateSignature.AggregateCompressed(compressedSigs [][]byte, check bool)` - Aggregate multiple serialized signatures in compressed format
 - `AggregatePublicKey.ToAffine() *PublicKey` - Convert aggregate to affine form
-- `AggrefateSignature.ToAffine() *Signature` - Convert aggregate to affine form
+- `AggregateSignature.ToAffine() *Signature` - Convert aggregate to affine form
 
 ## Utility Functions
 - `HashToG1(msg []byte, dst []byte, optional... []byte) *P1` - Hash message [with optional augmentation] to G1 point

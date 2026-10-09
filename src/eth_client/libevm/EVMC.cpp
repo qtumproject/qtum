@@ -31,7 +31,7 @@ evmc_revision toRevision(EVMSchedule const& _schedule) noexcept
     if (_schedule.haveCreate2 && !_schedule.eip1283Mode)
         return EVMC_PETERSBURG;
     if (_schedule.haveCreate2 && _schedule.eip1283Mode)
-        return EVMC_CONSTANTINOPLE;
+        return EVMC_PETERSBURG;
     if (_schedule.haveRevert)
         return EVMC_BYZANTIUM;
     if (_schedule.eip158Mode)
@@ -90,9 +90,13 @@ owning_bytes_ref EVMC::exec(u256& io_gas, ExtVMFace& _ext, const OnOpFunc& _onOp
     evmc_call_kind kind = _ext.isCreate ? EVMC_CREATE : EVMC_CALL;
     uint32_t flags = _ext.staticCall ? EVMC_STATIC : 0;
     assert(flags != EVMC_STATIC || kind == EVMC_CALL);  // STATIC implies a CALL.
-    evmc_message msg = {kind, flags, static_cast<int32_t>(_ext.depth), gas, toEvmC(_ext.myAddress),
+    int64_t state_gas = 0;
+    // EVMC_AMSTERDAM needs implementation for state_gas with non 0 value
+    // Evmone commit e2290c6b72c991ff5636e87c11bc5d81efbce267
+    assert(mode <= EVMC_OSAKA); // Remove the assert when EVMC_AMSTERDAM or higher fork arrives
+    evmc_message msg = {kind, flags, static_cast<int32_t>(_ext.depth), gas, state_gas, toEvmC(_ext.myAddress),
         toEvmC(_ext.caller), _ext.data.data(), _ext.data.size(), toEvmC(_ext.value),
-        toEvmC(0x0_cppui256), toEvmC(_ext.myAddress)};
+        toEvmC(_ext.myAddress), 0, 0};
     EvmCHost host{_ext};
     auto r = execute(host, mode, msg, _ext.code.data(), _ext.code.size());
     // FIXME: Copy the output for now, but copyless version possible.

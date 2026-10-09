@@ -117,6 +117,7 @@ ct_inverse_mod_384:
 #ifdef	__CHERI_PURE_CAPABILITY__
 	cadd	$in_ptr, csp, #32+511
 	alignd	$in_ptr, $in_ptr, #9
+	scbnds	$in_ptr, $in_ptr, #512
 #else
 	add	$in_ptr, sp, #32+511	// find closest 512-byte-aligned spot
 	and	$in_ptr, $in_ptr, #-512	// in the frame...
@@ -140,7 +141,7 @@ ct_inverse_mod_384:
 
 	eor	$out_ptr, $in_ptr, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue $out_ptr, csp, $out_ptr
+	scvalue $out_ptr, $in_ptr, $out_ptr
 #endif
 	bl	__smul_384_n_shift_by_62
 	str	$f0,[$out_ptr,#8*12]		// initialize |u| with |f0|
@@ -154,14 +155,14 @@ ct_inverse_mod_384:
 	////////////////////////////////////////// second iteration
 	eor	$in_ptr, $in_ptr, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue $in_ptr, csp, $in_ptr
+	scvalue $in_ptr, $out_ptr, $in_ptr
 #endif
 	mov	$cnt, #62
 	bl	__ab_approximation_62
 
 	eor	$out_ptr, $in_ptr, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue $out_ptr, csp, $out_ptr
+	scvalue $out_ptr, $in_ptr, $out_ptr
 #endif
 	bl	__smul_384_n_shift_by_62
 	mov	$f_, $f0			// corrected |f0|
@@ -200,14 +201,14 @@ for($i=2; $i<11; $i++) {
 $code.=<<___;
 	eor	$in_ptr, $in_ptr, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue $in_ptr, csp, $in_ptr
+	scvalue $in_ptr, $out_ptr, $in_ptr
 #endif
 	mov	$cnt, #62
 	bl	__ab_approximation_62
 
 	eor	$out_ptr, $in_ptr, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue $out_ptr, csp, $out_ptr
+	scvalue $out_ptr, $in_ptr, $out_ptr
 #endif
 	bl	__smul_384_n_shift_by_62
 	mov	$f_, $f0			// corrected |f0|
@@ -249,7 +250,7 @@ $code.=<<___;
 	////////////////////////////////////////// iteration before last
 	eor	$in_ptr, $in_ptr, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue $in_ptr, csp, $in_ptr
+	scvalue $in_ptr, $out_ptr, $in_ptr
 #endif
 	mov	$cnt, #62
 	//bl	__ab_approximation_62		// |a| and |b| are exact,
@@ -259,7 +260,7 @@ $code.=<<___;
 
 	eor	$out_ptr, $in_ptr, #256		// pointer to dst |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue $out_ptr, csp, $out_ptr
+	scvalue $out_ptr, $in_ptr, $out_ptr
 #endif
 	str	$a_lo, [$out_ptr,#8*0]
 	str	$b_lo, [$out_ptr,#8*6]
@@ -282,7 +283,7 @@ $code.=<<___;
 	////////////////////////////////////////// last iteration
 	eor	$in_ptr, $in_ptr, #256		// flip-flop src |a|b|u|v|
 #ifdef	__CHERI_PURE_CAPABILITY__
-	scvalue $in_ptr, csp, $in_ptr
+	scvalue $in_ptr, $out_ptr, $in_ptr
 #endif
 	mov	$cnt, #24			// 768 % 62
 	//bl	__ab_approximation_62		// |a| and |b| are exact,

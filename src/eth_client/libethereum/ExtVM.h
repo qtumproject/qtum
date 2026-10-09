@@ -70,13 +70,16 @@ public:
     h256 codeHashAt(Address _a) final;
 
     /// Create a new contract.
-    CreateResult create(u256 _endowment, u256& io_gas, bytesConstRef _code, Instruction _op, u256 _salt, OnOpFunc const& _onOp = {}) final;
+    CreateResult create(u256 _endowment, u256& io_gas, bytesConstRef _code, Instruction _op, Address _recipient, OnOpFunc const& _onOp = {}) final;
 
     /// Create a new message call.
     CallResult call(CallParameters& _params) final;
 
     /// Read address's balance.
     u256 balance(Address _a) final { return m_s.balance(_a); }
+
+    /// Read address's nonce.
+    uint64_t nonce(Address _a) final { return (uint64_t) m_s.getNonce(_a); }
 
     /// Does the account exist?
     bool exists(Address _a) final

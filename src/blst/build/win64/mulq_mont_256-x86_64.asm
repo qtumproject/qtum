@@ -1,8 +1,10 @@
 OPTION	DOTNAME
+ifdef	__BLST_PORTABLE__
 EXTERN	mul_mont_sparse_256$1:NEAR
 EXTERN	sqr_mont_sparse_256$1:NEAR
 EXTERN	from_mont_256$1:NEAR
 EXTERN	redc_mont_256$1:NEAR
+endif
 _DATA	SEGMENT
 COMM	__blst_platform_cap:DWORD:1
 _DATA	ENDS

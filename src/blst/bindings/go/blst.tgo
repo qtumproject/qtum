@@ -292,8 +292,12 @@ func KeyGenV5(ikm []byte, salt []byte, optional ...[]byte) *SecretKey {
     if len(optional) > 0 {
         info = optional[0]
     }
+    saltLen := len(salt)
+    if saltLen == 0 {
+        salt = []byte{0}
+    }
     C.blst_keygen_v5(&sk.cgo, (*C.byte)(&ikm[0]), C.size_t(len(ikm)),
-                              (*C.byte)(&salt[0]), C.size_t(len(salt)),
+                              (*C.byte)(&salt[0]), C.size_t(saltLen),
                               ptrOrNil(info), C.size_t(len(info)))
     // Postponing secret key zeroing till garbage collection can be too
     // late to be effective, but every little bit helps...

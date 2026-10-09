@@ -222,6 +222,9 @@ public:
     /// Read address's balance.
     virtual u256 balance(Address) { return 0; }
 
+    /// Read address's nonce.
+    virtual uint64_t nonce(Address) { return 0; }
+
     /// Read address's code.
     virtual bytes const& codeAt(Address) { return NullBytes; }
 
@@ -246,7 +249,7 @@ public:
     }
 
     /// Create a new (contract) account.
-    virtual CreateResult create(u256, u256&, bytesConstRef, Instruction, u256, OnOpFunc const&) = 0;
+    virtual CreateResult create(u256, u256&, bytesConstRef, Instruction, Address, OnOpFunc const&) = 0;
 
     /// Make a new message call.
     virtual CallResult call(CallParameters&) = 0;
@@ -283,7 +286,6 @@ public:
     bytes code;               ///< Current code that is executing.
     h256 codeHash;            ///< SHA3 hash of the executing code
     u256 version;             ///< Version of the VM to execute code
-    u256 salt;                ///< Values used in new address construction by CREATE2
     SubState sub;             ///< Sub-band VM state (selfdestructs, refund counter, logs).
     unsigned depth = 0;       ///< Depth of the present call.
     bool isCreate = false;    ///< Is this a CREATE call?
@@ -332,6 +334,8 @@ public:
         const evmc::bytes32& _value) noexcept override;
 
     evmc::uint256be get_balance(const evmc::address& _addr) const noexcept override;
+
+    uint64_t get_nonce(const evmc::address& _addr) const noexcept override;
 
     size_t get_code_size(const evmc::address& _addr) const noexcept override;
 

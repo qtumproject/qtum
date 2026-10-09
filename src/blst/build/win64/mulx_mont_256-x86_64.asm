@@ -1,8 +1,10 @@
 OPTION	DOTNAME
+ifdef	__BLST_PORTABLE__
 PUBLIC	mul_mont_sparse_256$1
 PUBLIC	sqr_mont_sparse_256$1
 PUBLIC	from_mont_256$1
 PUBLIC	redc_mont_256$1
+endif
 .text$	SEGMENT ALIGN(256) 'CODE'
 
 PUBLIC	mulx_mont_sparse_256
@@ -219,17 +221,14 @@ __mulx_mont_sparse_256	PROC PRIVATE
 	mulx	r9,rbp,QWORD PTR[((24+128))+rcx]
 	mov	rdx,QWORD PTR[16+rbx]
 	adcx	r13,rbp
-	adox	r14,r9
-	adcx	r14,r10
-	adox	r15,r10
+	adox	r9,r10
+	adcx	r14,r9
 	adcx	r15,r10
-	adox	r10,r10
-	adc	r10,0
 	mov	r11,rax
 	imul	rax,r8
 
 
-	xor	rbp,rbp
+	xor	r10,r10
 	mulx	r9,rbp,QWORD PTR[((0+128))+rsi]
 	adox	r12,rbp
 	adcx	r13,r9
@@ -264,17 +263,14 @@ __mulx_mont_sparse_256	PROC PRIVATE
 	mulx	r9,rbp,QWORD PTR[((24+128))+rcx]
 	mov	rdx,QWORD PTR[24+rbx]
 	adcx	r14,rbp
-	adox	r15,r9
-	adcx	r15,r11
-	adox	r10,r11
+	adox	r9,r11
+	adcx	r15,r9
 	adcx	r10,r11
-	adox	r11,r11
-	adc	r11,0
 	mov	r12,rax
 	imul	rax,r8
 
 
-	xor	rbp,rbp
+	xor	r11,r11
 	mulx	r9,rbp,QWORD PTR[((0+128))+rsi]
 	adox	r13,rbp
 	adcx	r14,r9
@@ -309,16 +305,13 @@ __mulx_mont_sparse_256	PROC PRIVATE
 	mulx	r9,rbp,QWORD PTR[((24+128))+rcx]
 	mov	rdx,rax
 	adcx	r15,rbp
-	adox	r10,r9
-	adcx	r10,r12
-	adox	r11,r12
+	adox	r9,r12
+	adcx	r10,r9
 	adcx	r11,r12
-	adox	r12,r12
-	adc	r12,0
 	imul	rdx,r8
 
 
-	xor	rbp,rbp
+	xor	r12,r12
 	mulx	r9,r13,QWORD PTR[((0+128))+rcx]
 	adcx	r13,rax
 	adox	r14,r9
@@ -335,11 +328,10 @@ __mulx_mont_sparse_256	PROC PRIVATE
 	mov	rdx,r14
 	lea	rcx,QWORD PTR[128+rcx]
 	adcx	r10,rbp
-	adox	r11,r9
+	adox	r9,r13
 	mov	rax,r15
-	adcx	r11,r13
-	adox	r12,r13
-	adc	r12,0
+	adcx	r11,r9
+	adcx	r12,r13
 
 
 

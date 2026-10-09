@@ -140,16 +140,16 @@ void ExtVM::setTransientStore(u256 _n, u256 _v)
     m_s.setTransientStorage(myAddress, _n, _v);
 }
 
-CreateResult ExtVM::create(u256 _endowment, u256& io_gas, bytesConstRef _code, Instruction _op, u256 _salt, OnOpFunc const& _onOp)
+CreateResult ExtVM::create(u256 _endowment, u256& io_gas, bytesConstRef _code, Instruction _op, Address _recipient, OnOpFunc const& _onOp)
 {
     Executive e{m_s, envInfo(), m_sealEngine, depth + 1};
     bool result = false;
     if (_op == OP_CREATE)
-        result = e.createOpcode(myAddress, _endowment, gasPrice, io_gas, _code, origin);
+        result = e.createOpcode(myAddress, _endowment, gasPrice, io_gas, _code, origin, _recipient);
     else
     {
         assert(_op == OP_CREATE2);
-        result = e.create2Opcode(myAddress, _endowment, gasPrice, io_gas, _code, origin, _salt);
+        result = e.create2Opcode(myAddress, _endowment, gasPrice, io_gas, _code, origin, _recipient);
     }
 
     if (!result)
