@@ -27,7 +27,7 @@ REST responses include `Cache-Control` headers by default:
   can change with active chain or node state and do not currently provide cache
   validators such as `ETag` or `Last-Modified`.
 
-If you front `bitcoind` with a reverse proxy or CDN such as Caddy or nginx with
+If you front `qtumd` with a reverse proxy or CDN such as Caddy or nginx with
 the headers-more module, you can override these defaults there. Keep overrides
 scoped to responses you know are safe to cache more aggressively.
 
@@ -165,4 +165,4 @@ Refer to the `getrawmempool` RPC help for details. Defaults to setting
 
 Risks
 -------------
-Running a web browser on the same node with a REST enabled bitcoind can be a risk. Accessing prepared XSS websites could read out tx/block data of your node by placing links like `<script src="http://127.0.0.1:8332/rest/tx/1234567890.json">` which might break the nodes privacy.
+Running a web browser on the same node with a REST enabled qtumd can be a risk. Accessing prepared XSS websites could read out tx/block data of your node by placing links like `<script src="http://127.0.0.1:8332/rest/tx/1234567890.json">` which might break the nodes privacy.
