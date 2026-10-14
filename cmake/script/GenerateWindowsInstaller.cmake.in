@@ -21,20 +21,20 @@ cmake_path(ABSOLUTE_PATH BIN_DIR NORMALIZE)
 cmake_path(ABSOLUTE_PATH LIBEXEC_DIR NORMALIZE)
 
 # Other variables required by the `setup.nsi.in` template.
-set(CLIENT_TARNAME "bitcoin")
-set(BITCOIN_WRAPPER_NAME "bitcoin")
-set(BITCOIN_GUI_NAME "bitcoin-qt")
-set(BITCOIN_DAEMON_NAME "bitcoind")
-set(BITCOIN_CLI_NAME "bitcoin-cli")
-set(BITCOIN_TX_NAME "bitcoin-tx")
-set(BITCOIN_WALLET_TOOL_NAME "bitcoin-wallet")
-set(BITCOIN_TEST_NAME "test_bitcoin")
-configure_file(@PROJECT_SOURCE_DIR@/share/setup.nsi.in ${CMAKE_CURRENT_LIST_DIR}/bitcoin-win64-setup.nsi
+set(CLIENT_TARNAME "qtum")
+set(BITCOIN_WRAPPER_NAME "qtum")
+set(BITCOIN_GUI_NAME "qtum-qt")
+set(BITCOIN_DAEMON_NAME "qtumd")
+set(BITCOIN_CLI_NAME "qtum-cli")
+set(BITCOIN_TX_NAME "qtum-tx")
+set(BITCOIN_WALLET_TOOL_NAME "qtum-wallet")
+set(BITCOIN_TEST_NAME "test_qtum")
+configure_file(@PROJECT_SOURCE_DIR@/share/setup.nsi.in ${CMAKE_CURRENT_LIST_DIR}/qtum-win64-setup.nsi
   USE_SOURCE_PERMISSIONS @ONLY
 )
 
 execute_process(
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-  COMMAND ${MAKENSIS_EXECUTABLE} -V2 bitcoin-win64-setup.nsi
+  COMMAND ${MAKENSIS_EXECUTABLE} -V2 qtum-win64-setup.nsi
   COMMAND_ERROR_IS_FATAL ANY
 )

@@ -26,7 +26,7 @@ get_directory_property(precious_variables CACHE_VARIABLES)
 #=============================
 # Project / Package metadata
 #=============================
-set(CLIENT_NAME "Bitcoin Core")
+set(CLIENT_NAME "Qtum Core")
 set(CLIENT_VERSION_MAJOR 32)
 set(CLIENT_VERSION_MINOR 0)
 set(CLIENT_VERSION_BUILD 0)
@@ -50,10 +50,10 @@ set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
   CMAKE_CXX_LINK_EXECUTABLE
 )
 
-project(BitcoinCore
+project(QtumCore
   VERSION ${CLIENT_VERSION_MAJOR}.${CLIENT_VERSION_MINOR}.${CLIENT_VERSION_BUILD}
-  DESCRIPTION "Bitcoin client software"
-  HOMEPAGE_URL "https://bitcoincore.org/"
+  DESCRIPTION "Qtum client software"
+  HOMEPAGE_URL "https://qtum.org/"
   LANGUAGES NONE
 )
 
@@ -64,7 +64,7 @@ endif()
 
 set(COPYRIGHT_HOLDERS "The %s developers")
 set(COPYRIGHT_HOLDERS_FINAL "The ${CLIENT_NAME} developers")
-set(CLIENT_BUGREPORT "https://github.com/bitcoin/bitcoin/issues")
+set(CLIENT_BUGREPORT "https://github.com/qtumproject/qtum/issues")
 
 #=============================
 # Language setup
@@ -100,26 +100,26 @@ endif()
 #=============================
 include(CMakeDependentOption)
 # When adding a new option, end the <help_text> with a full stop for consistency.
-option(BUILD_BITCOIN_BIN "Build bitcoin executable." ON)
-option(BUILD_DAEMON "Build bitcoind executable." ON)
-option(BUILD_GUI "Build bitcoin-qt executable." OFF)
-option(BUILD_CLI "Build bitcoin-cli executable." ON)
+option(BUILD_BITCOIN_BIN "Build qtum executable." ON)
+option(BUILD_DAEMON "Build qtumd executable." ON)
+option(BUILD_GUI "Build qtum-qt executable." OFF)
+option(BUILD_CLI "Build qtum-cli executable." ON)
 
-option(BUILD_TESTS "Build test_bitcoin and other unit test executables." ON)
-option(BUILD_TX "Build bitcoin-tx executable." ${BUILD_TESTS})
-option(BUILD_UTIL "Build bitcoin-util executable." ${BUILD_TESTS})
-cmake_dependent_option(BUILD_GUI_TESTS "Build test_bitcoin-qt executable." ON "BUILD_GUI;BUILD_TESTS" OFF)
+option(BUILD_TESTS "Build test_qtum and other unit test executables." ON)
+option(BUILD_TX "Build qtum-tx executable." ${BUILD_TESTS})
+option(BUILD_UTIL "Build qtum-util executable." ${BUILD_TESTS})
+cmake_dependent_option(BUILD_GUI_TESTS "Build test_qtum-qt executable." ON "BUILD_GUI;BUILD_TESTS" OFF)
 
-option(BUILD_UTIL_CHAINSTATE "Build experimental bitcoin-chainstate executable." OFF)
-option(BUILD_KERNEL_LIB "Build experimental bitcoinkernel library." ${BUILD_UTIL_CHAINSTATE})
-cmake_dependent_option(BUILD_KERNEL_TEST "Build tests for the experimental bitcoinkernel library." ON "BUILD_KERNEL_LIB" OFF)
+option(BUILD_UTIL_CHAINSTATE "Build experimental qtum-chainstate executable." OFF)
+option(BUILD_KERNEL_LIB "Build experimental qtumkernel library." ${BUILD_UTIL_CHAINSTATE})
+cmake_dependent_option(BUILD_KERNEL_TEST "Build tests for the experimental qtumkernel library." ON "BUILD_KERNEL_LIB" OFF)
 
 option(ENABLE_WALLET "Enable wallet." ON)
-cmake_dependent_option(BUILD_WALLET_TOOL "Build bitcoin-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
+cmake_dependent_option(BUILD_WALLET_TOOL "Build qtum-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
 
 option(ENABLE_EXTERNAL_SIGNER "Enable external signer support." ON)
 option(WITH_ZMQ "Enable ZMQ notifications." OFF)
-cmake_dependent_option(ENABLE_IPC "Build multiprocess bitcoin-node and bitcoin-gui executables in addition to monolithic bitcoind and bitcoin-qt executables." ON "NOT WIN32" OFF)
+cmake_dependent_option(ENABLE_IPC "Build multiprocess qtum-node and qtum-gui executables in addition to monolithic qtumd and qtum-qt executables." ON "NOT WIN32" OFF)
 cmake_dependent_option(WITH_EXTERNAL_LIBMULTIPROCESS "Build with external libmultiprocess library instead of with local git subtree when ENABLE_IPC is enabled. This is not normally recommended, but can be useful for developing libmultiprocess itself." OFF "ENABLE_IPC" OFF)
 option(WITH_EMBEDDED_ASMAP "Embed default ASMap data." ON)
 option(WITH_USDT "Enable tracepoints for Userspace, Statically Defined Tracing." OFF)
@@ -127,7 +127,7 @@ option(WITH_USDT "Enable tracepoints for Userspace, Statically Defined Tracing."
 cmake_dependent_option(WITH_QRENCODE "Enable QR code support." ON "BUILD_GUI" OFF)
 cmake_dependent_option(WITH_DBUS "Enable DBus support." ON "NOT CMAKE_SYSTEM_NAME MATCHES \"(Windows|Darwin)\" AND BUILD_GUI" OFF)
 
-option(BUILD_BENCH "Build bench_bitcoin executable." OFF)
+option(BUILD_BENCH "Build bench_qtum executable." OFF)
 option(BUILD_FUZZ_BINARY "Build fuzz binary." OFF)
 option(BUILD_FOR_FUZZING "Build for fuzzing. Enabling this will disable all other targets and override BUILD_FUZZ_BINARY." OFF)
 
@@ -310,6 +310,7 @@ if(WIN32)
     _WIN32_IE=0x0A00
     WIN32_LEAN_AND_MEAN
     NOMINMAX
+    BOOST_THREAD_USE_LIB
   )
 
   if(MSVC)
@@ -451,6 +452,8 @@ if(BUILD_FUZZ_BINARY)
   target_link_libraries(fuzzer_interface INTERFACE ${FUZZ_LIBS})
 endif()
 
+find_package(OpenSSL MODULE REQUIRED)
+
 include(cmake/introspection.cmake)
 
 include(cmake/ccache.cmake)
@@ -503,6 +506,18 @@ else()
   # set the -Wno-foo case if it works.
   try_append_cxx_flags("-Wunused-parameter" TARGET warn_interface SKIP_LINK
     IF_CHECK_PASSED "-Wno-unused-parameter"
+  )
+  try_append_cxx_flags("-Wunknown-pragmas" TARGET warn_interface SKIP_LINK
+    IF_CHECK_PASSED "-Wno-unknown-pragmas"
+  )
+  try_append_cxx_flags("-Wstrict-aliasing" TARGET warn_interface SKIP_LINK
+    IF_CHECK_PASSED "-Wno-strict-aliasing"
+  )
+  try_append_cxx_flags("-Wduplicated-branches" TARGET warn_interface SKIP_LINK
+    IF_CHECK_PASSED "-Wno-duplicated-branches"
+  )
+  try_append_cxx_flags("-Wc++11-narrowing" TARGET warn_interface SKIP_LINK
+    IF_CHECK_PASSED "-Wno-c++11-narrowing"
   )
 endif()
 
@@ -650,27 +665,27 @@ message("\n")
 message("Configure summary")
 message("=================")
 message("Executables:")
-message("  bitcoin ............................. ${BUILD_BITCOIN_BIN}")
-message("  bitcoind ............................ ${BUILD_DAEMON}")
+message("  qtum ............................. ${BUILD_BITCOIN_BIN}")
+message("  qtumd ............................ ${BUILD_DAEMON}")
 if(BUILD_DAEMON AND ENABLE_IPC)
   set(bitcoin_daemon_status ON)
 else()
   set(bitcoin_daemon_status OFF)
 endif()
-message("  bitcoin-node (multiprocess) ......... ${bitcoin_daemon_status}")
-message("  bitcoin-qt (GUI) .................... ${BUILD_GUI}")
+message("  qtum-node (multiprocess) ......... ${bitcoin_daemon_status}")
+message("  qtum-qt (GUI) .................... ${BUILD_GUI}")
 if(BUILD_GUI AND ENABLE_IPC)
   set(bitcoin_gui_status ON)
 else()
   set(bitcoin_gui_status OFF)
 endif()
-message("  bitcoin-gui (GUI, multiprocess) ..... ${bitcoin_gui_status}")
-message("  bitcoin-cli ......................... ${BUILD_CLI}")
-message("  bitcoin-tx .......................... ${BUILD_TX}")
-message("  bitcoin-util ........................ ${BUILD_UTIL}")
-message("  bitcoin-wallet ...................... ${BUILD_WALLET_TOOL}")
-message("  bitcoin-chainstate (experimental) ... ${BUILD_UTIL_CHAINSTATE}")
-message("  libbitcoinkernel (experimental) ..... ${BUILD_KERNEL_LIB}")
+message("  qtum-gui (GUI, multiprocess) ..... ${bitcoin_gui_status}")
+message("  qtum-cli ......................... ${BUILD_CLI}")
+message("  qtum-tx .......................... ${BUILD_TX}")
+message("  qtum-util ........................ ${BUILD_UTIL}")
+message("  qtum-wallet ...................... ${BUILD_WALLET_TOOL}")
+message("  qtum-chainstate (experimental) ... ${BUILD_UTIL_CHAINSTATE}")
+message("  libqtumkernel (experimental) ..... ${BUILD_KERNEL_LIB}")
 message("  kernel-test (experimental) .......... ${BUILD_KERNEL_TEST}")
 message("Optional features:")
 message("  wallet support ...................... ${ENABLE_WALLET}")
@@ -691,9 +706,9 @@ message("  USDT tracing ........................ ${WITH_USDT}")
 message("  QR code (GUI) ....................... ${WITH_QRENCODE}")
 message("  DBus (GUI) .......................... ${WITH_DBUS}")
 message("Tests:")
-message("  test_bitcoin ........................ ${BUILD_TESTS}")
-message("  test_bitcoin-qt ..................... ${BUILD_GUI_TESTS}")
-message("  bench_bitcoin ....................... ${BUILD_BENCH}")
+message("  test_qtum ........................ ${BUILD_TESTS}")
+message("  test_qtum-qt ..................... ${BUILD_GUI_TESTS}")
+message("  bench_qtum ....................... ${BUILD_BENCH}")
 message("  fuzz binary ......................... ${BUILD_FUZZ_BINARY}")
 message("")
 if(CMAKE_CROSSCOMPILING)

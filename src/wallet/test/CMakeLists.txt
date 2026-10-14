@@ -4,7 +4,7 @@
 
 # Do not use generator expressions in test sources because the
 # SOURCES property is processed to gather test suite macros.
-target_sources(test_bitcoin
+target_sources(test_qtum
   PRIVATE
     init_test_fixture.cpp
     wallet_test_fixture.cpp
@@ -25,4 +25,4 @@ target_sources(test_bitcoin
     walletdb_tests.cpp
     walletload_tests.cpp
 )
-target_link_libraries(test_bitcoin bitcoin_wallet)
+target_link_libraries(test_qtum bitcoin_wallet)
