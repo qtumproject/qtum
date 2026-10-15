@@ -38,9 +38,9 @@ set -o errexit -o pipefail
                 ;;
         esac
 
-        # copy over the example bitcoin.conf file. if contrib/devtools/gen-bitcoin-conf.sh
+        # copy over the example qtum.conf file. if contrib/devtools/gen-bitcoin-conf.sh
         # has not been run before building, this file will be a stub
-        cp "${DISTSRC}/share/examples/bitcoin.conf" "${DISTNAME}/"
+        cp "${DISTSRC}/share/examples/qtum.conf" "${DISTNAME}/"
 
         cp -r "${DISTSRC}/share/rpcauth" "${DISTNAME}/share/"
 
@@ -88,7 +88,7 @@ set -o errexit -o pipefail
         *mingw*)
             # Make the installer
             cmake -D BIN_DIR="${INSTALLPATH}/bin" -D LIBEXEC_DIR="${INSTALLPATH}/libexec" -P build/GenerateWindowsInstaller.cmake
-            mv build/bitcoin-win64-setup.exe "${OUTDIR}/${DISTNAME}-win64-setup-unsigned.exe"
+            mv build/qtum-win64-setup.exe "${OUTDIR}/${DISTNAME}-win64-setup-unsigned.exe"
 
             cp -rf --target-directory=. contrib/windeploy
             (

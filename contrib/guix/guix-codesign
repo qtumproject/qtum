@@ -31,7 +31,7 @@ cmd_usage() {
     cat <<EOF
 Synopsis:
 
-    env DETACHED_SIGS_REPO=<path/to/bitcoin-detached-sigs> \\
+    env DETACHED_SIGS_REPO=<path/to/qtum-detached-sigs> \\
       ./contrib/guix/guix-codesign
 
 EOF
@@ -261,7 +261,7 @@ cat << EOF
 INFO: Codesigning ${VERSION:?not set} for platform triple ${HOST:?not set}:
       ...using reference timestamp: ${SOURCE_DATE_EPOCH:?not set}
       ...from worktree directory: '${PWD}'
-          ...bind-mounted in container to: '/bitcoin'
+          ...bind-mounted in container to: '/qtum'
       ...in build directory: '$(distsrc_for_host "$HOST" codesigned)'
           ...bind-mounted in container to: '$(distsrc_for_host "$HOST" codesigned /distsrc-base)'
       ...outputting in: '$(outdir_for_host "$HOST" codesigned)'
@@ -328,7 +328,7 @@ EOF
                                  --writable-root \
                                  --pure \
                                  --no-cwd \
-                                 --share="$PWD"=/bitcoin \
+                                 --share="$PWD"=/qtum \
                                  --share="$DISTSRC_BASE"=/distsrc-base \
                                  --share="$OUTDIR_BASE"=/outdir-base \
                                  --share="$DETACHED_SIGS_REPO"=/detached-sigs \
@@ -351,7 +351,7 @@ EOF
                                         DIST_ARCHIVE_BASE=/outdir-base/dist-archive \
                                         DETACHED_SIGS_REPO=/detached-sigs \
                                         CODESIGNING_TARBALL="$(codesigning_tarball_for_host "$HOST" /outdir-base)" \
-                                      bash -c "cd /bitcoin && bash contrib/guix/libexec/codesign.sh"
+                                      bash -c "cd /qtum && bash contrib/guix/libexec/codesign.sh"
     )
 
 done

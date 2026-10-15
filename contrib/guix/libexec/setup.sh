@@ -96,6 +96,7 @@ gcc_toolchain() {
     # Set native toolchain
     export build_CC="${NATIVE_GCC}/bin/gcc -isystem ${NATIVE_GCC}/include"
     export build_CXX="${NATIVE_GCC}/bin/g++ -isystem ${NATIVE_GCC}/include/c++ -isystem ${NATIVE_GCC}/include"
+    export CC_FOR_BUILD="${NATIVE_GCC}/bin/gcc -I${NATIVE_GCC}/include"
 
     NATIVE_GCC_STATIC="$(store_path gcc-toolchain static)"
     export LIBRARY_PATH="${NATIVE_GCC}/lib:${NATIVE_GCC_STATIC}/lib"
@@ -182,7 +183,7 @@ GIT_ARCHIVE="${DIST_ARCHIVE_BASE}/${DISTNAME}.tar.gz"
 # Create the source tarball if not already there
 if [ ! -e "$GIT_ARCHIVE" ]; then
     mkdir -p "$(dirname "$GIT_ARCHIVE")"
-    git archive --prefix="${DISTNAME}/" --output="$GIT_ARCHIVE" HEAD
+    contrib/guix/libexec/archive-all.sh "${DISTNAME}" "$GIT_ARCHIVE"
 fi
 
 mkdir -p "$OUTDIR"

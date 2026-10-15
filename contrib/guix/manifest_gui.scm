@@ -3,7 +3,9 @@
              (gnu packages gawk)
              ((gnu packages installers) #:select (nsis-x86_64))
              (gnu packages ninja)
+             (gnu packages perl)
              (gnu packages pkg-config)
+             (gnu packages m4)
              ((gnu packages python) #:select (python-minimal))
              ((gnu packages python-xyz) #:select (python-lief)))
 
@@ -13,10 +15,12 @@
         xz
         ;; Build tools
         ninja
+        perl
         ;; Packaging scripts
         python-minimal ;; (3.11)
         ;; Tests
-        python-lief)
+        python-lief
+        m4)
   (let ((target (getenv "HOST")))
     (cond ((string-suffix? "-mingw32" target)
            (list zip

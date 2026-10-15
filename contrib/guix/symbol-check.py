@@ -46,7 +46,7 @@ MAX_VERSIONS = {
 
 # Ignore symbols that are exported as part of every executable
 IGNORE_EXPORTS = {
-'stdin', 'stdout', 'stderr',
+'stdin', 'stdout', 'stderr', 'in6addr_any',
 }
 
 # Expected linker-loader names can be found here:
@@ -131,6 +131,8 @@ MACHO_ALLOWED_LIBRARIES = {
 'QuartzCore', # animation
 'Security', # access control and authentication
 'UniformTypeIdentifiers', # collection of types that map to MIME and file types
+'SystemConfiguration', # allow applications to access a device’s network configuration settings.
+'GSS', # conduct secure, authenticated network transactions.
 }
 
 PE_ALLOWED_LIBRARIES = {
@@ -141,6 +143,8 @@ PE_ALLOWED_LIBRARIES = {
 'msvcrt.dll', # C standard library for MSVC
 'SHELL32.dll', # shell API
 'WS2_32.dll', # sockets
+'ntdll.dll', # User-mode face of the Windows kernel 
+'Secur32.dll', # Secure Service Provider
 # bitcoin-qt only
 'api-ms-win-core-synch-l1-2-0.dll', # Synchronization Primitives API
 'api-ms-win-core-winrt-l1-1-0.dll', # Windows Runtime API
