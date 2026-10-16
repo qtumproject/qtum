@@ -13,6 +13,7 @@
 #include <util/check.h>
 #include <util/fs.h>
 #include <util/log.h>
+#include <util/strencodings.h>
 #include <util/syserror.h>
 
 #include <cerrno>
@@ -50,7 +51,7 @@ static GlobalMutex cs_dir_locks;
  */
 static std::map<std::string, std::unique_ptr<fsbridge::FileLock>> dir_locks GUARDED_BY(cs_dir_locks);
 namespace util {
-LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only)
+LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_name, bool probe_only, bool try_lock)
 {
     LOCK(cs_dir_locks);
     fs::path pathLockFile = directory / lockfile_name;
@@ -67,7 +68,7 @@ LockResult LockDirectory(const fs::path& directory, const fs::path& lockfile_nam
         return LockResult::ErrorWrite;
     }
     auto lock = std::make_unique<fsbridge::FileLock>(pathLockFile);
-    if (!lock->TryLock()) {
+    if (try_lock && !lock->TryLock()) {
         LogError("Error while attempting to lock directory %s: %s\n", fs::PathToString(directory), lock->GetReason());
         return LockResult::ErrorLock;
     }
