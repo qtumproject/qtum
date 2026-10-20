@@ -52,5 +52,6 @@ std::string dev::eth::genesisInfoQtum(Network _n, EVMConsensus _consensus)
     ReplaceInt(_consensus.nCancunHeight,      "CANCUN_STARTING_BLOCK", _genesisInfo);
     ReplaceInt(_consensus.nPectraHeight,      "PECTRA_STARTING_BLOCK", _genesisInfo);
     ReplaceInt(_consensus.nOsakaHeight,       "OSAKA_STARTING_BLOCK", _genesisInfo);
+    ReplaceInt(_consensus.nAmsterdamHeight,   "AMSTERDAM_STARTING_BLOCK", _genesisInfo);
     return _genesisInfo;
 }

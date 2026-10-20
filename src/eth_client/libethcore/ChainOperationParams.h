@@ -106,6 +106,7 @@ public:
     u256 cancunForkBlock = c_infiniteBlockNumber;
     u256 pectraForkBlock = c_infiniteBlockNumber;
     u256 osakaForkBlock = c_infiniteBlockNumber;
+    u256 amsterdamForkBlock = c_infiniteBlockNumber;
     AdditionalEIPs lastForkAdditionalEIPs;
     int chainID = 0;    // Distinguishes different chains (mainnet, Ropsten, etc).
     int networkID = 0;  // Distinguishes different sub protocols.

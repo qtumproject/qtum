@@ -118,4 +118,9 @@ void UpdatePectraHeight(int nHeight);
  * Allows modifying the osaka block height regtest parameter.
  */
 void UpdateOsakaHeight(int nHeight);
+
+/**
+ * Allows modifying the amsterdam block height regtest parameter.
+ */
+void UpdateAmsterdamHeight(int nHeight);
 #endif // BITCOIN_CHAINPARAMS_H

@@ -152,6 +152,7 @@ public:
     void UpdateCancunHeight(int nHeight);
     void UpdatePectraHeight(int nHeight);
     void UpdateOsakaHeight(int nHeight);
+    void UpdateAmsterdamHeight(int nHeight);
 
     std::optional<AssumeutxoData> AssumeutxoForHeight(int height) const
     {

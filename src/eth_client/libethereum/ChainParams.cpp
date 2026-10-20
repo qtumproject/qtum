@@ -134,6 +134,7 @@ void ChainParams::loadConfig(
     setOptionalU256Parameter(cancunForkBlock, c_cancunForkBlock);
     setOptionalU256Parameter(pectraForkBlock, c_pectraForkBlock);
     setOptionalU256Parameter(osakaForkBlock, c_osakaForkBlock);
+    setOptionalU256Parameter(amsterdamForkBlock, c_amsterdamForkBlock);
 
     lastForkBlock = findMaxForkBlockNumber(params);
     lastForkWithAdditionalEIPsSchedule = forkScheduleForBlockNumber(lastForkBlock);

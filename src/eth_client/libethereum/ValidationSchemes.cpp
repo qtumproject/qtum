@@ -69,6 +69,7 @@ string const c_shanghaiForkBlock = "shanghaiForkBlock";
 string const c_cancunForkBlock = "cancunForkBlock";
 string const c_pectraForkBlock = "pectraForkBlock";
 string const c_osakaForkBlock = "osakaForkBlock";
+string const c_amsterdamForkBlock = "amsterdamForkBlock";
 
 void validateConfigJson(js::mObject const& _obj)
 {

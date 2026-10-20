@@ -132,6 +132,8 @@ struct Params {
     int nPectraHeight;
     /** Block height at which EVM Osaka fork becomes active */
     int nOsakaHeight;
+    /** Block height at which EVM Amsterdam fork becomes active */
+    int nAmsterdamHeight;
     uint32_t nMinerConfirmationWindow;
     std::array<BIP9Deployment,MAX_VERSION_BITS_DEPLOYMENTS> vDeployments;
     /** Proof of work parameters */

@@ -68,6 +68,7 @@ extern std::string const c_shanghaiForkBlock;
 extern std::string const c_cancunForkBlock;
 extern std::string const c_pectraForkBlock;
 extern std::string const c_osakaForkBlock;
+extern std::string const c_amsterdamForkBlock;
 
 // Validate config.json that contains chain params and genesis state
 void validateConfigJson(json_spirit::mObject const& _obj);

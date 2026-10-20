@@ -34,6 +34,7 @@ struct EVMSchedule
     bool eip1153Mode = false;
     bool eip7600Mode = false;
     bool eip7607Mode = false;
+    bool eip8037Mode = false;
     bool haveBitwiseShifting = false;
     bool haveRevert = false;
     bool haveReturnData = false;
@@ -233,8 +234,16 @@ static const EVMSchedule OsakaSchedule = [] {
     return schedule;
 }();
 
-static const EVMSchedule ExperimentalSchedule = [] {
+static const EVMSchedule AmsterdamSchedule = [] {
     EVMSchedule schedule = OsakaSchedule;
+    // Amsterdam revision
+    schedule.eip8037Mode = true;
+
+    return schedule;
+}();
+
+static const EVMSchedule ExperimentalSchedule = [] {
+    EVMSchedule schedule = AmsterdamSchedule;
     schedule.accountVersion = 1;
     schedule.blockhashGas = 800;
     return schedule;
@@ -243,7 +252,7 @@ static const EVMSchedule ExperimentalSchedule = [] {
 inline EVMSchedule const& latestScheduleForAccountVersion(u256 const& _version)
 {
     if (_version == 0)
-        return OsakaSchedule;
+        return AmsterdamSchedule;
     else if (_version == ExperimentalSchedule.accountVersion)
         return ExperimentalSchedule;
     else

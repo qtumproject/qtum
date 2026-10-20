@@ -237,3 +237,8 @@ void UpdateOsakaHeight(int nHeight)
 {
     const_cast<CChainParams*>(globalChainParams.get())->UpdateOsakaHeight(nHeight);
 }
+
+void UpdateAmsterdamHeight(int nHeight)
+{
+    const_cast<CChainParams*>(globalChainParams.get())->UpdateAmsterdamHeight(nHeight);
+}

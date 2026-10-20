@@ -113,6 +113,7 @@ public:
         consensus.nCancunHeight = 4590000;
         consensus.nPectraHeight = 5483000;
         consensus.nOsakaHeight = 0x7fffffff;
+        consensus.nAmsterdamHeight = 0x7fffffff;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -286,6 +287,7 @@ public:
         consensus.nCancunHeight = 4510000;
         consensus.nPectraHeight = 5442000;
         consensus.nOsakaHeight = 0x7fffffff;
+        consensus.nAmsterdamHeight = 0x7fffffff;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -444,6 +446,7 @@ public:
         consensus.nCancunHeight = 0;
         consensus.nPectraHeight = 0;
         consensus.nOsakaHeight = 0;
+        consensus.nAmsterdamHeight = 0;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -626,6 +629,7 @@ public:
         consensus.nCancunHeight = 0;
         consensus.nPectraHeight = 0;
         consensus.nOsakaHeight = 0;
+        consensus.nAmsterdamHeight = 0;
         consensus.powLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -746,6 +750,7 @@ public:
         consensus.nCancunHeight = 0;
         consensus.nPectraHeight = 0;
         consensus.nOsakaHeight = 0;
+        consensus.nAmsterdamHeight = 0;
         consensus.powLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.posLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"};
         consensus.QIP9PosLimit = uint256{"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}; // The new POS-limit activated after QIP9
@@ -1021,6 +1026,7 @@ std::string CChainParams::EVMGenesisInfo() const
     evmConsensus.nCancunHeight = consensus.nCancunHeight;
     evmConsensus.nPectraHeight = consensus.nPectraHeight;
     evmConsensus.nOsakaHeight = consensus.nOsakaHeight;
+    evmConsensus.nAmsterdamHeight = consensus.nAmsterdamHeight;
     return dev::eth::genesisInfoQtum(GetEVMNetwork(), evmConsensus);
 }
 
@@ -1152,4 +1158,9 @@ void CChainParams::UpdatePectraHeight(int nHeight)
 void CChainParams::UpdateOsakaHeight(int nHeight)
 {
     consensus.nOsakaHeight = nHeight;
+}
+
+void CChainParams::UpdateAmsterdamHeight(int nHeight)
+{
+    consensus.nAmsterdamHeight = nHeight;
 }
