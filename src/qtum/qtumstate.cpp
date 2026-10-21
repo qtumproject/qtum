@@ -113,7 +113,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
     newAddress = dev::Address();
     transfers.clear();
     if(voutLimit){
-        //use old and empty states to create virtual Out Of Gas exception
+        //create virtual VoutLimit exception
         LogEntries logs;
         u256 gas = _t.gas();
         ExecutionResult ex;
