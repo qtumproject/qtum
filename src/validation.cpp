@@ -3208,7 +3208,8 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
     for(size_t i = 0; i < result.size(); i++){
         uint64_t gasUsed = (uint64_t) result[i].execRes.gasUsed;
 
-        if(result[i].execRes.excepted != dev::eth::TransactionException::None){
+        if(result[i].execRes.excepted != dev::eth::TransactionException::None &&
+           result[i].execRes.excepted != dev::eth::TransactionException::VoutLimit){
         	// refund coins sent to the contract to the sender
         	if(txs[i].value() > 0){
         		CMutableTransaction tx;
@@ -3222,7 +3223,9 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult& resultBCE){
         	}
         }
 
-        if(result[i].execRes.excepted == dev::eth::TransactionException::None || (chain.Height() >= consensusParams.QIP7Height && result[i].execRes.excepted == dev::eth::TransactionException::RevertInstruction)){
+        if(result[i].execRes.excepted == dev::eth::TransactionException::None ||
+           result[i].execRes.excepted == dev::eth::TransactionException::VoutLimit ||
+           (chain.Height() >= consensusParams.QIP7Height && result[i].execRes.excepted == dev::eth::TransactionException::RevertInstruction)){
         	if(txs[i].gas() > UINT64_MAX ||
         			result[i].execRes.gasUsed > UINT64_MAX ||
 					txs[i].gasPrice() > UINT64_MAX){
