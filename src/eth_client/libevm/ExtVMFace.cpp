@@ -309,6 +309,7 @@ evmc::Result EvmCHost::create(evmc_message const& _msg) noexcept
     evmc_result evmcResult = {};
     evmcResult.status_code = result.status;
     evmcResult.gas_left = static_cast<int64_t>(gas);
+    evmcResult.state_gas = {.left = _msg.state_gas};
 
     if (result.status != EVMC_SUCCESS)
     {
@@ -371,6 +372,7 @@ evmc::Result EvmCHost::call(evmc_message const& _msg) noexcept
     evmc_result evmcResult = {};
     evmcResult.status_code = result.status;
     evmcResult.gas_left = static_cast<int64_t>(params.gas);
+    evmcResult.state_gas = {.left = _msg.state_gas};
 
     // Pass the output to the EVM without a copy. The EVM will delete it
     // when finished with it.

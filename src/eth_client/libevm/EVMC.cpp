@@ -44,6 +44,9 @@ evmc_revision toRevision(EVMSchedule const& _schedule) noexcept
         return EVMC_HOMESTEAD;
     return EVMC_FRONTIER;
 }
+
+/// The maximum allowed gas limit for a transaction (EIP-7825).
+constexpr auto MAX_TX_GAS_LIMIT = 0x1000000;  // 2**24
 }  // namespace
 
 EVMC::EVMC(evmc_vm* _vm, std::vector<std::pair<std::string, std::string>> const& _options) noexcept
@@ -92,10 +95,7 @@ owning_bytes_ref EVMC::exec(u256& io_gas, ExtVMFace& _ext, const OnOpFunc& _onOp
     evmc_call_kind kind = _ext.isCreate ? EVMC_CREATE : EVMC_CALL;
     uint32_t flags = _ext.staticCall ? EVMC_STATIC : 0;
     assert(flags != EVMC_STATIC || kind == EVMC_CALL);  // STATIC implies a CALL.
-    int64_t state_gas = 0;
-    // EVMC_AMSTERDAM needs implementation for state_gas with non 0 value
-    // Evmone commit e2290c6b72c991ff5636e87c11bc5d81efbce267
-    assert(mode <= EVMC_OSAKA); // Remove the assert when EVMC_AMSTERDAM or higher fork arrives
+    int64_t state_gas = mode >= EVMC_AMSTERDAM ? std::max(gas - MAX_TX_GAS_LIMIT, int64_t{0}) : 0;
     evmc_message msg = {kind, flags, static_cast<int32_t>(_ext.depth), gas, state_gas, toEvmC(_ext.myAddress),
         toEvmC(_ext.caller), _ext.data.data(), _ext.data.size(), toEvmC(_ext.value),
         toEvmC(_ext.myAddress), 0, 0};
