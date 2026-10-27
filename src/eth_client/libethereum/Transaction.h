@@ -38,7 +38,8 @@ enum class TransactionException
 	AddressAlreadyUsed,
 	CreateWithValue,
 	NoInformation,
-	InvalidCode				///< EIP-3541 Invalid code: must not begin with 0xef.
+	InvalidCode,				///< EIP-3541 Invalid code: must not begin with 0xef.
+	VoutLimit
 };
 
 enum class CodeDeposit

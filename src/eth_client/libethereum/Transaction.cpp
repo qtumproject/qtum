@@ -81,6 +81,7 @@ std::ostream& dev::eth::operator<<(std::ostream& _out, TransactionException cons
 		case TransactionException::NoInformation: _out << "NoInformation"; break;
 		case TransactionException::RevertInstruction: _out << "Revert"; break;
 		case TransactionException::InvalidCode: _out << "InvalidCode"; break;
+		case TransactionException::VoutLimit: _out << "VoutLimit"; break;
 		default: _out << "Unknown"; break;
 	}
 	return _out;

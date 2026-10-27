@@ -113,13 +113,13 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
     newAddress = dev::Address();
     transfers.clear();
     if(voutLimit){
-        //use old and empty states to create virtual Out Of Gas exception
+        //create virtual VoutLimit exception
         LogEntries logs;
         u256 gas = _t.gas();
         ExecutionResult ex;
         ex.gasRefunded=0;
         ex.gasUsed=gas;
-        ex.excepted=TransactionException();
+        ex.excepted=TransactionException::VoutLimit;
         //create a refund tx to send back any coins that were suppose to be sent to the contract
         CMutableTransaction refund;
         if(_t.value() > 0) {
@@ -131,7 +131,7 @@ ResultExecute QtumState::execute(EnvInfo const& _envInfo, SealEngineFace const& 
         //make sure to use empty transaction if no vouts made
         return ResultExecute{
             ex,
-            QtumTransactionReceipt(oldStateRoot, oldUTXORoot, gas, e.logs(), {}, {}),
+            QtumTransactionReceipt(oldStateRoot, oldUTXORoot, gas, LogEntries(), {}, {}),
             refund.vout.empty() ? CTransaction() : CTransaction(refund)
         };
     }else{
