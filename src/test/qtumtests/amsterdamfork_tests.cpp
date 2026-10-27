@@ -78,6 +78,19 @@ void createNewBlocks(TestChain100Setup* testChain100Setup, size_t n){
     generateBlocks(n);
 }
 BOOST_FIXTURE_TEST_SUITE(amsterdamfork_tests, TestChain100Setup)
+BOOST_AUTO_TEST_CASE(max_code_size_after_fork){
+    genesisLoading();
+    createNewBlocks(this, 499);
+    dev::h256 hashTx(HASHTX);
+    BOOST_CHECK(globalSealEngine->getQtumSchedule().maxCodeSize == 0x10000);
+}
+
+BOOST_AUTO_TEST_CASE(max_code_size_before_fork){
+    genesisLoading();
+    createNewBlocks(this, 498);
+    dev::h256 hashTx(HASHTX);
+    BOOST_CHECK(globalSealEngine->getQtumSchedule().maxCodeSize == 0x6000);
+}
 
 BOOST_AUTO_TEST_CASE(empty_test_after_fork){
     genesisLoading();

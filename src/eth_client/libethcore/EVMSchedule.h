@@ -238,6 +238,8 @@ static const EVMSchedule AmsterdamSchedule = [] {
     EVMSchedule schedule = OsakaSchedule;
     // Amsterdam revision
     schedule.eip8037Mode = true;
+    // EIP-7954 64KiB
+    schedule.maxCodeSize = 0x10000;
 
     return schedule;
 }();
