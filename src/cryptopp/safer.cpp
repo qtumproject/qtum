@@ -1,4 +1,4 @@
-// safer.cpp - modified by by Wei Dai from Richard De Moliner's safer.c
+// safer.cpp - modified by Wei Dai from Richard De Moliner's safer.c
 
 #include "pch.h"
 #include "safer.h"
