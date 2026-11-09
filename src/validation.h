@@ -548,7 +548,7 @@ std::vector<ResultExecute> CallContract(const dev::Address& addrContract, std::v
 
 bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int nHeight);
 
-bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx);
+bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx, int nHeight, const Consensus::Params& consensusparams);
 
 bool CheckMinGasPrice(std::vector<EthTransactionParams>& etps, const uint64_t& minGasPrice);
 

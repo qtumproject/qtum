@@ -109,6 +109,7 @@ public:
         consensus.QIP6Height = 466600;
         consensus.QIP7Height = 466600;
         consensus.QIP9Height = 466600;
+        consensus.QIP10Height = 2099999999;
         consensus.nOfflineStakeHeight = 680000;
         consensus.nReduceBlocktimeHeight = 845000;
         consensus.nMuirGlacierHeight = 845000;
@@ -275,6 +276,7 @@ public:
         consensus.QIP6Height = 446320;
         consensus.QIP7Height = 446320;
         consensus.QIP9Height = 446320;
+        consensus.QIP10Height = 2099999999;
         consensus.nOfflineStakeHeight = 625000;
         consensus.nReduceBlocktimeHeight = 806600;
         consensus.nMuirGlacierHeight = 806600;
@@ -426,6 +428,7 @@ public:
         consensus.QIP6Height = 0;
         consensus.QIP7Height = 0;
         consensus.QIP9Height = 0;
+        consensus.QIP10Height = 0;
         consensus.nOfflineStakeHeight = 1;
         consensus.nReduceBlocktimeHeight = 0;
         consensus.nMuirGlacierHeight = 0;
@@ -601,6 +604,7 @@ public:
         consensus.QIP6Height = 0;
         consensus.QIP7Height = 0;
         consensus.QIP9Height = 0;
+        consensus.QIP10Height = 0;
         consensus.nOfflineStakeHeight = 1;
         consensus.nReduceBlocktimeHeight = 0;
         consensus.nMuirGlacierHeight = 0;
@@ -714,6 +718,7 @@ public:
         consensus.QIP6Height = 0;
         consensus.QIP7Height = 0;
         consensus.QIP9Height = 0;
+        consensus.QIP10Height = 0;
         consensus.nOfflineStakeHeight = 1;
         consensus.nReduceBlocktimeHeight = 0;
         consensus.nMuirGlacierHeight = 0;

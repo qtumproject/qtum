@@ -115,6 +115,8 @@ struct Params {
     int QIP7Height;
     /** Block height at which QIP9 becomes active */
     int QIP9Height;
+    /** Block height at which QIP10 becomes active (P2WPKH contract senders) */
+    int QIP10Height;
     /** Block height at which Offline Staking becomes active */
     int nOfflineStakeHeight;
     /** Block height at which Reduce Block Time becomes active */
