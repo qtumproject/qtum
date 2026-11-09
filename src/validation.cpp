@@ -961,7 +961,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     }
     if(tx.HasCreateOrCall()){
 
-        if(!CheckSenderScript(m_view, tx)){
+        if(!CheckSenderScript(m_view, tx, m_active_chainstate.m_chain.Height() + 1, chainparams.GetConsensus())){
             return state.Invalid(TxValidationResult::TX_INVALID_SENDER_SCRIPT, "bad-txns-invalid-sender-script");
         }
 
@@ -2829,10 +2829,16 @@ bool CheckOpSender(const CTransaction& tx, const CChainParams& chainparams, int 
     return true;
 }
 
-bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx){
+bool CheckSenderScript(const CCoinsViewCache& view, const CTransaction& tx, int nHeight, const Consensus::Params& consensusparams){
     // Check for the sender that pays the coins
     CScript script = view.AccessCoin(tx.vin[0].prevout).out.scriptPubKey;
-    if(!script.IsPayToPubkeyHash() && !script.IsPayToPubkey()){
+    bool standardSenderScript = script.IsPayToPubkeyHash() || script.IsPayToPubkey();
+    // QIP10: allow the first contract input to spend a P2WPKH output. The witness
+    // program commits to the same Hash160(pubkey) identity that a P2PKH sender carries.
+    if(nHeight >= consensusparams.QIP10Height && script.IsPayToWitnessKeyHash()){
+        standardSenderScript = true;
+    }
+    if(!standardSenderScript){
         return false;
     }
 
@@ -3067,6 +3073,12 @@ valtype GetSenderAddress(const CTransaction& tx, const CCoinsViewCache* coinsVie
 	CTxDestination addressBit;
     TxoutType txType=TxoutType::NONSTANDARD;
 	if(ExtractDestination(script, addressBit, &txType, true)){
+		if(txType == TxoutType::WITNESS_V0_KEY_HASH && std::holds_alternative<WitnessV0KeyHash>(addressBit)){
+			// QIP10: a P2WPKH prevout carries Hash160(pubkey) in its witness program,
+			// the same 20-byte identity space a P2PKH sender address uses.
+			WitnessV0KeyHash senderAddress(std::get<WitnessV0KeyHash>(addressBit));
+			return valtype(senderAddress.begin(), senderAddress.end());
+		}
 		if ((txType == TxoutType::PUBKEY || txType == TxoutType::PUBKEYHASH) &&
                 std::holds_alternative<PKHash>(addressBit)){
 			PKHash senderAddress(std::get<PKHash>(addressBit));
@@ -3859,7 +3871,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
         }
         if(tx.HasCreateOrCall() && !hasOpSpend){
 
-            if(!CheckSenderScript(view, tx)){
+            if(!CheckSenderScript(view, tx, pindex->nHeight, params.GetConsensus())){
                 state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-invalid-sender-script");
                 break;
             }
